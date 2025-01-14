@@ -1,9 +1,9 @@
 #pragma once
+#include "../doc_deserialization_helper.h"
 #include "../metadata_options.h"
 #include <string>
 #include <vector>
 #include <glaze/glaze.hpp>
-#include <doc_deserialization_helper.h>
 
 
 CREATE_ENUM(TransformType, Overlay, Indicator, Math, Input, TradeSignalExecutor, Comparative, CandleStickPattern);

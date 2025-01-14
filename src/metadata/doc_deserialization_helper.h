@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <yaml-cpp/yaml.h>
-#include <common_utils.h>
+#include <epoch_lab_shared/common_utils.h>
 
 
 namespace metadata {

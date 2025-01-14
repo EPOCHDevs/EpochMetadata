@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "metadata_options.h"
-#include "enum_wrapper.h"
+#include "../metadata_options.h"
+#include <epoch_lab_shared/enum_wrapper.h>
 
 CREATE_ENUM(AlgorithmType, TakeProfit, StopLoss, Sizer, Commission, Slippage, FuturesContinuation);
 CREATE_ENUM(TradeSignalType, TrendFollowing, MeanReverting, CandleStickPattern, Momentum, EventDriven);

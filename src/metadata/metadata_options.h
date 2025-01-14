@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "enum_wrapper.h"
+#include <epoch_lab_shared/enum_wrapper.h>
 #include <unordered_set>
 #include <variant>
 #include <yaml-cpp/yaml.h>
