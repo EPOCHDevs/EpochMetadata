@@ -1,0 +1,1 @@
+target_sources(metadataTest PRIVATE registrations_test.cpp)

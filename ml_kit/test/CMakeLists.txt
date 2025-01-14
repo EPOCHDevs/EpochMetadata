@@ -1,0 +1,1 @@
+target_sources(metadataTest PRIVATE ml_kit_test.cpp)

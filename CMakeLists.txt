@@ -1,0 +1,15 @@
+add_library(metadata STATIC metadata_options.cpp)
+target_include_directories(metadata PRIVATE ..)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+    target_compile_options(metadata PRIVATE -Wall -Wextra -Werror)
+endif ()
+
+target_link_libraries(metadata PUBLIC common tulipindicators)
+INCLUDE_TEST()
+#add_subdirectory(dlb)
+add_subdirectory(strategy)
+#add_subdirectory(ml_kit)
+add_subdirectory(transforms)
+
+target_compile_definitions(metadata PUBLIC -DMETADATA_FILES_LOC="${FILES_DIR}/metadata")
+MESSAGE("METADATA_FILES_LOC ${FILES_DIR}/metadata")
