@@ -12,8 +12,7 @@
 
 CREATE_ENUM(CppFolioChartType,
         Lines,
-        LinesWithFills,
-        LineWithVerticalFill,
+        Area,
         HeatMap,
         Histogram,
         HorizonatalBar,
