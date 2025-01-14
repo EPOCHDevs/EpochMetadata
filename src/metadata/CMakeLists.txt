@@ -14,6 +14,7 @@ set(dependencies spdlog::spdlog_header_only
 target_link_libraries(metadata PRIVATE ${dependencies})
 
 INCLUDE_TEST()
+add_subdirectory(cpp_folio)
 #add_subdirectory(dlb)
 add_subdirectory(strategy)
 #add_subdirectory(ml_kit)
