@@ -21,7 +21,7 @@ CREATE_ENUM(CppFolioChartType,
 
 CREATE_ENUM(CppFolioColumnType, Percent, Decimal, Integer, Date, DateTime, Notional, String, DayDuration);
 CREATE_ENUM(CppFolioCategory, Return, Position, Transaction, RoundTrip);
-CREATE_ENUM(CppFolioSubCategory, StrategyBenchmark, RiskAnalysis, InterestingPeriods, RollingPerformance, HeatMaps);
+CREATE_ENUM(CppFolioSubCategory, StrategyBenchmark, RiskAnalysis, InterestingPeriods, RollingPerformance, ReturnsDistribution);
 
 
 namespace metadata::cppFolio {
