@@ -21,9 +21,21 @@ CREATE_ENUM(CppFolioChartType,
 
 CREATE_ENUM(CppFolioColumnType, Percent, Decimal, Integer, Date, DateTime, Notional, String, DayDuration);
 CREATE_ENUM(CppFolioCategory, Return, Position, Transaction, RoundTrip);
-CREATE_ENUM(CppFolioSubCategory, StrategyBenchmark, RiskAnalysis, InterestingPeriods, RollingPerformance, ReturnsDistribution);
+CREATE_ENUM(CppFolioSubCategory, StrategyBenchmark, RiskAnalysis,  ReturnsDistribution);
 
 
 namespace metadata::cppFolio {
+    struct SubCategoryMetaData {
+        CppFolioSubCategory value;
+        std::string label;
+        std::string desc;
+    };
 
+    struct CategoryMetaData {
+        CppFolioCategory value;
+        std::string label;
+        std::vector<SubCategoryMetaData> subCategories;
+    };
+
+    std::vector<CategoryMetaData> GetCategoryMetaData();
 }
