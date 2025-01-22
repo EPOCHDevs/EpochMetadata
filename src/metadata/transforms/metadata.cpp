@@ -12,7 +12,7 @@ namespace metadata::transforms {
 
     void IOMetaData::decode(const YAML::Node & element) {
         if (element.IsScalar()) {
-            *this = stratifyx::lookup(IOMetaDataConstants::MAP, element.as<std::string>());
+            *this = epoch::lookup(IOMetaDataConstants::MAP, element.as<std::string>());
         } else {
             id = element["id"].as<std::string>();
             name = element["name"].as<std::string>("");

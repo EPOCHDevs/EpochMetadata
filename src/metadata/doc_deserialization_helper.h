@@ -66,6 +66,6 @@ namespace metadata {
         AssertWithTraceFromStream(split != std::string::npos, "desc starting with $ must be in form $PLACEHOLDER/key: got: " << arg);
 
         auto placeholder = arg.substr(1, split-1);
-        return stratifyx::lookup(DESC_PLACEHOLDER_CONVERTER_MAP, placeholder)(arg.substr(split + 1));
+        return epoch::lookup(DESC_PLACEHOLDER_CONVERTER_MAP, placeholder)(arg.substr(split + 1));
     }
 }

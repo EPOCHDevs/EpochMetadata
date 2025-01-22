@@ -26,7 +26,7 @@ namespace metadata {
 
                 AssertWithTraceFromStream(selections.contains(option),
                                           "Invalid select member: " << option << ", Expected one of "
-                                                                    << stratifyx::toString(tl::to<std::vector>(selections)));
+                                                                    << epoch::toString(tl::to<std::vector>(selections)));
                 break;
             }
             case MetaDataOptionType::Null:
@@ -77,7 +77,7 @@ namespace metadata {
         };
 
         if (element.IsScalar()) {
-            *this = stratifyx::lookup(PLACEHOLDER_MAP, element.as<std::string>());
+            *this = epoch::lookup(PLACEHOLDER_MAP, element.as<std::string>());
             return;
         }
 
