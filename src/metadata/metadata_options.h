@@ -21,6 +21,8 @@ namespace metadata {
     public:
         using T = std::variant<double, int64_t, bool, std::string, MetaDataArgRef>;
 
+        MetaDataOptionDefinition()=default;
+
         template<typename K> requires std::is_constructible_v<T, K>
         MetaDataOptionDefinition(K &&value) : m_optionsVariant(std::forward<K>(value)) {}
 
@@ -74,7 +76,7 @@ namespace metadata {
         }
 
     private:
-        T m_optionsVariant;
+        T m_optionsVariant{};
 
         template<class T>
         T GetValueByType() const {
