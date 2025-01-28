@@ -28,6 +28,11 @@ namespace metadata {
             return m_optionsVariant;
         }
 
+        template<class K>
+        [[nodiscard]] bool IsType() const {
+            return std::holds_alternative<K>(m_optionsVariant);
+        }
+
         [[nodiscard]] double GetNumericValue() const;
 
         [[nodiscard]] auto GetDecimal() const {
