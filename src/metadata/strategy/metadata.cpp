@@ -45,6 +45,7 @@ namespace YAML {
         }
 
         metadata.inputs = node["desc"].as<InputMapping>(InputMapping{});
+        metadata.metaData = *transform;
         return true;
     }
 

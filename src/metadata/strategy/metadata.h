@@ -35,6 +35,7 @@ namespace metadata::strategy {
         std::string id{};
         metadata::MetaDataArgDefinitionMapping options{};
         InputMapping inputs{};
+        metadata::transforms::TransformsMetaData metaData;
     };
 
     struct TradeSignalMetaData {
