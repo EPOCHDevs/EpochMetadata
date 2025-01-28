@@ -6,6 +6,9 @@
 #include "../metadata_options.h"
 #include <epoch_lab_shared/enum_wrapper.h>
 
+// including here ensure all transforms have been serialized
+#include "../transforms/registration.h"
+
 CREATE_ENUM(AlgorithmType, TakeProfit, StopLoss, Sizer, Commission, Slippage, FuturesContinuation);
 CREATE_ENUM(TradeSignalType, TrendFollowing, MeanReverting, CandleStickPattern, Momentum, EventDriven);
 
@@ -26,6 +29,14 @@ namespace metadata::strategy {
         bool requiresTimeframe{true};
     };
 
+    using InputMapping = std::unordered_map<std::string, std::string>;
+    struct AlgorithmNode {
+        std::string type;
+        std::string id{};
+        metadata::MetaDataArgDefinitionMapping options{};
+        InputMapping inputs{};
+    };
+
     struct TradeSignalMetaData {
         std::string id;
         std::string name;
@@ -34,14 +45,19 @@ namespace metadata::strategy {
         bool isGroup{false};
         bool requiresTimeframe{true};
         TradeSignalType type{TradeSignalType::Null};
-        std::string algorithm;
-        std::string executor;
+        std::vector<AlgorithmNode> algorithm;
+        AlgorithmNode executor;
     };
 
     // Copy member variables to support glaze serialization form decomposition
 }  // namespace metadata::strategy
 
 namespace YAML {
+    template<>
+    struct convert<metadata::strategy::AlgorithmNode> {
+        static bool decode(YAML::Node const &, metadata::strategy::AlgorithmNode &);
+    };
+
     template<>
     struct convert<metadata::strategy::AlgorithmBaseMetaData> {
         static bool decode(YAML::Node const &, metadata::strategy::AlgorithmBaseMetaData &);

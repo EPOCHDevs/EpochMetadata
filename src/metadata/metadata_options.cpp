@@ -26,7 +26,8 @@ namespace metadata {
 
                 AssertWithTraceFromStream(selections.contains(option),
                                           "Invalid select member: " << option << ", Expected one of "
-                                                                    << epoch::toString(tl::to<std::vector>(selections)));
+                                                                    << epoch::toString(
+                                                                            tl::to<std::vector>(selections)));
                 break;
             }
             case MetaDataOptionType::Null:
@@ -48,22 +49,22 @@ namespace metadata {
         throw std::runtime_error("Invalid Numeric MetaDataOptionType Type");
     }
 
-    MetaDataOptionDefinition::T CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
+    MetaDataOptionDefinition CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
         AssertWithTraceFromStream(node.IsScalar(),
                                   "invalid transform option type: " << node << ", expected a scalar for " << arg.id
                                                                     << ".");
         switch (arg.type) {
             case MetaDataOptionType::Integer: {
-                return node.as<int64_t>();
+                return MetaDataOptionDefinition{node.as<int64_t>()};
             }
             case MetaDataOptionType::Decimal: {
-                return node.as<double>();
+                return MetaDataOptionDefinition{node.as<double>()};
             }
             case MetaDataOptionType::Boolean: {
-                return node.as<bool>();
+                return MetaDataOptionDefinition{node.as<bool>()};
             }
             case MetaDataOptionType::Select: {
-                return node.as<std::string>();
+                return MetaDataOptionDefinition{node.as<std::string>()};
             }
             case MetaDataOptionType::Null:
                 break;
@@ -84,29 +85,11 @@ namespace metadata {
         id = element["id"].as<std::string>();
         name = element["name"].as<std::string>();
         type = MetaDataOptionTypeWrapper::FromString(element["type"].as<std::string>());
-        values = element["values"].as<std::vector<std::string>>(std::vector<std::string>{});
-        labels = element["labels"].as<std::vector<std::string>>(std::vector<std::string>{});
 
-        if (auto defaultValueNode = element["default"]) {
-            auto strValue = YAML::Dump(defaultValueNode);
-            std::istringstream iss(strValue);
+        selectOption = element["selectOption"].as<std::vector<SelectOption>>(std::vector<SelectOption>{});
 
-            int64_t integer_value;
-            double decimal_value;
-            char trailing;
-
-            if ((iss >> std::noskipws >> integer_value) && !(iss >> trailing)) {
-                defaultValue = integer_value;
-            } else {
-                // reset and clear the stream state
-                iss.clear();
-                iss.seekg(0, std::ios::beg);
-                if ((iss >> std::noskipws >> decimal_value) && !(iss >> trailing)) {
-                    defaultValue = decimal_value;
-                } else {
-                    defaultValue = strValue;
-                }
-            }
+        if (element["default"]) {
+            defaultValue = CreateMetaDataArgDefinition(element["default"], *this).GetVariant();
         }
 
         isRequired = element["required"].as<bool>(true);

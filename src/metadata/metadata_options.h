@@ -13,28 +13,37 @@
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select);
 
 namespace metadata {
+    struct MetaDataArgRef {
+        std::string refName{};
+    };
+
     class MetaDataOptionDefinition {
     public:
-        using T = std::variant<double, int64_t, bool, std::string>;
+        using T = std::variant<double, int64_t, bool, std::string, MetaDataArgRef>;
 
-        explicit MetaDataOptionDefinition(auto &&value) : m_optionsVariant(std::forward<decltype(value)>(value)) {}
+        template<typename K> requires std::is_constructible_v<T, K>
+        MetaDataOptionDefinition(K &&value) : m_optionsVariant(std::forward<K>(value)) {}
 
-        auto GetVariant() const {
+        [[nodiscard]] auto GetVariant() const {
             return m_optionsVariant;
         }
 
-        double GetNumericValue() const;
+        [[nodiscard]] double GetNumericValue() const;
 
-        auto GetDecimal() const {
+        [[nodiscard]] auto GetDecimal() const {
             return GetValueByType<double>();
         }
 
-        auto GetInteger() const {
+        [[nodiscard]] auto GetInteger() const {
             return GetValueByType<int64_t>();
         }
 
-        auto GetBoolean() const {
+        [[nodiscard]] auto GetBoolean() const {
             return GetValueByType<bool>();
+        }
+
+        std::string GetRef() const {
+            return GetValueByType<MetaDataArgRef>().refName;
         }
 
         template<class T>
@@ -75,7 +84,17 @@ namespace metadata {
         }
     };
 
-    using MetaDataArgDefinitionMapping = std::unordered_map<std::string, MetaDataOptionDefinition::T>;
+    using MetaDataArgDefinitionMapping = std::unordered_map<std::string, MetaDataOptionDefinition>;
+
+    struct SelectOption {
+        std::string name{};
+        std::string value{};
+
+        void decode(YAML::Node const &node) {
+            name = node["name"].as<std::string>();
+            value = node["value"].as<std::string>();
+        }
+    };
 
     struct MetaDataOption {
         std::string id;
@@ -83,10 +102,10 @@ namespace metadata {
         MetaDataOptionType type;
         std::optional<MetaDataOptionDefinition::T> defaultValue{std::nullopt};
         bool isRequired{true};
-        std::vector<std::string> values{};
-        std::vector<std::string> labels{};
+        std::vector<SelectOption> selectOption{};
 
         void decode(YAML::Node const&);
+
         YAML::Node encode() const{
             return {};
         }
@@ -94,7 +113,7 @@ namespace metadata {
 
     using MetaDataOptionList = std::vector<MetaDataOption>;
 
-    MetaDataOptionDefinition::T CreateMetaDataArgDefinition(YAML::Node const &, MetaDataOption const &);
+    MetaDataOptionDefinition CreateMetaDataArgDefinition(YAML::Node const &, MetaDataOption const &);
 }
 
 namespace YAML {
@@ -105,4 +124,13 @@ namespace YAML {
             return true;
         }
     };
+
+    template<>
+    struct convert<metadata::SelectOption> {
+        static bool decode(const Node &node, metadata::SelectOption &t) {
+            t.decode(node);
+            return true;
+        }
+    };
+
 }

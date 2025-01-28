@@ -242,6 +242,25 @@ namespace metadata::transforms {
         return boost::algorithm::join(parts, " ");
     };
 
+    std::vector<TransformsMetaData> MakeDataSource() {
+        std::vector<TransformsMetaData> result;
+
+        // Refactored Names Applied Below
+        result.emplace_back(TransformsMetaData{
+                .id = "PriceBar",
+                .name = "Market Price",
+                .options= {},
+                .type = TransformType::DataSource,
+                .desc = "",
+                .outputs = {IOMetaDataConstants::CLOSE_PRICE_METADATA,
+                            IOMetaDataConstants::OPEN_PRICE_METADATA,
+                            IOMetaDataConstants::HIGH_PRICE_METADATA,
+                            IOMetaDataConstants::LOW_PRICE_METADATA},
+        });
+
+        return result;
+    }
+
     std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
         std::vector<TransformsMetaData> result;
 
@@ -346,8 +365,7 @@ namespace metadata::transforms {
                     .type = MetaDataOptionType::Decimal,
                     .defaultValue=std::nullopt,
                     .isRequired=true,
-                    .values={},
-                    .labels={}
+                    .selectOption={}
             };
 
             if (option.starts_with("period") || option.ends_with("period") || option == "stddev") {

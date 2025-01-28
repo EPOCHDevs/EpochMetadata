@@ -15,8 +15,7 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON", "[TransformsMetaD
             .type=MetaDataOptionType::Decimal,
             .defaultValue=10.5,
             .isRequired=true,
-            .values={"value1", "value2"},
-            .labels={"label1", "label2"}
+            .selectOption={{"label1", "value1"}, {"label2", "value2"}}
     };
 
     auto sampleArgStr = glz::write_json(sampleArg).value();

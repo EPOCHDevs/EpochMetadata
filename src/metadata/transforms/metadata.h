@@ -6,7 +6,7 @@
 #include <glaze/glaze.hpp>
 
 
-CREATE_ENUM(TransformType, Overlay, Indicator, Math, Input, TradeSignalExecutor, Comparative, CandleStickPattern);
+CREATE_ENUM(TransformType, Overlay, Indicator, Math, DataSource, TradeSignalExecutor, Comparative, CandleStickPattern);
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 CREATE_ENUM(TradeSignalExecutorType, LongOnly, LongWithExit, ShortOnly, ShortWithExit, LongShortOnly, LongShortWithExit);
 
@@ -68,6 +68,7 @@ namespace metadata::transforms {
 
     std::vector<TransformsMetaData> MakeComparativeMetaData();
     std::vector<TransformsMetaData> MakeMathMetaData();
+    std::vector<TransformsMetaData> MakeDataSource();
     std::vector<TransformsMetaData> MakeTradeSignalExecutor();
     std::vector<TransformsMetaData> MakeTulipIndicators();
     std::vector<TransformsMetaData> MakeTulipCandles();
