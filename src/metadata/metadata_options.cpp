@@ -37,11 +37,11 @@ namespace metadata {
 
     size_t MetaDataOptionDefinition::GetHash() const {
         return std::visit([this](auto &&arg) {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::same_as<T, MetaDataArgRef>) {
+            using K = std::decay_t<decltype(arg)>;
+            if constexpr (std::same_as<K, MetaDataArgRef>) {
                 return std::hash<std::string>{}(GetRef());
             } else {
-                return std::hash<T>{}(arg);
+                return std::hash<K>{}(arg);
             }
         }, m_optionsVariant);
     }
