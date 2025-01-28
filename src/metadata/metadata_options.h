@@ -42,7 +42,8 @@ namespace metadata {
         }
 
         [[nodiscard]] auto GetInteger() const {
-            return GetValueByType<int64_t>();
+            if (IsType<int64_t>()) { return GetValueByType<int64_t>(); }
+            return static_cast<int64_t>(GetValueByType<double>());
         }
 
         [[nodiscard]] auto GetBoolean() const {
@@ -148,12 +149,22 @@ namespace glz {
     template<>
     struct meta<metadata::MetaDataOptionDefinition> {
         static constexpr auto read = [](metadata::MetaDataOptionDefinition &x,
-                                        const metadata::MetaDataOptionDefinition::T &input) {
-            x = metadata::MetaDataOptionDefinition{input};
+                                        const glz::json_t &input) {
+            if (input.is_null()) {
+                return;
+            } else if (input.is_number()) {
+                x = metadata::MetaDataOptionDefinition{input.get<double>()};
+            } else if (input.is_boolean()) {
+                x = metadata::MetaDataOptionDefinition{input.get<bool>()};
+            } else if (input.is_string()) {
+                x = metadata::MetaDataOptionDefinition{input.get<std::string>()};
+            } else {
+                throw std::runtime_error("Unknown type for MetaDataOptionDefinition");
+            }
         };
 
         static constexpr auto write = [](
-                const metadata::MetaDataOptionDefinition &x) -> metadata::MetaDataOptionDefinition::T {
+                const metadata::MetaDataOptionDefinition &x) -> auto {
             return x.GetVariant();
         };
 
