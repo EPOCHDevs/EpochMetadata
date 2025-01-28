@@ -105,7 +105,7 @@ namespace metadata {
         std::string id;
         std::string name;
         MetaDataOptionType type;
-        std::optional<MetaDataOptionDefinition::T> defaultValue{std::nullopt};
+        std::optional<MetaDataOptionDefinition> defaultValue{std::nullopt};
         bool isRequired{true};
         std::vector<SelectOption> selectOption{};
 
@@ -138,4 +138,21 @@ namespace YAML {
         }
     };
 
+}
+
+namespace glz {
+    template<>
+    struct meta<metadata::MetaDataOptionDefinition> {
+        static constexpr auto read = [](metadata::MetaDataOptionDefinition &x,
+                                        const metadata::MetaDataOptionDefinition::T &input) {
+            x = metadata::MetaDataOptionDefinition{input};
+        };
+
+        static constexpr auto write = [](
+                const metadata::MetaDataOptionDefinition &x) -> metadata::MetaDataOptionDefinition::T {
+            return x.GetVariant();
+        };
+
+        static constexpr auto value = glz::custom<read, write>;
+    };
 }
