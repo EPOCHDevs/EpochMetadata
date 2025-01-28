@@ -44,7 +44,7 @@ namespace YAML {
             throw std::runtime_error("Unknown options: " + Dump(options));
         }
 
-        metadata.inputs = node["desc"].as<InputMapping>(InputMapping{});
+        metadata.inputs = node["inputs"].as<InputMapping>(InputMapping{});
         metadata.metaData = *transform;
         return true;
     }
