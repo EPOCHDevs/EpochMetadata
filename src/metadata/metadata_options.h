@@ -60,6 +60,8 @@ namespace metadata {
             return GetValueByType<std::string>();
         }
 
+        size_t GetHash() const;
+
         void AssertType(MetaDataOptionType const &argType,
                         std::unordered_set<std::string> const &selections = {}) const;
 

@@ -35,6 +35,17 @@ namespace metadata {
         }
     }
 
+    size_t MetaDataOptionDefinition::GetHash() const {
+        return std::visit([this](auto &&arg) {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::same_as<T, MetaDataArgRef>) {
+                return std::hash<std::string>{}(GetRef());
+            } else {
+                return std::hash<T>{}(arg);
+            }
+        }, m_optionsVariant);
+    }
+
     double MetaDataOptionDefinition::GetNumericValue() const {
         if (std::holds_alternative<double>(m_optionsVariant)) {
             return GetDecimal();
