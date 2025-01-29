@@ -13,8 +13,6 @@ namespace metadata {
                                               std::unordered_set<std::string> const &selections) const {
         switch (argType) {
             case MetaDataOptionType::Integer:
-                AssertType<int64_t>();
-                break;
             case MetaDataOptionType::Decimal:
                 AssertType<double>();
                 break;
@@ -46,31 +44,14 @@ namespace metadata {
         }, m_optionsVariant);
     }
 
-    double MetaDataOptionDefinition::GetNumericValue() const {
-        if (std::holds_alternative<double>(m_optionsVariant)) {
-            return GetDecimal();
-        }
-        if (std::holds_alternative<int64_t>(m_optionsVariant)) {
-            return static_cast<double>(GetInteger());
-        }
-        if (std::holds_alternative<bool>(m_optionsVariant)) {
-            return static_cast<double>(GetBoolean());
-        }
-
-        throw std::runtime_error("Invalid Numeric MetaDataOptionType Type");
-    }
-
     MetaDataOptionDefinition CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
         AssertWithTraceFromStream(node.IsScalar(),
                                   "invalid transform option type: " << node << ", expected a scalar for " << arg.id
                                                                     << ".");
         switch (arg.type) {
-            case MetaDataOptionType::Integer: {
-                return MetaDataOptionDefinition{node.as<int64_t>()};
-            }
-            case MetaDataOptionType::Decimal: {
+            case MetaDataOptionType::Integer:
+            case MetaDataOptionType::Decimal:
                 return MetaDataOptionDefinition{node.as<double>()};
-            }
             case MetaDataOptionType::Boolean: {
                 return MetaDataOptionDefinition{node.as<bool>()};
             }

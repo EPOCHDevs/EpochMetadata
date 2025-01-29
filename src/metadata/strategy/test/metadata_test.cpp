@@ -45,7 +45,7 @@ inputs:
     // Ensure "period" option was parsed
     REQUIRE(algoNode.options.size() == 1);
     REQUIRE(algoNode.options.count("period") == 1);
-    REQUIRE(algoNode.options.at("period").IsType<int64_t>());
+    REQUIRE(algoNode.options.at("period").IsType<double>());
     REQUIRE(algoNode.options.at("period").GetInteger() == 20);
 }
 
