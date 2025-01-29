@@ -39,6 +39,8 @@ namespace metadata {
             return GetValueByType<double>();
         }
 
+        [[nodiscard]] double GetNumericValue() const;
+
         [[nodiscard]] auto GetInteger() const {
             return static_cast<int64_t>(GetValueByType<double>());
         }

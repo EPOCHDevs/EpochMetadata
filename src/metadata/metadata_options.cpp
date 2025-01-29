@@ -33,6 +33,18 @@ namespace metadata {
         }
     }
 
+
+    double MetaDataOptionDefinition::GetNumericValue() const {
+        if (std::holds_alternative<double>(m_optionsVariant)) {
+            return GetDecimal();
+        }
+        if (std::holds_alternative<bool>(m_optionsVariant)) {
+            return static_cast<double>(GetBoolean());
+        }
+
+        throw std::runtime_error("Invalid Numeric MetaDataOptionType Type");
+    }
+
     size_t MetaDataOptionDefinition::GetHash() const {
         return std::visit([this](auto &&arg) {
             using K = std::decay_t<decltype(arg)>;
