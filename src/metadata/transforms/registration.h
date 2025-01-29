@@ -22,6 +22,7 @@ namespace metadata::transforms {
     inline int RegisterMetadataList() {
         std::vector<std::vector<TransformsMetaData>> metaDataList{LoadFromFile<TransformsMetaData>("transforms")};
 
+        metaDataList.emplace_back(MakeDataSource());
         metaDataList.emplace_back(MakeMathMetaData());
         metaDataList.emplace_back(MakeComparativeMetaData());
         metaDataList.emplace_back(MakeTulipIndicators());
