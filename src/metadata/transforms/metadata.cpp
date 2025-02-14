@@ -267,30 +267,30 @@ namespace metadata::transforms {
         IOMetaData longMetaData{
                 .type = IODataType::Boolean,
                 .id = "long",
-                .name = "Go Long"
+                .name = "Enter Long Trade"
         };
 
         IOMetaData shortMetaData{
                 .type = IODataType::Boolean,
                 .id = "short",
-                .name = "Go Short"
+                .name = "Enter Short Trade"
         };
 
         IOMetaData doNothingMetaData{
                 .type = IODataType::Boolean,
                 .id = "no_op",
-                .name = "Do Nothing",
+                .name = "No Operation",
         };
 
         IOMetaData closePositionMetaData{
                 .type = IODataType::Boolean,
                 .id = "close",
-                .name = "Close Position",
+                .name = "Exit Trade",
         };
 
         MetaDataOption closeIfIndecisive{
                 .id="closeIfIndecisive",
-                .name="Close If Indecisive",
+                .name="Exit If Indecisive",
                 .type=MetaDataOptionType::Boolean,
                 .defaultValue=false,
         };
@@ -298,7 +298,7 @@ namespace metadata::transforms {
         // Refactored Names Applied Below
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongOnly),
-                .name = "Initiate Long Position",
+                .name = "Enter Long Trades Only",
                 .options= {closeIfIndecisive},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -307,7 +307,7 @@ namespace metadata::transforms {
 
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongWithExit),
-                .name = "Initiate Long Position with Exit Signal",
+                .name = "Enter and Exit Long Trades",
                 .options= {},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -316,7 +316,7 @@ namespace metadata::transforms {
 
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::ShortOnly),
-                .name = "Initiate Short Position",
+                .name = "Enter Short Trades Only",
                 .options= {closeIfIndecisive},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -325,7 +325,7 @@ namespace metadata::transforms {
 
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::ShortWithExit),
-                .name = "Initiate Short Position with Exit Signal",
+                .name = "Enter and Exit Short Trades",
                 .options= {},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -334,7 +334,7 @@ namespace metadata::transforms {
 
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongShortOnly),
-                .name = "Initiate Long or Short Position",
+                .name = "Enter Long or Short Trades Only",
                 .options= {closeIfIndecisive},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -343,7 +343,7 @@ namespace metadata::transforms {
 
         result.emplace_back(TransformsMetaData{
                 .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongShortWithExit),
-                .name = "Initiate Long or Short Position with Exit Strategy",
+                .name = "Enter and Exit Long or Short Trades",
                 .options= {},
                 .type = TransformType::TradeSignalExecutor,
                 .desc = "",
@@ -368,8 +368,14 @@ namespace metadata::transforms {
                     .selectOption={}
             };
 
-            if (option.starts_with("period") || option.ends_with("period") || option == "stddev") {
+            if (option.starts_with("period") || option.ends_with("period")) {
                 optionMetaData.type = MetaDataOptionType::Integer;
+                optionMetaData.min = 0;
+                optionMetaData.max = 10000;
+            } else if (option == "stddev") {
+                optionMetaData.type = MetaDataOptionType::Integer;
+                optionMetaData.min = 0;
+                optionMetaData.max = 10;
             }
             return optionMetaData;
         };
@@ -463,7 +469,9 @@ namespace metadata::transforms {
                     .name = "Period",
                     .type = MetaDataOptionType::Integer,
                     .defaultValue = static_cast<double>(defaults->period),
-                    .isRequired = true
+                    .isRequired = true,
+                    .min = 0,
+                    .max = 1000
             };
             options.push_back(o);
         }

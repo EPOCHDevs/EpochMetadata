@@ -5,7 +5,6 @@
 #include "metadata_options.h"
 #include "doc_deserialization_helper.h"
 #include <unordered_set>
-#include <tl/to.hpp>
 
 
 namespace metadata {
@@ -25,7 +24,7 @@ namespace metadata {
                 AssertWithTraceFromStream(selections.contains(option),
                                           "Invalid select member: " << option << ", Expected one of "
                                                                     << epoch::toString(
-                                                                            tl::to<std::vector>(selections)));
+                                                                            ranges::to<std::vector>(selections)));
                 break;
             }
             case MetaDataOptionType::Null:
@@ -78,7 +77,7 @@ namespace metadata {
 
     void MetaDataOption::decode(const YAML::Node &element) {
         static std::unordered_map<std::string, MetaDataOption> PLACEHOLDER_MAP{
-                {"PERIOD", {.id="period", .name="Period", .type=MetaDataOptionType::Integer}}
+                {"PERIOD", {.id="period", .name="Period", .type=MetaDataOptionType::Integer, .min=0, .max=1000}}
         };
 
         if (element.IsScalar()) {

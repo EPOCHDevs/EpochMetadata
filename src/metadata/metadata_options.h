@@ -112,6 +112,10 @@ namespace metadata {
         std::optional<MetaDataOptionDefinition> defaultValue{std::nullopt};
         bool isRequired{true};
         std::vector<SelectOption> selectOption{};
+        double min{0};
+        double max{1000};
+        double step_size{0.01};
+        std::string desc{};
 
         void decode(YAML::Node const&);
 
