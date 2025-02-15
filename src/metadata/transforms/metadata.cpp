@@ -33,10 +33,10 @@ namespace metadata::transforms {
 
     TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);
 
-    TransformsMetaData MakeBooleanSelectMetaData(std::string const &name) {
+    TransformsMetaData MakeBooleanSelectMetaData(std::string const &id, std::string const &name) {
         return {
-                .id = name,
-                .name = "Select",
+                .id = id,
+                .name = name,
                 .options = {},
                 .type = TransformType::Comparative,
                 .isCrossSectional = false,
@@ -52,10 +52,10 @@ namespace metadata::transforms {
         };
     }
 
-    TransformsMetaData MakeEqualityTransformMetaData(std::string const &name, bool isVector = false) {
+    TransformsMetaData MakeEqualityTransformMetaData(std::string const &id, bool isVector, std::string const &name) {
         TransformsMetaData metadata;
 
-        metadata.id = name;
+        metadata.id = id;
         metadata.name = name;
 
         if (!isVector) {
@@ -88,10 +88,10 @@ namespace metadata::transforms {
         return metadata;
     }
 
-    TransformsMetaData MakeMathTransformMetaData(std::string const &name) {
+    TransformsMetaData MakeMathTransformMetaData(std::string const &id, std::string const &name) {
         TransformsMetaData metadata;
 
-        metadata.id = name;
+        metadata.id = id;
         metadata.name = name;
         metadata.type = TransformType::Math; // Adjust type as necessary
         metadata.isCrossSectional = false;
@@ -114,14 +114,14 @@ namespace metadata::transforms {
         return metadata;
     }
 
-    TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name) {
+    TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &id, std::string const &name) {
         // Ensure the name ends with an underscore followed by a number, e.g., "zero_index_select_3"
-        size_t underscore_pos = name.find_last_of('_');
-        if (underscore_pos == std::string::npos || underscore_pos == name.size() - 1) {
+        size_t underscore_pos = id.find_last_of('_');
+        if (underscore_pos == std::string::npos || underscore_pos == id.size() - 1) {
             throw std::invalid_argument("Invalid Name, must end with an underscore followed by a digit.");
         }
 
-        std::string number_part = name.substr(underscore_pos + 1);
+        std::string number_part = id.substr(underscore_pos + 1);
         for (char c: number_part) {
             if (!std::isdigit(c)) {
                 throw std::invalid_argument("Invalid Name, last part after underscore must be digits.");
@@ -130,8 +130,8 @@ namespace metadata::transforms {
         const size_t N = std::stoul(number_part);
 
         TransformsMetaData metadata;
-        metadata.id = name;
-        metadata.name = "Select";
+        metadata.id = id;
+        metadata.name = name;
         metadata.options = {}; // Add any specific options if needed
         metadata.type = TransformType::Comparative,
                 metadata.isCrossSectional = false;
@@ -153,10 +153,10 @@ namespace metadata::transforms {
         return metadata;
     }
 
-    TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
+    TransformsMetaData MakeLogicalTransformMetaData(std::string const &id, std::string const &name) {
         TransformsMetaData metadata;
 
-        metadata.id = name;
+        metadata.id = id;
         metadata.name = name;
         metadata.options = {}; // Add any specific options if needed
         metadata.type = TransformType::Comparative; // Adjust type as necessary
@@ -164,7 +164,7 @@ namespace metadata::transforms {
         metadata.desc = "";
 
         // Inputs
-        if (name == "logical_not") {
+        if (id == "logical_not") {
             metadata.inputs.emplace_back(IODataType::Boolean, ARG, "");
         } else {
             metadata.inputs.emplace_back(IODataType::Boolean, ARG0, "");
@@ -183,32 +183,32 @@ namespace metadata::transforms {
         std::vector<TransformsMetaData> metadataList;
 
         // Define constant equality transforms
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_gt", false));   // Greater Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_gte", false));  // Greater Than Or Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_lt", false));   // Less Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_lte", false));  // Less Than Or Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_eq", false));   // Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_neq", false));  // Not Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_gt", false, "Greater Than"));   // Greater Than
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_gte", false, "Greater Than or Equal"));  // Greater Than Or Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_lt", false, "Less Than"));   // Less Than
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_lte", false, "Less Than or Equal"));  // Less Than Or Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_eq", false, "Equal"));   // Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("constant_neq", false, "Not Equal"));  // Not Equals
 
         // Define vector equality transforms
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_gt", true));      // Greater Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_gte", true));     // Greater Than Or Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_lt", true));      // Less Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_lte", true));     // Less Than Or Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_eq", true));      // Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_neq", true));      // Not Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_gt", true, "Vector Greater Than"));      // Greater Than
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_gte", true, "Vector Greater Than or Equal"));     // Greater Than Or Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_lt", true, "Vector Less Than"));      // Less Than
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_lte", true, "Vector Less Than or Equal"));     // Less Than Or Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_eq", true, "Vector Equal"));      // Equals
+        metadataList.emplace_back(MakeEqualityTransformMetaData("vector_neq", true, "Vector Not Equal"));      // Not Equals
 
-        metadataList.emplace_back(MakeBooleanSelectMetaData("boolean_select"));
-        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_2"));
-        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_3"));
-        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_4"));
-        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_5"));
+        metadataList.emplace_back(MakeBooleanSelectMetaData("boolean_select", "If Else"));
+        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_2", "Select 2"));
+        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_3", "Select 3"));
+        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_4", "Select 4"));
+        metadataList.emplace_back(MakeZeroIndexSelectMetaData("select_5", "Select 5"));
 
-        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_or"));
-        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_and"));
-        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_not"));
-        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_and_not"));
-        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_xor"));
+        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_or", "OR"));
+        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_and", "AND"));
+        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_not", "NOT"));
+        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_and_not", "AND NOT"));
+        metadataList.emplace_back(MakeLogicalTransformMetaData("logical_xor", "XOR"));
 
         return metadataList;
     }
@@ -216,11 +216,11 @@ namespace metadata::transforms {
     std::vector<TransformsMetaData> MakeMathMetaData() {
         std::vector<TransformsMetaData> metadataList;
 
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_add"));
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_sub"));
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_div"));
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_mul"));
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_exp"));
+        metadataList.emplace_back(MakeMathTransformMetaData("constant_add", "Add"));
+        metadataList.emplace_back(MakeMathTransformMetaData("constant_sub", "Subtract"));
+        metadataList.emplace_back(MakeMathTransformMetaData("constant_div", "Divide"));
+        metadataList.emplace_back(MakeMathTransformMetaData("constant_mul",  "Multiply"));
+        metadataList.emplace_back(MakeMathTransformMetaData("constant_exp", "Exponent"));
 
         return metadataList;
     }
