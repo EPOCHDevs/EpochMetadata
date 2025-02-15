@@ -296,7 +296,8 @@ namespace metadata::transforms {
                         .options= {closeIfIndecisive},
                         .type = TransformType::TradeSignalExecutor,
                         .desc = "",
-                        .inputs = {longMetaData, shortMetaData, closePositionMetaData}
+                        .inputs = {longMetaData, shortMetaData, closePositionMetaData},
+                        .atLeastOneInputRequired = true
                 }
         };
     }

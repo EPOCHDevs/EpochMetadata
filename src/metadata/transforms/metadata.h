@@ -30,6 +30,7 @@ namespace metadata::transforms {
         std::string desc{};
         std::vector<IOMetaData> inputs{};
         std::vector<IOMetaData> outputs{};
+        bool atLeastOneInputRequired{false};
 
         void decode(YAML::Node const&);
         YAML::Node encode() const{
