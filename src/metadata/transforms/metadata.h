@@ -8,7 +8,6 @@
 
 CREATE_ENUM(TransformType, Overlay, Indicator, Math, DataSource, TradeSignalExecutor, Comparative, CandleStickPattern);
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
-CREATE_ENUM(TradeSignalExecutorType, LongOnly, LongWithExit, ShortOnly, ShortWithExit, LongShortOnly, LongShortWithExit);
 
 namespace metadata::transforms {
     struct IOMetaData {

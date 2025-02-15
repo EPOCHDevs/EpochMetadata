@@ -276,12 +276,6 @@ namespace metadata::transforms {
                 .name = "Enter Short Trade"
         };
 
-        IOMetaData doNothingMetaData{
-                .type = IODataType::Boolean,
-                .id = "no_op",
-                .name = "No Operation",
-        };
-
         IOMetaData closePositionMetaData{
                 .type = IODataType::Boolean,
                 .id = "close",
@@ -295,62 +289,16 @@ namespace metadata::transforms {
                 .defaultValue=false,
         };
 
-        // Refactored Names Applied Below
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongOnly),
-                .name = "Enter Long Trades Only",
-                .options= {closeIfIndecisive},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {longMetaData},
-        });
-
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongWithExit),
-                .name = "Enter and Exit Long Trades",
-                .options= {},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {longMetaData}
-        });
-
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::ShortOnly),
-                .name = "Enter Short Trades Only",
-                .options= {closeIfIndecisive},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {shortMetaData}
-        });
-
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::ShortWithExit),
-                .name = "Enter and Exit Short Trades",
-                .options= {},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {shortMetaData, closePositionMetaData}
-        });
-
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongShortOnly),
-                .name = "Enter Long or Short Trades Only",
-                .options= {closeIfIndecisive},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {longMetaData, shortMetaData}
-        });
-
-        result.emplace_back(TransformsMetaData{
-                .id = TradeSignalExecutorTypeWrapper::ToString(TradeSignalExecutorType::LongShortWithExit),
-                .name = "Enter and Exit Long or Short Trades",
-                .options= {},
-                .type = TransformType::TradeSignalExecutor,
-                .desc = "",
-                .inputs = {longMetaData, shortMetaData, closePositionMetaData}
-        });
-
-        return result;
+        return {
+                TransformsMetaData{
+                        .id = "TradeSignalExecutor",
+                        .name = "Trade Signal Executor",
+                        .options= {closeIfIndecisive},
+                        .type = TransformType::TradeSignalExecutor,
+                        .desc = "",
+                        .inputs = {longMetaData, shortMetaData, closePositionMetaData}
+                }
+        };
     }
 
     std::vector<TransformsMetaData> MakeTulipIndicators() {

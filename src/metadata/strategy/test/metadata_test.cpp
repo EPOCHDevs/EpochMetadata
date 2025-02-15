@@ -167,7 +167,7 @@ type: Momentum
 algorithm:
   - { type: atr, id: atr, options: { period: .atr_period }, inputs: { "*" : "c" } }
   - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#atr" } }
-executor: { id: LongShortWithExit, type: LongShortOnly, options: { closeIfIndecisive: true }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
+executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: true }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
 )";
 
     YAML::Node node = YAML::Load(yaml_str);
@@ -192,8 +192,8 @@ executor: { id: LongShortWithExit, type: LongShortOnly, options: { closeIfIndeci
     // The second node, etc.
 
     // And the executor
-    CHECK(tsmd.executor.type == "LongShortOnly");
-    CHECK(tsmd.executor.id == "LongShortWithExit");
+    CHECK(tsmd.executor.type == "TradeSignalExecutor");
+    CHECK(tsmd.executor.id == "TradeSignalExecutor");
     // ...
 }
 
