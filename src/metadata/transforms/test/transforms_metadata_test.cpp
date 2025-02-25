@@ -37,6 +37,6 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON", "[TransformsMetaD
 
     REQUIRE(glz::write_json(testTransformsMetaData).value() ==
             fmt::format(
-                    R"({{"id":"test_id","name":"test_name","options":[{}],"type":"Overlay","isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{}}})",
-                    sampleArgStr, inputsStr, outputsStr));
+                    R"({{"id":"test_id","name":"test_name","options":[{}],"type":"Overlay","isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{}}})",
+                    sampleArgStr, inputsStr, outputsStr, testTransformsMetaData.atLeastOneInputRequired));
 }
