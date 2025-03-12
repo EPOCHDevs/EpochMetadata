@@ -26,7 +26,7 @@ namespace metadata::transforms {
         metaDataList.emplace_back(MakeMathMetaData());
         metaDataList.emplace_back(MakeComparativeMetaData());
         metaDataList.emplace_back(MakeTulipIndicators());
-        metaDataList.emplace_back(MakeTulipCandles());
+        // metaDataList.emplace_back(MakeTulipCandles());
         metaDataList.emplace_back(MakeTradeSignalExecutor());
 
         for (auto const &indicator: std::views::join(metaDataList)) {

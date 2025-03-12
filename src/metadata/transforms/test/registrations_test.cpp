@@ -8,5 +8,5 @@
 TEST_CASE("Transform MetaData Total Count is Correct")
 {
     using namespace metadata::transforms;
-    REQUIRE(ITransformRegistry::GetInstance().GetMetaData().size() == 165);
+    REQUIRE(ITransformRegistry::GetInstance().GetMetaData().size() == 140);
 }
