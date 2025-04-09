@@ -1,0 +1,78 @@
+bband_percent:
+  name: Bollinger Bands %B
+  type: Indicator
+  desc: $BAR_CHART_URL/bollinger_bands_percent
+  inputs: [{ type: Decimal, id: bbands_lower, name: Lower Band }, { type: Decimal, id: bbands_upper, name: Upper Band }]
+  outputs: [{ type: Decimal, id: bband_percent }]
+
+bband_width:
+  name: Bollinger Bands Width
+  type: Indicator
+  desc: $BAR_CHART_URL/bollinger_squeeze
+  inputs: [ { type: Decimal, id: bbands_lower, name: Lower Band },
+            { type: Decimal, id: bbands_middle, name: Middle Band },
+            { type: Decimal, id: bbands_upper, name: Upper Band } ]
+  outputs: [ { type: Decimal, id: bband_width } ]
+
+cs_returns:
+  name: Cross-Sectional Returns
+  type: Math
+  isCrossSectional: true
+  inputs: [ CLOSE ]
+  outputs: [ { type: Decimal, id: cs_returns } ]
+
+cum_prod:
+  name: Cumulative Product
+  type: Math
+  inputs: [ NUMBER ]
+  outputs: [ { type: Decimal, id: cum_prod } ]
+
+gap_returns:
+  name: Gap Returns
+  type: Indicator
+  desc: "https://appreciatewealth.com/blog/gap-up-gap-down#:~:text=A%20gap%2Dup%20in%20stock,lower%20than%20its%20previous%20close."
+  inputs: [ OPEN, CLOSE ]
+  outputs: [ { type: Decimal, id: gap_returns } ]
+
+ma:
+  name: Moving Average
+  options:
+    - PERIOD
+    - id: type
+      name: Type
+      type: Select
+      default: sma
+      required: true
+      selectOption:
+        - { name: "Double Exponential Moving Average (DEMA)", value: dema }
+        - { name: "Exponential Moving Average (EMA)", value: ema }
+        - { name: "Hull Moving Average (HMA)", value: hma }
+        - { name: "Kaufman's Adaptive Moving Average (KAMA)", value: kama }
+        - { name: "Simple Moving Average (SMA)", value: sma }
+        - { name: "Triple Exponential Moving Average (TEMA)", value: tema }
+        - { name: "Triangular Moving Average (TRIMA)", value: trima }
+        - { name: "Weighted Moving Average (WMA)", value: wma }
+        - { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
+  type: Overlay
+  desc: "$INVESTOPEDIA/volatility"
+  inputs: [ NUMBER ]
+  outputs: [ { type: Decimal, id: ma } ]
+
+rolling_vol:
+  name: Rolling Volatility
+  options:
+    - PERIOD
+    - id: returnPolicy
+      name: Policy
+      type: Select
+      default: "1"
+      required: true
+      selectOption:
+        - { name: "Log Percentage", value: "1" }
+        - { name: "Percentage", value: "2" }
+        - { name: "Monetary", value: "3" }
+        - { name: "Trinary", value: "4" }
+  type: Indicator
+  desc: "$INVESTOPEDIA/volatility"
+  inputs: [ CLOSE ]
+  outputs: [ { type: Decimal, id: rolling_vol } ]

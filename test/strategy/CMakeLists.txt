@@ -1,0 +1,1 @@
+target_sources(epoch_metadata_test PRIVATE registrations_test.cpp metadata_test.cpp)
