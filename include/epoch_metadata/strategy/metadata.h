@@ -4,8 +4,8 @@
 
 #pragma once
 #include "../metadata_options.h"
-#include <epoch_core/enum_wrapper.h>
 #include "epoch_metadata/transforms/metadata.h"
+#include <epoch_core/enum_wrapper.h>
 
 // including here ensure all transforms have been serialized
 
@@ -14,7 +14,7 @@ CREATE_ENUM(AlgorithmType, TakeProfit, StopLoss, Sizer, Commission, Slippage,
 CREATE_ENUM(TradeSignalType, TrendFollowing, MeanReverting, CandleStickPattern,
             Momentum, EventDriven);
 
-namespace metadata::strategy {
+namespace epoch_metadata::strategy {
 struct AlgorithmBaseMetaData {
   std::string id;
   std::string name;
@@ -35,9 +35,9 @@ using InputMapping = std::unordered_map<std::string, std::string>;
 struct AlgorithmNode {
   std::string type;
   std::string id{};
-  metadata::MetaDataArgDefinitionMapping options{};
+  epoch_metadata::MetaDataArgDefinitionMapping options{};
   InputMapping inputs{};
-  metadata::transforms::TransformsMetaData metaData;
+  epoch_metadata::transforms::TransformsMetaData metaData;
 };
 
 struct TradeSignalMetaData {
@@ -53,25 +53,25 @@ struct TradeSignalMetaData {
 };
 
 // Copy member variables to support glaze serialization form decomposition
-} // namespace metadata::strategy
+} // namespace epoch_metadata::strategy
 
 namespace YAML {
-template <> struct convert<metadata::strategy::AlgorithmNode> {
-  static bool decode(YAML::Node const &, metadata::strategy::AlgorithmNode &);
+template <> struct convert<epoch_metadata::strategy::AlgorithmNode> {
+  static bool decode(YAML::Node const &, epoch_metadata::strategy::AlgorithmNode &);
 };
 
-template <> struct convert<metadata::strategy::AlgorithmBaseMetaData> {
+template <> struct convert<epoch_metadata::strategy::AlgorithmBaseMetaData> {
   static bool decode(YAML::Node const &,
-                     metadata::strategy::AlgorithmBaseMetaData &);
+                     epoch_metadata::strategy::AlgorithmBaseMetaData &);
 };
 
-template <> struct convert<metadata::strategy::AlgorithmMetaData> {
+template <> struct convert<epoch_metadata::strategy::AlgorithmMetaData> {
   static bool decode(YAML::Node const &,
-                     metadata::strategy::AlgorithmMetaData &);
+                     epoch_metadata::strategy::AlgorithmMetaData &);
 };
 
-template <> struct convert<metadata::strategy::TradeSignalMetaData> {
+template <> struct convert<epoch_metadata::strategy::TradeSignalMetaData> {
   static bool decode(YAML::Node const &,
-                     metadata::strategy::TradeSignalMetaData &);
+                     epoch_metadata::strategy::TradeSignalMetaData &);
 };
 } // namespace YAML

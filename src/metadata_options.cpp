@@ -4,10 +4,10 @@
 
 #include "epoch_metadata/metadata_options.h"
 #include "doc_deserialization_helper.h"
-#include <unordered_set>
 #include <epoch_core/ranges_to.h>
+#include <unordered_set>
 
-namespace metadata {
+namespace epoch_metadata {
 void MetaDataOptionDefinition::AssertType(
     epoch_core::MetaDataOptionType const &argType,
     std::unordered_set<std::string> const &selections) const {
@@ -21,11 +21,10 @@ void MetaDataOptionDefinition::AssertType(
     break;
   case epoch_core::MetaDataOptionType::Select: {
     auto option = GetValueByType<std::string>();
-    AssertFromStream(
-        selections.contains(option),
-        "Invalid select member: "
-            << option << ", Expected one of "
-            << epoch_core::toString(selections));
+    AssertFromStream(selections.contains(option),
+                     "Invalid select member: "
+                         << option << ", Expected one of "
+                         << epoch_core::toString(selections));
     break;
   }
   case epoch_core::MetaDataOptionType::Null:
@@ -60,9 +59,8 @@ size_t MetaDataOptionDefinition::GetHash() const {
 MetaDataOptionDefinition
 CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
   AssertFromStream(node.IsScalar(), "invalid transform option type: "
-                                                 << node
-                                                 << ", expected a scalar for "
-                                                 << arg.id << ".");
+                                        << node << ", expected a scalar for "
+                                        << arg.id << ".");
   switch (arg.type) {
   case epoch_core::MetaDataOptionType::Integer:
   case epoch_core::MetaDataOptionType::Decimal:
@@ -95,8 +93,8 @@ void MetaDataOption::decode(const YAML::Node &element) {
 
   id = element["id"].as<std::string>();
   name = element["name"].as<std::string>();
-  type =
-      epoch_core::MetaDataOptionTypeWrapper::FromString(element["type"].as<std::string>());
+  type = epoch_core::MetaDataOptionTypeWrapper::FromString(
+      element["type"].as<std::string>());
 
   selectOption = element["selectOption"].as<std::vector<SelectOption>>(
       std::vector<SelectOption>{});
@@ -108,4 +106,4 @@ void MetaDataOption::decode(const YAML::Node &element) {
 
   isRequired = element["required"].as<bool>(true);
 }
-} // namespace metadata
+} // namespace epoch_metadata

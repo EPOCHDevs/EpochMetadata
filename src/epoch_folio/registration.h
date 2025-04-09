@@ -2,6 +2,4 @@
 #include "../registry.h"
 #include "metadata.h"
 
-namespace metadata::cppFolio{
-
-}
+namespace epoch_metadata::cppFolio {}

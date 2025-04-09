@@ -11,7 +11,7 @@
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select);
 
-namespace metadata {
+namespace epoch_metadata {
 struct MetaDataArgRef {
   std::string refName{};
 };
@@ -48,7 +48,8 @@ public:
   }
 
   template <class T> T GetSelectOption() const {
-    return epoch_core::EnumWrapper<T>::type::FromString(GetValueByType<std::string>());
+    return epoch_core::EnumWrapper<T>::type::FromString(
+        GetValueByType<std::string>());
   }
 
   std::string GetSelectOption() const { return GetValueByType<std::string>(); }
@@ -60,9 +61,9 @@ public:
 
   template <class T> void AssertType() const {
     AssertFromStream(std::holds_alternative<T>(m_optionsVariant),
-                              "Wrong type! Expected: "
-                                  << typeid(T).name() << ", but got: "
-                                  << typeid(m_optionsVariant).name());
+                     "Wrong type! Expected: "
+                         << typeid(T).name()
+                         << ", but got: " << typeid(m_optionsVariant).name());
   }
 
 private:
@@ -116,18 +117,18 @@ using MetaDataOptionList = std::vector<MetaDataOption>;
 
 MetaDataOptionDefinition CreateMetaDataArgDefinition(YAML::Node const &,
                                                      MetaDataOption const &);
-} // namespace metadata
+} // namespace epoch_metadata
 
 namespace YAML {
-template <> struct convert<metadata::MetaDataOption> {
-  static bool decode(const Node &node, metadata::MetaDataOption &t) {
+template <> struct convert<epoch_metadata::MetaDataOption> {
+  static bool decode(const Node &node, epoch_metadata::MetaDataOption &t) {
     t.decode(node);
     return true;
   }
 };
 
-template <> struct convert<metadata::SelectOption> {
-  static bool decode(const Node &node, metadata::SelectOption &t) {
+template <> struct convert<epoch_metadata::SelectOption> {
+  static bool decode(const Node &node, epoch_metadata::SelectOption &t) {
     t.decode(node);
     return true;
   }
@@ -136,15 +137,15 @@ template <> struct convert<metadata::SelectOption> {
 } // namespace YAML
 
 namespace glz {
-template <> struct meta<metadata::MetaDataOptionDefinition> {
+template <> struct meta<epoch_metadata::MetaDataOptionDefinition> {
   static constexpr auto read =
-      [](metadata::MetaDataOptionDefinition &x,
-         const metadata::MetaDataOptionDefinition::T &input) {
-        x = metadata::MetaDataOptionDefinition{input};
+      [](epoch_metadata::MetaDataOptionDefinition &x,
+         const epoch_metadata::MetaDataOptionDefinition::T &input) {
+        x = epoch_metadata::MetaDataOptionDefinition{input};
       };
 
   static constexpr auto write =
-      [](const metadata::MetaDataOptionDefinition &x) -> auto {
+      [](const epoch_metadata::MetaDataOptionDefinition &x) -> auto {
     return x.GetVariant();
   };
 

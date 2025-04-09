@@ -6,9 +6,9 @@
 #include <epoch_core/common_utils.h>
 #include <filesystem>
 #include <yaml-cpp/yaml.h>
+#include "epoch_metadata/constants.h"
 
-
-namespace metadata {
+namespace epoch_metadata {
 template <class T, class B = T>
 std::vector<T> LoadFromYAMLNode(YAML::Node const &node) {
   std::vector<T> result(node.size());
@@ -21,10 +21,9 @@ std::vector<T> LoadFromYAMLNode(YAML::Node const &node) {
 }
 
 template <class T, class B = T>
-std::vector<T> LoadFromFile(std::string const &name) {
-  auto node = YAML::LoadFile(std::filesystem::path(METADATA_FILES_DIR) /
-                             std::format("{}.yaml", name));
-  return LoadFromYAMLNode<T, B>(node);
+std::vector<T> LoadFromFile(FileLoaderInterface const &loader,
+                            std::string const &name) {
+  return LoadFromYAMLNode<T, B>(loader(std::vformat("{}.yaml", std::format_args(std::make_format_args(name)))));
 }
 
 inline std::string MakeBarChartURL(std::string const &indicator) {
@@ -70,6 +69,6 @@ inline std::string MakeDescLink(std::string const &arg) {
 
   auto placeholder = arg.substr(1, split - 1);
   return epoch_core::lookup(DESC_PLACEHOLDER_CONVERTER_MAP,
-                       placeholder)(arg.substr(split + 1));
+                            placeholder)(arg.substr(split + 1));
 }
-} // namespace metadata
+} // namespace epoch_metadata

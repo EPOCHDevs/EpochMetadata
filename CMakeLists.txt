@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.27 FATAL_ERROR) # 3.26 For now until XGBOOST Re
 ########################################### INCLUDE RAPIDS CMAKE FILES #################################################
 # Add option for shared vs static libraries (default to shared for development)
 option(BUILD_SHARED_LIBS "Build libraries as shared instead of static" ON)
-message(STATUS "Building libraries as ${BUILD_SHARED_LIBS}")
+message(STATUS "Building SHARED libraries as ${BUILD_SHARED_LIBS}")
 if(BUILD_SHARED_LIBS)
     message(STATUS "Building SHARED libraries")
 else()
@@ -11,6 +11,7 @@ else()
 endif()
 
 # Set binary and library output directories to keep build files separate from source
+set(PROJECT_VERSION 0.1.0)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -56,7 +57,6 @@ find_package(yaml-cpp CONFIG REQUIRED)
 add_library(epoch_metadata "")
 add_library(epoch::metadata ALIAS epoch_metadata)
 
-
 # Configure version for shared libraries
 set_target_properties(epoch_metadata PROPERTIES
         VERSION ${PROJECT_VERSION}
@@ -94,11 +94,3 @@ add_subdirectory(src)
 if (BUILD_TEST)
     add_subdirectory(test)
 endif()
-
-set(METADATA_FILES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files)
-if (NOT EXISTS "${METADATA_FILES_DIR}" OR NOT IS_DIRECTORY "${METADATA_FILES_DIR}")
-    file(COPY ${PROJECT_SOURCE_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endif()
-
-target_compile_definitions(epoch_metadata PUBLIC -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
-MESSAGE("METADATA_FILES_DIR ${METADATA_FILES_DIR}")

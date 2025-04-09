@@ -7,7 +7,7 @@
 
 // TEST_CASE("IOMetaData::TOJSON Generates correct JSON", "[IOMetaData]")
 //{
-//     using namespace metadata::transforms;
+//     using namespace epoch_metadata::transforms;
 //     rapidjson::Document document;
 //     auto& allocator = document.GetAllocator();
 //
@@ -26,7 +26,7 @@
 
 TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
           "[TransformsMetaData]") {
-  using namespace metadata;
+  using namespace epoch_metadata;
 
   rapidjson::Document document;
   auto &allocator = document.GetAllocator();

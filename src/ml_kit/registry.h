@@ -6,7 +6,6 @@
 #include "../registry.h"
 #include "metadata.h"
 
-
-namespace metadata::ml_kit {
-    using IMLKitRegistry = IMetaDataRegistry<MLKitMetaData>;
+namespace epoch_metadata::ml_kit {
+using IMLKitRegistry = IMetaDataRegistry<MLKitMetaData>;
 }

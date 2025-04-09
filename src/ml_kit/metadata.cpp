@@ -3,7 +3,4 @@
 //
 #include "metadata.h"
 
-namespace metadata::ml_kit
-{
-
-} // namespace metadata::ml_kit
+namespace epoch_metadata::ml_kit {} // namespace epoch_metadata::ml_kit

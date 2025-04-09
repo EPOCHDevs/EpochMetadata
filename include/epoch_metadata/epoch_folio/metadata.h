@@ -18,18 +18,18 @@ CREATE_ENUM(CppFolioCategory, Return, Position, Transaction, RoundTrip);
 CREATE_ENUM(CppFolioSubCategory, StrategyBenchmark, RiskAnalysis,
             ReturnsDistribution);
 
-namespace metadata::cppFolio {
+namespace epoch_metadata::cppFolio {
 struct SubCategoryMetaData {
-  CppFolioSubCategory value;
+  epoch_core::CppFolioSubCategory value;
   std::string label;
   std::string desc;
 };
 
 struct CategoryMetaData {
-  CppFolioCategory value;
+  epoch_core::CppFolioCategory value;
   std::string label;
   std::vector<SubCategoryMetaData> subCategories;
 };
 
 std::vector<CategoryMetaData> GetCategoryMetaData();
-} // namespace metadata::cppFolio
+} // namespace epoch_metadata::cppFolio

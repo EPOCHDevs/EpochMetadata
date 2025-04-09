@@ -5,10 +5,10 @@
 #include "candles.h"
 #include "doc_deserialization_helper.h"
 #include "indicators.h"
-#include <yaml-cpp/yaml.h>
 #include <epoch_core/ranges_to.h>
+#include <yaml-cpp/yaml.h>
 
-namespace metadata::transforms {
+namespace epoch_metadata::transforms {
 
 void IOMetaData::decode(const YAML::Node &element) {
   if (element.IsScalar()) {
@@ -250,19 +250,20 @@ std::vector<TransformsMetaData> MakeMathMetaData() {
 }
 
 auto beautify = [](std::string const &id) {
-    auto view =
-        std::views::split(id, "_") |
-            std::views::transform([](auto const& part) {
+  auto view = std::views::split(id, "_") |
+              std::views::transform([](auto const &part) {
                 std::string part_string{part.begin(), part.end()};
-                part_string[0] =
-              static_cast<char>(std::toupper(static_cast<unsigned char>(part_string[0])));
-                std::ranges::transform(part_string | std::views::drop(1), part_string.begin()+1, tolower);
+                part_string[0] = static_cast<char>(
+                    std::toupper(static_cast<unsigned char>(part_string[0])));
+                std::ranges::transform(part_string | std::views::drop(1),
+                                       part_string.begin() + 1, tolower);
                 return part_string;
-            }) | std::views::join_with(' ');
+              }) |
+              std::views::join_with(' ');
 
-    std::stringstream output;
-    std::ranges::copy(view, std::ostream_iterator<char>(output));
-    return output.str();
+  std::stringstream output;
+  std::ranges::copy(view, std::ostream_iterator<char>(output));
+  return output.str();
 };
 
 std::vector<TransformsMetaData> MakeDataSource() {
@@ -356,7 +357,7 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
         ioMetaData.id = useSingleWildCard ? ARG : std::format("{}{}", ARG, i);
       } else {
         AssertFromStream(skip.contains(input),
-                                  "Invalid tulip input id: " << input);
+                         "Invalid tulip input id: " << input);
         ioMetaData.id = inputStr.at(0);
         //  name won't be displayed anyway
       }
@@ -375,21 +376,21 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
   };
 
   auto getType = [](int type) -> epoch_core::TransformType {
-      switch (type) {
-          case TI_TYPE_OVERLAY:
-              return epoch_core::TransformType::Overlay;
-          case TI_TYPE_INDICATOR:
-              return epoch_core::TransformType::Indicator;
-          case TI_TYPE_MATH:
-              return epoch_core::TransformType::Math;
-          case TI_TYPE_SIMPLE:
-              return epoch_core::TransformType::Math;
-          case TI_TYPE_COMPARATIVE:
-              return epoch_core::TransformType::Comparative;
-          default:
-              break;
-      }
-      ThrowExceptionFromStream("Invalid Tulip Type: " << type);
+    switch (type) {
+    case TI_TYPE_OVERLAY:
+      return epoch_core::TransformType::Overlay;
+    case TI_TYPE_INDICATOR:
+      return epoch_core::TransformType::Indicator;
+    case TI_TYPE_MATH:
+      return epoch_core::TransformType::Math;
+    case TI_TYPE_SIMPLE:
+      return epoch_core::TransformType::Math;
+    case TI_TYPE_COMPARATIVE:
+      return epoch_core::TransformType::Comparative;
+    default:
+      break;
+    }
+    ThrowExceptionFromStream("Invalid Tulip Type: " << type);
   };
 
   std::vector<TransformsMetaData> allIndicators(TI_INDICATOR_COUNT);
@@ -535,4 +536,4 @@ std::vector<TransformsMetaData> MakeTulipCandles() {
 
   return allCandles;
 }
-} // namespace metadata::transforms
+} // namespace epoch_metadata::transforms

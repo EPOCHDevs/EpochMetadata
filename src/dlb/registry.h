@@ -6,7 +6,6 @@
 #include "../registry.h"
 #include "metadata.h"
 
-
-namespace metadata::dlb {
-    using DLBRegistry = IMetaDataRegistry<DLBMetaData>;
+namespace epoch_metadata::dlb {
+using DLBRegistry = IMetaDataRegistry<DLBMetaData>;
 }

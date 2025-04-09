@@ -5,8 +5,8 @@
 #include "doc_deserialization_helper.h"
 #include "transforms/registry.h"
 
-using namespace metadata;
-using namespace metadata::strategy;
+using namespace epoch_metadata;
+using namespace epoch_metadata::strategy;
 
 namespace YAML {
 bool convert<AlgorithmNode>::decode(YAML::Node const &node,
@@ -16,8 +16,7 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
   metadata.id = node["id"].as<std::string>(metadata.type);
 
   auto transform =
-      transforms::ITransformRegistry::GetInstance().GetMetaData(
-          metadata.type);
+      transforms::ITransformRegistry::GetInstance().GetMetaData(metadata.type);
   if (!transform) {
     throw std::runtime_error("Unknown transform type: " + metadata.type);
   }
@@ -87,8 +86,8 @@ bool convert<TradeSignalMetaData>::decode(YAML::Node const &node,
   metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
   metadata.isGroup = node["isGroup"].as<bool>(false);
   metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
-  metadata.type =
-      epoch_core::TradeSignalTypeWrapper::FromString(node["type"].as<std::string>());
+  metadata.type = epoch_core::TradeSignalTypeWrapper::FromString(
+      node["type"].as<std::string>());
 
   metadata.algorithm = node["algorithm"].as<std::vector<AlgorithmNode>>();
   metadata.executor = node["executor"].as<AlgorithmNode>();

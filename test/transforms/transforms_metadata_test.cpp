@@ -7,7 +7,7 @@
 
 TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
           "[TransformsMetaData]") {
-  using namespace metadata;
+  using namespace epoch_metadata;
 
   MetaDataOption sampleArg{
       .id = "arg_id",

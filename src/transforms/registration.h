@@ -4,35 +4,16 @@
 
 #pragma once
 
-#include "registry.h"
-#include "epoch_metadata/transforms/metadata.h"
 #include "../doc_deserialization_helper.h"
+#include "epoch_metadata/transforms/metadata.h"
 
+#define REGISTER_ALGORITHM_METADATA(FactoryMetaData, FactoryMetaDataCreator)   \
+  const int REGISTER_STRATEGY_METADATA##FactoryMetaData =                      \
+      RegisterStrategyMetaData(#FactoryMetaData, FactoryMetaDataCreator)
 
-#define REGISTER_ALGORITHM_METADATA(FactoryMetaData, FactoryMetaDataCreator) \
-const int REGISTER_STRATEGY_METADATA##FactoryMetaData = RegisterStrategyMetaData(#FactoryMetaData, FactoryMetaDataCreator)
+namespace epoch_metadata::transforms {
+    void RegisterStrategyMetaData(const std::string &name,
+                                        const TransformsMetaDataCreator &metaData);
 
-namespace metadata::transforms {
-    inline int RegisterStrategyMetaData(const std::string &name, const TransformsMetaDataCreator &metaData) {
-        ITransformRegistry::GetInstance().Register(metaData(name));
-        return 0;
-    }
-
-    inline int RegisterMetadataList() {
-        std::vector<std::vector<TransformsMetaData>> metaDataList{LoadFromFile<TransformsMetaData>("transforms")};
-
-        metaDataList.emplace_back(MakeDataSource());
-        metaDataList.emplace_back(MakeMathMetaData());
-        metaDataList.emplace_back(MakeComparativeMetaData());
-        metaDataList.emplace_back(MakeTulipIndicators());
-        // metaDataList.emplace_back(MakeTulipCandles());
-        metaDataList.emplace_back(MakeTradeSignalExecutor());
-
-        for (auto const &indicator: std::views::join(metaDataList)) {
-            ITransformRegistry::GetInstance().Register(indicator);
-        }
-        return 0;
-    }
-
-    const int REGISTER_METADATA_LIST = RegisterMetadataList();
-}
+    void RegisterTransformMetadata(FileLoaderInterface const &loader);
+} // namespace epoch_metadata::transforms
