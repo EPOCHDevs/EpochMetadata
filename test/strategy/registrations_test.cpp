@@ -2,7 +2,7 @@
 // Created by adesola on 12/16/24.
 //
 #include <catch.hpp>
-#include "strategy/registry.h"
+#include "epoch_metadata/strategy/registry.h"
 #include "strategy/registration.h"
 #include "../common.h"
 

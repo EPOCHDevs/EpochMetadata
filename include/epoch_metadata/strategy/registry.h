@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../registry.h"
+#include "epoch_metadata/registry.h"
 #include "epoch_metadata/strategy/metadata.h"
 
 namespace epoch_metadata::strategy {

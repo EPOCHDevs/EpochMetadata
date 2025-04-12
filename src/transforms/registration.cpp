@@ -2,8 +2,7 @@
 // Created by adesola on 4/9/25.
 //
 #include "registration.h"
-#include "registry.h"
-#include "transforms/registration.h"
+#include "epoch_metadata/transforms/registry.h"
 
 
 namespace epoch_metadata::transforms {

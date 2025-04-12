@@ -2,7 +2,7 @@
 // Created by adesola on 12/16/24.
 //
 #include "transforms/registration.h"
-#include "transforms/registry.h"
+#include "epoch_metadata/transforms/registry.h"
 #include <catch.hpp>
 #include "../common.h"
 

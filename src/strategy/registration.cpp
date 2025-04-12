@@ -7,7 +7,7 @@
 
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/strategy/metadata.h"
-#include "registry.h"
+#include "epoch_metadata/strategy/registry.h"
 
 namespace epoch_metadata::strategy {
 

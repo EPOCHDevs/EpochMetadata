@@ -3,7 +3,7 @@
 //
 #include "epoch_metadata/strategy/metadata.h"
 #include "doc_deserialization_helper.h"
-#include "transforms/registry.h"
+#include "epoch_metadata/transforms/registry.h"
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
