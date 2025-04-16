@@ -3,7 +3,7 @@
 //
 #include <catch.hpp>
 #include "epoch_metadata/strategy/registry.h"
-#include "strategy/registration.h"
+#include "epoch_metadata/strategy/registration.h"
 #include "../common.h"
 
 TEST_CASE("Strategy Component MetaData Total Count is Correct") {

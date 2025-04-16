@@ -1,7 +1,7 @@
 #include <catch2/catch_all.hpp>
 #include <yaml-cpp/yaml.h>
 #include "epoch_metadata/strategy/metadata.h" // Your metadata declarations
-#include <transforms/registration.h>
+#include <epoch_metadata/transforms/registration.h>
 #include "../common.h"
 
 // For convenience:

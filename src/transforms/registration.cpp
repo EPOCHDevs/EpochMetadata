@@ -1,8 +1,9 @@
 //
 // Created by adesola on 4/9/25.
 //
-#include "registration.h"
+#include "epoch_metadata/transforms/registration.h"
 #include "epoch_metadata/transforms/registry.h"
+#include "../doc_deserialization_helper.h"
 
 
 namespace epoch_metadata::transforms {

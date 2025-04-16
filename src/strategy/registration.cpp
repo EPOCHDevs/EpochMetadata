@@ -1,10 +1,8 @@
 //
 // Created by dewe on 9/11/24.
 //
-#include "registration.h"
-
-#include <transforms/registration.h>
-
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/registration.h"
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/strategy/metadata.h"
 #include "epoch_metadata/strategy/registry.h"
