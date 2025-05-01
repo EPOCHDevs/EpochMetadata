@@ -257,7 +257,8 @@ namespace epoch_metadata::transforms {
                 MetaDataOption{.id = "value", .name = "", .type = epoch_core::MetaDataOptionType::Decimal},
              },
              .type = epoch_core::TransformType::Scalar,
-             .desc=""});
+             .desc="",
+             .outputs = {IOMetaData{epoch_core::IODataType::Decimal, "value", ""}}});
         // TODO: Add String + Boolean + Math Constants
         return metadataList;
     }

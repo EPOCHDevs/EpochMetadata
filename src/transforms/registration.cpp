@@ -22,6 +22,7 @@ namespace epoch_metadata::transforms {
         metaDataList.emplace_back(MakeTulipIndicators());
         metaDataList.emplace_back(MakeTulipCandles());
         metaDataList.emplace_back(MakeTradeSignalExecutor());
+
         metaDataList.emplace_back(MakeScalarMetaData());
 
         for (auto const &indicator : std::views::join(metaDataList)) {
