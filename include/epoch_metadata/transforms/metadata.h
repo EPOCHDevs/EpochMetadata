@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 
-CREATE_ENUM(TransformType, Overlay, Indicator, Math, DataSource,
-            TradeSignalExecutor, Comparative, CandleStickPattern);
+CREATE_ENUM(TransformType,
+  Overlay, Indicator, Simple, MathFunction, DataSource, TradeSignalExecutor,
+  MathOperator, ControlFlow, CandleStickPattern,
+  CrossSectional, Scalar);
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 
 namespace epoch_metadata::transforms {
@@ -72,6 +74,7 @@ struct IOMetaDataConstants {
 };
 
 std::vector<TransformsMetaData> MakeComparativeMetaData();
+std::vector<TransformsMetaData> MakeScalarMetaData();
 std::vector<TransformsMetaData> MakeMathMetaData();
 std::vector<TransformsMetaData> MakeDataSource();
 std::vector<TransformsMetaData> MakeTradeSignalExecutor();
