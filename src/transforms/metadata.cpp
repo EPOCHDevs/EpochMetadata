@@ -181,35 +181,20 @@ namespace epoch_metadata::transforms {
     std::vector<TransformsMetaData> MakeComparativeMetaData() {
         std::vector<TransformsMetaData> metadataList;
 
-        // Define constant equality transforms
-        metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "constant_gt", false, "Greater Than")); // Greater Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "constant_gte", false,
-            "Greater Than or Equal")); // Greater Than Or Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "constant_lt", false, "Less Than")); // Less Than
-        metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "constant_lte", false, "Less Than or Equal")); // Less Than Or Equals
-        metadataList.emplace_back(
-            MakeEqualityTransformMetaData("constant_eq", false, "Equal")); // Equals
-        metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "constant_neq", false, "Not Equal")); // Not Equals
-
         // Define vector equality transforms
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_gt", true, "Vector Greater Than")); // Greater Than
+            "gt", true, "Greater Than")); // Greater Than
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_gte", true,
-            "Vector Greater Than or Equal")); // Greater Than Or Equals
+            "gte", true,
+            "Greater Than or Equal")); // Greater Than Or Equals
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_lt", true, "Vector Less Than")); // Less Than
+            "lt", true, "Less Than")); // Less Than
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_lte", true, "Vector Less Than or Equal")); // Less Than Or Equals
+            "lte", true, "Less Than or Equal")); // Less Than Or Equals
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_eq", true, "Vector Equal")); // Equals
+            "eq", true, "Equal")); // Equals
         metadataList.emplace_back(MakeEqualityTransformMetaData(
-            "vector_neq", true, "Vector Not Equal")); // Not Equals
+            "neq", true, "Not Equal")); // Not Equals
 
         metadataList.emplace_back(
             MakeBooleanSelectMetaData("boolean_select", "If Else"));
@@ -232,22 +217,6 @@ namespace epoch_metadata::transforms {
         return metadataList;
     }
 
-    std::vector<TransformsMetaData> MakeMathMetaData() {
-        std::vector<TransformsMetaData> metadataList;
-
-        metadataList.emplace_back(MakeMathTransformMetaData("constant_add", "Add"));
-        metadataList.emplace_back(
-            MakeMathTransformMetaData("constant_sub", "Subtract"));
-        metadataList.emplace_back(
-            MakeMathTransformMetaData("constant_div", "Divide"));
-        metadataList.emplace_back(
-            MakeMathTransformMetaData("constant_mul", "Multiply"));
-        metadataList.emplace_back(
-            MakeMathTransformMetaData("constant_exp", "Exponent"));
-
-        return metadataList;
-    }
-
     std::vector<TransformsMetaData> MakeScalarMetaData() {
         std::vector<TransformsMetaData> metadataList;
 
@@ -258,7 +227,7 @@ namespace epoch_metadata::transforms {
              },
              .type = epoch_core::TransformType::Scalar,
              .desc="",
-             .outputs = {IOMetaData{epoch_core::IODataType::Decimal, "value", ""}}});
+             .outputs = {IOMetaData{epoch_core::IODataType::Decimal, "result", ""}}});
         // TODO: Add String + Boolean + Math Constants
         return metadataList;
     }

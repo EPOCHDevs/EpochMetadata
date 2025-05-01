@@ -17,7 +17,6 @@ namespace epoch_metadata::transforms {
             LoadFromFile<TransformsMetaData>(loader, "transforms")};
 
         metaDataList.emplace_back(MakeDataSource());
-        metaDataList.emplace_back(MakeMathMetaData());
         metaDataList.emplace_back(MakeComparativeMetaData());
         metaDataList.emplace_back(MakeTulipIndicators());
         metaDataList.emplace_back(MakeTulipCandles());

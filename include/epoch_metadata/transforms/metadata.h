@@ -75,7 +75,6 @@ struct IOMetaDataConstants {
 
 std::vector<TransformsMetaData> MakeComparativeMetaData();
 std::vector<TransformsMetaData> MakeScalarMetaData();
-std::vector<TransformsMetaData> MakeMathMetaData();
 std::vector<TransformsMetaData> MakeDataSource();
 std::vector<TransformsMetaData> MakeTradeSignalExecutor();
 std::vector<TransformsMetaData> MakeTulipIndicators();

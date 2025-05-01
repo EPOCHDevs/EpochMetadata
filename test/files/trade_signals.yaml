@@ -12,13 +12,13 @@ atr_scalping:
     algorithm:
         - { type: atr, options: { period: .atr_period }, inputs: {} }
         - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#atr" } }
-        - { type: vector_gt, id: breakout,  inputs: { "*0": "atr#atr", "*1" : "sma#sma"} }
+        - { type: gt, id: breakout,  inputs: { "*0": "atr#atr", "*1" : "sma#sma"} }
         - { type: max, id: three_candle_high, options: { period: 3 }, inputs: {"*": &HIGH "h" } }
         - { type: lag, id: three_candle_high_lag, options: { period: 1 }, inputs: { "*": "three_candle_high#max" } }
         - { type: min, id: three_candle_low, options: { period: 3 }, inputs: {"*": &LOW "l" } }
         - { type: lag, id: three_candle_low_lag, options: { period: 1 }, inputs: { "*": "three_candle_low#min" } }
-        - { type: vector_gt, id: long, inputs: { "*0" : *HIGH , "*1" : "three_candle_high_lag#lag" } }
-        - { type: vector_lt, id: short, inputs: { "*0" : *LOW , "*1" : "three_candle_low_lag#lag" } }
+        - { type: gt, id: long, inputs: { "*0" : *HIGH , "*1" : "three_candle_high_lag#lag" } }
+        - { type: lt, id: short, inputs: { "*0" : *LOW , "*1" : "three_candle_low_lag#lag" } }
     executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: true }, inputs: { long: "long#result" , short: "short#result" } }
 
 bband_long_only_breakout:
@@ -36,9 +36,9 @@ bband_long_only_breakout:
         - { type: bbands, options: { period: .period, stddev: .stddev }, inputs: { "*" : &CLOSE "c"} }
         - { type: bband_width, inputs: { bbands_lower : "bbands#bbands_lower", bbands_middle : "bbands#bbands_middle", bbands_upper : "bbands#bbands_upper" } }
         - { type: sma, options: { period: .bbw_period }, inputs: { "*" : "bband_width#bband_width" } }
-        - { type: vector_gt,  inputs: { "*0" : "bband_width#bband_width" , "*1" : "sma#sma" } }
+        - { type: gt,  inputs: { "*0" : "bband_width#bband_width" , "*1" : "sma#sma" } }
         - { type: crossover,  inputs: { "*0" : "bbands#bbands_upper" , "*1" : *HIGH } }
-        - { type: logical_and, id: long, inputs: { "*0" : "vector_gt#result" , "*1" : "crossover#crossover" } }
+        - { type: logical_and, id: long, inputs: { "*0" : "gt#result" , "*1" : "crossover#crossover" } }
     executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" } }
 
 bband_reversal:
@@ -79,10 +79,11 @@ improved_gap_up_down:
     algorithm:
         - { type: gap_returns, id: gret, inputs: { } }
         - { type: stddev, id: stddev, options: { period: .period }, inputs: { "*": "gret#gap_returns" } }
-        - { type: constant_mul, id: mul, options: { value: .multiplier }, inputs: { "*": "stddev#stddev" } }
-        - { type: vector_gt, id: long,  inputs: &GAP_IN { "*0" : "gret#gap_returns", "*1" : "mul#result" } }
-        - { type: vector_lt, id: short,  inputs: *GAP_IN }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
+        - { type: number, id: number, options: { value: .multiplier } }
+        - { type: mul, id: mul, inputs: { "*0": "number#result", "*1": "stddev#stddev" } }
+        - { type: gt, id: long,  inputs: &GAP_IN { "*0" : "gret#gap_returns", "*1" : "mul#result" } }
+        - { type: lt, id: short,  inputs: *GAP_IN }
+    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#gt" , short: "short#lt" } }
 
 macd_lines_crossover:
     name: MACD & Signal Line Crossover
@@ -97,9 +98,10 @@ macd_lines_crossover:
     type: TrendFollowing
     algorithm:
         - { type: macd, id: macd, options: { short_period: .short_period, long_period: .long_period, signal_period: .signal_period }, inputs: { "*" : *CLOSE } }
-        - { type: constant_gt, id: long,   options: { value: 0 },  inputs: { "*" : "macd#macd_histogram" } }
-        - { type: constant_lt, id: short,  options: { value: 0 },  inputs: { "*" : "macd#macd_histogram" } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#constant_gt" , short: "short#constant_lt" } }
+        - { type: number, id: zero, options: { value: 0 } }
+        - { type: gt, id: long, inputs: { "*0" : "macd#macd_histogram", "*1": "number#result" } }
+        - { type: lt, id: short, inputs: { "*0" : "macd#macd_histogram", "*1": "number#result"  } }
+    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#gt" , short: "short#lt" } }
 
 moving_average_crossover_with_price:
     name: Price & Moving Average Crossover
