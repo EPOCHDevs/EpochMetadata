@@ -511,10 +511,10 @@ namespace epoch_metadata::transforms {
                   .isCrossSectional = false,
                   .desc = "https://www.strike.money/technical-analysis/"
                           "types-of-candlesticks-patterns",
-                  .inputs = {IOMetaDataConstants::CLOSE_PRICE_METADATA,
-                             IOMetaDataConstants::OPEN_PRICE_METADATA,
+                  .inputs =  { IOMetaDataConstants::OPEN_PRICE_METADATA,
                              IOMetaDataConstants::HIGH_PRICE_METADATA,
-                             IOMetaDataConstants::LOW_PRICE_METADATA},
+                             IOMetaDataConstants::LOW_PRICE_METADATA,
+                  IOMetaDataConstants::CLOSE_PRICE_METADATA},
                   .outputs = makeCandleOutputs(c)};
             });
 
