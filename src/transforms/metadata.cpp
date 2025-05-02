@@ -359,7 +359,7 @@ namespace epoch_metadata::transforms {
         };
 
         auto getType = [](const int type, std::string const& name) -> epoch_core::TransformType {
-            static std::unordered_set<std::string> overlayMath{"lag", "min", "max"};
+            static std::unordered_set<std::string> overlayMath{"lag", "min", "max", "crossover", "crossany"};
             switch (type) {
                 case TI_TYPE_OVERLAY:
                     return epoch_core::TransformType::Overlay;
