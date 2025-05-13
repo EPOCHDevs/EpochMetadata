@@ -1,38 +1,46 @@
 bband_percent:
   name: Bollinger Bands %B
   type: Indicator
-  desc: $BAR_CHART_URL/bollinger_bands_percent
-  inputs: [{ type: Decimal, id: bbands_lower, name: Lower Band }, { type: Decimal, id: bbands_upper, name: Upper Band }]
-  outputs: [{ type: Decimal, id: bband_percent }]
+  desc: "Measures position within Bollinger Bands as a normalized value between 0 and 1. Values above 1 or below 0 indicate extreme conditions."
+  inputs: 
+    - { type: Decimal, id: bbands_lower, name: Lower Band, allowMultipleConnections: false }
+    - { type: Decimal, id: bbands_upper, name: Upper Band, allowMultipleConnections: false }
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "bollinger", "bands", "oscillator", "normalized"]
 
 bband_width:
   name: Bollinger Bands Width
   type: Indicator
-  desc: $BAR_CHART_URL/bollinger_squeeze
-  inputs: [ { type: Decimal, id: bbands_lower, name: Lower Band },
-            { type: Decimal, id: bbands_middle, name: Middle Band },
-            { type: Decimal, id: bbands_upper, name: Upper Band } ]
-  outputs: [ { type: Decimal, id: bband_width } ]
+  desc: "Measures the width of Bollinger Bands to identify volatility expansion and contraction. Narrows during low volatility and widens during high volatility."
+  inputs: 
+    - { type: Decimal, id: bbands_lower, name: Lower Band, allowMultipleConnections: false }
+    - { type: Decimal, id: bbands_middle, name: Middle Band, allowMultipleConnections: false }
+    - { type: Decimal, id: bbands_upper, name: Upper Band, allowMultipleConnections: false }
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "bollinger", "bands", "volatility", "squeeze"]
 
 cs_returns:
   name: Cross-Sectional Returns
   type: Indicator
+  desc: "Calculates returns across multiple assets in the same time period, enabling relative performance comparison within a universe of securities."
   isCrossSectional: true
-  inputs: [ CLOSE ]
-  outputs: [ { type: Decimal, id: cs_returns } ]
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "cross-sectional", "returns", "relative-performance", "multi-asset"]
 
 cum_prod:
   name: Cumulative Product
   type: Simple
-  inputs: [ NUMBER ]
-  outputs: [ { type: Decimal, id: cum_prod } ]
+  desc: "Calculates the running product of a series of values. Useful for compounding growth rates or returns over time."
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["simple", "cumulative", "product", "compounding", "returns"]
 
 gap_returns:
   name: Gap Returns
   type: Indicator
-  desc: "https://appreciatewealth.com/blog/gap-up-gap-down#:~:text=A%20gap%2Dup%20in%20stock,lower%20than%20its%20previous%20close."
-  inputs: [ OPEN, CLOSE ]
-  outputs: [ { type: Decimal, id: gap_returns } ]
+  desc: "Measures the price gap between previous close and current open. Identifies overnight or weekend price movements that can signal significant market events."
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "gap", "returns", "overnight", "price-jump"]
 
 ma:
   name: Moving Average
@@ -54,15 +62,16 @@ ma:
         - { name: "Weighted Moving Average (WMA)", value: wma }
         - { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
   type: Overlay
-  desc: "$INVESTOPEDIA/volatility"
-  inputs: [ NUMBER ]
-  outputs: [ { type: Decimal, id: ma } ]
+  desc: "Calculates average price over specified period with multiple calculation methods. Acts as a trend indicator and noise filter."
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["overlay", "moving-average", "trend", "smoothing", "filter"]
 
 return_vol:
   name: Return Volatility
   options:
     - PERIOD
   type: Indicator
-  desc: "$INVESTOPEDIA/volatility"
-  inputs: [ CLOSE ]
-  outputs: [ { type: Decimal, id: return_vol } ]
+  desc: "Measures the standard deviation of returns over a specified period. Quantifies historical volatility for risk assessment."
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "standard-deviation", "returns"]

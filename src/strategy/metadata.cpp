@@ -4,6 +4,7 @@
 #include "epoch_metadata/strategy/metadata.h"
 #include "doc_deserialization_helper.h"
 #include "epoch_metadata/transforms/registry.h"
+#include <epoch_core/macros.h>
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
@@ -50,7 +51,25 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
     throw std::runtime_error("Unknown options: " + Dump(options));
   }
 
-  metadata.inputs = node["inputs"].as<InputMapping>(InputMapping{});
+  auto nodeInputs = node["inputs"];
+  for (auto const &input : transform->inputs) {
+    auto inputs = nodeInputs[input.id];
+    if (!inputs) {
+      SPDLOG_DEBUG("Missing input: {}", input.id);
+      continue;
+    }
+
+    if (input.allowMultipleConnections) {
+      AssertFromFormat(inputs.IsSequence(), "Input {} is not a sequence",
+                       input.id);
+      metadata.inputs[input.id] = inputs.as<std::vector<std::string>>();
+    } else {
+      AssertFromFormat(inputs.IsScalar(), "Input {} is not a scalar", input.id);
+      metadata.inputs[input.id] =
+          std::vector<std::string>{inputs.as<std::string>()};
+    }
+  }
+
   metadata.metaData = *transform;
   return true;
 }
@@ -62,6 +81,8 @@ bool convert<AlgorithmBaseMetaData>::decode(YAML::Node const &node,
   metadata.options =
       node["options"].as<MetaDataOptionList>(MetaDataOptionList{});
   metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
+  metadata.tags =
+      node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
   return true;
 }
 
@@ -74,6 +95,8 @@ bool convert<AlgorithmMetaData>::decode(YAML::Node const &node,
   metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
   metadata.isGroup = node["isGroup"].as<bool>(false);
   metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
+  metadata.tags =
+      node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
   return true;
 }
 
@@ -91,6 +114,8 @@ bool convert<TradeSignalMetaData>::decode(YAML::Node const &node,
 
   metadata.algorithm = node["algorithm"].as<std::vector<AlgorithmNode>>();
   metadata.executor = node["executor"].as<AlgorithmNode>();
+  metadata.tags =
+      node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
   return true;
 }
 } // namespace YAML

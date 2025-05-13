@@ -7,19 +7,20 @@ atr_scalping:
             min: 1, max: 1000, step_size: 1 }
         - { id: breakout_period, name: "Breakout Period", default: 3, type: Integer,
             min: 1, max: 1000, step_size: 1 }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=11&unit_no=10&course_type=paid&unit_type=Notebook"
+    desc: "Uses Average True Range (ATR) to identify volatility breakouts for scalping opportunities. Combines ATR with rolling mean and price breakouts to generate trade signals."
+    tags: ["momentum", "volatility", "atr", "breakout", "scalping"]
     type: Momentum
     algorithm:
         - { type: atr, options: { period: .atr_period }, inputs: {} }
-        - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#atr" } }
-        - { type: gt, id: breakout,  inputs: { "*0": "atr#atr", "*1" : "sma#sma"} }
+        - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#result" } }
+        - { type: gt, id: breakout,  inputs: { "*0": "atr#result", "*1" : "sma#result"} }
         - { type: max, id: three_candle_high, options: { period: 3 }, inputs: {"*": &HIGH "h" } }
-        - { type: lag, id: three_candle_high_lag, options: { period: 1 }, inputs: { "*": "three_candle_high#max" } }
+        - { type: lag, id: three_candle_high_lag, options: { period: 1 }, inputs: { "*": "three_candle_high#result" } }
         - { type: min, id: three_candle_low, options: { period: 3 }, inputs: {"*": &LOW "l" } }
-        - { type: lag, id: three_candle_low_lag, options: { period: 1 }, inputs: { "*": "three_candle_low#min" } }
-        - { type: gt, id: long, inputs: { "*0" : *HIGH , "*1" : "three_candle_high_lag#lag" } }
-        - { type: lt, id: short, inputs: { "*0" : *LOW , "*1" : "three_candle_low_lag#lag" } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: true }, inputs: { long: "long#result" , short: "short#result" } }
+        - { type: lag, id: three_candle_low_lag, options: { period: 1 }, inputs: { "*": "three_candle_low#result" } }
+        - { type: gt, id: long, inputs: { "*0" : *HIGH , "*1" : "three_candle_high_lag#result" } }
+        - { type: lt, id: short, inputs: { "*0" : *LOW , "*1" : "three_candle_low_lag#result" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: true }, inputs: { long: "long#result" , short: "short#result" } }
 
 bband_long_only_breakout:
     name: Bollinger Band Long-Only Breakout
@@ -30,16 +31,17 @@ bband_long_only_breakout:
           min: 1, max: 10, step_size: 1 }
       - { id: bbw_period, name: "Bandwidth Period", default: 21, type: Integer,
           min: 1, max: 1000, step_size: 1 }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=245&section_no=12&unit_no=2&course_type=paid&unit_type=Document"
+    desc: "Generates long-only signals when price breaks above the upper Bollinger Band during periods of expanding volatility, as measured by Bollinger Bandwidth."
+    tags: ["momentum", "bollinger", "breakout", "volatility", "long-only"]
     type: Momentum
     algorithm:
         - { type: bbands, options: { period: .period, stddev: .stddev }, inputs: { "*" : &CLOSE "c"} }
         - { type: bband_width, inputs: { bbands_lower : "bbands#bbands_lower", bbands_middle : "bbands#bbands_middle", bbands_upper : "bbands#bbands_upper" } }
-        - { type: sma, options: { period: .bbw_period }, inputs: { "*" : "bband_width#bband_width" } }
-        - { type: gt,  inputs: { "*0" : "bband_width#bband_width" , "*1" : "sma#sma" } }
+        - { type: sma, options: { period: .bbw_period }, inputs: { "*" : "bband_width#result" } }
+        - { type: gt,  inputs: { "*0" : "bband_width#result" , "*1" : "sma#result" } }
         - { type: crossover,  inputs: { "*0" : "bbands#bbands_upper" , "*1" : *HIGH } }
-        - { type: logical_and, id: long, inputs: { "*0" : "gt#result" , "*1" : "crossover#crossover" } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" } }
+        - { type: logical_and, id: long, inputs: { "*0" : "gt#result" , "*1" : "crossover#result" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" } }
 
 bband_reversal:
     name: Bollinger Band Reversal
@@ -48,23 +50,25 @@ bband_reversal:
             min: 1, max: 1000, step_size: 1 }
         - { id: stddev, name: "Standard Dev.", default: 2, type: Integer,
             min: 1, max: 10, step_size: 1 }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=245&section_no=10&unit_no=8&course_type=paid&unit_type=Document"
+    desc: "Identifies potential price reversals by generating signals when price crosses back inside the Bollinger Bands after reaching extreme levels."
+    tags: ["mean-reversion", "bollinger", "reversal", "overbought", "oversold"]
     type: MeanReverting
     algorithm:
         - { type: bbands, options: { period: .period, stddev: .stddev }, inputs: { "*" : *CLOSE } }
         - { type: crossover, id: short, inputs: { "*0": *CLOSE, "*1" : "bbands#bbands_upper"} }
         - { type: crossover, id: long,  inputs: { "*0": "bbands#bbands_lower", "*1": *CLOSE } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#crossover" , short: "short#crossover" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 gap_up_down:
     name: Gap Up & Down
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=6&unit_no=10&course_type=paid&unit_type=Notebook"
+    desc: "Generates trade signals based on price gaps between the previous close and current open, going long on gap ups and short on gap downs."
+    tags: ["momentum", "gap", "opening", "breakaway", "continuation"]
     type: Momentum
     algorithm:
         - { type: lag, options: { period: 1 }, inputs: { "*" : *CLOSE } }
         - { id: long, type: crossover,  inputs: &GAP_IN { "*0": &OPEN "o", "*1": "lag#lag" } }
         - { id: short, type: crossover,  inputs: { "*0": "lag#lag", "*1": *OPEN } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#crossover" , short: "short#crossover" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 improved_gap_up_down:
     name: Improved Gap Up & Down
@@ -73,17 +77,18 @@ improved_gap_up_down:
             min: 1, max: 1000, step_size: 1 }
         - { id: multiplier, name: "Multiplier", default: 0.25, type: Decimal,
             min: 0, max: 10, step_size: 0.01 }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=6&unit_no=17&course_type=paid&unit_type=Notebook"
+    desc: "Enhanced gap trading strategy that filters signals based on historical gap volatility, only taking trades when the current gap exceeds a statistical threshold."
+    tags: ["momentum", "gap", "volatility", "statistical", "filtered"]
     type: Momentum
     closeIfIndecisive : false
     algorithm:
         - { type: gap_returns, id: gret, inputs: { } }
         - { type: stddev, id: stddev, options: { period: .period }, inputs: { "*": "gret#gap_returns" } }
         - { type: number, id: number, options: { value: .multiplier } }
-        - { type: mul, id: mul, inputs: { "*0": "number#result", "*1": "stddev#stddev" } }
+        - { type: mul, id: mul, inputs: { "*0": "number#result", "*1": "stddev#result" } }
         - { type: gt, id: long,  inputs: &GAP_IN { "*0" : "gret#gap_returns", "*1" : "mul#result" } }
         - { type: lt, id: short,  inputs: *GAP_IN }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#gt" , short: "short#lt" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 macd_lines_crossover:
     name: MACD & Signal Line Crossover
@@ -94,14 +99,15 @@ macd_lines_crossover:
             min: 1, max: 1000, step_size: 1 }
         - { id: signal_period, name: "Signal Period", type: Integer, default: 9,
             min: 1, max: 1000, step_size: 1 }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=6&unit_no=17&course_type=paid&unit_type=Notebook"
+    desc: "Uses the MACD histogram to identify momentum shifts, generating long signals when the histogram is positive and short signals when negative."
+    tags: ["trend", "macd", "oscillator", "momentum", "crossover"]
     type: TrendFollowing
     algorithm:
         - { type: macd, id: macd, options: { short_period: .short_period, long_period: .long_period, signal_period: .signal_period }, inputs: { "*" : *CLOSE } }
-        - { type: number, id: zero, options: { value: 0 } }
-        - { type: gt, id: long, inputs: { "*0" : "macd#macd_histogram", "*1": "number#result" } }
-        - { type: lt, id: short, inputs: { "*0" : "macd#macd_histogram", "*1": "number#result"  } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#gt" , short: "short#lt" } }
+        - { type: zero, id: zero }
+        - { type: gt, id: long, inputs: { "*0" : "macd#macd_histogram", "*1": "zero#result" } }
+        - { type: lt, id: short, inputs: { "*0" : "macd#macd_histogram", "*1": "zero#result"  } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 moving_average_crossover_with_price:
     name: Price & Moving Average Crossover
@@ -122,13 +128,14 @@ moving_average_crossover_with_price:
               { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
             ]
         }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=6&unit_no=17&course_type=paid&unit_type=Notebook"
+    desc: "Generates trade signals when price crosses above or below a moving average, with configurable moving average type and period."
+    tags: ["trend", "moving-average", "crossover", "price", "technical"]
     type: TrendFollowing
     algorithm:
         - { type: ma, id: ma, options: { type: .type, period: .period }, inputs: { "*" : *CLOSE } }
-        - { type: crossover, id: long,  inputs: { "*0" : *CLOSE, "*1" : "ma#ma" } }
-        - { type: crossover, id: short, inputs: { "*0" : "ma#ma", "*1" : *CLOSE } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#crossover" , short: "short#crossover" } }
+        - { type: crossover, id: long,  inputs: { "*0" : *CLOSE, "*1" : "ma#result" } }
+        - { type: crossover, id: short, inputs: { "*0" : "ma#result", "*1" : *CLOSE } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 moving_average_crossover:
     name: Dual Moving Average Crossover
@@ -165,11 +172,12 @@ moving_average_crossover:
                 { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
               ]
           }
-    desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=6&unit_no=17&course_type=paid&unit_type=Notebook"
+    desc: "Classic trend-following strategy that generates signals when a faster moving average crosses above or below a slower moving average, with configurable types and periods for both averages."
+    tags: ["trend", "moving-average", "crossover", "dual", "technical"]
     type: TrendFollowing
     algorithm:
         - { type: ma, id: slow, options: { type: .slowMAType, period: .slowPeriod }, inputs: { "*" : *CLOSE } }
         - { type: ma, id: fast, options: { type: .fastMAType, period: .fastPeriod }, inputs: { "*" : *CLOSE } }
-        - { type: crossover, id: long,  inputs: { "*0" : "fast#ma", "*1" : "slow#ma" } }
-        - { type: crossover, id: short, inputs: { "*0" : "slow#ma", "*1" : "fast#ma" } }
-    executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: false }, inputs: { long: "long#crossover" , short: "short#crossover" } }
+        - { type: crossover, id: long,  inputs: { "*0" : "fast#result", "*1" : "slow#result" } }
+        - { type: crossover, id: short, inputs: { "*0" : "slow#result", "*1" : "fast#result" } }
+    executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }

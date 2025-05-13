@@ -12,7 +12,7 @@
 CREATE_ENUM(AlgorithmType, TakeProfit, StopLoss, Sizer, Commission, Slippage,
             FuturesContinuation);
 CREATE_ENUM(TradeSignalType, TrendFollowing, MeanReverting, CandleStickPattern,
-            Momentum, EventDriven);
+            Momentum, EventDriven, PriceAction, TechnicalPattern);
 
 namespace epoch_metadata::strategy {
 struct AlgorithmBaseMetaData {
@@ -20,6 +20,7 @@ struct AlgorithmBaseMetaData {
   std::string name;
   MetaDataOptionList options{};
   std::string desc{};
+  std::vector<std::string> tags{};
 };
 
 struct AlgorithmMetaData {
@@ -29,9 +30,10 @@ struct AlgorithmMetaData {
   std::string desc{};
   bool isGroup{false};
   bool requiresTimeframe{true};
+  std::vector<std::string> tags{};
 };
 
-using InputMapping = std::unordered_map<std::string, std::string>;
+using InputMapping = std::unordered_map<std::string, std::vector<std::string>>;
 struct AlgorithmNode {
   std::string type;
   std::string id{};
@@ -50,6 +52,7 @@ struct TradeSignalMetaData {
   epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
   std::vector<AlgorithmNode> algorithm;
   AlgorithmNode executor;
+  std::vector<std::string> tags{};
 };
 
 // Copy member variables to support glaze serialization form decomposition
@@ -57,7 +60,8 @@ struct TradeSignalMetaData {
 
 namespace YAML {
 template <> struct convert<epoch_metadata::strategy::AlgorithmNode> {
-  static bool decode(YAML::Node const &, epoch_metadata::strategy::AlgorithmNode &);
+  static bool decode(YAML::Node const &,
+                     epoch_metadata::strategy::AlgorithmNode &);
 };
 
 template <> struct convert<epoch_metadata::strategy::AlgorithmBaseMetaData> {

@@ -1,8 +1,8 @@
-#include <catch2/catch_all.hpp>
-#include <yaml-cpp/yaml.h>
-#include "epoch_metadata/strategy/metadata.h" // Your metadata declarations
-#include <epoch_metadata/transforms/registration.h>
 #include "../common.h"
+#include "epoch_metadata/strategy/metadata.h" // Your metadata declarations
+#include <catch2/catch_all.hpp>
+#include <epoch_metadata/transforms/registration.h>
+#include <yaml-cpp/yaml.h>
 
 // For convenience:
 using namespace epoch_metadata;
@@ -179,7 +179,7 @@ type: Momentum
 algorithm:
   - { type: atr, id: atr, options: { period: .atr_period }, inputs: { "*" : "c" } }
   - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#atr" } }
-executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: true }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
+executor: { type: trade_signal_executor, options: { closeIfIndecisive: true }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
 )";
 
   YAML::Node node = YAML::Load(yaml_str);
@@ -205,8 +205,8 @@ executor: { type: TradeSignalExecutor, options: { closeIfIndecisive: true }, inp
   // The second node, etc.
 
   // And the executor
-  CHECK(tsmd.executor.type == "TradeSignalExecutor");
-  CHECK(tsmd.executor.id == "TradeSignalExecutor");
+  CHECK(tsmd.executor.type == "trade_signal_executor");
+  CHECK(tsmd.executor.id == "trade_signal_executor");
   // ...
 }
 
