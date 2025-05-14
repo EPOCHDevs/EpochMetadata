@@ -149,9 +149,71 @@ TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
   return metadata;
 }
 
+TransformsMetaData
+MakePreviousValueCompareMetaData(std::string const &id, std::string const &name,
+                                 std::string const &desc,
+                                 std::string const &operator_name) {
+  TransformsMetaData metadata;
+
+  metadata.id = id;
+  metadata.name = name;
+  metadata.type = epoch_core::TransformType::MathOperator;
+  metadata.isCrossSectional = false;
+  metadata.desc = desc;
+  metadata.tags = {"comparison", "temporal", "previous", operator_name,
+                   "lookback"};
+
+  // Options
+  metadata.options = {
+      MetaDataOption{.id = "periods",
+                     .name = "Lookback Periods",
+                     .type = epoch_core::MetaDataOptionType::Integer,
+                     .defaultValue = MetaDataOptionDefinition(1.0),
+                     .isRequired = true}};
+
+  // Inputs
+  metadata.inputs = {IOMetaDataConstants::DECIMAL_INPUT_METADATA};
+
+  // Output
+  metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
+
+  return metadata;
+}
+
+TransformsMetaData MakeRangeValueCompareMetaData(
+    std::string const &id, std::string const &name, std::string const &desc,
+    std::string const &operator_name, bool is_highest) {
+  TransformsMetaData metadata;
+
+  metadata.id = id;
+  metadata.name = name;
+  metadata.type = epoch_core::TransformType::MathOperator;
+  metadata.isCrossSectional = false;
+  metadata.desc = desc;
+  metadata.tags = {"comparison", "temporal", is_highest ? "highest" : "lowest",
+                   operator_name, "lookback"};
+
+  // Options
+  metadata.options = {
+      MetaDataOption{.id = "periods",
+                     .name = "Lookback Periods",
+                     .type = epoch_core::MetaDataOptionType::Integer,
+                     .defaultValue = MetaDataOptionDefinition(14.0),
+                     .isRequired = true}};
+
+  // Inputs
+  metadata.inputs = {IOMetaDataConstants::DECIMAL_INPUT_METADATA};
+
+  // Output
+  metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
+
+  return metadata;
+}
+
 std::vector<TransformsMetaData> MakeComparativeMetaData() {
   std::vector<TransformsMetaData> metadataList;
 
+  // Vector comparison operators (gt, lt, eq, etc.)
   for (auto const &[id, name] :
        std::initializer_list<std::array<std::string, 2>>{
            {"gt", "Greater Than"},
@@ -163,16 +225,61 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
     metadataList.emplace_back(MakeEqualityTransformMetaData(id, name));
   }
 
+  // Boolean select (if/else)
   metadataList.emplace_back(
       MakeBooleanSelectMetaData("boolean_select", "If Else"));
 
+  // N-way selectors (select_2, select_3, etc.)
   for (size_t i = 2; i <= 5; ++i) {
     metadataList.emplace_back(MakeZeroIndexSelectMetaData(i));
   }
 
+  // Logical operators
   for (auto const &name : {"OR", "AND", "NOT", "AND NOT", "XOR"}) {
     metadataList.emplace_back(MakeLogicalTransformMetaData(name));
   }
+
+  // Previous value comparison operators
+  metadataList.emplace_back(MakePreviousValueCompareMetaData(
+      "crosses_above", "Crosses Above Previous",
+      "Signals when the current value is greater than the value N periods ago.",
+      "greater"));
+
+  metadataList.emplace_back(MakePreviousValueCompareMetaData(
+      "crosses_below", "Crosses Below Previous",
+      "Signals when the current value is less than the value N periods ago.",
+      "less"));
+
+  metadataList.emplace_back(MakePreviousValueCompareMetaData(
+      "crosses_equal", "Equals Previous",
+      "Signals when the current value equals the value N periods ago.",
+      "equal"));
+
+  // Highest value comparison operators
+  metadataList.emplace_back(MakeRangeValueCompareMetaData(
+      "higher_than_highest", "Higher Than Highest",
+      "Signals when the current value is greater than the highest value within "
+      "the past N periods.",
+      "greater", true));
+
+  metadataList.emplace_back(
+      MakeRangeValueCompareMetaData("at_highest", "At Highest",
+                                    "Signals when the current value equals the "
+                                    "highest value within the past N periods.",
+                                    "equal", true));
+
+  // Lowest value comparison operators
+  metadataList.emplace_back(MakeRangeValueCompareMetaData(
+      "lower_than_lowest", "Lower Than Lowest",
+      "Signals when the current value is less than the lowest value within the "
+      "past N periods.",
+      "less", false));
+
+  metadataList.emplace_back(
+      MakeRangeValueCompareMetaData("at_lowest", "At Lowest",
+                                    "Signals when the current value equals the "
+                                    "lowest value within the past N periods.",
+                                    "equal", false));
 
   return metadataList;
 }
@@ -278,10 +385,10 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
       .name = "Exit Trade",
   };
 
-  IOMetaData bypassMetaData{.type = epoch_core::IODataType::Boolean,
-                            .id = "bypass",
-                            .name = "Bypass Signals",
-                            .allowMultipleConnections = false};
+  IOMetaData allowSignalsMetaData{.type = epoch_core::IODataType::Boolean,
+                                  .id = "allow",
+                                  .name = "Allow Trading",
+                                  .allowMultipleConnections = false};
 
   MetaDataOption closeIfIndecisive{
       .id = "closeIfIndecisive",
@@ -295,10 +402,10 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
                          .name = "Trade Signal Executor",
                          .options = {closeIfIndecisive},
                          .type = epoch_core::TransformType::TradeSignalExecutor,
-                         .desc = "Executes trade signals. If bypass is true, "
+                         .desc = "Executes trade signals. If allow is true, "
                                  "all other signals are ignored.",
-                         .inputs = {bypassMetaData, longMetaData, shortMetaData,
-                                    closePositionMetaData},
+                         .inputs = {allowSignalsMetaData, longMetaData,
+                                    shortMetaData, closePositionMetaData},
                          .atLeastOneInputRequired = true}};
 }
 

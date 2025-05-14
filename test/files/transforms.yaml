@@ -75,3 +75,545 @@ return_vol:
   desc: "Measures the standard deviation of returns over a specified period. Quantifies historical volatility for risk assessment."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "standard-deviation", "returns"]
+
+price_diff_vol:
+  name: Price Difference Volatility
+  options:
+    - PERIOD
+  type: Indicator
+  desc: "Calculates the standard deviation of absolute price changes over a specified period. Provides a direct measure of price movement volatility."
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "price-movement", "standard-deviation", "risk"]
+
+# ======== AGGREGATION NODES ======== #
+# These nodes combine multiple inputs into a single output
+
+all_of:
+  name: All Of
+  type: Aggregate
+  desc: "Returns true only if all connected inputs are true. Useful for checking if multiple conditions are simultaneously met."
+  inputs:
+    - { type: Boolean, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "boolean", "logic", "all", "and"]
+
+any_of:
+  name: Any Of
+  type: Aggregate
+  desc: "Returns true if at least one of the connected inputs is true. Useful for checking if any condition in a set is met."
+  inputs:
+    - { type: Boolean, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "boolean", "logic", "any", "or"]
+
+none_of:
+  name: None Of
+  type: Aggregate
+  desc: "Returns true only if all connected inputs are false. Useful for ensuring no conditions in a set are met."
+  inputs:
+    - { type: Boolean, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "boolean", "logic", "none", "nor"]
+
+max:
+  name: Maximum
+  type: Aggregate
+  desc: "Returns the maximum value among all connected numeric inputs. Useful for finding the highest value in a set."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "numeric", "math", "maximum", "highest"]
+
+min:
+  name: Minimum
+  type: Aggregate
+  desc: "Returns the minimum value among all connected numeric inputs. Useful for finding the lowest value in a set."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "numeric", "math", "minimum", "lowest"]
+
+sum:
+  name: Sum
+  type: Aggregate
+  desc: "Calculates the sum of all connected numeric inputs. Useful for adding multiple values together."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "numeric", "math", "sum", "addition"]
+
+mean:
+  name: Mean
+  type: Aggregate
+  desc: "Calculates the arithmetic mean of all connected numeric inputs. Useful for finding the central value in a set."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "numeric", "math", "mean", "average"]
+
+# ======== SELECTION & BRANCHING NODES ======== #
+# These nodes route signals based on conditions
+
+percentile_select:
+  name: Percentile-Based Select
+  type: ControlFlow
+  desc: "Selects between 'high' and 'low' inputs based on whether a value is above or below a percentile threshold within a lookback period."
+  options:
+    - id: lookback
+      name: Lookback Period
+      type: Integer
+      default: 14
+    - id: percentile
+      name: Percentile Threshold
+      type: Decimal
+      default: 80
+      min: 0
+      max: 100
+      step_size: 1
+  inputs:
+    - { type: Decimal, id: "value", name: "Value" }
+    - { type: Decimal, id: "high", name: "When Above Percentile" }
+    - { type: Decimal, id: "low", name: "When Below Percentile" }
+  outputs: [ANY_RESULT]
+  tags: ["selection", "percentile", "statistics", "conditional", "flow-control"]
+
+boolean_branch:
+  name: Boolean Branch
+  type: ControlFlow
+  desc: "Splits a boolean signal into two separate outputs: one for true values and one for inverted (false) values."
+  inputs:
+    - { type: Boolean, id: "condition", name: "Condition" }
+  outputs:
+    - { type: Boolean, id: "true", name: "True Path" }
+    - { type: Boolean, id: "false", name: "False Path" }
+  tags: ["branching", "boolean", "split", "flow-control", "signal-processing"]
+
+ratio_branch:
+  name: Ratio Branch
+  type: ControlFlow
+  desc: "Splits data based on the ratio between two values: high (above upper threshold), normal (between thresholds), and low (below lower threshold)."
+  options:
+    - id: threshold_high
+      name: Upper Threshold
+      type: Decimal
+      default: 1.5
+    - id: threshold_low
+      name: Lower Threshold
+      type: Decimal
+      default: 0.5
+  inputs:
+    - { type: Decimal, id: "ratio", name: "Ratio" }
+  outputs:
+    - { type: Boolean, id: "high", name: "High (Above Upper)" }
+    - { type: Boolean, id: "normal", name: "Normal (Between)" }
+    - { type: Boolean, id: "low", name: "Low (Below Lower)" }
+    - { type: Decimal, id: "ratio", name: "Calculated Ratio" }
+  tags: ["branching", "ratio", "threshold", "flow-control", "multi-output"]
+
+# ======== SMART MONEY CONCEPT (SMC) NODES ======== #
+# These nodes implement advanced price action concepts
+
+swing_highs_lows:
+  name: Swing Highs and Lows
+  type: Indicator
+  desc: "Identifies swing high and low points in price data by finding local peaks and valleys within a specified lookback period."
+  options:
+    - id: swing_length
+      name: Swing Length
+      type: Integer
+      default: 5
+  outputs:
+    - { type: Integer, id: "high_low", name: "High/Low Direction" }
+    - { type: Decimal, id: "level", name: "Level" }
+  tags: ["smc", "price-action", "swing", "pivot", "technical"]
+
+bos_choch:
+  name: Break of Structure & Change of Character
+  type: Indicator
+  desc: "Detects Break of Structure (BOS) and Change of Character (CHOCH) patterns, which signal potential trend changes and market structure shifts."
+  options:
+    - id: close_break
+      name: Use Close Price
+      type: Boolean
+      default: false
+  inputs:
+    - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
+    - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
+  outputs:
+    - { type: Integer, id: "bos", name: "Break of Structure" }
+    - { type: Integer, id: "choch", name: "Change of Character" }
+    - { type: Decimal, id: "level", name: "Level" }
+    - { type: Integer, id: "broken_index", name: "Broken Index" }
+  tags: ["smc", "price-action", "market-structure", "technical", "trend"]
+
+fair_value_gap:
+  name: Fair Value Gap
+  type: Indicator
+  desc: "Identifies Fair Value Gaps (FVG) where price makes a significant move leaving an empty zone that often gets filled later, signaling potential reversal zones."
+  options:
+    - id: join_consecutive
+      name: Join Consecutive Gaps
+      type: Boolean
+      default: true
+  outputs:
+    - { type: Integer, id: "fvg", name: "FVG Direction" }
+    - { type: Decimal, id: "top", name: "Top" }
+    - { type: Decimal, id: "bottom", name: "Bottom" }
+    - { type: Integer, id: "mitigated_index", name: "Mitigated Index" }
+  tags: ["smc", "price-action", "gap", "imbalance", "technical"]
+
+liquidity:
+  name: Liquidity
+  type: Indicator
+  desc: "Identifies clusters of swing highs or lows that are close to each other, representing areas where significant buyer/seller liquidity is present."
+  options:
+    - id: range_percent
+      name: Range Percentage
+      type: Decimal
+      default: 0.001
+  inputs:
+    - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
+    - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
+  outputs:
+    - { type: Decimal, id: "liquidity", name: "Liquidity Direction" }
+    - { type: Decimal, id: "level", name: "Level" }
+    - { type: Decimal, id: "end", name: "End Index" }
+    - { type: Decimal, id: "swept", name: "Swept Index" }
+  tags: ["smc", "price-action", "liquidity", "technical", "cluster"]
+
+order_blocks:
+  name: Order Blocks
+  type: Indicator
+  desc: "Detects bullish and bearish order blocks which represent areas of significant institutional order flow, often acting as support and resistance zones."
+  options:
+    - id: close_mitigation
+      name: Use Close for Mitigation
+      type: Boolean
+      default: false
+  inputs:
+    - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
+  outputs:
+    - { type: Integer, id: "ob", name: "Order Block Direction" }
+    - { type: Decimal, id: "top", name: "Top" }
+    - { type: Decimal, id: "bottom", name: "Bottom" }
+    - { type: Decimal, id: "ob_volume", name: "Order Block Volume" }
+    - { type: Integer, id: "mitigated_index", name: "Mitigated Index" }
+    - { type: Decimal, id: "percentage", name: "Strength Percentage" }
+  tags: ["smc", "price-action", "order-block", "institutional", "technical"]
+
+previous_high_low:
+  name: Previous High Low
+  type: Indicator
+  desc: "Identifies the previous high or low levels within a given interval and tracks when current price breaks these levels."
+  outputs:
+    - { type: Decimal, id: "previous_high", name: "Previous High" }
+    - { type: Decimal, id: "previous_low", name: "Previous Low" }
+    - { type: Boolean, id: "broken_high", name: "Broken High" }
+    - { type: Boolean, id: "broken_low", name: "Broken Low" }
+  tags: ["smc", "price-action", "high-low", "technical", "breakout"]
+
+retracements:
+  name: Retracements
+  type: Indicator
+  desc: "Calculates percentage retracements from swing highs and lows, measuring how much price has pulled back from a prior swing point."
+  inputs:
+    - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
+    - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
+  outputs:
+    - { type: Integer, id: "direction", name: "Direction" }
+    - { type: Decimal, id: "current_retracement", name: "Current Retracement %" }
+    - { type: Decimal, id: "deepest_retracement", name: "Deepest Retracement %" }
+  tags: ["smc", "price-action", "retracement", "fibonacci", "technical"]
+
+sessions:
+  name: Trading Sessions
+  type: Indicator
+  desc: "Identifies active trading sessions (Sydney, Tokyo, London, New York) and key session-based 'kill zones' where significant price movements often occur."
+  options:
+    - id: session
+      name: Session Type
+      type: Select
+      default: London
+      selectOption:
+        - { name: "Sydney (21:00-06:00 UTC)", value: "Sydney" }
+        - { name: "Tokyo (00:00-09:00 UTC)", value: "Tokyo" }
+        - { name: "London (07:00-16:00 UTC)", value: "London" }
+        - { name: "New York (13:00-22:00 UTC)", value: "NewYork" }
+        - { name: "Asian Kill Zone (00:00-04:00 UTC)", value: "AsianKillZone" }
+        - { name: "London Open Kill Zone (06:00-09:00 UTC)", value: "LondonOpenKillZone" }
+        - { name: "New York Kill Zone (11:00-14:00 UTC)", value: "NewYorkKillZone" }
+        - { name: "London Close Kill Zone (14:00-16:00 UTC)", value: "LondonCloseKillZone" }
+  outputs:
+    - { type: Boolean, id: "active", name: "Session Active" }
+    - { type: Decimal, id: "high", name: "Session High" }
+    - { type: Decimal, id: "low", name: "Session Low" }
+  tags: ["smc", "price-action", "session", "time-based", "kill-zone"]
+
+# ======== VOLATILITY TRANSFORMS ======== #
+
+acceleration_bands:
+  name: Acceleration Bands
+  type: Overlay
+  desc: "Three bands that expand and contract based on price volatility. Middle band is a simple moving average, while upper and lower bands adjust dynamically with price acceleration."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 20
+    - id: multiplier
+      name: Multiplier
+      type: Decimal
+      default: 2.0
+  outputs:
+    - { type: Decimal, id: "upper_band", name: "Upper Band" }
+    - { type: Decimal, id: "middle_band", name: "Middle Band" }
+    - { type: Decimal, id: "lower_band", name: "Lower Band" }
+  tags: ["overlay", "volatility", "bands", "price-channels", "technical"]
+
+garman_klass:
+  name: Garman-Klass Volatility
+  type: Indicator
+  desc: "Volatility estimator that uses open, high, low, and close prices, giving more weight to price ranges than traditional volatility measures. Designed to better capture market movements in continuous trading."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+    - id: trading_days
+      name: Trading Days
+      type: Integer
+      default: 252
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "technical", "range-based"]
+
+hodges_tompkins:
+  name: Hodges-Tompkins Volatility
+  type: Indicator
+  desc: "Modified volatility estimator that corrects bias in standard volatility calculations when using small sample sizes. More accurate for shorter time periods than traditional measures."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+    - id: trading_periods
+      name: Trading Periods Per Year
+      type: Integer
+      default: 252
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "bias-corrected", "technical"]
+
+keltner_channels:
+  name: Keltner Channels
+  type: Overlay
+  desc: "Volatility-based envelope indicator that places bands around an exponential moving average. Uses average true range to set band width, making it responsive to volatility changes."
+  options:
+    - id: roll_period
+      name: Rolling Period
+      type: Integer
+      default: 20
+    - id: band_multiplier
+      name: Band Multiplier
+      type: Decimal
+      default: 2.0
+  outputs:
+    - { type: Decimal, id: "upper_band", name: "Upper Band" }
+    - { type: Decimal, id: "lower_band", name: "Lower Band" }
+  tags: ["overlay", "volatility", "bands", "price-channels", "technical"]
+
+parkinson:
+  name: Parkinson Volatility
+  type: Indicator
+  desc: "Range-based volatility estimator that uses high and low prices rather than just closing prices. Better captures intraday price movements and is more efficient than close-to-close volatility."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+    - id: trading_periods
+      name: Trading Periods Per Year
+      type: Integer
+      default: 252
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "range-based", "technical"]
+
+ulcer_index:
+  name: Ulcer Index
+  type: Indicator
+  desc: "Risk measure that quantifies downside risk by measuring depth and duration of drawdowns. Higher values indicate deeper or longer drawdowns from recent highs."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+    - id: use_sum
+      name: Use Sum
+      type: Boolean
+      default: false
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "drawdown", "technical"]
+
+yang_zhang:
+  name: Yang-Zhang Volatility
+  type: Indicator
+  desc: "Advanced volatility estimator that accounts for opening jumps and combines overnight and intraday volatility. Designed to be robust against price jumps and more accurate than simpler measures."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+    - id: trading_periods
+      name: Trading Periods Per Year
+      type: Integer
+      default: 252
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "volatility", "risk", "technical", "complex"]
+
+# ======== INDICATOR TRANSFORMS ======== #
+
+chande_kroll_stop:
+  name: Chande Kroll Stop
+  type: Indicator
+  desc: "Trend-following indicator that provides dynamic stop-loss levels. Combines volatility and moving averages to set appropriate stop points for both long and short positions."
+  options:
+    - id: p_period
+      name: Price Period
+      type: Integer
+      default: 10
+    - id: q_period
+      name: ATR Period
+      type: Integer
+      default: 20
+    - id: multiplier
+      name: Multiplier
+      type: Decimal
+      default: 3.0
+  outputs:
+    - { type: Decimal, id: "long_stop", name: "Long Stop" }
+    - { type: Decimal, id: "short_stop", name: "Short Stop" }
+  tags: ["indicator", "trend", "stop-loss", "risk-management", "technical"]
+
+elders_thermometer:
+  name: Elder's Force Index Thermometer
+  type: Indicator
+  desc: "Measures buying and selling pressure using price movement and volume. Generates buy and sell signals when pressure reaches extreme levels defined by threshold factors."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 13
+    - id: buy_factor
+      name: Buy Factor
+      type: Decimal
+      default: 0.5
+    - id: sell_factor
+      name: Sell Factor
+      type: Decimal
+      default: 0.5
+  outputs:
+    - { type: Decimal, id: "result", name: "Force Index" }
+    - { type: Decimal, id: "ema", name: "EMA of Force Index" }
+    - { type: Boolean, id: "buy_signal", name: "Buy Signal" }
+    - { type: Boolean, id: "sell_signal", name: "Sell Signal" }
+  tags: ["indicator", "volume", "price", "momentum", "signals"]
+
+hurst_exponent:
+  name: Hurst Exponent
+  type: Indicator
+  desc: "Measures the long-term memory or persistence of a time series. Values above 0.5 indicate trend-following behavior, while values below 0.5 suggest mean-reverting tendencies."
+  outputs:
+    - { type: Decimal, id: "result", name: "Hurst Exponent" }
+  tags: ["indicator", "fractal", "time-series", "trend", "mean-reversion"]
+
+rolling_hurst_exponent:
+  name: Rolling Hurst Exponent
+  type: Indicator
+  desc: "Calculates the Hurst exponent over a rolling window of data. Provides insights into changing market behavior between trending and mean-reverting regimes."
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 100
+  outputs:
+    - { type: Decimal, id: "result", name: "Rolling Hurst Exponent" }
+  tags: ["indicator", "fractal", "time-series", "rolling", "regime-change"]
+
+peaks_and_valleys:
+  name: Peaks and Valleys
+  type: Indicator
+  desc: "Identifies local price highs (peaks) and lows (valleys) in a price series. Useful for swing trading, support/resistance identification, and pattern recognition."
+  outputs:
+    - { type: Decimal, id: "peaks", name: "Peaks" }
+    - { type: Decimal, id: "valleys", name: "Valleys" }
+  tags: ["indicator", "price-action", "pivot-points", "swing", "pattern"]
+
+pivot_point_sr:
+  name: Pivot Points with Support/Resistance
+  type: Indicator
+  desc: "Calculates classical pivot points with multiple levels of support and resistance. Used to identify potential reversal zones and price targets."
+  outputs:
+    - { type: Decimal, id: "pivot", name: "Pivot Point" }
+    - { type: Decimal, id: "resist_1", name: "Resistance 1" }
+    - { type: Decimal, id: "support_1", name: "Support 1" }
+    - { type: Decimal, id: "resist_2", name: "Resistance 2" }
+    - { type: Decimal, id: "support_2", name: "Support 2" }
+    - { type: Decimal, id: "resist_3", name: "Resistance 3" }
+    - { type: Decimal, id: "support_3", name: "Support 3" }
+  tags: ["indicator", "support-resistance", "pivot", "reversal", "levels"]
+
+price_distance:
+  name: Price Distance
+  type: Indicator
+  desc: "Measures the relative distance between key price points (open, high, low, close) in a single bar. Quantifies volatility and the shape of price movement within periods."
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "price-action", "volatility", "intrabar", "technical"]
+
+psl:
+  name: Price Swing Label
+  type: Indicator
+  desc: "Identifies and labels price swings as bullish or bearish based on recent price action. Helps detect trend changes and potential reversal points."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 10
+  outputs:
+    - { type: Decimal, id: "result", name: "Swing Label" }
+  tags: ["indicator", "price-action", "swing", "trend-change", "reversal"]
+
+qqe:
+  name: Quantitative Qualitative Estimation
+  type: Indicator
+  desc: "Enhanced RSI-based indicator with smoothing and adaptive bands. Generates potential trading signals when price crosses the upper or lower threshold lines."
+  options:
+    - id: avg_period
+      name: Average Period
+      type: Integer
+      default: 14
+    - id: smooth_period
+      name: Smoothing Period
+      type: Integer
+      default: 5
+    - id: width_factor
+      name: Width Factor
+      type: Decimal
+      default: 4.236
+  outputs:
+    - { type: Decimal, id: "result", name: "QQE" }
+    - { type: Decimal, id: "rsi_ma", name: "RSI Moving Average" }
+    - { type: Decimal, id: "long_line", name: "Long Threshold" }
+    - { type: Decimal, id: "short_line", name: "Short Threshold" }
+  tags: ["indicator", "oscillator", "rsi-based", "adaptive", "signals"]
+
+vortex:
+  name: Vortex Indicator
+  type: Indicator
+  desc: "Identifies the start of new trends and trend direction using price movement patterns. Comprised of two lines that cross during trend changes."
+  options:
+    - id: period
+      name: Period
+      type: Integer
+      default: 14
+  outputs:
+    - { type: Decimal, id: "plus_indicator", name: "VI+" }
+    - { type: Decimal, id: "minus_indicator", name: "VI-" }
+  tags: ["indicator", "trend", "crossover", "direction", "technical"]

@@ -7,7 +7,7 @@
 
 CREATE_ENUM(TransformType, Overlay, Indicator, Simple, MathFunction, DataSource,
             TradeSignalExecutor, MathOperator, ControlFlow, CandleStickPattern,
-            CrossSectional, Scalar);
+            CrossSectional, Scalar, Aggregate);
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 
 namespace epoch_metadata::transforms {
