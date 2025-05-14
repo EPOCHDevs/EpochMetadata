@@ -70,7 +70,6 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
     }
   }
 
-  metadata.metaData = *transform;
   return true;
 }
 

@@ -39,7 +39,6 @@ struct AlgorithmNode {
   std::string id{};
   epoch_metadata::MetaDataArgDefinitionMapping options{};
   InputMapping inputs{};
-  epoch_metadata::transforms::TransformsMetaData metaData;
 };
 
 struct TradeSignalMetaData {
