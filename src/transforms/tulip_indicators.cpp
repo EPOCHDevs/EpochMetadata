@@ -593,9 +593,6 @@ inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
   std::vector<IOMetaData> ioMetaDataList;
   for (auto const &output_view : outputs) {
     std::string output{output_view};
-    if (output == "crossover") {
-      printf("crossover\n");
-    }
     auto type = (output == "crossany" || output == "crossover")
                     ? epoch_core::IODataType::Boolean
                     : epoch_core::IODataType::Decimal;
