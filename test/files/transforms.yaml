@@ -151,6 +151,24 @@ mean:
   outputs: [DECIMAL_RESULT]
   tags: ["aggregate", "numeric", "math", "mean", "average"]
 
+all_equal:
+  name: All Equal
+  type: Aggregate
+  desc: "Returns true if all connected inputs have the same value. Useful for checking value consistency across multiple sources."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "comparison", "equality", "consistency", "validation"]
+
+all_unique:
+  name: All Unique
+  type: Aggregate
+  desc: "Returns true if all connected inputs have unique values. Useful for ensuring no duplicates exist in a set of values."
+  inputs:
+    - { type: Decimal, id: "*", name: "Values", allowMultipleConnections: true }
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "comparison", "unique", "distinct", "validation"]
+
 # ======== SELECTION & BRANCHING NODES ======== #
 # These nodes route signals based on conditions
 
@@ -632,3 +650,13 @@ vortex:
     - { type: Decimal, id: "plus_indicator", name: "VI+" }
     - { type: Decimal, id: "minus_indicator", name: "VI-" }
   tags: ["indicator", "trend", "crossover", "direction", "technical"]
+
+trade_executor:
+  name: Trade Executor
+  type: Signal
+  desc: "Converts numerical trade signals (1, 0, -1) into boolean long and short execution flags. Used for connecting signal generators to execution components."
+  inputs: [NUMBER]
+  outputs:
+    - { type: Boolean, id: "long", name: "Long Signal" }
+    - { type: Boolean, id: "short", name: "Short Signal" }
+  tags: ["signal", "execution", "trade", "position", "boolean"]

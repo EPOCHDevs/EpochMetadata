@@ -23,7 +23,11 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeScalarMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 
-  for (auto const &indicator : std::views::join(metaDataList)) {
+  for (auto &&indicator : std::views::join(metaDataList)) {
+    if (indicator.inputs.empty()) {
+      indicator.requiresTimeFrame = true;
+    }
+
     ITransformRegistry::GetInstance().Register(indicator);
   }
 }
