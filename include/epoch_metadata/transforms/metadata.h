@@ -32,7 +32,7 @@ struct TransformsMetaData {
   std::vector<IOMetaData> outputs{};
   bool atLeastOneInputRequired{false};
   std::vector<std::string> tags{};
-  bool requiresTimeFrame{true};
+  bool requiresTimeFrame{false};
 
   void decode(YAML::Node const &);
   YAML::Node encode() const { return {}; }

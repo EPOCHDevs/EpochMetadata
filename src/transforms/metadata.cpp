@@ -41,6 +41,7 @@ void TransformsMetaData::decode(const YAML::Node &element) {
   tags =
       element["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
   isCrossSectional = element["isCrossSectional"].as<bool>(false);
+  requiresTimeFrame = element["requiresTimeFrame"].as<bool>(false);
 }
 
 TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);
@@ -327,12 +328,8 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
            {"sqrt5", "Square Root of 5"},
            {"ln2", "Natural Log of 2"},
            {"ln10", "Natural Log of 10"},
-           {"log2", "Log Base 2"},
-           {"log10", "Log Base 10"},
            {"log2e", "Log Base 2 of Euler's Number"},
-           {"log10e", "Log Base 10 of Euler's Number"},
-           {"ln2e", "Natural Log of Euler's Number"},
-           {"ln10e", "Natural Log of Euler's Number"}}) {
+           {"log10e", "Log Base 10 of Euler's Number"}}) {
     metadataList.emplace_back(TransformsMetaData{
         .id = id,
         .name = name,
@@ -363,7 +360,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::CLOSE_PRICE_METADATA,
                   IOMetaDataConstants::VOLUME_METADATA},
       .tags = {"data", "source", "price", "ohlcv"},
-  });
+      .requiresTimeFrame = true});
 
   return result;
 }
@@ -406,7 +403,8 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
                                  "all other signals are ignored.",
                          .inputs = {allowSignalsMetaData, longMetaData,
                                     shortMetaData, closePositionMetaData},
-                         .atLeastOneInputRequired = true}};
+                         .atLeastOneInputRequired = true,
+                         .requiresTimeFrame = false}};
 }
 
 } // namespace epoch_metadata::transforms

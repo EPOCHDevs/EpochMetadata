@@ -38,7 +38,7 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
   REQUIRE(
       glz::write_json(testTransformsMetaData).value() ==
       std::format(
-          R"({{"id":"test_id","name":"test_name","options":[{}],"type":"Overlay","isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":true}})",
+          R"({{"id":"test_id","name":"test_name","options":[{}],"type":"Overlay","isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":false}})",
           sampleArgStr, inputsStr, outputsStr,
           testTransformsMetaData.atLeastOneInputRequired));
 }
