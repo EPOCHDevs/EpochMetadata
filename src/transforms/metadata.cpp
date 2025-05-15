@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <ranges>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
@@ -150,62 +151,90 @@ TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
   return metadata;
 }
 
-TransformsMetaData
-MakePreviousValueCompareMetaData(std::string const &id, std::string const &name,
-                                 std::string const &desc,
-                                 std::string const &operator_name) {
-  TransformsMetaData metadata;
+TransformsMetaData MakeValueCompareMetaData(
+    const std::string &value_type,    // "previous", "highest", or "lowest"
+    const std::string &operator_type, // "gt", "gte", "lt", "lte", "eq", "neq"
+    int default_periods = 14, const std::string &custom_id = "",
+    const std::string &custom_name = "") {
 
+  // Map operator types to friendly names and enum values
+  static const std::unordered_map<std::string,
+                                  std::pair<std::string, std::string>>
+      operator_map = {{"gt", {"Greater Than", "GreaterThan"}},
+                      {"gte", {"Greater Than or Equal", "GreaterThanOrEquals"}},
+                      {"lt", {"Less Than", "LessThan"}},
+                      {"lte", {"Less Than or Equal", "LessThanOrEquals"}},
+                      {"eq", {"Equal", "Equals"}},
+                      {"neq", {"Not Equal", "NotEquals"}}};
+
+  // Map value types to friendly names and tags
+  static const std::unordered_map<
+      std::string, std::pair<std::string, std::vector<std::string>>>
+      value_type_map = {
+          {"previous",
+           {"Previous Value",
+            {"comparison", "temporal", "previous", "lookback"}}},
+          {"highest",
+           {"Highest Value",
+            {"comparison", "temporal", "highest", "lookback", "max"}}},
+          {"lowest",
+           {"Lowest Value",
+            {"comparison", "temporal", "lowest", "lookback", "min"}}}};
+
+  // Get the operator info
+  auto op_it = operator_map.find(operator_type);
+  if (op_it == operator_map.end()) {
+    throw std::runtime_error("Invalid operator type: " + operator_type);
+  }
+  const auto &[op_name, op_enum] = op_it->second;
+
+  // Get the value type info
+  auto val_it = value_type_map.find(value_type);
+  if (val_it == value_type_map.end()) {
+    throw std::runtime_error("Invalid value type: " + value_type);
+  }
+  const auto &[val_name, tags] = val_it->second;
+
+  // Create unique ID and name
+  std::string id =
+      custom_id.empty() ? (value_type + "_" + operator_type) : custom_id;
+  std::string name =
+      custom_name.empty() ? (op_name + " " + val_name) : custom_name;
+
+  // Create description based on type and operator
+  std::string desc;
+  if (value_type == "previous") {
+    desc = "Signals when the current value is " + op_name + " the value " +
+           std::to_string(default_periods) + " period(s) ago.";
+  } else if (value_type == "highest") {
+    desc = "Signals when the current value is " + op_name +
+           " the highest value within " + "the past " +
+           std::to_string(default_periods) + " periods.";
+  } else { // lowest
+    desc = "Signals when the current value is " + op_name +
+           " the lowest value within " + "the past " +
+           std::to_string(default_periods) + " periods.";
+  }
+
+  TransformsMetaData metadata;
   metadata.id = id;
   metadata.name = name;
   metadata.type = epoch_core::TransformType::MathOperator;
   metadata.isCrossSectional = false;
   metadata.desc = desc;
-  metadata.tags = {"comparison", "temporal", "previous", operator_name,
-                   "lookback"};
+  metadata.tags = tags;
 
-  // Options
-  metadata.options = {
-      MetaDataOption{.id = "periods",
-                     .name = "Lookback Periods",
-                     .type = epoch_core::MetaDataOptionType::Integer,
-                     .defaultValue = MetaDataOptionDefinition(1.0),
-                     .isRequired = true}};
+  // Period option
+  metadata.options = {MetaDataOption{
+      .id = "periods",
+      .name = "Lookback Periods",
+      .type = epoch_core::MetaDataOptionType::Integer,
+      .defaultValue =
+          MetaDataOptionDefinition(static_cast<double>(default_periods)),
+      .isRequired = true}};
 
-  // Inputs
+  // Input/Output
   metadata.inputs = {IOMetaDataConstants::DECIMAL_INPUT_METADATA};
-
-  // Output
-  metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
-
-  return metadata;
-}
-
-TransformsMetaData MakeRangeValueCompareMetaData(
-    std::string const &id, std::string const &name, std::string const &desc,
-    std::string const &operator_name, bool is_highest) {
-  TransformsMetaData metadata;
-
-  metadata.id = id;
-  metadata.name = name;
-  metadata.type = epoch_core::TransformType::MathOperator;
-  metadata.isCrossSectional = false;
-  metadata.desc = desc;
-  metadata.tags = {"comparison", "temporal", is_highest ? "highest" : "lowest",
-                   operator_name, "lookback"};
-
-  // Options
-  metadata.options = {
-      MetaDataOption{.id = "periods",
-                     .name = "Lookback Periods",
-                     .type = epoch_core::MetaDataOptionType::Integer,
-                     .defaultValue = MetaDataOptionDefinition(14.0),
-                     .isRequired = true}};
-
-  // Inputs
-  metadata.inputs = {IOMetaDataConstants::DECIMAL_INPUT_METADATA};
-
-  // Output
   metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
 
   return metadata;
@@ -240,47 +269,21 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
     metadataList.emplace_back(MakeLogicalTransformMetaData(name));
   }
 
-  // Previous value comparison operators
-  metadataList.emplace_back(MakePreviousValueCompareMetaData(
-      "crosses_above", "Crosses Above Previous",
-      "Signals when the current value is greater than the value N periods ago.",
-      "greater"));
+  // All temporal comparison operators (18 combinations)
+  // Previous value comparisons (with default period = 1)
+  for (const auto &op : {"gt", "gte", "lt", "lte", "eq", "neq"}) {
+    metadataList.emplace_back(MakeValueCompareMetaData("previous", op, 1));
+  }
 
-  metadataList.emplace_back(MakePreviousValueCompareMetaData(
-      "crosses_below", "Crosses Below Previous",
-      "Signals when the current value is less than the value N periods ago.",
-      "less"));
+  // Highest value comparisons (with default period = 14)
+  for (const auto &op : {"gt", "gte", "lt", "lte", "eq", "neq"}) {
+    metadataList.emplace_back(MakeValueCompareMetaData("highest", op, 14));
+  }
 
-  metadataList.emplace_back(MakePreviousValueCompareMetaData(
-      "crosses_equal", "Equals Previous",
-      "Signals when the current value equals the value N periods ago.",
-      "equal"));
-
-  // Highest value comparison operators
-  metadataList.emplace_back(MakeRangeValueCompareMetaData(
-      "higher_than_highest", "Higher Than Highest",
-      "Signals when the current value is greater than the highest value within "
-      "the past N periods.",
-      "greater", true));
-
-  metadataList.emplace_back(
-      MakeRangeValueCompareMetaData("at_highest", "At Highest",
-                                    "Signals when the current value equals the "
-                                    "highest value within the past N periods.",
-                                    "equal", true));
-
-  // Lowest value comparison operators
-  metadataList.emplace_back(MakeRangeValueCompareMetaData(
-      "lower_than_lowest", "Lower Than Lowest",
-      "Signals when the current value is less than the lowest value within the "
-      "past N periods.",
-      "less", false));
-
-  metadataList.emplace_back(
-      MakeRangeValueCompareMetaData("at_lowest", "At Lowest",
-                                    "Signals when the current value equals the "
-                                    "lowest value within the past N periods.",
-                                    "equal", false));
+  // Lowest value comparisons (with default period = 14)
+  for (const auto &op : {"gt", "gte", "lt", "lte", "eq", "neq"}) {
+    metadataList.emplace_back(MakeValueCompareMetaData("lowest", op, 14));
+  }
 
   return metadataList;
 }
