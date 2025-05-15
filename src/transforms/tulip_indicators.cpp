@@ -592,12 +592,13 @@ inline std::vector<IOMetaData> MakeTulipInputs(auto const &inputs) {
 inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
   std::vector<IOMetaData> ioMetaDataList;
   if (outputs.size() == 1) {
-    ioMetaDataList.emplace_back(IOMetaData{
-        .type = (outputs[0] == "crossany" || outputs[0] == "crossover")
-                    ? epoch_core::IODataType::Boolean
-                    : epoch_core::IODataType::Decimal,
-        .id = "result",
-        .name = ""});
+    std::string output{outputs[0]};
+    ioMetaDataList.emplace_back(
+        IOMetaData{.type = (output == "crossany" || output == "crossover")
+                               ? epoch_core::IODataType::Boolean
+                               : epoch_core::IODataType::Decimal,
+                   .id = "result",
+                   .name = ""});
   } else {
     for (auto const &output_view : outputs) {
       std::string output{output_view};
