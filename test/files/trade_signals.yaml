@@ -66,8 +66,8 @@ gap_up_down:
     type: Momentum
     algorithm:
         - { type: lag, options: { period: 1 }, inputs: { "*" : *CLOSE } }
-        - { id: long, type: crossover,  inputs: &GAP_IN { "*0": &OPEN "o", "*1": "lag#lag" } }
-        - { id: short, type: crossover,  inputs: { "*0": "lag#lag", "*1": *OPEN } }
+        - { id: long, type: crossover,  inputs: &GAP_IN { "*0": &OPEN "o", "*1": "lag#result" } }
+        - { id: short, type: crossover,  inputs: { "*0": "lag#result", "*1": *OPEN } }
     executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
 improved_gap_up_down:
@@ -83,10 +83,10 @@ improved_gap_up_down:
     closeIfIndecisive : false
     algorithm:
         - { type: gap_returns, id: gret, inputs: { } }
-        - { type: stddev, id: stddev, options: { period: .period }, inputs: { "*": "gret#gap_returns" } }
+        - { type: stddev, id: stddev, options: { period: .period }, inputs: { "*": "gret#result" } }
         - { type: number, id: number, options: { value: .multiplier } }
         - { type: mul, id: mul, inputs: { "*0": "number#result", "*1": "stddev#result" } }
-        - { type: gt, id: long,  inputs: &GAP_IN { "*0" : "gret#gap_returns", "*1" : "mul#result" } }
+        - { type: gt, id: long,  inputs: &GAP_IN { "*0" : "gret#result", "*1" : "mul#result" } }
         - { type: lt, id: short,  inputs: *GAP_IN }
     executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
 
