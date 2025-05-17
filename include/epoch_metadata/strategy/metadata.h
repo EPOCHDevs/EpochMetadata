@@ -6,6 +6,7 @@
 #include "../metadata_options.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include <epoch_core/enum_wrapper.h>
+#include <epoch_frame/factory/date_offset_factory.h>
 
 // including here ensure all transforms have been serialized
 
@@ -39,6 +40,7 @@ struct AlgorithmNode {
   std::string id{};
   epoch_metadata::MetaDataArgDefinitionMapping options{};
   InputMapping inputs{};
+  epoch_frame::DateOffsetHandlerPtr  timeframe{nullptr};
 };
 
 struct TradeSignalMetaData {
