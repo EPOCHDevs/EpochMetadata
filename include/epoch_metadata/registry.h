@@ -10,42 +10,40 @@
 #include <unordered_map>
 
 namespace epoch_metadata {
-template <class MetaDataT, size_t variant = 0> class IMetaDataRegistry {
-public:
-  static IMetaDataRegistry &GetInstance() {
-    static IMetaDataRegistry instance;
-    return instance;
-  }
-
-  void Register(MetaDataT metaData) {
-    auto name = metaData.id;
-    m_registry[name] = std::move(metaData);
-  }
-
-  void Register(std::vector<MetaDataT> const &metaDataList) {
-    for (auto const &metaData : metaDataList) {
-      m_registry[metaData.id] = metaData;
+  template <class MetaDataT, size_t variant = 0> class IMetaDataRegistry {
+  public:
+    static IMetaDataRegistry &GetInstance() noexcept{
+      static IMetaDataRegistry instance;
+      return instance;
     }
-  }
 
-  const MetaDataT *GetMetaData(const std::string &name) const {
-    try {
-      return &m_registry.at(name);
-    } catch (std::out_of_range &e) {
-      const auto error = fmt::format("MetaData not found: {}", name);
-      throw std::runtime_error(error);
+    void Register(MetaDataT metaData) noexcept {
+      auto name = metaData.id;
+      m_registry[name] = std::move(metaData);
     }
-  }
 
-  const std::unordered_map<std::string, MetaDataT> &GetMetaData() const {
-    return m_registry;
-  }
+    void Register(std::vector<MetaDataT> const &metaDataList) noexcept{
+      for (auto const &metaData : metaDataList) {
+        m_registry[metaData.id] = metaData;
+      }
+    }
 
-  bool IsValid(const std::string &name) const {
-    return m_registry.contains(name);
-  }
+    std::optional<std::reference_wrapper<const MetaDataT>> GetMetaData(const std::string &name) const noexcept {
+      if (auto iter = m_registry.find(name); iter != m_registry.end()) {
+        return iter->second;
+      }
+      return std::nullopt;
+    }
 
-private:
-  std::unordered_map<std::string, MetaDataT> m_registry;
-};
+    const std::unordered_map<std::string, MetaDataT> &GetMetaData() const noexcept {
+      return m_registry;
+    }
+
+    bool IsValid(const std::string &name) const noexcept{
+      return m_registry.contains(name);
+    }
+
+  private:
+    std::unordered_map<std::string, MetaDataT> m_registry;
+  };
 } // namespace epoch_metadata

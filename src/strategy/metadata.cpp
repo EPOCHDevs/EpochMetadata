@@ -16,19 +16,20 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
   metadata.type = node["type"].as<std::string>();
   metadata.id = node["id"].as<std::string>(metadata.type);
 
-  auto transform =
+  auto expectedTransform =
       transforms::ITransformRegistry::GetInstance().GetMetaData(metadata.type);
-  if (!transform) {
+  if (!expectedTransform) {
     throw std::runtime_error("Unknown transform type: " + metadata.type);
   }
 
+  const auto &transform = expectedTransform->get();
   auto options = node["options"];
-  if (!options && transform->options.size() > 0) {
+  if (!options && transform.options.size() > 0) {
     throw std::runtime_error(
         fmt::format("Missing options for transform {}", metadata.type));
   }
 
-  for (auto const &option : transform->options) {
+  for (auto const &option : transform.options) {
     auto arg = options[option.id];
     if (option.isRequired && !arg) {
       throw std::runtime_error("Missing required option: " + option.id +
@@ -52,7 +53,7 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
   }
 
   auto nodeInputs = node["inputs"];
-  for (auto const &input : transform->inputs) {
+  for (auto const &input : transform.inputs) {
     auto inputs = nodeInputs[input.id];
     if (!inputs) {
       SPDLOG_DEBUG("Missing input: {}", input.id);
@@ -66,7 +67,7 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
     } else {
       AssertFromFormat(inputs.IsScalar(), "Input {} is not a scalar", input.id);
       metadata.inputs[input.id] =
-          std::vector<std::string>{inputs.as<std::string>()};
+          std::vector{inputs.as<std::string>()};
     }
   }
 
