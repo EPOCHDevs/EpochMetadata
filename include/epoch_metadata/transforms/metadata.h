@@ -5,9 +5,69 @@
 #include <string>
 #include <vector>
 
-CREATE_ENUM(TransformType, Overlay, Indicator, Simple, MathFunction, DataSource,
-            TradeSignalExecutor, MathOperator, ControlFlow, CandleStickPattern,
-            CrossSectional, Scalar, Aggregate);
+// Semantic search / palette bucket
+CREATE_ENUM(TransformCategory,
+            Aggregate,   // aggregate nodes
+            ControlFlow, // control flow nodes
+            Scalar,      // constants, booleans, editable numbers
+            DataSource,  // OHLCV & fundamental feeds
+            Math,        // element-wise math & stat functions
+            Trend,       // moving-average style trend tools
+            Momentum,    // RSI, MACD, Stoch, etc.
+            Volatility,  // ATR, Parkinson, Yang-Zhang …
+            Volume,      // OBV, VWAP, volume indexes
+            PriceAction, // candlestick & chart patterns
+            Statistical, // z-score, regression, percentiles
+            Factor,      // cross-sectional ranks & spreads
+            Utility,     // switches, selectors, helpers
+            Executor);   // trade / order sink nodes
+
+// How the block looks in the blueprint
+CREATE_ENUM(TransformNodeRenderKind,
+            Input,         // data feeds (outputs only)
+            Output,        // trade / log sinks
+            Label,         // read-only scalar / text
+            NumberInput,   // editable scalar value
+            Operator,      // +  −  ×  ÷ glyph node
+            Gate,          // AND / OR / XOR hubs
+            DynamicSelect, // node with add-able handles
+            Simple,        // just name
+            Standard);     // header, options, side handles
+
+// Chart helper (omit / null ⇒ not plotted)
+CREATE_ENUM(
+    TransformPlotKind,
+    ao,                 // Awesome Oscillator
+    aroon,              // Aroon indicator
+    bbands,             // Bollinger Bands helper
+    bb_percent_b,       // Bollinger Bands %B
+    column,             // column plot
+    cci,                // Commodity Channel Index
+    elders,             // Elder Ray Index
+    fisher,             // Fisher Transform,
+    fosc,               // Forcast Oscillator
+    h_line,             // horizontal line
+    line,               // generic overlay
+    panel_line,         // generic overlay, but not on top of the main plot,
+    panel_line_percent, // generic overlay, but not on top of the main plot,
+    qstick,             // Qstick indicator
+    qqe,                // QQE indicator
+    order_blocks,       // Order Blocks
+    flag,               // flag helper
+    macd,               // MACD (histogram + signal)
+    retracements,       // Retracement lines
+    sessions,           // Sessions
+    rsi,                // RSI panel
+    psar,               // Parabolic-SAR dots
+    atr,                // Average True Range
+    shl,                // Swing Highs and Lows
+    bos_choch,          // Break of Structure and Change of Character
+    fvg,                // Fair Value Gap
+    liquidity,          // Liquidity
+    stoch,              // Stochastic oscillator
+    previous_high_low,  // Previous High and Low
+    vwap);              // VWAP overlay
+
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 
 namespace epoch_metadata::transforms {
@@ -16,16 +76,26 @@ struct IOMetaData {
   std::string id{};
   std::string name{};
   bool allowMultipleConnections{false};
+  bool isFilter{false};
 
   void decode(YAML::Node const &);
   YAML::Node encode() const { return {}; }
 };
 
+struct TransformCategoryMetaData {
+  epoch_core::TransformCategory category;
+  std::string name;
+  std::string desc;
+};
+std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData();
+
 struct TransformsMetaData {
   std::string id;
+  epoch_core::TransformCategory category;
+  epoch_core::TransformNodeRenderKind renderKind;
+  epoch_core::TransformPlotKind plotKind{epoch_core::TransformPlotKind::Null};
   std::string name{};
   MetaDataOptionList options{};
-  epoch_core::TransformType type;
   bool isCrossSectional{false};
   std::string desc{};
   std::vector<IOMetaData> inputs{};
