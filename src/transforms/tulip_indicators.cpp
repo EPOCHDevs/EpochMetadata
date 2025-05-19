@@ -11,6 +11,10 @@ namespace epoch_metadata::transforms {
 struct IndicatorMetaData {
   std::vector<std::string> tags;
   std::string desc;
+  epoch_core::TransformCategory category{epoch_core::TransformCategory::Math};
+  epoch_core::TransformNodeRenderKind renderKind{
+      epoch_core::TransformNodeRenderKind::Simple};
+  epoch_core::TransformPlotKind plotKind{epoch_core::TransformPlotKind::Null};
 };
 
 std::unordered_map<std::string, IndicatorMetaData>
@@ -56,20 +60,29 @@ MakeTulipIndicatorMetaData() {
       .desc = "Vector Hyperbolic Cosine. Calculates the hyperbolic cosine for "
               "each element in the input."};
 
-  indicatorMetaData["crossany"] =
-      IndicatorMetaData{.tags = {"math", "crossany", "crossover", "signal"},
-                        .desc = "Crossany. Returns 1 when the first input "
-                                "crosses the second input in any direction."};
+  indicatorMetaData["crossany"] = IndicatorMetaData{
+      .tags = {"math", "crossany", "crossover", "signal"},
+      .desc = "Crossany. Returns 1 when the first input "
+              "crosses the second input in any direction.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::flag};
 
-  indicatorMetaData["crossover"] =
-      IndicatorMetaData{.tags = {"math", "crossover", "signal", "trend"},
-                        .desc = "Crossover. Returns 1 when the first input "
-                                "crosses above the second input."};
+  indicatorMetaData["crossover"] = IndicatorMetaData{
+      .tags = {"math", "crossover", "signal", "trend"},
+      .desc = "Crossover. Returns 1 when the first input "
+              "crosses above the second input.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::flag};
 
   indicatorMetaData["decay"] = IndicatorMetaData{
       .tags = {"math", "decay", "linear"},
       .desc = "Linear Decay. Applies linear decay to each element in the input "
-              "over the specified period."};
+              "over the specified period.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["div"] = IndicatorMetaData{
       .tags = {"simple", "div", "math", "arithmetic", "vector"},
@@ -79,21 +92,30 @@ MakeTulipIndicatorMetaData() {
   indicatorMetaData["edecay"] = IndicatorMetaData{
       .tags = {"math", "edecay", "exponential"},
       .desc = "Exponential Decay. Applies exponential decay to each element in "
-              "the input over the specified period."};
+              "the input over the specified period.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["exp"] = IndicatorMetaData{
       .tags = {"simple", "exp", "math", "exponential", "vector"},
       .desc = "Vector Exponential. Calculates e raised to the power of each "
-              "element in the input."};
+              "element in the input.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::Null};
 
   indicatorMetaData["floor"] = IndicatorMetaData{
       .tags = {"simple", "floor", "math", "rounding", "vector"},
       .desc = "Vector Floor. Rounds each element down to the nearest integer."};
 
-  indicatorMetaData["lag"] =
-      IndicatorMetaData{.tags = {"math", "lag", "delay", "shift"},
-                        .desc = "Lag. Shifts each element in the input by the "
-                                "specified period, creating a lagged series."};
+  indicatorMetaData["lag"] = IndicatorMetaData{
+      .tags = {"math", "lag", "delay", "shift"},
+      .desc = "Lag. Shifts each element in the input by the "
+              "specified period, creating a lagged series.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["ln"] =
       IndicatorMetaData{.tags = {"simple", "ln", "math", "logarithm", "vector"},
@@ -108,17 +130,26 @@ MakeTulipIndicatorMetaData() {
   indicatorMetaData["max"] = IndicatorMetaData{
       .tags = {"math", "max", "maximum", "highest"},
       .desc = "Maximum In Period. Finds the maximum value in the specified "
-              "period for each element position."};
+              "period for each element position.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
-  indicatorMetaData["md"] =
-      IndicatorMetaData{.tags = {"math", "md", "mean-deviation", "statistics"},
-                        .desc = "Mean Deviation Over Period. Calculates the "
-                                "mean deviation over the specified period."};
+  indicatorMetaData["md"] = IndicatorMetaData{
+      .tags = {"math", "md", "mean-deviation", "statistics"},
+      .desc = "Mean Deviation Over Period. Calculates the "
+              "mean deviation over the specified period.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["min"] = IndicatorMetaData{
       .tags = {"math", "min", "minimum", "lowest"},
       .desc = "Minimum In Period. Finds the minimum value in the specified "
-              "period for each element position."};
+              "period for each element position.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["mul"] = IndicatorMetaData{
       .tags = {"simple", "mul", "math", "arithmetic", "vector"},
@@ -148,22 +179,31 @@ MakeTulipIndicatorMetaData() {
       .tags = {"math", "stddev", "standard-deviation", "statistics",
                "volatility"},
       .desc = "Standard Deviation Over Period. Calculates the standard "
-              "deviation over the specified period."};
+              "deviation over the specified period.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["stderr"] = IndicatorMetaData{
       .tags = {"math", "stderr", "standard-error", "statistics"},
       .desc = "Standard Error Over Period. Calculates the standard error over "
-              "the specified period."};
+              "the specified period.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["sub"] = IndicatorMetaData{
       .tags = {"simple", "sub", "math", "arithmetic", "vector"},
       .desc = "Vector Subtraction. Subtracts the second vector from the first "
               "element by element."};
 
-  indicatorMetaData["sum"] =
-      IndicatorMetaData{.tags = {"math", "sum", "cumulative", "total"},
-                        .desc = "Sum Over Period. Calculates the sum over the "
-                                "specified period for each element position."};
+  indicatorMetaData["sum"] = IndicatorMetaData{
+      .tags = {"math", "sum", "cumulative", "total"},
+      .desc = "Sum Over Period. Calculates the sum over the "
+              "specified period for each element position.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null};
 
   indicatorMetaData["tan"] = IndicatorMetaData{
       .tags = {"simple", "tan", "math", "trigonometric", "vector"},
@@ -193,355 +233,565 @@ MakeTulipIndicatorMetaData() {
   indicatorMetaData["var"] = IndicatorMetaData{
       .tags = {"math", "var", "variance", "statistics", "volatility"},
       .desc = "Variance Over Period. Calculates the variance over the "
-              "specified period."};
+              "specified period.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   // Technical indicators
   indicatorMetaData["ad"] = IndicatorMetaData{
       .tags = {"indicator", "ad", "volume", "accumulation-distribution"},
       .desc =
           "Accumulation/Distribution Line. Volume-based indicator designed to "
-          "measure cumulative flow of money into and out of a security."};
+          "measure cumulative flow of money into and out of a security.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["adosc"] = IndicatorMetaData{
       .tags = {"indicator", "adosc", "volume", "oscillator"},
       .desc = "Accumulation/Distribution Oscillator. Indicates momentum in the "
-              "Accumulation/Distribution Line using two moving averages."};
+              "Accumulation/Distribution Line using two moving averages.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["adx"] = IndicatorMetaData{
       .tags = {"indicator", "adx", "trend", "directional-movement"},
       .desc = "Average Directional Movement Index. Measures the strength of a "
-              "trend, regardless of its direction."};
+              "trend, regardless of its direction.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["adxr"] = IndicatorMetaData{
       .tags = {"indicator", "adxr", "trend", "directional-movement"},
       .desc = "Average Directional Movement Rating. Smoothed version of ADX, "
-              "provides trend direction information."};
+              "provides trend direction information.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["ao"] = IndicatorMetaData{
       .tags = {"indicator", "ao", "momentum", "oscillator"},
       .desc = "Awesome Oscillator. Measures market momentum by comparing a "
-              "5-period and 34-period simple moving average."};
+              "5-period and 34-period simple moving average.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::ao};
 
   indicatorMetaData["apo"] = IndicatorMetaData{
-      .tags = {"indicator", "apo", "moving-average", "oscillator"},
+      .tags = {"indicator", "apo", "moving-average", "oscillator", "momentum"},
       .desc = "Absolute Price Oscillator. Shows the difference between two "
-              "exponential moving averages as an absolute value."};
+              "exponential moving averages as an absolute value.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["aroon"] = IndicatorMetaData{
       .tags = {"indicator", "aroon", "trend", "oscillator"},
       .desc = "Aroon. Measures the time between highs and lows over a time "
-              "period, identifying trends and corrections."};
+              "period, identifying trends and corrections.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::aroon};
 
   indicatorMetaData["aroonosc"] = IndicatorMetaData{
       .tags = {"indicator", "aroonosc", "trend", "oscillator"},
       .desc = "Aroon Oscillator. Subtracts Aroon Down from Aroon Up, measuring "
-              "the strength of a prevailing trend."};
+              "the strength of a prevailing trend.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["atr"] = IndicatorMetaData{
       .tags = {"indicator", "atr", "volatility", "average-true-range"},
       .desc = "Average True Range. Measures market volatility by calculating "
-              "the average range between price points."};
+              "the average range between price points.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
-  indicatorMetaData["avgprice"] =
-      IndicatorMetaData{.tags = {"overlay", "avgprice", "price", "average"},
-                        .desc = "Average Price. Calculates the average of "
-                                "open, high, low, and close prices."};
+  indicatorMetaData["avgprice"] = IndicatorMetaData{
+      .tags = {"overlay", "avgprice", "price", "average"},
+      .desc = "Average Price. Calculates the average of "
+              "open, high, low, and close prices.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["bbands"] = IndicatorMetaData{
       .tags = {"overlay", "bbands", "volatility", "bands", "bollinger"},
       .desc = "Bollinger Bands. Volatility bands placed above and below a "
-              "moving average, adapting to market conditions."};
+              "moving average, adapting to market conditions.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::bbands};
 
   indicatorMetaData["bop"] = IndicatorMetaData{
-      .tags = {"indicator", "bop", "price", "balance-of-power"},
+      .tags = {"indicator", "bop", "price", "balance-of-power", "momentum"},
       .desc = "Balance of Power. Measures buying and selling pressure by "
-              "comparing closing price to trading range."};
+              "comparing closing price to trading range.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["cci"] = IndicatorMetaData{
       .tags = {"indicator", "cci", "momentum", "commodity-channel-index"},
       .desc = "Commodity Channel Index. Identifies cyclical turns in price and "
-              "measures variations from the statistical mean."};
+              "measures variations from the statistical mean.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::cci};
 
   indicatorMetaData["cmo"] = IndicatorMetaData{
       .tags = {"indicator", "cmo", "momentum", "oscillator"},
       .desc = "Chande Momentum Oscillator. Momentum oscillator calculating "
-              "relative momentum of positive and negative price movements."};
+              "relative momentum of positive and negative price movements.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["cvi"] = IndicatorMetaData{
       .tags = {"indicator", "cvi", "volatility", "chaikins"},
       .desc = "Chaikins Volatility. Measures volatility by tracking the "
-              "difference between high and low prices over a period."};
+              "difference between high and low prices over a period.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dema"] = IndicatorMetaData{
       .tags = {"overlay", "dema", "moving-average", "double-exponential"},
       .desc = "Double Exponential Moving Average. Moving average that reduces "
-              "lag with a double smoothing mechanism."};
+              "lag with a double smoothing mechanism.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["di"] = IndicatorMetaData{
       .tags = {"indicator", "di", "trend", "directional-indicator"},
       .desc = "Directional Indicator. Components of ADX that measure positive "
-              "and negative price movement strength."};
+              "and negative price movement strength.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dm"] = IndicatorMetaData{
       .tags = {"indicator", "dm", "trend", "directional-movement"},
       .desc = "Directional Movement. Identifies whether prices are trending by "
-              "comparing consecutive highs and lows."};
+              "comparing consecutive highs and lows.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dpo"] = IndicatorMetaData{
       .tags = {"indicator", "dpo", "trend", "detrended-oscillator"},
       .desc = "Detrended Price Oscillator. Eliminates long-term trends to "
-              "focus on short to medium-term cycles."};
+              "focus on short to medium-term cycles.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dx"] = IndicatorMetaData{
       .tags = {"indicator", "dx", "trend", "directional-movement"},
       .desc = "Directional Movement Index. Measures trending strength by "
-              "comparing +DI and -DI indicators."};
+              "comparing +DI and -DI indicators.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["ema"] = IndicatorMetaData{
       .tags = {"overlay", "ema", "moving-average", "exponential"},
       .desc = "Exponential Moving Average. Moving average that gives more "
-              "weight to recent prices, reducing lag."};
+              "weight to recent prices, reducing lag.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["emv"] = IndicatorMetaData{
       .tags = {"indicator", "emv", "volume", "ease-of-movement"},
       .desc = "Ease of Movement. Relates price change to volume, identifying "
-              "whether price changes are easy or difficult."};
+              "whether price changes are easy or difficult.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["fisher"] = IndicatorMetaData{
       .tags = {"indicator", "fisher", "transform", "oscillator"},
       .desc = "Fisher Transform. Converts prices to a Gaussian normal "
-              "distribution to identify extreme price movements."};
+              "distribution to identify extreme price movements.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::fisher};
 
   indicatorMetaData["fosc"] = IndicatorMetaData{
       .tags = {"indicator", "fosc", "oscillator", "forecast"},
       .desc = "Forecast Oscillator. Compares price to linear regression "
-              "forecast value, indicating when price deviates from trend."};
+              "forecast value, indicating when price deviates from trend.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::fosc};
 
   indicatorMetaData["hma"] = IndicatorMetaData{
       .tags = {"overlay", "hma", "moving-average", "hull"},
       .desc = "Hull Moving Average. Moving average designed to reduce lag and "
-              "improve smoothness by using weighted averages."};
+              "improve smoothness by using weighted averages.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["kama"] = IndicatorMetaData{
       .tags = {"overlay", "kama", "moving-average", "adaptive", "kaufman"},
       .desc = "Kaufman Adaptive Moving Average. Adjusts sensitivity "
-              "automatically based on market volatility."};
+              "automatically based on market volatility.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["kvo"] = IndicatorMetaData{
       .tags = {"indicator", "kvo", "volume", "oscillator", "klinger"},
       .desc = "Klinger Volume Oscillator. Compares volume to price trends to "
-              "identify reversals and divergence."};
+              "identify reversals and divergence.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["linreg"] = IndicatorMetaData{
       .tags = {"overlay", "linreg", "linear-regression", "trend"},
       .desc = "Linear Regression. Plots a best-fit line through price data, "
-              "showing overall direction of price movement."};
+              "showing overall direction of price movement.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["linregintercept"] = IndicatorMetaData{
-      .tags = {"indicator", "linregintercept", "linear-regression", "trend"},
+      .tags = {"indicator", "linregintercept", "linear-regression", "trend",
+               "statistics"},
       .desc = "Linear Regression Intercept. Calculates the y-intercept values "
-              "for linear regression analysis."};
+              "for linear regression analysis.",
+      .category = epoch_core::TransformCategory::Statistical,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["linregslope"] = IndicatorMetaData{
-      .tags = {"indicator", "linregslope", "linear-regression", "trend"},
+      .tags = {"indicator", "linregslope", "linear-regression", "trend",
+               "statistics"},
       .desc = "Linear Regression Slope. Measures the rate of change in linear "
-              "regression values, indicating trend strength."};
+              "regression values, indicating trend strength.",
+      .category = epoch_core::TransformCategory::Statistical,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["macd"] = IndicatorMetaData{
       .tags = {"indicator", "macd", "moving-average", "trend", "momentum"},
       .desc = "Moving Average Convergence/Divergence. Trend-following momentum "
-              "indicator showing relationship between two moving averages."};
+              "indicator showing relationship between two moving averages.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::macd};
 
   indicatorMetaData["marketfi"] = IndicatorMetaData{
       .tags = {"indicator", "marketfi", "volume", "market-facilitation-index"},
       .desc = "Market Facilitation Index. Measures market readiness to move "
-              "prices with minimal volume."};
+              "prices with minimal volume.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::column};
 
   indicatorMetaData["mass"] = IndicatorMetaData{
       .tags = {"indicator", "mass", "volatility", "index"},
       .desc = "Mass Index. Identifies potential reversals by examining "
-              "high-low range expansion and contraction."};
+              "high-low range expansion and contraction.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
-  indicatorMetaData["medprice"] =
-      IndicatorMetaData{.tags = {"overlay", "medprice", "price", "average"},
-                        .desc = "Median Price. Simple average of the high and "
-                                "low prices for each period."};
+  indicatorMetaData["medprice"] = IndicatorMetaData{
+      .tags = {"overlay", "medprice", "price", "average"},
+      .desc = "Median Price. Simple average of the high and "
+              "low prices for each period.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["mfi"] = IndicatorMetaData{
       .tags = {"indicator", "mfi", "volume", "money-flow-index", "oscillator"},
       .desc = "Money Flow Index. Volume-weighted RSI that measures buying and "
-              "selling pressure based on price and volume."};
+              "selling pressure based on price and volume.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::rsi};
 
   indicatorMetaData["mom"] = IndicatorMetaData{
       .tags = {"indicator", "mom", "momentum", "rate-of-change"},
       .desc = "Momentum. Measures rate of change in prices by comparing "
-              "current price to a previous price."};
+              "current price to a previous price.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
-  indicatorMetaData["msw"] =
-      IndicatorMetaData{.tags = {"indicator", "msw", "cycle", "sine-wave"},
-                        .desc = "Mesa Sine Wave. Identifies market cycles "
-                                "using sine waves derived from price data."};
+  indicatorMetaData["msw"] = IndicatorMetaData{
+      .tags = {"indicator", "msw", "cycle", "sine-wave"},
+      .desc = "Mesa Sine Wave. Identifies market cycles "
+              "using sine waves derived from price data.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["natr"] = IndicatorMetaData{
       .tags = {"indicator", "natr", "volatility",
                "normalized-average-true-range"},
       .desc = "Normalized Average True Range. ATR expressed as a percentage of "
-              "closing price, allowing comparison across securities."};
+              "closing price, allowing comparison across securities.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["nvi"] = IndicatorMetaData{
       .tags = {"indicator", "nvi", "volume", "negative-volume-index"},
       .desc = "Negative Volume Index. Shows price movements on days when "
-              "volume decreases, highlighting smart money activity."};
+              "volume decreases, highlighting smart money activity.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["obv"] = IndicatorMetaData{
       .tags = {"indicator", "obv", "volume", "on-balance-volume"},
       .desc = "On Balance Volume. Running total of volume that adds when price "
-              "rises and subtracts when price falls."};
+              "rises and subtracts when price falls.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["ppo"] = IndicatorMetaData{
       .tags = {"indicator", "ppo", "momentum", "percentage-price-oscillator"},
       .desc = "Percentage Price Oscillator. Shows relationship between two "
-              "moving averages as a percentage, similar to MACD."};
+              "moving averages as a percentage, similar to MACD.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["psar"] = IndicatorMetaData{
       .tags = {"overlay", "psar", "trend", "parabolic-sar"},
       .desc = "Parabolic SAR. Identifies potential reversals in price "
-              "movement, providing entry and exit signals."};
+              "movement, providing entry and exit signals.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::psar};
 
   indicatorMetaData["pvi"] = IndicatorMetaData{
       .tags = {"indicator", "pvi", "volume", "positive-volume-index"},
       .desc = "Positive Volume Index. Shows price movements on days when "
-              "volume increases, highlighting public participation."};
+              "volume increases, highlighting public participation.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["qstick"] = IndicatorMetaData{
       .tags = {"indicator", "qstick", "candlestick", "trend"},
       .desc = "Qstick. Measures the ratio of black to white candlesticks, "
-              "indicating buying and selling pressure."};
+              "indicating buying and selling pressure.",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::qstick};
 
   indicatorMetaData["roc"] = IndicatorMetaData{
       .tags = {"indicator", "roc", "momentum", "rate-of-change"},
       .desc = "Rate of Change. Measures percentage change between current "
-              "price and price n periods ago."};
+              "price and price n periods ago.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["rocr"] = IndicatorMetaData{
       .tags = {"indicator", "rocr", "momentum", "rate-of-change-ratio"},
       .desc = "Rate of Change Ratio. Calculates the ratio of current price to "
-              "price n periods ago, measuring momentum."};
+              "price n periods ago, measuring momentum.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["rsi"] = IndicatorMetaData{
       .tags = {"indicator", "rsi", "momentum", "oscillator",
                "relative-strength"},
       .desc = "Relative Strength Index. Momentum oscillator measuring speed "
               "and change of price movements, indicating overbought/oversold "
-              "conditions."};
+              "conditions.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::rsi};
 
   indicatorMetaData["sma"] = IndicatorMetaData{
       .tags = {"overlay", "sma", "moving-average", "simple"},
       .desc = "Simple Moving Average. Unweighted mean of previous n data "
-              "points, smoothing price data to identify trends."};
+              "points, smoothing price data to identify trends.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["stoch"] = IndicatorMetaData{
       .tags = {"indicator", "stoch", "momentum", "oscillator", "stochastic"},
       .desc =
           "Stochastic Oscillator. Compares closing price to price range over a "
-          "period, indicating momentum and overbought/oversold conditions."};
+          "period, indicating momentum and overbought/oversold conditions.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::stoch};
 
   indicatorMetaData["stochrsi"] = IndicatorMetaData{
       .tags = {"indicator", "stochrsi", "momentum", "oscillator", "stochastic"},
       .desc = "Stochastic RSI. Applies stochastic formula to RSI values, "
-              "creating a more sensitive oscillator."};
+              "creating a more sensitive oscillator.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::rsi};
 
   indicatorMetaData["tema"] = IndicatorMetaData{
       .tags = {"overlay", "tema", "moving-average", "triple-exponential"},
       .desc = "Triple Exponential Moving Average. Moving average designed to "
-              "smooth price fluctuations and reduce lag."};
+              "smooth price fluctuations and reduce lag.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["tr"] = IndicatorMetaData{
       .tags = {"indicator", "tr", "volatility", "true-range"},
       .desc = "True Range. Measures market volatility by comparing current "
-              "price range to previous close."};
+              "price range to previous close.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["trima"] = IndicatorMetaData{
       .tags = {"overlay", "trima", "moving-average", "triangular"},
       .desc = "Triangular Moving Average. Weighted moving average that places "
-              "more weight on middle portion of calculation period."};
+              "more weight on middle portion of calculation period.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["trix"] = IndicatorMetaData{
       .tags = {"indicator", "trix", "momentum", "oscillator"},
       .desc = "Trix. Triple exponentially smoothed moving average oscillator, "
-              "showing percentage rate of change."};
+              "showing percentage rate of change.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["tsf"] = IndicatorMetaData{
       .tags = {"overlay", "tsf", "trend", "time-series-forecast"},
       .desc = "Time Series Forecast. Linear regression projection that extends "
-              "the regression line to predict future values."};
+              "the regression line to predict future values.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["typprice"] = IndicatorMetaData{
       .tags = {"overlay", "typprice", "price", "average", "typical"},
       .desc = "Typical Price. Average of high, low, and close prices for each "
-              "period, representing a balanced price."};
+              "period, representing a balanced price.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["ultosc"] = IndicatorMetaData{
       .tags = {"indicator", "ultosc", "oscillator", "ultimate-oscillator"},
       .desc = "Ultimate Oscillator. Multi-timeframe momentum oscillator that "
-              "uses weighted average of three oscillators."};
+              "uses weighted average of three oscillators.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vhf"] = IndicatorMetaData{
-      .tags = {"indicator", "vhf", "trend", "vertical-horizontal-filter"},
+      .tags = {"indicator", "vhf", "trend", "vertical-horizontal-filter",
+               "volatility"},
       .desc = "Vertical Horizontal Filter. Identifies trending and ranging "
-              "markets by measuring price direction versus volatility."};
+              "markets by measuring price direction versus volatility.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vidya"] = IndicatorMetaData{
       .tags = {"overlay", "vidya", "moving-average", "variable-index"},
       .desc = "Variable Index Dynamic Average. Adapts to volatility by "
-              "modifying the smoothing constant used in calculations."};
+              "modifying the smoothing constant used in calculations.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["volatility"] = IndicatorMetaData{
       .tags = {"indicator", "volatility", "risk", "annualized"},
       .desc = "Annualized Historical Volatility. Measures price dispersion "
-              "around the mean, expressed as an annualized percentage."};
+              "around the mean, expressed as an annualized percentage.",
+      .category = epoch_core::TransformCategory::Volatility,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vosc"] = IndicatorMetaData{
       .tags = {"indicator", "vosc", "volume", "oscillator"},
       .desc = "Volume Oscillator. Shows difference between two volume moving "
-              "averages as percentage, indicating volume trends."};
+              "averages as percentage, indicating volume trends.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vwma"] = IndicatorMetaData{
       .tags = {"overlay", "vwma", "moving-average", "volume-weighted"},
       .desc =
           "Volume Weighted Moving Average. Moving average that weights price "
-          "by volume, giving more importance to high-volume price moves."};
+          "by volume, giving more importance to high-volume price moves.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["wad"] = IndicatorMetaData{
       .tags = {"indicator", "wad", "volume",
                "williams-accumulation-distribution"},
       .desc = "Williams Accumulation/Distribution. Measures buying/selling "
-              "pressure by comparing closing price to midpoint of range."};
+              "pressure by comparing closing price to midpoint of range.",
+      .category = epoch_core::TransformCategory::Volume,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["wcprice"] = IndicatorMetaData{
       .tags = {"overlay", "wcprice", "price", "weighted-close"},
       .desc = "Weighted Close Price. Average of OHLC prices with extra weight "
-              "given to close: (H+L+C+C)/4."};
+              "given to close: (H+L+C+C)/4.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["wilders"] = IndicatorMetaData{
       .tags = {"overlay", "wilders", "moving-average", "smoothing"},
       .desc = "Wilders Smoothing. Specialized moving average using a 1/n "
-              "smoothing factor, commonly used in RSI calculations."};
+              "smoothing factor, commonly used in RSI calculations.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["willr"] = IndicatorMetaData{
       .tags = {"indicator", "willr", "momentum", "oscillator", "williams"},
       .desc = "Williams %R. Momentum oscillator that indicates "
-              "overbought/oversold conditions relative to high-low range."};
+              "overbought/oversold conditions relative to high-low range.",
+      .category = epoch_core::TransformCategory::Momentum,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::rsi};
 
   indicatorMetaData["wma"] = IndicatorMetaData{
       .tags = {"overlay", "wma", "moving-average", "weighted"},
       .desc = "Weighted Moving Average. Moving average that assigns more "
-              "weight to recent data and less to older data."};
+              "weight to recent data and less to older data.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["zlema"] = IndicatorMetaData{
       .tags = {"overlay", "zlema", "moving-average", "zero-lag"},
       .desc = "Zero-Lag Exponential Moving Average. EMA variant that removes "
-              "lag by using linear extrapolation."};
+              "lag by using linear extrapolation.",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line};
 
   return indicatorMetaData;
 }
@@ -612,28 +862,6 @@ inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
   return ioMetaDataList;
 }
 
-inline epoch_core::TransformType GetTulipType(const int type,
-                                              std::string const &name) {
-  static std::unordered_set<std::string> overlayMath{"lag", "min", "max",
-                                                     "crossover", "crossany"};
-  switch (type) {
-  case TI_TYPE_OVERLAY:
-    return epoch_core::TransformType::Overlay;
-  case TI_TYPE_INDICATOR:
-    return epoch_core::TransformType::Indicator;
-  case TI_TYPE_MATH:
-    return overlayMath.contains(name) ? epoch_core::TransformType::Overlay
-                                      : epoch_core::TransformType::MathFunction;
-  case TI_TYPE_SIMPLE:
-    return epoch_core::TransformType::Simple;
-  case TI_TYPE_COMPARATIVE:
-    return epoch_core::TransformType::CrossSectional;
-  default:
-    break;
-  }
-  ThrowExceptionFromStream("Invalid Tulip Type: " << type);
-};
-
 std::vector<TransformsMetaData> MakeTulipIndicators() {
   static const std::unordered_map<std::string, IndicatorMetaData>
       indicatorMetaData = MakeTulipIndicatorMetaData();
@@ -656,10 +884,12 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             indicatorMetaData, tiIndicatorInfo.name, IndicatorMetaData{});
         return TransformsMetaData{
             .id = tiIndicatorInfo.name,
+            .category = metadata.category,
+            .renderKind = metadata.renderKind,
+            .plotKind = metadata.plotKind,
             .name = tiIndicatorInfo.full_name,
             .options = epoch_core::ranges::to<std::vector>(
                 optionSpan | std::views::transform(MakeTulipOptions)),
-            .type = GetTulipType(tiIndicatorInfo.type, tiIndicatorInfo.name),
             .isCrossSectional = false,
             .desc = metadata.desc,
             .inputs = MakeTulipInputs(inputSpan),
