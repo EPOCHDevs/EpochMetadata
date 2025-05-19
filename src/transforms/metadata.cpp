@@ -437,4 +437,35 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
       .requiresTimeFrame = false}};
 }
 
+std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData() {
+  return {{epoch_core::TransformCategory::Aggregate, "Aggregate",
+           "Nodes for combining multiple data inputs"},
+          {epoch_core::TransformCategory::ControlFlow, "Control Flow",
+           "Nodes for conditional logic and flow control"},
+          {epoch_core::TransformCategory::Scalar, "Scalar",
+           "Nodes for constants, booleans, and editable numbers"},
+          {epoch_core::TransformCategory::DataSource, "Data Source",
+           "Nodes for market data and fundamental feeds"},
+          {epoch_core::TransformCategory::Math, "Math",
+           "Nodes for mathematical and statistical operations"},
+          {epoch_core::TransformCategory::Trend, "Trend",
+           "Nodes for trend identification and analysis"},
+          {epoch_core::TransformCategory::Momentum, "Momentum",
+           "Nodes for momentum-based market analysis"},
+          {epoch_core::TransformCategory::Volatility, "Volatility",
+           "Nodes for measuring market volatility"},
+          {epoch_core::TransformCategory::Volume, "Volume",
+           "Nodes for volume-based market analysis"},
+          {epoch_core::TransformCategory::PriceAction, "Price Action",
+           "Nodes for price pattern recognition"},
+          {epoch_core::TransformCategory::Statistical, "Statistical",
+           "Nodes for advanced statistical analysis"},
+          {epoch_core::TransformCategory::Factor, "Factor",
+           "Nodes for cross-sectional analysis"},
+          {epoch_core::TransformCategory::Utility, "Utility",
+           "Helper nodes for various operations"},
+          {epoch_core::TransformCategory::Executor, "Executor",
+           "Nodes for trade execution and order management"}};
+}
+
 } // namespace epoch_metadata::transforms

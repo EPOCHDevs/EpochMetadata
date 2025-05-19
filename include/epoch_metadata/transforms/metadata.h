@@ -82,6 +82,13 @@ struct IOMetaData {
   YAML::Node encode() const { return {}; }
 };
 
+struct TransformCategoryMetaData {
+  epoch_core::TransformCategory category;
+  std::string name;
+  std::string desc;
+};
+std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData();
+
 struct TransformsMetaData {
   std::string id;
   epoch_core::TransformCategory category;
