@@ -24,15 +24,13 @@ CREATE_ENUM(TransformCategory,
 
 // How the block looks in the blueprint
 CREATE_ENUM(TransformNodeRenderKind,
-            Input,         // data feeds (outputs only)
-            Output,        // trade / log sinks
-            Label,         // read-only scalar / text
-            NumberInput,   // editable scalar value
-            Operator,      // +  −  ×  ÷ glyph node
-            Gate,          // AND / OR / XOR hubs
-            DynamicSelect, // node with add-able handles
-            Simple,        // just name
-            Standard);     // header, options, side handles
+            Input,       // data feeds (outputs only)
+            Output,      // trade / log sinks
+            Label,       // read-only scalar / text
+            NumberInput, // editable scalar value
+            Operator,    // +  −  ×  ÷ glyph node
+            Simple,      // just name
+            Standard);   // header, options, side handles
 
 // Chart helper (omit / null ⇒ not plotted)
 CREATE_ENUM(
