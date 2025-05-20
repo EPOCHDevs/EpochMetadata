@@ -19,7 +19,7 @@ TEST_CASE("Transform MetaData Total Count is Correct") {
   RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   auto metadata = ITransformRegistry::GetInstance().GetMetaData();
-  REQUIRE(metadata.size() == 226);
+  REQUIRE(metadata.size() == 230);
 
   if constexpr (kWriteToCsv) {
 
