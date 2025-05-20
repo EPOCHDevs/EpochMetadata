@@ -57,7 +57,7 @@ TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
   return {
       .id = id,
       .category = epoch_core::TransformCategory::ControlFlow,
-      .renderKind = epoch_core::TransformNodeRenderKind::Gate,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = name,
       .options = {},
@@ -109,7 +109,10 @@ TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
   metadata.name = std::format("Switch {} Inputs", N);
   metadata.options = {}; // Add any specific options if needed
   metadata.category = epoch_core::TransformCategory::ControlFlow;
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::DynamicSelect;
+
+  // TODO:
+  // https://linear.app/epoch-inc/issue/STR-160/update-switch-to-dynamicselect
+  metadata.renderKind = epoch_core::TransformNodeRenderKind::Standard;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.desc = "Selects one of " + std::to_string(N) +

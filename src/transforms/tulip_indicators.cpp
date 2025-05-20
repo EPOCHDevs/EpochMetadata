@@ -460,7 +460,7 @@ MakeTulipIndicatorMetaData() {
       .tags = {"overlay", "linreg", "linear-regression", "trend"},
       .desc = "Linear Regression. Plots a best-fit line through price data, "
               "showing overall direction of price movement.",
-      .category = epoch_core::TransformCategory::Trend,
+      .category = epoch_core::TransformCategory::Statistical,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
