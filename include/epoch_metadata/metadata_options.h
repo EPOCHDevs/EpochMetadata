@@ -101,7 +101,7 @@ struct MetaDataOption {
   std::string name;
   epoch_core::MetaDataOptionType type;
   std::optional<MetaDataOptionDefinition> defaultValue{std::nullopt};
-  bool isRequired{true};
+  bool isRequired{false};
   std::vector<SelectOption> selectOption{};
   double min{0};
   double max{1000};
