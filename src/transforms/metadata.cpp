@@ -343,19 +343,19 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
 
   for (auto const &[id, name] :
        std::initializer_list<std::array<std::string, 2>>{
-           {"1", "One"},
-           {"-1", "Negative One"},
-           {"0", "Zero"},
-           {"π", "Pi"},
-           {"e", "Euler's Number"},
-           {"φ", "Golden Ratio"},
-           {"√2", "Square Root of 2"},
-           {"√3", "Square Root of 3"},
-           {"√5", "Square Root of 5"},
-           {"ln2", "Natural Log of 2"},
-           {"ln10", "Natural Log of 10"},
-           {"log2e", "Log Base 2 of Euler's Number"},
-           {"log10e", "Log Base 10 of Euler's Number"}}) {
+           {"one", "1"},
+           {"negative_one", "-1"},
+           {"zero", "0"},
+           {"pi", "π"},
+           {"e", "e"},
+           {"phi", "φ"},
+           {"sqrt2", "√2"},
+           {"sqrt3", "√3"},
+           {"sqrt5", "√5"},
+           {"ln2", "ln(2)"},
+           {"ln10", "ln(10)"},
+           {"log2e", "log2(e)"},
+           {"log10e", "log10(e)"}}) {
     metadataList.emplace_back(TransformsMetaData{
         .id = id,
         .category = epoch_core::TransformCategory::Scalar,
