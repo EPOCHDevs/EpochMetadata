@@ -69,6 +69,8 @@ CREATE_ENUM(
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 
 namespace epoch_metadata::transforms {
+constexpr auto MARKET_DATA_SOURCE_ID = "market_data_source";
+constexpr auto TRADE_SIGNAL_EXECUTOR_ID = "trade_signal_executor";
 struct IOMetaData {
   epoch_core::IODataType type{epoch_core::IODataType::Decimal};
   std::string id{};

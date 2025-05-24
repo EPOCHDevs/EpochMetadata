@@ -376,7 +376,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
 
   // Refactored Names Applied Below
   result.emplace_back(TransformsMetaData{
-      .id = "market_data_source",
+      .id = MARKET_DATA_SOURCE_ID,
       .category = epoch_core::TransformCategory::DataSource,
       .renderKind = epoch_core::TransformNodeRenderKind::Input,
       .plotKind = epoch_core::TransformPlotKind::Null,
@@ -426,7 +426,7 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
   };
 
   return {TransformsMetaData{
-      .id = "trade_signal_executor",
+      .id = TRADE_SIGNAL_EXECUTOR_ID,
       .category = epoch_core::TransformCategory::Executor,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .plotKind = epoch_core::TransformPlotKind::Null,
