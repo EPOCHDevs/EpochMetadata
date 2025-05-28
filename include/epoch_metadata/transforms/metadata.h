@@ -114,17 +114,17 @@ using TransformsMetaDataCreator =
 struct IOMetaDataConstants {
   // TODO: Move bar attributes to shared headers
   inline static IOMetaData CLOSE_PRICE_METADATA{epoch_core::IODataType::Decimal,
-                                                "c", "Close Price", false};
+                                                "c", "Close Price", true};
   inline static IOMetaData OPEN_PRICE_METADATA{epoch_core::IODataType::Decimal,
-                                               "o", "Open Price", false};
+                                               "o", "Open Price", true};
   inline static IOMetaData HIGH_PRICE_METADATA{epoch_core::IODataType::Decimal,
-                                               "h", "High Price", false};
+                                               "h", "High Price", true};
   inline static IOMetaData LOW_PRICE_METADATA{epoch_core::IODataType::Decimal,
-                                              "l", "Low Price", false};
+                                              "l", "Low Price", true};
   inline static IOMetaData VOLUME_METADATA{epoch_core::IODataType::Decimal, "v",
-                                           "Volume", false};
+                                           "Volume", true};
   inline static IOMetaData CONTRACT_METADATA{epoch_core::IODataType::String,
-                                             "s", "Contract", false};
+                                             "s", "Contract", true};
 
   inline static IOMetaData ANY_INPUT_METADATA{epoch_core::IODataType::Any, ARG,
                                               "", false};
