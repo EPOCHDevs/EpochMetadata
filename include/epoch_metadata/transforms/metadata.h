@@ -103,6 +103,7 @@ struct TransformsMetaData {
   bool atLeastOneInputRequired{false};
   std::vector<std::string> tags{};
   bool requiresTimeFrame{false};
+  std::vector<std::string> requiredDataSources{};
 
   void decode(YAML::Node const &);
   YAML::Node encode() const { return {}; }

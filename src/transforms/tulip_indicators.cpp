@@ -867,6 +867,8 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
       indicatorMetaData = MakeTulipIndicatorMetaData();
 
   std::vector<TransformsMetaData> allIndicators(TI_INDICATOR_COUNT);
+  static std::unordered_set<std::string> dataSources{"open", "high", "low",
+                                                     "close", "volume"};
   std::ranges::transform(
       std::span{ti_indicators, ti_indicators + TI_INDICATOR_COUNT},
       allIndicators.begin(), [&](const ti_indicator_info &tiIndicatorInfo) {
@@ -882,6 +884,15 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
 
         auto metadata = epoch_core::lookupDefault(
             indicatorMetaData, tiIndicatorInfo.name, IndicatorMetaData{});
+
+        std::vector<std::string> requiredDataSources;
+        for (auto const &inputPtr : inputSpan) {
+          std::string input{inputPtr};
+          if (dataSources.contains(input)) {
+            requiredDataSources.emplace_back(1, input.front());
+          }
+        }
+
         return TransformsMetaData{
             .id = tiIndicatorInfo.name,
             .category = metadata.category,
@@ -894,7 +905,9 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             .desc = metadata.desc,
             .inputs = MakeTulipInputs(inputSpan),
             .outputs = MakeTulipOutputs(outputSpan),
-            .tags = metadata.tags};
+            .tags = metadata.tags,
+            .requiresTimeFrame = requiredDataSources.size() > 0,
+            .requiredDataSources = requiredDataSources};
       });
   return allIndicators;
 }

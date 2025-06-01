@@ -276,7 +276,9 @@ std::vector<TransformsMetaData> MakeTulipCandles() {
         .desc = metadata.desc,
         .inputs = {},
         .outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA},
-        .tags = metadata.tags};
+        .tags = metadata.tags,
+        .requiresTimeFrame = true,
+        .requiredDataSources = {"c", "o", "h", "l"}};
   }
 
   return allCandles;

@@ -33,14 +33,18 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
                                         .name = "input"}},
       .outputs = {transforms::IOMetaData{.type = epoch_core::IODataType::String,
                                          .id = "output_id",
-                                         .name = "output"}}};
+                                         .name = "output"}},
+      .atLeastOneInputRequired = true,
+      .tags = {},
+      .requiresTimeFrame = false,
+      .requiredDataSources = {"c"}};
   auto inputsStr = glz::write_json(testTransformsMetaData.inputs).value();
   auto outputsStr = glz::write_json(testTransformsMetaData.outputs).value();
 
   REQUIRE(
       glz::write_json(testTransformsMetaData).value() ==
       std::format(
-          R"({{"id":"test_id","category":"Trend","renderKind":"Simple","plotKind":"h_line","name":"test_name","options":[{}],"isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":false}})",
+          R"({{"id":"test_id","category":"Trend","renderKind":"Simple","plotKind":"h_line","name":"test_name","options":[{}],"isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":false,"requiredDataSources":["c"]}})",
           sampleArgStr, inputsStr, outputsStr,
           testTransformsMetaData.atLeastOneInputRequired));
 }

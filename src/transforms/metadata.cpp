@@ -48,6 +48,9 @@ void TransformsMetaData::decode(const YAML::Node &element) {
       element["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
   isCrossSectional = element["isCrossSectional"].as<bool>(false);
   requiresTimeFrame = element["requiresTimeFrame"].as<bool>(false);
+  requiredDataSources =
+      element["requiredDataSources"].as<std::vector<std::string>>(
+          std::vector<std::string>{});
 }
 
 TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);
@@ -390,7 +393,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::CLOSE_PRICE_METADATA,
                   IOMetaDataConstants::VOLUME_METADATA},
       .tags = {"data", "source", "price", "ohlcv"},
-      .requiresTimeFrame = false});
+      .requiresTimeFrame = true});
 
   return result;
 }
