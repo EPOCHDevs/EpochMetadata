@@ -41,6 +41,8 @@ struct AlgorithmNode {
   epoch_metadata::MetaDataArgDefinitionMapping options{};
   InputMapping inputs{};
   epoch_frame::DateOffsetHandlerPtr  timeframe{nullptr};
+
+  bool operator==(const AlgorithmNode & other) const = default;
 };
 
 struct TradeSignalMetaData {

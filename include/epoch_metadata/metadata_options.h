@@ -14,6 +14,7 @@ CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select);
 namespace epoch_metadata {
 struct MetaDataArgRef {
   std::string refName{};
+  bool operator==(const MetaDataArgRef &) const = default;
 };
 
 class MetaDataOptionDefinition {
@@ -65,6 +66,8 @@ public:
                          << typeid(T).name()
                          << ", but got: " << typeid(m_optionsVariant).name());
   }
+
+  bool operator==(const MetaDataOptionDefinition & other) const = default;
 
 private:
   T m_optionsVariant{};
