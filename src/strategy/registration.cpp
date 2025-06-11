@@ -9,6 +9,7 @@
 #include "epoch_metadata/strategy/registry.h"
 #include "epoch_metadata/strategy/strategy_config.h"
 #include "epoch_metadata/glaze_custom_types.h"
+#include "epoch_metadata/strategy/ui_graph.h"
 
 
 namespace epoch_metadata::strategy {
@@ -61,7 +62,18 @@ void RegisterStrategyMetadata(FileLoaderInterface const &loader, std::vector<std
         templates.reserve(aiGenerated.size());
 
         for (auto const& [i, config]: std::views::enumerate(aiGenerated)) {
-            trade_signal::Registry::GetInstance().Register(config.trade_signal_metadata);
+            auto ts = config.trade_signal_metadata;
+            auto partial = CreateAlgorithmMetaData(ts.data);
+            if (!partial) {
+                SPDLOG_ERROR("Failed to create UI data for {}.\nReason:\n{}", ts.id,  partial.error() );
+                continue;
+            }
+
+            ts.options = partial->options;
+            ts.algorithm = partial->algorithm;
+            ts.executor = partial->executor;
+
+            trade_signal::Registry::GetInstance().Register(ts);
             strategy_templates::Registry::GetInstance().Register({
                 std::to_string(i),
                  config.strategy,
