@@ -1,0 +1,783 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "intraday_session_oscillation_adaptation",
+  "generated_at": "2025-06-10T09:26:15.625612",
+  "trade_signal_metadata": {
+    "id": "intraday_session_oscillation_adaptation",
+    "name": "Intraday Session Oscillation Adaptation Strategy",
+    "options": [],
+    "desc": "This algorithm leverages price action behavior during key trading sessions, focusing on oscillation patterns and volatility shifts to optimize intraday trading performance. By utilizing the 'Trading Sessions' indicator, it dynamically switches between aggressive and conservative strategies, allowing for responsive trading based on market conditions across different sessions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sessNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "anySess",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pd",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "atrThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.0005,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtAtr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pdThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.002,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtPd",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "highVol",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notHigh",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "crossUp",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossDown",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stochRsi",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "overBought",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "overSold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtOB",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltOS",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bullSig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bearSig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longHigh",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortHigh",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longLow",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortLow",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longFinal",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortFinal",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySess",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySess",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtAtr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "atrThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtAtr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pdThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtAtr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "highVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtPd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "highVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "highVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notHigh",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "crossUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "crossUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "crossDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "crossDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stochRsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtOB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "overBought",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtOB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stochRsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltOS",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "overSold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltOS",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltOS",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtOB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "highVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bullSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "highVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bearSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "notHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bearSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "notHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bullSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longFinal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "longLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longFinal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shortHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortFinal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "shortLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortFinal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longFinal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortFinal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Session Oscillation Adaptation Strategy",
+    "description": "This algorithm leverages price action behavior during key trading sessions, focusing on oscillation patterns and volatility shifts to optimize intraday trading performance. By utilizing the 'Trading Sessions' indicator, it dynamically switches between aggressive and conservative strategies, allowing for responsive trading based on market conditions across different sessions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "intraday_session_oscillation_adaptation",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "dynamic_volatility_trader_v1_0",
+  "generated_at": "2025-06-10T14:07:44.937290",
+  "trade_signal_metadata": {
+    "id": "dynamic_volatility_trader_v1_0",
+    "name": "Dynamic Volatility Trader v1.0",
+    "options": [],
+    "desc": "This expert-level event-driven trading algorithm adapts to fluctuations in market volatility by leveraging the Normalized Average True Range (NATR) and Bollinger Bands during critical economic announcements. It focuses on strategically entering trades within the defined volatility range to optimize performance during high-impact events such as central bank meetings and employment reports.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb20",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtBreak",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltBreak",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtBreak",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gtBreak",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltBreak",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "ltBreak",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtBreak",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltBreak",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Volatility Trader v1.0",
+    "description": "This expert-level event-driven trading algorithm adapts to fluctuations in market volatility by leveraging the Normalized Average True Range (NATR) and Bollinger Bands during critical economic announcements. It focuses on strategically entering trades within the defined volatility range to optimize performance during high-impact events such as central bank meetings and employment reports.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_volatility_trader_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 14,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

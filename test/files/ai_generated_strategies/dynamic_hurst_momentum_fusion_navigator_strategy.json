@@ -1,0 +1,1020 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_hurst_momentum_fusion_navigator",
+  "generated_at": "2025-06-10T11:09:09.047610",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_momentum_fusion_navigator",
+    "name": "Dynamic Hurst Momentum Fusion Navigator",
+    "options": [],
+    "desc": "This expert-level trading algorithm integrates dynamic regime detection using the Rolling Hurst Exponent with advanced momentum signals, optimizing both entries and exits across multiple intraday timeframes. It classifies market conditions into trending and mean-reverting regimes, ensuring enhanced decision-making for trading on 5-minute and 30-minute bars.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num_06",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_04",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trending_flag",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_flag",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vidya",
+          "type": "vidya",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 8,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 20,
+              "name": "Long_period",
+              "isExposed": false
+            },
+            {
+              "id": "alpha",
+              "value": 0.2,
+              "name": "Alpha",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "price_gt_vidya",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_vidya",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "natr_sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "natr_gt_sma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "num_50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_n50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -50,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_above_50",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_n50",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_n50",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_n50",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_trend_agg",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_trend_cross",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_trend_agg",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_50",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_50",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_50",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_mean_cross",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_mean_agg",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_mean_cross",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_mean_agg",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "ck_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 14,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vidya",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "natr_sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trending_flag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trending_flag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_flag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_04",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_flag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_vidya",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_vidya",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_vidya",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lt_vidya",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "natr_gt_sma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "natr_gt_sma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_above_50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_above_50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_n50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_n50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_n50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_n50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_n50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_n50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trending_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_above_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_gt_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trending_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_trend_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_gt_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cmo_n50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_mean_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_gt_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_mean_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_vidya",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_gt_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_mean_agg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_trend_agg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_mean_agg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_trend_agg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_mean_agg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst Momentum Fusion Navigator",
+    "description": "This expert-level trading algorithm integrates dynamic regime detection using the Rolling Hurst Exponent with advanced momentum signals, optimizing both entries and exits across multiple intraday timeframes. It classifies market conditions into trending and mean-reverting regimes, ensuring enhanced decision-making for trading on 5-minute and 30-minute bars.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_momentum_fusion_navigator",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

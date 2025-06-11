@@ -1,0 +1,649 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_fusion_breakout_scanner",
+  "generated_at": "2025-06-10T14:56:45.002307",
+  "trade_signal_metadata": {
+    "id": "volatility_fusion_breakout_scanner",
+    "name": "Volatility Fusion Breakout Scanner",
+    "options": [],
+    "desc": "This trading algorithm leverages the Hodges-Tompkins Volatility measure on a 15-minute timeframe, integrated with Smart Money Concepts, to identify early breakout opportunities following periods of low market activity. By analyzing market structure and volatility metrics, it aims to pinpoint high-probability entry points in rapidly moving markets.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ht_vol",
+          "type": "hodges_tompkins",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "Trading Periods Per Year",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ht_sma5",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vol_ok",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevhl",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "Time Frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bos",
+          "type": "bos_choch",
+          "options": [
+            {
+              "id": "close_break",
+              "value": false,
+              "name": "Use Close Price",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bos",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_choch",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_choch",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_up",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_down",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ht_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ht_sma5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ht_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ht_sma5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "gt_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "lt_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "choch"
+          },
+          "target": {
+            "id": "gt_choch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_choch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "choch"
+          },
+          "target": {
+            "id": "lt_choch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_choch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_choch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_choch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Fusion Breakout Scanner",
+    "description": "This trading algorithm leverages the Hodges-Tompkins Volatility measure on a 15-minute timeframe, integrated with Smart Money Concepts, to identify early breakout opportunities following periods of low market activity. By analyzing market structure and volatility metrics, it aims to pinpoint high-probability entry points in rapidly moving markets.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_fusion_breakout_scanner",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

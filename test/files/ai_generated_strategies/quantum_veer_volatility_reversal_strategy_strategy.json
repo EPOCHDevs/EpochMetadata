@@ -1,0 +1,674 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "quantum_veer_volatility_reversal_strategy",
+  "generated_at": "2025-06-10T09:45:59.103515",
+  "trade_signal_metadata": {
+    "id": "quantum_veer_volatility_reversal_strategy",
+    "name": "Quantum Veer Volatility Reversal Strategy",
+    "options": [],
+    "desc": "This sophisticated trading algorithm is engineered to detect reversal signals in high-volatility environments by integrating volatility, trend, and price action indicators. Utilizing the Quantum Volatility Reversal Strategy, it aims to capitalize on sharp market direction shifts, making it ideal for high-frequency trading setups.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt_ds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gk_vol",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "atr_node",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma_mean",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "stddev_node",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "const_two",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_two_std",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_threshold",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_atr",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hma_node",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma7_node",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 7,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "gt_close_hma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_hma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_mean",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stddev_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stddev_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_two_std",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_two",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_two_std",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_threshold",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_two_std",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_threshold",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_gt_atr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt_ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt_ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma7_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt_ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt_ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Veer Volatility Reversal Strategy",
+    "description": "This sophisticated trading algorithm is engineered to detect reversal signals in high-volatility environments by integrating volatility, trend, and price action indicators. Utilizing the Quantum Volatility Reversal Strategy, it aims to capitalize on sharp market direction shifts, making it ideal for high-frequency trading setups.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_veer_volatility_reversal_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

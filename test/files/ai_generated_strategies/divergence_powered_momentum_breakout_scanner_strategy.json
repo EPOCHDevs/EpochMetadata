@@ -1,0 +1,488 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "divergence_powered_momentum_breakout_scanner",
+  "generated_at": "2025-06-10T15:10:23.463066",
+  "trade_signal_metadata": {
+    "id": "divergence_powered_momentum_breakout_scanner",
+    "name": "Divergence-Powered Momentum Breakout Scanner",
+    "options": [],
+    "desc": "This trading algorithm leverages momentum indicators coupled with price action analysis to pinpoint breakout opportunities influenced by divergences. It focuses on histogram dynamics and employs leading divergence indicators to refine trading signals, ensuring higher accuracy in identifying potential market movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mom1",
+          "type": "mom",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "stochrsi1",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "atr1",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "macd1",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long_period",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_low",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_high",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hist_cross",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "mom1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mom1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stochrsi1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stochrsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mom1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stochrsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd_histogram"
+          },
+          "target": {
+            "id": "hist_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hist_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hist_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Divergence-Powered Momentum Breakout Scanner",
+    "description": "This trading algorithm leverages momentum indicators coupled with price action analysis to pinpoint breakout opportunities influenced by divergences. It focuses on histogram dynamics and employs leading divergence indicators to refine trading signals, ensuring higher accuracy in identifying potential market movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^USDCNH-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "divergence_powered_momentum_breakout_scanner",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

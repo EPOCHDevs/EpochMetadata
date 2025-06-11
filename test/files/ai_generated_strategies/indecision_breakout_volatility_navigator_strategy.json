@@ -1,0 +1,677 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "indecision_breakout_volatility_navigator",
+  "generated_at": "2025-06-10T17:23:27.222737",
+  "trade_signal_metadata": {
+    "id": "indecision_breakout_volatility_navigator",
+    "name": "Indecision Breakout Volatility Navigator",
+    "options": [],
+    "desc": "This algorithm leverages price action patterns to identify periods of market indecision across key global trading sessions. By focusing on candle signals that indicate equilibrium and breakouts, it executes trades that capitalize on subsequent volatility spikes. Designed for 30-minute bars, it employs a multi-session logic to enhance entry and exit strategies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_tokyo",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "Tokyo",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sess_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "doji",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "spinning",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lldoji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "indecision_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ulcer_threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.33,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tr",
+          "type": "tr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "tr_threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.75,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tr_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_hl",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and3",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_tokyo",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "indecision_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spinning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "indecision_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lldoji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "indecision_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "indecision_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "tr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tr_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "tr_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tr_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "tr_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_hl",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_hl",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Indecision Breakout Volatility Navigator",
+    "description": "This algorithm leverages price action patterns to identify periods of market indecision across key global trading sessions. By focusing on candle signals that indicate equilibrium and breakouts, it executes trades that capitalize on subsequent volatility spikes. Designed for 30-minute bars, it employs a multi-session logic to enhance entry and exit strategies.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCHF-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "indecision_breakout_volatility_navigator",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

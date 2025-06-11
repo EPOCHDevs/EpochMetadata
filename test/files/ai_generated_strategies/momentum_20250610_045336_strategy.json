@@ -1,0 +1,344 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "momentum_20250610_045336",
+  "generated_at": "2025-06-10T11:03:45.412719",
+  "trade_signal_metadata": {
+    "id": "momentum_20250610_045336",
+    "name": "Momentum Strategy 20250610_045336",
+    "options": [
+      {
+        "id": "topk_score_k",
+        "name": "K"
+      }
+    ],
+    "desc": "A Momentum trading algorithm.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr12",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 12,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vol12",
+          "type": "return_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 12,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "risk_adj",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_vol",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_filter",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_score",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "topk_score",
+          "type": "top_k",
+          "options": [
+            {
+              "id": "k",
+              "value": {
+                "refName": "topk_score_k"
+              },
+              "name": "Count",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_select",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr12",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_adj",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_adj",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_filter",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_filter",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_adj",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_score",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_adj",
+            "handle": "result"
+          },
+          "target": {
+            "id": "topk_score",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "topk_score",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_filter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "select_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_select",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "select_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "not_select",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Momentum Strategy 20250610_045336",
+    "description": "A Momentum trading algorithm.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "TSLA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "DIS-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto",
+        "^ADAUSD-Crypto",
+        "^SOLUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "momentum_20250610_045336",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

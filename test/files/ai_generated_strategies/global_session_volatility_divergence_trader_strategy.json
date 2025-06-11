@@ -1,0 +1,698 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "global_session_volatility_divergence_trader",
+  "generated_at": "2025-06-10T10:08:29.159493",
+  "trade_signal_metadata": {
+    "id": "global_session_volatility_divergence_trader",
+    "name": "Global Session Volatility Divergence Trader",
+    "options": [],
+    "desc": "This EventDriven trading algorithm utilizes volatility metrics from the London, New York, and Asian sessions to identify opportunities in intraday (30m) trading. By analyzing the transitions between high and low volatility states, the strategy aims to capture price movements fueled by these shifts across global trading sessions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rv",
+          "type": "return_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 48,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bbw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lag_rv",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 48,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lag_bbw",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 48,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_rv_high",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rv_exp",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num1_25",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.25,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_bbw_high",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bbw_exp",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "expansion",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0_8",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_rv_low",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rv_contract",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_bbw_low",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bbw_contract",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "contraction",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevhl",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "Time Frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_rv",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_bbw",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_rv_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_rv_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rv_exp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_rv_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rv_exp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_bbw_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1_25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_bbw_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bbw_exp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_bbw_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bbw_exp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rv_exp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bbw_exp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_rv_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0_8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_rv_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rv_contract",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_rv_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rv_contract",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_bbw_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0_8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_bbw_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bbw_contract",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_bbw_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bbw_contract",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rv_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "contraction",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bbw_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "contraction",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Global Session Volatility Divergence Trader",
+    "description": "This EventDriven trading algorithm utilizes volatility metrics from the London, New York, and Asian sessions to identify opportunities in intraday (30m) trading. By analyzing the transitions between high and low volatility states, the strategy aims to capture price movements fueled by these shifts across global trading sessions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "TSE-Stocks",
+        "USPX-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "global_session_volatility_divergence_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

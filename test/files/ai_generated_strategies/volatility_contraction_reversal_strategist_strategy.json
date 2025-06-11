@@ -1,0 +1,732 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "volatility_contraction_reversal_strategist",
+  "generated_at": "2025-06-10T10:09:21.730647",
+  "trade_signal_metadata": {
+    "id": "volatility_contraction_reversal_strategist",
+    "name": "Volatility Contraction Reversal Strategist",
+    "options": [],
+    "desc": "This trading algorithm leverages a unique combination of volatility contraction using Bollinger Bands and price action reversal signals to identify optimal entry points on a 30-minute timeframe. By focusing on periods where the Bollinger Bands experience significant width contraction, the system aims to capitalize on potential price reversals for improved trade outcomes.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bbw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bw_min",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bw_lowest_eq",
+          "type": "lowest_eq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 10,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "const_001",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.01,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_width",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "width_lt_thresh",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "squeeze",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ms",
+          "type": "morning_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "es",
+          "type": "evening_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 1.5,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "close_below_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_above_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "min_times2",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_expand",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_min",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_lowest_eq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_lt_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "thr_width",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_001",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_width",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_lt_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "width_lt_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_lowest_eq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ms",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "es",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_below_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "close_below_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_above_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "close_above_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_min",
+            "handle": "result"
+          },
+          "target": {
+            "id": "min_times2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "min_times2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_expand",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_times2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_expand",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_below_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_above_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_expand",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Contraction Reversal Strategist",
+    "description": "This trading algorithm leverages a unique combination of volatility contraction using Bollinger Bands and price action reversal signals to identify optimal entry points on a 30-minute timeframe. By focusing on periods where the Bollinger Bands experience significant width contraction, the system aims to capitalize on potential price reversals for improved trade outcomes.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_contraction_reversal_strategist",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

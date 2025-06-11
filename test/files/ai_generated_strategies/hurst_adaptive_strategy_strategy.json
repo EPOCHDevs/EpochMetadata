@@ -1,0 +1,611 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "hurst_adaptive_strategy",
+  "generated_at": "2025-06-10T10:25:21.777337",
+  "trade_signal_metadata": {
+    "id": "hurst_adaptive_strategy",
+    "name": "Hurst Adaptive Strategy: Trend & Revert Switch",
+    "options": [],
+    "desc": "This innovative trading algorithm utilizes the Rolling Hurst Exponent to dynamically adapt between momentum and mean-reversion strategies based on market conditions. When the Hurst Exponent indicates a trending regime (> 0.6), the algorithm leverages price momentum; conversely, in a mean-reverting regime (< 0.4), it capitalizes on price pullbacks. This ensures optimal performance across varying volatility environments.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 60
+          }
+        },
+        {
+          "id": "n3",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n4",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 60
+          }
+        },
+        {
+          "id": "n8",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n9",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 60
+          }
+        },
+        {
+          "id": "n12",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n13",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n15",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n16",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n17",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n18",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n19",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n20",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n17",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n17",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n16",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n19",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n17",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n19",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n18",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n20",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n19",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n20",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Hurst Adaptive Strategy: Trend & Revert Switch",
+    "description": "This innovative trading algorithm utilizes the Rolling Hurst Exponent to dynamically adapt between momentum and mean-reversion strategies based on market conditions. When the Hurst Exponent indicates a trending regime (> 0.6), the algorithm leverages price momentum; conversely, in a mean-reverting regime (< 0.4), it capitalizes on price pullbacks. This ensures optimal performance across varying volatility environments.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "hurst_adaptive_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

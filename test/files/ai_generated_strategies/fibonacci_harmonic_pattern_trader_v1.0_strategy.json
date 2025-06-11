@@ -1,0 +1,427 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "fibonacci_harmonic_pattern_trader_v1.0",
+  "generated_at": "2025-06-10T15:14:13.729164",
+  "trade_signal_metadata": {
+    "id": "fibonacci_harmonic_pattern_trader_v1.0",
+    "name": "Fibonacci Harmonic Pattern Trader v1.0",
+    "options": [],
+    "desc": "This trading algorithm leverages Fibonacci ratios to identify and predict harmonic price patterns, including Gartley, Bat, and Butterfly patterns. Tailored for expert traders, it aims to highlight potential reversal zones based on historical price action.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swings",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "rets",
+          "type": "retracements",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "ratio",
+          "type": "ratio_branch",
+          "options": [
+            {
+              "id": "threshold_high",
+              "value": 0.786,
+              "name": "Upper Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "threshold_low",
+              "value": 0.618,
+              "name": "Lower Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "dx",
+          "type": "dx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "cvi",
+          "type": "cvi",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "const25",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 25,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_dx",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constATR",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_atr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constCVI",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cvi",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swings",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "rets",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swings",
+            "handle": "level"
+          },
+          "target": {
+            "id": "rets",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "rets",
+            "handle": "current_retracement"
+          },
+          "target": {
+            "id": "ratio",
+            "handle": "ratio"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio",
+            "handle": "normal"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dx",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dx",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_dx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "constATR",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cvi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "constCVI",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cvi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fibonacci Harmonic Pattern Trader v1.0",
+    "description": "This trading algorithm leverages Fibonacci ratios to identify and predict harmonic price patterns, including Gartley, Bat, and Butterfly patterns. Tailored for expert traders, it aims to highlight potential reversal zones based on historical price action.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "fibonacci_harmonic_pattern_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,771 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "gap_fade_strategy_with_volatility_v1.0",
+  "generated_at": "2025-06-10T10:47:00.211479",
+  "trade_signal_metadata": {
+    "id": "gap_fade_strategy_with_volatility_v1.0",
+    "name": "Gap Fade Strategy with Volatility Adjustments v1.0",
+    "options": [],
+    "desc": "This expert-level quantitative trading strategy, termed 'Gap Fade Strategy with Volatility Adjustments v1.0', leverages price action analysis focusing on session-based price gaps and Fair Value Gap detection. Integrating multi-method volatility measures, it is tailored to trade highly liquid assets for maximizing profit opportunities during and after significant market transitions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gap",
+          "type": "gap_returns",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "abs_gap",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "threshold_002",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.002,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_gap_thresh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_neg_gap",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_pos_gap",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lte_open_top",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_open_bottom",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_fvg",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rv10",
+          "type": "return_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ma_rv30",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_rv",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ma_bw30",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_bw",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "threshold_002",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_neg_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_neg_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pos_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pos_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "o"
+          },
+          "target": {
+            "id": "lte_open_top",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "lte_open_top",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "o"
+          },
+          "target": {
+            "id": "gte_open_bottom",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "gte_open_bottom",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_open_top",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_open_bottom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rv10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma_rv30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rv10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_rv30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma_bw30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_bw30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_neg_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pos_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Gap Fade Strategy with Volatility Adjustments v1.0",
+    "description": "This expert-level quantitative trading strategy, termed 'Gap Fade Strategy with Volatility Adjustments v1.0', leverages price action analysis focusing on session-based price gaps and Fair Value Gap detection. Integrating multi-method volatility measures, it is tailored to trade highly liquid assets for maximizing profit opportunities during and after significant market transitions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "ES-Futures",
+        "NQ-Futures",
+        "YM-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "gap_fade_strategy_with_volatility_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

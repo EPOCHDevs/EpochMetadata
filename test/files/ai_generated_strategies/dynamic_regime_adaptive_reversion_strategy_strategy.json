@@ -1,0 +1,760 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_regime_adaptive_reversion_strategy",
+  "generated_at": "2025-06-10T09:47:34.127194",
+  "trade_signal_metadata": {
+    "id": "dynamic_regime_adaptive_reversion_strategy",
+    "name": "Dynamic Regime Adaptive Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level trend-following algorithm utilizes a dual timeframe framework, integrating daily and hourly bars to effectively identify and exploit dynamically shifting volatility regimes. By applying the Rolling Hurst Exponent to classify market conditions, it adapts its trading signals for trend-following and mean-reverting strategies accordingly.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "srcA",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "srcB",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "spread_h",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pass_daily",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num06",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num04",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_trend",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_mean",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ma30",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "std30",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_std2",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "upper_band",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lower_band",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "upper_hour",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lower_hour",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_spread_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_spread_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_base",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_base",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "session_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "session_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "final_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "final_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "srcA",
+            "handle": "c"
+          },
+          "target": {
+            "id": "spread_h",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "srcB",
+            "handle": "c"
+          },
+          "target": {
+            "id": "spread_h",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spread_h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pass_daily",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num04",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "std30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "upper_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "upper_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lower_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lower_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "upper_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "upper_hour",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lower_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lower_hour",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spread_h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_spread_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "upper_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_spread_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spread_h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_spread_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lower_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_spread_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_base",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_spread_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_base",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_base",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_spread_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_base",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "session_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "session_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "session_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_base",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "session_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_base",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "session_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "final_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "final_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Regime Adaptive Reversion Strategy",
+    "description": "This expert-level trend-following algorithm utilizes a dual timeframe framework, integrating daily and hourly bars to effectively identify and exploit dynamically shifting volatility regimes. By applying the Rolling Hurst Exponent to classify market conditions, it adapts its trading signals for trend-following and mean-reverting strategies accordingly.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_regime_adaptive_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

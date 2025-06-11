@@ -1,0 +1,542 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "asian_london_squeeze_breakout_strategy",
+  "generated_at": "2025-06-10T10:54:58.566882",
+  "trade_signal_metadata": {
+    "id": "asian_london_squeeze_breakout_strategy",
+    "name": "Asian to London Squeeze Breakout Strategy",
+    "options": [],
+    "desc": "This Event-Driven strategy capitalizes on the transition from the Asian Kill Zone to the London Open Kill Zone using a volatility squeeze breakout approach. By focusing on 15-minute bars, it aims to identify and exploit price consolidations followed by significant moves in the futures market.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "asian_sess",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "AsianKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "london_sess",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 12,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb_width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct_sel",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 640,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 25,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_london",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "flag_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_sel",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_sel",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_sel",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "asian_sess",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "asian_sess",
+            "handle": "low"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "london_sess",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_sel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "london_sess",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_sel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "london_sess",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_london",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "not_london",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_sel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "flag_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "flag_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "flag_any",
+            "handle": "*"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Asian to London Squeeze Breakout Strategy",
+    "description": "This Event-Driven strategy capitalizes on the transition from the Asian Kill Zone to the London Open Kill Zone using a volatility squeeze breakout approach. By focusing on 15-minute bars, it aims to identify and exploit price consolidations followed by significant moves in the futures market.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "NQ-Futures",
+        "YM-Futures",
+        "DX-Futures",
+        "FT-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "asian_london_squeeze_breakout_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

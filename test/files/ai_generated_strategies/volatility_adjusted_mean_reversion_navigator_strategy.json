@@ -1,0 +1,639 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "volatility_adjusted_mean_reversion_navigator",
+  "generated_at": "2025-06-10T11:05:56.213582",
+  "trade_signal_metadata": {
+    "id": "volatility_adjusted_mean_reversion_navigator",
+    "name": "Volatility-Adjusted Mean Reversion Navigator",
+    "options": [],
+    "desc": "This expert-level trading algorithm employs a mean-reverting strategy that integrates multi-timeframe analysis to detect key candlestick patterns, specifically the Morning Doji Star and Dragonfly Doji, on the 15-minute chart. With an emphasis on volatility-adaptive stop management, it aims to optimize entry and exit points to capitalize on price corrections efficiently.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "res15",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "swing_resample",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "mds",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "dfd",
+          "type": "dragonfly_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "entry_pattern",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr1",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "swing1",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "diff1",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "within_atr",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session1",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "not_session",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trade_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hang1",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "engb1",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "exit_pattern",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "res15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "swing_resample",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "swing_resample",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "res15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "within_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "natr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "within_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dfd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_pattern",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "within_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "session1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_session",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hang1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engb1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trade_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_pattern",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Adjusted Mean Reversion Navigator",
+    "description": "This expert-level trading algorithm employs a mean-reverting strategy that integrates multi-timeframe analysis to detect key candlestick patterns, specifically the Morning Doji Star and Dragonfly Doji, on the 15-minute chart. With an emphasis on volatility-adaptive stop management, it aims to optimize entry and exit points to capitalize on price corrections efficiently.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_adjusted_mean_reversion_navigator",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 4
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

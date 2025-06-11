@@ -1,0 +1,618 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "adaptive_liquidity_pivot_reversal_strategy",
+  "generated_at": "2025-06-10T14:33:41.715544",
+  "trade_signal_metadata": {
+    "id": "adaptive_liquidity_pivot_reversal_strategy",
+    "name": "Adaptive Liquidity Pivot Reversal Strategy",
+    "options": [],
+    "desc": "This expert-level algorithm utilizes a momentum-based approach to identify pivot reversal points across a diverse range of cryptocurrency pairs. By analyzing price action and liquidity, it dynamically adjusts trading strategies to capitalize on market movements in 1-hour timeframes, optimizing returns for an initial capital of $100,000.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.002,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pivot",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "roc1",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "csmom",
+          "type": "cs_momentum",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "topk",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "botk",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "prevhl",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "Time Frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constOne",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constZero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constNegOne",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "selLong",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "selShort",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "addSig",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adapter",
+          "type": "trade_executor_adapter",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ckstop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "crossLong",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossShort",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "orClose",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "csmom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "csmom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "topk",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "csmom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "botk",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "topk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "botk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selLong",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "constOne",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selLong",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "constZero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selLong",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selShort",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "constNegOne",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selShort",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "constZero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "selShort",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "selLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "addSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "selShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "addSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "addSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adapter",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "long"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "short"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ckstop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ckstop",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orClose",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orClose",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "orClose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Liquidity Pivot Reversal Strategy",
+    "description": "This expert-level algorithm utilizes a momentum-based approach to identify pivot reversal points across a diverse range of cryptocurrency pairs. By analyzing price action and liquidity, it dynamically adjusts trading strategies to capitalize on market movements in 1-hour timeframes, optimizing returns for an initial capital of $100,000.",
+    "data": {
+      "assets": [
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto",
+        "^XRPUSD-Crypto",
+        "^ADAUSD-Crypto",
+        "^SOLUSD-Crypto",
+        "^DOGEUSD-Crypto",
+        "^LTCUSD-Crypto",
+        "^DOTUSD-Crypto",
+        "^ADAUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_liquidity_pivot_reversal_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "klinger_adaptive_breakout_detector",
+  "generated_at": "2025-06-10T17:20:51.840280",
+  "trade_signal_metadata": {
+    "id": "klinger_adaptive_breakout_detector",
+    "name": "Klinger Adaptive Breakout Detector",
+    "options": [],
+    "desc": "The Klinger Adaptive Breakout Detector leverages the power of the Klinger Volume Oscillator to identify potential breakout opportunities by analyzing shifts in volume and price dynamics. This event-driven strategy employs adaptive moving averages to dynamically adjust to market conditions, enhancing the accuracy of breakout signals in real-time.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kvo1",
+          "type": "kvo",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 34,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 55,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama1",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt2",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt2",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_buy",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_sell",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_sell",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Klinger Adaptive Breakout Detector",
+    "description": "The Klinger Adaptive Breakout Detector leverages the power of the Klinger Volume Oscillator to identify potential breakout opportunities by analyzing shifts in volume and price dynamics. This event-driven strategy employs adaptive moving averages to dynamically adjust to market conditions, enhancing the accuracy of breakout signals in real-time.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "klinger_adaptive_breakout_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,726 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "ulcer_smooth_contrarian_mean_reversion",
+  "generated_at": "2025-06-10T16:09:30.822380",
+  "trade_signal_metadata": {
+    "id": "ulcer_smooth_contrarian_mean_reversion",
+    "name": "Ulcer-Smooth Contrarian Mean Reversion",
+    "options": [],
+    "desc": "This strategy implements a volatility regime-switching approach focused on mean reversion using the Ulcer Index and the Triangular Moving Average (TRIMA). It identifies low drawdown regimes to capitalize on price corrections by executing trades based on the relationship between current prices and the TRIMA, enhancing profitability in stable market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "trima_node",
+          "type": "trima",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_med",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 60,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 50,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_high",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 60,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 75,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_099",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.99,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_101",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.01,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_low",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_high",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_below",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_above",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_low",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_high",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "doji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "Body None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "Body Short Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "Body Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "Wick None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "Wick Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "Near Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "not_doji",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_cond",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_cond",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "trima_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_med",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_med",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_med",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "trima_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_099",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trima_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_101",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_below",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_below",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_above",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_above",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_above",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_doji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "exit_long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "trima_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "exit_short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "trima_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Ulcer-Smooth Contrarian Mean Reversion",
+    "description": "This strategy implements a volatility regime-switching approach focused on mean reversion using the Ulcer Index and the Triangular Moving Average (TRIMA). It identifies low drawdown regimes to capitalize on price corrections by executing trades based on the relationship between current prices and the TRIMA, enhancing profitability in stable market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "TSPY-Stocks",
+        "QQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "ulcer_smooth_contrarian_mean_reversion",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

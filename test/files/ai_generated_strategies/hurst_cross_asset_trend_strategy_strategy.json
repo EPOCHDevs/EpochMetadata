@@ -1,0 +1,696 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "hurst_cross_asset_trend_strategy",
+  "generated_at": "2025-06-10T09:43:57.493410",
+  "trade_signal_metadata": {
+    "id": "hurst_cross_asset_trend_strategy",
+    "name": "Hurst-Based Cross-Asset Trend Strategy",
+    "options": [],
+    "desc": "This algorithm leverages the Hurst Exponent to identify and rank 20 stocks based on their trending tendencies. By calculating the rolling Hurst Exponent over a 100-period window on 1-hour bars, it strategically selects and trades the top K stocks that exhibit the strongest trend-following characteristics.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_0_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_dev",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs_dev",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.05,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_dev",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allowed_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_neg1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_trend",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "topk",
+          "type": "top_k",
+          "options": [
+            {
+              "id": "k",
+              "value": 3,
+              "name": "Count",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_pos1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_mean",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bottomk",
+          "type": "bottom_k",
+          "options": [
+            {
+              "id": "k",
+              "value": 3,
+              "name": "Count",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_long",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_short",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_signal",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adapter",
+          "type": "trade_executor_adapter",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_selected",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_selected",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_dev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_dev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_dev",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_dev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_dev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allowed_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allowed_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "allowed_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_trend",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_trend",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_trend",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "select_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "topk",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allowed_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_mean",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_mean",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "const_pos1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_mean",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "select_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottomk",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "topk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_selected",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bottomk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_selected",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_selected",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_selected",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_selected",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "topk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_long",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "const_1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_long",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_long",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "bottomk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_short",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_short",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_short",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "select_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "select_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adapter",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "long"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "short"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Hurst-Based Cross-Asset Trend Strategy",
+    "description": "This algorithm leverages the Hurst Exponent to identify and rank 20 stocks based on their trending tendencies. By calculating the rolling Hurst Exponent over a 100-period window on 1-hour bars, it strategically selects and trades the top K stocks that exhibit the strongest trend-following characteristics.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "META-Stocks",
+        "NVDA-Stocks",
+        "TSLA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "DIS-Stocks",
+        "NFLX-Stocks",
+        "ADBE-Stocks",
+        "CRM-Stocks",
+        "PYPL-Stocks",
+        "INTC-Stocks",
+        "CSCO-Stocks",
+        "PEP-Stocks",
+        "KO-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "hurst_cross_asset_trend_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

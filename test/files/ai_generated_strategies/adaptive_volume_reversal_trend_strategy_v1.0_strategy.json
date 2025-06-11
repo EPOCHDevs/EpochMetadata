@@ -1,0 +1,562 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_volume_reversal_trend_strategy_v1.0",
+  "generated_at": "2025-06-10T16:02:54.900516",
+  "trade_signal_metadata": {
+    "id": "adaptive_volume_reversal_trend_strategy_v1.0",
+    "name": "Adaptive Volume Reversal Trend Strategy v1.0",
+    "options": [],
+    "desc": "This algorithm identifies potential trend reversals by utilizing volume-weighted indicators alongside adaptive moving averages. It dynamically adjusts its sensitivity based on market volume, making it effective across various trading conditions to seize significant price movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ema20",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vwma14",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vosc",
+          "type": "vosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 5,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 10,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "wad",
+          "type": "wad",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vosc",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_wad",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_and2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_vosc",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_wad",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_and3",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_and4",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logical_not",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossover_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vosc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vosc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "wad",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_wad",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_wad",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_wad",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossover_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and3",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vosc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vosc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and3",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "wad",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_wad",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_wad",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and4",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_wad",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_and4",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_and4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logical_not",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "logical_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Volume Reversal Trend Strategy v1.0",
+    "description": "This algorithm identifies potential trend reversals by utilizing volume-weighted indicators alongside adaptive moving averages. It dynamically adjusts its sensitivity based on market volume, making it effective across various trading conditions to seize significant price movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^USDNZD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_volume_reversal_trend_strategy_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

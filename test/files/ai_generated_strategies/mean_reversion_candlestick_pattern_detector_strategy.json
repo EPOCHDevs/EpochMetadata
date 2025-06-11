@@ -1,0 +1,630 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "mean_reversion_candlestick_pattern_detector",
+  "generated_at": "2025-06-10T10:22:58.122590",
+  "trade_signal_metadata": {
+    "id": "mean_reversion_candlestick_pattern_detector",
+    "name": "Mean Reversion Candlestick Pattern Detector",
+    "options": [],
+    "desc": "This algorithm leverages the Rolling Hurst Exponent to identify mean-reverting opportunities within liquid equity ETFs on a 15-minute timeframe. By detecting Hurst values below 0.4 and confirming potential reversals with the 'Abandoned Baby Bull' candlestick pattern, the strategy efficiently capitalizes on overextended price moves.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr_node",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_1p5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_thr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "diff_node",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst_node",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_0p4",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abbbull_node",
+          "type": "abandoned_baby_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "rsi_node",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "wilders_node",
+          "type": "wilders",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "xover_rsi",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "yzv_node",
+          "type": "yang_zhang",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bool_true_node",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false_node",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_node",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 576,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 90,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec_node",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "diff_node",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "diff_node",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_1p5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_thr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_thr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0p4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abbbull_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "wilders_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "wilders_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "xover_rsi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "xover_rsi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "yzv_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_node",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_node",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_node",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec_node",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "xover_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec_node",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec_node",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Mean Reversion Candlestick Pattern Detector",
+    "description": "This algorithm leverages the Rolling Hurst Exponent to identify mean-reverting opportunities within liquid equity ETFs on a 15-minute timeframe. By detecting Hurst values below 0.4 and confirming potential reversals with the 'Abandoned Baby Bull' candlestick pattern, the strategy efficiently capitalizes on overextended price moves.",
+    "data": {
+      "assets": [
+        "SPY-Stocks",
+        "IVV-Stocks",
+        "VOO-Stocks",
+        "QQQ-Stocks",
+        "DIA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "mean_reversion_candlestick_pattern_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,702 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "quantum_harmonic_momentum_trader",
+  "generated_at": "2025-06-10T09:04:23.551776",
+  "trade_signal_metadata": {
+    "id": "quantum_harmonic_momentum_trader",
+    "name": "Quantum Harmonic Momentum Trader (QHMT)",
+    "options": [],
+    "desc": "The Quantum Harmonic Momentum Trader (QHMT) is an advanced trading algorithm that integrates harmonic pattern recognition with momentum analysis to seize opportunities in trending markets. By effectively filtering out noise and false signals during consolidation phases, the QHMT aims to optimize entry and exit points for lucrative trades.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "retr",
+          "type": "retracements",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stoch",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sdecay",
+          "type": "edecay",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cmo10",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kelt",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltStoch20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtStoch80",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtCmo",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCmo",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtCloseUpper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCloseLower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtDirPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltDirNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "aggBull",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "aggBear",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossExit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stoch",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sdecay",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sdecay",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltStoch20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltStoch20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sdecay",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtStoch80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtStoch80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtCmo",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtCmo",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltCmo",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltCmo",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtCloseUpper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kelt",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gtCloseUpper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltCloseLower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kelt",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "ltCloseLower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "retr",
+            "handle": "direction"
+          },
+          "target": {
+            "id": "gtDirPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtDirPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "retr",
+            "handle": "direction"
+          },
+          "target": {
+            "id": "ltDirNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDirNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtDirPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltStoch20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCloseUpper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltDirNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtStoch80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCloseLower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "aggBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "aggBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "aggBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossExit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kelt",
+            "handle": "middle_band"
+          },
+          "target": {
+            "id": "crossExit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Harmonic Momentum Trader (QHMT)",
+    "description": "The Quantum Harmonic Momentum Trader (QHMT) is an advanced trading algorithm that integrates harmonic pattern recognition with momentum analysis to seize opportunities in trending markets. By effectively filtering out noise and false signals during consolidation phases, the QHMT aims to optimize entry and exit points for lucrative trades.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_harmonic_momentum_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

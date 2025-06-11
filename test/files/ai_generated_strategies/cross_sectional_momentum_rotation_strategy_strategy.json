@@ -1,0 +1,446 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "cross_sectional_momentum_rotation_strategy",
+  "generated_at": "2025-06-10T14:14:35.969601",
+  "trade_signal_metadata": {
+    "id": "cross_sectional_momentum_rotation_strategy",
+    "name": "Cross-Sectional Momentum Rotation Strategy",
+    "options": [],
+    "desc": "This algorithm implements a cross-sectional momentum rotation strategy on a diverse set of at least 15 liquid equities. By calculating the 21-day Rate of Change Ratio (ROCR), it ranks assets to identify the top 20% for long positions and the bottom 20% for shorts, striking a balance in risk management during volatile market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr21",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bottom20",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gvol14",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "mean_vol",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psel",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 252,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 90,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_vol",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr5",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "mean_ret",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_neg03",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.03,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ret",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gvol14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "psel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_ret",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_ret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ret",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_neg03",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ret",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Sectional Momentum Rotation Strategy",
+    "description": "This algorithm implements a cross-sectional momentum rotation strategy on a diverse set of at least 15 liquid equities. By calculating the 21-day Rate of Change Ratio (ROCR), it ranks assets to identify the top 20% for long positions and the bottom 20% for shorts, striking a balance in risk management during volatile market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "DIS-Stocks",
+        "NFLX-Stocks",
+        "ADBE-Stocks",
+        "PYPL-Stocks",
+        "SFB-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "cross_sectional_momentum_rotation_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

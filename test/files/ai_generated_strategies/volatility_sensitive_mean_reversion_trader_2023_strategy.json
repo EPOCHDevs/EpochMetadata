@@ -1,0 +1,789 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "volatility_sensitive_mean_reversion_trader_2023",
+  "generated_at": "2025-06-10T14:05:12.430724",
+  "trade_signal_metadata": {
+    "id": "volatility_sensitive_mean_reversion_trader_2023",
+    "name": "Volatility-Sensitive Mean Reversion Trader 2023",
+    "options": [],
+    "desc": "This expert-level trading algorithm leverages volatility regime identification alongside order block confirmation to execute mean-reverting trades on a 30-minute timeframe. By integrating statistical analysis with institutional price action, it effectively identifies optimal entry points during low volatility phases for high-probability reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol1",
+          "type": "volatility",
+          "options": [
+            {
+              "id": "period",
+              "value": 36,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "numHigh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.02,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "numLow",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.01,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossLow",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "transHL",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sesLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sesNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "anySes",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma36",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 36,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "subDiff",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "divRatio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "numPos",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.01,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "numNeg",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.01,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ob1",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtOB",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltOB",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg1",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "eqFvg",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allLong",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allShort",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma36",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "subDiff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma36",
+            "handle": "result"
+          },
+          "target": {
+            "id": "subDiff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "subDiff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "divRatio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma36",
+            "handle": "result"
+          },
+          "target": {
+            "id": "divRatio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "divRatio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "divRatio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "transHL",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "transHL",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySes",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySes",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "gtOB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtOB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "ltOB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltOB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eqFvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eqFvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "transHL",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySes",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtOB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eqFvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "transHL",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySes",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltOB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eqFvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "allShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "anySes",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Sensitive Mean Reversion Trader 2023",
+    "description": "This expert-level trading algorithm leverages volatility regime identification alongside order block confirmation to execute mean-reverting trades on a 30-minute timeframe. By integrating statistical analysis with institutional price action, it effectively identifies optimal entry points during low volatility phases for high-probability reversals.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "CL-Futures",
+        "GL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_sensitive_mean_reversion_trader_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

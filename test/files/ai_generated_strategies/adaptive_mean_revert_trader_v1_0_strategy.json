@@ -1,0 +1,639 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "adaptive_mean_revert_trader_v1_0",
+  "generated_at": "2025-06-10T10:11:33.628170",
+  "trade_signal_metadata": {
+    "id": "adaptive_mean_revert_trader_v1_0",
+    "name": "Adaptive Mean Revert Trader v1.0",
+    "options": [],
+    "desc": "This intraday trading algorithm utilizes a Mean Reversion strategy to capitalize on temporary price deviations. By combining the Kaufman Adaptive Moving Average (KAMA) with a dynamic fair value adjustment based on the Ulcer Index, it effectively navigates 15-minute bar fluctuations while managing downside risk.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama30",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ulcer14",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "use_sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "smooth_ui",
+          "type": "edecay",
+          "options": [
+            {
+              "id": "period",
+              "value": 3,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const07",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.7,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thresh_mul",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_lower",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const25",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 25,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx14",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "adx_filter",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ny_session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "risk_ok",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_lt_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "smooth_ui",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "smooth_ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thresh_mul",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const07",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thresh_mul",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh_mul",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh_mul",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_lt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_lt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_lt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_filter",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_filter",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_filter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ny_session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ny_session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Mean Revert Trader v1.0",
+    "description": "This intraday trading algorithm utilizes a Mean Reversion strategy to capitalize on temporary price deviations. By combining the Kaufman Adaptive Moving Average (KAMA) with a dynamic fair value adjustment based on the Ulcer Index, it effectively navigates 15-minute bar fluctuations while managing downside risk.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "AMD-Stocks",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_mean_revert_trader_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

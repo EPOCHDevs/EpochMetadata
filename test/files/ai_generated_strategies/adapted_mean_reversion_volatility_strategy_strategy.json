@@ -1,0 +1,980 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "adapted_mean_reversion_volatility_strategy",
+  "generated_at": "2025-06-10T09:59:15.032576",
+  "trade_signal_metadata": {
+    "id": "adapted_mean_reversion_volatility_strategy",
+    "name": "Adapted Mean Reversion Strategy for Volatility",
+    "options": [],
+    "desc": "This innovative mean-reversion trading algorithm utilizes the Ulcer Index to classify market volatility into calm and high-stress regimes, enabling nuanced trading decisions. In tranquil conditions, it identifies opportunities for reversal trades based on local price movements, optimizing entry points and improving potential returns during periods of low volatility. The adaptive nature of the strategy seeks to enhance performance across varying market conditions while managing risk effectively.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ui",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ps_calm",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 30,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps_stress",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 70,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "swing_length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "eq_low",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num35",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 35,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rsi_35",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_setup",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_calm",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ps_atr",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "w_mar",
+          "type": "white_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "long_step1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_step2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_stress",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_high",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num65",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 65,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi_65",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_setup",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_calm",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "b_mar",
+          "type": "black_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "short_step1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_step2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_stress",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi_35",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num35",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi_35",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_setup",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rsi_35",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_setup",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_calm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "long_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_calm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_calm",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_calm",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_calm",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_stress",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_stress",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_stress",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "long_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_step1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "w_mar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_step1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_step1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_step2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_step2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_step2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_stress",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_stress",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_stress",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_stress",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_atr",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_atr",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_atr",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi_65",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num65",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi_65",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_setup",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi_65",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_setup",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_calm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "short_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_calm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_step1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "b_mar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_step1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_step1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_step2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_step2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_step2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_stress",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_stress",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_stress",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_stress",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adapted Mean Reversion Strategy for Volatility",
+    "description": "This innovative mean-reversion trading algorithm utilizes the Ulcer Index to classify market volatility into calm and high-stress regimes, enabling nuanced trading decisions. In tranquil conditions, it identifies opportunities for reversal trades based on local price movements, optimizing entry points and improving potential returns during periods of low volatility. The adaptive nature of the strategy seeks to enhance performance across varying market conditions while managing risk effectively.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adapted_mean_reversion_volatility_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

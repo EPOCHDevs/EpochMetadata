@@ -1,0 +1,885 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_convergence_breakout_strategy_v1",
+  "generated_at": "2025-06-10T11:03:59.861733",
+  "trade_signal_metadata": {
+    "id": "volatility_convergence_breakout_strategy_v1",
+    "name": "Volatility Convergence Breakout Strategy v1.0",
+    "options": [],
+    "desc": "This expert-level trading algorithm employs a breakout and volatility squeeze strategy specifically tailored for the 1-hour timeframe. By identifying periods of extreme price compression using Bollinger Bands and triggering entries on subsequent breakout movements, it effectively captures price expansion in trending markets.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num17",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 17,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bt",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bf",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 10,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "st",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "dj",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ind",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "si",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtu",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltl",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "adrise",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gta",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adxcond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longf",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortf",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtl",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltu",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adxlow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_sig",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "st",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ind",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dj",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ind",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ps",
+            "handle": "result"
+          },
+          "target": {
+            "id": "si",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ind",
+            "handle": "result"
+          },
+          "target": {
+            "id": "si",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtu",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gtu",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "ltl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adrise",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gta",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num17",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gta",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adrise",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adxcond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gta",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adxcond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adxcond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "si",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adxcond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "si",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "gtl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltu",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "ltu",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adxlow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num17",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adxlow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inside",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adxlow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Convergence Breakout Strategy v1.0",
+    "description": "This expert-level trading algorithm employs a breakout and volatility squeeze strategy specifically tailored for the 1-hour timeframe. By identifying periods of extreme price compression using Bollinger Bands and triggering entries on subsequent breakout movements, it effectively captures price expansion in trending markets.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "ES-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_convergence_breakout_strategy_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,746 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "intraday_ulcer_resilience_recovery_system",
+  "generated_at": "2025-06-10T10:26:14.732212",
+  "trade_signal_metadata": {
+    "id": "intraday_ulcer_resilience_recovery_system",
+    "name": "Intraday Ulcer Resilience Recovery System",
+    "options": [
+      {
+        "id": "ulcer_period",
+        "name": "Period"
+      },
+      {
+        "id": "const_spike_value",
+        "name": "Value"
+      },
+      {
+        "id": "pd_ma20_period",
+        "name": "Period (pd_ma20)"
+      },
+      {
+        "id": "const_big_range_value",
+        "name": "Value (const_big_range)"
+      },
+      {
+        "id": "const_upper_half_value",
+        "name": "Value (const_upper_half)"
+      },
+      {
+        "id": "const_lower_third_value",
+        "name": "Value (const_lower_third)"
+      }
+    ],
+    "desc": "This algorithmic trading strategy, designed for swing trading on a 4-hour timeframe, targets sharp intrabar price drops followed by swift recoveries. By utilizing the Ulcer Index to measure drawdowns, it seeks to capitalize on mean-reverting behavior during periods of heightened volatility, aiming to minimize risk while maximizing recovery potential.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "ulcer_period"
+              },
+              "name": "Ulcer Period",
+              "isExposed": true
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "ulcer_ma10",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Ulcer MA Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "div_ulcer",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_spike",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "const_spike_value"
+              },
+              "name": "Drawdown Spike Factor",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ulcer_spike",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_dist",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "pd_ma20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "pd_ma20_period"
+              },
+              "name": "Price Distance MA Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "div_pd",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_big_range",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "const_big_range_value"
+              },
+              "name": "Big Range Factor",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_big_range",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "range_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_minus_low",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_closerange",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_upper_half",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "const_upper_half_value"
+              },
+              "name": "Upper-Half Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper_half",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ulcer_below",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_lower_third",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "const_lower_third_value"
+              },
+              "name": "Lower-Third Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower_third",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer_ma20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Ulcer 20 MA",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "const_vol_thresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "Volatility Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol_ok",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_ma10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_ma20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ulcer",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_ma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ulcer",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ulcer_spike",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ulcer_spike",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_dist",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pd_ma20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_dist",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_pd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pd_ma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_pd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_big_range",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_big_range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_big_range",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "h"
+          },
+          "target": {
+            "id": "range_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "l"
+          },
+          "target": {
+            "id": "range_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_minus_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "l"
+          },
+          "target": {
+            "id": "close_minus_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_minus_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_closerange",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "range_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_closerange",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_closerange",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_upper_half",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_upper_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_upper_half",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ulcer_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_big_range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer_below",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_ma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer_below",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_closerange",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lower_third",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_lower_third",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lower_third",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ulcer_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower_third",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_ma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_vol_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Ulcer Resilience Recovery System",
+    "description": "This algorithmic trading strategy, designed for swing trading on a 4-hour timeframe, targets sharp intrabar price drops followed by swift recoveries. By utilizing the Ulcer Index to measure drawdowns, it seeks to capitalize on mean-reverting behavior during periods of heightened volatility, aiming to minimize risk while maximizing recovery potential.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "MRNA-Stocks",
+        "GILD-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "intraday_ulcer_resilience_recovery_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

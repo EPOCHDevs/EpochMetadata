@@ -1,0 +1,768 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "celestial_momentum_divergence_tracker_1_1",
+  "generated_at": "2025-06-10T09:09:38.492891",
+  "trade_signal_metadata": {
+    "id": "celestial_momentum_divergence_tracker_1_1",
+    "name": "Celestial Momentum Divergence Tracker 1.1",
+    "options": [],
+    "desc": "This trading algorithm implements a Momentum strategy to identify divergence patterns using the Stochastic Oscillator and Relative Strength Index (RSI). By analyzing divergence signals, it aims to detect potential trend reversals in the market, offering traders a tactical edge in their trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch1",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "K_period",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "K_slowing_period",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "D_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "rsi1",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "shl1",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "prev_lt_price",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_price",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_rsi",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_stoch",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_lt_rsi",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_lt_stoch",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "one1",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_low",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_high",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_bull",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_bear",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt80",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross80",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross20",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "shl1",
+            "handle": "level"
+          },
+          "target": {
+            "id": "prev_lt_price",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "shl1",
+            "handle": "level"
+          },
+          "target": {
+            "id": "prev_gt_price",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_gt_rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_lt_rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "prev_gt_stoch",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "prev_lt_stoch",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "lt80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gt20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "num80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shl1",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shl1",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_stoch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt_stoch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Celestial Momentum Divergence Tracker 1.1",
+    "description": "This trading algorithm implements a Momentum strategy to identify divergence patterns using the Stochastic Oscillator and Relative Strength Index (RSI). By analyzing divergence signals, it aims to detect potential trend reversals in the market, offering traders a tactical edge in their trading decisions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "celestial_momentum_divergence_tracker_1_1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

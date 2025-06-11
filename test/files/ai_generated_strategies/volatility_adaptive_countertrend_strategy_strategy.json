@@ -1,0 +1,825 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_adaptive_countertrend_strategy",
+  "generated_at": "2025-06-10T10:39:28.033018",
+  "trade_signal_metadata": {
+    "id": "volatility_adaptive_countertrend_strategy",
+    "name": "Volatility-Adaptive Countertrend Strategy",
+    "options": [],
+    "desc": "This advanced countertrend trading strategy leverages Keltner Channels and the Ulcer Index to fade intraday overextensions in the 15-minute timeframe. By dynamically determining overbought and oversold zones, the algorithm identifies optimal entry points for short and long positions, capturing price reversals effectively.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 21,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ulcer_ma",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 7,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "risk_ok",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "width",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_ul",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mid_band",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_minus_mid",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dist_abs",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "width_scaled",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dist_ok",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond_raw",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond_raw",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_syd",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "Sydney",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_tokyo",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "Tokyo",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "any_kill",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_kill",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_mid",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_ma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_ma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "width",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "width",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "add_ul",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "add_ul",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_ul",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mid_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mid_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_minus_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mid_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_minus_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_minus_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dist_abs",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_scaled",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_scaled",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "dist_abs",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dist_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "width_scaled",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dist_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond_raw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond_raw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond_raw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dist_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond_raw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond_raw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond_raw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dist_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_syd",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_kill",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_tokyo",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_kill",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_kill",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_kill",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_kill",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_kill",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mid_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kill",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Adaptive Countertrend Strategy",
+    "description": "This advanced countertrend trading strategy leverages Keltner Channels and the Ulcer Index to fade intraday overextensions in the 15-minute timeframe. By dynamically determining overbought and oversold zones, the algorithm identifies optimal entry points for short and long positions, capturing price reversals effectively.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_adaptive_countertrend_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 5
+      }
+    },
+    "take_profit": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 0
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

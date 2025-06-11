@@ -1,0 +1,421 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "mean_reversion_fvg_morning_doji_star",
+  "generated_at": "2025-06-10T15:36:40.970727",
+  "trade_signal_metadata": {
+    "id": "mean_reversion_fvg_morning_doji_star",
+    "name": "Mean Reversion FVG with Morning Doji Star",
+    "options": [
+      {
+        "id": "n5_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This trading algorithm identifies mean-reversion opportunities on the 15-minute timeframe by detecting Fair Value Gaps (FVG) using the specified indicator. It provides a confirmation signal via the Morning Doji Star candlestick pattern when price approaches these FVG zones, optimizing entry points for potential bullish reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n3",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n4",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "n5_value"
+              },
+              "name": "RSI Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n8",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "black_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n13",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Mean Reversion FVG with Morning Doji Star",
+    "description": "This trading algorithm identifies mean-reversion opportunities on the 15-minute timeframe by detecting Fair Value Gaps (FVG) using the specified indicator. It provides a confirmation signal via the Morning Doji Star candlestick pattern when price approaches these FVG zones, optimizing entry points for potential bullish reversals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "mean_reversion_fvg_morning_doji_star",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 14,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

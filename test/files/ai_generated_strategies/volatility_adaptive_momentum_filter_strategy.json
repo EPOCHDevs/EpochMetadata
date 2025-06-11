@@ -1,0 +1,794 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_adaptive_momentum_filter",
+  "generated_at": "2025-06-10T10:58:36.637268",
+  "trade_signal_metadata": {
+    "id": "volatility_adaptive_momentum_filter",
+    "name": "Volatility Adaptive Momentum Filter",
+    "options": [],
+    "desc": "This advanced trading algorithm combines multiple technical indicators, including the Detrended Price Oscillator and Acceleration Bands, to adaptively filter momentum signals based on market volatility. By utilizing crossover techniques and logical operators, the strategy seeks to capitalize on price movements within 30-minute intervals, enhancing trading precision and risk management.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dpo1",
+          "type": "dpo",
+          "options": [
+            {
+              "id": "period",
+              "value": 26,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "mass1",
+          "type": "mass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ab1",
+          "type": "acceleration_bands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "pd1",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "willr1",
+          "type": "willr",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_dpo_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_dpo_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const26_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 26.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_mass",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_ab_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_ab_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bt",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bf",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps1",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 40,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 85,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_neg80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_neg20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_willr",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_willr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_lower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_upper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_insideband",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "dpo1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dpo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_dpo_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_dpo_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_dpo_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dpo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_dpo_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mass1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_mass",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "const26_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_mass",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_ab_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab1",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "cross_ab_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ab1",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "cross_ab_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_ab_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pd1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "willr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_willr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_willr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "willr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_willr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_willr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_dpo_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_ab_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ps1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_willr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_dpo_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_ab_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ps1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_willr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab1",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab1",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_insideband",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_insideband",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_insideband",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_dpo_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Adaptive Momentum Filter",
+    "description": "This advanced trading algorithm combines multiple technical indicators, including the Detrended Price Oscillator and Acceleration Bands, to adaptively filter momentum signals based on market volatility. By utilizing crossover techniques and logical operators, the strategy seeks to capitalize on price movements within 30-minute intervals, enhancing trading precision and risk management.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_adaptive_momentum_filter",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

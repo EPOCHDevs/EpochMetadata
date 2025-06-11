@@ -1,0 +1,852 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "power_hour_breakout_detecting_strategy",
+  "generated_at": "2025-06-10T14:49:06.929318",
+  "trade_signal_metadata": {
+    "id": "power_hour_breakout_detecting_strategy",
+    "name": "Power Hour Breakout Detecting Strategy",
+    "options": [],
+    "desc": "This EventDriven trading strategy focuses on capturing high volatility breakouts during the critical 'London Open Kill Zone' and 'New York Kill Zone' periods. By marking the highs and lows of the first 30-minute candle in each session, the algorithm identifies potential breakout opportunities when price surpasses these significant levels.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "session_active",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "buffer",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.0001,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "percent",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.001,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_high",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_low",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_high_plus",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_low_minus",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_break_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_break_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "diff_high",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_high",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "valid_close_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "diff_low",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_low",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "valid_close_low",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "obv",
+          "type": "obv",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ema_obv",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "gt_obv_ema",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cvi",
+          "type": "cvi",
+          "options": [
+            {
+              "id": "period",
+              "value": 8,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lag_cvi",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "gt_cvi_lag",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "session_active",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "session_active",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "select_high",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "high"
+          },
+          "target": {
+            "id": "select_high",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "high"
+          },
+          "target": {
+            "id": "select_high",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "select_low",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_london",
+            "handle": "low"
+          },
+          "target": {
+            "id": "select_low",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "low"
+          },
+          "target": {
+            "id": "select_low",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "select_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_high_plus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "buffer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_high_plus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "select_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_low_minus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "buffer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_low_minus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_high_plus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_break_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "diff_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_high_plus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_high_plus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "percent",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "valid_close_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "valid_close_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_break_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_low_minus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_break_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_low_minus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "diff_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_low_minus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "percent",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "valid_close_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "valid_close_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ema_obv",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_obv_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema_obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_obv_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_cvi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cvi_lag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_cvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cvi_lag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "valid_close_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_obv_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cvi_lag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_active",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_break_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "valid_close_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_obv_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cvi_lag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_active",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_active",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Power Hour Breakout Detecting Strategy",
+    "description": "This EventDriven trading strategy focuses on capturing high volatility breakouts during the critical 'London Open Kill Zone' and 'New York Kill Zone' periods. By marking the highs and lows of the first 30-minute candle in each session, the algorithm identifies potential breakout opportunities when price surpasses these significant levels.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCHF-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "power_hour_breakout_detecting_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

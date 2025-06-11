@@ -1,0 +1,382 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_convergence_action_sniper",
+  "generated_at": "2025-06-10T15:04:36.290200",
+  "trade_signal_metadata": {
+    "id": "liquidity_convergence_action_sniper",
+    "name": "Liquidity Convergence Action Sniper",
+    "options": [],
+    "desc": "The Liquidity Convergence Action Sniper is a price action trading algorithm designed to pinpoint high-probability entry points in the market. By analyzing the interplay between liquidity clusters and stochastic oscillator signals, it effectively exploits market reversals and continuations.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stoch",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_os",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ob",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_pl",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_buy",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_sell",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "lt_os",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_os",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gt_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "eq_pl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "level"
+          },
+          "target": {
+            "id": "eq_pl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_pl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_os",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_pl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_sell",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Convergence Action Sniper",
+    "description": "The Liquidity Convergence Action Sniper is a price action trading algorithm designed to pinpoint high-probability entry points in the market. By analyzing the interplay between liquidity clusters and stochastic oscillator signals, it effectively exploits market reversals and continuations.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "liquidity_convergence_action_sniper",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

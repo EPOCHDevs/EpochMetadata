@@ -1,0 +1,732 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "gap_hunter_momentum_strategy_v1_0",
+  "generated_at": "2025-06-10T16:25:37.834652",
+  "trade_signal_metadata": {
+    "id": "gap_hunter_momentum_strategy_v1_0",
+    "name": "Gap Hunter Momentum Strategy v1.0",
+    "options": [],
+    "desc": "This algorithm identifies and capitalizes on significant price gaps that occur during off-hours or market events. It focuses on executing trades in the first few hours after market open, leveraging momentum and price action to maximize potential profits from these gaps.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lag_close",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sub_gap",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs_gap",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_pct",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gap_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.02,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_gap",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_down",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi14",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rsi_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lag_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "o"
+          },
+          "target": {
+            "id": "sub_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_pct",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_pct",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_pct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gap_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "o"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "o"
+          },
+          "target": {
+            "id": "lt_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rsi_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Gap Hunter Momentum Strategy v1.0",
+    "description": "This algorithm identifies and capitalizes on significant price gaps that occur during off-hours or market events. It focuses on executing trades in the first few hours after market open, leveraging momentum and price action to maximize potential profits from these gaps.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "MSFT-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "gap_hunter_momentum_strategy_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

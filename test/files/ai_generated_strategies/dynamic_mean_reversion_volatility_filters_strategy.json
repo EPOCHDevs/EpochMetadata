@@ -1,0 +1,703 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_mean_reversion_volatility_filters",
+  "generated_at": "2025-06-10T13:40:42.092360",
+  "trade_signal_metadata": {
+    "id": "dynamic_mean_reversion_volatility_filters",
+    "name": "Dynamic Mean Reversion with Volatility Filters",
+    "options": [],
+    "desc": "This expert-level trading algorithm utilizes a mean-reverting strategy on a 15-minute timeframe, dynamically adjusting between mean-reversion and trend-follower modes based on volatility regimes. By incorporating a 20-period Normalized Average True Range, the algorithm categorizes market conditions into low, medium, and high volatility, enhancing its trade decisions for better performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n1",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "t1",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "f1",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pLow",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 33,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "doji1",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lldoji1",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "anyDoji",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pd1",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pdSma",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "halfConst",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mulTh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltPD",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltHurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and3",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notLow",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "orClose",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "t1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pLow",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "f1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pLow",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pLow",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "doji1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyDoji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lldoji1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyDoji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pd1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pdSma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pdSma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulTh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "halfConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulTh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pd1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltPD",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mulTh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltPD",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "anyDoji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltPD",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltHurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltHurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltHurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notLow",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orClose",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "notLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orClose",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "orClose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Mean Reversion with Volatility Filters",
+    "description": "This expert-level trading algorithm utilizes a mean-reverting strategy on a 15-minute timeframe, dynamically adjusting between mean-reversion and trend-follower modes based on volatility regimes. By incorporating a 20-period Normalized Average True Range, the algorithm categorizes market conditions into low, medium, and high volatility, enhancing its trade decisions for better performance.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_mean_reversion_volatility_filters",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 14,
+        "max_leverage": 1,
+        "vol_target": 0.01
+      }
+    }
+  }
+}

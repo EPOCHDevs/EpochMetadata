@@ -1,0 +1,561 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "marubozu_keltner_trend_detector",
+  "generated_at": "2025-06-10T15:11:18.725030",
+  "trade_signal_metadata": {
+    "id": "marubozu_keltner_trend_detector",
+    "name": "Marubozu Keltner Trend Detector",
+    "options": [
+      {
+        "id": "white_period",
+        "name": "Period",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "white_body_none",
+        "name": "Body None Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "white_wick_none",
+        "name": "Wick None Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "black_period",
+        "name": "Period (black)",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "black_body_none",
+        "name": "Body None Threshold (black)",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "black_wick_none",
+        "name": "Wick None Threshold (black)",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "kc_roll_period",
+        "name": "Roll_Period"
+      },
+      {
+        "id": "kc_band_multiplier",
+        "name": "Band_Multiplier"
+      }
+    ],
+    "desc": "This trading algorithm leverages the Marubozu candlestick pattern to identify strong trend conviction in stocks, while utilizing Keltner Channels for insights into market volatility. By combining these techniques, the strategy aims to provide robust entry and exit signals for traders seeking to capitalize on trending movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "white",
+          "type": "white_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "white_period"
+              },
+              "name": "period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": {
+                "refName": "white_body_none"
+              },
+              "name": "body_none",
+              "isExposed": true
+            },
+            {
+              "id": "wick_none",
+              "value": {
+                "refName": "white_wick_none"
+              },
+              "name": "wick_none",
+              "isExposed": true
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "black",
+          "type": "black_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "black_period"
+              },
+              "name": "period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": {
+                "refName": "black_body_none"
+              },
+              "name": "body_none",
+              "isExposed": true
+            },
+            {
+              "id": "wick_none",
+              "value": {
+                "refName": "black_wick_none"
+              },
+              "name": "wick_none",
+              "isExposed": true
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": {
+                "refName": "kc_roll_period"
+              },
+              "name": "roll_period",
+              "isExposed": true
+            },
+            {
+              "id": "band_multiplier",
+              "value": {
+                "refName": "kc_band_multiplier"
+              },
+              "name": "band_multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_band",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_band",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "white",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "black",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lte_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gte_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Marubozu Keltner Trend Detector",
+    "description": "This trading algorithm leverages the Marubozu candlestick pattern to identify strong trend conviction in stocks, while utilizing Keltner Channels for insights into market volatility. By combining these techniques, the strategy aims to provide robust entry and exit signals for traders seeking to capitalize on trending movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "marubozu_keltner_trend_detector",
+      "args": {
+        "white_period": 10,
+        "white_body_none": 0.05,
+        "white_wick_none": 0.05,
+        "black_period": 10,
+        "black_body_none": 0.05,
+        "black_wick_none": 0.05
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

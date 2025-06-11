@@ -1,0 +1,518 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_candle_convergence_strategy_v1.0",
+  "generated_at": "2025-06-10T14:47:50.145659",
+  "trade_signal_metadata": {
+    "id": "volatility_candle_convergence_strategy_v1.0",
+    "name": "Volatility-Candle Convergence Strategy V1.0",
+    "options": [],
+    "desc": "This intraday trading algorithm targets high-probability reversal points during low-volatility phases as identified by Keltner Channels. By strategically entering trades when volatility shifts from high to low, the algorithm capitalizes on trend reversals signified by dual candlestick patterns.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kc_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc_ma",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol_contraction",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_expansion",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "hanging",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "kc_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "kc_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kc_ma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_contraction",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_ma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_contraction",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_expansion",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_ma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_expansion",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_expansion",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_expansion",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Candle Convergence Strategy V1.0",
+    "description": "This intraday trading algorithm targets high-probability reversal points during low-volatility phases as identified by Keltner Channels. By strategically entering trades when volatility shifts from high to low, the algorithm capitalizes on trend reversals signified by dual candlestick patterns.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "S-Stocks",
+        "PX-Futures",
+        "DX-Futures",
+        "A-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_candle_convergence_strategy_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,583 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "new_york_kill_zone_breakout_strategy",
+  "generated_at": "2025-06-10T09:54:44.731112",
+  "trade_signal_metadata": {
+    "id": "new_york_kill_zone_breakout_strategy",
+    "name": "New York Kill Zone Breakout Strategy",
+    "options": [],
+    "desc": "This trading algorithm leverages Smart Money Concepts to pinpoint high-probability breakout trades specifically during the New York Kill Zone. By measuring liquidity and focusing on price action, it enhances decision-making for optimal trade execution during key market hours.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ses",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ob",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bos",
+          "type": "bos_choch",
+          "options": [
+            {
+              "id": "close_break",
+              "value": false,
+              "name": "Use Close Price",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt0_ob",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt0_ob",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt0_bos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt0_bos",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt0_liq",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt0_liq",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_session",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exe",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "ob",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "bos",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "bos",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "gt0_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt0_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "lt0_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt0_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "gt0_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt0_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "lt0_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt0_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt0_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt0_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt0_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt0_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ses",
+            "handle": "active"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt0_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt0_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt0_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ses",
+            "handle": "active"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt0_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt0_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt0_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ses",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exe",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exe",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exe",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "ses",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_session",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exe",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "New York Kill Zone Breakout Strategy",
+    "description": "This trading algorithm leverages Smart Money Concepts to pinpoint high-probability breakout trades specifically during the New York Kill Zone. By measuring liquidity and focusing on price action, it enhances decision-making for optimal trade execution during key market hours.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "NQ-Futures",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "new_york_kill_zone_breakout_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

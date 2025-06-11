@@ -1,0 +1,693 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "volatility_squeeze_expansion_detector_v1.0",
+  "generated_at": "2025-06-10T16:45:53.826406",
+  "trade_signal_metadata": {
+    "id": "volatility_squeeze_expansion_detector_v1.0",
+    "name": "Volatility Squeeze & Expansion Detector v1.0",
+    "options": [
+      {
+        "id": "bb_period",
+        "name": "Period"
+      },
+      {
+        "id": "bb_stddev",
+        "name": "Stddev"
+      },
+      {
+        "id": "kc_roll_period",
+        "name": "Roll_Period"
+      },
+      {
+        "id": "kc_band_multiplier",
+        "name": "Band_Multiplier"
+      }
+    ],
+    "desc": "This algorithm identifies critical market phases of volatility squeeze and expansion using advanced PriceAction techniques. By analyzing indicators such as Bollinger Bands Width and Keltner Channels alongside essential price movements, it provides insights for strategic trading decisions during low and high volatility conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "bb_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "stddev",
+              "value": {
+                "refName": "bb_stddev"
+              },
+              "name": "Stddev",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": {
+                "refName": "kc_roll_period"
+              },
+              "name": "Rolling Period",
+              "isExposed": true
+            },
+            {
+              "id": "band_multiplier",
+              "value": {
+                "refName": "kc_band_multiplier"
+              },
+              "name": "Band Multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "squeeze",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notsq",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_bbupper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bigwhite",
+          "type": "big_white_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_bblower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bigblack",
+          "type": "big_black_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_kcupper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_kclower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notsq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_bbupper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_close_bbupper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "notsq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_bbupper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bigwhite",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_bblower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_close_bblower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "notsq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_bblower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bigblack",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_kcupper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lt_close_kcupper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_kclower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gt_close_kclower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_kcupper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_kclower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Squeeze & Expansion Detector v1.0",
+    "description": "This algorithm identifies critical market phases of volatility squeeze and expansion using advanced PriceAction techniques. By analyzing indicators such as Bollinger Bands Width and Keltner Channels alongside essential price movements, it provides insights for strategic trading decisions during low and high volatility conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "AMD-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_squeeze_expansion_detector_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,554 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "kama_mean_reverter_v1.0",
+  "generated_at": "2025-06-10T14:53:57.024715",
+  "trade_signal_metadata": {
+    "id": "kama_mean_reverter_v1.0",
+    "name": "KAMA-Based Mean Reverter V1.0",
+    "options": [],
+    "desc": "This intermediate-level mean-reverting trading algorithm utilizes the Kaufman Adaptive Moving Average (KAMA) to track price trends on a 15-minute timeframe. By applying a 30-period KAMA to the typical price, it identifies potential buy signals based on price movements below the KAMA, while incorporating the Normalized Average True Range (NATR) to adjust for market volatility. Designed for adaptive trading in dynamic market conditions, it enhances decision-making with a focus on mean reversion principles.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tp",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kama30",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num08",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mulThr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "negOne",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mulNeg",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "subDev",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltOver",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtOver",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ebull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ebear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "tp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulThr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num08",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulThr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mulThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "negOne",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "subDev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "subDev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "subDev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltOver",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mulNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltOver",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "subDev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtOver",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mulThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtOver",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltOver",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ebull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtOver",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ebear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "KAMA-Based Mean Reverter V1.0",
+    "description": "This intermediate-level mean-reverting trading algorithm utilizes the Kaufman Adaptive Moving Average (KAMA) to track price trends on a 15-minute timeframe. By applying a 30-period KAMA to the typical price, it identifies potential buy signals based on price movements below the KAMA, while incorporating the Normalized Average True Range (NATR) to adjust for market volatility. Designed for adaptive trading in dynamic market conditions, it enhances decision-making with a focus on mean reversion principles.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "GC-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "kama_mean_reverter_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

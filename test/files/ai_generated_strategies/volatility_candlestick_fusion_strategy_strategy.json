@@ -1,0 +1,362 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "volatility_candlestick_fusion_strategy",
+  "generated_at": "2025-06-10T10:40:12.649845",
+  "trade_signal_metadata": {
+    "id": "volatility_candlestick_fusion_strategy",
+    "name": "Volatility-Candlestick Fusion Strategy",
+    "options": [
+      {
+        "id": "atr1_period",
+        "name": "Period"
+      },
+      {
+        "id": "num_thr_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This trading algorithm employs key candlestick patterns, specifically the 'Inverted Hammer' and 'Shooting Star', to identify potential trade entries and exits. By integrating a volatility indicator, it fine-tunes the timing of trades, ensuring optimal positions based on market dynamics.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "m1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr1",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "atr1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_thr_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inv_hammer",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "shoot_star",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "atr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inv_hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shoot_star",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Candlestick Fusion Strategy",
+    "description": "This trading algorithm employs key candlestick patterns, specifically the 'Inverted Hammer' and 'Shooting Star', to identify potential trade entries and exits. By integrating a volatility indicator, it fine-tunes the timing of trades, ensuring optimal positions based on market dynamics.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_candlestick_fusion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

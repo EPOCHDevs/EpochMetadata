@@ -1,0 +1,834 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "regime_aware_price_action_breakout_trader_v1.0",
+  "generated_at": "2025-06-10T15:43:55.574940",
+  "trade_signal_metadata": {
+    "id": "regime_aware_price_action_breakout_trader_v1.0",
+    "name": "Regime-Aware Price Action Breakout Trader V1.0",
+    "options": [],
+    "desc": "This intraday trading algorithm leverages event-driven strategies to detect market volatility regimes and trigger trades based on institutional price-action signals. It aims to exploit breakout opportunities in liquid futures markets, adapting dynamically to changing volatility conditions to maximize profit potential.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cvi1",
+          "type": "cvi",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma1",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "std1",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul1",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add1",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub1",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_highvol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lowvol",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sessions_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing1",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ob1",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fvg1",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "eq_dir",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ob_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ob_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_break_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_break_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "std1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_highvol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_highvol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lowvol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lowvol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swing1",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "ob1",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_dir",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_dir",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "ob_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ob_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "ob_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ob_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_break_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "top"
+          },
+          "target": {
+            "id": "price_break_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_break_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "price_break_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_highvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_dir",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_break_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ob_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_highvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_dir",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_break_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ob_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Regime-Aware Price Action Breakout Trader V1.0",
+    "description": "This intraday trading algorithm leverages event-driven strategies to detect market volatility regimes and trigger trades based on institutional price-action signals. It aims to exploit breakout opportunities in liquid futures markets, adapting dynamically to changing volatility conditions to maximize profit potential.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "NQ-Futures",
+        "ZE-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "regime_aware_price_action_breakout_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

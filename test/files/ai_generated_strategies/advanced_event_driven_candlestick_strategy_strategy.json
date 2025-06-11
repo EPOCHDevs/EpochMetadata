@@ -1,0 +1,322 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "advanced_event_driven_candlestick_strategy",
+  "generated_at": "2025-06-10T10:41:55.353428",
+  "trade_signal_metadata": {
+    "id": "advanced_event_driven_candlestick_strategy",
+    "name": "Advanced Event-Driven Candlestick Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes a sophisticated Event-Driven strategy by integrating the Market Facilitation Index, Acceleration Bands, and the Three Black Crows candlestick pattern. Designed for 30-minute bar analysis and execution, it aims to effectively identify market trends and optimize trading decisions based on dynamic market movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tbc",
+          "type": "three_black_crows",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "mfi",
+          "type": "marketfi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "mfi_dec",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ab",
+          "type": "acceleration_bands",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 1.5,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "price_below_lb",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_above_mb",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mfi_dec",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi_dec",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tbc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_below_lb",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "price_below_lb",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_below_lb",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_above_mb",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab",
+            "handle": "middle_band"
+          },
+          "target": {
+            "id": "price_above_mb",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_mb",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Advanced Event-Driven Candlestick Strategy",
+    "description": "This algorithm utilizes a sophisticated Event-Driven strategy by integrating the Market Facilitation Index, Acceleration Bands, and the Three Black Crows candlestick pattern. Designed for 30-minute bar analysis and execution, it aims to effectively identify market trends and optimize trading decisions based on dynamic market movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "MSFT-Stocks",
+        "NVDA-Stocks",
+        "QQ-Futures",
+        "TSPY-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "advanced_event_driven_candlestick_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 0
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      }
+    }
+  }
+}

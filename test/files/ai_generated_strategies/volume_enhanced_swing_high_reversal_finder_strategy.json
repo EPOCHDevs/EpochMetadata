@@ -1,0 +1,367 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "volume_enhanced_swing_high_reversal_finder",
+  "generated_at": "2025-06-10T09:10:43.485596",
+  "trade_signal_metadata": {
+    "id": "volume_enhanced_swing_high_reversal_finder",
+    "name": "Volume-Enhanced Swing High Reversal Finder",
+    "options": [],
+    "desc": "This algorithm leverages momentum trading principles by detecting swing highs in conjunction with significant volume surges. It identifies potential reversal points in price action, providing traders with insights into potential market reversals based on historical patterns.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl1",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 10,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "vosc1",
+          "type": "vosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 5,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 14,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq1",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_cross",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_cross",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shl1",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volume-Enhanced Swing High Reversal Finder",
+    "description": "This algorithm leverages momentum trading principles by detecting swing highs in conjunction with significant volume surges. It identifies potential reversal points in price action, providing traders with insights into potential market reversals based on historical patterns.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volume_enhanced_swing_high_reversal_finder",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

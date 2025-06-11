@@ -1,0 +1,611 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "sentiment_trend_reversal_navigator_1_0",
+  "generated_at": "2025-06-10T09:27:20.256257",
+  "trade_signal_metadata": {
+    "id": "sentiment_trend_reversal_navigator_1_0",
+    "name": "Sentiment Trend Reversal Navigator 1.0",
+    "options": [
+      {
+        "id": "sentiment_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "The Sentiment Trend Reversal Navigator leverages real-time sentiment analysis from social media and news outlets to identify potential market reversal opportunities. By analyzing sentiment scores, this algorithm seeks to predict shifts in market trends and capitalize on them for optimal trading strategies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sentiment",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "sentiment_value"
+              },
+              "name": "Sentiment Feed (live value injected)",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thirty_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "30",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "seventy_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "70",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi14",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ema21",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ema55",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 55,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "cross_sent_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_sent_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_price_above_ema21",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_price_below_ema21",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rsi30",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi70",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_above_ema55",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_below_ema55",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema55",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sentiment",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sent_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sent_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sent_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sentiment",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sent_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_above_ema21",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_price_above_ema21",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_price_below_ema21",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_below_ema21",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi30",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thirty_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi30",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi70",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "seventy_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi70",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_above_ema55",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_above_ema55",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_below_ema55",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_below_ema55",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_sent_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rsi30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_above_ema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_above_ema55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_sent_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_below_ema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_below_ema55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Sentiment Trend Reversal Navigator 1.0",
+    "description": "The Sentiment Trend Reversal Navigator leverages real-time sentiment analysis from social media and news outlets to identify potential market reversal opportunities. By analyzing sentiment scores, this algorithm seeks to predict shifts in market trends and capitalize on them for optimal trading strategies.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "sentiment_trend_reversal_navigator_1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_volume_momentum_forecast_engine",
+  "generated_at": "2025-06-10T09:45:42.740973",
+  "trade_signal_metadata": {
+    "id": "dynamic_volume_momentum_forecast_engine",
+    "name": "Dynamic Volume Momentum Forecast Engine",
+    "options": [],
+    "desc": "This advanced trading algorithm leverages a multi-weighted approach to analyze volume trends across various assets and timeframes. By identifying significant surges in volume and corresponding price movements, it targets potential breakout opportunities for informed trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_sma",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "threshold_mul",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_surge_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama21",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "price_gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_sma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "threshold_mul",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "threshold_mul",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_surge_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "threshold_mul",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_surge_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_surge_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_surge_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Volume Momentum Forecast Engine",
+    "description": "This advanced trading algorithm leverages a multi-weighted approach to analyze volume trends across various assets and timeframes. By identifying significant surges in volume and corresponding price movements, it targets potential breakout opportunities for informed trading decisions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "MSFT-Stocks",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_volume_momentum_forecast_engine",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,742 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_fvg_mean_reversion_strategy",
+  "generated_at": "2025-06-10T10:15:18.527783",
+  "trade_signal_metadata": {
+    "id": "liquidity_fvg_mean_reversion_strategy",
+    "name": "Liquidity-Focused FVG Mean-Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level price action trading algorithm leverages Fair Value Gaps (FVGs) and clusters of swing highs and lows to perform mean-reversion trades targeting liquidity sweeps. By analyzing liquidity indicators, the strategy identifies key entry points where price is likely to reverse after touching these clusters, enhancing trading precision and effectiveness.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "swing_length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.003,
+              "name": "range_percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "join_consecutive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sweep_change",
+          "type": "previous_neq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "two",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_mid",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_mid",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_fill",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_fill",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "retvol",
+          "type": "return_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "perc_select",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "swept"
+          },
+          "target": {
+            "id": "sweep_change",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sweep_change",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sweep_change",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "add_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "add_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "two",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_fill",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "div_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_fill",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_fill",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "div_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_fill",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_fill",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_fill",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "retvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_select",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_select",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_select",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_select",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity-Focused FVG Mean-Reversion Strategy",
+    "description": "This expert-level price action trading algorithm leverages Fair Value Gaps (FVGs) and clusters of swing highs and lows to perform mean-reversion trades targeting liquidity sweeps. By analyzing liquidity indicators, the strategy identifies key entry points where price is likely to reverse after touching these clusters, enhancing trading precision and effectiveness.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "^USDCHF-FX",
+        "^NZDUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_fvg_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.015
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.01,
+        "risk": 0.01
+      }
+    }
+  }
+}

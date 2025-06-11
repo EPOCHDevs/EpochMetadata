@@ -10,5 +10,6 @@
       RegisterStrategyMetaData(#FactoryMetaData, FactoryMetaDataCreator)
 
 namespace epoch_metadata::strategy {
-void RegisterStrategyMetadata(FileLoaderInterface const &loader);
+void RegisterStrategyMetadata(FileLoaderInterface const &loader, std::vector<std::string> const& aiGeneratedStrategies);
+
 } // namespace epoch_metadata::strategy

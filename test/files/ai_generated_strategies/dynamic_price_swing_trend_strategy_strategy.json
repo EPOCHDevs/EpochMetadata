@@ -1,0 +1,792 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_price_swing_trend_strategy",
+  "generated_at": "2025-06-10T10:52:58.347977",
+  "trade_signal_metadata": {
+    "id": "dynamic_price_swing_trend_strategy",
+    "name": "Dynamic Price Swing Trend Strategy",
+    "options": [],
+    "desc": "This algorithm leverages a hybrid approach combining price action signals and trend-following techniques to identify optimal trading opportunities. Utilizing 15-minute and 1-hour bars, it dynamically adjusts stop-loss levels based on volatility metrics and identifies swing highs and lows for robust entry and exit points.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing15",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 7,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bos15",
+          "type": "bos_choch",
+          "options": [
+            {
+              "id": "close_break",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vhf15",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vhf",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hma1h",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 34,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_price_hma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price_hma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bos",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_kz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "not_kz",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ck_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 14,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lte_long_stop",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_short_stop",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_choch",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_choch",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close_long",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close_short",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing15",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "bos15",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing15",
+            "handle": "level"
+          },
+          "target": {
+            "id": "bos15",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma1h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos15",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "gt_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos15",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "lt_bos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_kz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_kz",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_long_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ck_stop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lte_long_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_short_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ck_stop",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gte_short_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos15",
+            "handle": "choch"
+          },
+          "target": {
+            "id": "lt_choch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_choch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos15",
+            "handle": "choch"
+          },
+          "target": {
+            "id": "gt_choch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_choch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_long_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_choch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_short_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_choch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Price Swing Trend Strategy",
+    "description": "This algorithm leverages a hybrid approach combining price action signals and trend-following techniques to identify optimal trading opportunities. Utilizing 15-minute and 1-hour bars, it dynamically adjusts stop-loss levels based on volatility metrics and identifies swing highs and lows for robust entry and exit points.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_price_swing_trend_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

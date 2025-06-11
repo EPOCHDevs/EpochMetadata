@@ -6,6 +6,8 @@
 #include "epoch_metadata/transforms/registry.h"
 #include <epoch_core/macros.h>
 
+#include "epoch_metadata/strategy/ui_graph.h"
+
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
 
@@ -102,20 +104,33 @@ bool convert<AlgorithmMetaData>::decode(YAML::Node const &node,
 
 bool convert<TradeSignalMetaData>::decode(YAML::Node const &node,
                                           TradeSignalMetaData &metadata) {
-  metadata.id = node["id"].as<std::string>();
-  metadata.name = node["name"].as<std::string>("");
-  metadata.options =
-      node["options"].as<MetaDataOptionList>(MetaDataOptionList{});
-  metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
-  metadata.isGroup = node["isGroup"].as<bool>(false);
-  metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
-  metadata.type = epoch_core::TradeSignalTypeWrapper::FromString(
-      node["type"].as<std::string>());
+    metadata.id = node["id"].as<std::string>();
+    metadata.name = node["name"].as<std::string>("");
+    metadata.options =
+        node["options"].as<MetaDataOptionList>(MetaDataOptionList{});
+    metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
+    metadata.isGroup = node["isGroup"].as<bool>(false);
+    metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
+    metadata.type = epoch_core::TradeSignalTypeWrapper::FromString(
+        node["type"].as<std::string>());
 
-  metadata.algorithm = node["algorithm"].as<std::vector<AlgorithmNode>>();
-  metadata.executor = node["executor"].as<AlgorithmNode>();
-  metadata.tags =
-      node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
-  return true;
+    metadata.algorithm = node["algorithm"].as<std::vector<AlgorithmNode>>();
+    metadata.executor = node["executor"].as<AlgorithmNode>();
+    metadata.tags =
+        node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
+
+    const auto expectedUIData = CreateUIData({
+        metadata.options,
+        metadata.algorithm,
+        metadata.executor
+    });
+
+    if (expectedUIData) {
+        metadata.data = expectedUIData.value();
+    }
+    else {
+        SPDLOG_ERROR("Failed to create UI data for {}.\nReason:\n{}", metadata.id, expectedUIData.error() );
+    }
+    return true;
 }
 } // namespace YAML

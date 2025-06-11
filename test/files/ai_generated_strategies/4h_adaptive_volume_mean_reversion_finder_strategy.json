@@ -1,0 +1,833 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "4h_adaptive_volume_mean_reversion_finder",
+  "generated_at": "2025-06-10T17:07:50.355925",
+  "trade_signal_metadata": {
+    "id": "4h_adaptive_volume_mean_reversion_finder",
+    "name": "4H Adaptive Volume Mean Reversion Finder",
+    "options": [],
+    "desc": "This algorithm utilizes an adaptive mean reversion strategy combined with volume analysis to identify potential reversal points in price action on a 4-hour timeframe. By integrating the Relative Strength Index (RSI) and volume metrics, the model dynamically adjusts to market conditions, aiming to optimize trade entries and exits for improved profitability.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "vwma",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "vosc",
+          "type": "vosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 5,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 34,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "gkv",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "num30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volth",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rsi30",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi70",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "up_cmo",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "down_cmo",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_dn",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vosc0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "max14",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "min14",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "add_mid",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_mid",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi30",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi30",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi70",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi70",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "up_cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "down_cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_dn",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_dn",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vosc0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vosc0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gkv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volth",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rsi30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "up_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vosc0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "down_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_dn",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vosc0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "max14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "min14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "max14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "div_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "4H Adaptive Volume Mean Reversion Finder",
+    "description": "This algorithm utilizes an adaptive mean reversion strategy combined with volume analysis to identify potential reversal points in price action on a 4-hour timeframe. By integrating the Relative Strength Index (RSI) and volume metrics, the model dynamically adjusts to market conditions, aiming to optimize trade entries and exits for improved profitability.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "4h_adaptive_volume_mean_reversion_finder",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.03,
+        "risk": 0.03
+      }
+    }
+  }
+}

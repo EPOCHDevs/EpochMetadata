@@ -1,0 +1,807 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "liquidity_run_fvg_reversion_expert_1.0",
+  "generated_at": "2025-06-10T17:28:25.040359",
+  "trade_signal_metadata": {
+    "id": "liquidity_run_fvg_reversion_expert_1.0",
+    "name": "Liquidity Run & FVG Reversion Expert 1.0",
+    "options": [],
+    "desc": "This advanced EventDriven & PriceAction hybrid algorithm leverages a unique combination of swing highs and lows to identify liquidity levels and detect Fair Value Gaps (FVG) for optimal trading opportunities on an intraday basis. Designed for the 15-minute timeframe, it monitors liquidity sweeps to capitalize on quick retracements, ensuring a robust strategy for maximizing profit potential.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swings",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 8,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vwma20",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "perc_filter",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 60,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_pre_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_pre_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_liq_bull",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_liq_bear",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_setup",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_setup",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry_flag",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry_flag",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swings",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swings",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_filter",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_filter",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_filter",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_pre_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_pre_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_filter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_liq_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_liq_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_liq_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_liq_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_liq_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_setup",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_setup",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_liq_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_setup",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_setup",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_flag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_pre_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_flag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_setup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_flag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_pre_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_flag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry_flag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Run & FVG Reversion Expert 1.0",
+    "description": "This advanced EventDriven & PriceAction hybrid algorithm leverages a unique combination of swing highs and lows to identify liquidity levels and detect Fair Value Gaps (FVG) for optimal trading opportunities on an intraday basis. Designed for the 15-minute timeframe, it monitors liquidity sweeps to capitalize on quick retracements, ensuring a robust strategy for maximizing profit potential.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "liquidity_run_fvg_reversion_expert_1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      }
+    }
+  }
+}

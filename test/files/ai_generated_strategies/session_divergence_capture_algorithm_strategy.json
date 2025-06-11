@@ -1,0 +1,474 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "session_divergence_capture_algorithm",
+  "generated_at": "2025-06-10T10:20:11.933973",
+  "trade_signal_metadata": {
+    "id": "session_divergence_capture_algorithm",
+    "name": "Session Divergence Capture Algorithm",
+    "options": [],
+    "desc": "Designed for intraday trading, this algorithm identifies divergence patterns across major trading sessions including Tokyo, London, and New York. It utilizes pivot points, volume oscillators, and fair value gaps to strategically place trades based on market sentiment and potential reversals or continuations.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pivot",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vosc",
+          "type": "vosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 5,
+              "name": "Short Period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 20,
+              "name": "Long Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtFvgPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltFvgNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltClosePivot",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtClosePivot",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVoscPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltVoscNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and1Long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and1Short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gtFvgPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtFvgPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "ltFvgNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltFvgNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltClosePivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "ltClosePivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtClosePivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "gtClosePivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtFvgPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1Long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltClosePivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1Long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1Long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVoscPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltFvgNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1Short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtClosePivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1Short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1Short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltVoscNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVoscPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVoscPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltVoscNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltVoscNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Session Divergence Capture Algorithm",
+    "description": "Designed for intraday trading, this algorithm identifies divergence patterns across major trading sessions including Tokyo, London, and New York. It utilizes pivot points, volume oscillators, and fair value gaps to strategically place trades based on market sentiment and potential reversals or continuations.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "FT-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "session_divergence_capture_algorithm",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

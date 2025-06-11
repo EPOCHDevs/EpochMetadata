@@ -1,0 +1,662 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "adaptive_liquidity_session_trading",
+  "generated_at": "2025-06-10T09:12:43.746024",
+  "trade_signal_metadata": {
+    "id": "adaptive_liquidity_session_trading",
+    "name": "Adaptive Liquidity Session Trading Strategy",
+    "options": [],
+    "desc": "This event-driven algorithm constantly adjusts its liquidity thresholds to optimize trades based on various trading session activity. It utilizes technical patterns to enhance performance during peak and off-peak market hours, providing a flexible approach to changing market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "session_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "swings",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "liquidity1",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.002,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vwma1",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_trend",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_trend",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_liq",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_liq",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_session",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_close_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_stop",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_close",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "session_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_session",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "session_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_session",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity1",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity1",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swings",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquidity1",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swings",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquidity1",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Liquidity Session Trading Strategy",
+    "description": "This event-driven algorithm constantly adjusts its liquidity thresholds to optimize trades based on various trading session activity. It utilizes technical patterns to enhance performance during peak and off-peak market hours, providing a flexible approach to changing market conditions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "MSFT-Stocks",
+        "AAPL-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_liquidity_session_trading",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,551 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "kama_bb_mean_reversion_trend_strategy",
+  "generated_at": "2025-06-10T09:43:25.954790",
+  "trade_signal_metadata": {
+    "id": "kama_bb_mean_reversion_trend_strategy",
+    "name": "KAMA_BB Mean Reversion Trend Strategy",
+    "options": [],
+    "desc": "This mean-reverting trading algorithm integrates a layered approach using the Kaufman Adaptive Moving Average (KAMA) for trend determination on a 4-hour timeframe and Bollinger Bands on a 15-minute timeframe for entry signals. The strategy aims to capitalize on price oscillations around the mean while respecting the prevailing trend direction.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "resample4h",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "kama4h",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bbands15",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_lowband",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "smaVol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr15",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_stop",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "resample4h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "resample4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama4h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "resample4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "resample4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lowband",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands15",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_lowband",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands15",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "smaVol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "smaVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lowband",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands15",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "atr15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_stop",
+            "handle": "*1"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "KAMA_BB Mean Reversion Trend Strategy",
+    "description": "This mean-reverting trading algorithm integrates a layered approach using the Kaufman Adaptive Moving Average (KAMA) for trend determination on a 4-hour timeframe and Bollinger Bands on a 15-minute timeframe for entry signals. The strategy aims to capitalize on price oscillations around the mean while respecting the prevailing trend direction.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "SD-Futures"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "kama_bb_mean_reversion_trend_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

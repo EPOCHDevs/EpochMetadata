@@ -1,0 +1,332 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "cross_sectional_momentum_volatility_filter",
+  "generated_at": "2025-06-10T16:37:53.195438",
+  "trade_signal_metadata": {
+    "id": "cross_sectional_momentum_volatility_filter",
+    "name": "Cross-Sectional Momentum & Volatility Filter",
+    "options": [],
+    "desc": "This trading algorithm employs a cross-sectional momentum strategy focused on a universe of assets, such as S&P 500 stocks or crypto pairs, utilizing a 1-day timeframe. By calculating the 21-day Rate of Change and Return Volatility, it systematically selects the top 10% of assets, aimed at maximizing returns while managing risk.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc21",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stddev21",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top10roc",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bot25vol",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 25,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "top50vol",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 50,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_entry",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trade_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stddev21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top10roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stddev21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bot25vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top10roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bot25vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stddev21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top50vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "top50vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Sectional Momentum & Volatility Filter",
+    "description": "This trading algorithm employs a cross-sectional momentum strategy focused on a universe of assets, such as S&P 500 stocks or crypto pairs, utilizing a 1-day timeframe. By calculating the 21-day Rate of Change and Return Volatility, it systematically selects the top 10% of assets, aimed at maximizing returns while managing risk.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "TSLA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto",
+        "^ADAUSD-Crypto",
+        "^SOLUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "cross_sectional_momentum_volatility_filter",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

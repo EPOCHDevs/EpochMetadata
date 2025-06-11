@@ -1,0 +1,417 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_capture_hodl_multi_timeframe",
+  "generated_at": "2025-06-10T15:28:33.462667",
+  "trade_signal_metadata": {
+    "id": "liquidity_capture_hodl_multi_timeframe",
+    "name": "Liquidity Capture HODL: Multi-Timeframe Swing",
+    "options": [],
+    "desc": "This advanced trading algorithm is designed to identify liquidity sweep opportunities in low volatility crypto markets while adopting a hodl strategy. By utilizing multiple technical indicators and confirming price reversals across various timeframes, it aims to optimize entry and exit points for traders looking to capitalize on market inefficiencies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing_daily",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "liquidity_daily",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "prev_neq_liq",
+          "type": "previous_neq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg_15",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neq_fvg",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_15",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ulcer_daily",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ulcer_thresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ulcer",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevhl_daily",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "Time Frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing_daily",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquidity_daily",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing_daily",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquidity_daily",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity_daily",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "prev_neq_liq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_neq_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_15",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "neq_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_15",
+            "handle": "active"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "prevhl_daily",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Capture HODL: Multi-Timeframe Swing",
+    "description": "This advanced trading algorithm is designed to identify liquidity sweep opportunities in low volatility crypto markets while adopting a hodl strategy. By utilizing multiple technical indicators and confirming price reversals across various timeframes, it aims to optimize entry and exit points for traders looking to capitalize on market inefficiencies.",
+    "data": {
+      "assets": [
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto",
+        "^ADAUSD-Crypto",
+        "^SOLUSD-Crypto",
+        "^XRPUSD-Crypto",
+        "^DOTUSD-Crypto",
+        "^LTCUSD-Crypto",
+        "^SOLUSD-Crypto",
+        "^ADAUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_capture_hodl_multi_timeframe",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.06
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

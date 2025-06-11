@@ -1,0 +1,832 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "regime_adaptive_breakout_trend_analyzer",
+  "generated_at": "2025-06-10T14:51:17.060271",
+  "trade_signal_metadata": {
+    "id": "regime_adaptive_breakout_trend_analyzer",
+    "name": "RegimeAdaptive Breakout Trend Analyzer",
+    "options": [
+      {
+        "id": "vhf28_period",
+        "name": "Period"
+      },
+      {
+        "id": "perc_trending_lookback",
+        "name": "Lookback Period",
+        "type": "Integer",
+        "defaultValue": 14,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "perc_trending_percentile",
+        "name": "Percentile Threshold",
+        "type": "Integer",
+        "defaultValue": 80,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "perc_parkinson_lookback",
+        "name": "Lookback"
+      },
+      {
+        "id": "perc_parkinson_percentile",
+        "name": "Percentile"
+      },
+      {
+        "id": "parkinson28_period",
+        "name": "Period (parkinson28)",
+        "type": "Integer",
+        "defaultValue": 14,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "sma15_period",
+        "name": "Period (sma15)"
+      },
+      {
+        "id": "bb20_period",
+        "name": "Period (bb20)"
+      },
+      {
+        "id": "bb20_stddev",
+        "name": "Stddev"
+      },
+      {
+        "id": "vhf_median_lookback",
+        "name": "Lookback (vhf_median)"
+      },
+      {
+        "id": "vhf_median_percentile",
+        "name": "Percentile (vhf_median)"
+      }
+    ],
+    "desc": "This expert-level trading algorithm detects range expansion breakouts by leveraging the Vertical Horizontal Filter, Parkinson Volatility, and Bollinger Bands. It aims to identify market transitions from a rangebound state to a trending expansion, allowing for timely entries that capitalize on strong momentum shifts.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf28",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "vhf28_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "perc_trending",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "perc_trending_lookback"
+              },
+              "name": "Lookback",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "perc_trending_percentile"
+              },
+              "name": "Percentile",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_parkinson",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "perc_parkinson_lookback"
+              },
+              "name": "Lookback",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "perc_parkinson_percentile"
+              },
+              "name": "Percentile",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "parkinson28",
+          "type": "parkinson",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "parkinson28_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma15",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "sma15_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_park_sma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_confirm",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_vol",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb20",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "bb20_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "stddev",
+              "value": {
+                "refName": "bb20_stddev"
+              },
+              "name": "Std",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_sig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_sig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_lower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_upper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_band",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf_median",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "vhf_median_lookback"
+              },
+              "name": "Lookback",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "vhf_median_percentile"
+              },
+              "name": "Percentile",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf28",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_trending",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_trending",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_trending",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_park_sma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_park_sma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_park_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_confirm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_parkinson",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_parkinson",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_parkinson",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_parkinson",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_confirm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_trending",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_confirm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "gt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "lt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vhf_median",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vhf_median",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vhf_median",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf_median",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "RegimeAdaptive Breakout Trend Analyzer",
+    "description": "This expert-level trading algorithm detects range expansion breakouts by leveraging the Vertical Horizontal Filter, Parkinson Volatility, and Bollinger Bands. It aims to identify market transitions from a rangebound state to a trending expansion, allowing for timely entries that capitalize on strong momentum shifts.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures",
+        "GC-Futures",
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "regime_adaptive_breakout_trend_analyzer",
+      "args": {
+        "perc_trending_lookback": 14,
+        "perc_trending_percentile": 80,
+        "parkinson28_period": 14
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "quantum_adaptive_volatility_trader",
+  "generated_at": "2025-06-10T10:19:16.712674",
+  "trade_signal_metadata": {
+    "id": "quantum_adaptive_volatility_trader",
+    "name": "Quantum Adaptive Volatility Trader (QAVT)",
+    "options": [],
+    "desc": "The Quantum Adaptive Volatility Trader (QAVT) utilizes advanced algorithms to identify shifts in market volatility, dynamically adjusting its trading strategies between momentum and mean-reversion tactics. This cutting-edge approach is tailored for high-frequency trading environments, aiming to capitalize on rapid market movements and optimize trade executions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "yz_vol",
+          "type": "yang_zhang",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "Trading Periods Per Year",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "wma10",
+          "type": "wma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vortex14",
+          "type": "vortex",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ultosc728",
+          "type": "ultosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 7,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "medium_period",
+              "value": 14,
+              "name": "Medium_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 28,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vol_branch",
+          "type": "ratio_branch",
+          "options": [
+            {
+              "id": "threshold_high",
+              "value": 0.8,
+              "name": "Upper Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "threshold_low",
+              "value": 0.2,
+              "name": "Lower Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vplus",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vminus",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mom_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mom_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_wma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_wma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mr_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mr_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "wma10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "yz_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_branch",
+            "handle": "ratio"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "plus_indicator"
+          },
+          "target": {
+            "id": "gt_vplus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "minus_indicator"
+          },
+          "target": {
+            "id": "gt_vplus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "minus_indicator"
+          },
+          "target": {
+            "id": "gt_vminus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "plus_indicator"
+          },
+          "target": {
+            "id": "gt_vminus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vplus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_branch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "and_mom_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vminus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_branch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "and_mom_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_wma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "wma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_wma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_wma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mr_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_branch",
+            "handle": "low"
+          },
+          "target": {
+            "id": "and_mr_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_wma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "wma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_wma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_wma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mr_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_branch",
+            "handle": "low"
+          },
+          "target": {
+            "id": "and_mr_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mom_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mr_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mom_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mr_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "or_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Adaptive Volatility Trader (QAVT)",
+    "description": "The Quantum Adaptive Volatility Trader (QAVT) utilizes advanced algorithms to identify shifts in market volatility, dynamically adjusting its trading strategies between momentum and mean-reversion tactics. This cutting-edge approach is tailored for high-frequency trading environments, aiming to capitalize on rapid market movements and optimize trade executions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "quantum_adaptive_volatility_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 2,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

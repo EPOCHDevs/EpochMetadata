@@ -1,0 +1,999 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "fvg_driven_vwma_mean_reversion_2023",
+  "generated_at": "2025-06-10T14:22:37.466153",
+  "trade_signal_metadata": {
+    "id": "fvg_driven_vwma_mean_reversion_2023",
+    "name": "FVG-Driven VWMA Mean Reversion 2023",
+    "options": [
+      {
+        "id": "fvg_join_consecutive",
+        "name": "Join Consecutive Gaps",
+        "type": "Boolean",
+        "defaultValue": true,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "vwma15_period",
+        "name": "Period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "slope_thresh_value",
+        "name": "Value"
+      },
+      {
+        "id": "natr15_period",
+        "name": "Period (natr15)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "low_thr_value",
+        "name": "Value (low_thr)"
+      },
+      {
+        "id": "high_thr_value",
+        "name": "Value (high_thr)"
+      },
+      {
+        "id": "sma_tr_period",
+        "name": "Period (sma_tr)"
+      },
+      {
+        "id": "tr_mult_value",
+        "name": "Value (tr_mult)"
+      }
+    ],
+    "desc": "This expert-level trading algorithm leverages Fair Value Gap detection and Volume Weighted Moving Average filters to identify high-probability mean reversion opportunities on a 15-minute timeframe. Utilizing the Normalized Average True Range, it effectively pinpoints high-risk and low-risk entry points for optimized trading performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": {
+                "refName": "fvg_join_consecutive"
+              },
+              "name": "Join Consecutive",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vwma15",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "vwma15_period"
+              },
+              "name": "VWMA Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Lag 1",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sub_diff",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs_slope",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "slope_thresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "slope_thresh_value"
+              },
+              "name": "Slope Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_slope",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr15",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "natr15_period"
+              },
+              "name": "NATR Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "low_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "low_thr_value"
+              },
+              "name": "NATR Low",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "high_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "high_thr_value"
+              },
+              "name": "NATR High",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_low",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_high",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr_ok",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tr15",
+          "type": "tr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_tr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "sma_tr_period"
+              },
+              "name": "TR Avg Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "tr_mult",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "tr_mult_value"
+              },
+              "name": "TR Spike Mult",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_tr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_tr_spike",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_tr_spike",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_node",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "close_vs_top",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_vs_bottom",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_in_gap",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "one_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "Const 1",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_long",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_short",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_not_ok",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "vwma15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_diff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_diff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_diff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_slope",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_slope",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_slope",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "slope_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_slope",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "low_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "high_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "natr_ok",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "natr_ok",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tr15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_tr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "tr_mult",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_tr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_tr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_tr_spike",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "tr15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_tr_spike",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_tr_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_tr_spike",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_vs_top",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "close_vs_top",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_vs_bottom",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "close_vs_bottom",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_vs_top",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_in_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_vs_bottom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_in_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_in_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_slope",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_tr_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_node",
+            "handle": "active"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_in_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_slope",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_tr_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_node",
+            "handle": "active"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_not_ok",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_tr_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_not_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "FVG-Driven VWMA Mean Reversion 2023",
+    "description": "This expert-level trading algorithm leverages Fair Value Gap detection and Volume Weighted Moving Average filters to identify high-probability mean reversion opportunities on a 15-minute timeframe. Utilizing the Normalized Average True Range, it effectively pinpoints high-risk and low-risk entry points for optimized trading performance.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fvg_driven_vwma_mean_reversion_2023",
+      "args": {
+        "fvg_join_consecutive": true
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

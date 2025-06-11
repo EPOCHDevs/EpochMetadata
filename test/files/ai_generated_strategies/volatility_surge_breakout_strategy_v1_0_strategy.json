@@ -1,0 +1,410 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "volatility_surge_breakout_strategy_v1_0",
+  "generated_at": "2025-06-10T16:16:12.938237",
+  "trade_signal_metadata": {
+    "id": "volatility_surge_breakout_strategy_v1_0",
+    "name": "Volatility Surge Breakout Strategy v1.0",
+    "options": [],
+    "desc": "This algorithm leverages momentum trading principles to identify breakout opportunities during periods of heightened volatility in the London trading session. By employing Keltner Channels and real-time volatility metrics, it aims to capitalize on significant price movements as they occur.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions1",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gk1",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma1",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc1",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt2",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_of1",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_of2",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not1",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "gk1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc1",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc1",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "all_of1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_of1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_of1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "all_of2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_of2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_of2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_of1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_of2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "not1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Surge Breakout Strategy v1.0",
+    "description": "This algorithm leverages momentum trading principles to identify breakout opportunities during periods of heightened volatility in the London trading session. By employing Keltner Channels and real-time volatility metrics, it aims to capitalize on significant price movements as they occur.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "ES-Futures",
+        "NG-Futures",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_surge_breakout_strategy_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 0
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

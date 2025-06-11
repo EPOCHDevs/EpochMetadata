@@ -1,0 +1,467 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "liquidity_shift_sentinel_fx_trap_identifier",
+  "generated_at": "2025-06-10T15:02:49.992369",
+  "trade_signal_metadata": {
+    "id": "liquidity_shift_sentinel_fx_trap_identifier",
+    "name": "Liquidity Shift Sentinel: FX Trap Identifier",
+    "options": [],
+    "desc": "This algorithm specializes in identifying liquidity traps that emerge during pivotal transitions between major FX trading sessions, specifically focusing on the Asian, London, and New York Kill Zones. By leveraging rapid shifts in trader sentiment and available liquidity, it aims to optimize trade entries for significant price movements in major currency pairs like EUR/USD and GBP/USD.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n3",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n4",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 6,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n5",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.002,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n6",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n8",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n9",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n13",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n16",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "l"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "active"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "active"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "h"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Shift Sentinel: FX Trap Identifier",
+    "description": "This algorithm specializes in identifying liquidity traps that emerge during pivotal transitions between major FX trading sessions, specifically focusing on the Asian, London, and New York Kill Zones. By leveraging rapid shifts in trader sentiment and available liquidity, it aims to optimize trade entries for significant price movements in major currency pairs like EUR/USD and GBP/USD.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCHF-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_shift_sentinel_fx_trap_identifier",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

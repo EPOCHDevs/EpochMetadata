@@ -1,0 +1,741 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_breakout_reversion_strategy",
+  "generated_at": "2025-06-10T10:20:28.590665",
+  "trade_signal_metadata": {
+    "id": "volatility_breakout_reversion_strategy",
+    "name": "Volatility Breakout and Reversion Trader",
+    "options": [],
+    "desc": "This algorithm employs a Volatility Breakout and Reversion strategy using Bollinger Bands, Price Distance, and Stochastic RSI on a 15-minute timeframe. It generates buy signals when the price breaks above the upper Bollinger Band at the same time as the Stochastic RSI indicates oversold conditions, aiming to capitalize on rapid price movements while managing potential reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pd",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "stochrsi",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num08",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num02",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_high",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 85,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_high",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_low",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 40,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_low",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_upper",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_lower",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_band",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stochrsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stochrsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num08",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_high",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stochrsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num02",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_low",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_low",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_low",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "lte_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "gte_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Breakout and Reversion Trader",
+    "description": "This algorithm employs a Volatility Breakout and Reversion strategy using Bollinger Bands, Price Distance, and Stochastic RSI on a 15-minute timeframe. It generates buy signals when the price breaks above the upper Bollinger Band at the same time as the Stochastic RSI indicates oversold conditions, aiming to capitalize on rapid price movements while managing potential reversals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_breakout_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

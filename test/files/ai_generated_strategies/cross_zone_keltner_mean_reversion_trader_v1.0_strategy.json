@@ -1,0 +1,512 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "cross_zone_keltner_mean_reversion_trader_v1.0",
+  "generated_at": "2025-06-10T10:12:41.674559",
+  "trade_signal_metadata": {
+    "id": "cross_zone_keltner_mean_reversion_trader_v1.0",
+    "name": "Cross-Zone Keltner Mean Reversion Trader v1.0",
+    "options": [],
+    "desc": "This intraday mean reversion strategy focuses on trading during the critical overlap of the London and New York Kill Zones. By leveraging Keltner Channel signals, it identifies price closure outside the bands to execute trades, adapting to market volatility for optimal performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "node_mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_session_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_session_lc",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_sessions_or",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_sessions_not",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_kelt",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_pct80",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_lt_close_upper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_gt_close_lower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kelt",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "node_gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_lt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kelt",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "node_lt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kelt",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "node_lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_gt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kelt",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "node_gt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_pct80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_pct80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_session_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "node_sessions_or",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_session_lc",
+            "handle": "active"
+          },
+          "target": {
+            "id": "node_sessions_or",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_sessions_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_sessions_not",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_sessions_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "node_and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "node_and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "node_sessions_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "node_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_pct80",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_pct80",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_pct80",
+            "handle": "low"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Zone Keltner Mean Reversion Trader v1.0",
+    "description": "This intraday mean reversion strategy focuses on trading during the critical overlap of the London and New York Kill Zones. By leveraging Keltner Channel signals, it identifies price closure outside the bands to execute trades, adapting to market volatility for optimal performance.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "cross_zone_keltner_mean_reversion_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

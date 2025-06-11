@@ -1,0 +1,636 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "volatility_expansion_breakout_detector",
+  "generated_at": "2025-06-10T14:36:22.200777",
+  "trade_signal_metadata": {
+    "id": "volatility_expansion_breakout_detector",
+    "name": "Volatility Expansion Breakout Detector",
+    "options": [],
+    "desc": "This advanced EventDriven algorithm identifies breakout opportunities in the EURUSD currency pair by monitoring Bollinger Bands width for extended periods of contraction. It utilizes a 34-period window and enters trades only when the width has remained below its 20-period rolling mean for at least 10 consecutive bars, suggesting a high-probability breakout. The strategy aims to capitalize on significant volatility expansions following these market squeezes.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb34",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 34,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "plow",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pup",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_bw",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_bw_mean",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bbpct",
+          "type": "bband_percent",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pct_high",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.05,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct_low",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.05,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_pct",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_pct",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb34",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb34",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "plow",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb34",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "pup",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb34",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "plow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "pup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_bw",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bw_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bw_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "plow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "plow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bbpct",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "pup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bbpct",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbpct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pct",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pct",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbpct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_pct",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_pct",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_pct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Expansion Breakout Detector",
+    "description": "This advanced EventDriven algorithm identifies breakout opportunities in the EURUSD currency pair by monitoring Bollinger Bands width for extended periods of contraction. It utilizes a 34-period window and enters trades only when the width has remained below its 20-period rolling mean for at least 10 consecutive bars, suggesting a high-probability breakout. The strategy aims to capitalize on significant volatility expansions following these market squeezes.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_expansion_breakout_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

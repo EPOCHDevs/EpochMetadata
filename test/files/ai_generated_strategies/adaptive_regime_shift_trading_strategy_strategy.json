@@ -1,0 +1,601 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_regime_shift_trading_strategy",
+  "generated_at": "2025-06-10T09:46:14.675403",
+  "trade_signal_metadata": {
+    "id": "adaptive_regime_shift_trading_strategy",
+    "name": "Adaptive Regime Shift Trading Strategy",
+    "options": [],
+    "desc": "This expert-level trading strategy employs statistical arbitrage and regime detection across a diverse portfolio of liquid equities. By analyzing pairwise Pearson correlation coefficients over recent price history, it identifies significant deviations indicative of changing market regimes, enabling timely trading opportunities based on robust statistical analysis.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "a_src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "b_src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spread",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "std30",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "diff_spread",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_std2",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_entry_spread",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs_diff",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_std05",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_exit",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurstA",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hurstB",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurstA",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurstB",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "meanrev_regime",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_and_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "a_src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "spread",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "b_src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "spread",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff_spread",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff_spread",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "std30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff_spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_entry_spread",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_entry_spread",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff_spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_diff",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "std30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std05",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std05",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_diff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "a_src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurstA",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "b_src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurstB",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurstA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurstB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurstA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "meanrev_regime",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurstB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "meanrev_regime",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_entry_spread",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "meanrev_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Regime Shift Trading Strategy",
+    "description": "This expert-level trading strategy employs statistical arbitrage and regime detection across a diverse portfolio of liquid equities. By analyzing pairwise Pearson correlation coefficients over recent price history, it identifies significant deviations indicative of changing market regimes, enabling timely trading opportunities based on robust statistical analysis.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "DIS-Stocks",
+        "NFLX-Stocks",
+        "BAC-Stocks",
+        "INTC-Stocks",
+        "SFB-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_regime_shift_trading_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

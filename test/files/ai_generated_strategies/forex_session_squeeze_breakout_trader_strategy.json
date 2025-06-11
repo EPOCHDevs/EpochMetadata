@@ -1,0 +1,555 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "forex_session_squeeze_breakout_trader",
+  "generated_at": "2025-06-10T16:47:32.318556",
+  "trade_signal_metadata": {
+    "id": "forex_session_squeeze_breakout_trader",
+    "name": "Forex Session Squeeze Breakout Trader",
+    "options": [],
+    "desc": "This advanced event-driven algorithm aims to detect low-volatility 'squeeze' conditions during the critical London and New York forex trading sessions. Once a tight range is identified, it enters breakout trades to capitalize on potential directional moves when the price escapes the squeeze phase.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sessNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "anySess",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gtLong",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltShort",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dojiNode",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "spinTop",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "indecideAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notInd",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longCond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortCond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySess",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySess",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "dojiNode",
+            "handle": "result"
+          },
+          "target": {
+            "id": "indecideAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spinTop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "indecideAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "indecideAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notInd",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notInd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notInd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortCond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gtLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "ltShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longCond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortCond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Forex Session Squeeze Breakout Trader",
+    "description": "This advanced event-driven algorithm aims to detect low-volatility 'squeeze' conditions during the critical London and New York forex trading sessions. Once a tight range is identified, it enters breakout trades to capitalize on potential directional moves when the price escapes the squeeze phase.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "forex_session_squeeze_breakout_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

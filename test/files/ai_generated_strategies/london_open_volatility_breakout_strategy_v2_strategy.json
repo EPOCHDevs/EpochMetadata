@@ -1,0 +1,780 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "london_open_volatility_breakout_strategy_v2",
+  "generated_at": "2025-06-10T09:54:59.931434",
+  "trade_signal_metadata": {
+    "id": "london_open_volatility_breakout_strategy_v2",
+    "name": "London Open Volatility Breakout Strategy v2.0",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm leverages momentum by utilizing the Keltner Channels and Bollinger Bands during the volatile London Open Kill Zone. The algorithm is designed to identify breakout opportunities by measuring volatility regime shifts on a 15-minute timeframe, aiming for optimal entry and exit points in the forex market.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "maxbw",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 100,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bw_ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thresh20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "calm",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "expansion",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "roll_period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "band_multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_sexp",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "p_period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "q_period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "stop_long",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stop_short",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_session",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long1",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short1",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "maxbw",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "maxbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "calm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "calm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_sexp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "expansion",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sexp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_sexp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_sexp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stop_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "stop_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stop_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "stop_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_session",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stop_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stop_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "London Open Volatility Breakout Strategy v2.0",
+    "description": "This intermediate-level trading algorithm leverages momentum by utilizing the Keltner Channels and Bollinger Bands during the volatile London Open Kill Zone. The algorithm is designed to identify breakout opportunities by measuring volatility regime shifts on a 15-minute timeframe, aiming for optimal entry and exit points in the forex market.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDGBP-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "london_open_volatility_breakout_strategy_v2",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

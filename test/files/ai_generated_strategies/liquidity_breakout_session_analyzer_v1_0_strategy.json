@@ -1,0 +1,557 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "liquidity_breakout_session_analyzer_v1_0",
+  "generated_at": "2025-06-10T11:21:14.429392",
+  "trade_signal_metadata": {
+    "id": "liquidity_breakout_session_analyzer_v1_0",
+    "name": "Liquidity Breakout Session Analyzer v1.0",
+    "options": [
+      {
+        "id": "sessions_session",
+        "name": "Session"
+      },
+      {
+        "id": "threshold_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "The Liquidity Breakout Session Analyzer is an event-driven intraday trading algorithm designed to capitalize on breakout opportunities by integrating liquidity sweep analysis with key Forex trading session timings. By leveraging the 'Trading Sessions' indicator, this algorithm effectively identifies high-probability trading setups, ensuring optimal execution during peak market activity.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": {
+                "refName": "sessions_session"
+              },
+              "name": "Session",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "liquidity",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range %",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "price_distance",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "threshold_value"
+              },
+              "name": "Distance Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_swept",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_liq",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_liq",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_distance",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "swept"
+          },
+          "target": {
+            "id": "gt_swept",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_swept",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_distance",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_distance",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_distance",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_swept",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_distance",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_swept",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_distance",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Breakout Session Analyzer v1.0",
+    "description": "The Liquidity Breakout Session Analyzer is an event-driven intraday trading algorithm designed to capitalize on breakout opportunities by integrating liquidity sweep analysis with key Forex trading session timings. By leveraging the 'Trading Sessions' indicator, this algorithm effectively identifies high-probability trading setups, ensuring optimal execution during peak market activity.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_breakout_session_analyzer_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

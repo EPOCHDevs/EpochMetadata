@@ -1,0 +1,765 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "neutral_market_indecision_detector_v1",
+  "generated_at": "2025-06-10T09:55:50.042361",
+  "trade_signal_metadata": {
+    "id": "neutral_market_indecision_detector_v1",
+    "name": "Neutral Market Indecision Detector v1",
+    "options": [],
+    "desc": "This algorithm identifies periods of market indecision by detecting 'Spinning Top' and 'Doji' candlestick patterns within a specified short window, like the last 10 bars. It combines this analysis with the Vertical Horizontal Filter (VHF) over a longer window, such as 28 bars, to assess the market's current volatility regime and assists traders in making informed decisions during uncertain market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spin1",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "doji1",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "neutral_or1",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num1_1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0_1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool2num1",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sum1",
+          "type": "sum",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cluster1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf1",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 28,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_low",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_high",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "regime_or1",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "uncertain1",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bigw1",
+          "type": "big_white_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bigb1",
+          "type": "big_black_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "exit_any1",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spin1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neutral_or1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "doji1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neutral_or1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neutral_or1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bool2num1",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "num1_1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bool2num1",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "num0_1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bool2num1",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "bool2num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sum1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sum1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cluster1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1_1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cluster1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cluster1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cluster1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_or1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_or1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "regime_or1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "uncertain1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "uncertain1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bigw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bigb1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Neutral Market Indecision Detector v1",
+    "description": "This algorithm identifies periods of market indecision by detecting 'Spinning Top' and 'Doji' candlestick patterns within a specified short window, like the last 10 bars. It combines this analysis with the Vertical Horizontal Filter (VHF) over a longer window, such as 28 bars, to assess the market's current volatility regime and assists traders in making informed decisions during uncertain market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "neutral_market_indecision_detector_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,753 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_sweep_mean_reversion_strategy_2023",
+  "generated_at": "2025-06-10T09:18:25.195959",
+  "trade_signal_metadata": {
+    "id": "liquidity_sweep_mean_reversion_strategy_2023",
+    "name": "Liquidity Sweep Mean Reversion Strategy 2023",
+    "options": [],
+    "desc": "This advanced trading algorithm targets liquidity sweeps in cryptocurrency markets, specifically tailored for 30-minute charts. By leveraging the Liquidity indicator to identify stop runs around recent swing highs and lows, it seeks to capitalize on the rapid price corrections that often follow these liquidity events.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_135",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.35,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sma_atr20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "atr_thresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_atr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pdv",
+          "type": "price_diff_vol",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sma_pdv20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "pdv_thresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_pdv",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "liquidity",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "new_sweep",
+          "type": "previous_neq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dir_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dir_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sweep_low",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sweep_high",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "conf_low",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "conf_high",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "gravestone",
+          "type": "gravestone_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_atr20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_atr20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_135",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pdv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_pdv20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_pdv20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pdv_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_135",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pdv_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pdv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pdv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pdv_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pdv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pdv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "swept"
+          },
+          "target": {
+            "id": "new_sweep",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "dir_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dir_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "dir_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dir_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "new_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sweep_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dir_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sweep_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "new_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sweep_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dir_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sweep_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sweep_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "conf_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "conf_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sweep_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "conf_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "conf_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "conf_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "conf_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gravestone",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Sweep Mean Reversion Strategy 2023",
+    "description": "This advanced trading algorithm targets liquidity sweeps in cryptocurrency markets, specifically tailored for 30-minute charts. By leveraging the Liquidity indicator to identify stop runs around recent swing highs and lows, it seeks to capitalize on the rapid price corrections that often follow these liquidity events.",
+    "data": {
+      "assets": [
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto",
+        "^ADAUSD-Crypto",
+        "^SOLUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_sweep_mean_reversion_strategy_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 1.8
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.05,
+        "risk": 0.01
+      }
+    }
+  }
+}

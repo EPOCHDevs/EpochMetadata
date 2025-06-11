@@ -1,0 +1,520 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "fibonacci_divergence_momentum_explorer",
+  "generated_at": "2025-06-10T16:22:15.474737",
+  "trade_signal_metadata": {
+    "id": "fibonacci_divergence_momentum_explorer",
+    "name": "Fibonacci Divergence Momentum Explorer",
+    "options": [],
+    "desc": "This algorithm, named 'Fibonacci Divergence Momentum Explorer', combines Fibonacci retracement levels with momentum divergence analysis to uncover potential market trend reversals. Utilizing a Zero-Lag Exponential Moving Average (ZLEMA), it effectively minimizes lag and enhances the timing of trading signals, aiming to optimize entry and exit strategies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "n_md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_zlema",
+          "type": "zlema",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_retr",
+          "type": "retracements",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_const618",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.618,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_rsi",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_prev_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_prev_lt",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lowest_lt",
+          "type": "lowest_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 14,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_highest_gt",
+          "type": "highest_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 14,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_bull_div",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_bear_div",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_buy",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_sell",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n_md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_zlema",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_lowest_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_highest_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "n_retr",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "n_swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "n_retr",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "n_retr",
+            "handle": "current_retracement"
+          },
+          "target": {
+            "id": "n_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_const618",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_retr",
+            "handle": "current_retracement"
+          },
+          "target": {
+            "id": "n_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_const618",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_prev_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_prev_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lowest_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_bull_div",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_prev_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_bull_div",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_highest_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_bear_div",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_prev_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_bear_div",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_bull_div",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_sell",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_bear_div",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_sell",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n_sell",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fibonacci Divergence Momentum Explorer",
+    "description": "This algorithm, named 'Fibonacci Divergence Momentum Explorer', combines Fibonacci retracement levels with momentum divergence analysis to uncover potential market trend reversals. Utilizing a Zero-Lag Exponential Moving Average (ZLEMA), it effectively minimizes lag and enhances the timing of trading signals, aiming to optimize entry and exit strategies.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fibonacci_divergence_momentum_explorer",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

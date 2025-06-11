@@ -1,0 +1,328 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_momentum_rotational_strategy_01",
+  "generated_at": "2025-06-10T13:48:40.713128",
+  "trade_signal_metadata": {
+    "id": "dynamic_momentum_rotational_strategy_01",
+    "name": "Dynamic Momentum Rotational Strategy 01",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm strategically shifts exposure between the top and bottom three performing assets based on their 20-period cross-sectional momentum indicator. By executing trades once a week at the weekly close, it dynamically allocates equally weighted long positions in the highest-ranked assets and short positions in the lowest-ranked, aiming to capitalize on momentum discrepancies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cs_mom",
+          "type": "cs_momentum",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top3",
+          "type": "top_k",
+          "options": [
+            {
+              "id": "k",
+              "value": 3,
+              "name": "Count",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bottom3",
+          "type": "bottom_k",
+          "options": [
+            {
+              "id": "k",
+              "value": 3,
+              "name": "Count",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ulcer_mean",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.025,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "risk_ok",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "risk_not",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cs_mom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cs_mom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top3",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cs_mom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom3",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ulcer_mean",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "risk_not",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "risk_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "top3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Momentum Rotational Strategy 01",
+    "description": "This intermediate-level trading algorithm strategically shifts exposure between the top and bottom three performing assets based on their 20-period cross-sectional momentum indicator. By executing trades once a week at the weekly close, it dynamically allocates equally weighted long positions in the highest-ranked assets and short positions in the lowest-ranked, aiming to capitalize on momentum discrepancies.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "META-Stocks",
+        "NFLX-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_momentum_rotational_strategy_01",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,431 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_breakout_trend_strategy_v5",
+  "generated_at": "2025-06-10T15:09:08.960162",
+  "trade_signal_metadata": {
+    "id": "volatility_breakout_trend_strategy_v5",
+    "name": "Volatility Breakout Trend Strategy v5",
+    "options": [],
+    "desc": "This expert-level trading algorithm employs a Price Action and Volatility Breakout strategy designed specifically for the 15-minute timeframe. Utilizing Keltner Channels with a 20-period EMA and ATR-based bands, it identifies bullish breakout opportunities while integrating advanced volatility filtering and dynamic stop adjustments, ensuring robust trade management.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "london_session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "entry_and",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ck_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_exit",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "london_session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ck_stop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Breakout Trend Strategy v5",
+    "description": "This expert-level trading algorithm employs a Price Action and Volatility Breakout strategy designed specifically for the 15-minute timeframe. Utilizing Keltner Channels with a 20-period EMA and ATR-based bands, it identifies bullish breakout opportunities while integrating advanced volatility filtering and dynamic stop adjustments, ensuring robust trade management.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "GC-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_breakout_trend_strategy_v5",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 20,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 10,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.01
+      }
+    }
+  }
+}

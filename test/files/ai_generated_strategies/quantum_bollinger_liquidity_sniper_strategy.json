@@ -1,0 +1,790 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "quantum_bollinger_liquidity_sniper",
+  "generated_at": "2025-06-10T10:29:56.516384",
+  "trade_signal_metadata": {
+    "id": "quantum_bollinger_liquidity_sniper",
+    "name": "Quantum Bollinger Liquidity Sniper Strategy",
+    "options": [],
+    "desc": "This expert-level trading algorithm synergizes Bollinger Bands dynamics with liquidity pool analysis to uncover breakout opportunities in the market. By focusing on volatility contractions and potential liquidity grabs, the strategy aims to capitalize on critical market reversals or continuations for precise trade executions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2.5,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "quantum",
+          "type": "exp",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.0015,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "ob",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": true,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "cross_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_short_any",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_cross",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ob",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ob",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_liq",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 2.5,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "crossany_long_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_exit",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_short_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_stop",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_exit",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "quantum",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "gt_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_short_any",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "cross_short_any",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_short_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_short_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "ob",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossany_long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "crossany_long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossany_short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "crossany_short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "lt_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ob",
+            "handle": "*1"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Bollinger Liquidity Sniper Strategy",
+    "description": "This expert-level trading algorithm synergizes Bollinger Bands dynamics with liquidity pool analysis to uncover breakout opportunities in the market. By focusing on volatility contractions and potential liquidity grabs, the strategy aims to capitalize on critical market reversals or continuations for precise trade executions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^BNBUSD-Crypto"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_bollinger_liquidity_sniper",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

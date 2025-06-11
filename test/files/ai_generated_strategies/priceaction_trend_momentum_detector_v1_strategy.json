@@ -1,0 +1,881 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "priceaction_trend_momentum_detector_v1",
+  "generated_at": "2025-06-10T10:04:09.917904",
+  "trade_signal_metadata": {
+    "id": "priceaction_trend_momentum_detector_v1",
+    "name": "PriceAction Trend Momentum Detector v1",
+    "options": [
+      {
+        "id": "hammer_period",
+        "name": "Period"
+      },
+      {
+        "id": "inv_hammer_period",
+        "name": "Period (inv_hammer)",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "engulf_bull_period",
+        "name": "Period (engulf_bull)"
+      },
+      {
+        "id": "morning_doji_period",
+        "name": "Period (morning_doji)"
+      },
+      {
+        "id": "engulf_bear_period",
+        "name": "Period (engulf_bear)"
+      },
+      {
+        "id": "hanging_man_period",
+        "name": "Period (hanging_man)",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "kama_node_period",
+        "name": "Period (kama_node)"
+      },
+      {
+        "id": "hma_node_period",
+        "name": "Period (hma_node)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      }
+    ],
+    "desc": "This trading algorithm leverages PriceAction patterns like Hammers and Engulfing patterns to identify strong momentum shifts in the market. By utilizing adaptive trend filters over a 14-period lookback, it adeptly detects emerging trends on the 1-hour timeframe, providing traders with strategic entry signals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "hammer_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "inv_hammer",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "inv_hammer_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "engulf_bull_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "morning_doji",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "morning_doji_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "engulf_bear_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hanging_man",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "hanging_man_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama_node",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "kama_node_period"
+              },
+              "name": "period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hma_node",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "hma_node_period"
+              },
+              "name": "period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama_slope_up",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama_slope_down",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "price_gt_hma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lte_kama",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bullish_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bearish_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lte_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lte_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama_slope_up",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama_slope_down",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "inv_hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bullish_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_slope_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging_man",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bearish_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lte_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_slope_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "PriceAction Trend Momentum Detector v1",
+    "description": "This trading algorithm leverages PriceAction patterns like Hammers and Engulfing patterns to identify strong momentum shifts in the market. By utilizing adaptive trend filters over a 14-period lookback, it adeptly detects emerging trends on the 1-hour timeframe, providing traders with strategic entry signals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "priceaction_trend_momentum_detector_v1",
+      "args": {
+        "inv_hammer_period": 10,
+        "hanging_man_period": 10
+      }
+    },
+    "stop_loss": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

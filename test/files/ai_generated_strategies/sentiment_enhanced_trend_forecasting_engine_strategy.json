@@ -1,0 +1,440 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "sentiment_enhanced_trend_forecasting_engine",
+  "generated_at": "2025-06-10T14:48:07.283983",
+  "trade_signal_metadata": {
+    "id": "sentiment_enhanced_trend_forecasting_engine",
+    "name": "Sentiment-Enhanced Trend Forecasting Engine",
+    "options": [
+      {
+        "id": "newsSent_value",
+        "name": "Value"
+      },
+      {
+        "id": "socialSent_value",
+        "name": "Value (socialSent)"
+      }
+    ],
+    "desc": "This innovative algorithm leverages sentiment analysis from news and social media alongside traditional technical indicators to forecast price trends in equity markets. By integrating real-time sentiment shifts with a comprehensive analysis of market trends, it aims to provide traders with a potent tool for identifying profitable entry and exit points.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "newsSent",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "newsSent_value"
+              },
+              "name": "Initial News Sentiment",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "socialSent",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "socialSent_value"
+              },
+              "name": "Initial Social-Media Sentiment",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sentiAvg",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "weightSentConst",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "Weight Sentiment",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "weightTechConst",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "Weight Technical",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mulSent",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "macdNode",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "mulTech",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "addComposite",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "highThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.7,
+              "name": "High Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lowThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.7,
+              "name": "Low Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macdNode",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "newsSent",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sentiAvg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "socialSent",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sentiAvg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sentiAvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulSent",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "weightSentConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulSent",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macdNode",
+            "handle": "macd_histogram"
+          },
+          "target": {
+            "id": "mulTech",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "weightTechConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulTech",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mulSent",
+            "handle": "result"
+          },
+          "target": {
+            "id": "addComposite",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mulTech",
+            "handle": "result"
+          },
+          "target": {
+            "id": "addComposite",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "addComposite",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "addComposite",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "highThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lowThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Sentiment-Enhanced Trend Forecasting Engine",
+    "description": "This innovative algorithm leverages sentiment analysis from news and social media alongside traditional technical indicators to forecast price trends in equity markets. By integrating real-time sentiment shifts with a comprehensive analysis of market trends, it aims to provide traders with a potent tool for identifying profitable entry and exit points.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "NFLX-Stocks",
+        "JPM-Stocks",
+        "BAC-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "sentiment_enhanced_trend_forecasting_engine",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

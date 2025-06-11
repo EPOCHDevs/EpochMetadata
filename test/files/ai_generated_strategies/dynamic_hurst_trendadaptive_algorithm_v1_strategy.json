@@ -1,0 +1,547 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_hurst_trendadaptive_algorithm_v1",
+  "generated_at": "2025-06-10T10:59:10.584905",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_trendadaptive_algorithm_v1",
+    "name": "Dynamic Hurst TrendAdaptive Algorithm v1",
+    "options": [],
+    "desc": "This hybrid algorithm seamlessly integrates Trend Following and Price Action strategies by employing a Rolling Hurst Exponent with a window of 100 bars. Designed for 15-minute bars, it intelligently adapts trading behavior based on real-time market regimes, effectively distinguishing between trending and ranging conditions for more accurate signal generation.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const06",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_trend",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_range",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama30",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "price_gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "hanging",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "all_long_trend",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short_trend",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "asian_session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "AsianKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "allow_not_session",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_range",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_range",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_trend",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "asian_session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "allow_not_session",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allow_not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst TrendAdaptive Algorithm v1",
+    "description": "This hybrid algorithm seamlessly integrates Trend Following and Price Action strategies by employing a Rolling Hurst Exponent with a window of 100 bars. Designed for 15-minute bars, it intelligently adapts trading behavior based on real-time market regimes, effectively distinguishing between trending and ranging conditions for more accurate signal generation.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "SPY-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_trendadaptive_algorithm_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

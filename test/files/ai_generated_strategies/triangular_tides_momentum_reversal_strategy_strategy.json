@@ -1,0 +1,595 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "triangular_tides_momentum_reversal_strategy",
+  "generated_at": "2025-06-10T14:32:35.606607",
+  "trade_signal_metadata": {
+    "id": "triangular_tides_momentum_reversal_strategy",
+    "name": "Triangular Tides Momentum Reversal Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes the Triangular Moving Average (TRIMA) in conjunction with Bollinger Bands %B to detect and capitalize on momentum shifts indicative of potential trend reversals. By focusing on volatile market conditions, it aims to identify optimal entry and exit points for traders seeking to navigate shifting trends effectively.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trima20",
+          "type": "trima",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_down",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bbands",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "percentB",
+          "type": "bband_percent",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num02",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num08",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_buy",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_sell",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "buy_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sell_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_close_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_close_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "trima20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trima20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trima20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trima20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "percentB",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "percentB",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "percentB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num02",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "num08",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sell",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "percentB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_sell",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_sell",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_close_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_close_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "buy_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "sell_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Triangular Tides Momentum Reversal Strategy",
+    "description": "This algorithm utilizes the Triangular Moving Average (TRIMA) in conjunction with Bollinger Bands %B to detect and capitalize on momentum shifts indicative of potential trend reversals. By focusing on volatile market conditions, it aims to identify optimal entry and exit points for traders seeking to navigate shifting trends effectively.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "triangular_tides_momentum_reversal_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

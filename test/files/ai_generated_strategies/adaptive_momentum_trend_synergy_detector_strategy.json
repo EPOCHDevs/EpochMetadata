@@ -1,0 +1,654 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_momentum_trend_synergy_detector",
+  "generated_at": "2025-06-10T16:18:26.422722",
+  "trade_signal_metadata": {
+    "id": "adaptive_momentum_trend_synergy_detector",
+    "name": "Adaptive Momentum-Trend Synergy Detector",
+    "options": [],
+    "desc": "This trading algorithm leverages the synergy between adaptive volatility metrics and momentum indicators to pinpoint optimal entry and exit points. By employing a multi-timeframe analysis framework and integrating advanced moving averages with momentum oscillators, it aims to masterfully capture short-term price movements in dynamic market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma1",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama1",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "stoch1",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "K_period",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "K_slowing_period",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "D_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_sma_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_sma_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_smo20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_smo80",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_price_lower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_price_upper",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer1",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "Body None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "Body Short Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "Body Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "Wick None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "Wick Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "Near Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hanging1",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "Body None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "Body Short Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "Body Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "Wick None Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "Wick Long Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "Near Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bull_and",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_and",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_sma_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_sma_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_sma_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_sma_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gt_smo20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_smo20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "lt_smo80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_smo80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_price_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gte_price_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_sma_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_smo20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_price_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_sma_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_smo80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_price_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Momentum-Trend Synergy Detector",
+    "description": "This trading algorithm leverages the synergy between adaptive volatility metrics and momentum indicators to pinpoint optimal entry and exit points. By employing a multi-timeframe analysis framework and integrating advanced moving averages with momentum oscillators, it aims to masterfully capture short-term price movements in dynamic market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_momentum_trend_synergy_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

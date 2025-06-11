@@ -1,0 +1,453 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "dynamic_fvg_breakout_strategy",
+  "generated_at": "2025-06-10T10:00:15.361303",
+  "trade_signal_metadata": {
+    "id": "dynamic_fvg_breakout_strategy",
+    "name": "Dynamic FVG Breakout Strategy for Forex",
+    "options": [],
+    "desc": "This algorithm employs an advanced Price Action and Volatility breakout strategy targeting the 5-minute Forex timeframe. It identifies potential support and resistance zones through Fair Value Gaps (FVG) and utilizes the Normalized Average True Range (NATR) to confirm breakout strength, ensuring trades are executed only under optimal conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma_natr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_break",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tws",
+          "type": "three_white_soldiers",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "tbc",
+          "type": "three_black_crows",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "long_and",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_natr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tws",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tbc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic FVG Breakout Strategy for Forex",
+    "description": "This algorithm employs an advanced Price Action and Volatility breakout strategy targeting the 5-minute Forex timeframe. It identifies potential support and resistance zones through Fair Value Gaps (FVG) and utilizes the Normalized Average True Range (NATR) to confirm breakout strength, ensuring trades are executed only under optimal conditions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "^USDCHF-FX",
+        "^NZDUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_fvg_breakout_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_price_offset",
+      "args": {
+        "offset": 0
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.054
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

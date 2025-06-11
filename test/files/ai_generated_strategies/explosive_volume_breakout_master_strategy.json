@@ -1,0 +1,626 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "explosive_volume_breakout_master",
+  "generated_at": "2025-06-10T09:49:07.997442",
+  "trade_signal_metadata": {
+    "id": "explosive_volume_breakout_master",
+    "name": "Explosive Volume Breakout Master",
+    "options": [],
+    "desc": "This advanced trading algorithm captures high-volatility breakout opportunities by leveraging sudden volume surges. Utilizing Bollinger Bands for range compression detection, it intelligently identifies narrow consolidations and executes trades on price expansion, maximizing profit potential during explosive market movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n3",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n4",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n5",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 20,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 20,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n8",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n9",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 20,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n13",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 90,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 70,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n15",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n16",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n17",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n18",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "v"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n16",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n17",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n17",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n17",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Explosive Volume Breakout Master",
+    "description": "This advanced trading algorithm captures high-volatility breakout opportunities by leveraging sudden volume surges. Utilizing Bollinger Bands for range compression detection, it intelligently identifies narrow consolidations and executes trades on price expansion, maximizing profit potential during explosive market movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "explosive_volume_breakout_master",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

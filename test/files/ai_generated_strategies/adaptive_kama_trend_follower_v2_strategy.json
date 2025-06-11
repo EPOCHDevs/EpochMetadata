@@ -1,0 +1,788 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_kama_trend_follower_v2",
+  "generated_at": "2025-06-10T14:49:45.379612",
+  "trade_signal_metadata": {
+    "id": "adaptive_kama_trend_follower_v2",
+    "name": "Adaptive KAMA Trend Follower V2",
+    "options": [],
+    "desc": "This expert-level TrendFollowing algorithm leverages the Kaufman Adaptive Moving Average (KAMA) applied to the Weighted Close Price to identify and adapt to market trends in a 60-minute timeframe. With a focus on volatility-based entry strategies and dynamic trade management, it aims to minimize lag and maximize profit potential by adjusting to real-time market shifts.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "wc",
+          "type": "wcprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama30",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_natr30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_natr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mfi_idx",
+          "type": "marketfi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_mfi20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_mfi",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma20",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_vwma50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx14",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_adx20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_stop",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "wc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_natr30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_natr30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi_idx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_mfi20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi_idx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_mfi20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_vwma50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vwma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vwma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_adx20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_adx20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gt_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_adx20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_adx20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_adx20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive KAMA Trend Follower V2",
+    "description": "This expert-level TrendFollowing algorithm leverages the Kaufman Adaptive Moving Average (KAMA) applied to the Weighted Close Price to identify and adapt to market trends in a 60-minute timeframe. With a focus on volatility-based entry strategies and dynamic trade management, it aims to minimize lag and maximize profit potential by adjusting to real-time market shifts.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_kama_trend_follower_v2",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

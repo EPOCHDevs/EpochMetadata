@@ -1,0 +1,587 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "sop_volume_driven_strategy",
+  "generated_at": "2025-06-10T11:17:26.852961",
+  "trade_signal_metadata": {
+    "id": "sop_volume_driven_strategy",
+    "name": "SOP Volume-Driven Trading Strategy",
+    "options": [],
+    "desc": "This algorithm focuses on the Smoothed Outburst Pattern (SOP) by combining candlestick patterns with volume analysis to predict sudden market shifts. It leverages adaptive trend analysis and employs strict volume criteria to enhance trade accuracy during high volatility conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc1",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vwma1",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "obv1",
+          "type": "obv",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag_obv",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "obv_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "obv_down",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "twhite",
+          "type": "three_white_soldiers",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "tblack",
+          "type": "three_black_crows",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "obv1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_obv",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "obv1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc1",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc1",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "twhite",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tblack",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "SOP Volume-Driven Trading Strategy",
+    "description": "This algorithm focuses on the Smoothed Outburst Pattern (SOP) by combining candlestick patterns with volume analysis to predict sudden market shifts. It leverages adaptive trend analysis and employs strict volume criteria to enhance trade accuracy during high volatility conditions.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "AMD-Stocks",
+        "CL-Futures",
+        "ES-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "sop_volume_driven_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

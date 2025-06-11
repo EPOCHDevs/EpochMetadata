@@ -1,0 +1,673 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "squeeze_reversal_trading_engine",
+  "generated_at": "2025-06-10T11:22:07.242632",
+  "trade_signal_metadata": {
+    "id": "squeeze_reversal_trading_engine",
+    "name": "Squeeze Reversal Trading Engine",
+    "options": [],
+    "desc": "The Squeeze Reversal Trading Engine identifies volatility squeezes using Bollinger Bands and capitalizes on sharp price reversals following breakout attempts. Designed for intermediate traders on a 30-minute timeframe, this mean-reverting strategy offers a systematic approach to exploiting market inefficiencies when volatility is low, ensuring precision in entry and exit points.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "source1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "bbw1",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "squeeze1",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": 60,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc1",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltRocNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtRocPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossLong",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossShort",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tpLong",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tpShort",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "smaWidth",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 60,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "gtExpand",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "closeAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "smaWidth",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "smaWidth",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtExpand",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtExpand",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtExpand",
+            "handle": "result"
+          },
+          "target": {
+            "id": "closeAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltRocNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltRocNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtRocPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtRocPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltRocNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtRocPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "tpLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "tpLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "tpShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "tpShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "tpLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "closeAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tpShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "closeAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "closeAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "result"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "result"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Squeeze Reversal Trading Engine",
+    "description": "The Squeeze Reversal Trading Engine identifies volatility squeezes using Bollinger Bands and capitalizes on sharp price reversals following breakout attempts. Designed for intermediate traders on a 30-minute timeframe, this mean-reverting strategy offers a systematic approach to exploiting market inefficiencies when volatility is low, ensuring precision in entry and exit points.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "squeeze_reversal_trading_engine",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.05,
+        "risk": 0.02
+      }
+    }
+  }
+}

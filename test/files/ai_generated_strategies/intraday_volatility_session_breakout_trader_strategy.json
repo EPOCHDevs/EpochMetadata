@@ -1,0 +1,519 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "intraday_volatility_session_breakout_trader",
+  "generated_at": "2025-06-10T15:00:51.931051",
+  "trade_signal_metadata": {
+    "id": "intraday_volatility_session_breakout_trader",
+    "name": "Intraday Volatility Session Breakout Trader",
+    "options": [],
+    "desc": "This intraday event-driven trading algorithm capitalizes on market volatility by focusing solely on high-activity session hours. It utilizes a combination of session identification and breakout techniques to execute trades that react swiftly to price movements, ensuring optimal entry points for maximizing profit potential.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_ldn",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "max_high",
+          "type": "agg_max",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "min_low",
+          "type": "agg_min",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lag_high",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag_low",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_break",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr30",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma10",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_ldn",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ldn",
+            "handle": "high"
+          },
+          "target": {
+            "id": "max_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "high"
+          },
+          "target": {
+            "id": "max_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "max_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ldn",
+            "handle": "low"
+          },
+          "target": {
+            "id": "min_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "low"
+          },
+          "target": {
+            "id": "min_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "min_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Volatility Session Breakout Trader",
+    "description": "This intraday event-driven trading algorithm capitalizes on market volatility by focusing solely on high-activity session hours. It utilizes a combination of session identification and breakout techniques to execute trades that react swiftly to price movements, ensuring optimal entry points for maximizing profit potential.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "intraday_volatility_session_breakout_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.06
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

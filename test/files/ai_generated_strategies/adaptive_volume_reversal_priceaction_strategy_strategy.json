@@ -1,0 +1,556 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "adaptive_volume_reversal_priceaction_strategy",
+  "generated_at": "2025-06-10T13:50:32.023436",
+  "trade_signal_metadata": {
+    "id": "adaptive_volume_reversal_priceaction_strategy",
+    "name": "Adaptive Volume Reversal PriceAction Strategy",
+    "options": [],
+    "desc": "This momentum-based trading algorithm leverages adaptive volume signals to pinpoint potential reversal points in highly volatile market conditions. Designed for intraday trading using 5-minute candlestick data, it employs advanced PriceAction techniques to enhance decision-making accuracy.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma20",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "abands",
+          "type": "acceleration_bands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 2.5,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "cmo14",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "marketfi",
+          "type": "marketfi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "lag50",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cv",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hu",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cz",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ml",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cv",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ll",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cz2",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ml",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_cv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "h"
+          },
+          "target": {
+            "id": "gt_hu",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "abands",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_hu",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cz",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cz",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "marketfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "marketfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ml",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ml",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ml",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_cv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "l"
+          },
+          "target": {
+            "id": "lt_ll",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "abands",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_ll",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cz2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cz2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "marketfi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ml",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ml",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cz2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ml",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Volume Reversal PriceAction Strategy",
+    "description": "This momentum-based trading algorithm leverages adaptive volume signals to pinpoint potential reversal points in highly volatile market conditions. Designed for intraday trading using 5-minute candlestick data, it employs advanced PriceAction techniques to enhance decision-making accuracy.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_volume_reversal_priceaction_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

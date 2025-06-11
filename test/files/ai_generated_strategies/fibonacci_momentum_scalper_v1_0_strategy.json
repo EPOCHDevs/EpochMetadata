@@ -1,0 +1,457 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "fibonacci_momentum_scalper_v1_0",
+  "generated_at": "2025-06-10T10:50:22.614999",
+  "trade_signal_metadata": {
+    "id": "fibonacci_momentum_scalper_v1_0",
+    "name": "Fibonacci Momentum Scalper v1.0",
+    "options": [],
+    "desc": "This expert-level intraday scalping algorithm leverages Fibonacci retracement levels to identify short-term momentum opportunities. By combining these levels with momentum oscillators, the strategy focuses on capitalizing on price pullbacks during strong momentum phases throughout the trading session.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess1",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "stoch1",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "roc1",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc_cross",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_d"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_d"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "roc_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "roc_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sess1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "roc_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fibonacci Momentum Scalper v1.0",
+    "description": "This expert-level intraday scalping algorithm leverages Fibonacci retracement levels to identify short-term momentum opportunities. By combining these levels with momentum oscillators, the strategy focuses on capitalizing on price pullbacks during strong momentum phases throughout the trading session.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fibonacci_momentum_scalper_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

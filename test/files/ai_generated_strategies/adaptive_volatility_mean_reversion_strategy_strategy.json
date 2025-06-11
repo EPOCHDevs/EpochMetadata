@@ -1,0 +1,338 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "adaptive_volatility_mean_reversion_strategy",
+  "generated_at": "2025-06-10T10:22:25.212354",
+  "trade_signal_metadata": {
+    "id": "adaptive_volatility_mean_reversion_strategy",
+    "name": "Adaptive Volatility Mean Reversion Strategy",
+    "options": [],
+    "desc": "This trading algorithm employs a mean-reverting approach that adjusts its parameters according to market volatility. By utilizing Average True Range (ATR) and Bollinger Bands, it identifies optimal entry and exit points to capitalize on price retracements during low-volatility periods, enhancing overall trade performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "m1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr1",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma1",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_vol1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "m1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "m1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_price1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "m1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_price1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Volatility Mean Reversion Strategy",
+    "description": "This trading algorithm employs a mean-reverting approach that adjusts its parameters according to market volatility. By utilizing Average True Range (ATR) and Bollinger Bands, it identifies optimal entry and exit points to capitalize on price retracements during low-volatility periods, enhancing overall trade performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "XLF-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_volatility_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.015
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

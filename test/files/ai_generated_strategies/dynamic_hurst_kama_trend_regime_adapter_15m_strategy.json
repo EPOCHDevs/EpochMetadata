@@ -1,0 +1,1112 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_hurst_kama_trend_regime_adapter_15m",
+  "generated_at": "2025-06-10T15:12:15.906824",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_kama_trend_regime_adapter_15m",
+    "name": "Dynamic Hurst-KAMA Trend Regime Adapter 15M",
+    "options": [],
+    "desc": "This expert-level trading algorithm leverages the Rolling Hurst Exponent to identify market regimes and the Kaufman Adaptive Moving Average for effective trend filtering on a 15-minute timeframe. By dynamically adapting to shifts in market conditions, it enhances the accuracy of trend-following trades across a multi-asset basket.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num06",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_trend",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num04",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_range",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "momentum",
+          "type": "mom",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_mom_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_mom",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mom_pos_rise",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_trend_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_mom_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_lt_mom",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mom_neg_fall",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_engulf",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bear_engulf",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "range_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "range_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_natr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol_ok",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "topk",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "final_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "final_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_close_kama",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_range",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num04",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_range",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "momentum",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mom_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mom_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_gt_mom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mom_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_pos_rise",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_mom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_pos_rise",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_trend_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mom_pos_rise",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mom_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mom_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_lt_mom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_mom_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_neg_fall",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt_mom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mom_neg_fall",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mom_neg_fall",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "range_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_engulf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "range_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "range_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_engulf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "range_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "range_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "range_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_natr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "topk",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "topk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "final_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "final_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst-KAMA Trend Regime Adapter 15M",
+    "description": "This expert-level trading algorithm leverages the Rolling Hurst Exponent to identify market regimes and the Kaufman Adaptive Moving Average for effective trend filtering on a 15-minute timeframe. By dynamically adapting to shifts in market conditions, it enhances the accuracy of trend-following trades across a multi-asset basket.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "TSLA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "MA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_kama_trend_regime_adapter_15m",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

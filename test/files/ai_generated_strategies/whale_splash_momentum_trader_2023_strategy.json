@@ -1,0 +1,660 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "whale_splash_momentum_trader_2023",
+  "generated_at": "2025-06-10T14:47:33.066583",
+  "trade_signal_metadata": {
+    "id": "whale_splash_momentum_trader_2023",
+    "name": "Whale Splash Momentum Trader 2023",
+    "options": [],
+    "desc": "The Whale Splash Momentum Trader identifies sudden price movements fueled by significant trading volumes. Utilizing a combination of Momentum and trend indicators, the algorithm captures rapid shifts in market dynamics and leverages volatility for optimal trade execution.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hma1",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "prev_up",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_dn",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mom1",
+          "type": "mom",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mom_gt0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mom_lt0",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_avg",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 7,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_thr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spike",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cvi1",
+          "type": "cvi",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cvi_sma",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vol_contract",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tse",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_up",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_dn",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "mom1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mom1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mom_gt0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mom_gt0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mom1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mom_lt0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mom_lt0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_avg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_avg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "v"
+          },
+          "target": {
+            "id": "spike",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "spike",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mom_gt0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_dn",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mom_lt0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cvi_sma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_contract",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cvi_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_contract",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mom_lt0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mom_gt0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Whale Splash Momentum Trader 2023",
+    "description": "The Whale Splash Momentum Trader identifies sudden price movements fueled by significant trading volumes. Utilizing a combination of Momentum and trend indicators, the algorithm captures rapid shifts in market dynamics and leverages volatility for optimal trade execution.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "whale_splash_momentum_trader_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.2,
+        "risk": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,558 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "volatility_driven_fvg_reversal_detector",
+  "generated_at": "2025-06-10T10:45:28.145119",
+  "trade_signal_metadata": {
+    "id": "volatility_driven_fvg_reversal_detector",
+    "name": "Volatility-Driven FVG Reversal Detector",
+    "options": [],
+    "desc": "This algorithm identifies sharp reversal opportunities on the 15-minute timeframe by leveraging Fair Value Gap (FVG) detection combined with Volume Spike analysis and Bullish/Bearish Engulfing patterns. It incorporates Yang-Zhang Volatility filtering to enhance trade entry precision, providing a refined approach to price action trading.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol_spike",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "eng_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "eng_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "yz",
+          "type": "yang_zhang",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "Trading Periods Per Year",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "yz_ma",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_highvol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_fvg_bool",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_fvg_bool",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "low_vol",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_spike",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "yz_ma",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_highvol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "yz_ma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_highvol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "bull_fvg_bool",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_fvg_bool",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "bear_fvg_bool",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_fvg_bool",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_fvg_bool",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_highvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_fvg_bool",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_highvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "low_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "yz_ma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "low_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "low_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Driven FVG Reversal Detector",
+    "description": "This algorithm identifies sharp reversal opportunities on the 15-minute timeframe by leveraging Fair Value Gap (FVG) detection combined with Volume Spike analysis and Bullish/Bearish Engulfing patterns. It incorporates Yang-Zhang Volatility filtering to enhance trade entry precision, providing a refined approach to price action trading.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_driven_fvg_reversal_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.03
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

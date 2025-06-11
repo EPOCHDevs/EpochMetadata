@@ -1,0 +1,464 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "cross_asset_trend_momentum_filter_v1_0",
+  "generated_at": "2025-06-10T13:42:31.977069",
+  "trade_signal_metadata": {
+    "id": "cross_asset_trend_momentum_filter_v1_0",
+    "name": "Cross-Asset Trend Momentum Filter v1.0",
+    "options": [],
+    "desc": "This expert-level trading algorithm employs a cross-sectional momentum and volatility filter strategy across a multi-asset universe. By utilizing the Rate of Change Ratio (ROCR) to identify the top and bottom performing assets, it dynamically selects trading opportunities based on 4-hour signals, ensuring robust asset selection and efficient volatility management.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr10",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "gk20",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "top_rocr",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bottom_rocr",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "top_vol",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bottom_vol",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "extreme_vol_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mid_vol_not",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_or_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_not",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top_rocr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom_rocr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "extreme_vol_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "extreme_vol_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "extreme_vol_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mid_vol_not",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top_rocr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mid_vol_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom_rocr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mid_vol_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_or_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_or_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_or_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_not",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_not",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Asset Trend Momentum Filter v1.0",
+    "description": "This expert-level trading algorithm employs a cross-sectional momentum and volatility filter strategy across a multi-asset universe. By utilizing the Rate of Change Ratio (ROCR) to identify the top and bottom performing assets, it dynamically selects trading opportunities based on 4-hour signals, ensuring robust asset selection and efficient volatility management.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "JPM-Stocks",
+        "XOM-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "NVDA-Stocks",
+        "TSLA-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures",
+        "GL-Futures",
+        "SL-Futures",
+        "SO-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "cross_asset_trend_momentum_filter_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "equal_weight",
+      "args": {
+        "leverage": 1,
+        "multiple": 1
+      }
+    }
+  }
+}

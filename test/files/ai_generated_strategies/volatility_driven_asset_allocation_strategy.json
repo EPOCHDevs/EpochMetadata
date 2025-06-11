@@ -1,0 +1,554 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_driven_asset_allocation",
+  "generated_at": "2025-06-10T15:30:35.503538",
+  "trade_signal_metadata": {
+    "id": "volatility_driven_asset_allocation",
+    "name": "Volatility-Driven Asset Allocation Strategy",
+    "options": [],
+    "desc": "This adaptive trading algorithm implements an intermediate-level cross-sectional rotation strategy focusing on return volatility. Long positions are allocated to the top K% of assets with the lowest 20-bar return volatility, while short positions or no allocation targets the bottom K% with the highest volatility during daily rebalancing.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "retVol",
+          "type": "return_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bot20",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ema50",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gtPE",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltPE",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "meanClose",
+          "type": "agg_mean",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "resampleW",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbandsW",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbWidth",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "widthMA",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 26,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "week",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ltWidth",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notAllow",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtPE",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPE",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltPE",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltPE",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "retVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "retVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bot20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtPE",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bot20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltPE",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "meanClose",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "meanClose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "resampleW",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "resampleW",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bbandsW",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbandsW",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbWidth",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bbandsW",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbWidth",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bbandsW",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbWidth",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbWidth",
+            "handle": "result"
+          },
+          "target": {
+            "id": "widthMA",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbWidth",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltWidth",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "widthMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltWidth",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltWidth",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notAllow",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notAllow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Driven Asset Allocation Strategy",
+    "description": "This adaptive trading algorithm implements an intermediate-level cross-sectional rotation strategy focusing on return volatility. Long positions are allocated to the top K% of assets with the lowest 20-bar return volatility, while short positions or no allocation targets the bottom K% with the highest volatility during daily rebalancing.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "DIA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_driven_asset_allocation",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

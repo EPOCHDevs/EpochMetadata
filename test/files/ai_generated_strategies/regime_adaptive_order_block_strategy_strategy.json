@@ -1,0 +1,683 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "regime_adaptive_order_block_strategy",
+  "generated_at": "2025-06-10T14:52:43.648145",
+  "trade_signal_metadata": {
+    "id": "regime_adaptive_order_block_strategy",
+    "name": "Regime-Adaptive Bearish Order Block Strategy",
+    "options": [],
+    "desc": "This trading algorithm implements an advanced 'Regime-Adaptive Order Block + Volatility Sieve Short Strategy' targeting intraday equities on a 5-minute timeframe. It identifies bearish institutional order blocks during periods of heightened Garman-Klass Volatility, ensuring that meaningful trading opportunities are pursued when market conditions favor downward movement.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gkv",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "perc",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trueConst",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "falseConst",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ob",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": true,
+              "name": "close_mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_bear",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_not_mit",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 28,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "gt_vhf",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "range",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num02",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul02",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thresh",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_price",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engBull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "exitOr",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "gkv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "mitigated_index"
+          },
+          "target": {
+            "id": "eq_not_mit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_not_mit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "top"
+          },
+          "target": {
+            "id": "range",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "range",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul02",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num02",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul02",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "top"
+          },
+          "target": {
+            "id": "thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul02",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_not_mit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "lt_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitOr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "engBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitOr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exitOr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Regime-Adaptive Bearish Order Block Strategy",
+    "description": "This trading algorithm implements an advanced 'Regime-Adaptive Order Block + Volatility Sieve Short Strategy' targeting intraday equities on a 5-minute timeframe. It identifies bearish institutional order blocks during periods of heightened Garman-Klass Volatility, ensuring that meaningful trading opportunities are pursued when market conditions favor downward movement.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMD-Stocks",
+        "NVDA-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "NFLX-Stocks",
+        "META-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "regime_adaptive_order_block_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,835 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "interstellar_mean_reversion_navigator_1.0",
+  "generated_at": "2025-06-10T09:01:13.854341",
+  "trade_signal_metadata": {
+    "id": "interstellar_mean_reversion_navigator_1.0",
+    "name": "Interstellar Mean Reversion Navigator 1.0",
+    "options": [],
+    "desc": "The Interstellar Mean Reversion Navigator 1.0 is an advanced trading algorithm that leverages mean-reversion principles alongside technical patterns to capitalize on rapid price adjustments in intraday market conditions. By utilizing a combination of dual EMA crossovers, stochastic oscillators, and Keltner channels, this strategy aims to identify optimal entry and exit points for profitable trade executions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ema_fast",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ema_mid",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "K_period",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "K_slowing_period",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "D_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_gt20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_lt80",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_gt80",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_lt20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "tan_cmo",
+          "type": "tan",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_tan_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_tan_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pivot",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lte_close_s1",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_close_r1",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema_fast",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema_mid",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ema_fast",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ema_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema_fast",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "stoch_gt20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_gt20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "stoch_lt80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_lt80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "stoch_gt80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_gt80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "stoch_lt20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stoch_lt20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tan_cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tan_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_tan_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_tan_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "tan_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_tan_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_tan_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_close_s1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "support_1"
+          },
+          "target": {
+            "id": "lte_close_s1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_close_r1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "resist_1"
+          },
+          "target": {
+            "id": "gte_close_r1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_gt20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_tan_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_close_s1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_lt80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_tan_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_close_r1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_gt80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_lt20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Interstellar Mean Reversion Navigator 1.0",
+    "description": "The Interstellar Mean Reversion Navigator 1.0 is an advanced trading algorithm that leverages mean-reversion principles alongside technical patterns to capitalize on rapid price adjustments in intraday market conditions. By utilizing a combination of dual EMA crossovers, stochastic oscillators, and Keltner channels, this strategy aims to identify optimal entry and exit points for profitable trade executions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "interstellar_mean_reversion_navigator_1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,308 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_rocr_momentum_strategy",
+  "generated_at": "2025-06-10T09:34:55.838777",
+  "trade_signal_metadata": {
+    "id": "dynamic_rocr_momentum_strategy",
+    "name": "Dynamic ROCR Momentum Strategy",
+    "options": [],
+    "desc": "This trading algorithm implements a cross-sectional momentum strategy that identifies the top 20% of assets based on their 21-day Rate of Change Ratio (ROCR). It generates entry signals for assets that enter this top quintile, while exit signals are activated for those that fall below the 70th percentile. Additionally, a risk filter ensures that new entries are only allowed if the asset's Garman-Klass Volatility remains below its universe mean over the same period.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market_data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr21",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top30",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "not_top30",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gk_vol",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vol_bottom50",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "entry_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market_data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_bottom50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_bottom50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "top30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_top30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_top30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic ROCR Momentum Strategy",
+    "description": "This trading algorithm implements a cross-sectional momentum strategy that identifies the top 20% of assets based on their 21-day Rate of Change Ratio (ROCR). It generates entry signals for assets that enter this top quintile, while exit signals are activated for those that fall below the 70th percentile. Additionally, a risk filter ensures that new entries are only allowed if the asset's Garman-Klass Volatility remains below its universe mean over the same period.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "TSLA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "MA-Stocks",
+        "QQQ-Stocks",
+        "IWM-Stocks",
+        "USPX-Stocks",
+        "SNDX-Stocks",
+        "XRT-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_rocr_momentum_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

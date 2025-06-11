@@ -1,0 +1,610 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "quantum_leap_reversal_detector",
+  "generated_at": "2025-06-10T13:41:23.912615",
+  "trade_signal_metadata": {
+    "id": "quantum_leap_reversal_detector",
+    "name": "Quantum Leap Reversal Detector",
+    "options": [
+      {
+        "id": "quantum_factor_value",
+        "name": "",
+        "type": "Decimal",
+        "isRequired": false,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "thr_low_value",
+        "name": "Value"
+      },
+      {
+        "id": "thr_high_value",
+        "name": "Value (thr_high)"
+      },
+      {
+        "id": "fish_neg_value",
+        "name": "Value (fish_neg)"
+      },
+      {
+        "id": "fish_pos_value",
+        "name": "Value (fish_pos)"
+      }
+    ],
+    "desc": "This advanced momentum trading algorithm leverages quantum jump detection to identify significant price movements with precision. Utilizing Garman-Klass volatility metrics, it incorporates a custom quantum factor to effectively flag abrupt price shifts, making it an essential tool for expert traders seeking to capitalize on rapid market changes.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gk_vol",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sqrt_vol",
+          "type": "sqrt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "quantum_factor",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "quantum_factor_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_qjump",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_qjump",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch_rsi",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "thr_low",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "thr_low_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_high",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "thr_high_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher_tr",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fish_neg",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "fish_neg_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fish_pos",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "fish_pos_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fish_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fish_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sqrt_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sqrt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_qjump",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "quantum_factor",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_qjump",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_qjump",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_qjump",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_qjump",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stoch_rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_tr",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "lt_fish_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fish_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fish_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_tr",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "gt_fish_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fish_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fish_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_qjump",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fish_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_qjump",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fish_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Leap Reversal Detector",
+    "description": "This advanced momentum trading algorithm leverages quantum jump detection to identify significant price movements with precision. Utilizing Garman-Klass volatility metrics, it incorporates a custom quantum factor to effectively flag abrupt price shifts, making it an essential tool for expert traders seeking to capitalize on rapid market changes.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_leap_reversal_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

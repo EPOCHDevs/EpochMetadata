@@ -1,0 +1,344 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "intrabar_volatility_compression_trader",
+  "generated_at": "2025-06-10T09:03:52.945003",
+  "trade_signal_metadata": {
+    "id": "intrabar_volatility_compression_trader",
+    "name": "Intrabar Volatility Compression Trader",
+    "options": [],
+    "desc": "This algorithm focuses on capturing short-term price movements that occur immediately following periods of extreme price compression within a single bar. By utilizing the Price Distance indicator on a 5-minute timeframe, it identifies setups where price volatility is likely to explode, allowing for potential profits from rapidly changing market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pd",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "min5",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "max5",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "compression_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "explosion_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gkv10",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "vol_filter",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "min5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "max5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "compression_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "compression_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "explosion_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "max5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "explosion_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gkv10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gkv10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_filter",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_filter",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "explosion_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_filter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intrabar Volatility Compression Trader",
+    "description": "This algorithm focuses on capturing short-term price movements that occur immediately following periods of extreme price compression within a single bar. By utilizing the Price Distance indicator on a 5-minute timeframe, it identifies setups where price volatility is likely to explode, allowing for potential profits from rapidly changing market conditions.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "intrabar_volatility_compression_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

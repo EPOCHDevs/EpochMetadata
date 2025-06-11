@@ -1,0 +1,913 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "vwma_fvg_mean_reversion_strategy",
+  "generated_at": "2025-06-10T16:15:47.728775",
+  "trade_signal_metadata": {
+    "id": "vwma_fvg_mean_reversion_strategy",
+    "name": "VWMA-FVG Dynamic Mean Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level event-driven trading algorithm utilizes a 50-period Volume Weighted Moving Average (VWMA) alongside Fair Value Gap (FVG) analysis, specifically designed for the 15-minute trading timeframe. By dynamically identifying equilibrium price levels and recognizing price inefficiencies, it effectively captures mean reversion opportunities in fast-paced markets.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma50",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ma_vol20",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_vol_sma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pvi",
+          "type": "pvi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pvi_prev_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions_lokz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "doji_chk",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "not_doji",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spin_chk",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "not_spin",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_close_bottom",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_close_top",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_gap",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gap_bull",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gap_bear",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_price_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_price_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "candles_ok",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_pre",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_pre",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "ma_vol20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol_sma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_vol20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol_sma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_close_bottom",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "gte_close_bottom",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_close_top",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "lte_close_top",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_close_bottom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_close_top",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "fvg_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "fvg_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gap_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gap_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_price_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gap_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_price_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "doji_chk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_doji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spin_chk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_spin",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "candles_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_spin",
+            "handle": "result"
+          },
+          "target": {
+            "id": "candles_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_price_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_pre",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_pre",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_pre",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_lokz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "fvg_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "fvg_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gap_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gap_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_price_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gap_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_price_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_price_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_pre",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_pre",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_pre",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_lokz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "VWMA-FVG Dynamic Mean Reversion Strategy",
+    "description": "This expert-level event-driven trading algorithm utilizes a 50-period Volume Weighted Moving Average (VWMA) alongside Fair Value Gap (FVG) analysis, specifically designed for the 15-minute trading timeframe. By dynamically identifying equilibrium price levels and recognizing price inefficiencies, it effectively captures mean reversion opportunities in fast-paced markets.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "vwma_fvg_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

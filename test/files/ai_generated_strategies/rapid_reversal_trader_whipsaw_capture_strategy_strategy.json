@@ -1,0 +1,956 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "rapid_reversal_trader_whipsaw_capture_strategy",
+  "generated_at": "2025-06-10T10:27:21.421924",
+  "trade_signal_metadata": {
+    "id": "rapid_reversal_trader_whipsaw_capture_strategy",
+    "name": "Rapid Reversal Trader: Whipsaw Capture Strategy",
+    "options": [],
+    "desc": "This advanced mean-reverting trading algorithm targets intraday price movements characterized by sudden and transient reversals, known as 'whipsaw' moves. By employing dynamic volatility filters and sophisticated indicators, it identifies false breakouts and capitalizes on price corrections within the same trading session.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf24",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 24,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_vhf50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_vhf",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bbw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "min_bw30",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "max_bw30",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sub_num",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_den",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_0_7",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.7,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bw",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "max10",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "min10",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_inside_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_inside_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma10",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_mid",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_stop_short",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_lower",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_stop_long",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf24",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf24",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_vhf50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf24",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vhf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vhf50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vhf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "min_bw30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "max_bw30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_num",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_bw30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_num",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "max_bw30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_den",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_bw30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_den",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_num",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_den",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_0_7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "max10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "min10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "max10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_inside_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "max10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_inside_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_inside_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_inside_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_inside_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_inside_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "max10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_stop_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_stop_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "min10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_stop_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_stop_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_stop_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stop_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Rapid Reversal Trader: Whipsaw Capture Strategy",
+    "description": "This advanced mean-reverting trading algorithm targets intraday price movements characterized by sudden and transient reversals, known as 'whipsaw' moves. By employing dynamic volatility filters and sophisticated indicators, it identifies false breakouts and capitalizes on price corrections within the same trading session.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "rapid_reversal_trader_whipsaw_capture_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

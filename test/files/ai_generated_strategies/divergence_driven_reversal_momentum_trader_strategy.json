@@ -1,0 +1,875 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "divergence_driven_reversal_momentum_trader",
+  "generated_at": "2025-06-10T08:59:05.158858",
+  "trade_signal_metadata": {
+    "id": "divergence_driven_reversal_momentum_trader",
+    "name": "Divergence-Driven Reversal Momentum Trader",
+    "options": [],
+    "desc": "This advanced trading algorithm specializes in identifying potential trend reversals through a sophisticated blend of divergence analysis, volume surges, and specific candle patterns. By leveraging the Relative Strength Index and other technical indicators, it aims to capitalize on market inefficiencies and improve trade timing for optimal returns.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi14",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "adx14",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "obv",
+          "type": "obv",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "sma20vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "divratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volBranch",
+          "type": "ratio_branch",
+          "options": [
+            {
+              "id": "threshold_high",
+              "value": 2,
+              "name": "Upper Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "threshold_low",
+              "value": 1,
+              "name": "Lower Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adxBranch",
+          "type": "ratio_branch",
+          "options": [
+            {
+              "id": "threshold_high",
+              "value": 25,
+              "name": "Upper Threshold",
+              "isExposed": false
+            },
+            {
+              "id": "threshold_low",
+              "value": 0,
+              "name": "Lower Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossoverUp",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsiPass",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossoverDown",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "invHammer",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "engulfBull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "engulfBear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "hangingMan",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "patternsBull",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "patternsBear",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "previous_gt_obv",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "obvPass",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "previous_lt_obv",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allLong",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allShort",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma20vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "divratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma20vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "divratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "divratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volBranch",
+            "handle": "ratio"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adxBranch",
+            "handle": "ratio"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossoverUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossoverUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsiPass",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "num70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossoverDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "rsiPass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossoverDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "invHammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternsBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulfBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternsBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulfBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternsBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hangingMan",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternsBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "previous_gt_obv",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obvPass",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obvPass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "previous_lt_obv",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossoverUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adxBranch",
+            "handle": "low"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "volBranch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "previous_gt_obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "patternsBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossoverDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adxBranch",
+            "handle": "low"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "volBranch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "previous_lt_obv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "patternsBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "allShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Divergence-Driven Reversal Momentum Trader",
+    "description": "This advanced trading algorithm specializes in identifying potential trend reversals through a sophisticated blend of divergence analysis, volume surges, and specific candle patterns. By leveraging the Relative Strength Index and other technical indicators, it aims to capitalize on market inefficiencies and improve trade timing for optimal returns.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "CL-Futures",
+        "ES-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "divergence_driven_reversal_momentum_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

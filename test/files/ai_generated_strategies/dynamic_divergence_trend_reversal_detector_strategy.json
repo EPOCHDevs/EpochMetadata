@@ -1,0 +1,509 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_divergence_trend_reversal_detector",
+  "generated_at": "2025-06-10T10:18:58.180227",
+  "trade_signal_metadata": {
+    "id": "dynamic_divergence_trend_reversal_detector",
+    "name": "Dynamic Divergence Trend Reversal Detector",
+    "options": [
+      {
+        "id": "rsi14_period",
+        "name": "Period"
+      },
+      {
+        "id": "aroon14_period",
+        "name": "Period (aroon14)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      }
+    ],
+    "desc": "This algorithm identifies potential reversal points in trending markets by assessing divergences between price action and momentum indicators. By leveraging the Relative Strength Index (RSI) and the Aroon Oscillator on a 1-hour timeframe, it enters long positions during bullish divergences and strategically manages exits.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi14",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "rsi14_period"
+              },
+              "name": "RSI Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "aroon14",
+          "type": "aroonosc",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "aroon14_period"
+              },
+              "name": "Aroon Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_above",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_below",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_close_low",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_close_high",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_rsi_high",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_rsi_low",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bull",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bear",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prev_close_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prev_close_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_rsi_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_rsi_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_close_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_rsi_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_above",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_close_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_rsi_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "aroon14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_above",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_above",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_below",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "aroon14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_below",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_above",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Divergence Trend Reversal Detector",
+    "description": "This algorithm identifies potential reversal points in trending markets by assessing divergences between price action and momentum indicators. By leveraging the Relative Strength Index (RSI) and the Aroon Oscillator on a 1-hour timeframe, it enters long positions during bullish divergences and strategically manages exits.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_divergence_trend_reversal_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.03
+      }
+    }
+  }
+}

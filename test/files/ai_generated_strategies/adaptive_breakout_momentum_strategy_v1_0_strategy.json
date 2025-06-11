@@ -1,0 +1,678 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "adaptive_breakout_momentum_strategy_v1_0",
+  "generated_at": "2025-06-10T09:39:20.793192",
+  "trade_signal_metadata": {
+    "id": "adaptive_breakout_momentum_strategy_v1_0",
+    "name": "Adaptive Breakout Momentum Strategy v1.0",
+    "options": [],
+    "desc": "This event-driven trading algorithm leverages a sophisticated Price Action and Volatility breakout strategy designed for liquid futures contracts on a 15-minute timeframe. It identifies sharp intraday breakouts at the intersection of fair value gaps and pivotal support/resistance levels, utilizing adaptive volatility metrics and contextual candlestick confirmations to optimize trades.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg1",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "piv1",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr1",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma1",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions1",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "andFilter",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtFvg",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltFvg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtCloseSupport",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCloseRes",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "maruWhite",
+          "type": "white_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "maruBlack",
+          "type": "black_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "andLongA",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLongB",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShortA",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShortB",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "natr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andFilter",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions1",
+            "handle": "active"
+          },
+          "target": {
+            "id": "andFilter",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gtFvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtFvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "ltFvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltFvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtCloseSupport",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "piv1",
+            "handle": "support_1"
+          },
+          "target": {
+            "id": "gtCloseSupport",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltCloseRes",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "piv1",
+            "handle": "resist_1"
+          },
+          "target": {
+            "id": "ltCloseRes",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtFvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLongA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCloseSupport",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLongA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLongA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLongB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "maruWhite",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLongB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLongB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "andFilter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltFvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShortA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCloseRes",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShortA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andShortA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShortB",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "maruBlack",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShortB",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andShortB",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "andFilter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Breakout Momentum Strategy v1.0",
+    "description": "This event-driven trading algorithm leverages a sophisticated Price Action and Volatility breakout strategy designed for liquid futures contracts on a 15-minute timeframe. It identifies sharp intraday breakouts at the intersection of fair value gaps and pivotal support/resistance levels, utilizing adaptive volatility metrics and contextual candlestick confirmations to optimize trades.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "ZE-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_breakout_momentum_strategy_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      }
+    }
+  }
+}

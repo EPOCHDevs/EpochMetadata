@@ -1,0 +1,1048 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "volatility_breakout_session_trader_v1.0",
+  "generated_at": "2025-06-10T10:02:16.066980",
+  "trade_signal_metadata": {
+    "id": "volatility_breakout_session_trader_v1.0",
+    "name": "Volatility Breakout Session Trader v1.0",
+    "options": [],
+    "desc": "This trading algorithm capitalizes on high volatility by utilizing the Parkinson Volatility estimator on a 30-minute timeframe. It dynamically selects favorable trading conditions based on session-specific price action in the FOREX market, particularly focusing on the London and New York sessions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "parkVol",
+          "type": "parkinson",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "smaMed",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 1440,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mulThresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessL",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sessNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sessLOKZ",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "anySession",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allowCond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHL",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHNY",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHLOKZ",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longBreakAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLL",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLNY",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLLOKZ",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortBreakAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longEntryAND",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortEntryAND",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevHL",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "day",
+              "name": "Time Frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "chande",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "hma10",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lteClosePrevHigh",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCloseLongStop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCloseHMA",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longExitAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gteClosePrevLow",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtCloseShortStop",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtCloseHMA",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortExitAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allExit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "parkVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "smaMed",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulThresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "smaMed",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mulThresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "parkVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mulThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allowCond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "anySession",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allowCond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessL",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLOKZ",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtHL",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessL",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtHL",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtHNY",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtHNY",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtHLOKZ",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLOKZ",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtHLOKZ",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHL",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHNY",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHLOKZ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltLL",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessL",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltLL",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltLNY",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltLNY",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltLLOKZ",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLOKZ",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltLLOKZ",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLL",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLNY",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLLOKZ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortBreakAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longBreakAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longEntryAND",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "allowCond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longEntryAND",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "shortBreakAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortEntryAND",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "allowCond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortEntryAND",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lteClosePrevHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_high"
+          },
+          "target": {
+            "id": "lteClosePrevHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltCloseLongStop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "chande",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "ltCloseLongStop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltCloseHMA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltCloseHMA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lteClosePrevHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCloseLongStop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCloseHMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gteClosePrevLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_low"
+          },
+          "target": {
+            "id": "gteClosePrevLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtCloseShortStop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "chande",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gtCloseShortStop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtCloseHMA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtCloseHMA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gteClosePrevLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCloseShortStop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCloseHMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortExitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longExitAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allExit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "shortExitAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allExit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allowCond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "longEntryAND",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortEntryAND",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "allExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Breakout Session Trader v1.0",
+    "description": "This trading algorithm capitalizes on high volatility by utilizing the Parkinson Volatility estimator on a 30-minute timeframe. It dynamically selects favorable trading conditions based on session-specific price action in the FOREX market, particularly focusing on the London and New York sessions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_breakout_session_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

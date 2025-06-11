@@ -1,0 +1,542 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "multi_timeframe_volatility_breakout_strategy",
+  "generated_at": "2025-06-10T09:00:57.725723",
+  "trade_signal_metadata": {
+    "id": "multi_timeframe_volatility_breakout_strategy",
+    "name": "Multi-Timeframe Volatility Breakout Strategy",
+    "options": [],
+    "desc": "This trading algorithm utilizes a multi-timeframe approach to identify volatility regimes and breakout opportunities. By analyzing the Bollinger Bands Width on the 1-hour timeframe, it classifies market conditions and strategically executes breakout trades on the 5-minute chart under specific criteria.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb1h",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbw1h",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "percQuiet",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 30,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 20,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "percExpl",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 30,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb5m",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "crossLong",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "ltShort",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "crossShort",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "condShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "signalLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "signalShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "bb1h",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw1h",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1h",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw1h",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1h",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw1h",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percQuiet",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percExpl",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percQuiet",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percQuiet",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percExpl",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percExpl",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb5m",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb5m",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb5m",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "ltShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb5m",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "condShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "condShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "percQuiet",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signalLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signalLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "percQuiet",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signalShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "condShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signalShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "signalLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "signalShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "percExpl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Multi-Timeframe Volatility Breakout Strategy",
+    "description": "This trading algorithm utilizes a multi-timeframe approach to identify volatility regimes and breakout opportunities. By analyzing the Bollinger Bands Width on the 1-hour timeframe, it classifies market conditions and strategically executes breakout trades on the 5-minute chart under specific criteria.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "multi_timeframe_volatility_breakout_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

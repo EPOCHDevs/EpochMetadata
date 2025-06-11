@@ -1,0 +1,1023 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "volatility_climax_swing_trader",
+  "generated_at": "2025-06-10T10:25:06.466089",
+  "trade_signal_metadata": {
+    "id": "volatility_climax_swing_trader",
+    "name": "Volatility Climax Swing Trader",
+    "options": [],
+    "desc": "This event-driven swing trading strategy identifies moments of extreme market volatility using the Ulcer Index and Mass Index to spot potential exhaustion moves. By combining price action analysis and technical signal assessments, it aims to capitalize on price reversals following volatility spikes, optimizing entry and exit points for enhanced trading performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer14",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "mass25",
+          "type": "mass",
+          "options": [
+            {
+              "id": "period",
+              "value": 25,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct90",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 90,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num27",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 27,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_mass27",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_spike",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "doji_cls",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fp_doji",
+          "type": "four_price_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "or_doji",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lag_doji",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "not_prev_doji",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spike_no_prev",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_legged_doji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "spinning_top",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "or_exhaustion",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_base",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma14",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_close_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_dist",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_atr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_profit",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct60",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 60,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_cond",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ulcer14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct90",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct90",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct90",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "mass25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mass27",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num27",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mass27",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pct90",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_spike",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mass27",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_spike",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "doji_cls",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_doji",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fp_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_doji",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_doji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_prev_doji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_spike",
+            "handle": "result"
+          },
+          "target": {
+            "id": "spike_no_prev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_prev_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "spike_no_prev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_legged_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exhaustion",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "spinning_top",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exhaustion",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spike_no_prev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_base",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exhaustion",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_base",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_base",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_base",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_dist",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_profit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_profit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct60",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct60",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct60",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_profit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Climax Swing Trader",
+    "description": "This event-driven swing trading strategy identifies moments of extreme market volatility using the Ulcer Index and Mass Index to spot potential exhaustion moves. By combining price action analysis and technical signal assessments, it aims to capitalize on price reversals following volatility spikes, optimizing entry and exit points for enhanced trading performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_climax_swing_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

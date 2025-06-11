@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "strategy_config.h"
 #include "epoch_metadata/registry.h"
 #include "epoch_metadata/strategy/metadata.h"
 
@@ -33,5 +34,9 @@ using Registry = IMetaDataRegistry<AlgorithmBaseMetaData, 1>;
 
 namespace slippage {
 using Registry = IMetaDataRegistry<AlgorithmBaseMetaData, 2>;
+}
+
+namespace strategy_templates {
+    using Registry = IMetaDataRegistry<StrategyTemplate, 0>;
 }
 } // namespace epoch_metadata::strategy

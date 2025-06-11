@@ -1,0 +1,729 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "liquidity_trap_momentum_strategy",
+  "generated_at": "2025-06-10T14:26:30.016531",
+  "trade_signal_metadata": {
+    "id": "liquidity_trap_momentum_strategy",
+    "name": "Liquidity Trap Momentum Exploitation Strategy",
+    "options": [],
+    "desc": "This advanced trading algorithm is designed to identify and exploit momentum traps formed around liquidity clusters, strategically targeting swing highs and lows. By utilizing volatility regime filtering alongside volume confirmation, the algorithm aims to capitalize on significant price movements triggered by liquidity sweeps, effectively minimizing exposure to false breakouts during quieter market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.002,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "roc",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const0",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_pos",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.01,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_neg",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.01,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_natr_entry",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.012,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_natr_exit",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.008,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_liq_0",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_liq_0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_roc",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_roc",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_natr_entry",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_natr_exit",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_liq_0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_liq_0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_liq_0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_liq_0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_natr_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_natr_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_liq_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_liq_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_natr_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Trap Momentum Exploitation Strategy",
+    "description": "This advanced trading algorithm is designed to identify and exploit momentum traps formed around liquidity clusters, strategically targeting swing highs and lows. By utilizing volatility regime filtering alongside volume confirmation, the algorithm aims to capitalize on significant price movements triggered by liquidity sweeps, effectively minimizing exposure to false breakouts during quieter market conditions.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "MSFT-Stocks",
+        "AAPL-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "liquidity_trap_momentum_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.06
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 14,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

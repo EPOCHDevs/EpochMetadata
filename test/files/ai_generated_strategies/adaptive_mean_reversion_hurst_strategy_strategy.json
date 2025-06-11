@@ -1,0 +1,825 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "adaptive_mean_reversion_hurst_strategy",
+  "generated_at": "2025-06-10T16:46:14.822651",
+  "trade_signal_metadata": {
+    "id": "adaptive_mean_reversion_hurst_strategy",
+    "name": "Adaptive Mean Reversion Hurst Strategy",
+    "options": [],
+    "desc": "This advanced mean-reverting trading algorithm utilizes the Hurst Exponent to identify short-term regime shifts in the US equities market. By detecting overbought and oversold conditions, the algorithm dynamically adapts its trading strategy to exploit mean-reverting opportunities on a 30-minute timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "wc",
+          "type": "wcprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "const_045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "const1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "invNatr",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "upperDiff",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "scaledUpperDiff",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adaptiveUpper",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lowerDiff",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "scaledLowerDiff",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adaptiveLower",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "patternBull",
+          "type": "three_white_soldiers",
+          "options": [
+            {
+              "id": "period",
+              "value": 3,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "patternBear",
+          "type": "three_black_crows",
+          "options": [
+            {
+              "id": "period",
+              "value": 3,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "andLong1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dx",
+          "type": "dx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "const30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_dx",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "wc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "upperDiff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "upperDiff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "upperDiff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "scaledUpperDiff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "invNatr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "scaledUpperDiff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "adaptiveUpper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "scaledUpperDiff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adaptiveUpper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "lowerDiff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lowerDiff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lowerDiff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "scaledLowerDiff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "invNatr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "scaledLowerDiff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "adaptiveLower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "scaledLowerDiff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adaptiveLower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adaptiveUpper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adaptiveLower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "patternBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "patternBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "const1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "invNatr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "invNatr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "dx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dx",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dx",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_dx",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Mean Reversion Hurst Strategy",
+    "description": "This advanced mean-reverting trading algorithm utilizes the Hurst Exponent to identify short-term regime shifts in the US equities market. By detecting overbought and oversold conditions, the algorithm dynamically adapts its trading strategy to exploit mean-reverting opportunities on a 30-minute timeframe.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_mean_reversion_hurst_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

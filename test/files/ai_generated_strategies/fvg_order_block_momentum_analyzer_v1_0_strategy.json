@@ -1,0 +1,691 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "fvg_order_block_momentum_analyzer_v1_0",
+  "generated_at": "2025-06-10T13:50:50.922603",
+  "trade_signal_metadata": {
+    "id": "fvg_order_block_momentum_analyzer_v1_0",
+    "name": "FVG Order Block Momentum Analyzer v1.0",
+    "options": [],
+    "desc": "This advanced momentum trading algorithm combines Fair Value Gaps (FVG) and Order Blocks with the power of MACD and KAMA to identify potential high-probability trading opportunities. By analyzing price action and momentum fluctuations, it executes timely trade signals aimed at maximizing returns in dynamic market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "macd1",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long_period",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kama1",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg1",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ob1",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "one1",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_fvg_long",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_fvg_short",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_ob_long",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_ob_short",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_obtop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_obbottom",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_close",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_obtop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_obbottom",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "crossover_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "crossover_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "crossover_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "crossover_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "crossany_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "crossany_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_fvg_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_fvg_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg1",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_fvg_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_fvg_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_ob_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_ob_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_ob_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_ob_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "top"
+          },
+          "target": {
+            "id": "lt_close_obtop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob1",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "gt_close_obbottom",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_fvg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_ob_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_obtop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_fvg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_ob_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_obbottom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "FVG Order Block Momentum Analyzer v1.0",
+    "description": "This advanced momentum trading algorithm combines Fair Value Gaps (FVG) and Order Blocks with the power of MACD and KAMA to identify potential high-probability trading opportunities. By analyzing price action and momentum fluctuations, it executes timely trade signals aimed at maximizing returns in dynamic market conditions.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fvg_order_block_momentum_analyzer_v1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

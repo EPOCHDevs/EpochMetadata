@@ -1,0 +1,903 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_trend_divergence_momentum_system",
+  "generated_at": "2025-06-10T10:38:09.948612",
+  "trade_signal_metadata": {
+    "id": "dynamic_trend_divergence_momentum_system",
+    "name": "Dynamic Trend Divergence Momentum System",
+    "options": [
+      {
+        "id": "roc_period",
+        "name": "Period"
+      },
+      {
+        "id": "atr_period",
+        "name": "Period (atr)"
+      },
+      {
+        "id": "num1_value",
+        "name": "Value"
+      },
+      {
+        "id": "kc_roll_period",
+        "name": "Roll_Period"
+      },
+      {
+        "id": "kc_band_multiplier",
+        "name": "Band_Multiplier"
+      }
+    ],
+    "desc": "This algorithm leverages adaptive momentum thresholds to efficiently navigate varying market volatilities while identifying critical bullish and bearish divergences in trending environments. It utilizes a blend of price action and momentum indicators to dynamically adjust its strategy, optimizing entry and exit signals based on real-time market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "roc_period"
+              },
+              "name": "period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "atr_period"
+              },
+              "name": "period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num1",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num1_value"
+              },
+              "name": "value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_thr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eng_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "three_ws",
+          "type": "three_white_soldiers",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "agg_bull",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eng_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "three_bc",
+          "type": "three_black_crows",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "agg_bear",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logic_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "logic_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": {
+                "refName": "kc_roll_period"
+              },
+              "name": "roll_period",
+              "isExposed": true
+            },
+            {
+              "id": "band_multiplier",
+              "value": {
+                "refName": "kc_band_multiplier"
+              },
+              "name": "band_multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma_roc",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_exit_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_exit_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_thr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_thr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "three_ws",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_bull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "three_bc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_bear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logic_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logic_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logic_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "logic_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "logic_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "logic_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Trend Divergence Momentum System",
+    "description": "This algorithm leverages adaptive momentum thresholds to efficiently navigate varying market volatilities while identifying critical bullish and bearish divergences in trending environments. It utilizes a blend of price action and momentum indicators to dynamically adjust its strategy, optimizing entry and exit signals based on real-time market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_trend_divergence_momentum_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

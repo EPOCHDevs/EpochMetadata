@@ -1,0 +1,530 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_hurst_mean_reverting_strategy",
+  "generated_at": "2025-06-10T10:09:51.139346",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_mean_reverting_strategy",
+    "name": "Dynamic Hurst Mean-Reverting Strategy",
+    "options": [],
+    "desc": "This expert-level mean-reverting trading algorithm utilizes a Rolling Hurst Exponent to identify market regimes, enabling adaptive trading strategies tailored to current market conditions. By incorporating a Weighted Moving Average (WMA) filter for price smoothing, the algorithm operates effectively on a 15-minute timeframe for the SPY ETF, aiming to capitalize on short-term price reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst_lt_045",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "wma20",
+          "type": "wma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "residual",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "std50",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "constNeg15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pos_thres",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_thres",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "res_cross_zero",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_lt_045",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_lt_045",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "wma20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "wma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "residual",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "residual",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "residual",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "std50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pos_thres",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pos_thres",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "std50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg_thres",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "constNeg15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg_thres",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "residual",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pos_thres",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "residual",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_thres",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_lt_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_lt_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "residual",
+            "handle": "result"
+          },
+          "target": {
+            "id": "res_cross_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "res_cross_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_lt_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "res_cross_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst Mean-Reverting Strategy",
+    "description": "This expert-level mean-reverting trading algorithm utilizes a Rolling Hurst Exponent to identify market regimes, enabling adaptive trading strategies tailored to current market conditions. By incorporating a Weighted Moving Average (WMA) filter for price smoothing, the algorithm operates effectively on a 15-minute timeframe for the SPY ETF, aiming to capitalize on short-term price reversals.",
+    "data": {
+      "assets": [
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "IWM-Stocks",
+        "EEM-Stocks",
+        "XLF-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_mean_reverting_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

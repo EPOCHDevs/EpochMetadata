@@ -1,0 +1,667 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_kama_fvg_trend_reversal_strategy_v1",
+  "generated_at": "2025-06-10T16:31:37.269914",
+  "trade_signal_metadata": {
+    "id": "adaptive_kama_fvg_trend_reversal_strategy_v1",
+    "name": "Adaptive KAMA FVG Trend Reversal Strategy V1.0",
+    "options": [],
+    "desc": "This algorithm leverages the Kaufman Adaptive Moving Average (KAMA) on the Typical Price to dynamically filter trends while identifying Fair Value Gaps (FVG) as critical reversal zones. By combining price action analysis with volatility regime adaptation, it effectively captures potential trend reversals and enhances trading strategies for improved decision-making.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tp",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kama_node",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr_node",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num_breakout",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.015,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_natr_breakout",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_contr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.007,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_natr_contr",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg_node",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "join_consecutive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neq_fvg_zero",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "structure_node",
+          "type": "bos_choch",
+          "options": [
+            {
+              "id": "close_break",
+              "value": false,
+              "name": "close_break",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "neq_bos_zero",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neq_choch_zero",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_structure",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_price_kama",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "tp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama_node",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr_breakout",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_breakout",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr_breakout",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_natr_contr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_contr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_natr_contr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_node",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "neq_fvg_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_fvg_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "structure_node",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "neq_bos_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_bos_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "structure_node",
+            "handle": "choch"
+          },
+          "target": {
+            "id": "neq_choch_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_choch_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_bos_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_structure",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_choch_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_structure",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_price_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_fvg_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_structure",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr_breakout",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_fvg_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_structure",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr_breakout",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_natr_contr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive KAMA FVG Trend Reversal Strategy V1.0",
+    "description": "This algorithm leverages the Kaufman Adaptive Moving Average (KAMA) on the Typical Price to dynamically filter trends while identifying Fair Value Gaps (FVG) as critical reversal zones. By combining price action analysis with volatility regime adaptation, it effectively captures potential trend reversals and enhances trading strategies for improved decision-making.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_kama_fvg_trend_reversal_strategy_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

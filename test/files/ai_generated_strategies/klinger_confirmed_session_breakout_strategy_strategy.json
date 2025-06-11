@@ -1,0 +1,645 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "klinger_confirmed_session_breakout_strategy",
+  "generated_at": "2025-06-10T14:43:31.645482",
+  "trade_signal_metadata": {
+    "id": "klinger_confirmed_session_breakout_strategy",
+    "name": "Klinger-Confirmed Session Breakout Strategy",
+    "options": [],
+    "desc": "This algorithm captures explosive price movements following significant volume and session range breakouts in US equities. It incorporates the Klinger oscillator to confirm momentum shifts, ensuring that trades are initiated only when market conditions are favorable for strong directional moves.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "prevHL",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 1,
+              "name": "Interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "hour",
+              "name": "Time-frame Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "maVol",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul15",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kvo",
+          "type": "kvo",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 14,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 28,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtKvo0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltKvo0",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevGtKvo",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevLtKvo",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lteExit",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gteExit",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notSession",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyExit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "maVol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "maVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul15",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul15",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtKvo0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtKvo0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltKvo0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltKvo0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prevGtKvo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prevLtKvo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "broken_high"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtKvo0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevGtKvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "broken_low"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltKvo0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevLtKvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lteExit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_low"
+          },
+          "target": {
+            "id": "lteExit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gteExit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_high"
+          },
+          "target": {
+            "id": "gteExit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lteExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyExit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gteExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyExit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "notSession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notSession",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyExit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anyExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Klinger-Confirmed Session Breakout Strategy",
+    "description": "This algorithm captures explosive price movements following significant volume and session range breakouts in US equities. It incorporates the Klinger oscillator to confirm momentum shifts, ensuring that trades are initiated only when market conditions are favorable for strong directional moves.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "AAPL-Stocks",
+        "AMD-Stocks",
+        "AMZN-Stocks",
+        "META-Stocks",
+        "GOOGL-Stocks",
+        "MSFT-Stocks",
+        "NFLX-Stocks",
+        "INTC-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "klinger_confirmed_session_breakout_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

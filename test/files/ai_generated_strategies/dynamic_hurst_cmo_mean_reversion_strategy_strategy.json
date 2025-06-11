@@ -1,0 +1,987 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_hurst_cmo_mean_reversion_strategy",
+  "generated_at": "2025-06-10T10:12:04.274325",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_cmo_mean_reversion_strategy",
+    "name": "Dynamic Hurst CMO Mean Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level mean-reverting trading algorithm leverages the Rolling Hurst Exponent to detect shifts between trending and mean-reverting market states, ensuring adaptive responses to market conditions. By incorporating the Chande Momentum Oscillator and Bollinger Bands, the algorithm identifies overbought and oversold scenarios for optimal entry and exit points on a 15-minute timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const055",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo14",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "minus50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -50,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_cmo_neg",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_cmo_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "plus50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_cmo_pos",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_cmo_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama30",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lte_price_lower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_price_upper",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pvi",
+          "type": "pvi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pvi_sma50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_pvi",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "london_kz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "not_kz",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ckstop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_price_long_stop",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_price_short_stop",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_price_mid",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_price_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gte_price_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pvi_sma50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pvi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pvi_sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_pvi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "london_kz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_kz",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const055",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "minus50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "minus50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_cmo_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_cmo_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_cmo_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "plus50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "plus50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_cmo_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_cmo_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cmo_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_cmo_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_cmo_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_price_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_cmo_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_price_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_kz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_long_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ckstop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "cross_price_long_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_short_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ckstop",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "cross_price_short_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "cross_price_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_long_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_short_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst CMO Mean Reversion Strategy",
+    "description": "This expert-level mean-reverting trading algorithm leverages the Rolling Hurst Exponent to detect shifts between trending and mean-reverting market states, ensuring adaptive responses to market conditions. By incorporating the Chande Momentum Oscillator and Bollinger Bands, the algorithm identifies overbought and oversold scenarios for optimal entry and exit points on a 15-minute timeframe.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "GOOGL-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_cmo_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

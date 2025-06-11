@@ -1,0 +1,491 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "holistic_trend_volatility_integration_strategy",
+  "generated_at": "2025-06-10T14:54:41.340986",
+  "trade_signal_metadata": {
+    "id": "holistic_trend_volatility_integration_strategy",
+    "name": "Holistic Trend-Volatility Integration Strategy",
+    "options": [],
+    "desc": "This advanced trading algorithm synthesizes trend-following and volatility analysis to optimize asset performance across various market conditions. By integrating both time-series and cross-sectional data, it provides a comprehensive framework for traders seeking to capitalize on emerging trends and manage risk effectively.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ema50",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ema200",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 200,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_ema",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_ema",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "macd1",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long_period",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_macd",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi1",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_bb",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema200",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema200",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "gt_macd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "gt_macd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_bb",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "cross_bb",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_macd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_bb",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Holistic Trend-Volatility Integration Strategy",
+    "description": "This advanced trading algorithm synthesizes trend-following and volatility analysis to optimize asset performance across various market conditions. By integrating both time-series and cross-sectional data, it provides a comprehensive framework for traders seeking to capitalize on emerging trends and manage risk effectively.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "NFLX-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "holistic_trend_volatility_integration_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

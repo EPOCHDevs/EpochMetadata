@@ -1,0 +1,664 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_sweep_reversal_strategy_v1",
+  "generated_at": "2025-06-10T10:01:47.949530",
+  "trade_signal_metadata": {
+    "id": "liquidity_sweep_reversal_strategy_v1",
+    "name": "Liquidity Sweep Reversal Strategy v1.0",
+    "options": [
+      {
+        "id": "sessLon_session",
+        "name": "Session"
+      },
+      {
+        "id": "sessNY_session",
+        "name": "Session (sessNY)"
+      }
+    ],
+    "desc": "This advanced intraday reversal trading algorithm identifies liquidity sweeps at the opening of major Forex and Index sessions, including London, New York, and Tokyo. By utilizing session boundary detection, price swing analysis, and volatility confirmation, the strategy aims to capitalize on institutional-driven market movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": {
+                "refName": "sessLon_session"
+              },
+              "name": "Session",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "sessNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": {
+                "refName": "sessNY_session"
+              },
+              "name": "Session",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "lagHigh",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "lagLow",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "gtUp",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltDown",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammerNode",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "engBull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "hangMan",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "engBear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "anyBull",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyBear",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allowSessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lagHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lagLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hammerNode",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hangMan",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "anyBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "anyBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "allowSessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "allowSessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "allowSessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "high"
+          },
+          "target": {
+            "id": "lagHigh",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "low"
+          },
+          "target": {
+            "id": "lagLow",
+            "handle": "*"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Sweep Reversal Strategy v1.0",
+    "description": "This advanced intraday reversal trading algorithm identifies liquidity sweeps at the opening of major Forex and Index sessions, including London, New York, and Tokyo. By utilizing session boundary detection, price swing analysis, and volatility confirmation, the strategy aims to capitalize on institutional-driven market movements.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "ES-Futures",
+        "YM-Futures",
+        "NQ-Futures",
+        "A-Stocks",
+        "FT-Futures",
+        "KE-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "liquidity_sweep_reversal_strategy_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

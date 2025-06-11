@@ -1,0 +1,455 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "dynamic_trend_kama_hurst_strategy",
+  "generated_at": "2025-06-10T15:44:48.182053",
+  "trade_signal_metadata": {
+    "id": "dynamic_trend_kama_hurst_strategy",
+    "name": "DynamicTrend KAMA-Hurst Fusion Strategy",
+    "options": [],
+    "desc": "This expert-level TrendFollowing algorithm uniquely leverages a combination of the Rolling Hurst Exponent and Kaufman Adaptive Moving Average (KAMA) to adaptively respond to changing market regimes between trending and mean-reverting behaviors. Designed for the 1-hour timeframe, it intelligently adjusts trading signals based on sophisticated statistical analysis of price movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tight_mult",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "Trending Mult",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "loose_mult",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2.5,
+              "name": "MeanRev Mult",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "if_mult",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_stop",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "if_mult",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "tight_mult",
+            "handle": "result"
+          },
+          "target": {
+            "id": "if_mult",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "loose_mult",
+            "handle": "result"
+          },
+          "target": {
+            "id": "if_mult",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "if_mult",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_stop",
+            "handle": "*1"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "DynamicTrend KAMA-Hurst Fusion Strategy",
+    "description": "This expert-level TrendFollowing algorithm uniquely leverages a combination of the Rolling Hurst Exponent and Kaufman Adaptive Moving Average (KAMA) to adaptively respond to changing market regimes between trending and mean-reverting behaviors. Designed for the 1-hour timeframe, it intelligently adjusts trading signals based on sophisticated statistical analysis of price movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_trend_kama_hurst_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

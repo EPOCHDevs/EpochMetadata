@@ -1,0 +1,890 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "volatility_breakout_momentum_strategist",
+  "generated_at": "2025-06-10T10:36:22.824796",
+  "trade_signal_metadata": {
+    "id": "volatility_breakout_momentum_strategist",
+    "name": "Volatility Breakout Momentum Strategist",
+    "options": [
+      {
+        "id": "natr1_period",
+        "name": "Period"
+      },
+      {
+        "id": "percHigh1_lookback",
+        "name": "Lookback"
+      },
+      {
+        "id": "percHigh1_percentile",
+        "name": "Percentile"
+      },
+      {
+        "id": "trix1_period",
+        "name": "Period (trix1)"
+      },
+      {
+        "id": "engBull_period",
+        "name": "Period (engBull)"
+      },
+      {
+        "id": "session_session",
+        "name": "Session"
+      }
+    ],
+    "desc": "This advanced CandleStickPattern trading algorithm leverages Price Action and Momentum principles to identify breakout opportunities on a 15-minute timeframe. Utilizing the 'bos_choch' indicator, it detects key structural changes and confirms them with volatility expansion metrics, ensuring strategic entry points that capitalize on market surges.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bos1",
+          "type": "bos_choch",
+          "options": [
+            {
+              "id": "close_break",
+              "value": true,
+              "name": "Use Close Price",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "natr1",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "natr1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "percHigh1",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "percHigh1_lookback"
+              },
+              "name": "Lookback Period",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "percHigh1_percentile"
+              },
+              "name": "Percentile Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "percLow1",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 30,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trueConst",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "falseConst",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trix1",
+          "type": "trix",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "trix1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtTrixZero",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtTrixLag",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltTrixZero",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltTrixLag",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andTrixLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andTrixShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engBull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "engBull_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "engBear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": {
+                "refName": "session_session"
+              },
+              "name": "Session Type",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gtBosUp",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltBosDown",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "orClose",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "trix1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtTrixZero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtTrixZero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtTrixLag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtTrixLag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtTrixZero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andTrixLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtTrixLag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andTrixLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltTrixZero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltTrixZero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltTrixLag",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltTrixLag",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltTrixZero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andTrixShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltTrixLag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andTrixShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percHigh1",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percHigh1",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percHigh1",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "natr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percLow1",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percLow1",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percLow1",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bos1",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "gtBosUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtBosUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bos1",
+            "handle": "bos"
+          },
+          "target": {
+            "id": "ltBosDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltBosDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtBosUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "percHigh1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andTrixLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltBosDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "percHigh1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andTrixShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "percLow1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orClose",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "orClose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Breakout Momentum Strategist",
+    "description": "This advanced CandleStickPattern trading algorithm leverages Price Action and Momentum principles to identify breakout opportunities on a 15-minute timeframe. Utilizing the 'bos_choch' indicator, it detects key structural changes and confirms them with volatility expansion metrics, ensuring strategic entry points that capitalize on market surges.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_breakout_momentum_strategist",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

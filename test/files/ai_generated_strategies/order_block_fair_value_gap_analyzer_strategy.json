@@ -1,0 +1,489 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "order_block_fair_value_gap_analyzer",
+  "generated_at": "2025-06-10T10:39:10.391953",
+  "trade_signal_metadata": {
+    "id": "order_block_fair_value_gap_analyzer",
+    "name": "Order Block and Fair Value Gap Analyzer",
+    "options": [],
+    "desc": "This Python-based trading algorithm utilizes Price Action principles by identifying critical market reversal zones through 'Order Blocks' and 'Fair Value Gaps'. By assessing institutional order flow areas, the algorithm effectively delineates support and resistance zones, enhancing decision-making for potential trades.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "md15",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "md1h",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "order_blocks_15m",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": true,
+              "name": "close_mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg_15m",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": false,
+              "name": "join_consecutive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "tr_1h",
+          "type": "tr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_tr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_vol",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_one",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_ob_bull",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_fvg_bull",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bull1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bull2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_ob_bear",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_fvg_bear",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bear1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bear2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "tr_1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_tr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "tr_1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_tr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_15m",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_ob_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_ob_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_15m",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_fvg_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_fvg_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_ob_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_fvg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bull1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_15m",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_ob_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_ob_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg_15m",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "eq_fvg_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_fvg_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_ob_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_fvg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bear1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bull2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bear2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Order Block and Fair Value Gap Analyzer",
+    "description": "This Python-based trading algorithm utilizes Price Action principles by identifying critical market reversal zones through 'Order Blocks' and 'Fair Value Gaps'. By assessing institutional order flow areas, the algorithm effectively delineates support and resistance zones, enhancing decision-making for potential trades.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "order_block_fair_value_gap_analyzer",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

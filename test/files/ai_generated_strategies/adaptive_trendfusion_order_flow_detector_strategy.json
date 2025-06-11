@@ -1,0 +1,1094 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_trendfusion_order_flow_detector",
+  "generated_at": "2025-06-10T11:10:33.074707",
+  "trade_signal_metadata": {
+    "id": "adaptive_trendfusion_order_flow_detector",
+    "name": "Adaptive TrendFusion Order Flow Detector",
+    "options": [],
+    "desc": "This expert-level trading algorithm fuses trend following with price action analysis, focusing on multi-timeframe signals. Using daily and 1-hour OHLCV data, it applies the Kaufman Adaptive Moving Average (KAMA) for detecting dominant trends and integrates Order Blocks to refine entry points based on institutional order flow and volatility. The algorithm aims to capitalize on sustained directional moves in the market.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md_hour",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "md_day",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama_daily",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag_kama",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_uptrend",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_downtrend",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swings_hour",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "order_blocks_hour",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": true,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "natr_hour",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_hour",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "morning_doji_star_hour",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "evening_doji_star_hour",
+          "type": "evening_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bull_dir_num",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_bull",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_bear",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_long_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_long_abs",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_long_div",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thresh_prox",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.005,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_prox_long",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_short_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_short_abs",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prox_short_div",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_prox_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thresh_vol",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.015,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_vol_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "resample_kama_hr",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "close_cross_long_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_cross_short_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trade_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md_day",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama_daily",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_kama",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_uptrend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_uptrend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_downtrend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_downtrend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swings_hour",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "order_blocks_hour",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_hour",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_dir_num",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_hour",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "eq_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prox_long_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_hour",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "prox_long_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_long_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prox_long_abs",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_long_abs",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prox_long_div",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prox_long_div",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_long_div",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_prox_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh_prox",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_prox_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prox_short_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "order_blocks_hour",
+            "handle": "top"
+          },
+          "target": {
+            "id": "prox_short_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_short_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prox_short_abs",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_short_abs",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prox_short_div",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prox_short_div",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prox_short_div",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_prox_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh_prox",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_prox_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_uptrend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_prox_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji_star_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_downtrend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_prox_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "evening_doji_star_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "resample_kama_hr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_cross_long_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "resample_kama_hr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_cross_long_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md_hour",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_cross_short_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "resample_kama_hr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_cross_short_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_cross_long_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "evening_doji_star_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_cross_short_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji_star_hour",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive TrendFusion Order Flow Detector",
+    "description": "This expert-level trading algorithm fuses trend following with price action analysis, focusing on multi-timeframe signals. Using daily and 1-hour OHLCV data, it applies the Kaufman Adaptive Moving Average (KAMA) for detecting dominant trends and integrates Order Blocks to refine entry points based on institutional order flow and volatility. The algorithm aims to capitalize on sustained directional moves in the market.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_trendfusion_order_flow_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

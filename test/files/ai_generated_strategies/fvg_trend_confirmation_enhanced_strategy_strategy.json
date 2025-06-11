@@ -1,0 +1,480 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "fvg_trend_confirmation_enhanced_strategy",
+  "generated_at": "2025-06-10T09:54:31.701895",
+  "trade_signal_metadata": {
+    "id": "fvg_trend_confirmation_enhanced_strategy",
+    "name": "FVG Trend Confirmation Enhanced Strategy",
+    "options": [
+      {
+        "id": "dmi_period",
+        "name": "Period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "rsi_period",
+        "name": "Period (rsi)"
+      }
+    ],
+    "desc": "This advanced trading algorithm leverages Fair Value Gaps (FVG) while incorporating trend confirmation to improve the accuracy of trade entries. By focusing on price action and significant price retracements, it aims to reduce the likelihood of false signals and enhance trading performance in various market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "dmi",
+          "type": "di",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "dmi_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "rsi",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "rsi_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_pm",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_pm",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_rsi",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_rsi",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "buy_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sell_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dmi",
+            "handle": "plus_di"
+          },
+          "target": {
+            "id": "gt_pm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dmi",
+            "handle": "minus_di"
+          },
+          "target": {
+            "id": "gt_pm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "dmi",
+            "handle": "plus_di"
+          },
+          "target": {
+            "id": "lt_pm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dmi",
+            "handle": "minus_di"
+          },
+          "target": {
+            "id": "lt_pm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_rsi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_rsi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_pm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_pm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "buy_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "sell_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "FVG Trend Confirmation Enhanced Strategy",
+    "description": "This advanced trading algorithm leverages Fair Value Gaps (FVG) while incorporating trend confirmation to improve the accuracy of trade entries. By focusing on price action and significant price retracements, it aims to reduce the likelihood of false signals and enhance trading performance in various market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fvg_trend_confirmation_enhanced_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

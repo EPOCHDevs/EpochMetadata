@@ -1,0 +1,947 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "fractal_breakout_rejection_volatility",
+  "generated_at": "2025-06-10T15:22:08.628616",
+  "trade_signal_metadata": {
+    "id": "fractal_breakout_rejection_volatility",
+    "name": "Fractal Breakout Rejection with Volatility Filter",
+    "options": [
+      {
+        "id": "bb_period",
+        "name": "Period"
+      },
+      {
+        "id": "bb_stddev",
+        "name": "Stddev"
+      },
+      {
+        "id": "compression_periods",
+        "name": "Lookback Periods",
+        "type": "Integer",
+        "defaultValue": 14,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "swing_swing_length",
+        "name": "Swing_Length"
+      },
+      {
+        "id": "sessions_session",
+        "name": "Session"
+      }
+    ],
+    "desc": "This trading algorithm focuses on identifying potential breakout trades that follow periods of extreme volatility contraction. It employs a multi-confirmation approach, confirming breakout opportunities through fractal patterns and significant rejection wicks in the breakout direction to enhance trade probability.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "bb_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "stddev",
+              "value": {
+                "refName": "bb_stddev"
+              },
+              "name": "Stddev",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb_width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "compression",
+          "type": "lowest_eq",
+          "options": [
+            {
+              "id": "periods",
+              "value": {
+                "refName": "compression_periods"
+              },
+              "name": "Lookback Periods",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": {
+                "refName": "swing_swing_length"
+              },
+              "name": "Swing Length",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "one_const",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_high",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_breakout",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pattern_bull_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "width_expand",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_condition_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": {
+                "refName": "sessions_session"
+              },
+              "name": "Session Type",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bull_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_low",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_break",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_breakout",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inverted_hammer",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pattern_bear_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_condition_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "compression",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_expand",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "gt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_breakout",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_breakout",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_bull_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_bull_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "compression",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_breakout",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pattern_bull_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "width_expand",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_condition_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "bull_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "lt_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_breakout",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_breakout",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inverted_hammer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_bear_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_bear_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "compression",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_breakout",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pattern_bear_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "width_expand",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_condition_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_condition_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "bear_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fractal Breakout Rejection with Volatility Filter",
+    "description": "This trading algorithm focuses on identifying potential breakout trades that follow periods of extreme volatility contraction. It employs a multi-confirmation approach, confirming breakout opportunities through fractal patterns and significant rejection wicks in the breakout direction to enhance trade probability.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^LTCUSD-Crypto",
+        "A-Stocks",
+        "PX-Futures",
+        "DX-Futures"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "fractal_breakout_rejection_volatility",
+      "args": {
+        "compression_periods": 14
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

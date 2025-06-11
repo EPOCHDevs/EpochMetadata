@@ -1,0 +1,651 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "intraday_momentum_swing_analysis",
+  "generated_at": "2025-06-10T11:22:55.274589",
+  "trade_signal_metadata": {
+    "id": "intraday_momentum_swing_analysis",
+    "name": "Intraday Momentum and Swing Analysis Algorithm",
+    "options": [],
+    "desc": "This expert-level trading algorithm integrates multi-timeframe analysis by focusing on 15-minute candle patterns and daily trend confirmations. It utilizes Swing Highs and Lows for local pivot detection while the Rolling Hurst Exponent assesses market regimes to optimize trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "node_mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 7,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_trix",
+          "type": "trix",
+          "options": [
+            {
+              "id": "period",
+              "value": 9,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_trix_pass",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_crossover_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_crossover_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_crossany",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_number55",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_pas_daily",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "node_hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 60,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "node_gt_hurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_gt_close_low",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_lt_close_high",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_morning",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_long_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_not_session",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_trix",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_trix",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_trix_pass",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_trix_pass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossover_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossover_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossover_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_trix_pass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossover_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_trix_pass",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossany",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_crossany",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_pas_daily",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_pas_daily",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_gt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_number55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_gt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_crossover_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_close_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_long_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_morning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_long_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_long_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_gt_close_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "node_gt_close_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_lt_close_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "node_lt_close_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_crossover_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_lt_close_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "node_crossany",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "node_sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "node_not_session",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_not_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_executor",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Momentum and Swing Analysis Algorithm",
+    "description": "This expert-level trading algorithm integrates multi-timeframe analysis by focusing on 15-minute candle patterns and daily trend confirmations. It utilizes Swing Highs and Lows for local pivot detection while the Rolling Hurst Exponent assesses market regimes to optimize trading decisions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "intraday_momentum_swing_analysis",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

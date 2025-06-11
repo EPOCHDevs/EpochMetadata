@@ -1,0 +1,609 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "counter_trend_liquidity_fade_strategy",
+  "generated_at": "2025-06-10T08:54:40.047415",
+  "trade_signal_metadata": {
+    "id": "counter_trend_liquidity_fade_strategy",
+    "name": "Counter-Trend Liquidity Fade Strategy",
+    "options": [],
+    "desc": "This advanced price action algorithm identifies sudden liquidity sweeps by detecting clusters of swing highs and lows. It leverages volatility to execute counter-trend trades, capitalizing on price reversals following these liquidity events to enhance profit potential.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liquid",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pricevol",
+          "type": "price_diff_vol",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "booltrue",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "boolfalse",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volpct",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "atrpct",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 50,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const033",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.33,
+              "name": "0.33",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "retr",
+          "type": "retracements",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gteRetr",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevneq",
+          "type": "previous_neq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "orExit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tradeExec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquid",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquid",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "pricevol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volpct",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "booltrue",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volpct",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "boolfalse",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volpct",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "liquid",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquid",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volpct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volpct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atrpct",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "booltrue",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atrpct",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "boolfalse",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atrpct",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "atrpct",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tradeExec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tradeExec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tradeExec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "prevneq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "retr",
+            "handle": "current_retracement"
+          },
+          "target": {
+            "id": "gteRetr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const033",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gteRetr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gteRetr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orExit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevneq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "orExit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "orExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tradeExec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "level"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Counter-Trend Liquidity Fade Strategy",
+    "description": "This advanced price action algorithm identifies sudden liquidity sweeps by detecting clusters of swing highs and lows. It leverages volatility to execute counter-trend trades, capitalizing on price reversals following these liquidity events to enhance profit potential.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMD-Stocks",
+        "NVDA-Stocks",
+        "MRNA-Stocks",
+        "ZM-Stocks",
+        "NFLX-Stocks",
+        "SQ-Stocks",
+        "UBER-Stocks",
+        "SHOP-Stocks",
+        "DOCU-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "counter_trend_liquidity_fade_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

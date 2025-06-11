@@ -1,0 +1,441 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "harmonic_divergence_momentum_strategy",
+  "generated_at": "2025-06-10T09:52:12.947123",
+  "trade_signal_metadata": {
+    "id": "harmonic_divergence_momentum_strategy",
+    "name": "Harmonic Divergence Momentum Strategy",
+    "options": [
+      {
+        "id": "stoch1_k_period",
+        "name": "K_Period"
+      },
+      {
+        "id": "stoch1_k_slowing_period",
+        "name": "K_slowing_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "stoch1_d_period",
+        "name": "D_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "num20_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This innovative trading algorithm leverages harmonic patterns and Stochastic Oscillator divergence signals to detect momentum pullbacks in trending markets. By analyzing multiple time frames (1-hour, 4-hour, and daily), it seeks to identify key harmonic retracement patterns such as Gartley, Bat, and Butterfly, ensuring adaptive and strategic trade execution.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch1",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": {
+                "refName": "stoch1_k_period"
+              },
+              "name": "K Period",
+              "isExposed": true
+            },
+            {
+              "id": "k_slowing_period",
+              "value": {
+                "refName": "stoch1_k_slowing_period"
+              },
+              "name": "K Slowing",
+              "isExposed": true
+            },
+            {
+              "id": "d_period",
+              "value": {
+                "refName": "stoch1_d_period"
+              },
+              "name": "D Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stoch4",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "K Period",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "K Slowing",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "D Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "stochD",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "K Period",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "K Slowing",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "D Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num20_value"
+              },
+              "name": "Oversold Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt4",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtD",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all1",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_d"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch4",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gt4",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch4",
+            "handle": "stoch_d"
+          },
+          "target": {
+            "id": "gt4",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stochD",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gtD",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stochD",
+            "handle": "stoch_d"
+          },
+          "target": {
+            "id": "gtD",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtD",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Harmonic Divergence Momentum Strategy",
+    "description": "This innovative trading algorithm leverages harmonic patterns and Stochastic Oscillator divergence signals to detect momentum pullbacks in trending markets. By analyzing multiple time frames (1-hour, 4-hour, and daily), it seeks to identify key harmonic retracement patterns such as Gartley, Bat, and Butterfly, ensuring adaptive and strategic trade execution.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "harmonic_divergence_momentum_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

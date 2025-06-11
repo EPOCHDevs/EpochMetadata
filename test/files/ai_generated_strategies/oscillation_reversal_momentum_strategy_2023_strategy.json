@@ -1,0 +1,744 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "oscillation_reversal_momentum_strategy_2023",
+  "generated_at": "2025-06-10T14:15:51.717363",
+  "trade_signal_metadata": {
+    "id": "oscillation_reversal_momentum_strategy_2023",
+    "name": "Oscillation Reversal Momentum Strategy 2023",
+    "options": [
+      {
+        "id": "numVol_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This advanced event-driven trading algorithm identifies potential reversal points by analyzing market session oscillations. By focusing on session highs and lows, it delivers high-probability entry and exit signals, utilizing statistical methods and price action patterns to optimize trade execution.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sessNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "linreg15",
+          "type": "linreg",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "hammer5",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "invHam5",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "numVol",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "numVol_value"
+              },
+              "name": "value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLowLon",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltLowNY",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyLow",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHighLon",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtHighNY",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyHigh",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtTrendUp",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltTrendDown",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anySession",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allLong",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allShort",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "linreg15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtTrendUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "linreg15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtTrendUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltTrendDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "linreg15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltTrendDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "anySession",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "l"
+          },
+          "target": {
+            "id": "ltLowLon",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltLowLon",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "l"
+          },
+          "target": {
+            "id": "ltLowNY",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltLowNY",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLowLon",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyLow",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltLowNY",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyLow",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "h"
+          },
+          "target": {
+            "id": "gtHighLon",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessLon",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtHighLon",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "h"
+          },
+          "target": {
+            "id": "gtHighNY",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessNY",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtHighNY",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHighLon",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyHigh",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtHighNY",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyHigh",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anyLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtTrendUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySession",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "invHam5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anyHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltTrendDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anySession",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "anySession",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "allLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "allShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Oscillation Reversal Momentum Strategy 2023",
+    "description": "This advanced event-driven trading algorithm identifies potential reversal points by analyzing market session oscillations. By focusing on session highs and lows, it delivers high-probability entry and exit signals, utilizing statistical methods and price action patterns to optimize trade execution.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "oscillation_reversal_momentum_strategy_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 4
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

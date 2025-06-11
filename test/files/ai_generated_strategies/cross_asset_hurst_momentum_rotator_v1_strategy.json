@@ -1,0 +1,468 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "cross_asset_hurst_momentum_rotator_v1",
+  "generated_at": "2025-06-10T15:40:55.476390",
+  "trade_signal_metadata": {
+    "id": "cross_asset_hurst_momentum_rotator_v1",
+    "name": "Cross-Asset Hurst Momentum Rotator v1",
+    "options": [],
+    "desc": "This expert-level trading algorithm leverages cross-asset relative momentum by analyzing daily OHLCV data across equities. Employing a 14-day price return lookback, it ranks assets based on their Cross-Sectional Momentum score and selects the top 20%, confirming trades only for assets with a Hurst Exponent above 0.6 to ensure robust trends.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market_data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc_ret",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cs_mom",
+          "type": "cs_momentum",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "hurst_exponent",
+          "options": [
+            {
+              "id": "min_period",
+              "value": 50,
+              "name": "Minimum Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_hu",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hu",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr20",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_natr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_natr",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma30",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_px_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_px_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market_data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc_ret",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc_ret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cs_mom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cs_mom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market_data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hu",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_hu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hu",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market_data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_px_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_px_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market_data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_px_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_px_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_px_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_px_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Asset Hurst Momentum Rotator v1",
+    "description": "This expert-level trading algorithm leverages cross-asset relative momentum by analyzing daily OHLCV data across equities. Employing a 14-day price return lookback, it ranks assets based on their Cross-Sectional Momentum score and selects the top 20%, confirming trades only for assets with a Hurst Exponent above 0.6 to ensure robust trends.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "TSLA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "DIS-Stocks",
+        "HD-Stocks",
+        "MA-Stocks",
+        "BAC-Stocks",
+        "ADBE-Stocks",
+        "NFLX-Stocks",
+        "CRM-Stocks",
+        "INTC-Stocks",
+        "CSCO-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "cross_asset_hurst_momentum_rotator_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

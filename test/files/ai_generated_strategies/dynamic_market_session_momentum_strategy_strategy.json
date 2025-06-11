@@ -1,0 +1,495 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_market_session_momentum_strategy",
+  "generated_at": "2025-06-10T11:18:03.225901",
+  "trade_signal_metadata": {
+    "id": "dynamic_market_session_momentum_strategy",
+    "name": "Dynamic Market Session Momentum Strategy",
+    "options": [],
+    "desc": "This momentum trading strategy capitalizes on the dynamic shifts in global trading sessions to identify potential market movements. By analyzing session overlaps and active trading periods in major regions, it enhances predictive capabilities when combined with price and momentum indicators.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "willr_20",
+          "type": "willr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kc_20",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_m80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_m20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmp_wr_lt_m80",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmp_wr_gt_m20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmp_price_lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmp_price_gt_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_session",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_session",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "willr_20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cmp_wr_lt_m80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_m80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cmp_wr_lt_m80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "willr_20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cmp_wr_gt_m20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_m20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cmp_wr_gt_m20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmp_price_lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_20",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "cmp_price_lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmp_price_gt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc_20",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "cmp_price_gt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmp_wr_lt_m80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cmp_price_lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_session",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_session",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmp_wr_gt_m20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cmp_price_gt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_session",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_session",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Market Session Momentum Strategy",
+    "description": "This momentum trading strategy capitalizes on the dynamic shifts in global trading sessions to identify potential market movements. By analyzing session overlaps and active trading periods in major regions, it enhances predictive capabilities when combined with price and momentum indicators.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^USDCAD-FX",
+        "^AUDUSD-FX",
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "GOOGL-Stocks",
+        "PX-Futures",
+        "FT-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_market_session_momentum_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

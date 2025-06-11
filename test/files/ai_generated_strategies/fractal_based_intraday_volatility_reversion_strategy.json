@@ -1,0 +1,711 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "fractal_based_intraday_volatility_reversion",
+  "generated_at": "2025-06-10T11:26:03.663650",
+  "trade_signal_metadata": {
+    "id": "fractal_based_intraday_volatility_reversion",
+    "name": "Fractal-Based Intraday Volatility Reversion",
+    "options": [],
+    "desc": "This advanced mean-reversion algorithm identifies regime shifts between trending and mean-reverting market conditions by calculating the Rolling Hurst Exponent and Annualized Historical Volatility. Utilizing fractal volatility detection, it aims to capitalize on price reversals in intraday trading. The strategy is designed to adapt dynamically to the prevailing market state for optimal performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "ds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "window",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol",
+          "type": "volatility",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_0_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_52",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.52,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.05,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "regime_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lag1_hurst",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "diff",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs_diff",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_diff",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "regime_valid",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 21,
+              "name": "roll_period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "band_multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst052",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_mid",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1_hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "diff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "diff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs_diff",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs_diff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_diff",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_diff",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "regime_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_valid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_diff",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_valid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "regime_valid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "regime_valid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst052",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_52",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst052",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "middle_band"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst052",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fractal-Based Intraday Volatility Reversion",
+    "description": "This advanced mean-reversion algorithm identifies regime shifts between trending and mean-reverting market conditions by calculating the Rolling Hurst Exponent and Annualized Historical Volatility. Utilizing fractal volatility detection, it aims to capitalize on price reversals in intraday trading. The strategy is designed to adapt dynamically to the prevailing market state for optimal performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "SPY-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fractal_based_intraday_volatility_reversion",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.06
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

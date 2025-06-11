@@ -1,0 +1,661 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_surge_breakout_strategy_2023",
+  "generated_at": "2025-06-10T10:52:08.841619",
+  "trade_signal_metadata": {
+    "id": "volatility_surge_breakout_strategy_2023",
+    "name": "Volatility Surge Breakout Strategy 2023",
+    "options": [],
+    "desc": "This trading algorithm is designed to detect breakout opportunities by analyzing volatility dynamics across various asset classes, including stocks, cryptocurrencies, and forex. It focuses on identifying phases of low volatility that precede significant price movements, allowing for timely entry and exit points in market trades.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atrd",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_avg",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_inc",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ratio_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "contraction",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": 3,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_pre_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_pre_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer_rev",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "big_black",
+          "type": "big_black_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "atrd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_avg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atrd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_avg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ratio_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_inc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ratio_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "contraction",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "contraction",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_pre_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "price_gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "price_lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_pre_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_pre_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "big_black",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer_rev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Surge Breakout Strategy 2023",
+    "description": "This trading algorithm is designed to detect breakout opportunities by analyzing volatility dynamics across various asset classes, including stocks, cryptocurrencies, and forex. It focuses on identifying phases of low volatility that precede significant price movements, allowing for timely entry and exit points in market trades.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "GOOGL-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_surge_breakout_strategy_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

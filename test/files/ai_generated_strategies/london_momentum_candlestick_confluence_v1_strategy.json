@@ -1,0 +1,703 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "london_momentum_candlestick_confluence_v1",
+  "generated_at": "2025-06-10T15:54:03.757314",
+  "trade_signal_metadata": {
+    "id": "london_momentum_candlestick_confluence_v1",
+    "name": "London Momentum Candlestick Confluence V1",
+    "options": [
+      {
+        "id": "roc14_period",
+        "name": "Period"
+      },
+      {
+        "id": "top15_k",
+        "name": "K"
+      },
+      {
+        "id": "kvo_short_period",
+        "name": "Short_Period"
+      },
+      {
+        "id": "kvo_long_period",
+        "name": "Long_Period"
+      },
+      {
+        "id": "sma50roc_period",
+        "name": "Period (sma50roc)"
+      }
+    ],
+    "desc": "This expert-level trading algorithm employs a multi-asset cross-sectional momentum strategy, targeting the top 15% of assets with strong short-term momentum. It confirms entry signals using the 'Three White Soldiers' candlestick pattern on a 1-hour timeframe, executing trades specifically at the opening of the London trading session.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc14",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "roc14_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pass_roc",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top15",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": {
+                "refName": "top15_k"
+              },
+              "name": "Percent",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pattern_tws",
+          "type": "three_white_soldiers",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sessions_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kvo",
+          "type": "kvo",
+          "options": [
+            {
+              "id": "short_period",
+              "value": {
+                "refName": "kvo_short_period"
+              },
+              "name": "Short_period",
+              "isExposed": true
+            },
+            {
+              "id": "long_period",
+              "value": {
+                "refName": "kvo_long_period"
+              },
+              "name": "Long_period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pass_kvo",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag_kvo",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_kvo_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_kvo_rising",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_kvo",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma50roc",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "sma50roc_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_roc_sma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pass_roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma50roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc_sma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc_sma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_roc_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pass_kvo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_kvo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kvo_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kvo_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pass_kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kvo_rising",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kvo_rising",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_kvo_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_kvo",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_kvo_rising",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_kvo",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "top15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pattern_tws",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_kvo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "London Momentum Candlestick Confluence V1",
+    "description": "This expert-level trading algorithm employs a multi-asset cross-sectional momentum strategy, targeting the top 15% of assets with strong short-term momentum. It confirms entry signals using the 'Three White Soldiers' candlestick pattern on a 1-hour timeframe, executing trades specifically at the opening of the London trading session.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "^NZDUSD-FX",
+        "^GBPUSD-FX",
+        "^EURUSD-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "^NZDUSD-FX",
+        "^GBPUSD-FX",
+        "^EURUSD-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX",
+        "^NZDUSD-FX",
+        "SFB-Stocks",
+        "^USDGBP-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDCAD-FX",
+        "^USDGBP-FX",
+        "^USDCHF-FX",
+        "^USDCHF-FX",
+        "^USDJPY-FX",
+        "^USDGBP-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDCHF-FX",
+        "^USDJPY-FX",
+        "^USDJPY-FX",
+        "^USDCAD-FX",
+        "^USDGBP-FX",
+        "^USDCHF-FX",
+        "^USDCHF-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "london_momentum_candlestick_confluence_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

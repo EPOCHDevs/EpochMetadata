@@ -1,0 +1,583 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "liquidity_reversal_session_hunter_pro",
+  "generated_at": "2025-06-10T16:34:10.435313",
+  "trade_signal_metadata": {
+    "id": "liquidity_reversal_session_hunter_pro",
+    "name": "Liquidity Reversal Session Hunter Pro",
+    "options": [],
+    "desc": "This intraday trading strategy leverages price action to identify significant liquidity sweeps at the boundaries of major forex trading sessions. By focusing on volatility expansions within designated 'kill zones,' the algorithm aims to capitalize on reversal opportunities that arise from clustered swing highs and lows across session transitions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "s_lokz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "s_lckz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "s_nykz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "s_akz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "AsianKillZone",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "any_sessions",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neq_liq",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "neq_fvg",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pd",
+          "type": "price_distance",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and3",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ifelse",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adapter",
+          "type": "trade_executor_adapter",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "s_lokz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_sessions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "s_lckz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_sessions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "s_nykz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_sessions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "s_akz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "any_sessions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "neq_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "neq_fvg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_fvg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_fvg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "any_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and3",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ifelse",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "ifelse",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ifelse",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "ifelse",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adapter",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "long"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "short"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Reversal Session Hunter Pro",
+    "description": "This intraday trading strategy leverages price action to identify significant liquidity sweeps at the boundaries of major forex trading sessions. By focusing on volatility expansions within designated 'kill zones,' the algorithm aims to capitalize on reversal opportunities that arise from clustered swing highs and lows across session transitions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "liquidity_reversal_session_hunter_pro",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,747 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "intraday_volatility_reversal_strategy_2023",
+  "generated_at": "2025-06-10T10:45:45.809418",
+  "trade_signal_metadata": {
+    "id": "intraday_volatility_reversal_strategy_2023",
+    "name": "Intraday Volatility Reversal Strategy 2023",
+    "options": [],
+    "desc": "This algorithm focuses on mean-reverting trades that exploit price discrepancies caused by session-specific volatility, particularly during the London and New York trading hours. It identifies key fair value gaps and triggers trades based on reversals around these imbalances to enhance intraday profitability.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ma_ulcer",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_ulcer",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ma_natr",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_natr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_vol",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_natr",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_high_vol",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_session",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sub_gap",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_gap",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 20,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "final_condition",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_inv",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adapter",
+          "type": "trade_executor_adapter",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ulcer",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma_natr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma_ulcer",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ulcer",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ulcer",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_natr",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_natr",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_natr",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_high_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_high_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_session",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_high_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_session",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "top"
+          },
+          "target": {
+            "id": "sub_gap",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "sub_gap",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_gap",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_gap",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_gap",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "and_session",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_condition",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "final_condition",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_inv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "mul_inv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_inv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adapter",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "final_condition",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "long"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "adapter",
+            "handle": "short"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ma_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Volatility Reversal Strategy 2023",
+    "description": "This algorithm focuses on mean-reverting trades that exploit price discrepancies caused by session-specific volatility, particularly during the London and New York trading hours. It identifies key fair value gaps and triggers trades based on reversals around these imbalances to enhance intraday profitability.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "intraday_volatility_reversal_strategy_2023",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

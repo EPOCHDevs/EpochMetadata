@@ -1,0 +1,361 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "candle_pattern_harmony_trader_v1.0",
+  "generated_at": "2025-06-10T10:06:10.078294",
+  "trade_signal_metadata": {
+    "id": "candle_pattern_harmony_trader_v1.0",
+    "name": "Candle Pattern Harmony Trader v1.0",
+    "options": [],
+    "desc": "This algorithm utilizes candle stick patterns to detect potential reversal and continuation signals in the market. By analyzing the interplay of various candlestick formations, it aims to maximize entry and exit strategies, enhancing trading performance across diverse market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "yz",
+          "type": "yang_zhang",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gtvol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abbull",
+          "type": "abandoned_baby_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "abbear",
+          "type": "abandoned_baby_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "andbull",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andbear",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtvol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtvol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andbull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "abbull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andbull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andbear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "abbear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andbear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andbull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andbear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Candle Pattern Harmony Trader v1.0",
+    "description": "This algorithm utilizes candle stick patterns to detect potential reversal and continuation signals in the market. By analyzing the interplay of various candlestick formations, it aims to maximize entry and exit strategies, enhancing trading performance across diverse market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "candle_pattern_harmony_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

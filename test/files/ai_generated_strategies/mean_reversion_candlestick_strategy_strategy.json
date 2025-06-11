@@ -1,0 +1,489 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "mean_reversion_candlestick_strategy",
+  "generated_at": "2025-06-10T10:41:34.449573",
+  "trade_signal_metadata": {
+    "id": "mean_reversion_candlestick_strategy",
+    "name": "Mean Reversion with Candlestick Patterns Strategy",
+    "options": [],
+    "desc": "This expert-level mean-reverting trading algorithm employs advanced price action analysis by identifying key candlestick patterns such as the Morning Doji Star and Abandoned Baby Bull within a 15-minute timeframe. It incorporates volatility regime filtering to pinpoint oversold market conditions, enabling precise entry signals that capitalize on price reversions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "abb",
+          "type": "abandoned_baby_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "or_patterns",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr30",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "stddev20",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_natr_std",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lowprice14",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": 14,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma_vol20",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_vol_sma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_low_liq",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stddev20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr_std",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stddev20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_natr_std",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_natr_std",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lowprice14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "or_patterns",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "sma_vol20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "lt_vol_sma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_vol20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vol_sma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vol_sma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_low_liq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_low_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_patterns",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "abb",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_patterns",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "not_low_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Mean Reversion with Candlestick Patterns Strategy",
+    "description": "This expert-level mean-reverting trading algorithm employs advanced price action analysis by identifying key candlestick patterns such as the Morning Doji Star and Abandoned Baby Bull within a 15-minute timeframe. It incorporates volatility regime filtering to pinpoint oversold market conditions, enabling precise entry signals that capitalize on price reversions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "mean_reversion_candlestick_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

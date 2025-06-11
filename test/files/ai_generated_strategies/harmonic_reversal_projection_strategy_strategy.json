@@ -1,0 +1,436 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "harmonic_reversal_projection_strategy",
+  "generated_at": "2025-06-10T14:34:15.190140",
+  "trade_signal_metadata": {
+    "id": "harmonic_reversal_projection_strategy",
+    "name": "Harmonic Reversal Projection Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes harmonic price patterns, specifically the Gartley and Bat formations, to identify potential market reversal points. By integrating the Fisher Transform indicator with a 10-period input, the strategy enhances confirmation of these reversal zones, providing traders with actionable insights for decision-making.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "retr",
+          "type": "retracements",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "ft",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_neg15",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtob",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltos",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_dir0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_dir0",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bull",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bear",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "retr",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "ft",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "gtob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ft",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "ltos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_neg15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg15",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg15",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "retr",
+            "handle": "direction"
+          },
+          "target": {
+            "id": "gt_dir0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dir0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "retr",
+            "handle": "direction"
+          },
+          "target": {
+            "id": "lt_dir0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_dir0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_dir0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_dir0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Harmonic Reversal Projection Strategy",
+    "description": "This algorithm utilizes harmonic price patterns, specifically the Gartley and Bat formations, to identify potential market reversal points. By integrating the Fisher Transform indicator with a 10-period input, the strategy enhances confirmation of these reversal zones, providing traders with actionable insights for decision-making.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^USDJPY-FX",
+        "^AUDUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "harmonic_reversal_projection_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

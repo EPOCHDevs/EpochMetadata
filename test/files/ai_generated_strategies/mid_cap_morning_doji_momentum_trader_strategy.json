@@ -1,0 +1,683 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "mid_cap_morning_doji_momentum_trader",
+  "generated_at": "2025-06-10T09:42:56.471090",
+  "trade_signal_metadata": {
+    "id": "mid_cap_morning_doji_momentum_trader",
+    "name": "Mid-Cap Morning Doji Momentum Trader",
+    "options": [
+      {
+        "id": "morning_period",
+        "name": "Period"
+      },
+      {
+        "id": "morning_body_none",
+        "name": "Body None Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "morning_wick_long",
+        "name": "Wick Long Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.6,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "morning_near",
+        "name": "Near Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.3,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "trix9_period",
+        "name": "Period (trix9)"
+      },
+      {
+        "id": "natr14_period",
+        "name": "Period (natr14)"
+      },
+      {
+        "id": "thr30_value",
+        "name": "Value"
+      },
+      {
+        "id": "thr70_value",
+        "name": "Value (thr70)"
+      },
+      {
+        "id": "cks_p_period",
+        "name": "P_Period"
+      },
+      {
+        "id": "cks_q_period",
+        "name": "Q_Period"
+      },
+      {
+        "id": "cks_multiplier",
+        "name": "Multiplier"
+      }
+    ],
+    "desc": "This advanced trading algorithm utilizes a near-term CandleStickPattern strategy focused on identifying the 'Morning Doji Star' pattern in liquid mid-cap equities. It incorporates momentum confirmation through the Trix oscillator to enhance the accuracy of bullish reversal signals, optimizing performance on a 15-minute timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "morning_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "body_none",
+              "value": {
+                "refName": "morning_body_none"
+              },
+              "name": "Body None",
+              "isExposed": true
+            },
+            {
+              "id": "wick_long",
+              "value": {
+                "refName": "morning_wick_long"
+              },
+              "name": "Wick Long",
+              "isExposed": true
+            },
+            {
+              "id": "near",
+              "value": {
+                "refName": "morning_near"
+              },
+              "name": "Near",
+              "isExposed": true
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "evening",
+          "type": "evening_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "trix9",
+          "type": "trix",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "trix9_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trix_cross",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr14",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "natr14_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "thr30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "thr30_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "thr70_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_lower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_upper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_and2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": {
+                "refName": "cks_p_period"
+              },
+              "name": "Price Period",
+              "isExposed": true
+            },
+            {
+              "id": "q_period",
+              "value": {
+                "refName": "cks_q_period"
+              },
+              "name": "ATR Period",
+              "isExposed": true
+            },
+            {
+              "id": "multiplier",
+              "value": {
+                "refName": "cks_multiplier"
+              },
+              "name": "Multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "trix9",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trix9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trix_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trix_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "morning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "trix_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_and2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "evening",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_and2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Mid-Cap Morning Doji Momentum Trader",
+    "description": "This advanced trading algorithm utilizes a near-term CandleStickPattern strategy focused on identifying the 'Morning Doji Star' pattern in liquid mid-cap equities. It incorporates momentum confirmation through the Trix oscillator to enhance the accuracy of bullish reversal signals, optimizing performance on a 15-minute timeframe.",
+    "data": {
+      "assets": [
+        "MTCH-Stocks",
+        "MCHP-Stocks",
+        "ALGN-Stocks",
+        "CDNS-Stocks",
+        "LRCX-Stocks",
+        "VRSK-Stocks",
+        "DXCM-Stocks",
+        "IDXX-Stocks",
+        "OKTA-Stocks",
+        "ZS-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "mid_cap_morning_doji_momentum_trader",
+      "args": {
+        "morning_body_none": 0.05,
+        "morning_wick_long": 0.6,
+        "morning_near": 0.3
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

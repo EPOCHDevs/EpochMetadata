@@ -1,0 +1,521 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "cross_sectional_mean_reversion_strategy",
+  "generated_at": "2025-06-10T09:16:38.675130",
+  "trade_signal_metadata": {
+    "id": "cross_sectional_mean_reversion_strategy",
+    "name": "Cross-Sectional Mean Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level trading algorithm implements a mean reversion strategy focused on a universe of over 25 liquid stocks. By calculating the 10-day Z-score for each stock, it identifies the top 10% of overbought and bottom 10% of oversold stocks to exploit potential price corrections. The systematic approach aims to capture short-term reversals based on statistical anomalies in stock pricing.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "data1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma10",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "std10",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sub1",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div1",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zscore_bottom10",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zscore_top10",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 10,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "roc1",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stdvol",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top50vol",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 50,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "absz",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltclose",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "std10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "std10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "zscore_bottom10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "div1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "zscore_top10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "div1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "absz",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stdvol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stdvol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top50vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore_bottom10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "top50vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore_top10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "top50vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "absz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltclose",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltclose",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "ltclose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Cross-Sectional Mean Reversion Strategy",
+    "description": "This expert-level trading algorithm implements a mean reversion strategy focused on a universe of over 25 liquid stocks. By calculating the 10-day Z-score for each stock, it identifies the top 10% of overbought and bottom 10% of oversold stocks to exploit potential price corrections. The systematic approach aims to capture short-term reversals based on statistical anomalies in stock pricing.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "WMT-Stocks",
+        "PG-Stocks",
+        "DIS-Stocks",
+        "MA-Stocks",
+        "HD-Stocks",
+        "BAC-Stocks",
+        "XOM-Stocks",
+        "PFE-Stocks",
+        "CSCO-Stocks",
+        "ADBE-Stocks",
+        "NFLX-Stocks",
+        "INTC-Stocks",
+        "KO-Stocks",
+        "MRK-Stocks",
+        "CRM-Stocks",
+        "SFB-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "cross_sectional_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,509 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "dynamic_intraday_order_block_detector",
+  "generated_at": "2025-06-10T11:16:32.955427",
+  "trade_signal_metadata": {
+    "id": "dynamic_intraday_order_block_detector",
+    "name": "Dynamic Intraday Order Block Detector",
+    "options": [],
+    "desc": "This trading algorithm leverages event-driven analysis to identify and exploit intraday order block patterns, aiming to pinpoint potential reversal zones and breakout points. Focusing on price action and the nuances of institutional trading behavior, it provides intermediate to expert traders with a robust tool for capturing market sentiment swiftly.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_sma5",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "const_1_2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_thresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "ob",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "is_bull_ob",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "is_bear_ob",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_above_ob_bottom",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_below_top",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bull1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_bear1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_sma5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_sma5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_1_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "ob",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "is_bull_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "is_bull_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "is_bear_ob",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "is_bear_ob",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_above_ob_bottom",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "bottom"
+          },
+          "target": {
+            "id": "price_above_ob_bottom",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_below_top",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ob",
+            "handle": "top"
+          },
+          "target": {
+            "id": "price_below_top",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "is_bull_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_ob_bottom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bull1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bull1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "is_bear_ob",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_below_top",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_bear1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_bear1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Intraday Order Block Detector",
+    "description": "This trading algorithm leverages event-driven analysis to identify and exploit intraday order block patterns, aiming to pinpoint potential reversal zones and breakout points. Focusing on price action and the nuances of institutional trading behavior, it provides intermediate to expert traders with a robust tool for capturing market sentiment swiftly.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_intraday_order_block_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

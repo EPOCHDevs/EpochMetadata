@@ -1,0 +1,659 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volume_validated_donchian_trend_trader",
+  "generated_at": "2025-06-10T15:41:16.830961",
+  "trade_signal_metadata": {
+    "id": "volume_validated_donchian_trend_trader",
+    "name": "Volume-Validated Donchian Trend Trader",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm focuses on US equity indices, implementing a trend-following strategy based on the Donchian Channel breakout mechanism. It seeks to capitalize on upward price movements by confirming entry points with volume validation, ensuring entries occur only when the On Balance Volume reaches a 50-period high, thus enhancing the reliability of trades.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dc_upper",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "dc_lower",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "obv_0",
+          "type": "obv",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "obv_high",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "obv_low",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "obv_high_cond",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "obv_low_cond",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_ma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_high_cond",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "break_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "break_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_lte_upper",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_gte_lower",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_channel",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "asian_session",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "AsianKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "not_asian",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "h"
+          },
+          "target": {
+            "id": "dc_upper",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "l"
+          },
+          "target": {
+            "id": "dc_lower",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_high",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_high_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_high_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_low_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "obv_low_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_ma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_high_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_ma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_high_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "break_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dc_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "break_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "break_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dc_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "break_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_lte_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dc_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_lte_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_gte_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "dc_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_gte_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_lte_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_channel",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_gte_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_channel",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "break_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_high_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_high_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "break_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "obv_low_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_high_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "asian_session",
+            "handle": "active"
+          },
+          "target": {
+            "id": "not_asian",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not_asian",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_channel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volume-Validated Donchian Trend Trader",
+    "description": "This intermediate-level trading algorithm focuses on US equity indices, implementing a trend-following strategy based on the Donchian Channel breakout mechanism. It seeks to capitalize on upward price movements by confirming entry points with volume validation, ensuring entries occur only when the On Balance Volume reaches a 50-period high, thus enhancing the reliability of trades.",
+    "data": {
+      "assets": [
+        "SPY-Stocks",
+        "DIA-Stocks",
+        "QQQ-Stocks",
+        "IWM-Stocks",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volume_validated_donchian_trend_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

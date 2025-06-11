@@ -1,0 +1,529 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "parabolic_sine_momentum_reversal_strategy",
+  "generated_at": "2025-06-10T09:24:30.241836",
+  "trade_signal_metadata": {
+    "id": "parabolic_sine_momentum_reversal_strategy",
+    "name": "Parabolic Sine Momentum Reversal Strategy",
+    "options": [],
+    "desc": "The Parabolic Sine Momentum Reversal (PSMR) Strategy focuses on detecting momentum reversals in volatile markets by integrating the Parabolic SAR and Mesa Sine Wave indicators. This algorithm identifies key entry and exit points, allowing traders to effectively navigate momentum shifts and optimize their trading performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psar1",
+          "type": "psar",
+          "options": [
+            {
+              "id": "acceleration_factor_step",
+              "value": 0.02,
+              "name": "Acceleration Factor Step",
+              "isExposed": false
+            },
+            {
+              "id": "acceleration_factor_maximum",
+              "value": 0.2,
+              "name": "Acceleration Factor Maximum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "msw1",
+          "type": "msw",
+          "options": [
+            {
+              "id": "period",
+              "value": 15,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "wma1",
+          "type": "wma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossUp",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossDown",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossWMAboveClose",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossPriceAboveWMA",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longExitOr",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortExitOr",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitOr",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "msw1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "wma1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "msw1",
+            "handle": "msw_sine"
+          },
+          "target": {
+            "id": "crossUp",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "msw1",
+            "handle": "msw_lead"
+          },
+          "target": {
+            "id": "crossUp",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "msw1",
+            "handle": "msw_lead"
+          },
+          "target": {
+            "id": "crossDown",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "msw1",
+            "handle": "msw_sine"
+          },
+          "target": {
+            "id": "crossDown",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "psar1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "psar1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossUp",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossDown",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "wma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossWMAboveClose",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossWMAboveClose",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossPriceAboveWMA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "wma1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossPriceAboveWMA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longExitOr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossWMAboveClose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longExitOr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortExitOr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "crossPriceAboveWMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortExitOr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longExitOr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitOr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "shortExitOr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitOr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exitOr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Parabolic Sine Momentum Reversal Strategy",
+    "description": "The Parabolic Sine Momentum Reversal (PSMR) Strategy focuses on detecting momentum reversals in volatile markets by integrating the Parabolic SAR and Mesa Sine Wave indicators. This algorithm identifies key entry and exit points, allowing traders to effectively navigate momentum shifts and optimize their trading performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "parabolic_sine_momentum_reversal_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

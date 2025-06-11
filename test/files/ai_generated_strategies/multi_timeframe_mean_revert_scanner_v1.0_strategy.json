@@ -1,0 +1,650 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "multi_timeframe_mean_revert_scanner_v1.0",
+  "generated_at": "2025-06-10T15:48:04.621791",
+  "trade_signal_metadata": {
+    "id": "multi_timeframe_mean_revert_scanner_v1.0",
+    "name": "Multi-Timeframe Mean Revert Scanner V1.0",
+    "options": [],
+    "desc": "This trading algorithm leverages multi-timeframe analysis to identify potential mean reversion opportunities using a combination of a 15-minute close price input and a 60-minute Bollinger Bands indicator. By incorporating a rolling 30-period linear regression slope, it assesses short-term trends, while candlestick pattern filters refine entry points for optimal trade execution.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "slope15",
+          "type": "linregslope",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "spinTop",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "Body_none",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "Body_short",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "Body_long",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "Wick_none",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "Wick_long",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "Near",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bbands60",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "natr60",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "smaNATR",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "priceBelowLower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "priceAboveUpper",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volHigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "slopeLow",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "slopeHigh",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "priceAboveLower",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "priceBelowUpper",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "insideBand",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "posThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.01,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "negThresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.01,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "slope15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands60",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "priceBelowLower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands60",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "priceBelowLower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "priceAboveUpper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands60",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "priceAboveUpper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "natr60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "smaNATR",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "natr60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "smaNATR",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "slope15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "slopeLow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "posThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "slopeLow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "slope15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "slopeHigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "negThresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "slopeHigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "priceBelowLower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "slopeLow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "volHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spinTop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "priceAboveUpper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "slopeHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "volHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spinTop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "priceAboveLower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands60",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "priceAboveLower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "priceBelowUpper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands60",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "priceBelowUpper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "priceAboveLower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "insideBand",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "priceBelowUpper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "insideBand",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "insideBand",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Multi-Timeframe Mean Revert Scanner V1.0",
+    "description": "This trading algorithm leverages multi-timeframe analysis to identify potential mean reversion opportunities using a combination of a 15-minute close price input and a 60-minute Bollinger Bands indicator. By incorporating a rolling 30-period linear regression slope, it assesses short-term trends, while candlestick pattern filters refine entry points for optimal trade execution.",
+    "data": {
+      "assets": [
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "XLF-Stocks",
+        "XLY-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "multi_timeframe_mean_revert_scanner_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

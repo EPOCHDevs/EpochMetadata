@@ -1,0 +1,687 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "indecision_volatility_reversal_system",
+  "generated_at": "2025-06-10T13:58:49.015306",
+  "trade_signal_metadata": {
+    "id": "indecision_volatility_reversal_system",
+    "name": "Indecision Volatility Reversal System",
+    "options": [],
+    "desc": "This expert-level trading algorithm identifies key candlestick patterns such as Spinning Tops and Dojis over a 15-period window, signaling market indecision. It also analyzes Bollinger Band Width over a 20-period window to classify current market conditions as either a Volatility Squeeze or Expansion, enhancing decision-making for potential reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bt",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bf",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psh",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 200,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psl",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 200,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 20,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pchg",
+          "type": "previous_neq",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "brk",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "spin",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "doj",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "pat",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtu",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltl",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longc",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortc",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitc",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psh",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psh",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psh",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psl",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psl",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psl",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "psh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pchg",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "brk",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pchg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "brk",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "spin",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pat",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "doj",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pat",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtu",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gtu",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "ltl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pat",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "brk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtu",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pat",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "brk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pat",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exitc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Indecision Volatility Reversal System",
+    "description": "This expert-level trading algorithm identifies key candlestick patterns such as Spinning Tops and Dojis over a 15-period window, signaling market indecision. It also analyzes Bollinger Band Width over a 20-period window to classify current market conditions as either a Volatility Squeeze or Expansion, enhancing decision-making for potential reversals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "ES-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "indecision_volatility_reversal_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,1425 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "regime_adaptive_trend_mean_rev_fusion",
+  "generated_at": "2025-06-10T13:49:38.894627",
+  "trade_signal_metadata": {
+    "id": "regime_adaptive_trend_mean_rev_fusion",
+    "name": "Regime Adaptive Trend Mean-Rev Fusion Strategy",
+    "options": [],
+    "desc": "This advanced algorithm integrates trend-following and mean-reversion strategies by dynamically adapting to market volatility and memory characteristics. Utilizing Garman-Klass volatility and the Hurst exponent, it makes informed transitions between trading regimes to optimize performance across various market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gk",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "trading_days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "hurst_exponent",
+          "options": [
+            {
+              "id": "min_period",
+              "value": 14,
+              "name": "min_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_055",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_060",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_040",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_050",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_030",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.3,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct_low",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 20,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct_high",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst_055",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst_045",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_trend_regime",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mean_regime",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zlema21",
+          "type": "zlema",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_price_zlema",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst_060",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_trend_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_trend_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price_zlema",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst_040",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_trend_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_trend_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma21",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "std21",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sub_lower_band",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper_band",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price_lowerband",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_upperband",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_mean_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_mean_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_std_05",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper_exit_trend",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_lower_exit_trend",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_price_upper_exit",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_price_lower_exit",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_exit_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_std_03",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper_exit_mean",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_lower_exit_mean",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_price_upper_mean",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_price_lower_mean",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_exit_mean",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_long_signal",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_short_signal",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_exit_signal",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "zlema21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "std21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_low",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_low",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_low",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "gk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_high",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_high",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct_high",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_055",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_055",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_055",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_045",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_045",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend_regime",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst_055",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend_regime",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "pct_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mean_regime",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mean_regime",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_zlema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_zlema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_060",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_060",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_060",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_zlema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst_060",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_trend_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_trend_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price_zlema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price_zlema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_040",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_040",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_040",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_zlema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_040",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_trend_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_trend_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "std21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "std21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price_lowerband",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price_lowerband",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_upperband",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_upperband",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_lowerband",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_mean_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mean_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_mean_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_upperband",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_mean_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mean_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_mean_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "std21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std_05",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_050",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std_05",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_exit_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_exit_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_exit_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_exit_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_price_upper_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper_exit_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_price_upper_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_price_lower_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower_exit_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_price_lower_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_price_upper_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_exit_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_price_lower_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_exit_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "std21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std_03",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_030",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_std_03",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_exit_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std_03",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper_exit_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_exit_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_std_03",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower_exit_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_price_upper_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper_exit_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_price_upper_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_price_lower_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower_exit_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_price_lower_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_price_upper_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_exit_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_price_lower_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_exit_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_trend_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_mean_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_trend_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_mean_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_exit_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_exit_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_exit_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Regime Adaptive Trend Mean-Rev Fusion Strategy",
+    "description": "This advanced algorithm integrates trend-following and mean-reversion strategies by dynamically adapting to market volatility and memory characteristics. Utilizing Garman-Klass volatility and the Hurst exponent, it makes informed transitions between trading regimes to optimize performance across various market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "regime_adaptive_trend_mean_rev_fusion",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

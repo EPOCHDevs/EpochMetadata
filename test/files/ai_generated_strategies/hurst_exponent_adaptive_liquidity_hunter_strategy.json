@@ -1,0 +1,549 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "hurst_exponent_adaptive_liquidity_hunter",
+  "generated_at": "2025-06-10T16:22:36.131902",
+  "trade_signal_metadata": {
+    "id": "hurst_exponent_adaptive_liquidity_hunter",
+    "name": "Hurst Exponent Adaptive Liquidity Hunter",
+    "options": [],
+    "desc": "This advanced trading algorithm leverages liquidity sweeps alongside fluctuations in the Hurst exponent to detect key buying and selling opportunities in turbulent markets. By dynamically shifting between trend-following and mean-reverting strategies, it aims to optimize performance during varying market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "half_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross1",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross2",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurstAbove",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurstBelow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bullShift",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bearShift",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "liquidity",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bullLiq",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bearLiq",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortSignal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr_node",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "half_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "half_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurstAbove",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "half_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurstAbove",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstBelow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "half_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurstBelow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullShift",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurstAbove",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullShift",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearShift",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurstBelow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearShift",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_bullLiq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bullLiq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_bearLiq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bearLiq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bullShift",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bullLiq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bearShift",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bearLiq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSignal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortSignal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Hurst Exponent Adaptive Liquidity Hunter",
+    "description": "This advanced trading algorithm leverages liquidity sweeps alongside fluctuations in the Hurst exponent to detect key buying and selling opportunities in turbulent markets. By dynamically shifting between trend-following and mean-reverting strategies, it aims to optimize performance during varying market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "hurst_exponent_adaptive_liquidity_hunter",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

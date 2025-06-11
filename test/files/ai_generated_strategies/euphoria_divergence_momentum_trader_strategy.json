@@ -1,0 +1,534 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "euphoria_divergence_momentum_trader",
+  "generated_at": "2025-06-10T16:10:44.532332",
+  "trade_signal_metadata": {
+    "id": "euphoria_divergence_momentum_trader",
+    "name": "Euphoria Divergence Momentum Trader",
+    "options": [
+      {
+        "id": "sentiment_score_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This trading algorithm leverages sentiment analysis to identify moments of market euphoria, using momentum oscillators to forecast potential price reversals. Designed for a fast-paced 5-minute trading environment, it seeks to exploit conditions where sentiment indicates overbought situations, yet the price action fails to maintain the preceding bullish momentum.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md_source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sentiment_score",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "sentiment_score_value"
+              },
+              "name": "Sentiment Score (stream / placeholder)",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_0_8",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.8,
+              "name": "Over-bought Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_0_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "Calm Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "SMI Upper Level",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_40",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 40,
+              "name": "SMI Lower Level",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_overbought",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_calm",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch14",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "k_slowing_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "d_period",
+              "value": 3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "cross_smi_under",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_smi_over",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "big_white",
+          "type": "big_white_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "big_black",
+          "type": "big_black_candle",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sentiment_score",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_overbought",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_0_8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_overbought",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sentiment_score",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_calm",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_0_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_calm",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_smi_under",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch14",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross_smi_under",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch14",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "cross_smi_over",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_40",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_smi_over",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_overbought",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_smi_under",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "big_white",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_smi_over",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_calm",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "big_black",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Euphoria Divergence Momentum Trader",
+    "description": "This trading algorithm leverages sentiment analysis to identify moments of market euphoria, using momentum oscillators to forecast potential price reversals. Designed for a fast-paced 5-minute trading environment, it seeks to exploit conditions where sentiment indicates overbought situations, yet the price action fails to maintain the preceding bullish momentum.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^SOLUSD-Crypto",
+        "^ADAUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "euphoria_divergence_momentum_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

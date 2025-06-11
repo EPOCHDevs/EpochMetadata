@@ -1,0 +1,522 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "liquidity_cluster_mean_reversion_strategy",
+  "generated_at": "2025-06-10T13:53:23.489999",
+  "trade_signal_metadata": {
+    "id": "liquidity_cluster_mean_reversion_strategy",
+    "name": "Liquidity Cluster Mean Reversion Strategy",
+    "options": [],
+    "desc": "The Liquidity Cluster Mean Reversion Strategy leverages price action to detect sudden surges in market liquidity. This intermediate-level algorithm operates on a 15-minute timeframe and utilizes indicators related to volatility and mean-reversion to identify entry and exit points within identified liquidity zones.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "Range Percentage",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gk",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "md10",
+          "type": "md",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neq_liq",
+          "type": "neq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pg_vol_surge",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_above_lvl",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_below_lvl",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_below_md",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_liq_surge",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_sig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_liq_below",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_sig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_mean",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "neq_liq",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neq_liq",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gk",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pg_vol_surge",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pg_vol_surge",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_liq_surge",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_liq_surge",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_above_lvl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "level"
+          },
+          "target": {
+            "id": "gt_above_lvl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_liq_surge",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_above_lvl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_below_lvl",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "level"
+          },
+          "target": {
+            "id": "lt_below_lvl",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_below_md",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_below_md",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neq_liq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_liq_below",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_below_lvl",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_liq_below",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_liq_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_below_md",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "eq_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Liquidity Cluster Mean Reversion Strategy",
+    "description": "The Liquidity Cluster Mean Reversion Strategy leverages price action to detect sudden surges in market liquidity. This intermediate-level algorithm operates on a 15-minute timeframe and utilizes indicators related to volatility and mean-reversion to identify entry and exit points within identified liquidity zones.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "liquidity_cluster_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "standard_deviation",
+      "args": {
+        "period": 20,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      }
+    }
+  }
+}

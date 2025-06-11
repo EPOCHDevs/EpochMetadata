@@ -1,0 +1,629 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "institutional_trend_following_strategy",
+  "generated_at": "2025-06-10T09:22:01.499383",
+  "trade_signal_metadata": {
+    "id": "institutional_trend_following_strategy",
+    "name": "Institutional Trend Following Strategy",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm employs a combination of Order Blocks and Fair Value Gaps to pinpoint institutional supply and demand zones on a 15-minute timeframe. It utilizes the Kaufman Adaptive Moving Average (KAMA) with a 20-period setting as a dynamic trend filter and confirms entry signals specifically during the London Open Kill Zone, ensuring optimal trading conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "data",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swingHL",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "orderBlocks",
+          "type": "order_blocks",
+          "options": [
+            {
+              "id": "close_mitigation",
+              "value": false,
+              "name": "Use Close for Mitigation",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "Join Consecutive Gaps",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_kama_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_kama_down",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ob_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ob_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg_bull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_any_long",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_any_short",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "and_long_zone_sess",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_zone_sess",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "data",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kama_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_kama_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_kama_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_kama_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swingHL",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "orderBlocks",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "orderBlocks",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "gt_ob_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_ob_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "orderBlocks",
+            "handle": "ob"
+          },
+          "target": {
+            "id": "lt_ob_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ob_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ob_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_any_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_any_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ob_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_any_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_any_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_any_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_zone_sess",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_long_zone_sess",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_zone_sess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_kama_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_any_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_zone_sess",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "and_short_zone_sess",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_zone_sess",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_kama_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Institutional Trend Following Strategy",
+    "description": "This intermediate-level trading algorithm employs a combination of Order Blocks and Fair Value Gaps to pinpoint institutional supply and demand zones on a 15-minute timeframe. It utilizes the Kaufman Adaptive Moving Average (KAMA) with a 20-period setting as a dynamic trend filter and confirms entry signals specifically during the London Open Kill Zone, ensuring optimal trading conditions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "ES-Futures",
+        "^AUDUSD-FX",
+        "FT-Futures",
+        "DX-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "institutional_trend_following_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

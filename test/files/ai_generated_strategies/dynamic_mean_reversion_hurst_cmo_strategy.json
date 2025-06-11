@@ -1,0 +1,468 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_mean_reversion_hurst_cmo",
+  "generated_at": "2025-06-10T10:07:07.656464",
+  "trade_signal_metadata": {
+    "id": "dynamic_mean_reversion_hurst_cmo",
+    "name": "Dynamic Mean Reversion with Hurst & CMO",
+    "options": [],
+    "desc": "This expert-level mean-reverting trading algorithm operates on intraday 15-minute bars for liquid equities, leveraging the Rolling Hurst Exponent to identify shifts between trending and mean-reverting regimes. By activating the strategy when the Hurst Exponent falls below 0.4 and employing the Chande Momentum Oscillator to signal entry points, the algorithm effectively captures profit opportunities in mean-reverting market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "ds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 60,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.4,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num_minus50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_price_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_mid",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_zero",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_zero",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_minus50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_price_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lt_price_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "gt_close_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cmo_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Mean Reversion with Hurst & CMO",
+    "description": "This expert-level mean-reverting trading algorithm operates on intraday 15-minute bars for liquid equities, leveraging the Rolling Hurst Exponent to identify shifts between trending and mean-reverting regimes. By activating the strategy when the Hurst Exponent falls below 0.4 and employing the Chande Momentum Oscillator to signal entry points, the algorithm effectively captures profit opportunities in mean-reverting market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "DIS-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_mean_reversion_hurst_cmo",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,717 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_volatility_divergence_trader_2",
+  "generated_at": "2025-06-10T15:26:08.515436",
+  "trade_signal_metadata": {
+    "id": "dynamic_volatility_divergence_trader_2",
+    "name": "Dynamic Volatility Divergence Trader 2.0",
+    "options": [
+      {
+        "id": "natr_h1_period",
+        "name": "Period"
+      },
+      {
+        "id": "histvol_h1_period",
+        "name": "Period (histvol_h1)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "num_natr_thresh_value",
+        "name": "Value"
+      },
+      {
+        "id": "num_vol_thresh_value",
+        "name": "Value (num_vol_thresh)"
+      },
+      {
+        "id": "macd_h1_short_period",
+        "name": "Short_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "macd_h1_long_period",
+        "name": "Long_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "macd_h1_signal_period",
+        "name": "Signal_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "stochrsi_h1_period",
+        "name": "Period (stochrsi_h1)"
+      },
+      {
+        "id": "num_30_value",
+        "name": "Value (num_30)"
+      }
+    ],
+    "desc": "This innovative trading algorithm leverages an Adaptive Market Volatility (AMV) index while detecting divergences between price and momentum indicators. By focusing on periods of high-forecasted volatility and employing dynamic stop-loss strategies, it aims to enhance trading precision across multiple timeframes.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr_h1",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "natr_h1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "histvol_h1",
+          "type": "volatility",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "histvol_h1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_natr_thresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_natr_thresh_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_natr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_vol_thresh",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_vol_thresh_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_vol",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "macd_h1",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": {
+                "refName": "macd_h1_short_period"
+              },
+              "name": "Short_period",
+              "isExposed": true
+            },
+            {
+              "id": "long_period",
+              "value": {
+                "refName": "macd_h1_long_period"
+              },
+              "name": "Long_period",
+              "isExposed": true
+            },
+            {
+              "id": "signal_period",
+              "value": {
+                "refName": "macd_h1_signal_period"
+              },
+              "name": "Signal_period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_macd_hist",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stochrsi_h1",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "stochrsi_h1_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_30_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_stoch_oversold",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bullish_momentum",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "chande_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lte_close_stop",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_macd_hist_bear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "natr_h1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_natr_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_natr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "h"
+          },
+          "target": {
+            "id": "histvol_h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "l"
+          },
+          "target": {
+            "id": "histvol_h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "histvol_h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "histvol_h1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_vol_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd_h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_h1",
+            "handle": "macd_histogram"
+          },
+          "target": {
+            "id": "gt_macd_hist",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_macd_hist",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stochrsi_h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stochrsi_h1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_stoch_oversold",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_stoch_oversold",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_macd_hist",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_momentum",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stoch_oversold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_momentum",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bullish_momentum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "chande_stop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lte_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_h1",
+            "handle": "macd_histogram"
+          },
+          "target": {
+            "id": "lt_macd_hist_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_macd_hist_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_macd_hist_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Volatility Divergence Trader 2.0",
+    "description": "This innovative trading algorithm leverages an Adaptive Market Volatility (AMV) index while detecting divergences between price and momentum indicators. By focusing on periods of high-forecasted volatility and employing dynamic stop-loss strategies, it aims to enhance trading precision across multiple timeframes.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "AMD-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_volatility_divergence_trader_2",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

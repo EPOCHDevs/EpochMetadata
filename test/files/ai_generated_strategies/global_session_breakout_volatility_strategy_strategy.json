@@ -1,0 +1,873 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "global_session_breakout_volatility_strategy",
+  "generated_at": "2025-06-10T09:32:41.946926",
+  "trade_signal_metadata": {
+    "id": "global_session_breakout_volatility_strategy",
+    "name": "Global Session Breakout Volatility Strategy",
+    "options": [],
+    "desc": "This intraday trading algorithm leverages periods of low volatility that occur during major global session transitions, specifically focusing on breakouts. By identifying moments just before the overlap of trading sessions, it aims to capitalize on sudden price movements through a structured and disciplined approach.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "source",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bbands",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb_width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lag_width",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "expansion_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_130",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.3,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "percent_filter",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 1920,
+              "name": "lookback",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 10,
+              "name": "percentile",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb_low_bool",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sessions",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonCloseKillZone",
+              "name": "session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sessions_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "handoff_active",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_range",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": 2,
+              "name": "interval",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "hour",
+              "name": "type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "breakout_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_conditions",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "signal_numeric",
+          "type": "select_3",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_short_adapter",
+          "type": "trade_executor_adapter",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_bw_med",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_150",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "median_bw",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 1920,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "exit_inside",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_inside_high",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_inside_low",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "agg_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trade_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "source",
+            "handle": "h"
+          },
+          "target": {
+            "id": "bbands",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "l"
+          },
+          "target": {
+            "id": "bbands",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag_width",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_130",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expansion_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percent_filter",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percent_filter",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "percent_filter",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "percent_filter",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bb_low_bool",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bb_low_bool",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions",
+            "handle": "active"
+          },
+          "target": {
+            "id": "handoff_active",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "handoff_active",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_range",
+            "handle": "previous_high"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_range",
+            "handle": "previous_low"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "source",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_low_bool",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_conditions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "expansion_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_conditions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "breakout_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_conditions",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_conditions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signal_numeric",
+            "handle": "index"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signal_numeric",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signal_numeric",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "signal_numeric",
+            "handle": "*2"
+          }
+        },
+        {
+          "source": {
+            "id": "signal_numeric",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_short_adapter",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_short_adapter",
+            "handle": "long"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "long_short_adapter",
+            "handle": "short"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_bw_med",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "median_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_bw_med",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_bw_med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_inside_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_inside_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "median_bw",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "median_bw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_bw_med",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "const_150",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_mult",
+            "handle": "*1"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Global Session Breakout Volatility Strategy",
+    "description": "This intraday trading algorithm leverages periods of low volatility that occur during major global session transitions, specifically focusing on breakouts. By identifying moments just before the overlap of trading sessions, it aims to capitalize on sudden price movements through a structured and disciplined approach.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "PX-Futures",
+        "DX-Futures",
+        "FT-Futures",
+        "A-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "global_session_breakout_volatility_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

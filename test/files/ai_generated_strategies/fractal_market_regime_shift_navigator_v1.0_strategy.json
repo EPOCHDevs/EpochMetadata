@@ -1,0 +1,582 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "fractal_market_regime_shift_navigator_v1.0",
+  "generated_at": "2025-06-10T09:15:30.895892",
+  "trade_signal_metadata": {
+    "id": "fractal_market_regime_shift_navigator_v1.0",
+    "name": "Fractal Market Regime Shift Navigator v1.0",
+    "options": [],
+    "desc": "This advanced trading algorithm utilizes fractal analysis to recognize shifts in market regimes, leveraging the Rolling Hurst Exponent and Fractal Dimension Index. By dynamically detecting transitions between trending and mean-reverting phases, it delivers precise entry and exit signals tailored for expert traders.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fisher1",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "thresh05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_hurst",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fdi",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_fdi",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_mean",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psar1",
+          "type": "psar",
+          "options": [
+            {
+              "id": "acceleration_factor_step",
+              "value": 0.02,
+              "name": "Acceleration_factor_step",
+              "isExposed": false
+            },
+            {
+              "id": "acceleration_factor_maximum",
+              "value": 0.2,
+              "name": "Acceleration_factor_maximum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_psar",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_psar",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_logic",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_logic",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_regime",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_regime",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fdi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fdi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_fdi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thresh05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_fdi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fdi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mean",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_fdi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_mean",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "psar1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_psar",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_psar",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "psar1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_psar",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_psar",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_logic",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_psar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_logic",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_logic",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_psar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_logic",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_regime",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_regime",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_regime",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_logic",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_logic",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "not_regime",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fractal Market Regime Shift Navigator v1.0",
+    "description": "This advanced trading algorithm utilizes fractal analysis to recognize shifts in market regimes, leveraging the Rolling Hurst Exponent and Fractal Dimension Index. By dynamically detecting transitions between trending and mean-reverting phases, it delivers precise entry and exit signals tailored for expert traders.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fractal_market_regime_shift_navigator_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

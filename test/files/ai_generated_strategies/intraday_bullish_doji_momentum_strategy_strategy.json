@@ -1,0 +1,372 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "intraday_bullish_doji_momentum_strategy",
+  "generated_at": "2025-06-10T14:58:06.136439",
+  "trade_signal_metadata": {
+    "id": "intraday_bullish_doji_momentum_strategy",
+    "name": "Intraday Bullish Doji Momentum Strategy",
+    "options": [],
+    "desc": "This trading algorithm leverages a combination of the 'Morning Doji Star' candlestick pattern and a momentum filter to identify bullish reversal opportunities in intraday equities. Operating on a 15-minute timeframe, it enhances the entry signals through a customized Trix oscillator that confirms the strength of upward momentum.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.06,
+              "name": "Body None",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.4,
+              "name": "Body Short",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.3,
+              "name": "Body Long",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.07,
+              "name": "Wick None",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.5,
+              "name": "Wick Long",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.25,
+              "name": "Near",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "evening",
+          "type": "evening_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.06,
+              "name": "Body None",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.4,
+              "name": "Body Short",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.3,
+              "name": "Body Long",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.07,
+              "name": "Wick None",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.5,
+              "name": "Wick Long",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.25,
+              "name": "Near",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "trix1",
+          "type": "trix",
+          "options": [
+            {
+              "id": "period",
+              "value": 12,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero1",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "trix1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "morning",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "zero1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "trix1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "evening",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Bullish Doji Momentum Strategy",
+    "description": "This trading algorithm leverages a combination of the 'Morning Doji Star' candlestick pattern and a momentum filter to identify bullish reversal opportunities in intraday equities. Operating on a 15-minute timeframe, it enhances the entry signals through a customized Trix oscillator that confirms the strength of upward momentum.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "intraday_bullish_doji_momentum_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,493 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_pivot_oscillation_trend_strategy",
+  "generated_at": "2025-06-10T10:50:51.416925",
+  "trade_signal_metadata": {
+    "id": "adaptive_pivot_oscillation_trend_strategy",
+    "name": "Adaptive Pivot Oscillation Trend Strategy",
+    "options": [],
+    "desc": "This trend-following algorithm leverages adaptive pivot points to identify price oscillations within established support and resistance levels. By dynamically adjusting to market conditions, it aims to optimize entry and exit points based on real-time price movements and historical data.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "med",
+          "type": "medprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "piv",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sin",
+          "type": "sin",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_sin_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_sin_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_pivot",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_price_pivot",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ma14",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "prev_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "prev_lt",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "and_long_a",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_a",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sin",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sin",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_sin_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_sin_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sin",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_sin_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_sin_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_price_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "piv",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "gt_price_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_price_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "piv",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "lt_price_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ma14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ma14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ma14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_a",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_sin_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_a",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_a",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_price_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_a",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_sin_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_a",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_a",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Pivot Oscillation Trend Strategy",
+    "description": "This trend-following algorithm leverages adaptive pivot points to identify price oscillations within established support and resistance levels. By dynamically adjusting to market conditions, it aims to optimize entry and exit points based on real-time price movements and historical data.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_pivot_oscillation_trend_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

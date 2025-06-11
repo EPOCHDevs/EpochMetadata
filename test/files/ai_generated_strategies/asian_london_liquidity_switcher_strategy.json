@@ -1,0 +1,727 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "asian_london_liquidity_switcher",
+  "generated_at": "2025-06-10T14:35:41.486018",
+  "trade_signal_metadata": {
+    "id": "asian_london_liquidity_switcher",
+    "name": "Asian & London Liquidity Volatility Switcher",
+    "options": [],
+    "desc": "This event-driven trading strategy leverages swing highs and lows during the critical Asian and London trading sessions to identify liquidity sweeps. It confirms these events through subsequent price movements that create Fair Value Gaps, focusing on the 15-minute timeframe to optimize trade entries and exits based on market volatility.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session_asian",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "AsianKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "session_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "swings",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liquidity",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fvg",
+          "type": "fair_value_gap",
+          "options": [
+            {
+              "id": "join_consecutive",
+              "value": true,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "parkinson",
+          "type": "parkinson",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "min_vol",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 40,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "max_vol",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 40,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sub_vol_min",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_range",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "div_ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ratio_branch",
+          "type": "ratio_branch",
+          "options": [
+            {
+              "id": "threshold_high",
+              "value": 0.66,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "threshold_low",
+              "value": 0.33,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_swept",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_dir_zero",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_dir_zero",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fvg_zero",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fvg_zero",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "chande_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 2.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swings",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "swings",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liquidity",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "swept"
+          },
+          "target": {
+            "id": "gt_swept",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_swept",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "lt_dir_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_dir_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liquidity",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "gt_dir_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_dir_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "gt_fvg_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fvg_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fvg",
+            "handle": "fvg"
+          },
+          "target": {
+            "id": "lt_fvg_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fvg_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson",
+            "handle": "result"
+          },
+          "target": {
+            "id": "min_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson",
+            "handle": "result"
+          },
+          "target": {
+            "id": "max_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "parkinson",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_vol_min",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_vol_min",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "max_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_range",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_range",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_vol_min",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_range",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div_ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ratio_branch",
+            "handle": "ratio"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_swept",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_dir_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fvg_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio_branch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_swept",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_dir_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fvg_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ratio_branch",
+            "handle": "high"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Asian & London Liquidity Volatility Switcher",
+    "description": "This event-driven trading strategy leverages swing highs and lows during the critical Asian and London trading sessions to identify liquidity sweeps. It confirms these events through subsequent price movements that create Fair Value Gaps, focusing on the 15-minute timeframe to optimize trade entries and exits based on market volatility.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "asian_london_liquidity_switcher",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

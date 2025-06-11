@@ -1,0 +1,770 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "adaptive_mean_reversion_strategy",
+  "generated_at": "2025-06-10T10:37:56.450270",
+  "trade_signal_metadata": {
+    "id": "adaptive_mean_reversion_strategy",
+    "name": "Adaptive Mean Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level Mean Reverting trading algorithm utilizes the Kaufman Adaptive Moving Average (KAMA) to identify short-term deviations from the dynamic equilibrium price across a selection of assets. By incorporating volume and volatility filters, it aims to enhance precision in trade entries and exits, optimizing performance in fluctuating market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama50",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "div1",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ln1",
+          "type": "ln",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "negThr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.02,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "posThr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.02,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltDev",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtDev",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol30",
+          "type": "volatility",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "volLowThr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltVol",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volHighThr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtVol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr5",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "csMom",
+          "type": "cs_momentum",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bottom20",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pvi",
+          "type": "pvi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "nvi",
+          "type": "nvi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pviInc",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "nviInc",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allLong",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allShort",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossZero",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "div1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "div1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ln1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ln1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "negThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ln1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtDev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "posThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtDev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vol30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vol30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volLowThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volHighThr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtVol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rocr5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "csMom",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "csMom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "csMom",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pviInc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "nvi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "nviInc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltDev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pviInc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtDev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "nviInc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ln1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossZero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossZero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossZero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtVol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "allShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exitAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Mean Reversion Strategy",
+    "description": "This expert-level Mean Reverting trading algorithm utilizes the Kaufman Adaptive Moving Average (KAMA) to identify short-term deviations from the dynamic equilibrium price across a selection of assets. By incorporating volume and volatility filters, it aims to enhance precision in trade entries and exits, optimizing performance in fluctuating market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "DIA-Stocks",
+        "XLF-Stocks",
+        "XLE-Stocks",
+        "XLY-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

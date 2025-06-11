@@ -1,0 +1,749 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "volatile_liquidity_sweep_breakout_engine",
+  "generated_at": "2025-06-10T10:46:41.452024",
+  "trade_signal_metadata": {
+    "id": "volatile_liquidity_sweep_breakout_engine",
+    "name": "Volatile Liquidity Sweep Breakout Engine",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm focuses on capitalizing on breakout momentum trades triggered by liquidity sweeps at significant swing levels. It integrates volatility-based confirmation to ensure high-probability entry points, operating on a 15-minute timeframe to adapt to rapid market movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shl",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 7,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "liq",
+          "type": "liquidity",
+          "options": [
+            {
+              "id": "range_percent",
+              "value": 0.001,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_sweep",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_sweep",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bbands",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb_width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bool_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc_sel",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 40,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 75,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "and_long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gte_upper",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_lower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_long_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_short_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "shl",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "high_low"
+          }
+        },
+        {
+          "source": {
+            "id": "shl",
+            "handle": "level"
+          },
+          "target": {
+            "id": "liq",
+            "handle": "level"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "liquidity"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "level"
+          },
+          "target": {
+            "id": "gt_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "liq",
+            "handle": "level"
+          },
+          "target": {
+            "id": "lt_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_sweep",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_sweep",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_sweep",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_sweep",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_sel",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_sel",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc_sel",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_sel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "perc_sel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gte_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gte_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lte_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_sweep",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatile Liquidity Sweep Breakout Engine",
+    "description": "This intermediate-level trading algorithm focuses on capitalizing on breakout momentum trades triggered by liquidity sweeps at significant swing levels. It integrates volatility-based confirmation to ensure high-probability entry points, operating on a 15-minute timeframe to adapt to rapid market movements.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatile_liquidity_sweep_breakout_engine",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

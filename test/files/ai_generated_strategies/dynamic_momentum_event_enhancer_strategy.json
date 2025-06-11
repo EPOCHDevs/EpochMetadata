@@ -1,0 +1,388 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_momentum_event_enhancer",
+  "generated_at": "2025-06-10T09:34:23.400988",
+  "trade_signal_metadata": {
+    "id": "dynamic_momentum_event_enhancer",
+    "name": "Dynamic Momentum Event Enhancer",
+    "options": [
+      {
+        "id": "news_score_value",
+        "name": "Value"
+      },
+      {
+        "id": "news_threshold_value",
+        "name": "Value (news_threshold)"
+      }
+    ],
+    "desc": "The Dynamic Momentum Event Enhancer algorithm combines momentum-based methods with event-driven strategies to adaptively respond to market fluctuations. By analyzing macroeconomic events and volatility, this algorithm identifies strategic entry and exit points to optimize trading performance in changing environments.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "macd_hour",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short Period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long Period",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vwma_hour",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_hour",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "news_score",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "news_score_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "news_threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "news_threshold_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_news",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bullish",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bearish",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd_hour",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "news_score",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_news",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "news_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_news",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_hour",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "gt_bullish",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_hour",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "gt_bullish",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_hour",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "lt_bearish",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd_hour",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "lt_bearish",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_news",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bullish",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_news",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bearish",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Momentum Event Enhancer",
+    "description": "The Dynamic Momentum Event Enhancer algorithm combines momentum-based methods with event-driven strategies to adaptively respond to market fluctuations. By analyzing macroeconomic events and volatility, this algorithm identifies strategic entry and exit points to optimize trading performance in changing environments.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "JPM-Stocks",
+        "GS-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_momentum_event_enhancer",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

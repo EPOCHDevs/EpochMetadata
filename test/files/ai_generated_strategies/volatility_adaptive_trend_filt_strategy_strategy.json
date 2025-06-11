@@ -1,0 +1,993 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "volatility_adaptive_trend_filt_strategy",
+  "generated_at": "2025-06-10T09:11:00.460388",
+  "trade_signal_metadata": {
+    "id": "volatility_adaptive_trend_filt_strategy",
+    "name": "Volatility-Adaptive Trend Filtration Strategy",
+    "options": [],
+    "desc": "This trading algorithm dynamically adjusts its trading decisions based on fluctuating volatility regimes, utilizing the Ulcer Index and Keltner Channels. Enhanced with trend confirmation from the Fisher Transform and CCI, it aims to optimize entry and exit points in varying market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "ulcer1",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "kelt1",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "roll_period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "band_multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "fisher1",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 9,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "cci1",
+          "type": "cci",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num4",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 4,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num12",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 12,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num100",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 100,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_neg100",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num7",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 7,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ui_lt4",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_ui_high",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_long_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_short_break",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_fisher_zero",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_gt_fisher",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_fisher_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cci_above100",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "momentum_long_ok",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_fisher_zero",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_lt_fisher",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_fisher_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cci_below_minus100",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "momentum_short_ok",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_regime_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_regime_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_outside_band",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_inside_band",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ulcer_lt7",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher_cross_zero",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_long_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kelt1",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_long_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_short_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kelt1",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_short_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ui_lt4",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ui_lt4",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_ui_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_ui_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer_lt7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_ulcer_lt7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "gt_fisher_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_fisher_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "prev_gt_fisher",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_fisher_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_fisher_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_gt_fisher",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_fisher_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cci1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cci_above100",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num100",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cci_above100",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_fisher_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "momentum_long_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cci_above100",
+            "handle": "result"
+          },
+          "target": {
+            "id": "momentum_long_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "lt_fisher_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_fisher_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "prev_lt_fisher",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_fisher_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_fisher_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_lt_fisher",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_fisher_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg100",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num100",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg100",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cci1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cci_below_minus100",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_neg100",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cci_below_minus100",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_fisher_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "momentum_short_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cci_below_minus100",
+            "handle": "result"
+          },
+          "target": {
+            "id": "momentum_short_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_ui_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_regime_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_long_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_regime_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_ui_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_regime_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_short_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_regime_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_regime_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum_long_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_regime_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "momentum_short_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_long_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_outside_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_short_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_outside_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_outside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_inside_band",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher1",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "fisher_cross_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "fisher_cross_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "not_inside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ulcer_lt7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_cross_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Adaptive Trend Filtration Strategy",
+    "description": "This trading algorithm dynamically adjusts its trading decisions based on fluctuating volatility regimes, utilizing the Ulcer Index and Keltner Channels. Enhanced with trend confirmation from the Fisher Transform and CCI, it aims to optimize entry and exit points in varying market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_adaptive_trend_filt_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

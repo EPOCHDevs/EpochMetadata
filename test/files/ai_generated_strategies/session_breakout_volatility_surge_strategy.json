@@ -1,0 +1,963 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "session_breakout_volatility_surge",
+  "generated_at": "2025-06-10T16:08:30.377208",
+  "trade_signal_metadata": {
+    "id": "session_breakout_volatility_surge",
+    "name": "Session Breakout Volatility Surge Strategy",
+    "options": [],
+    "desc": "The Session Breakout Volatility Surge (SBVS) is an advanced event-driven trading strategy designed for 15-minute charts of liquid FX pairs. This strategy identifies key London and New York Open kill zones, dynamically calculating session highs and lows to capture breakout events with precision and efficiency.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sesLon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "LondonOpenKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sesNY",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bbw1",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bt",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bf",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct80",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pct20",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtlonhigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtnyhigh",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltlonlow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltnylow",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andlonlong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andnylong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andlonshort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andnyshort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anylongbreak",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyshortbreak",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longcond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortcond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltlonret",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltnyret",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtlonret",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtnyret",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anylongreturn",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyshortreturn",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitlong",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitshort",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "anyclose",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw1",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtlonhigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtlonhigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtnyhigh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "high"
+          },
+          "target": {
+            "id": "gtnyhigh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltlonlow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltlonlow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltnylow",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "low"
+          },
+          "target": {
+            "id": "ltnylow",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "andlonlong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtlonhigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andlonlong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "andnylong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtnyhigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andnylong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "andlonshort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltlonlow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andlonshort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "active"
+          },
+          "target": {
+            "id": "andnyshort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltnylow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andnyshort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andlonlong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anylongbreak",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andnylong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anylongbreak",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andlonshort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyshortbreak",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andnyshort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyshortbreak",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct80",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct80",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct80",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct20",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct20",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pct20",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "anylongbreak",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longcond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longcond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "anyshortbreak",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortcond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pct80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortcond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltlonret",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "high"
+          },
+          "target": {
+            "id": "ltlonret",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltnyret",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "high"
+          },
+          "target": {
+            "id": "ltnyret",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtlonret",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesLon",
+            "handle": "low"
+          },
+          "target": {
+            "id": "gtlonret",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtnyret",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sesNY",
+            "handle": "low"
+          },
+          "target": {
+            "id": "gtnyret",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltlonret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anylongreturn",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltnyret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anylongreturn",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtlonret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyshortreturn",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtnyret",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyshortreturn",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pct20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitlong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anylongreturn",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitlong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pct20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitshort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "anyshortreturn",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitshort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exitlong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyclose",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exitshort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "anyclose",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "longcond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortcond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "anyclose",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Session Breakout Volatility Surge Strategy",
+    "description": "The Session Breakout Volatility Surge (SBVS) is an advanced event-driven trading strategy designed for 15-minute charts of liquid FX pairs. This strategy identifies key London and New York Open kill zones, dynamically calculating session highs and lows to capture breakout events with precision and efficiency.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "session_breakout_volatility_surge",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,894 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "dynamic_market_sentiment_trading_engine",
+  "generated_at": "2025-06-10T10:30:46.951945",
+  "trade_signal_metadata": {
+    "id": "dynamic_market_sentiment_trading_engine",
+    "name": "Dynamic Market Sentiment Trading Engine",
+    "options": [
+      {
+        "id": "msi_input_value",
+        "name": "Value"
+      }
+    ],
+    "desc": "This adaptive trading algorithm analyzes market sentiment alongside price trends to dynamically adjust its trading strategy, aiming for optimal profitability while minimizing overall risk exposure. Utilizing a proprietary Market Sentiment Indicator (MSI), it capitalizes on real-time sentiment data to inform its decisions and maintain an edge in varying market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "msi_input",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "msi_input_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_p7",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.7,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_n0_7",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -0.7,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ema50",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "bbands20",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "vwma30",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "rsi14",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 5
+          }
+        },
+        {
+          "id": "rsi_lt_30",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi_gt_70",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi_gt_50",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi_lt_50",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "msi_gt_0_7",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "msi_lt_neg0_7",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_lt_bb_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_gt_bb_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma_gt_ema",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma_lt_ema",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_cond",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_cond",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trade_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bbands20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_lt_bb_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "close_lt_bb_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_gt_bb_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bbands20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "close_gt_bb_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_lt_30",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_lt_30",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_gt_70",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_gt_70",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_gt_50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_gt_50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_lt_50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rsi_lt_50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "msi_input",
+            "handle": "result"
+          },
+          "target": {
+            "id": "msi_gt_0_7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_p7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "msi_gt_0_7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "msi_input",
+            "handle": "result"
+          },
+          "target": {
+            "id": "msi_lt_neg0_7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_n0_7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "msi_lt_neg0_7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vwma_gt_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vwma_gt_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vwma_lt_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vwma_lt_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi_lt_30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "msi_gt_0_7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_lt_bb_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma_gt_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi_gt_70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "msi_lt_neg0_7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_gt_bb_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma_lt_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi_gt_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_gt_bb_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi_lt_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_lt_bb_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trade_exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Market Sentiment Trading Engine",
+    "description": "This adaptive trading algorithm analyzes market sentiment alongside price trends to dynamically adjust its trading strategy, aiming for optimal profitability while minimizing overall risk exposure. Utilizing a proprietary Market Sentiment Indicator (MSI), it capitalizes on real-time sentiment data to inform its decisions and maintain an edge in varying market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_market_sentiment_trading_engine",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.015
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.03
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

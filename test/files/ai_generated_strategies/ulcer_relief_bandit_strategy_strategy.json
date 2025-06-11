@@ -1,0 +1,677 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "ulcer_relief_bandit_strategy",
+  "generated_at": "2025-06-10T09:11:56.322363",
+  "trade_signal_metadata": {
+    "id": "ulcer_relief_bandit_strategy",
+    "name": "Ulcer Relief Bandit Mean Reversion Strategy",
+    "options": [],
+    "desc": "The Ulcer Relief Bandit is an intraday mean reversion strategy designed to capitalize on assets that have suffered significant price drawdowns but are showing early signs of recovery. It utilizes the Ulcer Index to measure drawdown severity, Keltner Channels for entry and exit signals, and a Simple Moving Average for trend confirmation, ensuring a tactical approach to trading amidst volatility.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma30_lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sma_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sma_down",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ulcer",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ui_mean",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const_two",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ui_threshold",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ui_extreme",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "price_below_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_above_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_lower",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_below_upper",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond2",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma30_lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30_lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30_lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ui_mean",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ui_mean",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ui_threshold",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_two",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ui_threshold",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ulcer",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ui_extreme",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ui_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ui_extreme",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_below_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "price_below_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_above_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "price_above_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossover_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "crossover_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "cross_below_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_below_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_below_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ui_extreme",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ui_extreme",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_below_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Ulcer Relief Bandit Mean Reversion Strategy",
+    "description": "The Ulcer Relief Bandit is an intraday mean reversion strategy designed to capitalize on assets that have suffered significant price drawdowns but are showing early signs of recovery. It utilizes the Ulcer Index to measure drawdown severity, Keltner Channels for entry and exit signals, and a Simple Moving Average for trend confirmation, ensuring a tactical approach to trading amidst volatility.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "ulcer_relief_bandit_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

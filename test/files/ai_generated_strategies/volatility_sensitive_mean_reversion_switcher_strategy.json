@@ -1,0 +1,940 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "volatility_sensitive_mean_reversion_switcher",
+  "generated_at": "2025-06-10T10:47:16.411736",
+  "trade_signal_metadata": {
+    "id": "volatility_sensitive_mean_reversion_switcher",
+    "name": "Volatility-Sensitive Mean-Reversion Switcher",
+    "options": [
+      {
+        "id": "ui_period",
+        "name": "Period"
+      },
+      {
+        "id": "med_period",
+        "name": "Period (med)"
+      },
+      {
+        "id": "ps1_lookback",
+        "name": "Lookback"
+      },
+      {
+        "id": "ps1_percentile",
+        "name": "Percentile"
+      },
+      {
+        "id": "cmo_period",
+        "name": "Period (cmo)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "num50_value",
+        "name": "Value"
+      },
+      {
+        "id": "kc_roll_period",
+        "name": "Roll_Period"
+      },
+      {
+        "id": "kc_band_multiplier",
+        "name": "Band_Multiplier"
+      }
+    ],
+    "desc": "This algorithm dynamically alternates between mean-reversion and breakout trading strategies based on real-time volatility assessments. Utilizing the Ulcer Index and Keltner Channels, it seeks to optimize intraday trading opportunities in liquid equities by responding to market fluctuations effectively.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ui",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "ui_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "med",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "med_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps1",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "ps1_lookback"
+              },
+              "name": "Lookback",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "ps1_percentile"
+              },
+              "name": "Percentile",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bt",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bf",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "cmo_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "abs1",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num50_value"
+              },
+              "name": "",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "break_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_break",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mr_reg",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": {
+                "refName": "kc_roll_period"
+              },
+              "name": "Rolling Period",
+              "isExposed": true
+            },
+            {
+              "id": "band_multiplier",
+              "value": {
+                "refName": "kc_band_multiplier"
+              },
+              "name": "Band Multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mr_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mr_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_low",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_up",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_band",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_up_break",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low_break",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "br_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "br_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "te",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "med",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "med",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps1",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ps1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "break_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "break_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "break_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_break",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_reg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_reg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mr_reg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mr_reg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mr_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_up_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_up_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_low_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_low_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_up_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "br_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "break_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "br_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "br_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "break_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "br_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mr_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "br_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mr_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "br_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sess",
+            "handle": "active"
+          },
+          "target": {
+            "id": "te",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "te",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "te",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "te",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo",
+            "handle": "*"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Sensitive Mean-Reversion Switcher",
+    "description": "This algorithm dynamically alternates between mean-reversion and breakout trading strategies based on real-time volatility assessments. Utilizing the Ulcer Index and Keltner Channels, it seeks to optimize intraday trading opportunities in liquid equities by responding to market fluctuations effectively.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "BAC-Stocks",
+        "DIS-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_sensitive_mean_reversion_switcher",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

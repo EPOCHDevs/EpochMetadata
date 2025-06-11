@@ -1,0 +1,444 @@
+{
+  "algorithm_type": "TechnicalPattern",
+  "source_algorithm": "quantum_band_reversal_crossover_strategy",
+  "generated_at": "2025-06-10T08:48:48.102973",
+  "trade_signal_metadata": {
+    "id": "quantum_band_reversal_crossover_strategy",
+    "name": "Quantum Band Reversal Crossover Strategy",
+    "options": [],
+    "desc": "This innovative trading algorithm employs the Quantum Bollinger Band (QBB) concept to identify high-probability reversal zones in volatile markets. By analyzing price swings through a quantum lens, it facilitates optimal entry and exit points, enhancing trade effectiveness in uncertain environments.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TechnicalPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "swing",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sin1",
+          "type": "sin",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cos1",
+          "type": "cos",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_wave",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "qbb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "exp_up",
+          "type": "exp",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exp_low",
+          "type": "exp",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_low",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_high",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "sin1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "swing",
+            "handle": "level"
+          },
+          "target": {
+            "id": "cos1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sin1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_wave",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cos1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_wave",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "add_wave",
+            "handle": "result"
+          },
+          "target": {
+            "id": "qbb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "qbb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "exp_up",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "qbb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "exp_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "exp_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "exp_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "exp_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "exp_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Band Reversal Crossover Strategy",
+    "description": "This innovative trading algorithm employs the Quantum Bollinger Band (QBB) concept to identify high-probability reversal zones in volatile markets. By analyzing price swings through a quantum lens, it facilitates optimal entry and exit points, enhancing trade effectiveness in uncertain environments.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_band_reversal_crossover_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

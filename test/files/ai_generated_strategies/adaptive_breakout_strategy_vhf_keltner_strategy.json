@@ -1,0 +1,855 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "adaptive_breakout_strategy_vhf_keltner",
+  "generated_at": "2025-06-10T14:25:42.095232",
+  "trade_signal_metadata": {
+    "id": "adaptive_breakout_strategy_vhf_keltner",
+    "name": "Adaptive Breakout Strategy: VHF & Keltner Fusion",
+    "options": [],
+    "desc": "This expert-level event-driven algorithm leverages the Vertical Horizontal Filter (VHF) to adaptively identify market regime shifts between trending and ranging phases. It triggers breakout trades when the price simultaneously breaches the Keltner Channel and Acceleration Bands, utilizing a robust volatility adaptation mechanism for optimal performance on the 1-hour timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "ds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 28,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "btrue",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bfalse",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "perc",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 180,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 90,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ab",
+          "type": "acceleration_bands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 2,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_kc",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_ab",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_break",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_kc",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_ab",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_break",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "doji",
+          "type": "doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lldoji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "or_doji",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_doji",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_trend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_final",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_exit_long",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_exit_short",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "btrue",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bfalse",
+            "handle": "result"
+          },
+          "target": {
+            "id": "perc",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_kc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_kc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_ab",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_ab",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_kc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_ab",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_kc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_kc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_ab",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ab",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_ab",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_kc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_break",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_ab",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_break",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_doji",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lldoji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_doji",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_doji",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_break",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "perc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_trend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_trend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_final",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cks",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "gt_exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "not_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_final",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Breakout Strategy: VHF & Keltner Fusion",
+    "description": "This expert-level event-driven algorithm leverages the Vertical Horizontal Filter (VHF) to adaptively identify market regime shifts between trending and ranging phases. It triggers breakout trades when the price simultaneously breaches the Keltner Channel and Acceleration Bands, utilizing a robust volatility adaptation mechanism for optimal performance on the 1-hour timeframe.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "CL-Futures",
+        "GC-Futures",
+        "ES-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_breakout_strategy_vhf_keltner",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "tipp_with_volatility",
+      "args": {
+        "multiplier": 1,
+        "floor_pct": 0.9,
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

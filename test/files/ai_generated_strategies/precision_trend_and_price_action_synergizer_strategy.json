@@ -1,0 +1,1234 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "precision_trend_and_price_action_synergizer",
+  "generated_at": "2025-06-10T10:29:12.214035",
+  "trade_signal_metadata": {
+    "id": "precision_trend_and_price_action_synergizer",
+    "name": "Precision Trend and Price Action Synergizer",
+    "options": [],
+    "desc": "This expert-level algorithm synthesizes trend following and price action strategies to identify reliable swing entry points on the 4-hour timeframe. Leveraging a custom dynamic Hull Moving Average and advanced candlestick patterns, it captures optimal entry moments during significant market volatility shifts.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hma34",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 34,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "price_above_hma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_6",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst_gt_06",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_phase_core",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bb_width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "sma_width",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "width_cross",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bw_0_2",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lower_thresh",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_near_lower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning_doji_star",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bull_pattern",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_pattern_near_lower",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pattern_plus_price",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_and_vol",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry_core",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma_vol",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "const_vol_threshold",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 100000,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "volume_ok",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hanging_man",
+          "type": "hanging_man",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "bear_pattern",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "upper_thresh",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_near_upper",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_pattern_near_upper",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_below_hma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_0_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst_lt_05",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ck_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma34",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_above_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma34",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_above_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_gt_06",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_gt_06",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_phase_core",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_gt_06",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_phase_core",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bb_width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_width",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_cross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "width_cross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_phase_core",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_and_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "width_cross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_and_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bw_0_2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_0_2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb_width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bw_0_2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lower_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_0_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lower_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_near_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lower_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_near_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji_star",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_pattern",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_pattern_near_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_near_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_pattern_near_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_pattern_near_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_plus_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pattern_plus_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_and_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_core",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pattern_plus_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry_core",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volume_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_vol_threshold",
+            "handle": "result"
+          },
+          "target": {
+            "id": "volume_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "entry_core",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "volume_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "upper_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bw_0_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "upper_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_near_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "upper_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_near_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hanging_man",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_pattern",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_pattern",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_pattern_near_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "close_near_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_pattern_near_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_below_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma34",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_below_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_lt_05",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_0_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_lt_05",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "price_below_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_lt_05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_pattern_near_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Precision Trend and Price Action Synergizer",
+    "description": "This expert-level algorithm synthesizes trend following and price action strategies to identify reliable swing entry points on the 4-hour timeframe. Leveraging a custom dynamic Hull Moving Average and advanced candlestick patterns, it captures optimal entry moments during significant market volatility shifts.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "precision_trend_and_price_action_synergizer",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.03
+      }
+    }
+  }
+}

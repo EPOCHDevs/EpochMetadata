@@ -49,6 +49,7 @@ endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/EpochFolio.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Tulip.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/Graphviz.cmake)
 
 find_package(glaze REQUIRED)
 find_package(spdlog REQUIRED)
@@ -87,7 +88,11 @@ target_link_libraries(epoch_metadata PUBLIC
        spdlog::spdlog_header_only
        yaml-cpp::yaml-cpp
        tulip_indicators
-       glaze::glaze)
+       glaze::glaze
+        cgraph
+        gvc
+        gvplugin_core
+        gvplugin_dot_layout)
 
 add_subdirectory(src)
 

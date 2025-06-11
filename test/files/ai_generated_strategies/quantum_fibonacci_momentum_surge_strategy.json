@@ -1,0 +1,847 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "quantum_fibonacci_momentum_surge",
+  "generated_at": "2025-06-10T15:39:31.242315",
+  "trade_signal_metadata": {
+    "id": "quantum_fibonacci_momentum_surge",
+    "name": "Quantum Fibonacci Momentum Surge",
+    "options": [],
+    "desc": "The Quantum Fibonacci Momentum Surge algorithm leverages the Fisher Transform to pinpoint extreme momentum shifts, combined with a Rate of Change Ratio for robust momentum validation. This expert-level Pine Script utilizes Bollinger Bands to gauge volatility, making it ideal for high-frequency trading in the 1-hour timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbw",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "phi_const",
+          "type": "phi",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_width_phi",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_high_add",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "thr_low_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher_node",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr_node",
+          "type": "rocr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "one_const",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr_gt1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rocr_lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pivot_node",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "price_gt_thr_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_thr_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gt_pivot",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_pivot",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lt_s1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_gt_r1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_width_phi",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "phi_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_width_phi",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "thr_high_add",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_width_phi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_high_add",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "thr_low_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_width_phi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "thr_low_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_node",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_node",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_node",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_node",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rocr_gt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rocr_gt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rocr_lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "rocr_lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_thr_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_high_add",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_gt_thr_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_thr_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "thr_low_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "price_lt_thr_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot_node",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "price_gt_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot_node",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "price_lt_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr_gt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_thr_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rocr_lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_thr_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lt_s1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot_node",
+            "handle": "support_1"
+          },
+          "target": {
+            "id": "price_lt_s1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lt_s1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_gt_r1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot_node",
+            "handle": "resist_1"
+          },
+          "target": {
+            "id": "price_gt_r1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "price_gt_r1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Quantum Fibonacci Momentum Surge",
+    "description": "The Quantum Fibonacci Momentum Surge algorithm leverages the Fisher Transform to pinpoint extreme momentum shifts, combined with a Rate of Change Ratio for robust momentum validation. This expert-level Pine Script utilizes Bollinger Bands to gauge volatility, making it ideal for high-frequency trading in the 1-hour timeframe.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "quantum_fibonacci_momentum_surge",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

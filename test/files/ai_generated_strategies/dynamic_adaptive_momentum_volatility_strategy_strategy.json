@@ -1,0 +1,862 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_adaptive_momentum_volatility_strategy",
+  "generated_at": "2025-06-10T14:14:18.150078",
+  "trade_signal_metadata": {
+    "id": "dynamic_adaptive_momentum_volatility_strategy",
+    "name": "Dynamic Adaptive Momentum with Volatility Insight",
+    "options": [
+      {
+        "id": "cmo14_period",
+        "name": "Period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "bb20_period",
+        "name": "Period (bb20)"
+      },
+      {
+        "id": "bb20_stddev",
+        "name": "Stddev"
+      },
+      {
+        "id": "psar_node_acceleration_factor_step",
+        "name": "Acceleration_factor_step",
+        "type": "Decimal",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "psar_node_acceleration_factor_maximum",
+        "name": "Acceleration_factor_maximum",
+        "type": "Decimal",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "num20_value",
+        "name": "Value"
+      },
+      {
+        "id": "num005_value",
+        "name": "Value (num005)"
+      },
+      {
+        "id": "num003_value",
+        "name": "Value (num003)"
+      }
+    ],
+    "desc": "This algorithm, tailored for intermediate traders, implements a unique blend of momentum and volatility strategies. Using the Chande Momentum Oscillator to measure momentum, Bollinger Bands Width for volatility assessment, and Parabolic SAR to identify trend changes, it dynamically adjusts to market conditions for optimal trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo14",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "cmo14_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb20",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "bb20_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "stddev",
+              "value": {
+                "refName": "bb20_stddev"
+              },
+              "name": "Stddev",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bbw_node",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "psar_node",
+          "type": "psar",
+          "options": [
+            {
+              "id": "acceleration_factor_step",
+              "value": {
+                "refName": "psar_node_acceleration_factor_step"
+              },
+              "name": "Acceleration Factor Step",
+              "isExposed": true
+            },
+            {
+              "id": "acceleration_factor_maximum",
+              "value": {
+                "refName": "psar_node_acceleration_factor_maximum"
+              },
+              "name": "Acceleration Factor Maximum",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num20_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_neg20_a",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_neg20_b",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_cmo_20",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany_cmo_neg20",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_neg20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num005",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num005_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_bbw",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_close_psar",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_psar_close",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num003",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num003_value"
+              },
+              "name": "Value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_bbw_contract",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_exit_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_all",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bbw_node",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bbw_node",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bbw_node",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg20_a",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg20_a",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg20_b",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_neg20_b",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_cmo_20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_cmo_20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_cmo_neg20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_neg20_a",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany_cmo_neg20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_neg20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_neg20_b",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_neg20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bbw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num005",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_bbw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_close_psar",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "psar_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_close_psar",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "psar_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_psar_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_psar_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_cmo_neg20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cmo_neg20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_close_psar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany_cmo_20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_bbw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_psar_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bbw_node",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bbw_contract",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num003",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_bbw_contract",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bbw_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_psar_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_bbw_contract",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_close_psar",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_all",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "or_exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_all",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Adaptive Momentum with Volatility Insight",
+    "description": "This algorithm, tailored for intermediate traders, implements a unique blend of momentum and volatility strategies. Using the Chande Momentum Oscillator to measure momentum, Bollinger Bands Width for volatility assessment, and Parabolic SAR to identify trend changes, it dynamically adjusts to market conditions for optimal trading decisions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_adaptive_momentum_volatility_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

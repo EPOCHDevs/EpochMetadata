@@ -1,0 +1,808 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_market_regime_oscillator_navigator",
+  "generated_at": "2025-06-10T16:04:03.410132",
+  "trade_signal_metadata": {
+    "id": "adaptive_market_regime_oscillator_navigator",
+    "name": "Adaptive Market Regime Oscillator Navigator",
+    "options": [],
+    "desc": "This hybrid trading strategy intelligently identifies shifts between trend-following and mean-reverting market conditions. Utilizing dynamic indicators, it analyzes price momentum and volatility to execute optimized trades in varying market environments.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 100,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_hurst",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ema20",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bb20",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_ema_bb",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_long",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ck_stop",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "Price Period",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 20,
+              "name": "ATR Period",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 3,
+              "name": "Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_bb_ema",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_exit_raw",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "trend_exit",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch14",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_stoch",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_price_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_entry_cond",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_short",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_stoch",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_price_lower",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_exit_raw",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean_exit",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_sig",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ema20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_ema_bb",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "cross_ema_bb",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_ema_bb",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "cross_bb_ema",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_bb_ema",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ck_stop",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "lt_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_exit_raw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_bb_ema",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_exit_raw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_exit_raw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "trend_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "trend_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "stoch14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_stoch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_stoch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_price_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "gt_price_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_stoch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_entry_cond",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_price_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_entry_cond",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "not_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_entry_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_stoch",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_stoch",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb20",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "lte_price_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_stoch",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_exit_raw",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_price_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_exit_raw",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "not_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_exit_raw",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mean_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Market Regime Oscillator Navigator",
+    "description": "This hybrid trading strategy intelligently identifies shifts between trend-following and mean-reverting market conditions. Utilizing dynamic indicators, it analyzes price momentum and volatility to execute optimized trades in varying market environments.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_market_regime_oscillator_navigator",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

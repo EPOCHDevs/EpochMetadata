@@ -1,0 +1,466 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "elders_divergence_momentum_channel",
+  "generated_at": "2025-06-10T17:23:12.568830",
+  "trade_signal_metadata": {
+    "id": "elders_divergence_momentum_channel",
+    "name": "Elder's Divergence Momentum Channel Strategy",
+    "options": [],
+    "desc": "This trading algorithm integrates Elder's Force Index (EFI) with a volatility channel using Average True Range (ATR) to identify potential trends in the market. By analyzing divergences between the EFI and price action, the strategy aims to capture both bullish and bearish movements for improved trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "efi",
+          "type": "elders_thermometer",
+          "options": [
+            {
+              "id": "period",
+              "value": 13,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "buy_factor",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "sell_factor",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kc20",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "efi_cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "efi_cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_lower_low",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "efi_higher_low",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_div",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_break_out",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_condition",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_cross_down",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_condition",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "efi_cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "efi_cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "efi_cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "efi_cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_lower_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "efi_higher_low",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_lower_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_div",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "efi_higher_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_div",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_break_out",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc20",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "price_break_out",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_div",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_condition",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "efi_cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_condition",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_break_out",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_condition",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kc20",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "price_cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "efi_cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_condition",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_condition",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_condition",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_condition",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Elder's Divergence Momentum Channel Strategy",
+    "description": "This trading algorithm integrates Elder's Force Index (EFI) with a volatility channel using Average True Range (ATR) to identify potential trends in the market. By analyzing divergences between the EFI and price action, the strategy aims to capture both bullish and bearish movements for improved trading decisions.",
+    "data": {
+      "assets": [
+        "TSLA-Stocks",
+        "AMZN-Stocks",
+        "NVDA-Stocks",
+        "CL-Futures",
+        "GC-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "elders_divergence_momentum_channel",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

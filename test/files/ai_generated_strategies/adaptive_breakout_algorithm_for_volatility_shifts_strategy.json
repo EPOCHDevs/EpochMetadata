@@ -1,0 +1,809 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "adaptive_breakout_algorithm_for_volatility_shifts",
+  "generated_at": "2025-06-10T15:57:00.931488",
+  "trade_signal_metadata": {
+    "id": "adaptive_breakout_algorithm_for_volatility_shifts",
+    "name": "Adaptive Breakout Algorithm for Volatility Shifts",
+    "options": [],
+    "desc": "The Adaptive Breakout Algorithm leverages the Vertical Horizontal Filter (VHF) and Garman-Klass Volatility to detect shifts in market regimes. It identifies ideal entry points using a blend of momentum and price action strategies, aiming for intraday trading opportunities during periods of volatility. This hybrid approach enhances the robustness of breakout trades while adapting to changing market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vhf28",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 28,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gk14",
+          "type": "garman_klass",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_days",
+              "value": 252,
+              "name": "Trading Days",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ps_vhf_low",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 30,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps_gk_low",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 30,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "quiet_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps_vhf_high",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 70,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ps_gk_high",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 70,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "explosive_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "max_high10",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "min_low10",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "coef_high",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "coef_low",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "select_coef",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mult_atr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "breakout_high",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "breakout_low",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bool_false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf28",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_low",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf28",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_high",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "gk14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_low",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "gk14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_high",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_low",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_low",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_low",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_low",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_vhf_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "quiet_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_gk_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "quiet_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_high",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_vhf_high",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_high",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bool_false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ps_gk_high",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_vhf_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "explosive_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ps_gk_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "explosive_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "explosive_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_coef",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "coef_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_coef",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "coef_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "select_coef",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mult_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "select_coef",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mult_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mult_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "max_high10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "min_low10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mult_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "breakout_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "h"
+          },
+          "target": {
+            "id": "max_high10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "l"
+          },
+          "target": {
+            "id": "min_low10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "breakout_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "breakout_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "explosive_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "explosive_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Breakout Algorithm for Volatility Shifts",
+    "description": "The Adaptive Breakout Algorithm leverages the Vertical Horizontal Filter (VHF) and Garman-Klass Volatility to detect shifts in market regimes. It identifies ideal entry points using a blend of momentum and price action strategies, aiming for intraday trading opportunities during periods of volatility. This hybrid approach enhances the robustness of breakout trades while adapting to changing market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_breakout_algorithm_for_volatility_shifts",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

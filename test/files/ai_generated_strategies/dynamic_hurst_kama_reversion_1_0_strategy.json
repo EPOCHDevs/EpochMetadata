@@ -1,0 +1,1183 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_hurst_kama_reversion_1_0",
+  "generated_at": "2025-06-10T16:02:11.941862",
+  "trade_signal_metadata": {
+    "id": "dynamic_hurst_kama_reversion_1_0",
+    "name": "Dynamic Hurst-KAMA Oscillator Reversion 1.0",
+    "options": [],
+    "desc": "This expert-level Mean Reverting algorithm utilizes a 15-minute OHLCV dataset to identify short-term price exhaustion and potential rebounds. By integrating the Rolling Hurst Exponent and Kaufman Adaptive Moving Average, the strategy dynamically classifies market regimes and adapts to changing volatility, optimizing performance in liquid futures contracts.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "n_mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 60,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_kama",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_atr",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_natr",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_ma_natr",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_ratio",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_cmo",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_osc",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_doji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_0_45",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.45,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_kama_minus_atr",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_price_below",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_ma_vol",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n_gt_volume",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_agg_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_atr_1_5",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_kama_plus_1_5",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_price_above",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_0_55",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_gt_hurst",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_osc_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_agg_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_0_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_atr_half",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_kama_plus_half",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exit_long_price",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exit_long",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_kama_minus_half",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exit_short_price",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_osc_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exit_short",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exit",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_kama",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_cmo",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_ma_natr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_ratio",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_ma_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_ratio",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_cmo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_ratio",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_0_45",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_minus_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_minus_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_price_below",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama_minus_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_price_below",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "n_ma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "n_gt_volume",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_ma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_volume",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_price_below",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_volume",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_atr_1_5",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_atr_1_5",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_plus_1_5",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr_1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_plus_1_5",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_price_above",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama_plus_1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_price_above",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_0_55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_price_above",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_volume",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_agg_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_atr_half",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_0_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_atr_half",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_plus_half",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_plus_half",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_exit_long_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama_plus_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_long_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_exit_long_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_minus_half",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_atr_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_kama_minus_half",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n_exit_short_price",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_kama_minus_half",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_short_price",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_exit_short_price",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_osc_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_osc_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_exit_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_exit_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_volume",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "n_agg_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n_agg_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "n_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Hurst-KAMA Oscillator Reversion 1.0",
+    "description": "This expert-level Mean Reverting algorithm utilizes a 15-minute OHLCV dataset to identify short-term price exhaustion and potential rebounds. By integrating the Rolling Hurst Exponent and Kaufman Adaptive Moving Average, the strategy dynamically classifies market regimes and adapts to changing volatility, optimizing performance in liquid futures contracts.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures",
+        "GC-Futures",
+        "ZE-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_hurst_kama_reversion_1_0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      }
+    }
+  }
+}

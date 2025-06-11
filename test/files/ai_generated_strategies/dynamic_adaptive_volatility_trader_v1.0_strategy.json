@@ -1,0 +1,551 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "dynamic_adaptive_volatility_trader_v1.0",
+  "generated_at": "2025-06-10T15:55:41.743916",
+  "trade_signal_metadata": {
+    "id": "dynamic_adaptive_volatility_trader_v1.0",
+    "name": "Dynamic Adaptive Volatility Trader V1.0",
+    "options": [],
+    "desc": "This advanced event-driven trading algorithm leverages the Yang-Zhang Volatility and Bollinger Bands to adapt dynamically to short-term market conditions. Designed for expert traders, it operates on a 15-minute timeframe, optimizing decisions based on real-time market fluctuations and volatility patterns.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "node_market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_yz",
+          "type": "yang_zhang",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "Trading Periods Per Year",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_sma_vol",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_cross_up",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_cross_down",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_gt_up",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_kc",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "Rolling Period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "Band Multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "node_cross_long_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_cross_short_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "node_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_gt_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "node_gt_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "node_cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "node_lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "node_cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_sma_vol",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_yz",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_sma_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_cross_long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kc",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "node_cross_long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "node_cross_short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "node_kc",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "node_cross_short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "node_cross_long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_cross_short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "node_long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "node_short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "node_close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "node_exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Adaptive Volatility Trader V1.0",
+    "description": "This advanced event-driven trading algorithm leverages the Yang-Zhang Volatility and Bollinger Bands to adapt dynamically to short-term market conditions. Designed for expert traders, it operates on a 15-minute timeframe, optimizing decisions based on real-time market fluctuations and volatility patterns.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_adaptive_volatility_trader_v1.0",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.01
+      }
+    }
+  }
+}

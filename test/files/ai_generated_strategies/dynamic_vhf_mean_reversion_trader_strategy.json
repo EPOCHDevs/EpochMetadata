@@ -1,0 +1,843 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_vhf_mean_reversion_trader",
+  "generated_at": "2025-06-10T10:23:17.399313",
+  "trade_signal_metadata": {
+    "id": "dynamic_vhf_mean_reversion_trader",
+    "name": "Dynamic VHF Mean Reversion Trader",
+    "options": [],
+    "desc": "This expert-level trading algorithm leverages advanced PriceAction candlestick patterns and multi-layered filters to identify high-probability mean reversion trades in low-volatility and sideways market conditions. By incorporating the Vertical Horizontal Filter (VHF) over a 50-period window, it effectively detects consolidation regimes for optimal trade entries during 15-minute bars.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vhf50",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bf1",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bt1",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psel_vhf",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 200,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "natr20",
+          "type": "natr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bf2",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bt2",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psel_natr",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 200,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 30,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "support20",
+          "type": "min",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "resist20",
+          "type": "max",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lldoji",
+          "type": "long_legged_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "spintop",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "fpdoji",
+          "type": "four_price_doji",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "pat_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "near_sup",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "near_res",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vwma10",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "long_exit",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_exit",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_or",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vhf50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_vhf",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bf1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_vhf",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_vhf",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "natr20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_natr",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "bf2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_natr",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "bt2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel_natr",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "l"
+          },
+          "target": {
+            "id": "support20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "h"
+          },
+          "target": {
+            "id": "resist20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lldoji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pat_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spintop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pat_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fpdoji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pat_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psel_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psel_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pat_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "near_sup",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psel_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "psel_natr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pat_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "near_res",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "near_sup",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "support20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "near_sup",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "near_res",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "resist20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "near_res",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "long_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "short_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_or",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic VHF Mean Reversion Trader",
+    "description": "This expert-level trading algorithm leverages advanced PriceAction candlestick patterns and multi-layered filters to identify high-probability mean reversion trades in low-volatility and sideways market conditions. By incorporating the Vertical Horizontal Filter (VHF) over a 50-period window, it effectively detects consolidation regimes for optimal trade entries during 15-minute bars.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "KO-Stocks",
+        "^EURUSD-FX",
+        "^USDJPY-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "dynamic_vhf_mean_reversion_trader",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 20,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 14,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

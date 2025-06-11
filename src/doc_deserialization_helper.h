@@ -9,22 +9,24 @@
 #include "epoch_metadata/constants.h"
 
 namespace epoch_metadata {
-template <class T, class B = T>
-std::vector<T> LoadFromYAMLNode(YAML::Node const &node) {
-  std::vector<T> result(node.size());
-  std::ranges::transform(node, result.begin(), [](auto const &item) {
-    auto value = item.second;
-    value["id"] = item.first;
-    return static_cast<T>(value.template as<B>());
-  });
-  return result;
-}
 
-template <class T, class B = T>
-std::vector<T> LoadFromFile(FileLoaderInterface const &loader,
-                            std::string const &name) {
-  return LoadFromYAMLNode<T, B>(loader(std::vformat("{}.yaml", std::format_args(std::make_format_args(name)))));
-}
+  template <class T, class B = T>
+std::vector<T> LoadFromYAMLNode(YAML::Node const &node) {
+    std::vector<T> result(node.size());
+    std::ranges::transform(node, result.begin(), [](auto const &item) {
+      auto value = item.second;
+      value["id"] = item.first;
+      return static_cast<T>(value.template as<B>());
+    });
+    return result;
+  }
+
+  template <class T, class B = T>
+  std::vector<T> LoadFromFile(FileLoaderInterface const &loader,
+                              std::string const &name) {
+    return LoadFromYAMLNode<T, B>(loader(std::vformat("{}.yaml", std::format_args(std::make_format_args(name)))));
+  }
+
 
 inline std::string MakeBarChartURL(std::string const &indicator) {
   return std::format(

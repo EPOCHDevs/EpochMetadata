@@ -1,0 +1,1013 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_adaptive_trend_following_system",
+  "generated_at": "2025-06-10T10:48:07.970630",
+  "trade_signal_metadata": {
+    "id": "volatility_adaptive_trend_following_system",
+    "name": "Volatility Adaptive Trend Following System",
+    "options": [
+      {
+        "id": "ui_period",
+        "name": "Period"
+      },
+      {
+        "id": "vhf_period",
+        "name": "Period (vhf)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "hma30_period",
+        "name": "Period (hma30)"
+      },
+      {
+        "id": "psel50_lookback",
+        "name": "Lookback"
+      },
+      {
+        "id": "psel50_percentile",
+        "name": "Percentile"
+      },
+      {
+        "id": "psel80_lookback",
+        "name": "Lookback (psel80)"
+      },
+      {
+        "id": "psel80_percentile",
+        "name": "Percentile (psel80)"
+      },
+      {
+        "id": "num037_value",
+        "name": "Value"
+      },
+      {
+        "id": "num019_value",
+        "name": "Value (num019)"
+      },
+      {
+        "id": "num60_value",
+        "name": "Value (num60)"
+      },
+      {
+        "id": "cks_p_period",
+        "name": "P_Period"
+      },
+      {
+        "id": "cks_q_period",
+        "name": "Q_Period"
+      },
+      {
+        "id": "cks_multiplier",
+        "name": "Multiplier"
+      },
+      {
+        "id": "kvo_short_period",
+        "name": "Short_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "kvo_long_period",
+        "name": "Long_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      }
+    ],
+    "desc": "This expert-level trend-following strategy utilizes a volatility regime-switching approach, incorporating the Ulcer Index and Vertical Horizontal Filter to measure market conditions. Designed for a 30-minute timeframe, it enters long trades in low-drawdown environments, ensuring optimal performance during trending markets.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ui",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "ui_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "vhf",
+          "type": "vhf",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "vhf_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "hma30",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "hma30_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "true_const",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "false_const",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psel50",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "psel50_lookback"
+              },
+              "name": "Lookback Period",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "psel50_percentile"
+              },
+              "name": "Percentile Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not50",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "one_const",
+          "type": "one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bs_below50",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sum7_b50",
+          "type": "sum",
+          "options": [
+            {
+              "id": "period",
+              "value": 7,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num7",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 7,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte7_b50",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "psel80",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": {
+                "refName": "psel80_lookback"
+              },
+              "name": "Lookback Period",
+              "isExposed": true
+            },
+            {
+              "id": "percentile",
+              "value": {
+                "refName": "psel80_percentile"
+              },
+              "name": "Percentile Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bs_above80",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sum7_a80",
+          "type": "sum",
+          "options": [
+            {
+              "id": "period",
+              "value": 7,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte7_a80",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num037",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num037_value"
+              },
+              "name": "value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_vhf",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num019",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num019_value"
+              },
+              "name": "value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_vhf",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num60",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num60_value"
+              },
+              "name": "value",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_exit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cks",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": {
+                "refName": "cks_p_period"
+              },
+              "name": "Price Period",
+              "isExposed": true
+            },
+            {
+              "id": "q_period",
+              "value": {
+                "refName": "cks_q_period"
+              },
+              "name": "ATR Period",
+              "isExposed": true
+            },
+            {
+              "id": "multiplier",
+              "value": {
+                "refName": "cks_multiplier"
+              },
+              "name": "Multiplier",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "kvo",
+          "type": "kvo",
+          "options": [
+            {
+              "id": "short_period",
+              "value": {
+                "refName": "kvo_short_period"
+              },
+              "name": "Short_period",
+              "isExposed": true
+            },
+            {
+              "id": "long_period",
+              "value": {
+                "refName": "kvo_long_period"
+              },
+              "name": "Long_period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "vhf",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel50",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel50",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel50",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "psel50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "not50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_below50",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_below50",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_below50",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "bs_below50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sum7_b50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sum7_b50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte7_b50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte7_b50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel80",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "true_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel80",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "false_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "psel80",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "psel80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_above80",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "one_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_above80",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bs_above80",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "bs_above80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sum7_a80",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sum7_a80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte7_a80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte7_a80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num037",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vhf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vhf",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num019",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_vhf",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gte7_b50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte7_a80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_vhf",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "ui",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_exit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Adaptive Trend Following System",
+    "description": "This expert-level trend-following strategy utilizes a volatility regime-switching approach, incorporating the Ulcer Index and Vertical Horizontal Filter to measure market conditions. Designed for a 30-minute timeframe, it enters long trades in low-drawdown environments, ensuring optimal performance during trending markets.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures",
+        "GC-Futures",
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "volatility_adaptive_trend_following_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 3,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

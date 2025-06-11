@@ -1,0 +1,661 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "volatility_recovery_trend_detector",
+  "generated_at": "2025-06-10T11:09:43.314422",
+  "trade_signal_metadata": {
+    "id": "volatility_recovery_trend_detector",
+    "name": "Volatility Recovery Trend Detector",
+    "options": [],
+    "desc": "This algorithm identifies recovery patterns following extreme volatility events in currency pairs. By leveraging price action analysis, volatility indicators, and adaptive moving averages, it helps traders capture potential reversals and short-term recoveries after significant market drawdowns.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "source1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr14",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "emaShort",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 9,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "emaLong",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "srsi",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const015",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.015,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "threshMul",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtATR",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "emaCross",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltSrsi20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hammer1",
+          "type": "hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "invHam",
+          "type": "inverted_hammer",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "spinTop",
+          "type": "spinning_top",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "patternAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "entryAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const80",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtSrsi80",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "emaShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "emaLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "srsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "source1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "threshMul",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const015",
+            "handle": "result"
+          },
+          "target": {
+            "id": "threshMul",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtATR",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "threshMul",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtATR",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "emaShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "emaCross",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "emaLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "emaCross",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "srsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltSrsi20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltSrsi20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hammer1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "invHam",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "spinTop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "patternAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtATR",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entryAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "emaCross",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entryAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltSrsi20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entryAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "patternAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "entryAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "entryAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "srsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtSrsi80",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtSrsi80",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtSrsi80",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility Recovery Trend Detector",
+    "description": "This algorithm identifies recovery patterns following extreme volatility events in currency pairs. By leveraging price action analysis, volatility indicators, and adaptive moving averages, it helps traders capture potential reversals and short-term recoveries after significant market drawdowns.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^NZDUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_recovery_trend_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

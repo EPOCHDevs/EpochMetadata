@@ -1,0 +1,954 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "kama_trend_price_action_fusion",
+  "generated_at": "2025-06-10T17:12:47.523690",
+  "trade_signal_metadata": {
+    "id": "kama_trend_price_action_fusion",
+    "name": "KAMA-Driven Trend and Price Action Fusion",
+    "options": [],
+    "desc": "This advanced hybrid trading algorithm leverages the Kaufman Adaptive Moving Average (KAMA) to identify trends while incorporating sophisticated price action signals through candlestick patterns. Operating on a 30-minute timeframe, it dynamically adjusts to market volatility, optimizing entry and exit points for enhanced trading performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama20",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "kama_rising",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama_falling",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx14",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "num25",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 25,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx_gt25",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "uptrend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "downtrend",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 20,
+              "name": "roll_period",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 2,
+              "name": "band_multiplier",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "lt_upper",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_lower",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inside_band",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "outside_band",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "morning_doji",
+          "type": "morning_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "evening_doji",
+          "type": "evening_doji_star",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "fisher10",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "crossover_bull",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_bear",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_entry_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_lt_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_gt_kama",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx_lt20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_union",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "closeIfIndecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama_rising",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama_falling",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_gt25",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_gt25",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_rising",
+            "handle": "result"
+          },
+          "target": {
+            "id": "uptrend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_gt25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "uptrend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama_falling",
+            "handle": "result"
+          },
+          "target": {
+            "id": "downtrend",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_gt25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "downtrend",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "lt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "gt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inside_band",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "inside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "outside_band",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher10",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "crossover_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher10",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "crossover_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher10",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "crossover_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher10",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "crossover_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "outside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "uptrend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "outside_band",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "downtrend",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "evening_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_entry_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_lt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_lt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "close_gt_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_gt_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_lt20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_lt20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_lt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_lt20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "evening_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_gt_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_lt20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "morning_doji",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_union",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "short_exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_union",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_entry_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_union",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "KAMA-Driven Trend and Price Action Fusion",
+    "description": "This advanced hybrid trading algorithm leverages the Kaufman Adaptive Moving Average (KAMA) to identify trends while incorporating sophisticated price action signals through candlestick patterns. Operating on a 30-minute timeframe, it dynamically adjusts to market volatility, optimizing entry and exit points for enhanced trading performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "kama_trend_price_action_fusion",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.03
+      }
+    }
+  }
+}

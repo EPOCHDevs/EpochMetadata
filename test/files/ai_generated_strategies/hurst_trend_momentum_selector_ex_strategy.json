@@ -1,0 +1,830 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "hurst_trend_momentum_selector_ex",
+  "generated_at": "2025-06-10T15:05:33.221868",
+  "trade_signal_metadata": {
+    "id": "hurst_trend_momentum_selector_ex",
+    "name": "Hurst Trend Momentum Selector EX",
+    "options": [
+      {
+        "id": "hurst_window",
+        "name": "Window"
+      },
+      {
+        "id": "fisherT_period",
+        "name": "Period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "mfi14_period",
+        "name": "Period (mfi14)",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "top20_k",
+        "name": "Percent",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "bottom10_k",
+        "name": "Percent (bottom10)",
+        "type": "Integer",
+        "defaultValue": 10,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      }
+    ],
+    "desc": "This algorithm employs a cross-sectional momentum strategy focused on stocks traded on 1-hour candles. By calculating the Rolling Hurst Exponent and the Fisher Transform, it intelligently identifies the top-performing stocks exhibiting strong trending behavior, allowing for targeted trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": {
+                "refName": "hurst_window"
+              },
+              "name": "Window Size",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fisherT",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "fisherT_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "mfi14",
+          "type": "mfi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "mfi14_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num052",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.52,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num048",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.48,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num050",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num045",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 45,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num055",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 55,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hurst_long",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hurst_short",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "top20",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": {
+                "refName": "top20_k"
+              },
+              "name": "Percent",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "bottom10",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": {
+                "refName": "bottom10_k"
+              },
+              "name": "Percent",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "fisher_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher_down",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mfi_cross_up50",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mfi_cross_down50",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_mfi45",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_mfi55",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short_entry",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_long_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_short_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_total",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bottom10",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num052",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hurst_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num048",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisherT",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "fisher_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisherT",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "fisher_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisherT",
+            "handle": "fisher_signal"
+          },
+          "target": {
+            "id": "fisher_down",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "fisherT",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "fisher_down",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mfi_cross_up50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num050",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mfi_cross_up50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "num050",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mfi_cross_down50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mfi_cross_down50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mfi45",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num045",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mfi45",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi55",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num055",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi55",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "top20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi_cross_up50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bottom10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi_cross_down50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short_entry",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_down",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_mfi45",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_long_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hurst_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mfi55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_short_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_long_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_total",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_short_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_total",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_total",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Hurst Trend Momentum Selector EX",
+    "description": "This algorithm employs a cross-sectional momentum strategy focused on stocks traded on 1-hour candles. By calculating the Rolling Hurst Exponent and the Fisher Transform, it intelligently identifies the top-performing stocks exhibiting strong trending behavior, allowing for targeted trading decisions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "DIS-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "hurst_trend_momentum_selector_ex",
+      "args": {
+        "top20_k": 10,
+        "bottom10_k": 10
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

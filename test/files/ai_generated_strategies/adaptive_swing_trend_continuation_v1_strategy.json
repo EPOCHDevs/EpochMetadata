@@ -1,0 +1,538 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adaptive_swing_trend_continuation_v1",
+  "generated_at": "2025-06-10T16:41:13.327556",
+  "trade_signal_metadata": {
+    "id": "adaptive_swing_trend_continuation_v1",
+    "name": "Adaptive Swing Trend Continuation System V1",
+    "options": [],
+    "desc": "This algorithm employs an adaptive trend-following strategy that focuses on swing highs and lows to identify potential trend continuation points. It dynamically adjusts to changes in market volatility, utilizing the Average True Range (ATR) and other key indicators for optimized trading decisions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sess_lon",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sess_ny",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "Session",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "or_sessions",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "kama1h",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "kama15m",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_price_kama_1h",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "cross_price_kama_15m",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "swing1h",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const_one",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "eq_swing_high",
+          "type": "eq",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr1h",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_atr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr_quiet",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_entry_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_price_below_kama",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "sess_lon",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sess_ny",
+            "handle": "active"
+          },
+          "target": {
+            "id": "or_sessions",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama1h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "kama15m",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_kama_1h",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_price_kama_1h",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_price_kama_15m",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama15m",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_price_kama_15m",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "swing1h",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "eq_swing_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "eq_swing_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_atr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_quiet",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "atr_quiet",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "or_sessions",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_kama_1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_price_kama_15m",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr_quiet",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eq_swing_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_entry_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "exit_price_below_kama",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_price_below_kama",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "all_entry_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_price_below_kama",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive Swing Trend Continuation System V1",
+    "description": "This algorithm employs an adaptive trend-following strategy that focuses on swing highs and lows to identify potential trend continuation points. It dynamically adjusts to changes in market volatility, utilizing the Average True Range (ATR) and other key indicators for optimized trading decisions.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^USDCAD-FX",
+        "^AUDUSD-FX",
+        "CL-Futures",
+        "GC-Futures",
+        "ES-Futures",
+        "NQ-Futures",
+        "YM-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "adaptive_swing_trend_continuation_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

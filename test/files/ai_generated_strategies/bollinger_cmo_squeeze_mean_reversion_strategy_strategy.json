@@ -1,0 +1,791 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "bollinger_cmo_squeeze_mean_reversion_strategy",
+  "generated_at": "2025-06-10T15:30:16.954435",
+  "trade_signal_metadata": {
+    "id": "bollinger_cmo_squeeze_mean_reversion_strategy",
+    "name": "Bollinger CMO Squeeze Mean Reversion Strategy",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm leverages mean-reverting strategies by identifying volatility contraction phases using Bollinger Bands and the Chande Momentum Oscillator. It specifically targets price divergences and breakout squeezes on a 15-minute chart, aiming to capitalize on temporary price movements.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb1",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bw1",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "bp1",
+          "type": "bband_percent",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ll1",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": 14,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num05",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub1",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "abs1",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "numthr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.05,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt1",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "squeeze1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cmo1",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "num_neg50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -50,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "oversold_lt",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num_pos50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "overbought_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst1",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_hurst",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_mid",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_cmo0",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hurst_gt",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exit_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num05b",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.5,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bw1",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "bw1",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bw1",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bw1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ll1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "bp1",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "bp1",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "bp1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num05",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sub1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "numthr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ll1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "squeeze1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "oversold_lt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_neg50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "oversold_lt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "overbought_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_pos50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "overbought_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num05b",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hurst",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "oversold_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "squeeze1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "overbought_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "bb1",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "cross_mid",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_mid",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_cmo0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_gt",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num05b",
+            "handle": "result"
+          },
+          "target": {
+            "id": "hurst_gt",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exit_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exit_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Bollinger CMO Squeeze Mean Reversion Strategy",
+    "description": "This intermediate-level trading algorithm leverages mean-reverting strategies by identifying volatility contraction phases using Bollinger Bands and the Chande Momentum Oscillator. It specifically targets price divergences and breakout squeezes on a 15-minute chart, aiming to capitalize on temporary price movements.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "AMZN-Stocks",
+        "SPY-Stocks",
+        "QQQ-Stocks",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "bollinger_cmo_squeeze_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.05,
+        "risk": 0.02
+      }
+    }
+  }
+}

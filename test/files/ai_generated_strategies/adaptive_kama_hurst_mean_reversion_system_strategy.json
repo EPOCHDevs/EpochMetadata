@@ -1,0 +1,748 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "adaptive_kama_hurst_mean_reversion_system",
+  "generated_at": "2025-06-10T15:34:27.442884",
+  "trade_signal_metadata": {
+    "id": "adaptive_kama_hurst_mean_reversion_system",
+    "name": "Adaptive KAMA Hurst Mean Reversion System",
+    "options": [],
+    "desc": "This expert-level mean-reverting trading algorithm operates on a 15-minute timeframe targeting liquid equities. It leverages a 12-period Kaufman Adaptive Moving Average and a rolling 50-period Hurst Exponent to dynamically adjust to market conditions and enhance trading decisions based on mean reversion signals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kama12",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 12,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "hurst",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 50,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "var20",
+          "type": "var",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "std20",
+          "type": "sqrt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dev",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mean20",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "znum",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zscore",
+          "type": "div",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "c0_6",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "c1_2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cneg1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "c1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "c0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "regime_ok",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "smaVol30",
+          "type": "ma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "type",
+              "value": "sma",
+              "name": "Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "vol_thresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "vol_ok",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allow_trading",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_sig",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_sig",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_long",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_short",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_any",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "dev",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "kama12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "dev",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mean20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dev",
+            "handle": "result"
+          },
+          "target": {
+            "id": "znum",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mean20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "znum",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "znum",
+            "handle": "result"
+          },
+          "target": {
+            "id": "zscore",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "std20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "zscore",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "var20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "var20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama12",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hurst",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hurst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "c0_6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "regime_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "regime_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allow_trading",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "smaVol30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "smaVol30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "c1_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "v"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "vol_ok",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vol_ok",
+            "handle": "result"
+          },
+          "target": {
+            "id": "allow_trading",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "allow_trading",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cneg1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "c1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_sig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "c0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zscore",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "c0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "close_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_any",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "close_any",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "long_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_sig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Adaptive KAMA Hurst Mean Reversion System",
+    "description": "This expert-level mean-reverting trading algorithm operates on a 15-minute timeframe targeting liquid equities. It leverages a 12-period Kaufman Adaptive Moving Average and a rolling 50-period Hurst Exponent to dynamically adjust to market conditions and enhance trading decisions based on mean reversion signals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks",
+        "GOOGL-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "META-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "DIS-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "adaptive_kama_hurst_mean_reversion_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.03
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.02
+      }
+    }
+  }
+}

@@ -1,0 +1,857 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "market_awakening_momentum_oscillator_system",
+  "generated_at": "2025-06-10T09:41:12.533929",
+  "trade_signal_metadata": {
+    "id": "market_awakening_momentum_oscillator_system",
+    "name": "Market Awakening Momentum Oscillator System",
+    "options": [],
+    "desc": "This algorithm leverages a volatility breakout mechanism combined with a power momentum oscillator to identify and capitalize on significant market movements. Designed for 30-minute bar analysis, it effectively detects periods of low volatility before harnessing momentum to execute trades during high-activity phases.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bb",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "Stddev",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "width",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sma30",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "sqSel",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 50,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 10,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "trueConst",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "falseConst",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "xo",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notSq",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "expAnd",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "dx14",
+          "type": "dx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "roc25",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 25,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "absROC",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "power",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "powSelHigh",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 85,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "powSel25",
+          "type": "percentile_select",
+          "options": [
+            {
+              "id": "lookback",
+              "value": 100,
+              "name": "Lookback Period",
+              "isExposed": false
+            },
+            {
+              "id": "percentile",
+              "value": 75,
+              "name": "Percentile Threshold",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "gtPos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltNeg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andL1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "longSig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andS1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "shortSig",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notPow25",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num15",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 15,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltDX",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exitSig",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zeroConst",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "bb",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "bb",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "width",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma30",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "xo",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "xo",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "width",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sqSel",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sqSel",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sqSel",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "sqSel",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notSq",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "xo",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expAnd",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "notSq",
+            "handle": "result"
+          },
+          "target": {
+            "id": "expAnd",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc25",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "absROC",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "power",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "absROC",
+            "handle": "result"
+          },
+          "target": {
+            "id": "power",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "power",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSelHigh",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSelHigh",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSelHigh",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "power",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSel25",
+            "handle": "value"
+          }
+        },
+        {
+          "source": {
+            "id": "trueConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSel25",
+            "handle": "high"
+          }
+        },
+        {
+          "source": {
+            "id": "falseConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "powSel25",
+            "handle": "low"
+          }
+        },
+        {
+          "source": {
+            "id": "roc25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtPos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltNeg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zeroConst",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltNeg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "expAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andL1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "powSelHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andL1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andL1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gtPos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "longSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "expAnd",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andS1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "powSelHigh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andS1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andS1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltNeg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "shortSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "powSel25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notPow25",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "dx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDX",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltDX",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "notPow25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitSig",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ltDX",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exitSig",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "longSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "shortSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "exitSig",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Market Awakening Momentum Oscillator System",
+    "description": "This algorithm leverages a volatility breakout mechanism combined with a power momentum oscillator to identify and capitalize on significant market movements. Designed for 30-minute bar analysis, it effectively detects periods of low volatility before harnessing momentum to execute trades during high-activity phases.",
+    "data": {
+      "assets": [
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "DX-Futures",
+        "PX-Futures",
+        "T-Stocks"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "market_awakening_momentum_oscillator_system",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

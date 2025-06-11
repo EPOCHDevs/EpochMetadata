@@ -1,0 +1,717 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "forex_divergence_momentum_tracker",
+  "generated_at": "2025-06-10T10:15:00.961069",
+  "trade_signal_metadata": {
+    "id": "forex_divergence_momentum_tracker",
+    "name": "Forex Divergence Momentum Tracker",
+    "options": [
+      {
+        "id": "stoch1_k_period",
+        "name": "K_Period"
+      },
+      {
+        "id": "stoch1_k_slowing_period",
+        "name": "K_Slowing_Period"
+      },
+      {
+        "id": "stoch1_d_period",
+        "name": "D_Period"
+      },
+      {
+        "id": "rsi1_period",
+        "name": "Period"
+      },
+      {
+        "id": "atr1_period",
+        "name": "Period (atr1)"
+      }
+    ],
+    "desc": "This intermediate-level trading algorithm specializes in detecting momentum divergences in Forex pairs by analyzing price action alongside the Stochastic Oscillator. By identifying discrepancies between price movements and momentum indicators, the algorithm aims to generate accurate entry signals for traders. Leveraging advanced divergence techniques, it enhances decision-making for optimal trade execution.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch1",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": {
+                "refName": "stoch1_k_period"
+              },
+              "name": "K Period",
+              "isExposed": true
+            },
+            {
+              "id": "k_slowing_period",
+              "value": {
+                "refName": "stoch1_k_slowing_period"
+              },
+              "name": "K Slowing",
+              "isExposed": true
+            },
+            {
+              "id": "d_period",
+              "value": {
+                "refName": "stoch1_d_period"
+              },
+              "name": "D Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "rsi1",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "rsi1_period"
+              },
+              "name": "RSI Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "atr1",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "atr1_period"
+              },
+              "name": "ATR Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_two",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 2,
+              "name": "Value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_close_lt",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_close_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_rsi_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_rsi_lt",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_stoch_gt",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prev_stoch_lt",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bull_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_and1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bear_signal",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul_atr",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lag_close",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "Lag Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "stop_long_sub",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_stop",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stop_short_add",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_stop",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prev_close_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "prev_close_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_rsi_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prev_rsi_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "prev_stoch_gt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch1",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "prev_stoch_lt",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_close_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_rsi_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_stoch_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bull_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_close_gt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_rsi_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_and1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_and1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_signal",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prev_stoch_lt",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bear_signal",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_two",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lag_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stop_long_sub",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stop_long_sub",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stop_long_sub",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lag_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stop_short_add",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "stop_short_add",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "stop_short_add",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_stop",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_stop",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bull_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bear_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Forex Divergence Momentum Tracker",
+    "description": "This intermediate-level trading algorithm specializes in detecting momentum divergences in Forex pairs by analyzing price action alongside the Stochastic Oscillator. By identifying discrepancies between price movements and momentum indicators, the algorithm aims to generate accurate entry signals for traders. Leveraging advanced divergence techniques, it enhances decision-making for optimal trade execution.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^AUDUSD-FX",
+        "^USDCAD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "forex_divergence_momentum_tracker",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

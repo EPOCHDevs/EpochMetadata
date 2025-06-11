@@ -1,0 +1,455 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "volatility_aware_mean_reversion_strategy",
+  "generated_at": "2025-06-10T14:11:35.086023",
+  "trade_signal_metadata": {
+    "id": "volatility_aware_mean_reversion_strategy",
+    "name": "Volatility-Aware Mean Reversion Strategy",
+    "options": [],
+    "desc": "This mean-reverting algorithm focuses on downside risk minimization and adaptive exposure through a rotational strategy applied to a universe of assets. Utilizing the Ulcer Index and Rolling Hurst Exponent, it selectively identifies the top 20% of assets on a weekly basis, ensuring robust performance even during volatile market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "m1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "u1",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "h1",
+          "type": "rolling_hurst_exponent",
+          "options": [
+            {
+              "id": "window",
+              "value": 70,
+              "name": "Window Size",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "r1",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "b1",
+          "type": "bottom_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 50,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n55",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0.55,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "nneg",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": -1000,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "g1",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "g2",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "a1",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sel1",
+          "type": "boolean_select",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "top1",
+          "type": "top_k_percent",
+          "options": [
+            {
+              "id": "k",
+              "value": 20,
+              "name": "Percent",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "inv1",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec1",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "m1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "h1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "m1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "r1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "u1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "b1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "h1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "g1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n55",
+            "handle": "result"
+          },
+          "target": {
+            "id": "g1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "r1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "g2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "g2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "b1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "a1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "g1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "a1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "g2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "a1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "a1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sel1",
+            "handle": "condition"
+          }
+        },
+        {
+          "source": {
+            "id": "r1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sel1",
+            "handle": "true"
+          }
+        },
+        {
+          "source": {
+            "id": "nneg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sel1",
+            "handle": "false"
+          }
+        },
+        {
+          "source": {
+            "id": "sel1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "top1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "top1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "top1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "inv1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "inv1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec1",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Volatility-Aware Mean Reversion Strategy",
+    "description": "This mean-reverting algorithm focuses on downside risk minimization and adaptive exposure through a rotational strategy applied to a universe of assets. Utilizing the Ulcer Index and Rolling Hurst Exponent, it selectively identifies the top 20% of assets on a weekly basis, ensuring robust performance even during volatile market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "GOOGL-Stocks",
+        "AMZN-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "JPM-Stocks",
+        "V-Stocks",
+        "JNJ-Stocks",
+        "PG-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "type": "volatility_aware_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

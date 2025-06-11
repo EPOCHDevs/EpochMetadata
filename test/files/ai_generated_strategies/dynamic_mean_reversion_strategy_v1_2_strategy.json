@@ -1,0 +1,650 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_mean_reversion_strategy_v1_2",
+  "generated_at": "2025-06-10T10:21:40.824931",
+  "trade_signal_metadata": {
+    "id": "dynamic_mean_reversion_strategy_v1_2",
+    "name": "Dynamic Mean Reversion Strategy v1.2",
+    "options": [
+      {
+        "id": "n2_period",
+        "name": "Period"
+      },
+      {
+        "id": "n2_stddev",
+        "name": "Stddev"
+      },
+      {
+        "id": "n4_periods",
+        "name": "Lookback Periods",
+        "type": "Integer",
+        "defaultValue": 14,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n6_period",
+        "name": "Period (n6)"
+      },
+      {
+        "id": "n7_periods",
+        "name": "Periods"
+      },
+      {
+        "id": "n8_body_none",
+        "name": "Body None Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n8_body_short",
+        "name": "Body Short Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.5,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n8_body_long",
+        "name": "Body Long Threshold",
+        "type": "Decimal",
+        "defaultValue": 1.4,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n8_wick_none",
+        "name": "Wick None Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.05,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n8_wick_long",
+        "name": "Wick Long Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.6,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n8_near",
+        "name": "Near Threshold",
+        "type": "Decimal",
+        "defaultValue": 0.3,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "n12_period",
+        "name": "Period (n12)"
+      }
+    ],
+    "desc": "This advanced trading algorithm employs mean reversion principles to identify and capitalize on overextended price movements. Utilizing Bollinger Bands Width as a volatility filter, it enhances trade timing and implements robust risk management strategies for optimal performance.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "n2_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "stddev",
+              "value": {
+                "refName": "n2_stddev"
+              },
+              "name": "Stddev",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n3",
+          "type": "bband_width",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n4",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": {
+                "refName": "n4_periods"
+              },
+              "name": "Lookback Periods",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n5",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "ulcer_index",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "n6_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            },
+            {
+              "id": "use_sum",
+              "value": false,
+              "name": "Use Sum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n7",
+          "type": "lowest_lte",
+          "options": [
+            {
+              "id": "periods",
+              "value": {
+                "refName": "n7_periods"
+              },
+              "name": "Lookback Periods",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n8",
+          "type": "white_marubozu",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": {
+                "refName": "n8_body_none"
+              },
+              "name": "Body None",
+              "isExposed": true
+            },
+            {
+              "id": "body_short",
+              "value": {
+                "refName": "n8_body_short"
+              },
+              "name": "Body Short",
+              "isExposed": true
+            },
+            {
+              "id": "body_long",
+              "value": {
+                "refName": "n8_body_long"
+              },
+              "name": "Body Long",
+              "isExposed": true
+            },
+            {
+              "id": "wick_none",
+              "value": {
+                "refName": "n8_wick_none"
+              },
+              "name": "Wick None",
+              "isExposed": true
+            },
+            {
+              "id": "wick_long",
+              "value": {
+                "refName": "n8_wick_long"
+              },
+              "name": "Wick Long",
+              "isExposed": true
+            },
+            {
+              "id": "near",
+              "value": {
+                "refName": "n8_near"
+              },
+              "name": "Near",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n9",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "n12_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "n13",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_lower"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_middle"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_middle"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "bbands_upper"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Mean Reversion Strategy v1.2",
+    "description": "This advanced trading algorithm employs mean reversion principles to identify and capitalize on overextended price movements. Utilizing Bollinger Bands Width as a volatility filter, it enhances trade timing and implements robust risk management strategies for optimal performance.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_mean_reversion_strategy_v1_2",
+      "args": {
+        "n4_periods": 14,
+        "n8_body_none": 0.05,
+        "n8_body_short": 0.5,
+        "n8_body_long": 1.4,
+        "n8_wick_none": 0.05,
+        "n8_wick_long": 0.6,
+        "n8_near": 0.3
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

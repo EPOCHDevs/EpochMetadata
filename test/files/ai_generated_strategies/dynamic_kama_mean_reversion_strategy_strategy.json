@@ -1,0 +1,598 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "dynamic_kama_mean_reversion_strategy",
+  "generated_at": "2025-06-10T09:53:11.633399",
+  "trade_signal_metadata": {
+    "id": "dynamic_kama_mean_reversion_strategy",
+    "name": "Dynamic KAMA Mean Reversion Strategy",
+    "options": [],
+    "desc": "This expert-level trading algorithm employs a mean-reverting strategy using a Kaufman Adaptive Moving Average (KAMA) to identify price dislocations on 15-minute intraday bars. By calculating the rolling standard deviation of the KAMA to assess local volatility, it dynamically adapts to market conditions, enhancing its trading efficacy.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "typ",
+          "type": "typprice",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "kama1",
+          "type": "kama",
+          "options": [
+            {
+              "id": "period",
+              "value": 30,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "std1",
+          "type": "stddev",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "multVal",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.8,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "mul1",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "add_upper",
+          "type": "add",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sub_lower",
+          "type": "sub",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx1",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "adx20num",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_adx20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi1",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "rsi60num",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 60,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "rsi40num",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 40,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lte_rsi60",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gte_rsi40",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "typ",
+            "handle": "result"
+          },
+          "target": {
+            "id": "kama1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "std1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "std1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "multVal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "add_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "kama1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sub_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "add_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sub_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_adx20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "adx20num",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_adx20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_rsi60",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi60num",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lte_rsi60",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_rsi40",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi40num",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gte_rsi40",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_adx20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lte_rsi60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_adx20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gte_rsi40",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic KAMA Mean Reversion Strategy",
+    "description": "This expert-level trading algorithm employs a mean-reverting strategy using a Kaufman Adaptive Moving Average (KAMA) to identify price dislocations on 15-minute intraday bars. By calculating the rolling standard deviation of the KAMA to assess local volatility, it dynamically adapts to market conditions, enhancing its trading efficacy.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "SPY-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_kama_mean_reversion_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 0.5,
+        "vol_target": 0.02
+      }
+    }
+  }
+}

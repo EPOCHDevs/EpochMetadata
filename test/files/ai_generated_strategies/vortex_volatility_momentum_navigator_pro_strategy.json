@@ -1,0 +1,504 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "vortex_volatility_momentum_navigator_pro",
+  "generated_at": "2025-06-10T09:36:14.212014",
+  "trade_signal_metadata": {
+    "id": "vortex_volatility_momentum_navigator_pro",
+    "name": "Vortex Volatility Momentum Navigator Pro",
+    "options": [],
+    "desc": "This advanced trading algorithm combines the Hodges-Tompkins Volatility measure with the Vortex Indicator to capitalize on momentum trends. Designed for expert traders, it accurately identifies the strength and direction of price movements, enabling high-performance trading strategies.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ht_vol",
+          "type": "hodges_tompkins",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "trading_periods",
+              "value": 252,
+              "name": "Trading Periods Per Year",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma50",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vortex14",
+          "type": "vortex",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "psarNode",
+          "type": "psar",
+          "options": [
+            {
+              "id": "acceleration_factor_step",
+              "value": 0.02,
+              "name": "Acceleration_factor_step",
+              "isExposed": false
+            },
+            {
+              "id": "acceleration_factor_maximum",
+              "value": 0.2,
+              "name": "Acceleration_factor_maximum",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gtCloseSMA",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltCloseSMA",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevLtHT",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevGtHT",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "Lookback Periods",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossLong",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossShort",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andLong",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossExit",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "sma50",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gtCloseSMA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtCloseSMA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "ltCloseSMA",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltCloseSMA",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ht_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prevLtHT",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ht_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "prevGtHT",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "plus_indicator"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "minus_indicator"
+          },
+          "target": {
+            "id": "crossLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "minus_indicator"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vortex14",
+            "handle": "plus_indicator"
+          },
+          "target": {
+            "id": "crossShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gtCloseSMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevLtHT",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltCloseSMA",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "prevGtHT",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "mkt",
+            "handle": "c"
+          },
+          "target": {
+            "id": "crossExit",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "psarNode",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossExit",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "crossExit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Vortex Volatility Momentum Navigator Pro",
+    "description": "This advanced trading algorithm combines the Hodges-Tompkins Volatility measure with the Vortex Indicator to capitalize on momentum trends. Designed for expert traders, it accurately identifies the strength and direction of price movements, enabling high-performance trading strategies.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "NVDA-Stocks",
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "NQ-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "vortex_volatility_momentum_navigator_pro",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

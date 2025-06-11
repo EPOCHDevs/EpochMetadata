@@ -1,0 +1,682 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "hma_macd_momentum_revamp_strategy",
+  "generated_at": "2025-06-10T11:13:33.509976",
+  "trade_signal_metadata": {
+    "id": "hma_macd_momentum_revamp_strategy",
+    "name": "HMA-MACD Momentum Revamp Strategy",
+    "options": [],
+    "desc": "This advanced trading algorithm employs a dual-layered approach using Hull Moving Average (HMA) and Moving Average Convergence/Divergence (MACD) indicators to identify trend reversals. By integrating the Rate of Change (ROC) metric, the strategy is designed to capitalize on momentum shifts, allowing for dynamic entry and exit points in various market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hma1h",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "macd1h",
+          "type": "macd",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 12,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 26,
+              "name": "Long_period",
+              "isExposed": false
+            },
+            {
+              "id": "signal_period",
+              "value": 9,
+              "name": "Signal_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "roc1h",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "vwma1h",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "hma4h",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "sessions_nykz",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYorkKillZone",
+              "name": "Session Type",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "crossover_bull",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_bear",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_roc_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_roc_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_hma_vwma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_hma_vwma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_hma4h",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_hma4h",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bullish_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "bearish_all",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_signal",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "not_signal",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "tse",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma1h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "macd1h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc1h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma4h",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1h",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "crossover_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1h",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "crossover_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1h",
+            "handle": "macd_signal"
+          },
+          "target": {
+            "id": "crossover_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "macd1h",
+            "handle": "macd"
+          },
+          "target": {
+            "id": "crossover_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hma_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_hma_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hma_vwma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "vwma1h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_hma_vwma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_hma4h",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_hma4h",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_hma4h",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_hma4h",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_roc_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_hma_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_hma4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bullish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_roc_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_hma_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_hma4h",
+            "handle": "result"
+          },
+          "target": {
+            "id": "bearish_all",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bullish_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "bearish_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "not_signal",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_nykz",
+            "handle": "active"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "bullish_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "bearish_all",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "not_signal",
+            "handle": "result"
+          },
+          "target": {
+            "id": "tse",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "HMA-MACD Momentum Revamp Strategy",
+    "description": "This advanced trading algorithm employs a dual-layered approach using Hull Moving Average (HMA) and Moving Average Convergence/Divergence (MACD) indicators to identify trend reversals. By integrating the Rate of Change (ROC) metric, the strategy is designed to capitalize on momentum shifts, allowing for dynamic entry and exit points in various market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "hma_macd_momentum_revamp_strategy",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "fisher_star_trend_switcher_v1",
+  "generated_at": "2025-06-10T09:14:43.862258",
+  "trade_signal_metadata": {
+    "id": "fisher_star_trend_switcher_v1",
+    "name": "Fisher & Star Pattern Trend Switcher v1.0",
+    "options": [],
+    "desc": "This intermediate-level trading algorithm utilizes the Fisher Transform oscillator alongside Star candlestick patterns to identify trend reversals and entry points in the market. Operating on a 30-minute timeframe, it applies a dual-regime filter for heightened accuracy, effectively capturing price momentum and shifts. The combined approach enhances the strategy's robustness in varied market conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "fisher9",
+          "type": "fisher",
+          "options": [
+            {
+              "id": "period",
+              "value": 9,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "const_pos_one",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gtBull",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg_one",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ltBear",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "star8",
+          "type": "star",
+          "options": [
+            {
+              "id": "period",
+              "value": 8,
+              "name": "Period",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 30
+          }
+        },
+        {
+          "id": "andLong",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "andShort",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notBull",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "notBear",
+          "type": "logical_not",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "closeAny",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "fisher9",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "gtBull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const_pos_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gtBull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "fisher9",
+            "handle": "fisher"
+          },
+          "target": {
+            "id": "ltBear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg_one",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ltBear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "star8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andLong",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ltBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "star8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "andShort",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gtBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notBull",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ltBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "notBear",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notBull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "closeAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "notBear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "closeAny",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "andLong",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "andShort",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "closeAny",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fisher & Star Pattern Trend Switcher v1.0",
+    "description": "This intermediate-level trading algorithm utilizes the Fisher Transform oscillator alongside Star candlestick patterns to identify trend reversals and entry points in the market. Operating on a 30-minute timeframe, it applies a dual-regime filter for heightened accuracy, effectively capturing price momentum and shifts. The combined approach enhances the strategy's robustness in varied market conditions.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "NQ-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fisher_star_trend_switcher_v1",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.03
+      }
+    }
+  }
+}

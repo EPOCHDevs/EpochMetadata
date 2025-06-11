@@ -1,0 +1,491 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "intraday_surge_candle_momentum_detector",
+  "generated_at": "2025-06-10T14:39:56.181617",
+  "trade_signal_metadata": {
+    "id": "intraday_surge_candle_momentum_detector",
+    "name": "Intraday Surge Candle Momentum Detector",
+    "options": [
+      {
+        "id": "roc5_period",
+        "name": "Period"
+      },
+      {
+        "id": "num_buy_thr_value",
+        "name": "Value"
+      },
+      {
+        "id": "stoch14_k_period",
+        "name": "K_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "stoch14_k_slowing_period",
+        "name": "K_slowing_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "stoch14_d_period",
+        "name": "D_period",
+        "type": "Integer",
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 10000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "num_overbought_value",
+        "name": "Value (num_overbought)"
+      }
+    ],
+    "desc": "This algorithm identifies momentum surges in intraday trading by utilizing a blend of momentum trading principles and candlestick patterns. It focuses on short timeframes, applying the Rate of Change (ROC) indicator along with key candlestick patterns to generate precise buy and sell signals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "src1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "roc5",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "roc5_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_buy_thr",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_buy_thr_value"
+              },
+              "name": "ROC % Threshold",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_buy",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "and_buy",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "stoch14",
+          "type": "stoch",
+          "options": [
+            {
+              "id": "k_period",
+              "value": {
+                "refName": "stoch14_k_period"
+              },
+              "name": "K_period",
+              "isExposed": true
+            },
+            {
+              "id": "k_slowing_period",
+              "value": {
+                "refName": "stoch14_k_slowing_period"
+              },
+              "name": "K_slowing_period",
+              "isExposed": true
+            },
+            {
+              "id": "d_period",
+              "value": {
+                "refName": "stoch14_d_period"
+              },
+              "name": "D_period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num_overbought",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": {
+                "refName": "num_overbought_value"
+              },
+              "name": "Stoch Overbought %",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_overbought",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "engulf_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": null,
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": null,
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "and_sell",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "roc5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_buy_thr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_buy",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_buy",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "stoch14",
+            "handle": "stoch_k"
+          },
+          "target": {
+            "id": "gt_overbought",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num_overbought",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_overbought",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_overbought",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "engulf_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_sell",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "and_sell",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Intraday Surge Candle Momentum Detector",
+    "description": "This algorithm identifies momentum surges in intraday trading by utilizing a blend of momentum trading principles and candlestick patterns. It focuses on short timeframes, applying the Rate of Change (ROC) indicator along with key candlestick patterns to generate precise buy and sell signals.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "intraday_surge_candle_momentum_detector",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      }
+    }
+  }
+}

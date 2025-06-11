@@ -1,0 +1,516 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "fractal_volume_reversal_indicator",
+  "generated_at": "2025-06-10T08:58:04.864361",
+  "trade_signal_metadata": {
+    "id": "fractal_volume_reversal_indicator",
+    "name": "Fractal Volume Reversal Indicator",
+    "options": [],
+    "desc": "This algorithm leverages fractal pattern recognition and volumetric analysis to identify potential market reversal points. By focusing on areas of high trading activity and structural price changes, traders can effectively pivot from prevailing trends to capitalize on shifts in market direction.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "n_mkt",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_sw",
+          "type": "swing_highs_lows",
+          "options": [
+            {
+              "id": "swing_length",
+              "value": 5,
+              "name": "Swing Length",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_vwma",
+          "type": "vwma",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "Period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_adosc",
+          "type": "adosc",
+          "options": [
+            {
+              "id": "short_period",
+              "value": 3,
+              "name": "Short_period",
+              "isExposed": false
+            },
+            {
+              "id": "long_period",
+              "value": 10,
+              "name": "Long_period",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "n_zero",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lt_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_gt_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lt_vol",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_gt_adosc",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_lt_adosc",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_and_bull1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_and_bull",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_and_bear1",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_and_bear",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_any_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n_exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": true,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n_mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "n_gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_mkt",
+            "handle": "v"
+          },
+          "target": {
+            "id": "n_lt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_vwma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_sw",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "n_lt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_sw",
+            "handle": "high_low"
+          },
+          "target": {
+            "id": "n_gt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_adosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_adosc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_gt_adosc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_adosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_adosc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_lt_adosc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bull1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bull1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_and_bull1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bull",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_adosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bull",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bear1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bear1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_and_bear1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bear",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt_adosc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_and_bear",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n_lt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n_any_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "n_and_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n_and_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n_exec",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Fractal Volume Reversal Indicator",
+    "description": "This algorithm leverages fractal pattern recognition and volumetric analysis to identify potential market reversal points. By focusing on areas of high trading activity and structural price changes, traders can effectively pivot from prevailing trends to capitalize on shifts in market direction.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "fractal_volume_reversal_indicator",
+      "args": {}
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.04
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.2,
+        "risk": 0.02
+      }
+    }
+  }
+}

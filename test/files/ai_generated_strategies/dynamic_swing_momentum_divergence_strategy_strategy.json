@@ -1,0 +1,557 @@
+{
+  "algorithm_type": "Momentum",
+  "source_algorithm": "dynamic_swing_momentum_divergence_strategy",
+  "generated_at": "2025-06-10T15:48:45.088140",
+  "trade_signal_metadata": {
+    "id": "dynamic_swing_momentum_divergence_strategy",
+    "name": "Dynamic Swing Momentum Divergence Strategy",
+    "options": [
+      {
+        "id": "prevHL_interval",
+        "name": "Interval",
+        "type": "Integer",
+        "defaultValue": 1,
+        "isRequired": true,
+        "selectOption": [],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "prevHL_type",
+        "name": "Time Frame Type",
+        "type": "Select",
+        "defaultValue": "day",
+        "isRequired": true,
+        "selectOption": [
+          {
+            "name": "Minute",
+            "value": "minute"
+          },
+          {
+            "name": "Hour",
+            "value": "hour"
+          },
+          {
+            "name": "Day",
+            "value": "day"
+          },
+          {
+            "name": "Week",
+            "value": "week"
+          },
+          {
+            "name": "Month",
+            "value": "month"
+          }
+        ],
+        "min": 0,
+        "max": 1000,
+        "step_size": 0.01,
+        "desc": ""
+      },
+      {
+        "id": "rsi_period",
+        "name": "Period"
+      },
+      {
+        "id": "roc_period",
+        "name": "Period (roc)"
+      }
+    ],
+    "desc": "This algorithm leverages price action and momentum indicators to identify bullish and bearish divergences through swing highs and lows. By incorporating the RSI, ROC, and ATR, it aims to capture price movements effectively and provide timely trading signals. Designed for intermediate traders, it balances complexity with practicality for optimizing entry and exit points.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "Momentum",
+    "data": {
+      "nodes": [
+        {
+          "id": "market",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "prevHL",
+          "type": "previous_high_low",
+          "options": [
+            {
+              "id": "interval",
+              "value": {
+                "refName": "prevHL_interval"
+              },
+              "name": "Interval",
+              "isExposed": true
+            },
+            {
+              "id": "type",
+              "value": {
+                "refName": "prevHL_type"
+              },
+              "name": "Time Frame Type",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "rsi",
+          "type": "rsi",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "rsi_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "roc",
+          "type": "roc",
+          "options": [
+            {
+              "id": "period",
+              "value": {
+                "refName": "roc_period"
+              },
+              "name": "Period",
+              "isExposed": true
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "const30",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 30,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const70",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 70,
+              "name": "value",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross30",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross70",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_low",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_high",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_roc",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_roc",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "buyAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sellAll",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "rsi",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "roc",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "market",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_low"
+          },
+          "target": {
+            "id": "gt_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "prevHL",
+            "handle": "previous_high"
+          },
+          "target": {
+            "id": "lt_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross30",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross30",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "rsi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross70",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross70",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_roc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_roc",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cross30",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buyAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buyAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buyAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross70",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sellAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sellAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_roc",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sellAll",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "buyAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "sellAll",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    },
+    "algorithm": [],
+    "executor": {}
+  },
+  "strategy": {
+    "name": "Dynamic Swing Momentum Divergence Strategy",
+    "description": "This algorithm leverages price action and momentum indicators to identify bullish and bearish divergences through swing highs and lows. By incorporating the RSI, ROC, and ATR, it aims to capture price movements effectively and provide timely trading signals. Designed for intermediate traders, it balances complexity with practicality for optimizing entry and exit points.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        }
+      }
+    },
+    "trade_signal": {
+      "type": "dynamic_swing_momentum_divergence_strategy",
+      "args": {
+        "prevHL_interval": 1,
+        "prevHL_type": "day"
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      }
+    }
+  }
+}
