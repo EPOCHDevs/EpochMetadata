@@ -1,7 +1,7 @@
 #include "epoch_metadata/strategy/ui_graph.h"
-#include <cstdio>
 #include "epoch_metadata/transforms/metadata.h"
 #include "epoch_metadata/transforms/registry.h"
+#include <cstdio>
 #include <limits>
 #include <queue>
 #include <sstream>
@@ -32,8 +32,8 @@ std::string JoinId(std::string const &id1, std::string const &id2) {
 }
 
 // High-performance topological sort using Kahn's algorithm - O(V+E)
-std::vector<AlgorithmNode> CreateSortedEdges(
-    const std::unordered_map<std::string, AlgorithmNode> &nodes) {
+std::vector<AlgorithmNode>
+CreateSortedEdges(const std::unordered_map<std::string, AlgorithmNode> &nodes) {
 
   std::unordered_map<std::string, std::vector<std::string>> adjacencyList;
   std::unordered_map<std::string, int> inDegreeMap;
@@ -469,7 +469,7 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
 
   // Set the timeframe if present
   if (auto timeframe = node.timeframe) {
-    newAlgo.timeframe = timeframe->GetOffset();
+    newAlgo.timeframe = timeframe;
   }
 
   return newAlgo;
@@ -528,7 +528,7 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
   if (!lookupData.nodeMap.contains(source.id) ||
       !lookupData.nodeMap.contains(target.id)) {
     return std::format("Invalid edge: {} -> {}", source.id, target.id);
-      }
+  }
 
   const auto &sourceNode = lookupData.nodeMap.at(source.id);
   const auto &targetNode = lookupData.nodeMap.at(target.id);
@@ -546,26 +546,27 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
   algo.inputs[target.handle].push_back(JoinId(source.id, source.handle));
 
   // If there is no timeframe, use the inherited timeframe
-  const auto & sourceAlgoIter = lookupData.algorithmMap.find(sourceNode.id);
+  const auto &sourceAlgoIter = lookupData.algorithmMap.find(sourceNode.id);
 
   if (algo.timeframe) {
-    if (sourceAlgoIter != lookupData.algorithmMap.end() && sourceAlgoIter->second.timeframe) {
-      const auto sourceNodeTF = sourceAlgoIter->second.timeframe->name();
-      const auto currentAlgoTF = algo.timeframe->name();
-      if(sourceNodeTF != currentAlgoTF) {
-        return std::format("source is connected from a node with {} timeframe while algorithm timeframe is {}.", sourceNodeTF, currentAlgoTF);
+    if (sourceAlgoIter != lookupData.algorithmMap.end() &&
+        sourceAlgoIter->second.timeframe) {
+      const auto sourceNodeTF = sourceAlgoIter->second.timeframe->ToString();
+      const auto currentAlgoTF = algo.timeframe->ToString();
+      if (sourceNodeTF != currentAlgoTF) {
+        return std::format("source is connected from a node with {} timeframe "
+                           "while algorithm timeframe is {}.",
+                           sourceNodeTF, currentAlgoTF);
       }
     }
     return "";
   }
 
-
   if (sourceAlgoIter == lookupData.algorithmMap.end()) {
     if (sourceNode.timeframe) {
-      algo.timeframe = sourceNode.timeframe->GetOffset();
+      algo.timeframe = sourceNode.timeframe;
     }
-  }
-  else if (sourceAlgoIter->second.timeframe){
+  } else if (sourceAlgoIter->second.timeframe) {
     algo.timeframe = sourceAlgoIter->second.timeframe;
   }
   return {};
@@ -761,4 +762,4 @@ std::expected<UIData, std::string> AlignHorizontally(const UIData &data) {
   return PerformAutoLayout(data);
 }
 
-} // namespace epoch_stratifyx::server
+} // namespace epoch_metadata::strategy

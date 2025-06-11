@@ -498,9 +498,7 @@ TEST_CASE("CreateUIData: Input with '#' Uses Provided Source Node",
   // is created.
   bool foundEdge = false;
   for (const auto &edge : ui.edges) {
-    if (edge.source.id == MARKET_DATA_SOURCE &&
-        edge.source.handle ==
-            "h" &&
+    if (edge.source.id == MARKET_DATA_SOURCE && edge.source.handle == "h" &&
         edge.target.id == "algo2" && edge.target.handle == "inputB") {
       foundEdge = true;
     }
@@ -656,7 +654,7 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
 
   // Create an edge that references a non-existent source node
   epoch_metadata::strategy::UIVertex nonExistentSource{"non_existent_node",
-                                                      "out"};
+                                                       "out"};
   epoch_metadata::strategy::UIVertex algoVertex{"algo9", "input"};
   data.edges.push_back({nonExistentSource, algoVertex});
 
@@ -799,9 +797,9 @@ TEST_CASE("CreateAlgorithmMetaData: Timeframe Inheritance",
   for (const auto &algo : result.value().algorithm) {
     if (algo.id.starts_with("algo11")) {
       ++found;
-      REQUIRE_FALSE(algo.timeframe == nullptr);
+      REQUIRE(algo.timeframe.has_value());
       // The offset should have been inherited from algo1 (1 day)
-      REQUIRE(algo.timeframe->name() == "1D");
+      REQUIRE(algo.timeframe->ToString() == "1D");
     }
   }
   REQUIRE(found == 2);

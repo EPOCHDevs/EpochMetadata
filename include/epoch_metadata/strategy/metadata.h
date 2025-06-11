@@ -3,63 +3,63 @@
 //
 
 #pragma once
-#include "enums.h"
 #include "../metadata_options.h"
+#include "enums.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "ui_data.h"
 
 // including here ensure all transforms have been serialized
 namespace epoch_metadata::strategy {
-  struct AlgorithmBaseMetaData {
-    std::string id;
-    std::string name;
-    MetaDataOptionList options{};
-    std::string desc{};
-    std::vector<std::string> tags{};
-  };
+struct AlgorithmBaseMetaData {
+  std::string id;
+  std::string name;
+  MetaDataOptionList options{};
+  std::string desc{};
+  std::vector<std::string> tags{};
+};
 
-  struct AlgorithmMetaData {
-    std::string id;
-    std::string name;
-    MetaDataOptionList options{};
-    std::string desc{};
-    bool isGroup{false};
-    bool requiresTimeframe{true};
-    std::vector<std::string> tags{};
-  };
+struct AlgorithmMetaData {
+  std::string id;
+  std::string name;
+  MetaDataOptionList options{};
+  std::string desc{};
+  bool isGroup{false};
+  bool requiresTimeframe{true};
+  std::vector<std::string> tags{};
+};
 
-  using InputMapping = std::unordered_map<std::string, std::vector<std::string>>;
-  struct AlgorithmNode {
-    std::string type;
-    std::string id{};
-    epoch_metadata::MetaDataArgDefinitionMapping options{};
-    InputMapping inputs{};
-    epoch_frame::DateOffsetHandlerPtr  timeframe{nullptr};
+using InputMapping = std::unordered_map<std::string, std::vector<std::string>>;
+struct AlgorithmNode {
+  std::string type;
+  std::string id{};
+  epoch_metadata::MetaDataArgDefinitionMapping options{};
+  InputMapping inputs{};
+  std::optional<TimeFrame> timeframe{};
 
-    bool operator==(const AlgorithmNode & other) const = default;
-  };
+  bool operator==(const AlgorithmNode &other) const = default;
+};
 
-  struct TradeSignalMetaData {
-    std::string id;
-    std::string name;
-    MetaDataOptionList options{};
-    std::string desc{};
-    bool isGroup{false};
-    bool requiresTimeframe{true};
-    epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
-    UIData data;
-    std::vector<AlgorithmNode> algorithm;
-    AlgorithmNode executor;
-    std::vector<std::string> tags{};
-  };
+struct TradeSignalMetaData {
+  std::string id;
+  std::string name;
+  MetaDataOptionList options{};
+  std::string desc{};
+  bool isGroup{false};
+  bool requiresTimeframe{true};
+  epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
+  UIData data;
+  std::vector<AlgorithmNode> algorithm;
+  AlgorithmNode executor;
+  std::vector<std::string> tags{};
+};
 
-  struct PartialTradeSignalMetaData {
-    MetaDataOptionList options;
-    std::vector<AlgorithmNode> algorithm;
-    AlgorithmNode executor;
-  };
+struct PartialTradeSignalMetaData {
+  MetaDataOptionList options;
+  std::vector<AlgorithmNode> algorithm;
+  AlgorithmNode executor;
+};
 
-  // Copy member variables to support glaze serialization form decomposition
+// Copy member variables to support glaze serialization form decomposition
 } // namespace epoch_metadata::strategy
 
 namespace YAML {
