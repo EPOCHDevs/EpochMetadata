@@ -39,8 +39,10 @@ double MetaDataOptionDefinition::GetNumericValue() const {
   if (std::holds_alternative<bool>(m_optionsVariant)) {
     return static_cast<double>(GetBoolean());
   }
-
-  throw std::runtime_error("Invalid Numeric MetaDataOptionType Type");
+  std::stringstream ss;
+  ss << "Invalid Numeric MetaDataOptionType Type\n";
+  ss << "Got: " << typeid(m_optionsVariant).name() << "\n";
+  throw std::runtime_error(ss.str());
 }
 
 size_t MetaDataOptionDefinition::GetHash() const {

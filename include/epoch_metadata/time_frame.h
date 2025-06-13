@@ -44,6 +44,7 @@ private:
 };
 
 TimeFrame CreateTimeFrameFromYAML(YAML::Node const &);
+
 epoch_frame::DateOffsetHandlerPtr
 CreateDateOffsetHandlerFromJSON(glz::json_t const &);
 glz::json_t
