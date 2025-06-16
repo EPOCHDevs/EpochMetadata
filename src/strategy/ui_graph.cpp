@@ -638,9 +638,11 @@ std::expected<std::vector<UIOption>, std::string> ConvertOptions(
         opt.value = iter->second.defaultValue->GetVariant();
       }
       opt.isExposed = true;
+      opt.name = iter->second.name;
     } else {
       opt.value = arg.GetVariant();
       opt.isExposed = false;
+      opt.name = std::nullopt;
     }
 
     // For this example, we leave opt.name empty.
