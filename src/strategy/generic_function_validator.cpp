@@ -92,6 +92,17 @@ ValidateGenericFunctionType(const std::string &type,
     }
     return metaData.value().get().options;
   }
+  case epoch_core::GenericFunctionType::FuturesContinuation: {
+    auto metaData =
+        futures_continuation::Registry::GetInstance().GetMetaData(type);
+    if (!metaData) {
+      issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
+                        "Unknown GenericFunction type: " + type,
+                        "Provide a valid GenericFunction type"});
+      return std::nullopt;
+    }
+    return metaData.value().get().options;
+  }
   default:
     issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
                       "Unknown GenericFunction type: " + type,
