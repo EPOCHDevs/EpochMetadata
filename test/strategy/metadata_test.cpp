@@ -196,17 +196,6 @@ executor: { type: trade_signal_executor, options: { closeIfIndecisive: true }, i
   CHECK(tsmd.options[0].id == "atr_period");
   CHECK(tsmd.options[1].id == "atr_rolling_mean_period");
   CHECK(tsmd.options[2].id == "breakout_period");
-
-  // Now test the first algorithm node
-  REQUIRE(tsmd.algorithm.size() == 2);
-  CHECK(tsmd.algorithm[0].type == "atr");
-  CHECK(tsmd.algorithm[0].id == "atr");
-  // ...
-  // The second node, etc.
-
-  // And the executor
-  CHECK(tsmd.executor.type == "trade_signal_executor");
-  CHECK(tsmd.executor.id == "trade_signal_executor");
   // ...
 }
 

@@ -64,25 +64,7 @@ void RegisterStrategyMetadata(
     templates.reserve(aiGenerated.size());
 
     for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
-        auto ts = config.trade_signal_metadata;
-
-        auto partial = CreateAlgorithmMetaData(ts.data);
-        if (!partial) {
-            auto errors = partial.error();
-            std::stringstream ss;
-            ss << "Failed to create UI data for " << ts.id << "\n";
-            for (auto const &error : errors) {
-                ss << "\t- " << error.message << "\n";
-            }
-            SPDLOG_ERROR(ss.str());
-            continue;
-        }
-
-        ts.options = partial->options;
-        ts.algorithm = partial->algorithm;
-        ts.executor = partial->executor;
-
-        trade_signal::Registry::GetInstance().Register(ts);
+        trade_signal::Registry::GetInstance().Register(config.trade_signal_metadata);
         strategy_templates::Registry::GetInstance().Register(
             {std::to_string(i), config.strategy,
              config.trade_signal_metadata.type});
