@@ -72,7 +72,7 @@ void ValidateNodeOptions(const UINode &node,
       }
       // Validate numeric range for Integer and Decimal types
       else if (option.type == epoch_core::MetaDataOptionType::Integer ||
-          option.type == epoch_core::MetaDataOptionType::Decimal) {
+               option.type == epoch_core::MetaDataOptionType::Decimal) {
         double numericValue = optionDefinition.GetNumericValue();
         if (numericValue < option.min || numericValue > option.max) {
           issues.push_back(
@@ -509,6 +509,12 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
       continue;
     }
 
+    // Skip SCALAR nodes as they are handled properly in backend
+    if (transformMetaData &&
+        transformMetaData->category == epoch_core::TransformCategory::Scalar) {
+      continue;
+    }
+
     auto inputConnections = cache.inputHandleReferencesPerNode.at(nodeId);
     if (inputConnections.empty()) {
       continue;
@@ -525,7 +531,16 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
           continue;
         }
 
-        auto [inputNode, _] = cache.nodeMap.at(inputNodeVertex.id);
+        auto [inputNode, inputTransformMetaData] =
+            cache.nodeMap.at(inputNodeVertex.id);
+
+        // Skip SCALAR nodes when collecting input timeframes
+        if (inputTransformMetaData &&
+            inputTransformMetaData->category ==
+                epoch_core::TransformCategory::Scalar) {
+          continue;
+        }
+
         timeframes.insert(inputNode.timeframe ? inputNode.timeframe->ToString()
                                               : "None");
         sourceTimeframe = inputNode.timeframe;

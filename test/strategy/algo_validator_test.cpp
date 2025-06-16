@@ -1777,3 +1777,96 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
   ExpectValidationError(result, ValidationCode::OptionValueOutOfRange,
                         "value 1500.5 is out of range");
 }
+
+TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "sma",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "bool_scalar",
+                "type": "bool_true",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "gt_node",
+                "type": "gt",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma", "handle": "result"},
+                "target": {"id": "gt_node", "handle": "*0"}
+            },
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "gt_node", "handle": "*1"}
+            },
+            {
+                "source": {"id": "gt_node", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            },
+            {
+                "source": {"id": "bool_scalar", "handle": "result"},
+                "target": {"id": "executor", "handle": "short"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  auto result = ValidateUIData(data);
+
+  // This should be valid - SCALAR nodes (like "number") should be excluded
+  // from timeframe validation, so connecting a node with timeframe to a
+  // SCALAR node with no timeframe should not cause timeframe mismatch errors
+  REQUIRE(result.has_value());
+
+  const auto &sortedNodes = result.value();
+  REQUIRE(sortedNodes.size() == 5);
+
+  // Verify topological order
+  std::unordered_map<std::string, size_t> nodeOrder;
+  for (size_t i = 0; i < sortedNodes.size(); ++i) {
+    nodeOrder[sortedNodes[i].id] = i;
+  }
+
+  // Data source should come before SMA
+  REQUIRE(nodeOrder["mds"] < nodeOrder["sma"]);
+  // SMA should come before gt_node
+  REQUIRE(nodeOrder["sma"] < nodeOrder["gt_node"]);
+  // gt_node should come before executor
+  REQUIRE(nodeOrder["gt_node"] < nodeOrder["executor"]);
+  // bool_scalar should come before executor (it's a SCALAR node)
+  REQUIRE(nodeOrder["bool_scalar"] < nodeOrder["executor"]);
+}
