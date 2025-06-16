@@ -1,18 +1,16 @@
 atr_scalping:
     name: ATR Scalping
     options:
-        - { id: atr_period, name: "ATR Period", default: 14, type: Integer,
+        - { id: atr#period, name: "ATR Period", default: 14, type: Integer,
             min: 1, max: 1000, step_size: 1 }
-        - { id: atr_rolling_mean_period, name: "ATR Rolling Mean Period", default: 5, type: Integer,
-            min: 1, max: 1000, step_size: 1 }
-        - { id: breakout_period, name: "Breakout Period", default: 3, type: Integer,
+        - { id: sma#period, name: "ATR Rolling Mean Period", default: 5, type: Integer,
             min: 1, max: 1000, step_size: 1 }
     desc: "Uses Average True Range (ATR) to identify volatility breakouts for scalping opportunities. Combines ATR with rolling mean and price breakouts to generate trade signals."
     tags: ["momentum", "volatility", "atr", "breakout", "scalping"]
     type: Momentum
     algorithm:
-        - { type: atr, options: { period: .atr_period }, inputs: {} }
-        - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#result" } }
+        - { type: atr, options: { period: .atr#period }, inputs: {} }
+        - { type: sma, id: sma, options: { period: .sma#period }, inputs: { "*" : "atr#result" } }
         - { type: gt, id: breakout,  inputs: { "*0": "atr#result", "*1" : "sma#result"} }
         - { type: max, id: three_candle_high, options: { period: 3 }, inputs: {"*": &HIGH "h" } }
         - { type: lag, id: three_candle_high_lag, options: { period: 1 }, inputs: { "*": "three_candle_high#result" } }
@@ -25,19 +23,19 @@ atr_scalping:
 bband_long_only_breakout:
     name: Bollinger Band Long-Only Breakout
     options:
-      - { id: period, name: "Period", default: 20, type: Integer,
+      - { id: bbands#period, name: "Period", default: 20, type: Integer,
           min: 1, max: 1000, step_size: 1 }
-      - { id: stddev, name: "Standard Dev.", default: 2, type: Integer,
+      - { id: bbands#stddev, name: "Standard Dev.", default: 2, type: Integer,
           min: 1, max: 10, step_size: 1 }
-      - { id: bbw_period, name: "Bandwidth Period", default: 21, type: Integer,
+      - { id: sma#period, name: "Bandwidth Period", default: 21, type: Integer,
           min: 1, max: 1000, step_size: 1 }
     desc: "Generates long-only signals when price breaks above the upper Bollinger Band during periods of expanding volatility, as measured by Bollinger Bandwidth."
     tags: ["momentum", "bollinger", "breakout", "volatility", "long-only"]
     type: Momentum
     algorithm:
-        - { type: bbands, options: { period: .period, stddev: .stddev }, inputs: { "*" : &CLOSE "c"} }
+        - { type: bbands, options: { period: .bbands#period, stddev: .bbands#stddev }, inputs: { "*" : &CLOSE "c"} }
         - { type: bband_width, inputs: { bbands_lower : "bbands#bbands_lower", bbands_middle : "bbands#bbands_middle", bbands_upper : "bbands#bbands_upper" } }
-        - { type: sma, options: { period: .bbw_period }, inputs: { "*" : "bband_width#result" } }
+        - { type: sma, options: { period: .sma#period }, inputs: { "*" : "bband_width#result" } }
         - { type: gt,  inputs: { "*0" : "bband_width#result" , "*1" : "sma#result" } }
         - { type: crossover,  inputs: { "*0" : "bbands#bbands_upper" , "*1" : *HIGH } }
         - { type: logical_and, id: long, inputs: { "*0" : "gt#result" , "*1" : "crossover#result" } }
@@ -46,15 +44,15 @@ bband_long_only_breakout:
 bband_reversal:
     name: Bollinger Band Reversal
     options:
-        - { id: period, name: "Period", default: 20, type: Integer,
+        - { id: bbands#period, name: "Period", default: 20, type: Integer,
             min: 1, max: 1000, step_size: 1 }
-        - { id: stddev, name: "Standard Dev.", default: 2, type: Integer,
+        - { id: bbands#stddev, name: "Standard Dev.", default: 2, type: Integer,
             min: 1, max: 10, step_size: 1 }
     desc: "Identifies potential price reversals by generating signals when price crosses back inside the Bollinger Bands after reaching extreme levels."
     tags: ["mean-reversion", "bollinger", "reversal", "overbought", "oversold"]
     type: MeanReverting
     algorithm:
-        - { type: bbands, options: { period: .period, stddev: .stddev }, inputs: { "*" : *CLOSE } }
+        - { type: bbands, options: { period: .bbands#period, stddev: .bbands#stddev }, inputs: { "*" : *CLOSE } }
         - { type: crossover, id: short, inputs: { "*0": *CLOSE, "*1" : "bbands#bbands_upper"} }
         - { type: crossover, id: long,  inputs: { "*0": "bbands#bbands_lower", "*1": *CLOSE } }
     executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
@@ -73,9 +71,9 @@ gap_up_down:
 improved_gap_up_down:
     name: Improved Gap Up & Down
     options:
-        - { id: period, name: "Period", default: 90, type: Integer,
+        - { id: stddev#period, name: "Period", default: 90, type: Integer,
             min: 1, max: 1000, step_size: 1 }
-        - { id: multiplier, name: "Multiplier", default: 0.25, type: Decimal,
+        - { id: number#value, name: "Multiplier", default: 0.25, type: Decimal,
             min: 0, max: 10, step_size: 0.01 }
     desc: "Enhanced gap trading strategy that filters signals based on historical gap volatility, only taking trades when the current gap exceeds a statistical threshold."
     tags: ["momentum", "gap", "volatility", "statistical", "filtered"]
@@ -83,8 +81,8 @@ improved_gap_up_down:
     closeIfIndecisive : false
     algorithm:
         - { type: gap_returns, id: gret, inputs: { } }
-        - { type: stddev, id: stddev, options: { period: .period }, inputs: { "*": "gret#result" } }
-        - { type: number, id: number, options: { value: .multiplier } }
+        - { type: stddev, id: stddev, options: { period: .stddev#period }, inputs: { "*": "gret#result" } }
+        - { type: number, id: number, options: { value: .number#value } }
         - { type: mul, id: mul, inputs: { "*0": "number#result", "*1": "stddev#result" } }
         - { type: gt, id: long,  inputs: &GAP_IN { "*0" : "gret#result", "*1" : "mul#result" } }
         - { type: lt, id: short,  inputs: *GAP_IN }
@@ -93,17 +91,17 @@ improved_gap_up_down:
 macd_lines_crossover:
     name: MACD & Signal Line Crossover
     options:
-        - { id: short_period, name: "Short Period", type: Integer, default: 12,
+        - { id: macd#short_period, name: "Short Period", type: Integer, default: 12,
             min: 1, max: 1000, step_size: 1 }
-        - { id: long_period, name: "Long Period", type: Integer, default: 26,
+        - { id: macd#long_period, name: "Long Period", type: Integer, default: 26,
             min: 1, max: 1000, step_size: 1 }
-        - { id: signal_period, name: "Signal Period", type: Integer, default: 9,
+        - { id: macd#signal_period, name: "Signal Period", type: Integer, default: 9,
             min: 1, max: 1000, step_size: 1 }
     desc: "Uses the MACD histogram to identify momentum shifts, generating long signals when the histogram is positive and short signals when negative."
     tags: ["trend", "macd", "oscillator", "momentum", "crossover"]
     type: TrendFollowing
     algorithm:
-        - { type: macd, id: macd, options: { short_period: .short_period, long_period: .long_period, signal_period: .signal_period }, inputs: { "*" : *CLOSE } }
+        - { type: macd, id: macd, options: { short_period: .macd#short_period, long_period: .macd#long_period, signal_period: .macd#signal_period }, inputs: { "*" : *CLOSE } }
         - { type: zero, id: zero }
         - { type: gt, id: long, inputs: { "*0" : "macd#macd_histogram", "*1": "zero#result" } }
         - { type: lt, id: short, inputs: { "*0" : "macd#macd_histogram", "*1": "zero#result"  } }
@@ -112,9 +110,9 @@ macd_lines_crossover:
 moving_average_crossover_with_price:
     name: Price & Moving Average Crossover
     options:
-        - { id: period, name: "Period", type: Integer, default: 50,
+        - { id: ma#period, name: "Period", type: Integer, default: 50,
             min: 1, max: 10000, step_size: 1 }
-        - { id: type, name: "Moving Average Type", default: sma, type: Select,
+        - { id: ma#type, name: "Moving Average Type", default: sma, type: Select,
           selectOption :
             [
               { name: "Double Exponential Moving Average (DEMA)",  value: dema },
@@ -132,7 +130,7 @@ moving_average_crossover_with_price:
     tags: ["trend", "moving-average", "crossover", "price", "technical"]
     type: TrendFollowing
     algorithm:
-        - { type: ma, id: ma, options: { type: .type, period: .period }, inputs: { "*" : *CLOSE } }
+        - { type: ma, id: ma, options: { type: .ma#type, period: .ma#period }, inputs: { "*" : *CLOSE } }
         - { type: crossover, id: long,  inputs: { "*0" : *CLOSE, "*1" : "ma#result" } }
         - { type: crossover, id: short, inputs: { "*0" : "ma#result", "*1" : *CLOSE } }
     executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
@@ -140,9 +138,9 @@ moving_average_crossover_with_price:
 moving_average_crossover:
     name: Dual Moving Average Crossover
     options:
-        - { id: slowPeriod, name: "Slow Period", type: Integer, default: 200,
+        - { id: slow#period, name: "Slow Period", type: Integer, default: 200,
             min: 1, max: 100000, step_size: 1 }
-        - { id: slowMAType, name: "Slow Moving Average Type", default: sma, type: Select,
+        - { id: slow#type, name: "Slow Moving Average Type", default: sma, type: Select,
             selectOption:
               [
                 { name: "Double Exponential Moving Average (DEMA)",  value: dema },
@@ -156,9 +154,9 @@ moving_average_crossover:
                 { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
               ]
           }
-        - { id: fastPeriod, name: "Fast Period", type: Integer, default: 50,
+        - { id: fast#period, name: "Fast Period", type: Integer, default: 50,
             min: 1, max: 100000, step_size: 1 }
-        - { id: fastMAType, name: "Fast Moving Average Type", default: sma, type: Select,
+        - { id: fast#type, name: "Fast Moving Average Type", default: sma, type: Select,
             selectOption:
               [
                 { name: "Double Exponential Moving Average (DEMA)",  value: dema },
@@ -176,8 +174,8 @@ moving_average_crossover:
     tags: ["trend", "moving-average", "crossover", "dual", "technical"]
     type: TrendFollowing
     algorithm:
-        - { type: ma, id: slow, options: { type: .slowMAType, period: .slowPeriod }, inputs: { "*" : *CLOSE } }
-        - { type: ma, id: fast, options: { type: .fastMAType, period: .fastPeriod }, inputs: { "*" : *CLOSE } }
+        - { type: ma, id: slow, options: { type: .slow#type, period: .slow#period }, inputs: { "*" : *CLOSE } }
+        - { type: ma, id: fast, options: { type: .fast#type, period: .fast#period }, inputs: { "*" : *CLOSE } }
         - { type: crossover, id: long,  inputs: { "*0" : "fast#result", "*1" : "slow#result" } }
         - { type: crossover, id: short, inputs: { "*0" : "slow#result", "*1" : "fast#result" } }
     executor: { type: trade_signal_executor, options: { closeIfIndecisive: false }, inputs: { long: "long#result" , short: "short#result" } }
