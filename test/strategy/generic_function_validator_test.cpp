@@ -137,9 +137,8 @@ TEST_CASE("GenericFunctionValidator: Valid TradeSignal types",
           "[GenericFunctionValidator]") {
   SECTION("Valid trade signal - atr_scalping with valid args") {
     MetaDataArgDefinitionMapping args;
-    args["atr_period"] = CreateOption(14.0);
-    args["atr_rolling_mean_period"] = CreateOption(5.0);
-    args["breakout_period"] = CreateOption(3.0);
+    args["atr#period"] = CreateOption(14.0);
+    args["sma#period"] = CreateOption(5.0);
 
     auto func = CreateGenericFunction("atr_scalping", args);
     auto issues = ValidateGenericFunction(
@@ -149,10 +148,10 @@ TEST_CASE("GenericFunctionValidator: Valid TradeSignal types",
 
   SECTION("Valid trade signal - moving_average_crossover with valid args") {
     MetaDataArgDefinitionMapping args;
-    args["slowPeriod"] = CreateOption(200.0);
-    args["slowMAType"] = CreateStringOption("sma");
-    args["fastPeriod"] = CreateOption(50.0);
-    args["fastMAType"] = CreateStringOption("ema");
+    args["slow#period"] = CreateOption(200.0);
+    args["slow#type"] = CreateStringOption("sma");
+    args["fast#period"] = CreateOption(50.0);
+    args["fast#type"] = CreateStringOption("ema");
 
     auto func = CreateGenericFunction("moving_average_crossover", args);
     auto issues = ValidateGenericFunction(
@@ -336,10 +335,10 @@ TEST_CASE("GenericFunctionValidator: Select option validation",
           "[GenericFunctionValidator]") {
   SECTION("Valid select option") {
     MetaDataArgDefinitionMapping args;
-    args["slowPeriod"] = CreateOption(200.0);
-    args["slowMAType"] = CreateStringOption("sma"); // Valid select option
-    args["fastPeriod"] = CreateOption(50.0);
-    args["fastMAType"] = CreateStringOption("ema"); // Valid select option
+    args["slow#period"] = CreateOption(200.0);
+    args["slow#type"] = CreateStringOption("sma"); // Valid select option
+    args["fast#period"] = CreateOption(50.0);
+    args["fast#type"] = CreateStringOption("ema"); // Valid select option
 
     auto func = CreateGenericFunction("moving_average_crossover", args);
     auto issues = ValidateGenericFunction(
@@ -349,11 +348,11 @@ TEST_CASE("GenericFunctionValidator: Select option validation",
 
   SECTION("Invalid select option") {
     MetaDataArgDefinitionMapping args;
-    args["slowPeriod"] = CreateOption(200.0);
-    args["slowMAType"] =
+    args["slow#period"] = CreateOption(200.0);
+    args["slow#type"] =
         CreateOption("invalid_ma_type"); // Invalid select option
-    args["fastPeriod"] = CreateOption(50.0);
-    args["fastMAType"] = CreateOption("ema");
+    args["fast#period"] = CreateOption(50.0);
+    args["fast#type"] = CreateOption("ema");
 
     auto func = CreateGenericFunction("moving_average_crossover", args);
     auto issues = ValidateGenericFunction(
