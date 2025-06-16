@@ -48,8 +48,6 @@ struct TradeSignalMetaData {
   bool requiresTimeframe{true};
   epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
   UIData data;
-  std::vector<AlgorithmNode> algorithm;
-  AlgorithmNode executor;
   std::vector<std::string> tags{};
 };
 
