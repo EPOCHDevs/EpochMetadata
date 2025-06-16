@@ -60,6 +60,8 @@ public:
   void AssertType(epoch_core::MetaDataOptionType const &argType,
                   std::unordered_set<std::string> const &selections = {}) const;
 
+  bool IsType(epoch_core::MetaDataOptionType const &argType) const;
+
   template <class T> void AssertType() const {
     AssertFromStream(std::holds_alternative<T>(m_optionsVariant),
                      "Wrong type! Expected: "
@@ -67,7 +69,9 @@ public:
                          << ", but got: " << typeid(m_optionsVariant).name());
   }
 
-  bool operator==(const MetaDataOptionDefinition & other) const = default;
+  bool operator==(const MetaDataOptionDefinition &other) const = default;
+
+  std::string ToString() const;
 
 private:
   T m_optionsVariant{};

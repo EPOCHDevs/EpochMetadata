@@ -808,36 +808,39 @@ inline MetaDataOption MakeTulipOptions(std::string const &option) {
 
   if (option.starts_with("period") || option.ends_with("period")) {
     optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
-    optionMetaData.min = 0;
+    optionMetaData.min = 1; // Period must be at least 1
     optionMetaData.max = 10000;
   } else if (option == "stddev") {
     optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
-    optionMetaData.min = 0;
+    optionMetaData.min =
+        1; // Standard deviation multiplier should be at least 1
     optionMetaData.max = 10;
   }
   return optionMetaData;
 };
 
 inline std::vector<IOMetaData> MakeTulipInputs(auto const &inputs) {
-  static std::unordered_set<std::string> skip{"open", "high", "low", "close",
-                                              "volume"};
-  std::vector<IOMetaData> ioMetaDataList;
-  bool useSingleWildCard = inputs.size() == 1;
-  for (auto const &[i, input] : std::views::enumerate(inputs)) {
-    std::string_view inputStr{input};
+    static std::unordered_set<std::string> skip{"open", "high", "low", "close",
+                                                "volume"};
+    std::vector<IOMetaData> ioMetaDataList;
+    bool useSingleWildCard = inputs.size() == 1;
+    for (auto const &[i, input] : std::views::enumerate(inputs)) {
+        std::string_view inputStr{input};
 
-    IOMetaData ioMetaData;
-    if (inputStr == "real") {
-      ioMetaData.id = useSingleWildCard ? ARG : std::format("{}{}", ARG, i);
-    } else {
-      // skip ohlcv inputs
-      continue;
+        IOMetaData ioMetaData;
+        ioMetaData.allowMultipleConnections = false;
+
+        if (inputStr == "real") {
+            ioMetaData.id = useSingleWildCard ? ARG : std::format("{}{}", ARG, i);
+        } else {
+            // skip ohlcv inputs
+            continue;
+        }
+        ioMetaDataList.emplace_back(ioMetaData);
     }
-    ioMetaDataList.emplace_back(ioMetaData);
-  }
 
-  return ioMetaDataList;
-};
+    return ioMetaDataList;
+}
 
 inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
   std::vector<IOMetaData> ioMetaDataList;
@@ -848,14 +851,16 @@ inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
                                ? epoch_core::IODataType::Boolean
                                : epoch_core::IODataType::Decimal,
                    .id = "result",
-                   .name = ""});
+                   .name = "",
+                    .allowMultipleConnections = true});
   } else {
     for (auto const &output_view : outputs) {
       std::string output{output_view};
       ioMetaDataList.emplace_back(
           IOMetaData{.type = epoch_core::IODataType::Decimal,
                      .id = output,
-                     .name = beautify(output)});
+                     .name = beautify(output),
+                     .allowMultipleConnections = true});
     }
   }
 

@@ -14,7 +14,7 @@ constexpr bool kWriteToCsv = true;
 constexpr bool kWriteToCsv = false;
 #endif
 
-TEST_CASE("Transform MetaData Total Count is Correct") {
+TEST_CASE("Transform MetaData Total Count is Correct", "[.]") {
   using namespace epoch_metadata::transforms;
   RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 

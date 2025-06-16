@@ -11,3 +11,5 @@ CREATE_ENUM(AlgorithmType, TakeProfit, StopLoss, Sizer, Commission, Slippage,
 CREATE_ENUM(TradeSignalType, TrendFollowing, MeanReverting, CandleStickPattern,
             Momentum, EventDriven, PriceAction, TechnicalPattern);
 CREATE_ENUM(BaseDataTimeFrame, EOD, Minute);
+CREATE_ENUM(GenericFunctionType, TradeSignal, PositionSizer, TakeProfit,
+            StopLoss);

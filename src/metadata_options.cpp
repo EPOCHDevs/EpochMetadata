@@ -32,6 +32,22 @@ void MetaDataOptionDefinition::AssertType(
   }
 }
 
+bool MetaDataOptionDefinition::IsType(
+    epoch_core::MetaDataOptionType const &argType) const {
+  switch (argType) {
+  case epoch_core::MetaDataOptionType::Integer:
+  case epoch_core::MetaDataOptionType::Decimal:
+    return std::holds_alternative<double>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::Boolean:
+    return std::holds_alternative<bool>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::Select:
+    return std::holds_alternative<std::string>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::Null:
+    return false;
+  }
+  std::unreachable();
+}
+
 double MetaDataOptionDefinition::GetNumericValue() const {
   if (std::holds_alternative<double>(m_optionsVariant)) {
     return GetDecimal();
@@ -53,6 +69,21 @@ size_t MetaDataOptionDefinition::GetHash() const {
           return std::hash<std::string>{}(GetRef());
         } else {
           return std::hash<K>{}(arg);
+        }
+      },
+      m_optionsVariant);
+}
+
+std::string MetaDataOptionDefinition::ToString() const {
+  return std::visit(
+      [this](auto &&arg) {
+        using K = std::decay_t<decltype(arg)>;
+        if constexpr (std::same_as<K, MetaDataArgRef>) {
+          return std::string(GetRef());
+        } else if constexpr (std::same_as<K, std::string>) {
+          return arg;
+        } else {
+          return std::to_string(arg);
         }
       },
       m_optionsVariant);
@@ -85,7 +116,7 @@ void MetaDataOption::decode(const YAML::Node &element) {
        {.id = "period",
         .name = "Period",
         .type = epoch_core::MetaDataOptionType::Integer,
-        .min = 0,
+        .min = 1, // Period must be at least 1
         .max = 1000}}};
 
   if (element.IsScalar()) {
@@ -105,6 +136,10 @@ void MetaDataOption::decode(const YAML::Node &element) {
     defaultValue =
         CreateMetaDataArgDefinition(element["default"], *this).GetVariant();
   }
+  min = element["min"].as<double>(0);
+  max = element["max"].as<double>(10000);
+  step_size = element["step_size"].as<double>(0.01);
+
 
   isRequired = element["required"].as<bool>(true);
 }

@@ -183,7 +183,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .type = epoch_core::MetaDataOptionType::Integer,
                      .defaultValue = static_cast<double>(defaults->period),
                      .isRequired = true,
-                     .min = 0,
+                     .min = 1, // Period must be at least 1
                      .max = 1000};
     options.push_back(o);
   }

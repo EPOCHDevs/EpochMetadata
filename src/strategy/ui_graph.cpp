@@ -1,4 +1,5 @@
 #include "epoch_metadata/strategy/ui_graph.h"
+#include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <cstdio>
@@ -604,34 +605,9 @@ PartialTradeSignalMetaData FinalizeAlgorithmMetaData(
   return result;
 }
 
-std::expected<PartialTradeSignalMetaData, std::string>
+std::expected<PartialTradeSignalMetaData, ValidationIssues>
 CreateAlgorithmMetaData(const UIData &data) {
-  LookUpData lookupData;
-  epoch_metadata::MetaDataOptionList options;
-
-  if (auto result = CreateNodeLookup(data, options); !result) {
-    return std::unexpected(result.error());
-  } else {
-    lookupData = result.value();
-  }
-
-  // Map to store pointers to created algorithm nodes, keyed by target node id.
-  for (const auto &[i, edge] : std::views::enumerate(data.edges)) {
-    if (auto error = ProcessEdge(edge, lookupData); !error.empty()) {
-      return std::unexpected(
-          std::format("Failed to process edge {}: {}", i, error));
-    }
-  }
-
-  try {
-    auto metadata =
-        FinalizeAlgorithmMetaData(CreateSortedEdges(lookupData.algorithmMap));
-    metadata.options = options;
-    return metadata;
-  } catch (const std::exception &e) {
-    return std::unexpected(e.what());
-  }
-  std::unreachable();
+  return CompileAlgorithmMetaData(data);
 }
 
 std::expected<std::vector<UIOption>, std::string> ConvertOptions(

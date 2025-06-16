@@ -10,30 +10,23 @@
 CREATE_ENUM(GenericFunctionAuthor, User, Epoch);
 
 namespace epoch_metadata::strategy {
-    struct GenericFunction {
-        std::string type;
-        epoch_metadata::MetaDataArgDefinitionMapping args{};
-        std::optional<epoch_metadata::TimeFrame> timeframe{};
-        std::optional<std::vector<struct GenericFunction>> children{std::nullopt};
-        std::optional<std::vector<AlgorithmNode>> algorithm{
-            std::nullopt};
-        std::optional<epoch_metadata::strategy::AlgorithmNode> executor{std::nullopt};
-        epoch_core::GenericFunctionAuthor author{epoch_core::GenericFunctionAuthor::Epoch};
+struct GenericFunction {
+  std::string type;
+  epoch_metadata::MetaDataArgDefinitionMapping args{};
+  std::optional<epoch_metadata::TimeFrame> timeframe{};
+  std::optional<UIData> data;
 
-        bool operator==(const GenericFunction & other) const {
-            return (type == other.type) &&
-                (args == other.args) &&
-                    (timeframe == other.timeframe) &&
-                        (children == other.children) &&
-                            (algorithm == other.algorithm) &&
-                                (executor == other.executor) &&
-                                    (author == other.author);
-        }
-    };
+  bool operator==(const GenericFunction &other) const {
+    return (type == other.type) && (args == other.args) &&
+           (timeframe == other.timeframe) &&
+           ((data && other.data) && (*data == *other.data));
+  }
+};
 
-    template <typename T> struct TemplatedGenericFunction {
-        T type;
-        MetaDataArgDefinitionMapping args;
-    };
-    bool EqualsOptionalGenericFunction(std::optional<GenericFunction> const& lhs, std::optional<GenericFunction> const& rhs);
-} // namespace epoch_stratifyx
+template <typename T> struct TemplatedGenericFunction {
+  T type;
+  MetaDataArgDefinitionMapping args;
+};
+bool EqualsOptionalGenericFunction(std::optional<GenericFunction> const &lhs,
+                                   std::optional<GenericFunction> const &rhs);
+} // namespace epoch_metadata::strategy

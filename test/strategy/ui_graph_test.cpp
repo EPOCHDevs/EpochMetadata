@@ -2,10 +2,19 @@
 // Created by dewe on 2/23/25.
 //
 #include "epoch_metadata/strategy/ui_graph.h"
+#include "epoch_metadata/strategy/validation.h"
 #include <catch.hpp>
 
+namespace {
 constexpr auto MARKET_DATA_SOURCE = "market_data_source";
 constexpr auto TRADE_SIGNAL_EXECUTOR = "trade_signal_executor";
+
+// Helper function to convert ValidationIssues to string for testing
+std::string ValidationIssuesToString(
+    const epoch_metadata::strategy::ValidationIssues &issues) {
+  return epoch_metadata::strategy::FormatValidationIssues(issues);
+}
+} // namespace
 
 // Test 1: Basic Executor and Single Algorithm Node
 TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
@@ -21,12 +30,12 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
       "closeIfIndecisive", false, std::nullopt, false});
   data.nodes.push_back(executor);
 
-  // Algorithm node (sma) with a non-exposed option.
+  // Algorithm node (previous_gt) with a period option.
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo1";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 1.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
   // PriceBar node.
@@ -41,15 +50,17 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   epoch_metadata::strategy::UIVertex algoVertex{"algo1", "*"};
   data.edges.push_back({dsVertex, algoVertex});
 
-  // From algorithm node to executor. Target handle "in"
-  epoch_metadata::strategy::UIVertex algoOut{"algo1", "sma"};
+  // From algorithm node to executor. Target handle "long"
+  epoch_metadata::strategy::UIVertex algoOut{"algo1", "result"};
   epoch_metadata::strategy::UIVertex execVertex{"exec1", "long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   {
-    INFO((result.has_value() ? std::string{} : result.error()));
+    INFO((result.has_value() ? std::string{}
+                             : epoch_metadata::strategy::FormatValidationIssues(
+                                   result.error())));
     REQUIRE(result.has_value());
   }
   epoch_metadata::strategy::PartialTradeSignalMetaData meta = result.value();
@@ -61,7 +72,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   REQUIRE(meta.executor.options["closeIfIndecisive"].GetBoolean() == false);
   REQUIRE(meta.executor.inputs.contains("long"));
   // Executor input should reference algorithm node output.
-  REQUIRE(meta.executor.inputs["long"].front() == "algo1#sma");
+  REQUIRE(meta.executor.inputs["long"].front() == "algo1#result");
 
   // Verify algorithm node.
   REQUIRE(meta.algorithm.size() == 1);
@@ -69,14 +80,14 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   // According to our implementation, the algorithm node's type is set from
   // target.handle.
   REQUIRE(algoNode.id == "algo1");
-  REQUIRE(algoNode.type == "sma");
+  REQUIRE(algoNode.type == "previous_gt");
   // PriceBar input mapping: since the source is PriceBar, input equals source
   // handle.
   REQUIRE(algoNode.inputs.contains("*"));
   REQUIRE(algoNode.inputs["*"].front() == "c");
   // Non-exposed option is expected to be copied.
-  REQUIRE(algoNode.options.contains("period"));
-  REQUIRE(algoNode.options["period"].GetInteger() == 10);
+  REQUIRE(algoNode.options.contains("periods"));
+  REQUIRE(algoNode.options["periods"].GetInteger() == 1);
 }
 
 // Test 2: Exposed Options Processing
@@ -92,14 +103,14 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
       "closeIfIndecisive", false, std::nullopt, false});
   data.nodes.push_back(executor);
 
-  // Algorithm node (sma) with an exposed option.
+  // Algorithm node (previous_gt) with an exposed option.
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo2";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   // Exposed option with a provided name.
   algo.options.push_back(epoch_metadata::strategy::UIOption{
-      "period", 20.0,
-      std::make_optional(std::string("Period for White Marubozu")), true});
+      "periods", 20.0,
+      std::make_optional(std::string("Periods for Previous GT")), true});
   data.nodes.push_back(algo);
 
   // PriceBar node.
@@ -109,54 +120,56 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
   data.nodes.push_back(PriceBar);
 
   // Edges:
-  // From PriceBar to algorithm node with target handle "inputA". Use valid
+  // From PriceBar to algorithm node with target handle "*". Use valid
   // handle "c".
   epoch_metadata::strategy::UIVertex dsVertex{"data2", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo2", "inputA"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo2", "*"};
   data.edges.push_back({dsVertex, algoVertex});
-  // From algorithm node to executor with target handle "in".
-  epoch_metadata::strategy::UIVertex algoOut{"algo2", "out"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec2", "in"};
+  // From algorithm node to executor with target handle "long".
+  epoch_metadata::strategy::UIVertex algoOut{"algo2", "result"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec2", "long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   {
-    INFO((result.has_value() ? std::string{} : result.error()));
+    INFO((result.has_value() ? std::string{}
+                             : epoch_metadata::strategy::FormatValidationIssues(
+                                   result.error())));
     REQUIRE(result.has_value());
   }
   epoch_metadata::strategy::PartialTradeSignalMetaData meta = result.value();
 
   // Verify executor.
   REQUIRE(meta.executor.id == "exec2");
-  REQUIRE(meta.executor.inputs.contains("in"));
-  REQUIRE(meta.executor.inputs["in"].front() == "algo2#out");
+  REQUIRE(meta.executor.inputs.contains("long"));
+  REQUIRE(meta.executor.inputs["long"].front() == "algo2#result");
 
   // Verify algorithm node.
   REQUIRE(meta.algorithm.size() == 1);
   auto algoNode = meta.algorithm.front();
   REQUIRE(algoNode.id == "algo2");
   // Type is set from the target handle.
-  REQUIRE(algoNode.type == "sma");
+  REQUIRE(algoNode.type == "previous_gt");
   // For PriceBar input, mapping is direct ("c").
-  REQUIRE(algoNode.inputs.contains("inputA"));
-  REQUIRE(algoNode.inputs["inputA"].front() == "c");
+  REQUIRE(algoNode.inputs.contains("*"));
+  REQUIRE(algoNode.inputs["*"].front() == "c");
 
   // Exposed option should now be a reference (starting with a dot).
-  REQUIRE(algoNode.options.find("period") != algoNode.options.end());
-  std::string optRef = algoNode.options["period"].GetRef();
-  REQUIRE(optRef == "algo2#period");
+  REQUIRE(algoNode.options.find("periods") != algoNode.options.end());
+  std::string optRef = algoNode.options["periods"].GetRef();
+  REQUIRE(optRef == "algo2#periods");
 
   // Global metadata.options vector should include the transformed option.
   bool found = false;
-  std::string expectedId = std::format("{}#{}", "algo2", "period");
+  std::string expectedId = std::format("{}#{}", "algo2", "periods");
   for (const auto &mdOpt : meta.options) {
     if (mdOpt.id == expectedId) {
       found = true;
       // Use GetDouble() here since the exposed option value is stored as a
       // double.
       REQUIRE(mdOpt.defaultValue.value().GetInteger() == 20);
-      REQUIRE(mdOpt.name == "Period for White Marubozu");
+      REQUIRE(mdOpt.name == "Periods for Previous GT");
     }
   }
   REQUIRE(found);
@@ -178,61 +191,54 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
   // Algorithm node.
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo3";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
-  // Two PriceBar nodes.
+  // PriceBar node.
   epoch_metadata::strategy::UINode PriceBar1;
   PriceBar1.id = "data3";
   PriceBar1.type = MARKET_DATA_SOURCE;
   data.nodes.push_back(PriceBar1);
 
-  epoch_metadata::strategy::UINode PriceBar2;
-  PriceBar2.id = "data4";
-  PriceBar2.type = MARKET_DATA_SOURCE;
-  data.nodes.push_back(PriceBar2);
-
   // Edges:
   epoch_metadata::strategy::UIVertex ds1{"data3", "c"};
-  epoch_metadata::strategy::UIVertex algoV1{"algo3", "input1"};
+  epoch_metadata::strategy::UIVertex algoV1{"algo3", "*"};
   data.edges.push_back({ds1, algoV1});
 
-  epoch_metadata::strategy::UIVertex ds2{"data4", "c"};
-  epoch_metadata::strategy::UIVertex algoV2{"algo3", "input2"};
-  data.edges.push_back({ds2, algoV2});
-
+  // Note: SMA only accepts one input, so we'll use a different approach
+  // Let's create a chain: data3 -> algo3 -> executor
   // Edge from algorithm node to executor.
-  epoch_metadata::strategy::UIVertex algoOut{"algo3", "out"};
-  epoch_metadata::strategy::UIVertex execV{"exec3", "in"};
+  epoch_metadata::strategy::UIVertex algoOut{"algo3", "result"};
+  epoch_metadata::strategy::UIVertex execV{"exec3", "long"};
   data.edges.push_back({algoOut, execV});
 
   // Call CreateAlgorithmMetaData.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   {
-    INFO((result.has_value() ? std::string{} : result.error()));
+    INFO((result.has_value() ? std::string{}
+                             : epoch_metadata::strategy::FormatValidationIssues(
+                                   result.error())));
     REQUIRE(result.has_value());
   }
   epoch_metadata::strategy::PartialTradeSignalMetaData meta = result.value();
 
   // Verify executor.
   REQUIRE(meta.executor.id == "exec3");
-  REQUIRE(meta.executor.inputs.find("in") != meta.executor.inputs.end());
-  REQUIRE(meta.executor.inputs["in"].front() == "algo3#out");
+  REQUIRE(meta.executor.inputs.find("long") != meta.executor.inputs.end());
+  REQUIRE(meta.executor.inputs["long"].front() == "algo3#result");
 
   // Verify algorithm node.
   REQUIRE(meta.algorithm.size() == 1);
   auto algoNode = meta.algorithm.front();
   REQUIRE(algoNode.id == "algo3");
   // Type set from first edge creating the node.
-  REQUIRE(algoNode.type == "sma");
+  REQUIRE(algoNode.type == "previous_gt");
 
-  // Both input mappings should be present.
-  REQUIRE(algoNode.inputs.find("input1") != algoNode.inputs.end());
-  REQUIRE(algoNode.inputs["input1"].front() == "c");
-  REQUIRE(algoNode.inputs.find("input2") != algoNode.inputs.end());
-  REQUIRE(algoNode.inputs["input2"].front() == "c");
+  // Single input mapping should be present.
+  REQUIRE(algoNode.inputs.find("*") != algoNode.inputs.end());
+  REQUIRE(algoNode.inputs["*"].front() == "c");
 }
 
 // Test 4: Error Case – Exposed Option in Executor Node
@@ -253,20 +259,31 @@ TEST_CASE(
   // Dummy algorithm node to complete graph.
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo_dummy";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
+  // PriceBar node for input
+  epoch_metadata::strategy::UINode priceBar;
+  priceBar.id = "data_dummy";
+  priceBar.type = MARKET_DATA_SOURCE;
+  data.nodes.push_back(priceBar);
+
+  // Edge from PriceBar to algo
+  epoch_metadata::strategy::UIVertex dsVertex{"data_dummy", "c"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo_dummy", "*"};
+  data.edges.push_back({dsVertex, algoVertex});
+
   // Edge from algo to executor.
-  epoch_metadata::strategy::UIVertex algoOut{"algo_dummy", "out"};
-  epoch_metadata::strategy::UIVertex execV{"exec4", "in"};
+  epoch_metadata::strategy::UIVertex algoOut{"algo_dummy", "result"};
+  epoch_metadata::strategy::UIVertex execV{"exec4", "long"};
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to exposed option on executor.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(),
+  REQUIRE_THAT(epoch_metadata::strategy::FormatValidationIssues(result.error()),
                Catch::Matchers::ContainsSubstring(
                    "TradeSignalExecutor options cannot be exposed"));
 }
@@ -288,9 +305,9 @@ TEST_CASE(
   // Algorithm node with an exposed option missing a name.
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo5";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 30.0, std::nullopt, true});
+      epoch_metadata::strategy::UIOption{"periods", 30.0, std::nullopt, true});
   data.nodes.push_back(algo);
 
   // PriceBar node.
@@ -301,17 +318,17 @@ TEST_CASE(
 
   // Edges:
   epoch_metadata::strategy::UIVertex dsV{"data5", "c"};
-  epoch_metadata::strategy::UIVertex algoV{"algo5", "inputA"};
+  epoch_metadata::strategy::UIVertex algoV{"algo5", "*"};
   data.edges.push_back({dsV, algoV});
-  epoch_metadata::strategy::UIVertex algoOut{"algo5", "out"};
-  epoch_metadata::strategy::UIVertex execV{"exec5", "in"};
+  epoch_metadata::strategy::UIVertex algoOut{"algo5", "result"};
+  epoch_metadata::strategy::UIVertex execV{"exec5", "long"};
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to missing name for exposed option.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(), Catch::Matchers::ContainsSubstring(
-                                   "Exposed option must have a name."));
+  REQUIRE_THAT(epoch_metadata::strategy::FormatValidationIssues(result.error()),
+               Catch::Matchers::ContainsSubstring("empty display name"));
 }
 
 // Test 6: Topological Sorting of Algorithm Nodes
@@ -337,14 +354,14 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
 
   epoch_metadata::strategy::UINode algo7;
   algo7.id = "algo7";
-  algo7.type = "sma";
+  algo7.type = "previous_gt";
   algo7.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 15.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 15.0, std::nullopt, false});
   data.nodes.push_back(algo7);
 
   // Create a dependency edge: algo6 outputs to algo7.
-  epoch_metadata::strategy::UIVertex out6{"algo6", "out"};
-  epoch_metadata::strategy::UIVertex in7{"algo7", "input"};
+  epoch_metadata::strategy::UIVertex out6{"algo6", "result"};
+  epoch_metadata::strategy::UIVertex in7{"algo7", "*"};
   data.edges.push_back({out6, in7});
   // Also, add an edge from a PriceBar to algo6 using valid handle "c".
   epoch_metadata::strategy::UINode PriceBar;
@@ -352,18 +369,20 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
   PriceBar.type = MARKET_DATA_SOURCE;
   data.nodes.push_back(PriceBar);
   epoch_metadata::strategy::UIVertex dsV{"data6", "c"};
-  epoch_metadata::strategy::UIVertex in6{"algo6", "input"};
+  epoch_metadata::strategy::UIVertex in6{"algo6", "*"};
   data.edges.push_back({dsV, in6});
 
   // Edge from algo7 to executor.
-  epoch_metadata::strategy::UIVertex out7{"algo7", "out"};
-  epoch_metadata::strategy::UIVertex execV{"exec6", "in"};
+  epoch_metadata::strategy::UIVertex out7{"algo7", "result"};
+  epoch_metadata::strategy::UIVertex execV{"exec6", "long"};
   data.edges.push_back({out7, execV});
 
   // Call CreateAlgorithmMetaData.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   {
-    INFO((result.has_value() ? std::string{} : result.error()));
+    INFO((result.has_value() ? std::string{}
+                             : epoch_metadata::strategy::FormatValidationIssues(
+                                   result.error())));
     REQUIRE(result.has_value());
   }
   epoch_metadata::strategy::PartialTradeSignalMetaData meta = result.value();
@@ -384,18 +403,18 @@ TEST_CASE("CreateUIData: Basic Conversion", "[CreateUIData]") {
   exec.type = TRADE_SIGNAL_EXECUTOR;
   // Set a non-exposed option "flag" to true.
   exec.options["flag"] = true;
-  // Set an input mapping for executor: "in" -> "algo#out"
-  exec.inputs["in"].emplace_back("algo#out");
+  // Set an input mapping for executor: "long" -> "algo#result"
+  exec.inputs["long"].emplace_back("algo#result");
   meta.executor = exec;
 
   // Setup one algorithm node.
   epoch_metadata::strategy::AlgorithmNode algo;
   algo.id = "algo";
-  algo.type = "sma";
-  // Non-exposed option: "period" = 10.
-  algo.options["period"] = 10.0;
-  // Input mapping: "inputA" -> "c" (no '#' so a synthetic PriceBar is created)
-  algo.inputs["inputA"].emplace_back("c");
+  algo.type = "previous_gt";
+  // Non-exposed option: "periods" = 10.
+  algo.options["periods"] = 10.0;
+  // Input mapping: "*" -> "c" (no '#' so a synthetic PriceBar is created)
+  algo.inputs["*"].emplace_back("c");
   meta.algorithm.push_back(algo);
 
   // Call CreateUIData.
@@ -420,8 +439,8 @@ TEST_CASE("CreateUIData: Basic Conversion", "[CreateUIData]") {
       REQUIRE(optVal == true);
     } else if (node.id == "algo") {
       foundAlgo = true;
-      REQUIRE(node.type == "sma");
-      // Option "period" should be present and equal to 10.
+      REQUIRE(node.type == "previous_gt");
+      // Option "periods" should be present and equal to 10.
       int period = std::get<double>(node.options.at(0).value.value());
       REQUIRE(period == 10);
     } else if (node.id == MARKET_DATA_SOURCE) {
@@ -434,22 +453,22 @@ TEST_CASE("CreateUIData: Basic Conversion", "[CreateUIData]") {
   REQUIRE(foundDS);
 
   // Check edges.
-  // Expect an edge from synthetic PriceBar ("PriceBar_c", handle "c") to
-  // algorithm "algo" (handle "inputA") and an edge from "algo" (handle "out")
-  // to executor "exec" (handle "in").
-  bool foundEdgeAlgoInputA = false, foundEdgeExecIn = false;
+  // Expect an edge from synthetic PriceBar (MARKET_DATA_SOURCE, handle "c") to
+  // algorithm "algo" (handle "*") and an edge from "algo" (handle "result")
+  // to executor "exec" (handle "long").
+  bool foundEdgeAlgoInput = false, foundEdgeExecLong = false;
   for (const auto &edge : ui.edges) {
     if (edge.source.id == MARKET_DATA_SOURCE && edge.source.handle == "c" &&
-        edge.target.id == "algo" && edge.target.handle == "inputA") {
-      foundEdgeAlgoInputA = true;
+        edge.target.id == "algo" && edge.target.handle == "*") {
+      foundEdgeAlgoInput = true;
     }
-    if (edge.source.id == "algo" && edge.source.handle == "out" &&
-        edge.target.id == "exec" && edge.target.handle == "in") {
-      foundEdgeExecIn = true;
+    if (edge.source.id == "algo" && edge.source.handle == "result" &&
+        edge.target.id == "exec" && edge.target.handle == "long") {
+      foundEdgeExecLong = true;
     }
   }
-  REQUIRE(foundEdgeAlgoInputA);
-  REQUIRE(foundEdgeExecIn);
+  REQUIRE(foundEdgeAlgoInput);
+  REQUIRE(foundEdgeExecLong);
 }
 
 TEST_CASE("CreateUIData: Input with '#' Uses Provided Source Node",
@@ -463,16 +482,16 @@ TEST_CASE("CreateUIData: Input with '#' Uses Provided Source Node",
   exec.id = "exec";
   exec.type = TRADE_SIGNAL_EXECUTOR;
   // Input mapping for executor.
-  exec.inputs["in"].emplace_back("algo2#out");
+  exec.inputs["long"].emplace_back("algo2#result");
   meta.executor = exec;
 
   // Setup an algorithm node.
   epoch_metadata::strategy::AlgorithmNode algo2;
   algo2.id = "algo2";
-  algo2.type = "sma";
-  algo2.options["period"] = 20.0;
-  // Input mapping: key "inputB" -> "sourceX#h"
-  algo2.inputs["inputB"].emplace_back("h");
+  algo2.type = "previous_gt";
+  algo2.options["periods"] = 20.0;
+  // Input mapping: key "*" -> "h"
+  algo2.inputs["*"].emplace_back("h");
   meta.algorithm.push_back(algo2);
 
   // Call CreateUIData.
@@ -494,12 +513,12 @@ TEST_CASE("CreateUIData: Input with '#' Uses Provided Source Node",
   }
   REQUIRE(foundSourceX);
 
-  // Check that an edge from "sourceX" (handle "h") to "algo2" (handle "inputB")
-  // is created.
+  // Check that an edge from MARKET_DATA_SOURCE (handle "h") to "algo2" (handle
+  // "*") is created.
   bool foundEdge = false;
   for (const auto &edge : ui.edges) {
     if (edge.source.id == MARKET_DATA_SOURCE && edge.source.handle == "h" &&
-        edge.target.id == "algo2" && edge.target.handle == "inputB") {
+        edge.target.id == "algo2" && edge.target.handle == "*") {
       foundEdge = true;
     }
   }
@@ -519,28 +538,20 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
       "closeIfIndecisive", false, std::nullopt, false});
   data.nodes.push_back(executor);
 
-  // Create three algorithm nodes to form a cycle: algo1 -> algo2 -> algo3 ->
-  // algo1
+  // Create two algorithm nodes to form a cycle: algo1 -> algo2 -> algo1
   epoch_metadata::strategy::UINode algo1;
   algo1.id = "algo1";
-  algo1.type = "sma";
+  algo1.type = "previous_gt";
   algo1.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo1);
 
   epoch_metadata::strategy::UINode algo2;
   algo2.id = "algo2";
-  algo2.type = "ema";
+  algo2.type = "previous_gt";
   algo2.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 20.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 20.0, std::nullopt, false});
   data.nodes.push_back(algo2);
-
-  epoch_metadata::strategy::UINode algo3;
-  algo3.id = "algo3";
-  algo3.type = "rsi";
-  algo3.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 14.0, std::nullopt, false});
-  data.nodes.push_back(algo3);
 
   // PriceBar node for initial input
   epoch_metadata::strategy::UINode priceBar;
@@ -551,36 +562,33 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
   // Create edges to form a cycle
   // PriceBar -> algo1 (initial input)
   epoch_metadata::strategy::UIVertex dsVertex{"data7", "c"};
-  epoch_metadata::strategy::UIVertex algo1Vertex{"algo1", "input"};
+  epoch_metadata::strategy::UIVertex algo1Vertex{"algo1", "*"};
   data.edges.push_back({dsVertex, algo1Vertex});
 
   // algo1 -> algo2
-  epoch_metadata::strategy::UIVertex out1{"algo1", "out"};
-  epoch_metadata::strategy::UIVertex in2{"algo2", "input"};
+  epoch_metadata::strategy::UIVertex out1{"algo1", "result"};
+  epoch_metadata::strategy::UIVertex in2{"algo2", "*"};
   data.edges.push_back({out1, in2});
 
-  // algo2 -> algo3
-  epoch_metadata::strategy::UIVertex out2{"algo2", "out"};
-  epoch_metadata::strategy::UIVertex in3{"algo3", "input"};
-  data.edges.push_back({out2, in3});
+  // algo2 -> algo1 (completing the cycle)
+  // This creates a cycle since algo1 already has input from PriceBar
+  // but we're trying to add another input from algo2
+  epoch_metadata::strategy::UIVertex out2{"algo2", "result"};
+  epoch_metadata::strategy::UIVertex in1{"algo1", "*"};
+  data.edges.push_back({out2, in1});
 
-  // algo3 -> algo1 (completing the cycle)
-  epoch_metadata::strategy::UIVertex out3{"algo3", "out"};
-  epoch_metadata::strategy::UIVertex in1{"algo1", "secondInput"};
-  data.edges.push_back({out3, in1});
-
-  // Also connect algo3 to executor so the graph is complete
-  epoch_metadata::strategy::UIVertex out3ToExec{"algo3", "out"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec7", "in"};
-  data.edges.push_back({out3ToExec, execVertex});
+  // Also connect algo2 to executor so the graph is complete
+  epoch_metadata::strategy::UIVertex out2ToExec{"algo2", "result"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec7", "long"};
+  data.edges.push_back({out2ToExec, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the cycle
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
 
   // Verify that the function detected the cycle and returned an error
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(),
-               Catch::Matchers::ContainsSubstring("contains cycles"));
+  REQUIRE_THAT(ValidationIssuesToString(result.error()),
+               Catch::Matchers::ContainsSubstring("Cycle detected"));
 }
 
 // Test 8: Unknown Node Type Detection
@@ -602,7 +610,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
   algo.type =
       "non_existent_indicator_type"; // This type doesn't exist in the registry
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
   // PriceBar node
@@ -614,12 +622,12 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
   // Create edges
   // PriceBar -> algo
   epoch_metadata::strategy::UIVertex dsVertex{"data8", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo_unknown", "input"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo_unknown", "*"};
   data.edges.push_back({dsVertex, algoVertex});
 
   // algo -> executor
-  epoch_metadata::strategy::UIVertex algoOut{"algo_unknown", "out"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec8", "in"};
+  epoch_metadata::strategy::UIVertex algoOut{"algo_unknown", "result"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec8", "long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to unknown node type
@@ -627,7 +635,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
 
   // Verify that the function detected the unknown type and returned an error
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(),
+  REQUIRE_THAT(ValidationIssuesToString(result.error()),
                Catch::Matchers::ContainsSubstring("Unknown node type"));
 }
 
@@ -647,20 +655,20 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
   // Algorithm node
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo9";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
   // Create an edge that references a non-existent source node
   epoch_metadata::strategy::UIVertex nonExistentSource{"non_existent_node",
-                                                       "out"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo9", "input"};
+                                                       "result"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo9", "*"};
   data.edges.push_back({nonExistentSource, algoVertex});
 
   // Create a valid edge from algo to executor
-  epoch_metadata::strategy::UIVertex algoOut{"algo9", "out"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec9", "in"};
+  epoch_metadata::strategy::UIVertex algoOut{"algo9", "result"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec9", "long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the invalid edge
@@ -668,8 +676,8 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
 
   // Verify that the function detected the invalid edge and returned an error
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(),
-               Catch::Matchers::ContainsSubstring("Invalid edge"));
+  REQUIRE_THAT(ValidationIssuesToString(result.error()),
+               Catch::Matchers::ContainsSubstring("unknown source node"));
 }
 
 // Test 10: Multiple Executors Detection
@@ -696,9 +704,9 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   // Algorithm node
   epoch_metadata::strategy::UINode algo;
   algo.id = "algo10";
-  algo.type = "sma";
+  algo.type = "previous_gt";
   algo.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 10.0, std::nullopt, false});
   data.nodes.push_back(algo);
 
   // PriceBar node
@@ -710,17 +718,17 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   // Create edges
   // PriceBar -> algo
   epoch_metadata::strategy::UIVertex dsVertex{"data10", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo10", "input"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo10", "*"};
   data.edges.push_back({dsVertex, algoVertex});
 
   // algo -> executor1
-  epoch_metadata::strategy::UIVertex algoOut1{"algo10", "out"};
-  epoch_metadata::strategy::UIVertex exec1Vertex{"exec10_1", "in"};
+  epoch_metadata::strategy::UIVertex algoOut1{"algo10", "result"};
+  epoch_metadata::strategy::UIVertex exec1Vertex{"exec10_1", "long"};
   data.edges.push_back({algoOut1, exec1Vertex});
 
   // algo -> executor2
-  epoch_metadata::strategy::UIVertex algoOut2{"algo10", "out"};
-  epoch_metadata::strategy::UIVertex exec2Vertex{"exec10_2", "in"};
+  epoch_metadata::strategy::UIVertex algoOut2{"algo10", "result"};
+  epoch_metadata::strategy::UIVertex exec2Vertex{"exec10_2", "short"};
   data.edges.push_back({algoOut2, exec2Vertex});
 
   // Call CreateAlgorithmMetaData - should fail due to multiple executors
@@ -728,8 +736,9 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
 
   // Verify that the function detected multiple executors and returned an error
   REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(result.error(), Catch::Matchers::ContainsSubstring(
-                                   "Expected exactly one executor"));
+  REQUIRE_THAT(
+      ValidationIssuesToString(result.error()),
+      Catch::Matchers::ContainsSubstring("Found 2 TradeSignalExecutors"));
 }
 
 // Test 11: Timeframe Inheritance
@@ -758,39 +767,46 @@ TEST_CASE("CreateAlgorithmMetaData: Timeframe Inheritance",
   // Second algorithm node without a timeframe (should inherit from algo1)
   epoch_metadata::strategy::UINode algo2;
   algo2.id = "algo11_2";
-  algo2.type = "ema";
+  algo2.type = "previous_gt";
   algo2.options.push_back(
-      epoch_metadata::strategy::UIOption{"period", 20.0, std::nullopt, false});
+      epoch_metadata::strategy::UIOption{"periods", 20.0, std::nullopt, false});
   // No timeframe set
   data.nodes.push_back(algo2);
 
-  // PriceBar node
+  // PriceBar node with matching timeframe
   epoch_metadata::strategy::UINode priceBar;
   priceBar.id = "data11";
   priceBar.type = MARKET_DATA_SOURCE;
+  priceBar.timeframe = epoch_metadata::TimeFrame(
+      epoch_frame::factory::offset::days(1)); // 1-day timeframe
   data.nodes.push_back(priceBar);
 
   // Create edges
   // PriceBar -> algo1
   epoch_metadata::strategy::UIVertex dsVertex{"data11", "c"};
-  epoch_metadata::strategy::UIVertex algo1Vertex{"algo11_1", "input"};
+  epoch_metadata::strategy::UIVertex algo1Vertex{"algo11_1", "*"};
   data.edges.push_back({dsVertex, algo1Vertex});
 
   // algo1 -> algo2 (should inherit timeframe)
-  epoch_metadata::strategy::UIVertex algo1Out{"algo11_1", "out"};
-  epoch_metadata::strategy::UIVertex algo2In{"algo11_2", "input"};
+  epoch_metadata::strategy::UIVertex algo1Out{"algo11_1", "result"};
+  epoch_metadata::strategy::UIVertex algo2In{"algo11_2", "*"};
   data.edges.push_back({algo1Out, algo2In});
 
   // algo2 -> executor
-  epoch_metadata::strategy::UIVertex algo2Out{"algo11_2", "out"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec11", "in"};
+  epoch_metadata::strategy::UIVertex algo2Out{"algo11_2", "result"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec11", "long"};
   data.edges.push_back({algo2Out, execVertex});
 
   // Call CreateAlgorithmMetaData
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
 
   // Verify the result
-  REQUIRE(result.has_value());
+  {
+    INFO((result.has_value() ? std::string{}
+                             : epoch_metadata::strategy::FormatValidationIssues(
+                                   result.error())));
+    REQUIRE(result.has_value());
+  }
 
   // Find algo2 in result and verify it inherited the timeframe from algo1
   int found{};
