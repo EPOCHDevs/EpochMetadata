@@ -61,8 +61,8 @@ void ExpectValidationError(const ValidationIssues &issues,
 }
 
 void ExpectNoValidationErrors(const ValidationIssues &issues) {
-    INFO(FormatValidationIssues(issues));
-    REQUIRE(issues.empty());
+  INFO(FormatValidationIssues(issues));
+  REQUIRE(issues.empty());
 }
 
 } // namespace
@@ -413,5 +413,208 @@ TEST_CASE("GenericFunctionValidator: All function types coverage",
       REQUIRE(options.has_value());
       ExpectNoValidationErrors(issues);
     }
+  }
+}
+
+// ============================================================================
+// OPTIMIZATION TESTS
+// ============================================================================
+
+TEST_CASE("GenericFunctionOptimizer: Apply Default Options",
+          "[GenericFunctionOptimization]") {
+  SECTION("Position sizer with missing optional args") {
+    // Create CPPI position sizer with only required args
+    MetaDataArgDefinitionMapping args;
+    args["multiplier"] = CreateOption(3.0);
+    // Missing optional args like "floor_pct" which should have defaults
+
+    auto func = CreateGenericFunction("cppi", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should have more args after optimization (defaults applied)
+    REQUIRE(optimized.args->size() == 2);
+
+    // Should still have original args
+    REQUIRE(optimized.args->at("multiplier").GetInteger() == 3);
+    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
+  }
+
+  SECTION("Trade signal with missing optional args") {
+    MetaDataArgDefinitionMapping args;
+    args["atr#period"] = CreateOption(12.0);
+    // Missing any optional args that might have defaults
+
+    auto func = CreateGenericFunction("atr_scalping", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // Should preserve original args
+    REQUIRE(optimized.args->at("atr#period").GetInteger() == 12);
+    REQUIRE(optimized.args->at("sma#period").GetInteger() == 5);
+  }
+}
+
+TEST_CASE("GenericFunctionOptimizer: Clamp Option Values",
+          "[GenericFunctionOptimization]") {
+  SECTION("Position sizer with out of range multiplier") {
+    MetaDataArgDefinitionMapping args;
+    args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
+    args["floor_pct"] = CreateOption(0.9);
+
+    auto func = CreateGenericFunction("cppi", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Multiplier should be clamped to max value
+    REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
+
+    // floor_pct should remain unchanged
+    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
+  }
+
+  SECTION("Take profit with negative period value") {
+    MetaDataArgDefinitionMapping args;
+    args["period"] = CreateOption(-5.0); // Below min (1)
+    args["multiple"] = CreateOption(2.0);
+
+    auto func = CreateGenericFunction("atr_volatility", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TakeProfit);
+
+    // Period should be clamped to minimum value
+    REQUIRE(optimized.args->at("period").GetInteger() == 1);
+
+    // Multiple should remain unchanged
+    REQUIRE(optimized.args->at("multiple").GetDecimal() == 2.0);
+  }
+
+  SECTION("Take profit with ratio above maximum") {
+    MetaDataArgDefinitionMapping args;
+    args["ratio"] = CreateOption(1.5); // Above max (1.0)
+
+    auto func = CreateGenericFunction("fixed_percent_ratio_offset", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TakeProfit);
+
+    // Ratio should be clamped to maximum value
+    REQUIRE(optimized.args->at("ratio").GetDecimal() == 1.0);
+  }
+}
+
+TEST_CASE("GenericFunctionOptimizer: Values Within Range",
+          "[GenericFunctionOptimization]") {
+  SECTION("All values within valid ranges") {
+    MetaDataArgDefinitionMapping args;
+    args["period"] = CreateOption(20.0);  // Within range [1, 1000]
+    args["multiple"] = CreateOption(2.5); // Within range [1.0, 10.0]
+
+    auto func = CreateGenericFunction("atr_volatility", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TakeProfit);
+
+    // Values should remain unchanged when within range
+    REQUIRE(optimized.args->at("period").GetInteger() == 20);
+
+    REQUIRE(optimized.args->at("multiple").GetDecimal() == 2.5);
+  }
+}
+
+TEST_CASE("GenericFunctionOptimizer: Full Optimization Pipeline",
+          "[GenericFunctionOptimization]") {
+  SECTION("CPPI with mixed issues") {
+    MetaDataArgDefinitionMapping args;
+    args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
+    args["floor_pct"] = CreateOption(-0.1);   // Below min (0.0)
+    // Missing any optional args that might have defaults
+
+    auto func = CreateGenericFunction("cppi", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should apply all optimizations
+    REQUIRE(optimized.args->size() >= 2); // At least the original args
+
+    // Multiplier should be clamped to max
+    REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
+
+    // floor_pct should be clamped to min
+    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.0);
+  }
+
+  SECTION("ATR Volatility with multiple range issues") {
+    MetaDataArgDefinitionMapping args;
+    args["period"] = CreateOption(0.0);    // Below min (1)
+    args["multiple"] = CreateOption(15.0); // Above max (10.0)
+
+    auto func = CreateGenericFunction("atr_volatility", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::StopLoss);
+
+    // Period should be clamped to min
+    REQUIRE(optimized.args->at("period").GetInteger() == 1);
+
+    // Multiple should be clamped to max
+    REQUIRE(optimized.args->at("multiple").GetDecimal() == 10.0);
+  }
+}
+
+TEST_CASE("GenericFunctionOptimizer: No Changes When Already Optimal",
+          "[GenericFunctionOptimization]") {
+  SECTION("Perfect position sizer") {
+    MetaDataArgDefinitionMapping args;
+    args["unit"] = CreateOption(1.0); // Valid value
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should be identical to original
+    REQUIRE(optimized.type == func.type);
+    REQUIRE(optimized.args->size() >= func.args->size()); // Might have defaults
+    REQUIRE(optimized.args->at("unit").GetInteger() == 1);
+
+    // Original args should be preserved
+    for (const auto &[key, value] :
+         func.args.value_or(MetaDataArgDefinitionMapping{})) {
+      REQUIRE(optimized.args->contains(key));
+    }
+  }
+
+  SECTION("Perfect trade signal") {
+    MetaDataArgDefinitionMapping args;
+    args["slow#period"] = CreateOption(200.0);
+    args["slow#type"] = CreateStringOption("sma");
+    args["fast#period"] = CreateOption(50.0);
+    args["fast#type"] = CreateStringOption("ema");
+
+    auto func = CreateGenericFunction("moving_average_crossover", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // Should preserve all args
+    REQUIRE(optimized.args->at("slow#period").GetInteger() == 200);
+    REQUIRE(optimized.args->at("slow#type").GetSelectOption() == "sma");
+    REQUIRE(optimized.args->at("fast#period").GetInteger() == 50);
+    REQUIRE(optimized.args->at("fast#type").GetSelectOption() == "ema");
+  }
+}
+
+TEST_CASE("GenericFunctionOptimizer: Unknown Type Handling",
+          "[GenericFunctionOptimization]") {
+  SECTION("Unknown function type should not crash") {
+    MetaDataArgDefinitionMapping args;
+    args["some_arg"] = CreateOption(42.0);
+
+    auto func = CreateGenericFunction("unknown_type", args);
+
+    // This should not crash, but might return the original function unchanged
+    // or handle the error gracefully
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // At minimum, should not lose the original data
+    REQUIRE(optimized.type == func.type);
+    REQUIRE(optimized.args->size() == func.args->size());
   }
 }

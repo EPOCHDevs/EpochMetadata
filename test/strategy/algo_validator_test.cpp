@@ -1731,10 +1731,10 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
   const std::string json = R"({
         "nodes": [
             {
-                "id": "number_node",
-                "type": "number",
+                "id": "sma11",
+                "type": "sma",
                 "options": [
-                    {"id": "value", "value": 1500.5}
+                    {"id": "period", "value": 150000000}
                 ],
                 "metadata": {},
                 "timeframe": null
@@ -1749,7 +1749,7 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
         ],
         "edges": [
             {
-                "source": {"id": "number_node", "handle": "result"},
+                "source": {"id": "sma11", "handle": "result"},
                 "target": {"id": "executor", "handle": "long"}
             }
         ],
@@ -1760,9 +1760,9 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
   auto data = ParseUIData(json);
   auto result = ValidateUIData(data);
 
-  // Number node value might be out of range (assuming max=1000)
+  // SMA period value is out of range (max=10000)
   ExpectValidationError(result, ValidationCode::OptionValueOutOfRange,
-                        "value 1500.5 is out of range");
+                        "value 1.5e+08 is out of range");
 }
 
 TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
@@ -2043,4 +2043,504 @@ TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
   // timeframe is set
   ExpectValidationError(result, ValidationCode::TimeframeMismatch,
                         "has timeframe set but requiresTimeFrame is false");
+}
+
+// ============================================================================
+// OPTIMIZATION TESTS
+// ============================================================================
+
+TEST_CASE("AlgorithmOptimizer: Remove Orphan Nodes",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "orphan1",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "orphan2",
+                "type": "rsi",
+                "options": [{"id": "period", "value": 14}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "connected_sma",
+                "type": "sma",
+                "options": [{"id": "period", "value": 50}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "connected_sma", "handle": "*"}
+            },
+            {
+                "source": {"id": "connected_sma", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+
+  // Original data should have 5 nodes
+  REQUIRE(data.nodes.size() == 5);
+
+  // Optimize to remove orphans
+  auto optimized = OptimizeUIData(data);
+
+  // Should only have 3 nodes left (mds, connected_sma, executor)
+  REQUIRE(optimized.nodes.size() == 3);
+
+  // Check that orphan nodes were removed
+  for (const auto &node : optimized.nodes) {
+    REQUIRE(node.id != "orphan1");
+    REQUIRE(node.id != "orphan2");
+  }
+
+  // Check that connected nodes remain
+  bool hasMds = false, hasConnectedSma = false, hasExecutor = false;
+  for (const auto &node : optimized.nodes) {
+    if (node.id == "mds")
+      hasMds = true;
+    if (node.id == "connected_sma")
+      hasConnectedSma = true;
+    if (node.id == "executor")
+      hasExecutor = true;
+  }
+  REQUIRE(hasMds);
+  REQUIRE(hasConnectedSma);
+  REQUIRE(hasExecutor);
+}
+
+TEST_CASE("AlgorithmOptimizer: Remove Stuck Bool Nodes From Executor",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "bool_true",
+                "type": "bool_true",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "bool_false",
+                "type": "bool_false",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "gt",
+                "type": "gt",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "gt", "handle": "*0"}
+            },
+            {
+                "source": {"id": "mds", "handle": "h"},
+                "target": {"id": "gt", "handle": "*1"}
+            },
+            {
+                "source": {"id": "gt", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            },
+            {
+                "source": {"id": "bool_true", "handle": "result"},
+                "target": {"id": "executor", "handle": "allow"}
+            },
+            {
+                "source": {"id": "bool_false", "handle": "result"},
+                "target": {"id": "executor", "handle": "allow"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+
+  // Original should have 2 edges to "allow" handle
+  int allowConnections = 0;
+  for (const auto &edge : data.edges) {
+    if (edge.target.id == "executor" && edge.target.handle == "allow") {
+      allowConnections++;
+    }
+  }
+  REQUIRE(allowConnections == 2);
+
+  // Optimize to remove stuck bool connections
+  auto optimized = OptimizeUIData(data);
+
+  // Should have no edges to "allow" handle from bool_true/bool_false
+  int optimizedAllowConnections = 0;
+  for (const auto &edge : optimized.edges) {
+    if (edge.target.id == "executor" && edge.target.handle == "allow") {
+      REQUIRE(edge.source.id != "bool_true");
+      REQUIRE(edge.source.id != "bool_false");
+      optimizedAllowConnections++;
+    }
+  }
+  REQUIRE(optimizedAllowConnections == 0);
+}
+
+TEST_CASE("AlgorithmOptimizer: Preserve Valid Options",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma_with_period",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma_with_period", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma_with_period", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+
+  // SMA node should have period option initially
+  auto smaNode =
+      std::find_if(data.nodes.begin(), data.nodes.end(),
+                   [](const UINode &n) { return n.id == "sma_with_period"; });
+  REQUIRE(smaNode != data.nodes.end());
+  REQUIRE(smaNode->options.size() == 1);
+
+  // Optimize (should preserve valid options)
+  auto optimized = OptimizeUIData(data);
+
+  // SMA node should still have period option with same value
+  auto optimizedSmaNode =
+      std::find_if(optimized.nodes.begin(), optimized.nodes.end(),
+                   [](const UINode &n) { return n.id == "sma_with_period"; });
+  REQUIRE(optimizedSmaNode != optimized.nodes.end());
+
+  bool foundPeriodOption = false;
+  for (const auto &option : optimizedSmaNode->options) {
+    if (option.id == "period") {
+      foundPeriodOption = true;
+      REQUIRE(option.value.has_value());
+      REQUIRE(std::get<double>(option.value.value()) == 20.0);
+      break;
+    }
+  }
+  REQUIRE(foundPeriodOption);
+}
+
+TEST_CASE("AlgorithmOptimizer: Clamp Option Values",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma_out_of_range",
+                "type": "sma",
+                "options": [{"id": "period", "value": -5}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma_out_of_range", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma_out_of_range", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+
+  // Original period should be -5 (out of range)
+  auto smaNode =
+      std::find_if(data.nodes.begin(), data.nodes.end(),
+                   [](const UINode &n) { return n.id == "sma_out_of_range"; });
+  REQUIRE(smaNode != data.nodes.end());
+
+  auto periodOption =
+      std::find_if(smaNode->options.begin(), smaNode->options.end(),
+                   [](const UIOption &opt) { return opt.id == "period"; });
+  REQUIRE(periodOption != smaNode->options.end());
+  REQUIRE(periodOption->value.has_value());
+  REQUIRE(std::get<double>(periodOption->value.value()) == -5.0);
+
+  // Optimize to clamp values
+  auto optimized = OptimizeUIData(data);
+
+  // Period should be clamped to minimum value (1)
+  auto optimizedSmaNode =
+      std::find_if(optimized.nodes.begin(), optimized.nodes.end(),
+                   [](const UINode &n) { return n.id == "sma_out_of_range"; });
+  REQUIRE(optimizedSmaNode != optimized.nodes.end());
+
+  auto optimizedPeriodOption = std::find_if(
+      optimizedSmaNode->options.begin(), optimizedSmaNode->options.end(),
+      [](const UIOption &opt) { return opt.id == "period"; });
+  REQUIRE(optimizedPeriodOption != optimizedSmaNode->options.end());
+  REQUIRE(optimizedPeriodOption->value.has_value());
+  REQUIRE(std::get<double>(optimizedPeriodOption->value.value()) >=
+          1.0); // Should be clamped to min
+}
+
+TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "number_with_timeframe",
+                "type": "number",
+                "options": [{"id": "value", "value": 42.0}],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "number_with_timeframe", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+
+  // Number node should have timeframe initially
+  auto numberNode =
+      std::find_if(data.nodes.begin(), data.nodes.end(), [](const UINode &n) {
+        return n.id == "number_with_timeframe";
+      });
+  REQUIRE(numberNode != data.nodes.end());
+  REQUIRE(numberNode->timeframe.has_value());
+
+  // Optimize to remove unnecessary timeframes
+  auto optimized = OptimizeUIData(data);
+
+  // Number node should no longer have timeframe (scalar nodes don't require
+  // timeframes)
+  auto optimizedNumberNode = std::find_if(
+      optimized.nodes.begin(), optimized.nodes.end(),
+      [](const UINode &n) { return n.id == "number_with_timeframe"; });
+  REQUIRE(optimizedNumberNode != optimized.nodes.end());
+  REQUIRE_FALSE(optimizedNumberNode->timeframe.has_value());
+}
+
+TEST_CASE("AlgorithmOptimizer: Full Optimization Pipeline",
+          "[AlgorithmOptimization]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "orphan",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "bool_true",
+                "type": "bool_true",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma_incomplete",
+                "type": "sma",
+                "options": [{"id": "period", "value": -10}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "number_with_timeframe",
+                "type": "number",
+                "options": [{"id": "value", "value": 5.0}],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma_incomplete", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma_incomplete", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            },
+            {
+                "source": {"id": "number_with_timeframe", "handle": "result"},
+                "target": {"id": "executor", "handle": "short"}
+            },
+            {
+                "source": {"id": "bool_true", "handle": "result"},
+                "target": {"id": "executor", "handle": "allow"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  REQUIRE(data.nodes.size() == 6);
+  REQUIRE(data.edges.size() == 4);
+
+  // Optimize with full pipeline
+  auto optimized = OptimizeUIData(data);
+
+  // Should remove orphan node
+  REQUIRE(optimized.nodes.size() == 5); // One less than original
+
+  // Should not have orphan node
+  auto orphanFound =
+      std::find_if(optimized.nodes.begin(), optimized.nodes.end(),
+                   [](const UINode &n) { return n.id == "orphan"; });
+  REQUIRE(orphanFound == optimized.nodes.end());
+
+  // Should remove bool_true connection to allow handle
+  bool hasBoolTrueAllowConnection = false;
+  for (const auto &edge : optimized.edges) {
+    if (edge.source.id == "bool_true" && edge.target.id == "executor" &&
+        edge.target.handle == "allow") {
+      hasBoolTrueAllowConnection = true;
+    }
+  }
+  REQUIRE_FALSE(hasBoolTrueAllowConnection);
+
+  // Should clamp SMA period value
+  auto smaNode =
+      std::find_if(optimized.nodes.begin(), optimized.nodes.end(),
+                   [](const UINode &n) { return n.id == "sma_incomplete"; });
+  REQUIRE(smaNode != optimized.nodes.end());
+
+  auto periodOption =
+      std::find_if(smaNode->options.begin(), smaNode->options.end(),
+                   [](const UIOption &opt) { return opt.id == "period"; });
+  REQUIRE(periodOption != smaNode->options.end());
+  REQUIRE(periodOption->value.has_value());
+  REQUIRE(std::get<double>(periodOption->value.value()) >=
+          1.0); // Should be clamped
+
+  // Should remove timeframe from number node
+  auto numberNode = std::find_if(
+      optimized.nodes.begin(), optimized.nodes.end(),
+      [](const UINode &n) { return n.id == "number_with_timeframe"; });
+  REQUIRE(numberNode != optimized.nodes.end());
+  REQUIRE_FALSE(numberNode->timeframe.has_value());
 }

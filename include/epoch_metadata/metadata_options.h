@@ -110,8 +110,8 @@ struct MetaDataOption {
   std::optional<MetaDataOptionDefinition> defaultValue{std::nullopt};
   bool isRequired{false};
   std::vector<SelectOption> selectOption{};
-  double min{-1000};
-  double max{1000};
+  double min{-std::numeric_limits<double>::max()};
+  double max{std::numeric_limits<double>::max()};
   double step_size{0.01};
   std::string desc{};
 

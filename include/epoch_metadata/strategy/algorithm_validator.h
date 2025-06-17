@@ -36,4 +36,16 @@ void ValidateAcyclic(const UIData &graph, ValidationCache &cache,
 void ValidateTimeframeConsistency(ValidationCache &cache,
                                   ValidationIssues &issues);
 
+/// Optimization functions for UIData
+/// Optimizes the algorithm by removing orphan nodes, fixing stuck bool nodes,
+/// applying default values, clamping values, and other improvements
+UIData OptimizeUIData(const UIData &graph);
+
+/// Individual optimization phases
+void RemoveOrphanNodes(UIData &graph);
+void RemoveStuckBoolNodesFromExecutor(UIData &graph);
+void ApplyDefaultOptions(UIData &graph);
+void ClampOptionValues(UIData &graph);
+void RemoveUnnecessaryTimeframes(UIData &graph);
+
 } // namespace epoch_metadata::strategy

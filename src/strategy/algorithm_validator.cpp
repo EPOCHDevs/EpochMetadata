@@ -3,6 +3,7 @@
 #include "epoch_metadata/strategy/metadata.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "epoch_metadata/transforms/registry.h"
+#include <algorithm>
 #include <format>
 #include <initializer_list>
 #include <optional>
@@ -213,7 +214,8 @@ void ValidateNodeConnections(const UINode &node,
 
 void ValidateNode(const UIData &graph, ValidationCache &cache,
                   ValidationIssues &issues) {
-  const auto &registry = ITransformRegistry::GetInstance().GetMetaData();
+  const auto &registry =
+      transforms::ITransformRegistry::GetInstance().GetMetaData();
   BuildNodeConnections(graph.edges, cache);
 
   for (const auto &node : graph.nodes) {
@@ -624,6 +626,180 @@ ValidationResult ValidateUIData(const UIData &graph) {
     return sortedNodes; // Success - return topologically sorted nodes
   } else {
     return std::unexpected(std::move(allIssues));
+  }
+}
+
+// ============================================================================
+// Optimization Functions Implementation
+// ============================================================================
+
+UIData OptimizeUIData(const UIData &graph) {
+  UIData optimizedGraph = graph;
+
+  // Apply optimization phases in order
+  RemoveOrphanNodes(optimizedGraph);
+  RemoveStuckBoolNodesFromExecutor(optimizedGraph);
+  ApplyDefaultOptions(optimizedGraph);
+  ClampOptionValues(optimizedGraph);
+  RemoveUnnecessaryTimeframes(optimizedGraph);
+
+  return optimizedGraph;
+}
+
+void RemoveOrphanNodes(UIData &graph) {
+  if (graph.nodes.empty()) {
+    return;
+  }
+
+  // Build connection maps
+  std::unordered_set<std::string> connectedNodes;
+
+  // Mark all nodes that have connections (either as source or target)
+  for (const auto &edge : graph.edges) {
+    connectedNodes.insert(edge.source.id);
+    connectedNodes.insert(edge.target.id);
+  }
+
+  // Remove nodes that have no connections
+  auto nodeIt = graph.nodes.begin();
+  while (nodeIt != graph.nodes.end()) {
+    if (connectedNodes.find(nodeIt->id) == connectedNodes.end()) {
+      nodeIt = graph.nodes.erase(nodeIt);
+    } else {
+      ++nodeIt;
+    }
+  }
+}
+
+void RemoveStuckBoolNodesFromExecutor(UIData &graph) {
+  // Find the trade signal executor
+  auto executorIt = std::find_if(
+      graph.nodes.begin(), graph.nodes.end(),
+      [](const UINode &node) { return node.type == TRADE_SIGNAL_EXECUTOR; });
+
+  if (executorIt == graph.nodes.end()) {
+    return; // No executor found
+  }
+
+  // Find edges connected to the executor's allow handle
+  auto edgeIt = graph.edges.begin();
+  while (edgeIt != graph.edges.end()) {
+    if (edgeIt->target.id == executorIt->id &&
+        edgeIt->target.handle == "allow") {
+      // Check if the source is a bool_true or bool_false node
+      auto sourceNodeIt = std::find_if(
+          graph.nodes.begin(), graph.nodes.end(),
+          [&](const UINode &node) { return node.id == edgeIt->source.id; });
+
+      if (sourceNodeIt != graph.nodes.end() &&
+          (sourceNodeIt->type == "bool_true" ||
+           sourceNodeIt->type == "bool_false")) {
+        // Remove this edge
+        edgeIt = graph.edges.erase(edgeIt);
+      } else {
+        ++edgeIt;
+      }
+    } else {
+      ++edgeIt;
+    }
+  }
+}
+
+void ApplyDefaultOptions(UIData &graph) {
+  const auto &registry =
+      transforms::ITransformRegistry::GetInstance().GetMetaData();
+
+  for (auto &node : graph.nodes) {
+    if (!registry.contains(node.type)) {
+      continue; // Skip unknown node types
+    }
+
+    const auto &transformMetaData = registry.at(node.type);
+
+    // Create a map of existing options for quick lookup
+    std::unordered_map<std::string, UIOption *> existingOptions;
+    for (auto &option : node.options) {
+      existingOptions[option.id] = &option;
+    }
+
+    // Apply defaults for missing required options
+    for (const auto &metaOption : transformMetaData.options) {
+      if (metaOption.isRequired &&
+          existingOptions.find(metaOption.id) == existingOptions.end() &&
+          metaOption.defaultValue.has_value()) {
+
+        // Add the missing option with default value
+        UIOption newOption;
+        newOption.id = metaOption.id;
+        newOption.value = metaOption.defaultValue->GetVariant();
+        newOption.isExposed = false;
+        node.options.push_back(newOption);
+      }
+    }
+  }
+}
+
+void ClampOptionValues(UIData &graph) {
+  const auto &registry =
+      transforms::ITransformRegistry::GetInstance().GetMetaData();
+
+  for (auto &node : graph.nodes) {
+    if (!registry.contains(node.type)) {
+      continue; // Skip unknown node types
+    }
+
+    const auto &transformMetaData = registry.at(node.type);
+
+    // Create a map of metadata options for quick lookup
+    std::unordered_map<std::string, MetaDataOption> metaOptions;
+    for (const auto &metaOption : transformMetaData.options) {
+      metaOptions[metaOption.id] = metaOption;
+    }
+
+    // Clamp option values to their allowed ranges
+    for (auto &option : node.options) {
+      if (!option.value.has_value() ||
+          metaOptions.find(option.id) == metaOptions.end()) {
+        continue;
+      }
+
+      const auto &metaOption = metaOptions[option.id];
+
+      // Only clamp numeric types (Integer and Decimal)
+      if (metaOption.type == epoch_core::MetaDataOptionType::Integer ||
+          metaOption.type == epoch_core::MetaDataOptionType::Decimal) {
+
+        MetaDataOptionDefinition optionDef(option.value.value());
+        double numericValue = optionDef.GetNumericValue();
+
+        // Clamp to min/max range
+        double clampedValue =
+            std::max(metaOption.min, std::min(metaOption.max, numericValue));
+
+        if (clampedValue != numericValue) {
+          option.value = MetaDataOptionDefinition(clampedValue).GetVariant();
+        }
+      }
+    }
+  }
+}
+
+void RemoveUnnecessaryTimeframes(UIData &graph) {
+  const auto &registry =
+      transforms::ITransformRegistry::GetInstance().GetMetaData();
+
+  for (auto &node : graph.nodes) {
+    if (!registry.contains(node.type)) {
+      continue; // Skip unknown node types
+    }
+
+    const auto &transformMetaData = registry.at(node.type);
+
+    // If the node has a timeframe but the transform doesn't require it, remove
+    // it
+    if (node.timeframe.has_value() && !transformMetaData.requiresTimeFrame) {
+      node.timeframe = std::nullopt;
+    }
   }
 }
 

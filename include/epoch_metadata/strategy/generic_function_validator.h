@@ -22,4 +22,16 @@ void ValidateGenericFunctionArgs(MetaDataArgDefinitionMapping args,
                                  std::string const &functionType,
                                  ValidationIssues &issues);
 
+/// Optimization functions for GenericFunction
+/// Optimizes the GenericFunction by applying default values, clamping values,
+/// and other improvements
+GenericFunction OptimizeGenericFunction(const GenericFunction &function,
+                                        epoch_core::GenericFunctionType type);
+
+/// Individual optimization phases for GenericFunction
+void ApplyDefaultGenericFunctionOptions(GenericFunction &function,
+                                        const MetaDataOptionList &options);
+void ClampGenericFunctionOptionValues(GenericFunction &function,
+                                      const MetaDataOptionList &options);
+
 } // namespace epoch_metadata::strategy

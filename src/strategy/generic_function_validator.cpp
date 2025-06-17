@@ -16,14 +16,16 @@ ValidationIssues ValidateGenericFunction(const GenericFunction &function,
   }
 
   // Validate type
-  auto options = ValidateGenericFunctionType(function.type.value(), type, issues);
+  auto options =
+      ValidateGenericFunctionType(function.type.value(), type, issues);
   if (!options) {
     return issues;
   }
 
   // Validate args
-  ValidateGenericFunctionArgs(function.args.value_or(MetaDataArgDefinitionMapping{}), options.value(), function.type.value(),
-                              issues);
+  ValidateGenericFunctionArgs(
+      function.args.value_or(MetaDataArgDefinitionMapping{}), options.value(),
+      function.type.value(), issues);
 
   if (function.data) {
     auto data_issues = ValidateUIData(function.data.value());
@@ -179,6 +181,96 @@ void ValidateGenericFunctionArgs(MetaDataArgDefinitionMapping args,
     issues.push_back({ValidationCode::InvalidOptionReference, functionType,
                       "Argument '" + arg.first + "' is not defined",
                       "Provide a valid argument"});
+  }
+}
+
+// ============================================================================
+// Optimization Functions Implementation
+// ============================================================================
+
+GenericFunction OptimizeGenericFunction(const GenericFunction &function,
+                                        epoch_core::GenericFunctionType type) {
+  GenericFunction optimizedFunction = function;
+
+  if (!function.type.has_value()) {
+    return optimizedFunction; // Cannot optimize without type
+  }
+
+  ValidationIssues
+      issues; // We don't use this for optimization, just for type validation
+  auto options =
+      ValidateGenericFunctionType(function.type.value(), type, issues);
+  if (!options.has_value()) {
+    return optimizedFunction; // Cannot optimize unknown types
+  }
+
+  // Apply optimization phases
+  ApplyDefaultGenericFunctionOptions(optimizedFunction, options.value());
+  ClampGenericFunctionOptionValues(optimizedFunction, options.value());
+
+  // If the function has data, optimize it too
+  if (optimizedFunction.data.has_value()) {
+    optimizedFunction.data = OptimizeUIData(optimizedFunction.data.value());
+  }
+
+  return optimizedFunction;
+}
+
+void ApplyDefaultGenericFunctionOptions(GenericFunction &function,
+                                        const MetaDataOptionList &options) {
+  if (!function.args.has_value()) {
+    function.args = MetaDataArgDefinitionMapping{};
+  }
+
+  auto &args = function.args.value();
+
+  // Apply defaults for missing required options
+  for (const auto &option : options) {
+    if (option.isRequired && args.find(option.id) == args.end() &&
+        option.defaultValue.has_value()) {
+
+      // Add the missing option with default value
+      args[option.id] = option.defaultValue.value();
+    }
+  }
+}
+
+void ClampGenericFunctionOptionValues(GenericFunction &function,
+                                      const MetaDataOptionList &options) {
+  if (!function.args.has_value()) {
+    return; // No args to clamp
+  }
+
+  auto &args = function.args.value();
+
+  // Create a map of options for quick lookup
+  std::unordered_map<std::string, MetaDataOption> optionMap;
+  for (const auto &option : options) {
+    optionMap[option.id] = option;
+  }
+
+  // Clamp argument values to their allowed ranges
+  for (auto &[argId, argValue] : args) {
+    if (optionMap.find(argId) == optionMap.end()) {
+      continue; // Skip unknown options
+    }
+
+    const auto &option = optionMap[argId];
+
+    // Only clamp numeric types (Integer and Decimal)
+    if (option.type == epoch_core::MetaDataOptionType::Integer ||
+        option.type == epoch_core::MetaDataOptionType::Decimal) {
+
+      double numericValue = argValue.GetNumericValue();
+
+      // Clamp to min/max range
+      double clampedValue =
+          std::max(option.min, std::min(option.max, numericValue));
+
+      if (clampedValue != numericValue) {
+        argValue = MetaDataOptionDefinition(clampedValue);
+      }
+    }
   }
 }
 

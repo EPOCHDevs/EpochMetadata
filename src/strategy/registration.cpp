@@ -14,21 +14,23 @@
 #include "epoch_metadata/strategy/validation.h"
 
 namespace epoch_metadata::strategy {
-struct AIGeneratedStrategyMetaData {
+struct AIGeneratedAlgorithmMetaData {
+
+  std::string name;
+  std::string description;
   epoch_core::TradeSignalType algorithm_type;
-  std::string source_algorithm;
-  std::string generated_at;
-  StrategyConfig strategy;
-  TradeSignalMetaData trade_signal_metadata;
+  std::string prompt;
+  std::string timestamp;
+  UIData blueprint;
 };
 
-std::vector<AIGeneratedStrategyMetaData> LoadAIGeneratedStrategyMetaData(
-    std::vector<std::string> const &aiGeneratedStrategies) {
-  std::vector<AIGeneratedStrategyMetaData> configs;
-  configs.reserve(aiGeneratedStrategies.size());
+std::vector<AIGeneratedAlgorithmMetaData> LoadAIGeneratedAlgorithmMetaData(
+    std::vector<std::string> const &aiGeneratedAlgorithms) {
+  std::vector<AIGeneratedAlgorithmMetaData> configs;
+  configs.reserve(aiGeneratedAlgorithms.size());
 
-  for (auto const &config : aiGeneratedStrategies) {
-    const auto doc = glz::read_json<AIGeneratedStrategyMetaData>(config);
+  for (auto const &config : aiGeneratedAlgorithms) {
+    const auto doc = glz::read_json<AIGeneratedAlgorithmMetaData>(config);
     if (!doc) {
       SPDLOG_ERROR("Failed to parse JSON buffer:\n{}", glz::format_error(doc));
       continue;
@@ -40,7 +42,7 @@ std::vector<AIGeneratedStrategyMetaData> LoadAIGeneratedStrategyMetaData(
 
 void RegisterStrategyMetadata(
     FileLoaderInterface const &loader,
-    std::vector<std::string> const &aiGeneratedStrategies) {
+    std::vector<std::string> const &aiGeneratedAlgorithms) {
   transforms::RegisterTransformMetadata(loader);
   // TODO ADD FILTERS/SCREENER
 
@@ -59,27 +61,39 @@ void RegisterStrategyMetadata(
   trade_signal::Registry::GetInstance().Register(
       LoadFromFile<TradeSignalMetaData>(loader, "trade_signals"));
 
-  auto aiGenerated = LoadAIGeneratedStrategyMetaData(aiGeneratedStrategies);
+  auto aiGenerated = LoadAIGeneratedAlgorithmMetaData(aiGeneratedAlgorithms);
   std::vector<StrategyTemplate> templates;
   templates.reserve(aiGenerated.size());
 
   for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
-    auto converted =
-        CreateAlgorithmMetaData(*config.strategy.trade_signal.data);
+    auto converted = CreateAlgorithmMetaData(config.blueprint);
     if (!converted) {
       SPDLOG_ERROR("Failed to convert trade signal: {}",
                    FormatValidationIssues(converted.error()));
       continue;
     }
-    auto trade_signal_metadata = config.trade_signal_metadata;
-    trade_signal_metadata.options = converted->options;
 
-    auto strategy = config.strategy;
-    strategy.trade_signal.type = config.trade_signal_metadata.id;
+    bool requiresTimeframe = true;
+    for (auto const &node : config.blueprint.nodes) {
+      if (node.timeframe) {
+        requiresTimeframe = false;
+        break;
+      }
+    }
+
+    TradeSignalMetaData trade_signal_metadata{
+        .id = "ai_generated_" + std::to_string(i),
+        .name = config.name,
+        .options = converted->options,
+        .desc = config.description,
+        .requiresTimeframe = requiresTimeframe,
+        .type = config.algorithm_type,
+        .data = config.blueprint,
+        .tags = {"ai_generated", "algorithm"}};
 
     trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
-    strategy_templates::Registry::GetInstance().Register(
-        {std::to_string(i), strategy, config.trade_signal_metadata.type});
+    // strategy_templates::Registry::GetInstance().Register(
+    //     {std::to_string(i), strategy, config.trade_signal_metadata.type});
   }
 }
 
