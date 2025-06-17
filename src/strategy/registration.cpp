@@ -128,7 +128,7 @@ void RegisterStrategyMetadata(
                                     .stop_loss = config.stop_loss};
 
       StrategyTemplate strategy{.id = config.id,
-                                .config = strategyConfig,
+                                .strategy = strategyConfig,
                                 .category = config.category};
 
       strategy_templates::Registry::GetInstance().Register(strategy);
