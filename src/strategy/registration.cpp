@@ -11,6 +11,8 @@
 #include "epoch_metadata/strategy/ui_graph.h"
 #include "epoch_metadata/transforms/registration.h"
 
+#include "epoch_metadata/strategy/validation.h"
+
 namespace epoch_metadata::strategy {
 struct AIGeneratedStrategyMetaData {
   epoch_core::TradeSignalType algorithm_type;
@@ -62,9 +64,21 @@ void RegisterStrategyMetadata(
     templates.reserve(aiGenerated.size());
 
     for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
-        trade_signal::Registry::GetInstance().Register(config.trade_signal_metadata);
+        auto converted = CreateAlgorithmMetaData(*config.strategy.trade_signal.data);
+        if (!converted) {
+            SPDLOG_ERROR("Failed to convert trade signal: {}",
+                         FormatValidationIssues(converted.error()));
+            continue;
+        }
+        auto trade_signal_metadata = config.trade_signal_metadata;
+        trade_signal_metadata.options = converted->options;
+
+        auto strategy = config.strategy;
+        strategy.trade_signal.type = config.trade_signal_metadata.id;
+
+        trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
         strategy_templates::Registry::GetInstance().Register(
-            {std::to_string(i), config.strategy,
+            {std::to_string(i), strategy,
              config.trade_signal_metadata.type});
     }
 }
