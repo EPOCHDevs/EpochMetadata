@@ -4,7 +4,9 @@
 #include "epoch_metadata/strategy/registration.h"
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/glaze_custom_types.h"
+#include "epoch_metadata/strategy/data_options.h"
 #include "epoch_metadata/strategy/enums.h"
+#include "epoch_metadata/strategy/generic_function.h"
 #include "epoch_metadata/strategy/metadata.h"
 #include "epoch_metadata/strategy/registry.h"
 #include "epoch_metadata/strategy/strategy_config.h"
@@ -25,13 +27,26 @@ struct AIGeneratedAlgorithmMetaData {
   std::vector<std::string> tags;
 };
 
-std::vector<AIGeneratedAlgorithmMetaData> LoadAIGeneratedAlgorithmMetaData(
-    std::vector<std::string> const &aiGeneratedAlgorithms) {
-  std::vector<AIGeneratedAlgorithmMetaData> configs;
+struct AIGeneratedStrategyMetaData {
+  std::string id;
+  std::string name;
+  std::string description;
+  DataOption assets;
+  std::optional<GenericFunction> trade_signal;
+  std::optional<GenericFunction> position_sizer;
+  std::optional<GenericFunction> stop_loss;
+  std::optional<GenericFunction> take_profit;
+  epoch_core::TradeSignalType category;
+};
+
+template <typename T>
+std::vector<T>
+LoadMetaDataT(std::vector<std::string> const &aiGeneratedAlgorithms) {
+  std::vector<T> configs;
   configs.reserve(aiGeneratedAlgorithms.size());
 
   for (auto const &config : aiGeneratedAlgorithms) {
-    const auto doc = glz::read_json<AIGeneratedAlgorithmMetaData>(config);
+    const auto doc = glz::read_json<T>(config);
     if (!doc) {
       SPDLOG_ERROR("Failed to parse JSON buffer:\n{}", glz::format_error(doc));
       continue;
@@ -43,7 +58,8 @@ std::vector<AIGeneratedAlgorithmMetaData> LoadAIGeneratedAlgorithmMetaData(
 
 void RegisterStrategyMetadata(
     FileLoaderInterface const &loader,
-    std::vector<std::string> const &aiGeneratedAlgorithms) {
+    std::vector<std::string> const &aiGeneratedAlgorithms,
+    std::vector<std::string> const &aiGeneratedStrategies) {
   transforms::RegisterTransformMetadata(loader);
   // TODO ADD FILTERS/SCREENER
 
@@ -62,10 +78,8 @@ void RegisterStrategyMetadata(
   trade_signal::Registry::GetInstance().Register(
       LoadFromFile<TradeSignalMetaData>(loader, "trade_signals"));
 
-  auto aiGenerated = LoadAIGeneratedAlgorithmMetaData(aiGeneratedAlgorithms);
-  std::vector<StrategyTemplate> templates;
-  templates.reserve(aiGenerated.size());
-
+  auto aiGenerated =
+      LoadMetaDataT<AIGeneratedAlgorithmMetaData>(aiGeneratedAlgorithms);
   for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
     auto converted = CreateAlgorithmMetaData(config.blueprint);
     if (!converted) {
@@ -93,8 +107,32 @@ void RegisterStrategyMetadata(
                                               .tags = config.tags};
 
     trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
-    // strategy_templates::Registry::GetInstance().Register(
-    //     {std::to_string(i), strategy, config.trade_signal_metadata.type});
+
+    std::vector<StrategyTemplate> templates;
+    auto aiGeneratedStrategiesT =
+        LoadMetaDataT<AIGeneratedStrategyMetaData>(aiGeneratedStrategies);
+    for (auto const &[i, config] :
+         std::views::enumerate(aiGeneratedStrategiesT)) {
+
+      if (!config.trade_signal) {
+        SPDLOG_ERROR("Failed to convert {} trade signal", config.id);
+        continue;
+      }
+
+      StrategyConfig strategyConfig{.name = config.name,
+                                    .description = config.description,
+                                    .data = config.assets,
+                                    .trade_signal = config.trade_signal.value(),
+                                    .position_sizer = config.position_sizer,
+                                    .take_profit = config.take_profit,
+                                    .stop_loss = config.stop_loss};
+
+      StrategyTemplate strategy{.id = config.id,
+                                .config = strategyConfig,
+                                .category = config.category};
+
+      strategy_templates::Registry::GetInstance().Register(strategy);
+    }
   }
 }
 

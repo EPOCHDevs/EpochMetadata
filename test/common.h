@@ -12,11 +12,13 @@ const auto DEFAULT_YAML_LOADER = [](std::string const &_path) {
   return YAML::LoadFile(std::filesystem::path{METADATA_FILES_DIR} / _path);
 };
 
-const auto LoadAIGeneratedAlgorithms = [] {
+constexpr auto AI_GENERATED_ALGORITHMS_DIR = "ai_generated_algorithms";
+constexpr auto AI_GENERATED_STRATEGIES_DIR = "ai_generated_strategies";
+
+const auto LoadAIGeneratedResources = [](std::string const &id) {
   std::vector<std::string> buffers;
 
-  auto dir =
-      std::filesystem::path{METADATA_FILES_DIR} / "ai_generated_algorithms";
+  auto dir = std::filesystem::path{METADATA_FILES_DIR} / id;
   auto directories = std::filesystem::directory_iterator(dir);
   buffers.reserve(std::ranges::distance(directories));
 
