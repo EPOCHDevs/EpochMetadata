@@ -24,16 +24,8 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeScalarMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 
-  std::unordered_set allowTimeFrameResample{
-      epoch_core::TransformCategory::Trend,
-      epoch_core::TransformCategory::Momentum,
-      epoch_core::TransformCategory::Volatility,
-      epoch_core::TransformCategory::Volume,
-      epoch_core::TransformCategory::PriceAction,
-      epoch_core::TransformCategory::Statistical,
-      epoch_core::TransformCategory::Factor};
   for (auto &&indicator : std::views::join(metaDataList)) {
-    if (allowTimeFrameResample.contains(indicator.category)) {
+    if (!indicator.requiredDataSources.empty()) {
       indicator.requiresTimeFrame = true;
     }
 

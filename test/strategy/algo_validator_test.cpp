@@ -513,7 +513,7 @@ TEST_CASE("AlgorithmValidator: Timeframe Mismatch", "[AlgorithmValidator]") {
   auto result = ValidateUIData(data);
 
   ExpectValidationError(result, ValidationCode::TimeframeMismatch,
-                        "Timeframe mismatch");
+                        "has timeframe set but requiresTimeFrame is false");
 }
 
 TEST_CASE("AlgorithmValidator: Multiple Input Timeframes",
@@ -525,26 +525,26 @@ TEST_CASE("AlgorithmValidator: Multiple Input Timeframes",
                 "type": "market_data_source",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
+                "timeframe": null
             },
             {
                 "id": "mds2",
                 "type": "market_data_source",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "day", "interval": 1}
+                "timeframe": null
             },
             {
-                "id": "sma1",
-                "type": "sma",
-                "options": [],
+                "id": "atr1",
+                "type": "atr",
+                "options": [{"id": "period", "value": 14}],
                 "metadata": {},
                 "timeframe": {"type": "hour", "interval": 1}
             },
             {
-                "id": "sma2",
-                "type": "sma",
-                "options": [],
+                "id": "atr2",
+                "type": "atr",
+                "options": [{"id": "period", "value": 21}],
                 "metadata": {},
                 "timeframe": {"type": "day", "interval": 1}
             },
@@ -566,18 +566,18 @@ TEST_CASE("AlgorithmValidator: Multiple Input Timeframes",
         "edges": [
             {
                 "source": {"id": "mds1", "handle": "c"},
-                "target": {"id": "sma1", "handle": "*"}
+                "target": {"id": "atr1", "handle": "*"}
             },
             {
                 "source": {"id": "mds2", "handle": "c"},
-                "target": {"id": "sma2", "handle": "*"}
+                "target": {"id": "atr2", "handle": "*"}
             },
             {
-                "source": {"id": "sma1", "handle": "result"},
+                "source": {"id": "atr1", "handle": "result"},
                 "target": {"id": "add", "handle": "*0"}
             },
             {
-                "source": {"id": "sma2", "handle": "result"},
+                "source": {"id": "atr2", "handle": "result"},
                 "target": {"id": "add", "handle": "*1"}
             },
             {
@@ -593,7 +593,7 @@ TEST_CASE("AlgorithmValidator: Multiple Input Timeframes",
   auto result = ValidateUIData(data);
 
   ExpectValidationError(result, ValidationCode::TimeframeMismatch,
-                        "multiple input timeframes");
+                        "Mixed timeframes detected");
 }
 
 TEST_CASE("AlgorithmValidator: Input Timeframe does not match target timeframe",
@@ -605,19 +605,19 @@ TEST_CASE("AlgorithmValidator: Input Timeframe does not match target timeframe",
                 "type": "market_data_source",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
+                "timeframe": null
             },
             {
-                "id": "sma1",
-                "type": "sma",
-                "options": [],
+                "id": "atr1",
+                "type": "atr",
+                "options": [{"id": "period", "value": 14}],
                 "metadata": {},
                 "timeframe": {"type": "hour", "interval": 1}
             },
             {
-                "id": "sma2",
-                "type": "sma",
-                "options": [],
+                "id": "atr2",
+                "type": "atr",
+                "options": [{"id": "period", "value": 21}],
                 "metadata": {},
                 "timeframe": {"type": "day", "interval": 1}
             },
@@ -639,18 +639,18 @@ TEST_CASE("AlgorithmValidator: Input Timeframe does not match target timeframe",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma1", "handle": "*"}
+                "target": {"id": "atr1", "handle": "*"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma2", "handle": "*"}
+                "target": {"id": "atr2", "handle": "*"}
             },
             {
-                "source": {"id": "sma1", "handle": "result"},
+                "source": {"id": "atr1", "handle": "result"},
                 "target": {"id": "add", "handle": "*0"}
             },
             {
-                "source": {"id": "sma2", "handle": "result"},
+                "source": {"id": "atr2", "handle": "result"},
                 "target": {"id": "add", "handle": "*1"}
             },
             {
@@ -666,8 +666,7 @@ TEST_CASE("AlgorithmValidator: Input Timeframe does not match target timeframe",
   auto result = ValidateUIData(data);
 
   ExpectValidationError(result, ValidationCode::TimeframeMismatch,
-                        "source node 'mds' has timeframe '1H', target node "
-                        "'sma2' has timeframe '1D'");
+                        "Mixed timeframes detected");
 }
 
 TEST_CASE("AlgorithmValidator: Missing Required Option",
@@ -875,10 +874,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           "metadata": {
             "parentId": null
           },
-          "timeframe": {
-            "type": "hour",
-            "interval": 1
-          }
+          "timeframe": null
         },
         {
           "id": "max50",
@@ -1028,7 +1024,8 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
   REQUIRE(nodeOrder["min50"] < nodeOrder["executor"]);
 }
 
-TEST_CASE("AlgorithmValidator: Timeframe Inheritance", "[AlgorithmValidator]") {
+TEST_CASE("AlgorithmValidator: Mixed Timeframes Not Allowed",
+          "[AlgorithmValidator]") {
   const std::string json = R"({
         "nodes": [
             {
@@ -1036,19 +1033,19 @@ TEST_CASE("AlgorithmValidator: Timeframe Inheritance", "[AlgorithmValidator]") {
                 "type": "market_data_source",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
-            },
-            {
-                "id": "sma1",
-                "type": "sma",
-                "options": [{"id": "period", "value": 20}],
-                "metadata": {},
                 "timeframe": null
             },
             {
-                "id": "sma2",
-                "type": "sma",
-                "options": [{"id": "period", "value": 50}],
+                "id": "atr1",
+                "type": "atr",
+                "options": [{"id": "period", "value": 14}],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "atr2",
+                "type": "atr",
+                "options": [{"id": "period", "value": 21}],
                 "metadata": {},
                 "timeframe": null
             },
@@ -1070,18 +1067,18 @@ TEST_CASE("AlgorithmValidator: Timeframe Inheritance", "[AlgorithmValidator]") {
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma1", "handle": "*"}
+                "target": {"id": "atr1", "handle": "*"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma2", "handle": "*"}
+                "target": {"id": "atr2", "handle": "*"}
             },
             {
-                "source": {"id": "sma1", "handle": "result"},
+                "source": {"id": "atr1", "handle": "result"},
                 "target": {"id": "gt", "handle": "*0"}
             },
             {
-                "source": {"id": "sma2", "handle": "result"},
+                "source": {"id": "atr2", "handle": "result"},
                 "target": {"id": "gt", "handle": "*1"}
             },
             {
@@ -1095,20 +1092,10 @@ TEST_CASE("AlgorithmValidator: Timeframe Inheritance", "[AlgorithmValidator]") {
 
   auto data = ParseUIData(json);
   auto result = ValidateUIData(data);
-  REQUIRE(result.has_value());
 
-  const auto &sortedNodes = result.value();
-
-  // Find sma2/sma in sorted nodes
-  auto sma2It = std::ranges::views::filter(
-      sortedNodes, [](const UINode &n) { return n.id.starts_with("sma"); });
-  std::vector output(sma2It.begin(), sma2It.end());
-
-  REQUIRE(output.size() == 2);
-  for (auto &n : output) {
-    REQUIRE(n.timeframe.has_value());
-    REQUIRE(n.timeframe->ToString() == "1H");
-  }
+  // Mixed timeframes are no longer allowed in the simplified model
+  ExpectValidationError(result, ValidationCode::TimeframeMismatch,
+                        "Mixed timeframes detected");
 }
 
 TEST_CASE("AlgorithmValidator: Missing Required Input",
@@ -1787,14 +1774,14 @@ TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
                 "type": "market_data_source",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
+                "timeframe": null
             },
             {
                 "id": "sma",
                 "type": "sma",
                 "options": [{"id": "period", "value": 20}],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
+                "timeframe": null
             },
             {
                 "id": "bool_scalar",
@@ -1869,4 +1856,191 @@ TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
   REQUIRE(nodeOrder["gt_node"] < nodeOrder["executor"]);
   // bool_scalar should come before executor (it's a SCALAR node)
   REQUIRE(nodeOrder["bool_scalar"] < nodeOrder["executor"]);
+}
+
+TEST_CASE("AlgorithmValidator: All Nodes No Timeframe - Valid",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma1",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma2", 
+                "type": "sma",
+                "options": [{"id": "period", "value": 50}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "gt",
+                "type": "gt",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma1", "handle": "*"}
+            },
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma2", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma1", "handle": "result"},
+                "target": {"id": "gt", "handle": "*0"}
+            },
+            {
+                "source": {"id": "sma2", "handle": "result"},
+                "target": {"id": "gt", "handle": "*1"}
+            },
+            {
+                "source": {"id": "gt", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  auto result = ValidateUIData(data);
+
+  // This should be valid - all nodes have no timeframes
+  REQUIRE(result.has_value());
+
+  const auto &sortedNodes = result.value();
+  REQUIRE(sortedNodes.size() == 5);
+}
+
+TEST_CASE("AlgorithmValidator: Market Data Source Timeframe Suggests Resampler",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            },
+            {
+                "id": "sma",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  auto result = ValidateUIData(data);
+
+  // Should fail with market data source timeframe and suggest resampler
+  REQUIRE_FALSE(result.has_value());
+
+  const auto &issues = result.error();
+  bool foundResamplerSuggestion = false;
+
+  for (const auto &issue : issues) {
+    if (issue.code == ValidationCode::TimeframeMismatch) {
+      // Check that the suggestion mentions resampler for market data source
+      if (issue.suggestion.has_value() &&
+          issue.suggestion.value().find("resampler") != std::string::npos) {
+        foundResamplerSuggestion = true;
+      }
+    }
+  }
+
+  REQUIRE(foundResamplerSuggestion);
+}
+
+TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "sma",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": {"type": "hour", "interval": 1}
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "sma", "handle": "*"}
+            },
+            {
+                "source": {"id": "sma", "handle": "result"},
+                "target": {"id": "executor", "handle": "long"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  auto result = ValidateUIData(data);
+
+  // Should fail because trade_signal_executor has requiresTimeFrame=false but
+  // timeframe is set
+  ExpectValidationError(result, ValidationCode::TimeframeMismatch,
+                        "has timeframe set but requiresTimeFrame is false");
 }

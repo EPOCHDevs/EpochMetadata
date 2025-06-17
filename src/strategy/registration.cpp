@@ -41,46 +41,46 @@ std::vector<AIGeneratedStrategyMetaData> LoadAIGeneratedStrategyMetaData(
 void RegisterStrategyMetadata(
     FileLoaderInterface const &loader,
     std::vector<std::string> const &aiGeneratedStrategies) {
-    transforms::RegisterTransformMetadata(loader);
-    // TODO ADD FILTERS/SCREENER
+  transforms::RegisterTransformMetadata(loader);
+  // TODO ADD FILTERS/SCREENER
 
-    futures_continuation::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmBaseMetaData>(loader, "futures_continuation"));
-    commission::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmBaseMetaData>(loader, "commission"));
-    slippage::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmBaseMetaData>(loader, "slippage"));
-    position_sizer::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmMetaData>(loader, "position_sizer"));
-    stop_loss::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmMetaData>(loader, "exit_signals"));
-    take_profit::Registry::GetInstance().Register(
-        LoadFromFile<AlgorithmMetaData>(loader, "exit_signals"));
-    trade_signal::Registry::GetInstance().Register(
-        LoadFromFile<TradeSignalMetaData>(loader, "trade_signals"));
+  futures_continuation::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmBaseMetaData>(loader, "futures_continuation"));
+  commission::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmBaseMetaData>(loader, "commission"));
+  slippage::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmBaseMetaData>(loader, "slippage"));
+  position_sizer::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmMetaData>(loader, "position_sizer"));
+  stop_loss::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmMetaData>(loader, "stop_loss"));
+  take_profit::Registry::GetInstance().Register(
+      LoadFromFile<AlgorithmMetaData>(loader, "take_profit"));
+  trade_signal::Registry::GetInstance().Register(
+      LoadFromFile<TradeSignalMetaData>(loader, "trade_signals"));
 
-    auto aiGenerated = LoadAIGeneratedStrategyMetaData(aiGeneratedStrategies);
-    std::vector<StrategyTemplate> templates;
-    templates.reserve(aiGenerated.size());
+  auto aiGenerated = LoadAIGeneratedStrategyMetaData(aiGeneratedStrategies);
+  std::vector<StrategyTemplate> templates;
+  templates.reserve(aiGenerated.size());
 
-    for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
-        auto converted = CreateAlgorithmMetaData(*config.strategy.trade_signal.data);
-        if (!converted) {
-            SPDLOG_ERROR("Failed to convert trade signal: {}",
-                         FormatValidationIssues(converted.error()));
-            continue;
-        }
-        auto trade_signal_metadata = config.trade_signal_metadata;
-        trade_signal_metadata.options = converted->options;
-
-        auto strategy = config.strategy;
-        strategy.trade_signal.type = config.trade_signal_metadata.id;
-
-        trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
-        strategy_templates::Registry::GetInstance().Register(
-            {std::to_string(i), strategy,
-             config.trade_signal_metadata.type});
+  for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
+    auto converted =
+        CreateAlgorithmMetaData(*config.strategy.trade_signal.data);
+    if (!converted) {
+      SPDLOG_ERROR("Failed to convert trade signal: {}",
+                   FormatValidationIssues(converted.error()));
+      continue;
     }
+    auto trade_signal_metadata = config.trade_signal_metadata;
+    trade_signal_metadata.options = converted->options;
+
+    auto strategy = config.strategy;
+    strategy.trade_signal.type = config.trade_signal_metadata.id;
+
+    trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
+    strategy_templates::Registry::GetInstance().Register(
+        {std::to_string(i), strategy, config.trade_signal_metadata.type});
+  }
 }
 
 } // namespace epoch_metadata::strategy

@@ -760,8 +760,6 @@ TEST_CASE("CreateAlgorithmMetaData: Timeframe Inheritance",
   algo1.type = "sma";
   algo1.options.push_back(
       epoch_metadata::strategy::UIOption{"period", 10.0, std::nullopt, false});
-  algo1.timeframe = epoch_metadata::TimeFrame(
-      epoch_frame::factory::offset::days(1)); // 1-day timeframe
   data.nodes.push_back(algo1);
 
   // Second algorithm node without a timeframe (should inherit from algo1)
@@ -777,15 +775,24 @@ TEST_CASE("CreateAlgorithmMetaData: Timeframe Inheritance",
   epoch_metadata::strategy::UINode priceBar;
   priceBar.id = "data11";
   priceBar.type = MARKET_DATA_SOURCE;
-  priceBar.timeframe = epoch_metadata::TimeFrame(
-      epoch_frame::factory::offset::days(1)); // 1-day timeframe
   data.nodes.push_back(priceBar);
+
+    epoch_metadata::strategy::UINode resampler;
+    resampler.id = "rs11";
+    resampler.type = "passthrough";
+    resampler.timeframe = epoch_metadata::TimeFrame(
+        epoch_frame::factory::offset::days(1)); // 1-day timeframe
+    data.nodes.push_back(resampler);
 
   // Create edges
   // PriceBar -> algo1
-  epoch_metadata::strategy::UIVertex dsVertex{"data11", "c"};
-  epoch_metadata::strategy::UIVertex algo1Vertex{"algo11_1", "*"};
-  data.edges.push_back({dsVertex, algo1Vertex});
+    epoch_metadata::strategy::UIVertex dsVertex{"data11", "c"};
+    epoch_metadata::strategy::UIVertex algo1Vertex{"rs11", "*"};
+    data.edges.push_back({dsVertex, algo1Vertex});
+
+  epoch_metadata::strategy::UIVertex dsVertex2{"rs11", "result"};
+  epoch_metadata::strategy::UIVertex algo1Vertex2{"algo11_1", "*"};
+  data.edges.push_back({dsVertex2, algo1Vertex2});
 
   // algo1 -> algo2 (should inherit timeframe)
   epoch_metadata::strategy::UIVertex algo1Out{"algo11_1", "result"};
