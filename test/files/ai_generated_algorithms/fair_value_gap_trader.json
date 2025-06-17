@@ -1,0 +1,406 @@
+{
+  "id": "fvg_trader_001",
+  "name": "Fair_Value_Gap_Trader",
+  "description": "This algorithm identifies bullish Fair Value Gaps (FVGs) in 30-minute candles, where the current candle's low is above the high two bars prior. It triggers a long entry when the price retraces to fill at least 60% of the identified bullish FVG, ensuring optimal trade execution based on price action dynamics.",
+  "algorithm_type": "PriceAction",
+  "prompt": "Design an intermediate-level PriceAction trading algorithm in natural-language format that trades based on Fair Value Gap (FVG) identification in 30-minute candles. The algorithm should: (a) detect bullish FVGs as a gap where the current candle's low is above the high two bars prior, (b) trigger a long entry when price retraces to fill at least 60% of a bullish FVG and the retracement occurs within 5 candles of gap formation; (c) detect bearish FVGs analogously (current high below low two bars prior), shorting when price retraces and fills 60% of the gap within 5 candles; (d) exit trades at either a return to the gap's origin level or after 10 candles, whichever comes first; and (e) only one trade per direction per gap. Use only OHLCV data and FVG structure for signals, with no moving averages or oscillators.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "fvg",
+        "type": "fair_value_gap",
+        "options": [
+          {
+            "id": "join_consecutive",
+            "value": true,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num06",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_gap",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_sixty",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "target_bull",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "target_bear",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_bull",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_bull",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_bull",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_bear",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_bear",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_bear",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_one",
+        "type": "one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_neg_one",
+        "type": "negative_one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "top"
+        },
+        "target": {
+          "id": "sub_gap",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "bottom"
+        },
+        "target": {
+          "id": "sub_gap",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_gap",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_sixty",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num06",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_sixty",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "bottom"
+        },
+        "target": {
+          "id": "target_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_sixty",
+          "handle": "result"
+        },
+        "target": {
+          "id": "target_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "target_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "fvg"
+        },
+        "target": {
+          "id": "eq_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "top"
+        },
+        "target": {
+          "id": "target_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_sixty",
+          "handle": "result"
+        },
+        "target": {
+          "id": "target_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gte_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "target_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "fvg"
+        },
+        "target": {
+          "id": "eq_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_neg_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:56:53.417453",
+  "tags": [
+    "PriceAction",
+    "FVG",
+    "Trading",
+    "30min",
+    "Bullish"
+  ]
+}

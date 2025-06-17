@@ -1,0 +1,300 @@
+{
+  "id": "fvg_trend_trader_001",
+  "name": "Fair Value Gap Trend Trader",
+  "description": "This algorithm identifies Fair Value Gaps (FVG) on the 15-minute timeframe and trades in the direction of the prevailing trend. It utilizes a 50-period Exponential Moving Average (EMA) to determine trend direction, entering trades when price action reveals newly formed unfilled FVGs.",
+  "algorithm_type": "PriceAction",
+  "prompt": "Design an intermediate PriceAction trading algorithm in natural language that identifies \"Fair Value Gaps\" on the 15-minute timeframe and trades in the direction of the prevailing trend. The strategy should: 1) use a 50-period Exponential Moving Average (EMA) to define trend direction (price above the EMA is an uptrend, below is a downtrend), 2) detect newly formed unfilled Fair Value Gaps (FVG) of at least 0.5% price distance and at least 3 bars wide, 3) initiate a long position when an upward FVG forms above the 50-EMA and price subsequently retraces to fill at least 50% of the gap during an uptrend; for shorts, reverse the conditions, 4) set stop-loss at the opposite side of the gap, and take-profit at 1.5x the width of the FVG from entry. Only trade the first qualifying FVG per direction per day.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema50",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_up",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_down",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "one_const",
+        "type": "one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "neg_one",
+        "type": "negative_one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "fvg",
+        "type": "fair_value_gap",
+        "options": [
+          {
+            "id": "join_consecutive",
+            "value": true,
+            "name": "Join consecutive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_bull",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_bear",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema50",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "fvg"
+        },
+        "target": {
+          "id": "eq_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "one_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "fvg",
+          "handle": "fvg"
+        },
+        "target": {
+          "id": "eq_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "neg_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "long_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:21:05.945359",
+  "tags": [
+    "PriceAction",
+    "FVG",
+    "EMA",
+    "15min",
+    "TrendTrading"
+  ]
+}

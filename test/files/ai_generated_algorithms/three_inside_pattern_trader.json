@@ -1,0 +1,322 @@
+{
+  "id": "candle-stick-pattern-001",
+  "name": "Three_Inside_Pattern_Trader",
+  "description": "This algorithm identifies the 'Three Inside Up' and 'Three Inside Down' candlestick patterns in daily trading data. It triggers a long entry upon the formation of a 'Three Inside Up' pattern, confirmed by a day's volume exceeding the 10-day average volume, while a short entry is initiated for the 'Three Inside Down' pattern.",
+  "algorithm_type": "CandleStickPattern",
+  "prompt": "Design an INTERMEDIATE-level CandleStickPattern trading algorithm in natural language that identifies the \"Three Inside Up\" and \"Three Inside Down\" patterns on daily candlestick data. The strategy should trigger a long entry when a \"Three Inside Up\" pattern forms, with confirmation that the day\u2019s volume is higher than the 10-day average volume. For a short entry, require the appearance of a \"Three Inside Down\" pattern along with above-average volume (above the 10-day moving average). Set initial stop-loss at 1.2 times the 14-day Average True Range (ATR) from the entry price and take profit at 2.5 times the ATR. Exit trades on the opposite pattern signal or if stop or target is hit. The strategy should not compound positions; enter only one trade per signal and wait for the next pattern after exit.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_gt",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bull_pattern",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bear_pattern",
+        "type": "engulfing_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_long",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_short",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_gt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_gt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_gt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bull_pattern",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_gt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bear_pattern",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "and_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "bull_pattern",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bear_pattern",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:56:43.714930",
+  "tags": [
+    "candle stick",
+    "trading",
+    "pattern recognition",
+    "volume analysis",
+    "intermediate"
+  ]
+}

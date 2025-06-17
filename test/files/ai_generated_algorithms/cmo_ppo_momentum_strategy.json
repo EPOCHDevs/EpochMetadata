@@ -1,0 +1,431 @@
+{
+  "id": "momentum_strategy_001",
+  "name": "CMO PPO Momentum Strategy",
+  "description": "This algorithm utilizes the Chande Momentum Oscillator (CMO) and the Percentage Price Oscillator (PPO) to identify potential buy signals in a 30-minute trading timeframe. A buy signal is generated when the CMO crosses above +50, the PPO line crosses above its signal line, and the current candle's volume meets specific criteria.",
+  "algorithm_type": "Momentum",
+  "prompt": "Design a Momentum-based trading algorithm (complexity: intermediate) that operates on 30-minute OHLCV candles. Use the Chande Momentum Oscillator (CMO) with a 14-period lookback, combined with the Percentage Price Oscillator (PPO, fast=12, slow=26, signal=9). Generate a buy signal when: (a) the CMO crosses above +50, (b) the PPO line crosses above its signal line, and (c) volume for the current candle is greater than the 10-period moving average volume. Generate a sell signal when: (a) CMO crosses below -50, (b) the PPO line crosses below its signal line, and (c) volume is above the 10-period moving average volume. Use a trailing stop-loss set at 2 times the 14-period Average True Range from entry price. Close positions when either an opposite signal triggers or trailing stop is hit.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ppo12_26",
+        "type": "ppo",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 12,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 26,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema9_sig",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numNeg50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_cmo_50",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo_neg50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_ppo_sig",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_ppo_sig",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_ma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "buy_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sell_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ppo12_26",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ppo12_26",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ema9_sig",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_neg50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numNeg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_neg50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ppo12_26",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ppo_sig",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema9_sig",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ppo_sig",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ppo12_26",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ppo_sig",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema9_sig",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ppo_sig",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol_ma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_ma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_cmo_50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_ppo_sig",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_ma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_ppo_sig",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_ma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "buy_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "sell_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:10:47.355900",
+  "tags": [
+    "momentum",
+    "trading",
+    "algorithm",
+    "candle",
+    "technical_analysis"
+  ]
+}

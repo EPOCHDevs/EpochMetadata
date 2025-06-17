@@ -1,0 +1,337 @@
+{
+  "id": "technicalpattern_001",
+  "name": "Bullish Engulfing Bollinger Breakout",
+  "description": "This trading algorithm identifies bullish engulfing candlestick patterns and executes long trades when the closing price breaks above the upper Bollinger Band. It operates on a 1-hour timeframe and aims to capitalize on upward momentum following a strong bullish signal.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Design an intermediate-level TechnicalPattern trading algorithm in Python that trades based on the confluence of a bullish engulfing pattern AND a break above the upper Bollinger Band (20-period, 2 standard deviations) on the 1-hour timeframe. Entry condition: generate a long signal if a bullish engulfing candlestick forms and the close price breaks above the upper Bollinger Band, both occurring in the same candle. Exit condition: close the position if the price drops below the 20-period Simple Moving Average or a bearish engulfing pattern appears. Use only OHLCV data.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eng_bull",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eng_bear",
+        "type": "engulfing_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_sma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_or",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_close_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "eng_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "eng_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_or",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:48:33.117576",
+  "tags": [
+    "trading",
+    "technical",
+    "pattern",
+    "bollinger",
+    "engulfing"
+  ]
+}

@@ -1,0 +1,495 @@
+{
+  "id": "mean_reverting_001",
+  "name": "Bollinger Bands Mean Reversion Strategy",
+  "description": "This algorithm utilizes Bollinger Bands with a 20-period Simple Moving Average and 2.5 standard deviations to identify mean-reverting opportunities. It enters long positions when the price closes below the lower Bollinger Band and the Rate of Change (ROC) is below -2%, while short positions are triggered under opposite conditions.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level MeanReverting trading algorithm in Python that operates on 15-minute bars. Use the Bollinger Bands with a 20-period Simple Moving Average and 2.5 standard deviations as the basis. Incorporate the Rate of Change (ROC) over 10 periods to filter signals: enter a long position when the price closes below the lower Bollinger Band and the ROC is below -2%; enter a short position when the price closes above the upper Bollinger Band and the ROC is above +2%. Exit positions when the price reverts to the middle Bollinger Band. Additionally, apply volume confirmation using the 14-period Money Flow Index (MFI), only entering trades when MFI is below 30 for longs or above 70 for shorts to avoid low-volume false signals. Implement strict stop-loss at 1.5% adverse price movement and take-profit at 3% favorable movement.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n2",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "mfi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 70,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n17",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:20:49.705424",
+  "tags": [
+    "mean reverting",
+    "Bollinger Bands",
+    "ROC",
+    "trading strategy",
+    "Python"
+  ]
+}

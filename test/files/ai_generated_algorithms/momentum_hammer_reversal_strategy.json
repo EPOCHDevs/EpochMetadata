@@ -1,0 +1,385 @@
+{
+  "id": "momentum_hammer_reversal_strategy",
+  "name": "Momentum Hammer Reversal Strategy",
+  "description": "This algorithm identifies trading opportunities based on Hammer and Inverted Hammer candlestick formations. It confirms entries using the 14-period Chande Momentum Oscillator (CMO), targeting long positions when a Hammer appears with CMO below -40 and short positions with an Inverted Hammer and CMO above +4.",
+  "algorithm_type": "Momentum",
+  "prompt": "Develop an intermediate-level PriceAction trading algorithm in Python that trades reversals based on Hammer and Inverted Hammer candlestick formations confirmed by a sharp drop in the 14-period Chande Momentum Oscillator (CMO). On a 30-minute timeframe, identify a potential long entry when a Hammer occurs and the CMO value is below -40; for short entry, require an Inverted Hammer with CMO above +40. Enter at the next candle open. Set stop-loss 1.2x the candle's range and exit when CMO crosses back through zero or after 5 bars, whichever comes first.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hammer",
+        "type": "hammer",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "inv_hammer",
+        "type": "inverted_hammer",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_neg40",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_pos40",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo_neg40",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_cmo_pos40",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_exit",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_neg40",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_neg40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_neg40",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo_neg40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hammer",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_pos40",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_pos40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_pos40",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_cmo_pos40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "inv_hammer",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "long_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:10:44.505968",
+  "tags": [
+    "momentum",
+    "price action",
+    "candle patterns",
+    "trading strategy",
+    "algorithm"
+  ]
+}

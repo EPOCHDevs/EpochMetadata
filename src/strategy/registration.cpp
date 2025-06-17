@@ -15,13 +15,14 @@
 
 namespace epoch_metadata::strategy {
 struct AIGeneratedAlgorithmMetaData {
-
+  std::string id;
   std::string name;
   std::string description;
   epoch_core::TradeSignalType algorithm_type;
   std::string prompt;
   std::string timestamp;
   UIData blueprint;
+  std::vector<std::string> tags;
 };
 
 std::vector<AIGeneratedAlgorithmMetaData> LoadAIGeneratedAlgorithmMetaData(
@@ -81,15 +82,15 @@ void RegisterStrategyMetadata(
       }
     }
 
-    TradeSignalMetaData trade_signal_metadata{
-        .id = "ai_generated_" + std::to_string(i),
-        .name = config.name,
-        .options = converted->options,
-        .desc = config.description,
-        .requiresTimeframe = requiresTimeframe,
-        .type = config.algorithm_type,
-        .data = config.blueprint,
-        .tags = {"ai_generated", "algorithm"}};
+    TradeSignalMetaData trade_signal_metadata{.id = config.id,
+                                              .name = config.name,
+                                              .options = converted->options,
+                                              .desc = config.description,
+                                              .requiresTimeframe =
+                                                  requiresTimeframe,
+                                              .type = config.algorithm_type,
+                                              .data = config.blueprint,
+                                              .tags = config.tags};
 
     trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
     // strategy_templates::Registry::GetInstance().Register(

@@ -1,0 +1,492 @@
+{
+  "id": "breakout_retest_strategy",
+  "name": "Breakout Retest Strategy",
+  "description": "This algorithm identifies breakout setups by detecting when the price breaks above the highest high of the previous 40 bars. It then waits for a retest of the breakout level within 0.25% in the subsequent 10 bars, providing a strategic entry point for trades.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Develop a TechnicalPattern trading algorithm at the intermediate level using Python that detects \"Breakout with Retest\" setups on the 1-hour timeframe. Entry criteria: Identify instances where price cleanly breaks above the highest high of the previous 40 bars (establishing a resistance breakout), then returns to retest within 0.25% of that former breakout level within the next 10 bars, while 20-period Volume Weighted Moving Average (VWMA) is above its own 20-bar simple moving average (SMA), indicating rising participation. Enter long when a bullish engulfing candle forms at or just above the retest level. Exit long positions either after a 1.8% profit target is reached or if close crosses below the 20-bar VWMA. No short trades.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "max_high",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_breakout",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "number_upper",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.0025,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div_ratio",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_ratio",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwma20",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vwma_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "engulf",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "number_profit",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.018,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div_exit",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_profit",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trade_exec",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "h"
+        },
+        "target": {
+          "id": "max_high",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_breakout",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "max_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_breakout",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "max_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "number_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vwma_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vwma_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_breakout",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vwma_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "engulf",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "max_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_profit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "number_profit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_profit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_profit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:42:40.227851",
+  "tags": [
+    "trading",
+    "breakout",
+    "retest",
+    "technical",
+    "algorithm"
+  ]
+}

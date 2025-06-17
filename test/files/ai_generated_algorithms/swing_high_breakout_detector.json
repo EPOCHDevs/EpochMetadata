@@ -1,0 +1,504 @@
+{
+  "id": "swing_high_breakout_detector",
+  "name": "Swing High Breakout Detector",
+  "description": "This algorithm identifies potential breakout trades based on swing highs and lows, utilizing the Average True Range (ATR) to measure volatility. It detects consolidation zones where price moves within a specified ATR range, entering long trades when the price closes above the most recent swing high by a defined margin.",
+  "algorithm_type": "PriceAction",
+  "prompt": "Write an intermediate PriceAction trading algorithm in pseudocode that identifies potential breakout trades using \"Swing Highs and Lows\" and \"Average True Range\" (ATR) over a 30-minute timeframe. Detect consolidation zones where price oscillates within a 1.5x ATR range for at least 10 consecutive candles. Enter a long trade when price closes above the most recent swing high by at least 0.2x ATR, and a short trade when price closes below the most recent swing low by at least 0.2x ATR, provided this breakout is supported by an increase in volume above the 20-period moving average of volume. Set stop-loss at 1x ATR below (for longs) or above (for shorts) the breakout candle. Exit trades when price closes back inside the prior consolidation zone or reaches a 2x ATR profit target.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n2",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "swing_highs_lows",
+        "options": [
+          {
+            "id": "swing_length",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "price_distance",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n20",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "level"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "level"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n17",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n18",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:44:05.158445",
+  "tags": [
+    "PriceAction",
+    "Breakout",
+    "ATR",
+    "SwingHighs",
+    "Consolidation"
+  ]
+}

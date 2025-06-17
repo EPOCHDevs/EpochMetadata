@@ -1,0 +1,604 @@
+{
+  "id": "mean_reverting_bollinger_rsi",
+  "name": "Bollinger RSI Mean Reversion Strategy",
+  "description": "This algorithm employs a mean-reverting strategy using Bollinger Bands and the Relative Strength Index (RSI) to identify potential reversal points in the EUR/USD forex market. It enters long positions when the price dips below the lower Bollinger Band and the RSI is under 25, while short positions are initiated when the price exceeds the upper Bollinger Band.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Design an expert-level MeanReverting trading algorithm in Python that operates on 5-minute EUR/USD forex candles using the following criteria: Calculate a 20-period Bollinger Band and a 10-period Relative Strength Index (RSI). Enter a long position when the price closes below the lower Bollinger Band and RSI is below 25; enter a short position when price closes above the upper Bollinger Band and RSI is above 75. Close the position when the price returns to within the Bollinger Bands or RSI crosses back above 35 (for longs) or below 65 (for shorts). Include position sizing based on normalized Average True Range over 14 periods to adapt trade size for volatility. Ensure that only one signal is traded at a time.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi10",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_long",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const75",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 75,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt2",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_short",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte1",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte1",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_band",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const35",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 35,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt3",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "any_exit_long",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const65",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 65,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt3",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "any_exit_short",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "any_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const75",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "lte1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gte1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "gte1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lte1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_band",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gte1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_band",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt3",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const35",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt3",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and_band",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt3",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const65",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt3",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and_band",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "any_exit_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "any_exit_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "and_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "any_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:07:10.806966",
+  "tags": [
+    "mean reverting",
+    "forex",
+    "Bollinger Bands",
+    "RSI",
+    "trading strategy"
+  ]
+}

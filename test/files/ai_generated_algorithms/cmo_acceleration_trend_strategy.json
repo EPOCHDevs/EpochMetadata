@@ -1,0 +1,885 @@
+{
+  "id": "cmo_acceleration_trend_strategy",
+  "name": "CMO Acceleration Trend Strategy",
+  "description": "This Trend Following algorithm utilizes the Chande Momentum Oscillator (CMO) and Acceleration Bands to identify potential long entry points. It triggers a buy when the price closes above the upper Acceleration Band, the CMO crosses above +50 from below, and volume exceeds the average by 30%.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Design an expert-level TrendFollowing trading algorithm in Python that combines Chande Momentum Oscillator (CMO, period=20) with Acceleration Bands (period=40, width=0.1) on 4-hour OHLCV data. Enter a long position when the following conditions are met: (1) price closes above the upper Acceleration Band, (2) CMO crosses above +50 from below, and (3) 4-hour volume is at least 30% higher than its 20-period average. Exit the position when price closes below the middle of the Acceleration Bands or CMO crosses below +30. For short trades, reverse all entry/exit logic with CMO levels -50 and -30, and price crossing below the lower band. The algorithm should only consider one open trade at a time and log every signal with timestamp and reason.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n_src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_ab",
+        "type": "acceleration_bands",
+        "options": [
+          {
+            "id": "period",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "multiplier",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_sma_mid",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_cmo",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_const1_3",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_mul_vol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_const50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_cross_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_gt_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_long_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_const_neg50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_lt_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_crossany_neg50",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_lt_cmo_neg50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_cmo_down",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_short_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_const30",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_crossany30",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_lt_cmo30",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_lt_mid",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_cmo30",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_exit_long",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_const_neg30",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_crossany_neg30",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_gt_cmo_neg30",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_gt_mid",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_cmo_up_neg30",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_exit_short",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_close_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n_executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_cmo",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_sma_mid",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_gt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_ab",
+          "handle": "upper_band"
+        },
+        "target": {
+          "id": "n_gt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n_sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_mul_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const1_3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_mul_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_mul_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n_gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_gt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_lt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_ab",
+          "handle": "lower_band"
+        },
+        "target": {
+          "id": "n_lt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany_neg50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany_neg50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_lt_cmo_neg50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_lt_cmo_neg50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_crossany_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo_down",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_lt_cmo_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo_down",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_lt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_lt_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_sma_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_lt_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_lt_cmo30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_lt_cmo30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_crossany30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_lt_cmo30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_lt_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_exit_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_exit_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n_gt_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_sma_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_gt_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany_neg30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const_neg30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_crossany_neg30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_gt_cmo_neg30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n_const_neg30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_gt_cmo_neg30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n_crossany_neg30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo_up_neg30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_gt_cmo_neg30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_cmo_up_neg30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_gt_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_exit_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_cmo_up_neg30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_exit_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_exit_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_exit_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n_long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n_short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n_close_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n_executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:13:47.165668",
+  "tags": [
+    "trendfollowing",
+    "momentum",
+    "cmo",
+    "accelerationbands",
+    "tradingstrategy"
+  ]
+}

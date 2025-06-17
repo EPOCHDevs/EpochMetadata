@@ -1,0 +1,659 @@
+{
+  "id": "triple_divergence_oscillator_strategy",
+  "name": "Triple Divergence Oscillator Strategy",
+  "description": "This algorithm identifies triple divergence setups between price movements and the Ultimate Oscillator, utilizing parameters of 7, 14, and 28 on a 2-hour timeframe. It focuses on spotting three consecutive lower lows for bullish reversals and three consecutive higher highs for bearish reversals, providing traders with potential entry points for trades.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Design a TechnicalPattern trading algorithm (complexity_level: expert) in Python that identifies triple divergence setups between price and the Ultimate Oscillator (parameters: 7,14,28) on the 2-hour timeframe. The algorithm should scan for instances where price makes three consecutive lower lows (for bullish reversal) or three consecutive higher highs (for bearish reversal), while the Ultimate Oscillator simultaneously makes three consecutive higher lows (for buy) or lower highs (for sell). Enter long on confirmation of bullish triple divergence with a stop-loss below the third swing low; enter short on bearish triple divergence with a stop-loss above the third swing high. Exit upon opposite signal or after a fixed risk-reward ratio of 2:1 is reached. Provide explicit code logic for swing point detection, divergence confirmation, and signal generation.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ult",
+        "type": "ultosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 7,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "medium_period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 28,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "hour",
+          "interval": 2
+        }
+      },
+      {
+        "id": "lagU1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagU2",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagLow1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagLow2",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagHigh1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagHigh2",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_osc1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_osc2",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_price_bull",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_osc_bull",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bull_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_high1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_high2",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_osc_bear1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_osc_bear2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_price_bear",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_osc_bear",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bear_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "lagLow1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "lagLow2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "h"
+        },
+        "target": {
+          "id": "lagHigh1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "h"
+        },
+        "target": {
+          "id": "lagHigh2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagU1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagU2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "lt_price1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagLow1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_price1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lagLow1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_price2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagLow2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_price2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_osc1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_osc1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_osc2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_osc2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_price_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_price_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_osc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_osc_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_osc2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_osc_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_price_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bull_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_osc_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bull_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "h"
+        },
+        "target": {
+          "id": "gt_high1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHigh1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_high1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHigh1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_high2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHigh2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_high2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_osc_bear1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_osc_bear1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_osc_bear2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagU2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_osc_bear2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_high1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_price_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_high2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_price_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_osc_bear1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_osc_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_osc_bear2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_osc_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_price_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bear_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_osc_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bear_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bull_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "bear_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:15:15.798728",
+  "tags": [
+    "technical_pattern",
+    "divergence",
+    "ultimate_oscillator",
+    "trading_algorithm",
+    "bullish_bearish"
+  ]
+}

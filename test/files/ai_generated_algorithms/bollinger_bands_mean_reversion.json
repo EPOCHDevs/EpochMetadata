@@ -1,0 +1,550 @@
+{
+  "id": "mean_reverting_bollinger_bands_001",
+  "name": "Bollinger Bands Mean Reversion",
+  "description": "This algorithm implements a mean-reverting trading strategy using Bollinger Bands on a 15-minute timeframe. It combines the Bollinger Bands indicator with a custom volatility filter derived from the Annualized Historical Volatility to identify potential entry points for long and short trades.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level MeanReverting trading algorithm using Python that operates on a 15-minute timeframe. The strategy should combine Bollinger Bands with a custom volatility filter: calculate Bollinger Bands (20-period SMA + 2 standard deviations) on the close price and incorporate a volatility threshold computed via the Annualized Historical Volatility over the same 20 periods. Enter a long position when the close price crosses below the lower Bollinger Band only if the Annualized Historical Volatility is below its 30-period moving average, indicating low volatility regimes favoring mean reversion. Exit when the price touches or crosses the middle SMA band or if volatility increases above the 30-period average. Similarly, enter a short position when the price crosses above the upper Bollinger Band under the same low-volatility condition and exit on a return to the middle band or volatility spike. Include stop-loss at 1.5 times the Average True Range (14) away from the entry price, and design the code to handle trade signals, position sizing, and risk management strictly based on these criteria.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "BB Period",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "BB StdDev",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol",
+        "type": "volatility",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Vol Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_ma",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "SMA 30",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "low_vol",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "high_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_lower",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_upper",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_middle",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price_middle",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_ma",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "low_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_ma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "low_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "high_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_ma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "high_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "cross_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_price_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lt_price_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "low_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "cross_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "low_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_price_middle",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "gt_price_middle",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_price_middle",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "lt_price_middle",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_middle",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "high_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price_middle",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "high_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "short_exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "close_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:05:50.267161",
+  "tags": [
+    "mean reverting",
+    "bollinger bands",
+    "volatility",
+    "trading strategy",
+    "15-minute"
+  ]
+}

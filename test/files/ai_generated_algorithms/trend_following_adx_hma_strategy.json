@@ -1,0 +1,356 @@
+{
+  "id": "trend_following_adx_hma_strategy",
+  "name": "Trend Following ADX HMA Strategy",
+  "description": "This algorithm utilizes a combination of the 14-period Average Directional Movement Index (ADX) and the 20-period Hull Moving Average (HMA) to identify trend-following opportunities. Long entries are triggered when the ADX exceeds 25 and the closing price crosses above the HMA, while short entries are activated under similar ADX conditions with a downward price crossover.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Design an intermediate-level TrendFollowing trading algorithm in Python that uses the combination of a 14-period Average Directional Movement Index (ADX) and 20-period Hull Moving Average (HMA) on 1-hour candles. The system should generate a long entry when the 14-period ADX is above 25, and the closing price crosses above the 20-period HMA. Short entry is triggered when the ADX is above 25 and price crosses below the HMA. Exits occur when a cross in the opposite direction happens or if ADX drops below 20. The algorithm should include a function to calculate the ADX and HMA, and output trade signals (\"long\", \"short\", \"exit\") for each data point.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx14",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma20",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt25",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longAnd",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortAnd",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAgg",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt25",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt25",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAnd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAnd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAnd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAnd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longAnd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortAnd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAgg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:42:51.792513",
+  "tags": [
+    "trend following",
+    "ADX",
+    "HMA",
+    "trading strategy",
+    "algorithmic trading"
+  ]
+}

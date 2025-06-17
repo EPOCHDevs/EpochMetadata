@@ -472,7 +472,7 @@ const MLKitMetaData DLB_ADAGRAD_METADATA{
         std::vector<MetaDataArg>{
             MetaDataArg{.id = "lr",
                         .name = "Learning Rate",
-                        .defaultValue = "0.01",
+                        .defaultValue = "0.000001",
                         .type = MetaDataArgType::Decimal,
                         .desc = "Learning rate for the optimizer."},
             MetaDataArg{.id = "lr_decay",

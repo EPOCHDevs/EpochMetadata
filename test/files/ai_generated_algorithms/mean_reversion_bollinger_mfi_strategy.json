@@ -1,0 +1,443 @@
+{
+  "id": "mean_reversion_bollinger_mfi_strategy",
+  "name": "Mean Reversion Bollinger MFI Strategy",
+  "description": "This algorithm implements a mean-reverting trading strategy using Bollinger Bands and the Money Flow Index (MFI). It identifies overbought and oversold conditions on 15-minute bars, entering long trades when the price closes below the lower Bollinger Band and the MFI indicates oversold conditions.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level mean-reverting trading algorithm in Python that operates on 15-minute bars. Use Bollinger Bands with a 20-period Simple Moving Average and 2 standard deviations to define overbought and oversold zones. Confirm entry signals with the Money Flow Index (MFI) set to 14 periods: enter a long trade when price closes below the lower Bollinger Band and MFI is below 20, indicating oversold conditions; enter a short trade when price closes above the upper Bollinger Band and MFI is above 80, indicating overbought conditions. Exit trades when price reverts to the 20-period SMA or when the MFI returns to the neutral range between 40 and 60. Include a stop-loss at 1.5 times the Average True Range (ATR) calculated over 14 periods and a take-profit at 2 times the ATR. Implement position sizing based on a fixed percentage of account equity per trade.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "std20",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul2",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "upper",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lower",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mfi14",
+        "type": "mfi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltPriceLower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltMfi20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longAnd",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num80",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 80,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtPriceUpper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtMfi80",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortAnd",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "std20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "std20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ltPriceLower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltPriceLower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltMfi20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltMfi20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ltPriceLower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAnd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ltMfi20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAnd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gtPriceUpper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtPriceUpper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtMfi80",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num80",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtMfi80",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gtPriceUpper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAnd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gtMfi80",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAnd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "longAnd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortAnd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:49:18.016629",
+  "tags": [
+    "mean reverting",
+    "Bollinger Bands",
+    "MFI",
+    "trading algorithm",
+    "15-minute bars"
+  ]
+}

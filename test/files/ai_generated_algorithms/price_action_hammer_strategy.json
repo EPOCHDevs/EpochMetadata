@@ -1,0 +1,493 @@
+{
+  "id": "unique-id-001",
+  "name": "PriceAction Hammer Strategy",
+  "description": "This algorithm identifies a trading pattern consisting of two consecutive 'Big Black Candles' followed by a 'Hammer' candlestick. It enters a long position at the next bar's open if the hammer's low is above the 10-period moving average, indicating potential bullish momentum.",
+  "algorithm_type": "PriceAction",
+  "prompt": "Create an expert-level PriceAction trading algorithm in Python that identifies a sequence where two consecutive \"Big Black Candles\" with increased volume (higher than the 20-period average volume) are immediately followed by a \"Hammer\" candlestick with closing price above the hammer's open. Enter a long position at the next bar\u2019s open after this pattern occurs if the hammer's low is above the 10-period Simple Moving Average of the lows. Exit the position either when a \"Gravestone Doji\" appears or when price closes below the 20-period Weighted Moving Average. No pyramiding; trade only on the daily timeframe.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_avg",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbc",
+        "type": "big_black_candle",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "vol_and_bbc",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ham",
+        "type": "hammer",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma10low",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_low_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "wma20",
+        "type": "wma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_wma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gravestone",
+        "type": "gravestone_doji",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "exit_or",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma20vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_avg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol_avg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_avg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_and_bbc",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bbc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_and_bbc",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "sma10low",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "gt_low_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma10low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_low_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_and_bbc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ham",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_low_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "wma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_wma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "wma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_wma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gravestone",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_wma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_or",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:10:24.529078",
+  "tags": [
+    "PriceAction",
+    "Trading",
+    "Algorithm",
+    "Candlestick",
+    "Strategy"
+  ]
+}

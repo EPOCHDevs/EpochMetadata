@@ -1,0 +1,741 @@
+{
+  "id": "ZLEMA_CMO_ATR_Trend_Follower_001",
+  "name": "ZLEMA_CMO_ATR_Trend_Follower",
+  "description": "This algorithm employs a Zero-Lag Exponential Moving Average (ZLEMA) combined with the Chande Momentum Oscillator (CMO) to identify trend direction on a 4-hour timeframe. It utilizes the Average True Range (ATR) for dynamic position sizing, entering long positions when the close price crosses above the ZLEMA and the CMO exceeds +40, and short positions under the opposite conditions.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Create an expert-level TrendFollowing trading algorithm in Python using a 4-hour timeframe that combines a Zero-Lag Exponential Moving Average (ZLEMA) with the Chande Momentum Oscillator (CMO) and the Average True Range (ATR) for dynamic position sizing. Entry rule: enter a long position when the close price crosses above the 34-period ZLEMA and the 14-period CMO is above +40; enter short when the close crosses below the 34-period ZLEMA and CMO is below -40. Exit long positions when price closes below the 21-period ZLEMA or the CMO drops below +10; exit shorts when price closes above the 21-period ZLEMA or the CMO rises above -10. Use a volatility-adjusted stop loss set at 1.5\u00d7 ATR(14) from entry price. Implement position sizing proportional to 2% of capital divided by current ATR value to adapt risk dynamically. Ensure the algorithm avoids signals during sideways markets by confirming that the Bollinger Bands Width (20, 2) exceeds its 50-period moving average before entering trades.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n2",
+        "type": "zlema",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "zlema",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "bband_width",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n19",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n20",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n21",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n22",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n23",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n24",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n25",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n26",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n4",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "bbands_middle"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n17",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n26",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n18",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n26",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n19",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n23",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n23",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n22",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n23",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n25",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n24",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n25",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n26",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:57:42.994413",
+  "tags": [
+    "TrendFollowing",
+    "ZLEMA",
+    "CMO",
+    "ATR",
+    "DynamicPositionSizing"
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "id": "momentum_roc_ema_vwma_strategy",
+  "name": "Momentum ROC EMA VWMA Strategy",
+  "description": "This algorithm implements a momentum trading strategy that goes long when the Rate of Change (ROC) crosses above its 14-period Exponential Moving Average (EMA) and short when it crosses below. Additionally, it filters trades based on the trend of the 20-period Volume Weighted Moving Average (VWMA) to ensure higher probability setups.",
+  "algorithm_type": "Momentum",
+  "prompt": "Develop an expert-level Momentum trading algorithm in Python that goes long when the Rate of Change (ROC, 10 periods) crosses above its 14-period Exponential Moving Average (EMA), and goes short when ROC crosses below its 14-period EMA. Further, only take trades if the 20-period Volume Weighted Moving Average (VWMA) is trending higher for longs (current VWMA > previous VWMA) or lower for shorts (current VWMA < previous VWMA). Exit any open position when the ROC crosses back in the opposite direction. Apply this strategy on 30-minute OHLCV data.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc10",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema14",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_down",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwma20",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_up",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_down",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_and",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ema14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ema14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "roc10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_and",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "long_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:48:41.673358",
+  "tags": [
+    "momentum",
+    "trading",
+    "ROC",
+    "EMA",
+    "VWMA"
+  ]
+}

@@ -1,0 +1,479 @@
+{
+  "id": "trend_following_001",
+  "name": "Triple Confirmation Trend Follower",
+  "description": "This algorithm utilizes a triple confirmation entry system to identify bullish trends in a 30-minute timeframe. It combines the Zero-Lag Exponential Moving Average (ZLEMA) with ADX to ensure strong trend validation before executing trades.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Create an expert-level TrendFollowing trading algorithm in Python that operates on a 30-minute timeframe. Use a triple confirmation entry system combining: (1) the Zero-Lag Exponential Moving Average (ZLEMA) with periods 10 and 30, where a bullish trend is identified when ZLEMA(10) crosses above ZLEMA(30); (2) confirm trend strength with the Average Directional Movement Index (ADX) above 25; (3) verify momentum by requiring the Rate of Change (ROC) over 5 periods to be positive. Entry: enter long when all three conditions align simultaneously. Exit: close the position when ZLEMA(10) crosses below ZLEMA(30) or ADX drops below 20. Include position sizing based on volatility measured using the Average True Range (ATR) over 14 periods to set stop-loss at 1.5 ATR below entry price. Incorporate volume filter by only trading if Volume on entry bar is above its 20-period moving average. Provide clear comments explaining each step.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "z10",
+        "type": "zlema",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "z30",
+        "type": "zlema",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bull_cross",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx14",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_adx25",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc5",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_rocpos",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bear_cross",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_adx20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "z10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "z30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "z10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bull_cross",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "z30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bull_cross",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx25",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx25",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_rocpos",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_rocpos",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bull_cross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adx25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_rocpos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "z30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bear_cross",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "z10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bear_cross",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adx20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adx20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bear_cross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_adx20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:25:44.676195",
+  "tags": [
+    "trend following",
+    "ZLEMA",
+    "ADX",
+    "30-minute",
+    "trading strategy"
+  ]
+}

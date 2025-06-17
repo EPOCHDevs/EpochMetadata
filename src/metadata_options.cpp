@@ -138,8 +138,7 @@ void MetaDataOption::decode(const YAML::Node &element) {
   }
   min = element["min"].as<double>(0);
   max = element["max"].as<double>(10000);
-  step_size = element["step_size"].as<double>(0.01);
-
+  step_size = element["step_size"].as<double>(0.000001);
 
   isRequired = element["required"].as<bool>(true);
 }

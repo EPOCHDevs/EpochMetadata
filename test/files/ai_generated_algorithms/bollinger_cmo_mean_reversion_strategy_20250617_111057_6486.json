@@ -1,0 +1,518 @@
+{
+  "id": "mean_reverting_bollinger_cmo_001",
+  "name": "Bollinger CMO Mean Reversion Strategy",
+  "description": "This algorithm employs a mean-reverting strategy using Bollinger Bands and the Chande Momentum Oscillator. It initiates a long position when the price closes below the lower Bollinger Band and the CMO indicates oversold conditions with a value below -50.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Develop an expert-level MeanReverting trading algorithm in Python that uses a combination of Bollinger Bands (20-period SMA with 2 standard deviations) and the Chande Momentum Oscillator (CMO) over a 14-period window on 30-minute candlesticks. The strategy should enter a long position when price closes below the lower Bollinger Band and the CMO falls below -50, indicating oversold conditions, and exit when price reverts to the 20-period SMA or when CMO crosses above 0. Enter a short position when price closes above the upper Bollinger Band and the CMO rises above +50, indicating overbought conditions, exiting when price reverts to the SMA or CMO crosses below 0. Include volume confirmation by requiring volume to be above its 20-period moving average for entries. Provide clear code structure for signal generation, position management, and risk control including a fixed 1% stop-loss based on entry price.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "neg50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pos50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num0",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltPriceBB",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCmo",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtPriceBB",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtCmo",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossPriceSMA",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossCmo0",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAny",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ltPriceBB",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "ltPriceBB",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gtPriceBB",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gtPriceBB",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "pos50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ltPriceBB",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtPriceBB",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtCmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossPriceSMA",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "crossPriceSMA",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossCmo0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossCmo0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossPriceSMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossCmo0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAny",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:10:57.648700",
+  "tags": [
+    "mean_reverting",
+    "Bollinger Bands",
+    "Chande Momentum Oscillator",
+    "trading strategy",
+    "Python"
+  ]
+}

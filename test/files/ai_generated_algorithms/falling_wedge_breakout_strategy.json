@@ -1,0 +1,463 @@
+{
+  "id": "falling-wedge-breakout-strategy",
+  "name": "Falling Wedge Breakout Strategy",
+  "description": "This algorithm identifies Falling Wedge patterns on a 15-minute timeframe and executes trades upon confirmation of a breakout above the upper trendline. It utilizes a Volume Weighted Moving Average (VWMA) to assess volume strength and the Average Directional Movement Index (ADX) to ensure trend strength is above 25 before entering trades.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Create an expert-level TechnicalPattern trading algorithm using a 15-minute timeframe that identifies and trades Falling Wedge patterns confirmed by a breakout above the upper wedge trendline. Use a combination of Volume Weighted Moving Average (VWMA) with period 14 to gauge volume strength, and the Average Directional Movement Index (ADX) with period 20 to ensure trend strength above 25 before entry. Entry occurs on a confirmed close above the wedge with VWMA volume above its 14-period Simple Moving Average and ADX > 25. Exit on a trailing stop set at 1.5 \u00d7 the 14-period Average True Range (ATR) below the price or if price closes below the lower wedge trendline. Include a second filter rejecting setups where the Relative Strength Index (RSI) with period 14 is above 70 at breakout to avoid overbought breakouts. Implement position sizing targeting a risk/reward ratio of at least 1:2 based on ATR volatility.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwma14",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol14",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx20",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi14",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num70",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 70,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_trend",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_ok",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "breakout20",
+        "type": "highest_gt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_atr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "stop_level",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_stop",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_ok",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_ok",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "breakout20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_ok",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "all_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "stop_level",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "stop_level",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stop_level",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "breakout20",
+          "handle": "*"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:21:13.073538",
+  "tags": [
+    "TechnicalPattern",
+    "FallingWedge",
+    "Breakout",
+    "VWMA",
+    "ADX"
+  ]
+}

@@ -1,0 +1,463 @@
+{
+  "id": "price_action_001",
+  "name": "Consecutive Higher Closes Detection",
+  "description": "This algorithm identifies multi-day consecutive higher closes, known as 'closes stacking', on a 30-minute timeframe. It further integrates the detection of 'Break of Structure & Change of Character' from a 5-minute sub-timeframe and confirms setups using Accumulation/Distribution Oscillator divergence on the hourly chart.",
+  "algorithm_type": "PriceAction",
+  "prompt": "Design a PriceAction-based trading algorithm (complexity: expert, format: pseudocode) that detects multi-day consecutive higher closes (\"closes stacking\") on a 30-minute timeframe, integrates the detection of \"Break of Structure & Change of Character\" from a 5-minute sub-timeframe, and confirms setups with Accumulation/Distribution Oscillator divergence on the hourly chart. Entry signals occur when three consecutive 30-minute candles close higher than the previous, the most recent \u201cChange of Character\u201d on the 5-minute chart was bullish, and there is a positive divergence (price makes a lower low, Accumulation/Distribution makes a higher low) within the last five hourly bars. Exits trigger when a single 30-minute close is below the previous close or when Accumulation/Distribution on the hourly chart fails to confirm a higher high with price. Include logic to mark ambiguous/inconclusive signals for review.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevgt1",
+        "type": "previous_gt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevgt2",
+        "type": "previous_gt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevltclose",
+        "type": "previous_lt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "aggcloses",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "swing",
+        "type": "swing_highs_lows",
+        "options": [
+          {
+            "id": "swing_length",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bos",
+        "type": "bos_choch",
+        "options": [
+          {
+            "id": "close_break",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "chochgt",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adosc",
+        "type": "adosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevgtadosc",
+        "type": "previous_gt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevltadosc",
+        "type": "previous_lt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "divposand",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entryall",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "divfailand",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitany",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "tradeexec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "prevgt1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "prevgt2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "prevltclose",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "bos",
+          "handle": "high_low"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "level"
+        },
+        "target": {
+          "id": "bos",
+          "handle": "level"
+        }
+      },
+      {
+        "source": {
+          "id": "bos",
+          "handle": "choch"
+        },
+        "target": {
+          "id": "chochgt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "chochgt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "prevgt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggcloses",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prevgt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggcloses",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prevltclose",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divposand",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prevgtadosc",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prevltadosc",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prevgtadosc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divposand",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "divposand",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryall",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "aggcloses",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryall",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "chochgt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryall",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prevgt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divfailand",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "prevltadosc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divfailand",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "prevltclose",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitany",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "divfailand",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitany",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entryall",
+          "handle": "result"
+        },
+        "target": {
+          "id": "tradeexec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exitany",
+          "handle": "result"
+        },
+        "target": {
+          "id": "tradeexec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:21:59.241260",
+  "tags": [
+    "PriceAction",
+    "Trading",
+    "TechnicalAnalysis",
+    "Oscillator",
+    "BreakOfStructure"
+  ]
+}

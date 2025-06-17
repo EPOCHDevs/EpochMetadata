@@ -1,0 +1,481 @@
+{
+  "id": "trend_following_tma_cmo_001",
+  "name": "TMA CMO Trend Following Strategy",
+  "description": "This algorithm implements a trend-following strategy using a 21-period Triangular Moving Average (TMA) and a 5-period Chande Momentum Oscillator (CMO). It generates buy signals when the close price crosses above the TMA and the CMO exceeds +20, while sell signals are triggered when the close price falls below the TMA and the CMO drops below -20.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Design an intermediate-level TrendFollowing trading algorithm in Python that uses the 21-period Triangular Moving Average (TMA) and the 5-period Chande Momentum Oscillator (CMO). Entry signal: Go long when the close price crosses above the 21-TMA and the 5-period CMO crosses above +20 in the same bar. Go short when the close price crosses below the 21-TMA and the 5-period CMO crosses below -20 in the same bar. Exit long positions when the close crosses below the 21-TMA or the 5-period CMO falls below 0. Exit short positions when the close crosses above the 21-TMA or the 5-period CMO rises above 0. Apply this strategy to 30-minute OHLCV candlestick data.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "tma21",
+        "type": "trima",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo5",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "Value",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "constNeg20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -20,
+            "name": "Value",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zeroConst",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtCmoHigh",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCmoLow",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtCmoZero",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCmoZero",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitLong",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitShort",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAny",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "tma21",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "tma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "tma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmoHigh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmoHigh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmoLow",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "constNeg20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmoLow",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmoZero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zeroConst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmoZero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmoZero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zeroConst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmoZero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtCmoHigh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCmoLow",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCmoZero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtCmoZero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exitLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exitShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAny",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:05:02.689569",
+  "tags": [
+    "trend following",
+    "TMA",
+    "CMO",
+    "momentum",
+    "trading strategy"
+  ]
+}

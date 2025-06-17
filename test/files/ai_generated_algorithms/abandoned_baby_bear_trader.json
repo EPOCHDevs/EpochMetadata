@@ -1,0 +1,414 @@
+{
+  "id": "candle_stick_abandoned_baby_bear_001",
+  "name": "Abandoned Baby Bear Pattern Trader",
+  "description": "This algorithm identifies the 'Abandoned Baby Bear' candlestick pattern on a 15-minute timeframe. It confirms the pattern with the Accumulation/Distribution Oscillator crossing below its 20-period EMA before entering a short position.",
+  "algorithm_type": "CandleStickPattern",
+  "prompt": "Create an expert-level TechnicalPattern trading algorithm in Python that identifies and trades the \u201cAbandoned Baby Bear\u201d candlestick pattern on a 15-minute timeframe. Use a combination of the pattern detection with confirmation from the Accumulation/Distribution Oscillator crossing below its 20-period exponentially smoothed moving average. Entry: open a short position at the next candle after a confirmed Abandoned Baby Bear pattern with falling A/D oscillator. Exit: close the position when price closes above the 10-period Variable Index Dynamic Average or after 10 candles, whichever occurs first. Include stop-loss at 1% above the pattern high and use volume weighting to filter signals by only trading if volume is above its 50-period simple moving average.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "abb",
+        "type": "abandoned_baby_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adosc1",
+        "type": "adosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema1",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross1",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and1",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vidya10",
+        "type": "vidya",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "alpha",
+            "value": 0.9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ema1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "abb",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "and1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "all_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vidya10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vidya10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:49:08.757392",
+  "tags": [
+    "candle stick",
+    "trading",
+    "technical pattern",
+    "short position",
+    "accumulation distribution"
+  ]
+}

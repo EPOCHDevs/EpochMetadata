@@ -1,0 +1,456 @@
+{
+  "id": "momentum_strategy_001",
+  "name": "Chande Momentum Keltner Strategy",
+  "description": "This algorithm implements a momentum trading strategy that utilizes the 14-period Chande Momentum Oscillator to identify entry points. A long position is initiated when the oscillator crosses above zero while the closing price is above the middle line of the 34-period Keltner Channel, and a short position is triggered when the oscillator crosses below zero with the closing price below the channel's middle line.",
+  "algorithm_type": "Momentum",
+  "prompt": "Design an intermediate-level Momentum trading algorithm using Pine Script that trades on the 2-hour timeframe. The strategy should enter a long position when the 14-period Chande Momentum Oscillator crosses above zero and the closing price is above the 34-period Keltner Channel middle line. Enter a short position when the Chande Momentum Oscillator crosses below zero and the closing price is below the Keltner Channel middle line. Exit long positions when the CMO turns negative or price closes below the 34-period Keltner middle line; exit shorts when CMO turns positive or price closes above the Keltner middle line. Include stop-loss at 1.5x Average True Range (14) from entry, and only one position at a time.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero1",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo1",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema1",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "andLong",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "andShort",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCmo0",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtCmo0",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "orLong",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "orShort",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "orExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec1",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ema1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "zero1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "andLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "andShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCmo0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmo0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCmo0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gtCmo0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "orLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "orShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "orExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "orExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:05:22.720355",
+  "tags": [
+    "momentum",
+    "trading",
+    "PineScript",
+    "KeltnerChannel",
+    "oscillator"
+  ]
+}

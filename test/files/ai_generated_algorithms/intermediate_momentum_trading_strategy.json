@@ -1,0 +1,423 @@
+{
+  "id": "momentum_strategy_001",
+  "name": "Intermediate Momentum Trading Strategy",
+  "description": "This algorithm implements an intermediate-level momentum trading strategy using 15-minute OHLCV data. It employs the Rate of Change (ROC), Accumulation/Distribution Oscillator (ADOSC), and Average True Range (ATR) to identify entry points and filter for volatility.",
+  "algorithm_type": "Momentum",
+  "prompt": "Design an intermediate-level Momentum trading strategy, described in natural-language, which operates on 15-minute OHLCV data. The algorithm should use the following indicators: Rate of Change (ROC, 14 periods), Accumulation/Distribution Oscillator (ADOSC, 3/10 settings), and Average True Range (ATR, 7 periods) for volatility filtering. Enter a long position when the ROC crosses above zero while the ADOSC is also increasing for at least 3 consecutive bars, and only when ATR is above its 20-bar simple moving average (i.e., confirming heightened volatility). Exit the trade when ROC turns negative or ADOSC declines for 2 bars in a row. Do not use any moving averages for trend confirmation. Focus on clean momentum and volume acceleration with volatility gating.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "source1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc14",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adosc3_10",
+        "type": "adosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr7",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_cross_zero",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag3",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adosc_up",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr_vol_ok",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag2",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adosc_down",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_neg",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor1",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "source1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_cross_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_cross_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_cross_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc3_10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc3_10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adosc_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adosc_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "atr_vol_ok",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "atr_vol_ok",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr_vol_ok",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc3_10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc3_10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adosc_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adosc_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_neg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_neg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_neg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor1",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:21:41.548000",
+  "tags": [
+    "momentum",
+    "trading",
+    "strategy",
+    "technical_analysis",
+    "15_minute"
+  ]
+}

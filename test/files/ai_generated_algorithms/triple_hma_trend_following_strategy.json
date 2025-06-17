@@ -1,0 +1,687 @@
+{
+  "id": "trendfollowing_001",
+  "name": "Triple HMA Trend Following Strategy",
+  "description": "This expert-level trading algorithm utilizes a triple-smoothed Hull Moving Average (HMA) to determine the primary trend direction on a 15-minute timeframe. It enters long positions when HMA9 is greater than HMA21 and HMA21 is greater than HMA55, and short positions when the opposite condition is met, confirmed by the Directional Movement Index (DMI).",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Create an expert-level TrendFollowing trading algorithm in Python that operates on a 15-minute timeframe. The strategy should combine a triple-smoothed Hull Moving Average (HMA) of periods 9, 21, and 55 to define the primary trend direction: enter long only when HMA9 > HMA21 > HMA55 and short only when HMA9 < HMA21 < HMA55. Confirm entries with the Directional Movement Index (DMI) where +DI crosses above -DI and the Average Directional Movement Index (ADX) is above 25, indicating strong trend momentum. Entry signals trigger on candle close with volume above its 20-period moving average to confirm participation. Use a trailing stop based on 1.5 times the 14-period Average True Range (ATR) from entry price for exits. Incorporate a filter to avoid trades during low volatility periods where ATR is below its 50-period moving average. Provide clear buy and sell signals, including stop-loss adjustments, and avoid trading during the first 30 minutes of the session to reduce noise.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma9",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma21",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma55",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 55,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt2",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trend_long",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trend_short",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "di14",
+        "type": "di",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_plus_minus",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_minus_plus",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx14",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_adx_25",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_atr50",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_atr",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "Value",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma9",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma21",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma55",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hma9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trend_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trend_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trend_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trend_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "di14",
+          "handle": "plus_di"
+        },
+        "target": {
+          "id": "gt_plus_minus",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "di14",
+          "handle": "minus_di"
+        },
+        "target": {
+          "id": "gt_plus_minus",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "di14",
+          "handle": "minus_di"
+        },
+        "target": {
+          "id": "gt_minus_plus",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "di14",
+          "handle": "plus_di"
+        },
+        "target": {
+          "id": "gt_minus_plus",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx_25",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx_25",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "trend_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_plus_minus",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adx_25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "trend_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_minus_plus",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adx_25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma_atr50",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_atr50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "allow"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:11:53.622301",
+  "tags": [
+    "trendfollowing",
+    "trading",
+    "HMA",
+    "DMI",
+    "Python"
+  ]
+}

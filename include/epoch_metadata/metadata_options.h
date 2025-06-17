@@ -112,7 +112,7 @@ struct MetaDataOption {
   std::vector<SelectOption> selectOption{};
   double min{-std::numeric_limits<double>::max()};
   double max{std::numeric_limits<double>::max()};
-  double step_size{0.01};
+  double step_size{0.000001};
   std::string desc{};
 
   void decode(YAML::Node const &);

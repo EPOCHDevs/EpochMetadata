@@ -1,0 +1,534 @@
+{
+  "id": "cmo_vwma_momentum_trader",
+  "name": "CMO VWMA Momentum Trader",
+  "description": "This algorithm utilizes the Chande Momentum Oscillator (CMO) with a 14-period setting to identify bullish momentum in liquid equities. A long position is triggered when the CMO crosses above +50 and the price closes above the Volume Weighted Moving Average (VWMA), confirming strong upward momentum supported by volume.",
+  "algorithm_type": "Momentum",
+  "prompt": "Design an expert-level Momentum trading algorithm in Python using 15-minute bars for liquid equities. The strategy should use the Chande Momentum Oscillator (CMO) with a 14-period setting and the Volume Weighted Moving Average (VWMA) for volume confirmation. Enter a long position when the CMO crosses above +50 and price closes above the VWMA, indicating strong bullish momentum supported by volume. Exit the position when CMO drops below +20 or when price closes below the VWMA. Incorporate a trailing stop loss based on 1.5 times the 14-period Average True Range (ATR) to protect gains. Include logic to ignore signals during periods of low volume defined as below the 20-period median volume. Ensure the algorithm handles position sizing dynamically based on recent volatility measured by the 20-period standard deviation of returns.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwma20",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_cmo50",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_vwma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price_vwma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_atr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "maxClose14",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_stopLevel",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_stop",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_cmo50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_cmo50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_price_vwma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_price_vwma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_cmo50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_vwma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_price_vwma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_price_vwma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_stopLevel",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "maxClose14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "maxClose14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_stopLevel",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_stopLevel",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price_vwma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:11:15.933487",
+  "tags": [
+    "momentum",
+    "trading",
+    "algorithm",
+    "CMO",
+    "VWMA"
+  ]
+}

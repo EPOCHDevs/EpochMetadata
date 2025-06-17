@@ -1,0 +1,450 @@
+{
+  "id": "momentum_volume_spike_detector",
+  "name": "Momentum Volume Spike Detector",
+  "description": "This algorithm identifies sudden volume spikes alongside rapid price acceleration on the 5-minute timeframe. It utilizes a Volume Weighted Moving Average (VWMA) to detect abnormal volume surges and calculates the Rate of Change (ROC) of the Close price to confirm momentum shifts.",
+  "algorithm_type": "Momentum",
+  "prompt": "Create an expert-level EventDriven trading algorithm in Pine Script that detects sudden volume spikes combined with rapid short-term price acceleration on the 5-minute timeframe. Use Volume Weighted Moving Average (VWMA) over 20 bars to identify abnormal volume surges exceeding 150% of the VWMA average. Simultaneously, calculate the Rate of Change (ROC) of the Close price over 3 bars and require it to exceed +3% for bullish entries or below -3% for bearish entries. Entry signals trigger on the candle following the confirmation of both conditions: a volume spike and aligned ROC threshold indicating strong buying or selling pressure. Use a trailing stop based on 1.5 times the 14-period Average True Range (ATR) for exits. Incorporate a filter requiring the closing price to be above/below the 50-period Exponential Moving Average (EMA) to favor bullish or bearish trades, respectively. Add conditions to avoid entering trades during the first 15 minutes of the trading session to reduce noise from market open volatility. Implement clear exit rules for either the trailing stop hit or if ROC reverses direction by crossing zero, signaling momentum loss.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "source",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ma_vol_avg",
+        "type": "ma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "type",
+            "value": "sma",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vol_thr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_spike",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc3",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_pos003",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.03,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_neg003",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -0.03,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_roc_bull",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_roc_bear",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema50",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_bull_trend",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_bear_trend",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_bull",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_bear",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "source",
+          "handle": "v"
+        },
+        "target": {
+          "id": "ma_vol_avg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ma_vol_avg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol_thr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol_thr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "source",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol_spike",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vol_thr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_spike",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "source",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_roc_bull",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_pos003",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_roc_bull",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc_bear",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_neg003",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc_bear",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "source",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema50",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "source",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_bull_trend",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_bull_trend",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "source",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_bear_trend",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_bear_trend",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_roc_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_bull_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bull",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_roc_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_bear_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_bear",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:05:22.732420",
+  "tags": [
+    "momentum",
+    "volume",
+    "VWMA",
+    "trading",
+    "algorithm"
+  ]
+}

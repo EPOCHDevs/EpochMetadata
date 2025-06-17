@@ -1,0 +1,543 @@
+{
+  "id": "momentum_explosive_strategy_001",
+  "name": "Explosive Momentum Strategy",
+  "description": "This strategy utilizes a combination of the Rate of Change (ROC) over three periods and a volume confirmation filter to identify explosive short-term price movements on a 15-minute chart. Entry signals are triggered when ROC(3) exceeds +8% and volume is at least 120% of the 20-period volume average, while exits are defined by ROC(3) falling below +2% or a trailing stop.",
+  "algorithm_type": "Momentum",
+  "prompt": "Create an expert-level Momentum strategy in Python that identifies explosive short-term price moves on a 15-minute chart by combining the Rate of Change (ROC) over 3 periods with a volume confirmation filter. Define entry signals as when ROC(3) exceeds +8% and volume is at least 120% of the 20-period volume average. Exit positions either when ROC(3) falls below +2% or a trailing stop based on 1.5\u00d7 the Average True Range (ATR) over 14 periods is hit. Incorporate a filter to trade only when the Price is above its 50-period Exponential Moving Average (EMA) to ensure alignment with the broader trend. Use strictly OHLCV data without external inputs.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc3",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num8",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 8,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_roc8",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num1_2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_vol",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema50",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_trend",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_roc2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_atr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "maxClose50",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_stop",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_stop",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_roc8",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_roc8",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_roc8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1_2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gte_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema50",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ema50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "roc3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_roc2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "maxClose50",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "maxClose50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:22:59.639424",
+  "tags": [
+    "momentum",
+    "trading",
+    "strategy",
+    "ROC",
+    "volume"
+  ]
+}

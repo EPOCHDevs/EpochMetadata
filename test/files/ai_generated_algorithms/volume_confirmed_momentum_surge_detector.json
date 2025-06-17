@@ -1,0 +1,450 @@
+{
+  "id": "momentum_surge_detector_001",
+  "name": "Volume-Confirmed Momentum Surge Detector",
+  "description": "This algorithm employs a momentum-based trading strategy that identifies volume-confirmed surges in market trends. By analyzing the Rate of Change (ROC) of both closing prices and trading volume over a 14-bar period, it generates entry signals when specific thresholds are met, ensuring robust trading opportunities.",
+  "algorithm_type": "Momentum",
+  "prompt": "Develop a Momentum-based trading algorithm in Python (complexity: expert) that detects volume-confirmed surges in trend using the following logic:  \n- Use a 30-minute timeframe.  \n- Measure the Rate of Change (ROC) of closing price over a 14-bar period, and the Rate of Change of volume over the same period.  \n- Identify entry signals when both ROC(close, 14) > 3% and ROC(volume, 14) > 20%, and the closing price is above its 20-period Exponential Moving Average (EMA).  \n- Exit long positions when closing price falls below the 20-period EMA, or ROC(close, 14) drops below 0%.  \n- Do not open a new position if another position is already open.  \n- Restrict trading hours to 09:30-16:00 exchange time.  \n- Provide logic in Pythonic pseudocode using pandas-like constructs.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema20",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_close",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_vol",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thresh_price",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.03,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thresh_vol",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_thresh",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_thresh",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_ema",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sessions_ny",
+        "type": "sessions",
+        "options": [
+          {
+            "id": "session",
+            "value": "NewYork",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_filter",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_zero",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_ema",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_roc_zero",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "roc_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_price_thresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thresh_price",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_price_thresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_thresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thresh_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_thresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_ema",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close_ema",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_thresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_thresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_ema",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_filter",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sessions_ny",
+          "handle": "active"
+        },
+        "target": {
+          "id": "entry_filter",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_filter",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_ema",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_ema",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_roc_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_ema",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_roc_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:48:41.698257",
+  "tags": [
+    "momentum",
+    "trading",
+    "algorithm",
+    "volume",
+    "ROC"
+  ]
+}

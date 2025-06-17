@@ -1,0 +1,331 @@
+{
+  "id": "event_driven_001",
+  "name": "Volume-Price Expansion Breakout Strategy",
+  "description": "This algorithm identifies trading opportunities based on a Volume-Price Expansion Breakout. It triggers a long position when the daily closing price is the highest in the past 40 days and the daily volume exceeds 2 standard deviations above its 40-day moving average.",
+  "algorithm_type": "EventDriven",
+  "prompt": "Create an expert-level EventDriven trading algorithm, written in Python, that triggers trades based on the occurrence of a \u201cVolume-Price Expansion Breakout.\u201d Define this as a daily close that is the highest in the past 40 days AND a daily volume that exceeds 2 standard deviations above its 40-day moving average. Entry: Go long when both the closing price and volume expansion conditions are met on the same day. Exit: Sell when the close falls below the 20-day Exponential Moving Average or after 10 consecutive holding days, whichever comes first. Include all parameter definitions, indicator calculations (moving averages, standard deviations), entry/exit logic, and specific comments. Only use OHLCV data as input.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "stdVol",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulStd",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "addThresh",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "highGte",
+        "type": "highest_gte",
+        "options": [
+          {
+            "id": "periods",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bothEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema20",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCloseEma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "stdVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "const2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulStd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stdVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulStd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addThresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulStd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addThresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "addThresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "highGte",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bothEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "highGte",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bothEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ltCloseEma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCloseEma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bothEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCloseEma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:20:25.820549",
+  "tags": [
+    "EventDriven",
+    "Trading",
+    "Breakout",
+    "VolumeAnalysis",
+    "Python"
+  ]
+}

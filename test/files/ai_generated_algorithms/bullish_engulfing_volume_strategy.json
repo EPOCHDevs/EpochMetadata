@@ -1,0 +1,292 @@
+{
+  "id": "candle_stick_pattern_001",
+  "name": "Bullish Engulfing Volume Strategy",
+  "description": "This trading algorithm identifies the Bullish Engulfing candlestick pattern on a 30-minute timeframe, confirming it with above-average trading volume. The strategy aims to capitalize on bullish reversals by entering trades after the pattern is validated by significant volume increases.",
+  "algorithm_type": "CandleStickPattern",
+  "prompt": "Create a unique CandlestickPattern trading algorithm at the intermediate level, in natural-language format, using a 30-minute timeframe. The strategy identifies trades based on the detection of the Bullish Engulfing candle pattern confirmed by above-average trading volume. Entry criteria: After a confirmed Bullish Engulfing candlestick forms, check if the current volume is greater than the 20-period Simple Moving Average of volume. If both conditions are met, enter a long trade at the close of the engulfing candle. Stop-loss is set just below the low of the engulfing candle, and take-profit is set at 2 times the risk. No trade is taken if a Bullish Engulfing pattern forms within the first or last 30 minutes of the regular trading session. Exit open positions if a Bearish Engulfing pattern appears, or if take-profit or stop-loss is hit.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bull",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bear",
+        "type": "engulfing_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_sma",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_gt",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and1",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sessions",
+        "type": "sessions",
+        "options": [
+          {
+            "id": "session",
+            "value": "London",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and2",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_sma",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_gt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_gt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_gt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sessions",
+          "handle": "active"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:04:55.977822",
+  "tags": [
+    "CandleStickPattern",
+    "BullishEngulfing",
+    "VolumeConfirmation",
+    "30Minute",
+    "TradingStrategy"
+  ]
+}

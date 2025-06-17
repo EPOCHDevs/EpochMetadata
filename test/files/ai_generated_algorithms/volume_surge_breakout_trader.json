@@ -1,0 +1,378 @@
+{
+  "id": "volume-surge-breakout-trader",
+  "name": "Volume Surge Breakout Trader",
+  "description": "This algorithm identifies volume surge breakouts in liquid stocks on a 15-minute timeframe. It utilizes the Volume Weighted Moving Average (VWMA) to establish standard volume levels and generates buy signals when the price closes above the upper Bollinger Band, indicating strong upward momentum.",
+  "algorithm_type": "EventDriven",
+  "prompt": "Design an expert-level, EventDriven trading algorithm in Python that identifies volume surge breakouts on a 15-minute timeframe for liquid stocks. Use the Volume Weighted Moving Average (VWMA) over 20 periods to detect standard volume levels, and calculate the Relative Volume Ratio by dividing current volume by the VWMA. Generate a buy signal when price closes above the upper Bollinger Band (20, 2 standard deviations) simultaneously with a Relative Volume Ratio greater than 2, confirming a strong breakout event. For exit signals, close the position when price reverts below the 10-period Exponential Moving Average or the Relative Volume Ratio drops below 1. Employ a trailing stop based on 1.5\u00d7 the 14-period Average True Range to protect profits. Include logic to avoid entry within the last 30 minutes of the trading session.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_two",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_one",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rvr",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbands20",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_rvr_2",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema10",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price_ema",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_rvr_1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_or",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "rvr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rvr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bbands20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bbands20",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rvr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_rvr_2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_two",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_rvr_2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_rvr_2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_price_ema",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_price_ema",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rvr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_rvr_1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_rvr_1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price_ema",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_rvr_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_or",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:42:21.037814",
+  "tags": [
+    "eventdriven",
+    "trading",
+    "algorithm",
+    "VWMA",
+    "BollingerBands"
+  ]
+}

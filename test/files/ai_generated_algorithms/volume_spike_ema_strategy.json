@@ -1,0 +1,279 @@
+{
+  "id": "eventdriven_volume_spike_strategy",
+  "name": "Volume Spike EMA Strategy",
+  "description": "This algorithm identifies significant volume spikes by comparing current trading volume to a 30-period moving average of volume on a 15-minute timeframe. A long entry is triggered when the current volume exceeds 2.5 times the moving average and the closing price is above the 20-period EMA, aiming to capitalize on momentum shifts.",
+  "algorithm_type": "EventDriven",
+  "prompt": "Develop an intermediate-level EventDriven trading algorithm in Python that detects significant volume spikes compared to a 30-period moving average of volume on the 15-minute timeframe. The strategy should generate a long entry when current volume exceeds 2.5 times the 30-period moving average of volume, and the closing price is above the 20-period Exponential Moving Average (EMA). Exit the position when the closing price crosses below the 20-period EMA or a loss of 1.5% is reached. Ensure that the algorithm ignores signals during the first 30 minutes of the trading session each day.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "twoFive",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volThreshold",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVolume",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema20",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "priceAboveEma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longCondition",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "priceBelowEma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volThreshold",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "twoFive",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volThreshold",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "volThreshold",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolume",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVolume",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "priceAboveEma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "priceAboveEma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVolume",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longCondition",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "priceAboveEma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longCondition",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "longCondition",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "priceBelowEma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "priceBelowEma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "priceBelowEma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:49:25.337450",
+  "tags": [
+    "eventdriven",
+    "trading",
+    "volume",
+    "ema",
+    "algorithm"
+  ]
+}

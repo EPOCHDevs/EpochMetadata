@@ -1,0 +1,475 @@
+{
+  "id": "trend-following-001",
+  "name": "Dual Moving Average Trend Follower",
+  "description": "This algorithm utilizes a dual moving average strategy to identify and capitalize on upward trends in liquid equities. It employs a 34-period Hull Moving Average and a 100-period Triple Exponential Moving Average applied to the Typical Price, triggering long positions when the HMA crosses above the TEMA.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Design an expert-level TrendFollowing trading algorithm in Python that operates on 15-minute OHLCV data for liquid equities. Use a dual moving average system combining a 34-period Hull Moving Average (HMA) and a 100-period Triple Exponential Moving Average (TEMA) applied to the Typical Price ((High + Low + Close)/3). Entry triggers a long position when the 34-HMA crosses above the 100-TEMA, confirmed by the Positive Volume Index trending upward and the Average Directional Movement Index (ADX) above 25 to ensure strong trend momentum. Exit the position when the 34-HMA crosses back below the 100-TEMA or when the Williams %R indicator crosses below -80, signaling oversold reversion. Implement dynamic stop-loss using the Normalized Average True Range (N-ATR) set at 1.5 times N-ATR below the entry price. Include volume filters by requiring daily volume above a 20-period moving average of volume. Backtest over at least 6 months of data and output entry/exit signals with timestamps.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "tp",
+        "type": "typprice",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma34",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "tema100",
+        "type": "tema",
+        "options": [
+          {
+            "id": "period",
+            "value": 100,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pvi_node",
+        "type": "pvi",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pviUp",
+        "type": "previous_gt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx_node",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adxGt25",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volGtMA",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numNeg80",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -80,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "willr_node",
+        "type": "willr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "willrLT",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "aggEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "aggExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "tp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "hma34",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "tp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "tema100",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hma34",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "tema100",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "pvi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "pviUp",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "pviUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adx_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adxGt25",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adxGt25",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adxGt25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "volGtMA",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volGtMA",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "volGtMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "tema100",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma34",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "willr_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "willrLT",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numNeg80",
+          "handle": "result"
+        },
+        "target": {
+          "id": "willrLT",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "willrLT",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "aggEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "aggExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:22:01.711161",
+  "tags": [
+    "trend following",
+    "moving averages",
+    "HMA",
+    "TEMA",
+    "equities"
+  ]
+}

@@ -1,0 +1,547 @@
+{
+  "id": "mean_reversion_bollinger_rsi_strategy",
+  "name": "Mean Reversion Bollinger RSI Strategy",
+  "description": "This algorithm utilizes a mean-reverting strategy based on Bollinger Bands and the Relative Strength Index (RSI). It generates buy signals when the price closes below the lower Bollinger Band and the RSI indicates oversold conditions, aiming to capitalize on price corrections.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level MeanReverting trading algorithm in Python that operates on 15-minute candlestick data. Use a combination of Bollinger Bands (20-period, 2 standard deviations) and the Relative Strength Index (RSI, 14-period) to identify overbought and oversold conditions. Generate a buy signal when the price closes below the lower Bollinger Band and the RSI is below 30, indicating an oversold reversal. Generate a sell signal when the price closes above the upper Bollinger Band and the RSI is above 70, indicating an overbought reversal. Include dynamic exit rules: exit long positions when the price reverts and closes above the middle Bollinger Band, and exit short positions when the price closes below the middle Bollinger Band. Incorporate volume confirmation by requiring that the trade volume on the signal candle is at least 10% higher than the 20-period average volume. Implement stop-loss at 1.5% adverse price move from entry and take-profit at 3% favorable move. Provide clear entry, exit, and risk management logic in the code.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi14",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_sma",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "c1p1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_thr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_cond",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_lt_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "c30",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_lt30",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "buy_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_gt_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "c70",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 70,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_gt70",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sell_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_gt_mid",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_lt_mid",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_sma",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_thr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "c1p1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_thr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_thr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_lt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "close_lt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "c30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_lt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_lt30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_gt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "close_gt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt70",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "c70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt70",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "close_gt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_gt70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_gt_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "close_gt_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_lt_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "close_lt_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "close_gt_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_lt_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "buy_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "sell_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "close_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:43:18.918764",
+  "tags": [
+    "MeanReverting",
+    "BollingerBands",
+    "RSI",
+    "TradingAlgorithm",
+    "Python"
+  ]
+}

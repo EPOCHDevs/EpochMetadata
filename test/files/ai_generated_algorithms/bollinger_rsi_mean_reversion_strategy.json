@@ -1,0 +1,705 @@
+{
+  "id": "mean_reversion_bollinger_rsi_strategy",
+  "name": "Bollinger RSI Mean Reversion Strategy",
+  "description": "This algorithm employs a mean-reverting strategy using Bollinger Bands and the Relative Strength Index (RSI). It identifies overbought and oversold conditions to execute trades based on price movements relative to the Bollinger Bands and RSI signals.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level MeanReverting trading algorithm in Python that operates on 15-minute bars. Use Bollinger Bands with a 20-period simple moving average and 2 standard deviations to identify overbought and oversold conditions. Incorporate the Relative Strength Index (RSI) with a 14-period to confirm entry signals: enter a long position when the price closes below the lower Bollinger Band and RSI is below 30; enter a short position when the price closes above the upper Bollinger Band and RSI is above 70. Exit positions when the price reverts to the 20-period SMA or when RSI returns to neutral levels between 45 and 55. Include stop-loss and take-profit levels set at 1.5 times the Average True Range (ATR) calculated over 14 periods. Ensure the algorithm filters trades to only occur during high volume periods defined as volume above its 20-period moving average.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "std20",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sdx2",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "upper",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lower",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num30",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num70",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 70,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_lt_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_lt_30",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_gt_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_gt_70",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "price_cross_sma",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num45",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 45,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num55",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 55,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_gte_45",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_lte_55",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_neutral",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_cond",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "std20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "std20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sdx2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sdx2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sdx2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sdx2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_lt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_lt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt_30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt_30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_gt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_gt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt_70",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt_70",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "close_lt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_lt_30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_gt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_gt_70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "price_cross_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "price_cross_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gte_45",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num45",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gte_45",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lte_55",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lte_55",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_gte_45",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_neutral",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_lte_55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_neutral",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "price_cross_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_neutral",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "allow"
+        }
+      },
+      {
+        "source": {
+          "id": "long_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi",
+          "handle": "*"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:45:13.926113",
+  "tags": [
+    "mean reversion",
+    "Bollinger Bands",
+    "RSI",
+    "trading algorithm",
+    "15-minute bars"
+  ]
+}

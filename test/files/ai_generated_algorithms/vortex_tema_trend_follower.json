@@ -1,0 +1,463 @@
+{
+  "id": "vortex_tema_trend_follower",
+  "name": "Vortex_TEMA_Trend_Follower",
+  "description": "This algorithm utilizes the Vortex Indicator to identify trend direction and the Triple Exponential Moving Average (TEMA) to confirm entry points. It aims to go long when the Vortex Indicator's positive line crosses above the negative line, and the typical price closes above the TEMA, ensuring a robust trend-following strategy.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Design an expert-level TrendFollowing algorithm in Python that leverages the interplay between the Vortex Indicator (VI+ and VI-) and a Triple Exponential Moving Average (TEMA) applied to typical price (average of high, low, close). Use a daily timeframe with a 14-period Vortex Indicator and a 21-period TEMA. Entry Condition: go long when VI+ crosses above VI-, and the typical price closes above the 21-period TEMA; enter short when VI- crosses above VI+, and the typical price closes below the 21-period TEMA. Exit Condition: close long position when VI+ crosses below VI- or typical price closes below the TEMA; close short position when VI- crosses below VI+ or typical price closes above the TEMA. Incorporate volume confirmation by requiring volume on entry day to be above its 20-day simple moving average. Implement stop-loss as 1.5 times the Average True Range (ATR) calculated over 14 days and trailing stop using 10-day ATR. Provide precise pseudocode to outline the signal generation, risk management, and position sizing based purely on these technical indicators and price-volume data.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "typ",
+        "type": "typprice",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vortex14",
+        "type": "vortex",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "tema21",
+        "type": "tema",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longCross",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortCross",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtPriceTEMA",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltPriceTEMA",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortEntry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAny",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "typ",
+          "handle": "result"
+        },
+        "target": {
+          "id": "tema21",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vortex14",
+          "handle": "plus_indicator"
+        },
+        "target": {
+          "id": "longCross",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vortex14",
+          "handle": "minus_indicator"
+        },
+        "target": {
+          "id": "longCross",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vortex14",
+          "handle": "minus_indicator"
+        },
+        "target": {
+          "id": "shortCross",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vortex14",
+          "handle": "plus_indicator"
+        },
+        "target": {
+          "id": "shortCross",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gtPriceTEMA",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "tema21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtPriceTEMA",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ltPriceTEMA",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "tema21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltPriceTEMA",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "longCross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtPriceTEMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "shortCross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltPriceTEMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortEntry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "shortCross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltPriceTEMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longCross",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtPriceTEMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "shortExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortEntry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAny",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:56:41.768119",
+  "tags": [
+    "trend following",
+    "vortex indicator",
+    "TEMA",
+    "technical analysis",
+    "daily timeframe"
+  ]
+}

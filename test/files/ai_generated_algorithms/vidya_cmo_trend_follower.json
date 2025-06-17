@@ -1,0 +1,445 @@
+{
+  "id": "trend_following_vidya_cmo",
+  "name": "VIDYA_CMO_Trend_Follower",
+  "description": "This algorithm employs a Trend Following strategy using the Variable Index Dynamic Average (VIDYA) and the Chande Momentum Oscillator (CMO). It initiates long positions when the price closes above the VIDYA, and the CMO crosses above +50, indicating strong upward momentum.",
+  "algorithm_type": "TrendFollowing",
+  "prompt": "Create an expert-level TrendFollowing trading algorithm in Python using a 4-hour timeframe that combines the Variable Index Dynamic Average (VIDYA) with the Chande Momentum Oscillator (CMO) for confirmation. Entry condition: initiate a long position when the price closes above the VIDYA (period 20, smoothing factor 0.2) and the CMO (period 14) crosses above +50, signaling strong upward momentum. Exit condition: close the position when the price closes below the VIDYA or the CMO falls below +20. Incorporate volume confirmation by requiring On Balance Volume (OBV) to be trending upward over the previous 10 bars at entry. Implement stop-loss at 2% below the entry price and trailing stop based on a 10-bar Average True Range (ATR). Ensure the algorithm only trades during the primary market session (e.g., 9:30 am to 4:00 pm exchange time).",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vidya20",
+        "type": "vidya",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "alpha",
+            "value": 0.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "obv",
+        "type": "obv",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "obvroc",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "obvUp",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "priceAboveVidya",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmoCross50",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entryAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmoBelow20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "priceBelowVidya",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAny",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sessionNY",
+        "type": "sessions",
+        "options": [
+          {
+            "id": "session",
+            "value": "NewYork",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vidya20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "priceAboveVidya",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vidya20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "priceAboveVidya",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "priceAboveVidya",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "obv",
+          "handle": "result"
+        },
+        "target": {
+          "id": "obvroc",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "obvroc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "obvUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "obvUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "obvUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmoCross50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmoCross50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmoCross50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entryAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "priceBelowVidya",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vidya20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "priceBelowVidya",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "priceBelowVidya",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmoBelow20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmoBelow20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmoBelow20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAny",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      },
+      {
+        "source": {
+          "id": "sessionNY",
+          "handle": "active"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "allow"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:57:09.467835",
+  "tags": [
+    "trend following",
+    "VIDYA",
+    "CMO",
+    "momentum",
+    "trading algorithm"
+  ]
+}

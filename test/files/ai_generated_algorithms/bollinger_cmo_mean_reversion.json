@@ -1,0 +1,608 @@
+{
+  "id": "mean_reverting_001",
+  "name": "Bollinger CMO Mean Reversion Strategy",
+  "description": "This algorithm identifies potential long entry points in mean-reverting markets by analyzing the Bollinger Bands Width and the Chande Momentum Oscillator (CMO). It triggers a buy signal when the Bollinger Bands Width contracts below the 10th percentile of the last 100 bars, combined with a CMO crossing above -50, indicating low volatility and a potential upward movement.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Design an expert-level mean-reverting trading algorithm in Python that operates on 15-minute OHLCV data using a custom indicator combining Bollinger Bands Width and Chande Momentum Oscillator (CMO). Entry conditions: enter a long position when the Bollinger Bands Width contracts below the 10th percentile of its last 100 bars and the CMO crosses above -50, signaling low volatility and emerging upward momentum. Enter a short position when the Bollinger Bands Width contracts below the 10th percentile and the CMO crosses below +50, signaling low volatility and emerging downward momentum. Exit conditions: close the long position when price closes above the upper Bollinger Band (20-period, 2 std dev), or CMO exceeds +50; close the short position when price closes below the lower Bollinger Band, or CMO drops below -50. Include a stop-loss based on 1.5 times the average true range (ATR) over 14 bars from entry price. Implement position sizing to risk no more than 1% of account equity per trade. Provide clear signal generation, position management, and backtesting logic within the code.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbw",
+        "type": "bband_width",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "low_bw",
+        "type": "lowest_lte",
+        "options": [
+          {
+            "id": "periods",
+            "value": 100,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "minus50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "plus50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossover_m50",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossany_p50",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo_p50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_mom",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "price_lt_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "price_gt_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo_gt_50",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo_lt_m50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_middle"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "low_bw",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossover_m50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "minus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossover_m50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossany_p50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossany_p50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_p50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_p50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossany_p50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo_p50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "low_bw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "crossover_m50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "low_bw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "short_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "price_gt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "price_gt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "price_lt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "price_lt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_gt_50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_gt_50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_lt_m50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "minus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_lt_m50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "price_gt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo_gt_50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "price_lt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo_lt_m50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "short_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:05:43.735593",
+  "tags": [
+    "mean-reverting",
+    "trading",
+    "Bollinger Bands",
+    "Chande Momentum Oscillator",
+    "Python"
+  ]
+}

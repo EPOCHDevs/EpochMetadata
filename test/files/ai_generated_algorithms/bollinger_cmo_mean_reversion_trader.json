@@ -1,0 +1,789 @@
+{
+  "id": "mean_reverting_bollinger_cmo_trader",
+  "name": "Bollinger CMO Mean Reversion Trader",
+  "description": "This algorithm utilizes a combination of Bollinger Bands %B and the Chande Momentum Oscillator (CMO) to identify short-term price extremes. It enters long positions when %B is below 0.1 and CMO crosses above -50, and short positions when %B exceeds 0, making it a strategic mean-reverting approach.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Create an expert-level MeanReverting trading algorithm in Pine Script for the 15-minute timeframe that detects short-term price extremes using a composite indicator: combine a 14-period Bollinger Bands %B with a 14-period Chande Momentum Oscillator (CMO). Entry conditions: enter a long position when %B falls below 0.1 while CMO crosses above -50 from below; enter a short position when %B exceeds 0.9 while CMO crosses below +50 from above. Exit conditions: close long positions when price closes above the middle Bollinger Band; close short positions when price closes below the middle Bollinger Band. Use a 20-period Simple Moving Average of volume as a filter\u2014only take trades when current volume is above this average. Implement stops at 1% adverse price movement and profit targets at 2%.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbp",
+        "type": "bband_percent",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0_1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0_9",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_bb_01",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_bb_09",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_cmo",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_neg50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_plus50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo_prev_neg50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_cmo_curr_neg50",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo_cross_up",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_cmo_prev_plus50",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_cmo_curr_plus50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo_cross_down",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_gt_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossover_price_mid_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_close",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_prev_mid",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_curr_mid",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_down_mid",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_or",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "bbp",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "bbp",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "bbp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_bb_01",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_bb_01",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bbp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_bb_09",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_bb_09",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_cmo",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_prev_neg50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_prev_neg50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_curr_neg50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_curr_neg50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo_prev_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_cmo_curr_neg50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_cmo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_prev_plus50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_cmo_prev_plus50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_curr_plus50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_cmo_curr_plus50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_cmo_prev_plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_cross_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_cmo_curr_plus50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cmo_cross_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_gt_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_gt_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_bb_01",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo_cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_gt_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_bb_09",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo_cross_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_gt_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "crossover_price_mid_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "crossover_price_mid_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close_prev_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "gt_close_prev_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_curr_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "lt_close_curr_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_prev_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down_mid",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_curr_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down_mid",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossover_price_mid_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_down_mid",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "close_or",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:11:21.899761",
+  "tags": [
+    "mean_reversion",
+    "Bollinger Bands",
+    "CMO",
+    "trading strategy",
+    "Pine Script"
+  ]
+}

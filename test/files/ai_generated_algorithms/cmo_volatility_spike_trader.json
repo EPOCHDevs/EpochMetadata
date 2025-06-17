@@ -1,0 +1,453 @@
+{
+  "id": "unique_id_001",
+  "name": "CMO Volatility Spike Trader",
+  "description": "This algorithm leverages the Chande Momentum Oscillator (CMO) and Annualized Historical Volatility to identify short-term volatility spikes in the market. It initiates long positions when the CMO crosses above +50, signaling potential upward momentum amidst increased volatility.",
+  "algorithm_type": "Momentum",
+  "prompt": "Create an expert-level EventDriven trading algorithm in Python that identifies short-term volatility spikes using the combined analysis of the Chande Momentum Oscillator (CMO) set to 14 periods and the Annualized Historical Volatility calculated over 20 periods on 5-minute OHLCV data. Entry conditions: initiate a long position when the CMO crosses above +50 while the Annualized Historical Volatility is above its 30-period simple moving average and volume exceeds the 20-period average volume by at least 25%. Exit conditions: close the position when the CMO drops below +20 or volatility reverts below its 30-period moving average. Implement risk management with a trailing stop loss set at 1.2 times the current Average True Range (14) and a take profit target at 2 times the entry ATR. Ensure the algorithm avoids trading during less liquid periods defined as volume below the 10th percentile of the past 50 periods.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "data",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cmo14",
+        "type": "cmo",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol20",
+        "type": "volatility",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma30",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVolHigh",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossoverCmo50",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num125",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulVolThresh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVolume",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCmo20",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltVolLow",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entryAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAny",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "data",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "data",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolHigh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolHigh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossoverCmo50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossoverCmo50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "data",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulVolThresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num125",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulVolThresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "data",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVolume",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulVolThresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolume",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossoverCmo50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVolHigh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVolume",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entryAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCmo20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltVolLow",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltVolLow",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCmo20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltVolLow",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAny",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entryAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAny",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T10:45:14.022408",
+  "tags": [
+    "momentum",
+    "volatility",
+    "trading",
+    "algorithm",
+    "finance"
+  ]
+}

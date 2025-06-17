@@ -1,0 +1,550 @@
+{
+  "id": "algorithm-mean-reversion-bollinger-hurst",
+  "name": "Mean Reversion with Bollinger Bands and Hurst",
+  "description": "This algorithm identifies consolidating markets using Bollinger Bands and the Rolling Hurst Exponent. It enters trades when the price closes below the lower Bollinger Band and the Hurst Exponent indicates low fractal volatility, aiming to capitalize on mean reversion opportunities.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Create an expert-level mean reversion trading algorithm in Python that operates on 15-minute bars. Use the Bollinger Bands Width indicator combined with the Rolling Hurst Exponent calculated over a 50-period window to identify consolidating markets with low fractal volatility. Entry: when price closes below the lower Bollinger Band (20-period, 2 std dev) AND the Rolling Hurst Exponent is below 0.4, signal a long position; for shorts, trigger when price closes above the upper Bollinger Band and Hurst Exponent is below 0.4. Exit: close positions when price reverts to the 20-period SMA or the Hurst Exponent rises above 0.6, indicating trending behavior resuming. Incorporate volume confirmation using the Money Flow Index (MFI) over 14 periods\u2014only enter trades if MFI confirms oversold (for longs under 20) or overbought (for shorts over 80) conditions. Include trade execution with position sizing based on Average True Range over 14 periods to adjust stop-loss distance dynamically.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hurst",
+        "type": "rolling_hurst_exponent",
+        "options": [
+          {
+            "id": "window",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mfi",
+        "type": "mfi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0_4",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.4,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_hurst",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_price_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_20",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_mfi_low",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_price_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_80",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 80,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mfi_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_sma",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0_6",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_hurst_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hurst",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_price_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lt_price_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mfi_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mfi_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_price_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_mfi_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_price_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mfi_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_80",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mfi_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_price_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mfi_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_hurst_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-17T11:22:17.238631",
+  "tags": [
+    "mean reversion",
+    "bollinger bands",
+    "hurst exponent",
+    "technical pattern",
+    "trading strategy"
+  ]
+}
