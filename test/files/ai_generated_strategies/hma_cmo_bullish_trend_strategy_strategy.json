@@ -1,0 +1,1278 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "hma_cmo_bullish_trend_strategy",
+  "generated_at": "2025-06-16T18:19:47.064494",
+  "strategy": {
+    "name": "HMA CMO Bullish Trend Strategy",
+    "description": "This algorithm utilizes the Hull Moving Average (HMA) and the Chande Momentum Oscillator (CMO) to identify bullish trends in 15-minute bars. A long position is initiated when the price closes above the 20-period HMA and the CMO crosses above +50, indicating strong bullish momentum.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "ES-Futures",
+        "CL-Futures",
+        "^EURUSD-FX",
+        "^GBPUSD-FX"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "src",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "hma20",
+            "type": "hma",
+            "options": [
+              {
+                "id": "period",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "cmo14",
+            "type": "cmo",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const50",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 50,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const20",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "neg1",
+            "type": "negative_one",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "neg50",
+            "type": "mul",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "neg20",
+            "type": "mul",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "gt_close_hma",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_close_hma",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "gt_close_hma_inv",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "cross_cmo_50",
+            "type": "crossover",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_cmo_m50",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_cmo_20",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "gt_cmo_m20",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "and_long_entry",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "and_short_entry",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "any_long_exit",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "any_short_exit",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "or_close",
+            "type": "logical_or",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "allow_trading",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "executor",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "hma20",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "cmo14",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "gt_close_hma",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "hma20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_close_hma",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "lt_close_hma",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "hma20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_close_hma",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "gt_close_hma_inv",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "hma20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_close_hma_inv",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "cmo14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_cmo_50",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const50",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_cmo_50",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "cmo14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_cmo_m50",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "neg50",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_cmo_m50",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "cmo14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_cmo_20",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_cmo_20",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "cmo14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_cmo_m20",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "neg20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_cmo_m20",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_close_hma",
+              "handle": "result"
+            },
+            "target": {
+              "id": "and_long_entry",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "cross_cmo_50",
+              "handle": "result"
+            },
+            "target": {
+              "id": "and_long_entry",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_close_hma",
+              "handle": "result"
+            },
+            "target": {
+              "id": "and_short_entry",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_cmo_m50",
+              "handle": "result"
+            },
+            "target": {
+              "id": "and_short_entry",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_close_hma",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_long_exit",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_cmo_20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_long_exit",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_close_hma_inv",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_short_exit",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_cmo_m20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_short_exit",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "any_long_exit",
+              "handle": "result"
+            },
+            "target": {
+              "id": "or_close",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "any_short_exit",
+              "handle": "result"
+            },
+            "target": {
+              "id": "or_close",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "allow_trading",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "allow"
+            }
+          },
+          {
+            "source": {
+              "id": "and_long_entry",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "and_short_entry",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "or_close",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "close"
+            }
+          },
+          {
+            "source": {
+              "id": "neg1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "neg50",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const50",
+              "handle": "result"
+            },
+            "target": {
+              "id": "neg50",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "neg1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "neg20",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "neg20",
+              "handle": "*1"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 3,
+        "vol_target": 0.03
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "hma_cmo_bullish_trend_strategy",
+    "name": "HMA CMO Bullish Trend Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes the Hull Moving Average (HMA) and the Chande Momentum Oscillator (CMO) to identify bullish trends in 15-minute bars. A long position is initiated when the price closes above the 20-period HMA and the CMO crosses above +50, indicating strong bullish momentum.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "hma20",
+          "type": "hma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cmo14",
+          "type": "cmo",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const50",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const20",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "neg1",
+          "type": "negative_one",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "neg50",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "neg20",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_hma",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_hma",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_close_hma_inv",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "cross_cmo_50",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_m50",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_cmo_20",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_cmo_m20",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_long_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "and_short_entry",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_long_exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_short_exit",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "or_close",
+          "type": "logical_or",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allow_trading",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hma20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "cmo14",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_hma",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_close_hma",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_hma_inv",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "hma20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_close_hma_inv",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_cmo_50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_m50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_m50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_cmo_20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "cmo14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_m20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "neg20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_cmo_m20",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_cmo_50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_long_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_entry",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_m50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "and_short_entry",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_hma",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_long_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_cmo_20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_long_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_hma_inv",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_short_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_cmo_m20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_short_exit",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "any_long_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "any_short_exit",
+            "handle": "result"
+          },
+          "target": {
+            "id": "or_close",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "allow_trading",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "and_long_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "and_short_entry",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "or_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg50",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const50",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg50",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "neg1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg20",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "neg20",
+            "handle": "*1"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

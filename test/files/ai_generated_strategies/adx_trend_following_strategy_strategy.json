@@ -1,0 +1,896 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "adx_trend_following_strategy",
+  "generated_at": "2025-06-16T18:19:47.159181",
+  "strategy": {
+    "name": "ADX Trend Following Strategy",
+    "description": "This algorithm utilizes the Average Directional Index (ADX) to identify strong trends, specifically when the ADX is above 25. It generates buy signals when the price closes above the 50-period Exponential Moving Average (EMA) and sell signals under the same ADX condition, ensuring trades align with prevailing market trends.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "GC-Futures",
+        "ES-Futures",
+        "MSFT-Stocks",
+        "AAPL-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "n1",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 4
+            }
+          },
+          {
+            "id": "n2",
+            "type": "ema",
+            "options": [
+              {
+                "id": "period",
+                "value": 50,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 4
+            }
+          },
+          {
+            "id": "n3",
+            "type": "adx",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 4
+            }
+          },
+          {
+            "id": "n4",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 25,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n5",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n6",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n7",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n8",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n9",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n10",
+            "type": "chande_kroll_stop",
+            "options": [
+              {
+                "id": "p_period",
+                "value": 10,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "q_period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "multiplier",
+                "value": 1.5,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 4
+            }
+          },
+          {
+            "id": "n11",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n12",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n13",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n14",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n15",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n2",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n6",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n2",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n6",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n7",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n2",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n7",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n3",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n5",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n4",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n5",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n8",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n6",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n8",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n9",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n7",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n9",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n11",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n10",
+              "handle": "long_stop"
+            },
+            "target": {
+              "id": "n11",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n12",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n10",
+              "handle": "short_stop"
+            },
+            "target": {
+              "id": "n12",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n11",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n13",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n12",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n13",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "allow"
+            }
+          },
+          {
+            "source": {
+              "id": "n8",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "n9",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "n13",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "close"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      },
+      "timeframe": null
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "adx_trend_following_strategy",
+    "name": "ADX Trend Following Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes the Average Directional Index (ADX) to identify strong trends, specifically when the ADX is above 25. It generates buy signals when the price closes above the 50-period Exponential Moving Average (EMA) and sell signals under the same ADX condition, ensuring trades align with prevailing market trends.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "n2",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 50,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "n3",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "n4",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 25,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n5",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n8",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n9",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "chande_kroll_stop",
+          "options": [
+            {
+              "id": "p_period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "q_period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "multiplier",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 4
+          }
+        },
+        {
+          "id": "n11",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n13",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n15",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n6",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n5",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "long_stop"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "short_stop"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

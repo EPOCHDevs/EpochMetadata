@@ -11,8 +11,8 @@ CREATE_ENUM(GenericFunctionAuthor, User, Epoch);
 
 namespace epoch_metadata::strategy {
 struct GenericFunction {
-  std::string type;
-  epoch_metadata::MetaDataArgDefinitionMapping args{};
+  std::optional<std::string> type{};
+  std::optional<epoch_metadata::MetaDataArgDefinitionMapping> args{};
   std::optional<epoch_metadata::TimeFrame> timeframe{};
   std::optional<UIData> data{};
 

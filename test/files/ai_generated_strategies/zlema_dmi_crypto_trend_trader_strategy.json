@@ -1,0 +1,1018 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "zlema_dmi_crypto_trend_trader",
+  "generated_at": "2025-06-16T18:19:47.289586",
+  "strategy": {
+    "name": "ZLEMA_DMI_Crypto_Trend_Trader",
+    "description": "This algorithm employs a Trend Following strategy using the Zero-Lag Exponential Moving Average (ZLEMA) and the Directional Movement Index (DMI). It generates entry signals based on the ZLEMA slope turning positive and the +DI crossing above the -DI, with confirmation from the ADX above 25, focusing on daily cryptocurrency data.",
+    "data": {
+      "assets": [
+        "^BTCUSD-Crypto",
+        "^ETHUSD-Crypto",
+        "^LTCUSD-Crypto",
+        "^XRPUSD-Crypto",
+        "^BTCUSD-Crypto"
+      ],
+      "futures_continuation": null
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "md",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "day",
+              "interval": 1
+            }
+          },
+          {
+            "id": "zlema21",
+            "type": "zlema",
+            "options": [
+              {
+                "id": "period",
+                "value": 21,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "day",
+              "interval": 1
+            }
+          },
+          {
+            "id": "lag1",
+            "type": "lag",
+            "options": [
+              {
+                "id": "period",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "day",
+              "interval": 1
+            }
+          },
+          {
+            "id": "gt_slope_pos",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_slope_neg",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "di14",
+            "type": "di",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "day",
+              "interval": 1
+            }
+          },
+          {
+            "id": "adx14",
+            "type": "adx",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "day",
+              "interval": 1
+            }
+          },
+          {
+            "id": "gt_plus_minus",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "gt_minus_plus",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "num25",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 25,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "adx_gt25",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "all_long",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "all_short",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_plus_minus",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "any_close",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "always_allow",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "executor",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "md",
+              "handle": "c"
+            },
+            "target": {
+              "id": "zlema21",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "zlema21",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lag1",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "zlema21",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_slope_pos",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "lag1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_slope_pos",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "zlema21",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_slope_neg",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "lag1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_slope_neg",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "plus_di"
+            },
+            "target": {
+              "id": "gt_plus_minus",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "minus_di"
+            },
+            "target": {
+              "id": "gt_plus_minus",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "minus_di"
+            },
+            "target": {
+              "id": "gt_minus_plus",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "plus_di"
+            },
+            "target": {
+              "id": "gt_minus_plus",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "plus_di"
+            },
+            "target": {
+              "id": "lt_plus_minus",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "di14",
+              "handle": "minus_di"
+            },
+            "target": {
+              "id": "lt_plus_minus",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "adx14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "adx_gt25",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "num25",
+              "handle": "result"
+            },
+            "target": {
+              "id": "adx_gt25",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_slope_pos",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_long",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_plus_minus",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_long",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "adx_gt25",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_long",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_slope_neg",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_short",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_minus_plus",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_short",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "adx_gt25",
+              "handle": "result"
+            },
+            "target": {
+              "id": "all_short",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_slope_neg",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_close",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_plus_minus",
+              "handle": "result"
+            },
+            "target": {
+              "id": "any_close",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "always_allow",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "allow"
+            }
+          },
+          {
+            "source": {
+              "id": "all_long",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "all_short",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "any_close",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "close"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      },
+      "timeframe": null
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "zlema_dmi_crypto_trend_trader",
+    "name": "ZLEMA_DMI_Crypto_Trend_Trader",
+    "options": [],
+    "desc": "This algorithm employs a Trend Following strategy using the Zero-Lag Exponential Moving Average (ZLEMA) and the Directional Movement Index (DMI). It generates entry signals based on the ZLEMA slope turning positive and the +DI crossing above the -DI, with confirmation from the ADX above 25, focusing on daily cryptocurrency data.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "md",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "zlema21",
+          "type": "zlema",
+          "options": [
+            {
+              "id": "period",
+              "value": 21,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lag1",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_slope_pos",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_slope_neg",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "di14",
+          "type": "di",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "adx14",
+          "type": "adx",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "day",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_plus_minus",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "gt_minus_plus",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "num25",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 25,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "adx_gt25",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_long",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "all_short",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_plus_minus",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "any_close",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "always_allow",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "md",
+            "handle": "c"
+          },
+          "target": {
+            "id": "zlema21",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lag1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_slope_pos",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_slope_pos",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "zlema21",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_slope_neg",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lag1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_slope_neg",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "plus_di"
+          },
+          "target": {
+            "id": "gt_plus_minus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "minus_di"
+          },
+          "target": {
+            "id": "gt_plus_minus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "minus_di"
+          },
+          "target": {
+            "id": "gt_minus_plus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "plus_di"
+          },
+          "target": {
+            "id": "gt_minus_plus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "plus_di"
+          },
+          "target": {
+            "id": "lt_plus_minus",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "di14",
+            "handle": "minus_di"
+          },
+          "target": {
+            "id": "lt_plus_minus",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "adx14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_gt25",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "adx_gt25",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_slope_pos",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_plus_minus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_gt25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_long",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_slope_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_minus_plus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "adx_gt25",
+            "handle": "result"
+          },
+          "target": {
+            "id": "all_short",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_slope_neg",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_plus_minus",
+            "handle": "result"
+          },
+          "target": {
+            "id": "any_close",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "always_allow",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "all_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "all_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "any_close",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

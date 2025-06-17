@@ -1,0 +1,1020 @@
+{
+  "algorithm_type": "MeanReverting",
+  "source_algorithm": "mean_reverting_bollinger_band_strategy_20250616_165513_7183",
+  "generated_at": "2025-06-16T18:19:47.165018",
+  "strategy": {
+    "name": "mean_reverting_bollinger_band_strategy",
+    "description": "This mean-reverting trading algorithm utilizes Bollinger Bands with a 20-period simple moving average and a 2 standard deviation setting on a 1-hour timeframe. It generates buy signals when the price closes below the lower Bollinger Band and the Stochastic RSI crosses above 20, aiming to capitalize on price reversals.",
+    "data": {
+      "assets": [
+        "MSFT-Stocks",
+        "AAPL-Stocks",
+        "TSLA-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "CL-Futures",
+        "GC-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "n1",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n2",
+            "type": "bbands",
+            "options": [
+              {
+                "id": "period",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "stddev",
+                "value": 2,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n3",
+            "type": "stochrsi",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n4",
+            "type": "lag",
+            "options": [
+              {
+                "id": "period",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n5",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n6",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 80,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n7",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n8",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n9",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n10",
+            "type": "gte",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n11",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n12",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n13",
+            "type": "lte",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n14",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n15",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n16",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n17",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n18",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n2",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n3",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n3",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n4",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n4",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n9",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n9",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n4",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n12",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n6",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n12",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n3",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n10",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n10",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n3",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n13",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n6",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n13",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n7",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n2",
+              "handle": "bbands_lower"
+            },
+            "target": {
+              "id": "n7",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n8",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n2",
+              "handle": "bbands_upper"
+            },
+            "target": {
+              "id": "n8",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n9",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n11",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n10",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n11",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n12",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n14",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n13",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n14",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n7",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n11",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n15",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n8",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n16",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n16",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "n15",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n18",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "n16",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n18",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "n17",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n18",
+              "handle": "allow"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.01
+      },
+      "timeframe": null
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.02
+      },
+      "timeframe": null
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.1,
+        "risk": 0.01
+      },
+      "timeframe": null
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "mean_reverting_bollinger_band_strategy_20250616_165513_7183",
+    "name": "mean_reverting_bollinger_band_strategy",
+    "options": [],
+    "desc": "This mean-reverting trading algorithm utilizes Bollinger Bands with a 20-period simple moving average and a 2 standard deviation setting on a 1-hour timeframe. It generates buy signals when the price closes below the lower Bollinger Band and the Stochastic RSI crosses above 20, aiming to capitalize on price reversals.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "MeanReverting",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "bbands",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "stddev",
+              "value": 2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n3",
+          "type": "stochrsi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n4",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n6",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 80,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n7",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n8",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n9",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n10",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n11",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n12",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n13",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n14",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n15",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n16",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n17",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n18",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n3",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n9",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n4",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n12",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n10",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n6",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n13",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_lower"
+          },
+          "target": {
+            "id": "n7",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "bbands_upper"
+          },
+          "target": {
+            "id": "n8",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n9",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n10",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n11",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n12",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n13",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n14",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n7",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n11",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n15",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n8",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n16",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "n15",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n16",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "n17",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n18",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

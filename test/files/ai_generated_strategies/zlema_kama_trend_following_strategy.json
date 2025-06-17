@@ -1,0 +1,257 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "zlema_kama_trend_following",
+  "generated_at": "2025-06-16T18:19:47.145817",
+  "strategy": {
+    "name": "ZLEMA_KAMA_Trend_Following_Strategy",
+    "description": "This algorithm utilizes a combination of the Zero-Lag Exponential Moving Average (ZLEMA) and the Kaufman Adaptive Moving Average (KAMA) to identify strong upward trends. A long position is initiated when the ZLEMA(20) crosses above the KAMA(50) while the ADX indicates strong trend momentum with a value above 25.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "n1",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n2",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n3",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "n4",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "Exit If Indecisive",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "n1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "n2",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "n1",
+              "handle": "o"
+            },
+            "target": {
+              "id": "n2",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "n2",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n4",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "n3",
+              "handle": "result"
+            },
+            "target": {
+              "id": "n4",
+              "handle": "allow"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "chande_kroll_stop_loss",
+      "args": {
+        "p_period": 10,
+        "q_period": 20,
+        "multiplier": 3
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "zlema_kama_trend_following",
+    "name": "ZLEMA_KAMA_Trend_Following_Strategy",
+    "options": [],
+    "desc": "This algorithm utilizes a combination of the Zero-Lag Exponential Moving Average (ZLEMA) and the Kaufman Adaptive Moving Average (KAMA) to identify strong upward trends. A long position is initiated when the ZLEMA(20) crosses above the KAMA(50) while the ADX indicates strong trend momentum with a value above 25.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n2",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n3",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "n4",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "Exit If Indecisive",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "n1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "n1",
+            "handle": "o"
+          },
+          "target": {
+            "id": "n2",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "n2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "n3",
+            "handle": "result"
+          },
+          "target": {
+            "id": "n4",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

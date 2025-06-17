@@ -1,0 +1,916 @@
+{
+  "algorithm_type": "TrendFollowing",
+  "source_algorithm": "elder_keltner_trend_strategy",
+  "generated_at": "2025-06-16T18:19:49.303980",
+  "strategy": {
+    "name": "Elder Keltner Trend Strategy",
+    "description": "This trading algorithm employs a combination of the Elder's Force Index and Keltner Channels to identify trend-following opportunities. It generates buy signals when the Force Index crosses above zero, indicating bullish momentum, while operating on a 15-minute timeframe with specified parameters.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "ES-Futures",
+        "CL-Futures",
+        "AAPL-Stocks",
+        "MSFT-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "mds",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "efi",
+            "type": "elders_thermometer",
+            "options": [
+              {
+                "id": "period",
+                "value": 13,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "buy_factor",
+                "value": 0.5,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "sell_factor",
+                "value": 0.5,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "zero_const",
+            "type": "zero",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "crossover_up",
+            "type": "crossover",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "crossany",
+            "type": "crossany",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_efi_zero",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "sell_cross_and",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "keltner",
+            "type": "keltner_channels",
+            "options": [
+              {
+                "id": "roll_period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "band_multiplier",
+                "value": 1.5,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "gt_close_upper",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "lt_close_lower",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "buy_and",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "sell_and",
+            "type": "logical_and",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "session_london",
+            "type": "sessions",
+            "options": [
+              {
+                "id": "session",
+                "value": "London",
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "session_newyork",
+            "type": "sessions",
+            "options": [
+              {
+                "id": "session",
+                "value": "NewYork",
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "sessions_or",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "executor",
+            "type": "trade_signal_executor",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "mds",
+              "handle": "c"
+            },
+            "target": {
+              "id": "gt_close_upper",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "keltner",
+              "handle": "upper_band"
+            },
+            "target": {
+              "id": "gt_close_upper",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "mds",
+              "handle": "c"
+            },
+            "target": {
+              "id": "lt_close_lower",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "keltner",
+              "handle": "lower_band"
+            },
+            "target": {
+              "id": "lt_close_lower",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "efi",
+              "handle": "result"
+            },
+            "target": {
+              "id": "crossover_up",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "zero_const",
+              "handle": "result"
+            },
+            "target": {
+              "id": "crossover_up",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "crossover_up",
+              "handle": "result"
+            },
+            "target": {
+              "id": "buy_and",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_close_upper",
+              "handle": "result"
+            },
+            "target": {
+              "id": "buy_and",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "buy_and",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "efi",
+              "handle": "result"
+            },
+            "target": {
+              "id": "crossany",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "zero_const",
+              "handle": "result"
+            },
+            "target": {
+              "id": "crossany",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "efi",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_efi_zero",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "zero_const",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_efi_zero",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "crossany",
+              "handle": "result"
+            },
+            "target": {
+              "id": "sell_cross_and",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_efi_zero",
+              "handle": "result"
+            },
+            "target": {
+              "id": "sell_cross_and",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "sell_cross_and",
+              "handle": "result"
+            },
+            "target": {
+              "id": "sell_and",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_close_lower",
+              "handle": "result"
+            },
+            "target": {
+              "id": "sell_and",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "sell_and",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "session_london",
+              "handle": "active"
+            },
+            "target": {
+              "id": "sessions_or",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "session_newyork",
+              "handle": "active"
+            },
+            "target": {
+              "id": "sessions_or",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "sessions_or",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "allow"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 3
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 1,
+        "risk": 0.02
+      },
+      "timeframe": null
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "elder_keltner_trend_strategy",
+    "name": "Elder Keltner Trend Strategy",
+    "options": [],
+    "desc": "This trading algorithm employs a combination of the Elder's Force Index and Keltner Channels to identify trend-following opportunities. It generates buy signals when the Force Index crosses above zero, indicating bullish momentum, while operating on a 15-minute timeframe with specified parameters.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "TrendFollowing",
+    "data": {
+      "nodes": [
+        {
+          "id": "mds",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "efi",
+          "type": "elders_thermometer",
+          "options": [
+            {
+              "id": "period",
+              "value": 13,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "buy_factor",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "sell_factor",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "zero_const",
+          "type": "zero",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossover_up",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "crossany",
+          "type": "crossany",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_efi_zero",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sell_cross_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "keltner",
+          "type": "keltner_channels",
+          "options": [
+            {
+              "id": "roll_period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "band_multiplier",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_close_upper",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "lt_close_lower",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "buy_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "sell_and",
+          "type": "logical_and",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "session_london",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "London",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "session_newyork",
+          "type": "sessions",
+          "options": [
+            {
+              "id": "session",
+              "value": "NewYork",
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "sessions_or",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "upper_band"
+          },
+          "target": {
+            "id": "gt_close_upper",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mds",
+            "handle": "c"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "keltner",
+            "handle": "lower_band"
+          },
+          "target": {
+            "id": "lt_close_lower",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_up",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossover_up",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossover_up",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_close_upper",
+            "handle": "result"
+          },
+          "target": {
+            "id": "buy_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "buy_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "crossany",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "efi",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_efi_zero",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "zero_const",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_efi_zero",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "crossany",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_cross_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_efi_zero",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_cross_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sell_cross_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_and",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_close_lower",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sell_and",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "sell_and",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "session_london",
+            "handle": "active"
+          },
+          "target": {
+            "id": "sessions_or",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "session_newyork",
+            "handle": "active"
+          },
+          "target": {
+            "id": "sessions_or",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "sessions_or",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

@@ -13,8 +13,6 @@
 
 namespace epoch_metadata::strategy {
 struct AIGeneratedStrategyMetaData {
-  std::string name;
-  std::string description;
   epoch_core::TradeSignalType algorithm_type;
   std::string source_algorithm;
   std::string generated_at;

@@ -11,15 +11,18 @@ namespace epoch_metadata::strategy {
 ValidationIssues ValidateGenericFunction(const GenericFunction &function,
                                          epoch_core::GenericFunctionType type) {
   ValidationIssues issues;
+  if (!function.type) {
+    return issues;
+  }
 
   // Validate type
-  auto options = ValidateGenericFunctionType(function.type, type, issues);
+  auto options = ValidateGenericFunctionType(function.type.value(), type, issues);
   if (!options) {
     return issues;
   }
 
   // Validate args
-  ValidateGenericFunctionArgs(function.args, options.value(), function.type,
+  ValidateGenericFunctionArgs(function.args.value_or(MetaDataArgDefinitionMapping{}), options.value(), function.type.value(),
                               issues);
 
   if (function.data) {

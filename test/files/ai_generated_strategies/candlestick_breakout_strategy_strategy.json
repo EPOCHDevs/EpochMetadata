@@ -1,0 +1,1063 @@
+{
+  "algorithm_type": "CandleStickPattern",
+  "source_algorithm": "candlestick_breakout_strategy",
+  "generated_at": "2025-06-16T18:19:47.170862",
+  "strategy": {
+    "name": "CandleStick Breakout Strategy",
+    "description": "This algorithm identifies potential breakout trades by analyzing candlestick patterns such as Bullish and Bearish Engulfing patterns. It combines these patterns with Pivot Points and Support/Resistance levels to confirm trend continuation or reversal on a 1-hour timeframe.",
+    "data": {
+      "assets": [
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "CL-Futures",
+        "ES-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "src",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 1
+            }
+          },
+          {
+            "id": "eng_bull",
+            "type": "engulfing_bull",
+            "options": [
+              {
+                "id": "period",
+                "value": 10,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_none",
+                "value": 0.05,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_short",
+                "value": 0.5,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_long",
+                "value": 1.4,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "wick_none",
+                "value": 0.05,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "wick_long",
+                "value": 0.6,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "near",
+                "value": 0.3,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 1
+            }
+          },
+          {
+            "id": "eng_bear",
+            "type": "engulfing_bear",
+            "options": [
+              {
+                "id": "period",
+                "value": 10,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_none",
+                "value": 0.05,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_short",
+                "value": 0.5,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "body_long",
+                "value": 1.4,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "wick_none",
+                "value": 0.05,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "wick_long",
+                "value": 0.6,
+                "name": "",
+                "isExposed": false
+              },
+              {
+                "id": "near",
+                "value": 0.3,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 1
+            }
+          },
+          {
+            "id": "pivot",
+            "type": "pivot_point_sr",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 1
+            }
+          },
+          {
+            "id": "ad_line",
+            "type": "ad",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "hour",
+              "interval": 1
+            }
+          },
+          {
+            "id": "ad_rising",
+            "type": "previous_gt",
+            "options": [
+              {
+                "id": "periods",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "ad_falling",
+            "type": "previous_lt",
+            "options": [
+              {
+                "id": "periods",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "price_above_pivot",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "price_below_pivot",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "long_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "short_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "const_true",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "hit_resist",
+            "type": "gte",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "hit_support",
+            "type": "lte",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "close_cond",
+            "type": "agg_any_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "executor",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "ad_line",
+              "handle": "result"
+            },
+            "target": {
+              "id": "ad_rising",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "ad_line",
+              "handle": "result"
+            },
+            "target": {
+              "id": "ad_falling",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "price_above_pivot",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pivot",
+              "handle": "pivot"
+            },
+            "target": {
+              "id": "price_above_pivot",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "price_below_pivot",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pivot",
+              "handle": "pivot"
+            },
+            "target": {
+              "id": "price_below_pivot",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "eng_bull",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "price_above_pivot",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "ad_rising",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "eng_bear",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "price_below_pivot",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "ad_falling",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "hit_resist",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pivot",
+              "handle": "resist_1"
+            },
+            "target": {
+              "id": "hit_resist",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "hit_support",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pivot",
+              "handle": "support_1"
+            },
+            "target": {
+              "id": "hit_support",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "hit_resist",
+              "handle": "result"
+            },
+            "target": {
+              "id": "close_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "hit_support",
+              "handle": "result"
+            },
+            "target": {
+              "id": "close_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "long_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "short_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "close_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "close"
+            }
+          },
+          {
+            "source": {
+              "id": "const_true",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "allow"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "chande_kroll_stop_loss",
+      "args": {
+        "p_period": 10,
+        "q_period": 20,
+        "multiplier": 3
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "candlestick_breakout_strategy",
+    "name": "CandleStick Breakout Strategy",
+    "options": [],
+    "desc": "This algorithm identifies potential breakout trades by analyzing candlestick patterns such as Bullish and Bearish Engulfing patterns. It combines these patterns with Pivot Points and Support/Resistance levels to confirm trend continuation or reversal on a 1-hour timeframe.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "CandleStickPattern",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "eng_bull",
+          "type": "engulfing_bull",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "eng_bear",
+          "type": "engulfing_bear",
+          "options": [
+            {
+              "id": "period",
+              "value": 10,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_none",
+              "value": 0.05,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_short",
+              "value": 0.5,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "body_long",
+              "value": 1.4,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "wick_none",
+              "value": 0.05,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "wick_long",
+              "value": 0.6,
+              "name": "",
+              "isExposed": false
+            },
+            {
+              "id": "near",
+              "value": 0.3,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pivot",
+          "type": "pivot_point_sr",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ad_line",
+          "type": "ad",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "hour",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ad_rising",
+          "type": "previous_gt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "ad_falling",
+          "type": "previous_lt",
+          "options": [
+            {
+              "id": "periods",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_above_pivot",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "price_below_pivot",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "const_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hit_resist",
+          "type": "gte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "hit_support",
+          "type": "lte",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_cond",
+          "type": "agg_any_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "ad_line",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ad_rising",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ad_line",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ad_falling",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_above_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "price_above_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "price_below_pivot",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "pivot"
+          },
+          "target": {
+            "id": "price_below_pivot",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bull",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_above_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ad_rising",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "eng_bear",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "price_below_pivot",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ad_falling",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hit_resist",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "resist_1"
+          },
+          "target": {
+            "id": "hit_resist",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "hit_support",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pivot",
+            "handle": "support_1"
+          },
+          "target": {
+            "id": "hit_support",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "hit_resist",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "hit_support",
+            "handle": "result"
+          },
+          "target": {
+            "id": "close_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "close"
+          }
+        },
+        {
+          "source": {
+            "id": "const_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

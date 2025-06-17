@@ -1,0 +1,1277 @@
+{
+  "algorithm_type": "PriceAction",
+  "source_algorithm": "sp500_atr_volatility_trader",
+  "generated_at": "2025-06-16T18:19:47.625423",
+  "strategy": {
+    "name": "S&P500_ATR_Volatility_Trader",
+    "description": "This strategy employs price action to identify entry points in the S&P 500 index on a 1-minute timeframe. It utilizes the Average True Range (ATR) to set volatility-based stop-loss and take-profit levels, entering long positions when price breaks above the previous 5-minute candle's high under specific volatility conditions.",
+    "data": {
+      "assets": [
+        "ES-Futures",
+        "SPY-Stocks",
+        "AAPL-Stocks",
+        "MSFT-Stocks",
+        "AMZN-Stocks"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "src",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "ph5",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "lph5",
+            "type": "lag",
+            "options": [
+              {
+                "id": "period",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "pht1",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "gt_break_high",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "pl5",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "lpl5",
+            "type": "lag",
+            "options": [
+              {
+                "id": "period",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "plt1",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "lt_break_low",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "pv5",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "lpv5",
+            "type": "lag",
+            "options": [
+              {
+                "id": "period",
+                "value": 1,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "pvt1",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "num1_2",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 1.2,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "mul_vol_thresh",
+            "type": "mul",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "gt_vol",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "atr20",
+            "type": "atr",
+            "options": [
+              {
+                "id": "period",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "sma_atr",
+            "type": "sma",
+            "options": [
+              {
+                "id": "period",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 1
+            }
+          },
+          {
+            "id": "gt_atr",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "long_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "short_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "allow_true",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "exec",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          },
+          {
+            "id": "close_false",
+            "type": "bool_false",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": null
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "src",
+              "handle": "h"
+            },
+            "target": {
+              "id": "ph5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "ph5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lph5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lph5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "pht1",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "c"
+            },
+            "target": {
+              "id": "gt_break_high",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pht1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_break_high",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "l"
+            },
+            "target": {
+              "id": "lt_break_low",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "pl5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lpl5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lpl5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "plt1",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "plt1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_break_low",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "l"
+            },
+            "target": {
+              "id": "pl5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "v"
+            },
+            "target": {
+              "id": "pv5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "pv5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lpv5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lpv5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "pvt1",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "pvt1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "mul_vol_thresh",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "num1_2",
+              "handle": "result"
+            },
+            "target": {
+              "id": "mul_vol_thresh",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "src",
+              "handle": "v"
+            },
+            "target": {
+              "id": "gt_vol",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "mul_vol_thresh",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_vol",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "atr20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "sma_atr",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "atr20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_atr",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "sma_atr",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_atr",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_break_high",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_atr",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_vol",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_break_low",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_atr",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_vol",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "allow_true",
+              "handle": "result"
+            },
+            "target": {
+              "id": "exec",
+              "handle": "allow"
+            }
+          },
+          {
+            "source": {
+              "id": "long_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "exec",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "short_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "exec",
+              "handle": "short"
+            }
+          },
+          {
+            "source": {
+              "id": "close_false",
+              "handle": "result"
+            },
+            "target": {
+              "id": "exec",
+              "handle": "close"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "fixed_percent_ratio_offset",
+      "args": {
+        "ratio": 0.5
+      },
+      "timeframe": null
+    },
+    "position_sizer": {
+      "type": "fixed_fraction",
+      "args": {
+        "fraction": 0.02,
+        "risk": 0.02
+      },
+      "timeframe": null
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "sp500_atr_volatility_trader",
+    "name": "S&P500_ATR_Volatility_Trader",
+    "options": [],
+    "desc": "This strategy employs price action to identify entry points in the S&P 500 index on a 1-minute timeframe. It utilizes the Average True Range (ATR) to set volatility-based stop-loss and take-profit levels, entering long positions when price breaks above the previous 5-minute candle's high under specific volatility conditions.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "PriceAction",
+    "data": {
+      "nodes": [
+        {
+          "id": "src",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "ph5",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lph5",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pht1",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_break_high",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pl5",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lpl5",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "plt1",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lt_break_low",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "pv5",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "lpv5",
+          "type": "lag",
+          "options": [
+            {
+              "id": "period",
+              "value": 1,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "pvt1",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "num1_2",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.2,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "mul_vol_thresh",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_vol",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "atr20",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "sma_atr",
+          "type": "sma",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 1
+          }
+        },
+        {
+          "id": "gt_atr",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "allow_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "exec",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        },
+        {
+          "id": "close_false",
+          "type": "bool_false",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": null
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "src",
+            "handle": "h"
+          },
+          "target": {
+            "id": "ph5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ph5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lph5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lph5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pht1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "c"
+          },
+          "target": {
+            "id": "gt_break_high",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pht1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_break_high",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "l"
+          },
+          "target": {
+            "id": "lt_break_low",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "pl5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lpl5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lpl5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "plt1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "plt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_break_low",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "l"
+          },
+          "target": {
+            "id": "pl5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "pv5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pv5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lpv5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lpv5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "pvt1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "pvt1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_vol_thresh",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "num1_2",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul_vol_thresh",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "src",
+            "handle": "v"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul_vol_thresh",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_vol",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "atr20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "sma_atr",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "atr20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "sma_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_atr",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_break_high",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_break_low",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_atr",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_vol",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allow_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "short"
+          }
+        },
+        {
+          "source": {
+            "id": "close_false",
+            "handle": "result"
+          },
+          "target": {
+            "id": "exec",
+            "handle": "close"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}

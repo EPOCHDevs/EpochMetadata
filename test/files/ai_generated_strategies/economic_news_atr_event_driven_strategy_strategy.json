@@ -1,0 +1,1501 @@
+{
+  "algorithm_type": "EventDriven",
+  "source_algorithm": "economic_news_atr_event_driven_strategy",
+  "generated_at": "2025-06-16T18:19:47.170942",
+  "strategy": {
+    "name": "EconomicNews_ATR_EventDriven_Strategy",
+    "description": "This algorithm monitors high-impact economic news releases, such as GDP and Nonfarm Payrolls, on a 15-minute timeframe. It utilizes the Average True Range (ATR) to set volatility-adjusted entry thresholds, triggering trades when the price gaps beyond 1.5\u00d7 ATR after news events.",
+    "data": {
+      "assets": [
+        "^EURUSD-FX",
+        "^GBPUSD-FX",
+        "^USDJPY-FX",
+        "^USDCAD-FX",
+        "ES-Futures",
+        "NQ-Futures",
+        "YM-Futures"
+      ],
+      "futures_continuation": {
+        "type": "LiquidityBased",
+        "args": {
+          "adjustment": "BackwardPanamaCanal",
+          "ratio": 0.1
+        },
+        "timeframe": null
+      }
+    },
+    "trade_signal": {
+      "": "",
+      "args": {},
+      "data": {
+        "nodes": [
+          {
+            "id": "md1",
+            "type": "market_data_source",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "atr1",
+            "type": "atr",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "gap1",
+            "type": "gap_returns",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "ema5",
+            "type": "ema",
+            "options": [
+              {
+                "id": "period",
+                "value": 5,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "ema20",
+            "type": "ema",
+            "options": [
+              {
+                "id": "period",
+                "value": 20,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "mfi14",
+            "type": "mfi",
+            "options": [
+              {
+                "id": "period",
+                "value": 14,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const1_5",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 1.5,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const0",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 0,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const60",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 60,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "const40",
+            "type": "number",
+            "options": [
+              {
+                "id": "value",
+                "value": 40,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "mul1",
+            "type": "mul",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "abs1",
+            "type": "abs",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "gt_abs",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "gt_gap0",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "lt_gap0",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "agg_long_gap",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "agg_short_gap",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "cross_long",
+            "type": "crossover",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "cross_short",
+            "type": "crossover",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "gt_mfi60",
+            "type": "gt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "lt_mfi40",
+            "type": "lt",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "long_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "short_cond",
+            "type": "agg_all_of",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "allow_true",
+            "type": "bool_true",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "executor",
+            "type": "trade_signal_executor",
+            "options": [
+              {
+                "id": "closeIfIndecisive",
+                "value": false,
+                "name": "",
+                "isExposed": false
+              }
+            ],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          },
+          {
+            "id": "res_c",
+            "type": "passthrough",
+            "options": [],
+            "metadata": {
+              "parentId": null
+            },
+            "timeframe": {
+              "type": "minute",
+              "interval": 15
+            }
+          }
+        ],
+        "edges": [
+          {
+            "source": {
+              "id": "atr1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "mul1",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const1_5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "mul1",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gap1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "abs1",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "abs1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_abs",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "mul1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_abs",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gap1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_gap0",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const0",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_gap0",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gap1",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_gap0",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const0",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_gap0",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_abs",
+              "handle": "result"
+            },
+            "target": {
+              "id": "agg_long_gap",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_gap0",
+              "handle": "result"
+            },
+            "target": {
+              "id": "agg_long_gap",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_abs",
+              "handle": "result"
+            },
+            "target": {
+              "id": "agg_short_gap",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_gap0",
+              "handle": "result"
+            },
+            "target": {
+              "id": "agg_short_gap",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "md1",
+              "handle": "c"
+            },
+            "target": {
+              "id": "res_c",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "res_c",
+              "handle": "result"
+            },
+            "target": {
+              "id": "ema5",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "res_c",
+              "handle": "result"
+            },
+            "target": {
+              "id": "ema20",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "ema5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_long",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "ema20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_long",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "ema20",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_short",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "ema5",
+              "handle": "result"
+            },
+            "target": {
+              "id": "cross_short",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "mfi14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_mfi60",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const60",
+              "handle": "result"
+            },
+            "target": {
+              "id": "gt_mfi60",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "mfi14",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_mfi40",
+              "handle": "*0"
+            }
+          },
+          {
+            "source": {
+              "id": "const40",
+              "handle": "result"
+            },
+            "target": {
+              "id": "lt_mfi40",
+              "handle": "*1"
+            }
+          },
+          {
+            "source": {
+              "id": "agg_long_gap",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "cross_long",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "gt_mfi60",
+              "handle": "result"
+            },
+            "target": {
+              "id": "long_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "agg_short_gap",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "cross_short",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "lt_mfi40",
+              "handle": "result"
+            },
+            "target": {
+              "id": "short_cond",
+              "handle": "*"
+            }
+          },
+          {
+            "source": {
+              "id": "allow_true",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "allow"
+            }
+          },
+          {
+            "source": {
+              "id": "long_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "long"
+            }
+          },
+          {
+            "source": {
+              "id": "short_cond",
+              "handle": "result"
+            },
+            "target": {
+              "id": "executor",
+              "handle": "short"
+            }
+          }
+        ],
+        "groups": [],
+        "annotations": []
+      }
+    },
+    "stop_loss": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 1.5
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "take_profit": {
+      "type": "atr_volatility",
+      "args": {
+        "period": 14,
+        "multiple": 2
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    },
+    "position_sizer": {
+      "type": "volatility_targeted",
+      "args": {
+        "period": 20,
+        "max_leverage": 1,
+        "vol_target": 0.03
+      },
+      "timeframe": {
+        "type": "day",
+        "interval": 1
+      }
+    }
+  },
+  "trade_signal_metadata": {
+    "id": "economic_news_atr_event_driven_strategy",
+    "name": "EconomicNews_ATR_EventDriven_Strategy",
+    "options": [],
+    "desc": "This algorithm monitors high-impact economic news releases, such as GDP and Nonfarm Payrolls, on a 15-minute timeframe. It utilizes the Average True Range (ATR) to set volatility-adjusted entry thresholds, triggering trades when the price gaps beyond 1.5\u00d7 ATR after news events.",
+    "isGroup": false,
+    "requiresTimeframe": false,
+    "type": "EventDriven",
+    "data": {
+      "nodes": [
+        {
+          "id": "md1",
+          "type": "market_data_source",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "atr1",
+          "type": "atr",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gap1",
+          "type": "gap_returns",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ema5",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "ema20",
+          "type": "ema",
+          "options": [
+            {
+              "id": "period",
+              "value": 20,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "mfi14",
+          "type": "mfi",
+          "options": [
+            {
+              "id": "period",
+              "value": 14,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const1_5",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 1.5,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const0",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 0,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const60",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 60,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "const40",
+          "type": "number",
+          "options": [
+            {
+              "id": "value",
+              "value": 40,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "mul1",
+          "type": "mul",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "abs1",
+          "type": "abs",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_abs",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_gap0",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_gap0",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "agg_long_gap",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "agg_short_gap",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_long",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "cross_short",
+          "type": "crossover",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "gt_mfi60",
+          "type": "gt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "lt_mfi40",
+          "type": "lt",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "long_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "short_cond",
+          "type": "agg_all_of",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "allow_true",
+          "type": "bool_true",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "executor",
+          "type": "trade_signal_executor",
+          "options": [
+            {
+              "id": "closeIfIndecisive",
+              "value": false,
+              "name": "",
+              "isExposed": false
+            }
+          ],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        },
+        {
+          "id": "res_c",
+          "type": "passthrough",
+          "options": [],
+          "metadata": {
+            "parentId": null
+          },
+          "timeframe": {
+            "type": "minute",
+            "interval": 15
+          }
+        }
+      ],
+      "edges": [
+        {
+          "source": {
+            "id": "atr1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const1_5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "mul1",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gap1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "abs1",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "abs1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_abs",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "mul1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_abs",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gap1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_gap0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gap1",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_gap0",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_gap0",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_abs",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_gap0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_long_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_abs",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_gap0",
+            "handle": "result"
+          },
+          "target": {
+            "id": "agg_short_gap",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "md1",
+            "handle": "c"
+          },
+          "target": {
+            "id": "res_c",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "res_c",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ema5",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "res_c",
+            "handle": "result"
+          },
+          "target": {
+            "id": "ema20",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "ema5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_long",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "ema20",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "ema5",
+            "handle": "result"
+          },
+          "target": {
+            "id": "cross_short",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi60",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "gt_mfi60",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "mfi14",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mfi40",
+            "handle": "*0"
+          }
+        },
+        {
+          "source": {
+            "id": "const40",
+            "handle": "result"
+          },
+          "target": {
+            "id": "lt_mfi40",
+            "handle": "*1"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_long_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_long",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "gt_mfi60",
+            "handle": "result"
+          },
+          "target": {
+            "id": "long_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "agg_short_gap",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "cross_short",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "lt_mfi40",
+            "handle": "result"
+          },
+          "target": {
+            "id": "short_cond",
+            "handle": "*"
+          }
+        },
+        {
+          "source": {
+            "id": "allow_true",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "allow"
+          }
+        },
+        {
+          "source": {
+            "id": "long_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "long"
+          }
+        },
+        {
+          "source": {
+            "id": "short_cond",
+            "handle": "result"
+          },
+          "target": {
+            "id": "executor",
+            "handle": "short"
+          }
+        }
+      ],
+      "groups": [],
+      "annotations": []
+    }
+  }
+}
