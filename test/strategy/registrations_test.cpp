@@ -16,5 +16,5 @@ TEST_CASE("Strategy Component MetaData Total Count is Correct") {
     REQUIRE(stop_loss::Registry::GetInstance().GetMetaData().size() == 5);
     REQUIRE(position_sizer::Registry::GetInstance().GetMetaData().size() == 9);
     REQUIRE(trade_signal::Registry::GetInstance().GetMetaData().size() == 204);
-    REQUIRE(strategy_templates::Registry::GetInstance().GetMetaData().size() == 792);
+    REQUIRE(strategy_templates::Registry::GetInstance().GetMetaData().size() == 196);
 }
