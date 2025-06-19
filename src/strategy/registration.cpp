@@ -107,32 +107,41 @@ void RegisterStrategyMetadata(
                                                   .tags = config.tags};
 
         trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
+    }
 
-        std::vector<StrategyTemplate> templates;
-        auto aiGeneratedStrategiesT =
-            LoadMetaDataT<AIGeneratedStrategyMetaData>(aiGeneratedStrategies);
-        for (auto const &[i, config] :
-             std::views::enumerate(aiGeneratedStrategiesT)) {
+    std::vector<StrategyTemplate> templates;
+    auto aiGeneratedStrategiesT =
+        LoadMetaDataT<AIGeneratedStrategyMetaData>(aiGeneratedStrategies);
+    for (auto const &[i, config] :
+         std::views::enumerate(aiGeneratedStrategiesT)) {
 
-            if (!config.trade_signal) {
-                SPDLOG_ERROR("Failed to convert {} trade signal", config.id);
-                continue;
-            }
-
-            StrategyConfig strategyConfig{.name = config.name,
-                                          .description = config.description,
-                                          .data = config.assets,
-                                          .trade_signal = config.trade_signal.value(),
-                                          .position_sizer = config.position_sizer,
-                                          .take_profit = config.take_profit,
-                                          .stop_loss = config.stop_loss};
-
-            StrategyTemplate strategy{.id = config.id,
-                                      .strategy = strategyConfig,
-                                      .category = config.category};
-            strategy.strategy.trade_signal.data = config.trade_signal->data;
-            strategy_templates::Registry::GetInstance().Register(strategy);
+        if (!config.trade_signal) {
+            SPDLOG_ERROR("Failed to convert {} trade signal", config.id);
+            continue;
         }
+
+        auto tradeSignalId = config.trade_signal->type.value();
+        auto optionalSavedStrategy = trade_signal::Registry::GetInstance().GetMetaData(tradeSignalId);
+        if (!optionalSavedStrategy) {
+            SPDLOG_ERROR("Failed to find trade signal: {} in registry", tradeSignalId);
+            continue;
+        }
+        const auto savedStrategy = optionalSavedStrategy.value().get();
+
+        StrategyConfig strategyConfig{.name = config.name,
+                                      .description = config.description,
+                                      .data = config.assets,
+                                      .trade_signal = config.trade_signal.value(),
+                                      .position_sizer = config.position_sizer,
+                                      .take_profit = config.take_profit,
+                                      .stop_loss = config.stop_loss};
+
+        StrategyTemplate strategy{.id = config.id,
+                                  .strategy = strategyConfig,
+                                  .category = config.category};
+
+        strategy.strategy.trade_signal.data = savedStrategy.data;
+        strategy_templates::Registry::GetInstance().Register(strategy);
     }
 }
 
