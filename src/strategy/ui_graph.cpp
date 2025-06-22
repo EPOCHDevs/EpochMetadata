@@ -22,7 +22,6 @@ extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
 
 using namespace epoch_metadata::transforms;
 
-constexpr auto MARKET_DATA_SOURCE = "market_data_source";
 constexpr auto TRADE_SIGNAL_EXECUTOR = "trade_signal_executor";
 constexpr double POSTSCRIPT_POINTS_PER_INCH = 72.0;
 
@@ -30,79 +29,6 @@ namespace epoch_metadata::strategy {
 
 std::string JoinId(std::string const &id1, std::string const &id2) {
   return std::format("{}#{}", id1, id2);
-}
-
-// High-performance topological sort using Kahn's algorithm - O(V+E)
-std::vector<AlgorithmNode>
-CreateSortedEdges(const std::unordered_map<std::string, AlgorithmNode> &nodes) {
-
-  std::unordered_map<std::string, std::vector<std::string>> adjacencyList;
-  std::unordered_map<std::string, int> inDegreeMap;
-  std::unordered_set<std::string> nodeIds;
-
-  // Initialize in-degree map and node IDs
-  for (const auto &[id, algoNode] : nodes) {
-    nodeIds.insert(id);
-    inDegreeMap[id] = 0;
-    adjacencyList[id] = {}; // Initialize empty adjacency list
-  }
-
-  // Build adjacency list and calculate in-degrees
-  for (const auto &[id, algoNode] : nodes) {
-    for (auto const &inputList : algoNode.inputs | std::ranges::views::values) {
-      for (auto const &input : inputList) {
-        auto handlePos = input.find('#');
-        if (handlePos == std::string::npos) {
-          continue;
-        }
-        const std::string srcNodeId = input.substr(0, handlePos);
-        if (nodeIds.contains(srcNodeId)) {
-          adjacencyList[srcNodeId].push_back(id);
-          inDegreeMap[id]++;
-        }
-      }
-    }
-  }
-
-  // Kahn's algorithm for topological sorting
-  std::vector<std::string> sortedNodeIds;
-  std::queue<std::string> queue;
-
-  // Find nodes with zero in-degree
-  for (const auto &[nodeId, inDegree] : inDegreeMap) {
-    if (inDegree == 0) {
-      queue.push(nodeId);
-    }
-  }
-
-  // Process nodes in topological order - O(V+E) using adjacency list
-  while (!queue.empty()) {
-    std::string currentNodeId = queue.front();
-    queue.pop();
-    sortedNodeIds.push_back(currentNodeId);
-
-    // Process all neighbors of current node
-    for (const std::string &neighbor : adjacencyList[currentNodeId]) {
-      inDegreeMap[neighbor]--;
-      if (inDegreeMap[neighbor] == 0) {
-        queue.push(neighbor);
-      }
-    }
-  }
-
-  // Check for cycles
-  AssertFromStream(sortedNodeIds.size() == nodes.size(),
-                   "Topological sort failed - graph contains cycles");
-
-  // Convert back to algorithm nodes in sorted order
-  std::vector<epoch_metadata::strategy::AlgorithmNode> algorithm;
-  algorithm.reserve(nodes.size());
-
-  for (const std::string &nodeId : sortedNodeIds) {
-    algorithm.emplace_back(nodes.at(nodeId));
-  }
-
-  return algorithm;
 }
 
 // Graphviz-based layout function with static plugin registration

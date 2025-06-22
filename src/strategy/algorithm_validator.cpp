@@ -512,12 +512,6 @@ void ValidateAcyclic(const UIData &graph, ValidationCache &cache,
 
 void ValidateTimeframeConsistency(ValidationCache &cache,
                                   ValidationIssues &issues) {
-  std::unordered_set<std::string> nonNullTimeframes;
-  std::vector<std::pair<UINode, std::optional<TransformsMetaData>>>
-      nonScalarNodes;
-  size_t nodesWithTimeframe = 0;
-  size_t totalNonScalarNodes = 0;
-
   // Collect all nodes except SCALAR ones
   for (const auto &nodeId : cache.sortedNodeIds) {
     auto [node, transformMetaData] = cache.nodeMap.at(nodeId);
@@ -525,24 +519,9 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
       continue;
     }
 
-    // Skip SCALAR nodes as they are handled properly in backend
-    if (transformMetaData->category == epoch_core::TransformCategory::Scalar) {
-      continue;
-    }
-
-    nonScalarNodes.push_back({node, transformMetaData});
-
     // Only count nodes that participate in timeframe validation
     // (requiresTimeFrame = true)
-    if (transformMetaData->requiresTimeFrame) {
-      totalNonScalarNodes++;
-
-      // Collect timeframe data only from nodes that should have timeframes
-      if (node.timeframe) {
-        nonNullTimeframes.insert(node.timeframe->ToString());
-        nodesWithTimeframe++;
-      }
-    } else if (node.timeframe) {
+    if (!transformMetaData->requiresTimeFrame && node.timeframe) {
       issues.push_back(
           {ValidationCode::TimeframeMismatch, node,
            std::format("Node '{}' of type '{}' has timeframe set but "
@@ -552,41 +531,6 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
                        "doesn't require it",
                        node.id)});
     }
-  }
-
-  // Rule 1: Either all nodes have no timeframe OR all have the same timeframe
-  bool hasMixedTimeframes = false;
-
-  if (nonNullTimeframes.size() > 1) {
-    // Multiple different timeframe values
-    hasMixedTimeframes = true;
-  } else if (nodesWithTimeframe > 0 &&
-             nodesWithTimeframe < totalNonScalarNodes) {
-    // Some nodes have timeframes, others don't
-    hasMixedTimeframes = true;
-  }
-
-  if (hasMixedTimeframes) {
-    std::string message;
-    if (nonNullTimeframes.size() > 1) {
-      message = std::format("Mixed timeframes detected. Found {} "
-                            "different timeframes in graph. "
-                            "Either all nodes must have no timeframe or "
-                            "all must have the same timeframe.",
-                            nonNullTimeframes.size());
-    } else {
-      message = std::format("Mixed timeframes detected. Found {} nodes with "
-                            "timeframes and {} without. "
-                            "Either all nodes must have no timeframe or "
-                            "all must have the same timeframe.",
-                            nodesWithTimeframe,
-                            totalNonScalarNodes - nodesWithTimeframe);
-    }
-    // Some nodes have timeframes, others don't
-    issues.push_back({ValidationCode::TimeframeMismatch, std::monostate{},
-                      message,
-                      "Set all nodes to the same timeframe or remove "
-                      "timeframes from all nodes"});
   }
 }
 

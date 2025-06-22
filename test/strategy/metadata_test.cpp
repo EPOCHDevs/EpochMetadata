@@ -8,21 +8,6 @@
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
 
-/**
- * Helper: Create a mock transform MetaData entry (or real ones if you have
- * them). This is needed so that when AlgorithmNode decoding looks up a
- * transform type, the registry returns the correct TransformsMetaData.
- */
-static transforms::TransformsMetaData
-MakeMockTransformMetaData(const std::string &id,
-                          const std::vector<MetaDataOption> &options) {
-  transforms::TransformsMetaData meta;
-  meta.id = id;
-  meta.name = "Mock Transform " + id;
-  meta.options = options;
-  return meta;
-}
-
 TEST_CASE("AlgorithmNode decode - success", "[AlgorithmNode]") {
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 

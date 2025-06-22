@@ -14,7 +14,7 @@ set(enable_ltdl ON CACHE BOOL "Enable ltdl for dynamic loading")
 set(with_expat ON CACHE BOOL "Enable expat")
 set(with_zlib ON CACHE BOOL "Enable zlib")
 
-# Disable unnecessary features
+# Disable unnecessary features and optional dependencies
 set(with_libgd OFF CACHE BOOL "Disable libgd")
 set(with_fontconfig OFF CACHE BOOL "Disable fontconfig")
 set(with_freetype2 OFF CACHE BOOL "Disable freetype2")
@@ -29,6 +29,25 @@ set(with_gvedit OFF CACHE BOOL "Disable gvedit")
 set(with_smyrna OFF CACHE BOOL "Disable smyrna")
 set(with_ortho OFF CACHE BOOL "Disable ortho")
 
+# Explicitly disable additional optional dependencies
+set(WITH_GVEDIT OFF CACHE STRING "Disable GVEdit")
+set(WITH_SMYRNA OFF CACHE STRING "Disable SMYRNA")
+set(ENABLE_LTDL OFF CACHE STRING "Disable LTDL")
+set(ENABLE_TCL OFF CACHE STRING "Disable TCL")
+set(ENABLE_SWIG OFF CACHE STRING "Disable SWIG")
+set(ENABLE_SHARP OFF CACHE STRING "Disable C#")
+set(ENABLE_D OFF CACHE STRING "Disable D")
+set(ENABLE_GO OFF CACHE STRING "Disable Go")
+set(ENABLE_GUILE OFF CACHE STRING "Disable Guile")
+set(ENABLE_JAVA OFF CACHE STRING "Disable Java")
+set(ENABLE_JAVASCRIPT OFF CACHE STRING "Disable JavaScript")
+set(ENABLE_LUA OFF CACHE STRING "Disable Lua")
+set(ENABLE_PERL OFF CACHE STRING "Disable Perl")
+set(ENABLE_PHP OFF CACHE STRING "Disable PHP")
+set(ENABLE_PYTHON OFF CACHE STRING "Disable Python")
+set(ENABLE_R OFF CACHE STRING "Disable R")
+set(ENABLE_RUBY OFF CACHE STRING "Disable Ruby")
+
 # Enable core components
 set(with_cgraph ON CACHE BOOL "Enable cgraph")
 set(with_gvc ON CACHE BOOL "Enable gvc")
@@ -36,21 +55,10 @@ set(with_gvc ON CACHE BOOL "Enable gvc")
 # Enable dot layout - this will be dynamically loaded
 set(with_dot ON CACHE BOOL "Enable dot layout")
 
-# Disable language bindings
-set(enable_swig OFF CACHE BOOL "Disable SWIG")
-set(enable_sharp OFF CACHE BOOL "Disable C#")
-set(enable_d OFF CACHE BOOL "Disable D")
-set(enable_go OFF CACHE BOOL "Disable Go")
-set(enable_guile OFF CACHE BOOL "Disable Guile")
-set(enable_java OFF CACHE BOOL "Disable Java")
-set(enable_javascript OFF CACHE BOOL "Disable JavaScript")
-set(enable_lua OFF CACHE BOOL "Disable Lua")
-set(enable_perl OFF CACHE BOOL "Disable Perl")
-set(enable_php OFF CACHE BOOL "Disable PHP")
-set(enable_python OFF CACHE BOOL "Disable Python")
-set(enable_r OFF CACHE BOOL "Disable R")
-set(enable_ruby OFF CACHE BOOL "Disable Ruby")
-set(enable_tcl OFF CACHE BOOL "Disable Tcl")
+# Disable command line tools to avoid building unnecessary executables
+set(GRAPHVIZ_CLI OFF CACHE BOOL "Disable building Graphviz command line tools")
+
+
 
 FetchContent_MakeAvailable(graphviz)
 
