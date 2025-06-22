@@ -1,9 +1,12 @@
 #include "epoch_metadata/strategy/algorithm_validator.h"
 #include "epoch_metadata/strategy/ui_data.h"
+#include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/strategy/validation_error.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <catch.hpp>
+#include <catch2/catch_message.hpp>
 #include <glaze/glaze.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 using namespace epoch_metadata::strategy;
 
@@ -222,7 +225,8 @@ TEST_CASE("AlgorithmValidator: Duplicate Node Id", "[AlgorithmValidator]") {
                         "Duplicate node id");
 }
 
-TEST_CASE("AlgorithmValidator: Orphaned Node", "[AlgorithmValidator]") {
+TEST_CASE("AlgorithmValidator: Orphaned Node with no connections",
+          "[AlgorithmValidator]") {
   const std::string json = R"({
         "nodes": [
             {
@@ -250,6 +254,42 @@ TEST_CASE("AlgorithmValidator: Orphaned Node", "[AlgorithmValidator]") {
 
   ExpectValidationError(result, ValidationCode::OrphanedNode,
                         "has no connections");
+}
+
+TEST_CASE("AlgorithmValidator: Orphaned Node with no output connections",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "mds",
+                "type": "market_data_source",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "orphan",
+                "type": "sma",
+                "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [
+            {
+                "source": {"id": "mds", "handle": "c"},
+                "target": {"id": "orphan", "handle": "*"}
+            }
+        ],
+        "groups": [],
+        "annotations": []
+    })";
+
+  auto data = ParseUIData(json);
+  auto result = ValidateUIData(data);
+
+  ExpectValidationError(result, ValidationCode::OrphanedNode,
+                        "has no output connections");
 }
 
 TEST_CASE("AlgorithmValidator: Invalid Edge - Unknown Node",
@@ -877,22 +917,6 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           "timeframe": null
         },
         {
-          "id": "max50",
-          "type": "max",
-          "options": [
-            {
-              "id": "period",
-              "value": 50,
-              "name": "Period",
-              "isExposed": false
-            }
-          ],
-          "metadata": {
-            "parentId": null
-          },
-          "timeframe": null
-        },
-        {
           "id": "min50",
           "type": "min",
           "options": [
@@ -935,16 +959,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
         }
       ],
       "edges": [
-        {
-          "source": {
-            "id": "mds",
-            "handle": "h"
-          },
-          "target": {
-            "id": "max50",
-            "handle": "*"
-          }
-        },
+
         {
           "source": {
             "id": "mds",
@@ -1003,11 +1018,14 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
   auto data = ParseUIData(json);
   auto result = ValidateUIData(data);
 
+  auto error = result.has_value() ? std::string{} : FormatValidationIssues(result.error());
+  INFO(error);
+
   // This should be valid
   REQUIRE(result.has_value());
 
   const auto &sortedNodes = result.value();
-  REQUIRE(sortedNodes.size() == 5);
+  REQUIRE(sortedNodes.size() == 4);
 
   // Check topological order
   std::unordered_map<std::string, size_t> nodeOrder;
@@ -1015,13 +1033,13 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
     nodeOrder[sortedNodes[i].id] = i;
   }
 
-  // mds should come before max50 and min50
-  REQUIRE(nodeOrder["mds"] < nodeOrder["max50"]);
+  // mds should come before min50 and gt1
   REQUIRE(nodeOrder["mds"] < nodeOrder["min50"]);
+  REQUIRE(nodeOrder["mds"] < nodeOrder["gt1"]);
 
-  // max50 and min50 should come before executor
-  REQUIRE(nodeOrder["max50"] < nodeOrder["executor"]);
-  REQUIRE(nodeOrder["min50"] < nodeOrder["executor"]);
+  // min50 and gt1 should come before executor
+  REQUIRE(nodeOrder["min50"] < nodeOrder["gt1"]);
+  REQUIRE(nodeOrder["gt1"] < nodeOrder["executor"]);
 }
 
 TEST_CASE("AlgorithmValidator: Mixed Timeframes Not Allowed",
@@ -1934,9 +1952,9 @@ TEST_CASE("AlgorithmValidator: All Nodes No Timeframe - Valid",
   REQUIRE(sortedNodes.size() == 5);
 }
 
-TEST_CASE("AlgorithmValidator: Market Data Source Timeframe Suggests Resampler",
+TEST_CASE("AlgorithmValidator: Market Data Source With Timeframe Is Valid",
           "[AlgorithmValidator]") {
-  const std::string json = R"({
+    const std::string json = R"({
         "nodes": [
             {
                 "id": "mds",
@@ -1949,6 +1967,20 @@ TEST_CASE("AlgorithmValidator: Market Data Source Timeframe Suggests Resampler",
                 "id": "sma",
                 "type": "sma",
                 "options": [{"id": "period", "value": 20}],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "gt",
+                "type": "gt",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "zero",
+                "type": "zero",
+                "options": [],
                 "metadata": {},
                 "timeframe": null
             },
@@ -1967,6 +1999,14 @@ TEST_CASE("AlgorithmValidator: Market Data Source Timeframe Suggests Resampler",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
+                "target": {"id": "gt", "handle": "*0"}
+            },
+            {
+                "source": {"id": "zero", "handle": "result"},
+                "target": {"id": "gt", "handle": "*1"}
+            },
+            {
+                "source": {"id": "gt", "handle": "result"},
                 "target": {"id": "executor", "handle": "long"}
             }
         ],
@@ -1974,26 +2014,21 @@ TEST_CASE("AlgorithmValidator: Market Data Source Timeframe Suggests Resampler",
         "annotations": []
     })";
 
-  auto data = ParseUIData(json);
-  auto result = ValidateUIData(data);
+    auto data = ParseUIData(json);
+    auto result = ValidateUIData(data);
+    auto errorStr = result.has_value() ? "" : FormatValidationIssues(result.error());
+    INFO(errorStr);
 
-  // Should fail with market data source timeframe and suggest resampler
-  REQUIRE_FALSE(result.has_value());
+    // DataSource nodes can now have timeframes directly, so this should be valid
+    REQUIRE(result.has_value());
 
-  const auto &issues = result.error();
-  bool foundResamplerSuggestion = false;
+    const auto &sortedNodes = result.value();
+    REQUIRE(sortedNodes.size() == 5);
 
-  for (const auto &issue : issues) {
-    if (issue.code == ValidationCode::TimeframeMismatch) {
-      // Check that the suggestion mentions resampler for market data source
-      if (issue.suggestion.has_value() &&
-          issue.suggestion.value().find("resampler") != std::string::npos) {
-        foundResamplerSuggestion = true;
-      }
-    }
-  }
-
-  REQUIRE(foundResamplerSuggestion);
+    auto node = sortedNodes[1]; // mds
+    REQUIRE(node.timeframe.has_value());
+    // Timeframe should be 1 hour
+    REQUIRE(node.timeframe->ToString() == "1H");
 }
 
 TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
@@ -2012,14 +2047,14 @@ TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
                 "type": "sma",
                 "options": [{"id": "period", "value": 20}],
                 "metadata": {},
-                "timeframe": null
+                "timeframe": {"type": "hour", "interval": 1}
             },
             {
                 "id": "executor",
                 "type": "trade_signal_executor",
                 "options": [],
                 "metadata": {},
-                "timeframe": {"type": "hour", "interval": 1}
+                "timeframe": null
             }
         ],
         "edges": [

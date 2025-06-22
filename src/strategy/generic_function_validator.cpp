@@ -40,7 +40,8 @@ ValidationIssues ValidateGenericFunction(const GenericFunction &function,
 }
 
 std::optional<MetaDataOptionList>
-ValidateGenericFunctionType(const std::string &type,
+
+  ValidateGenericFunctionType(const std::string &type,
                             epoch_core::GenericFunctionType functionType,
                             ValidationIssues &issues) {
 

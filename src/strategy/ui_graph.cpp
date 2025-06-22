@@ -573,31 +573,18 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
   return {};
 }
 
-PartialTradeSignalMetaData FinalizeAlgorithmMetaData(
+PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
     const std::vector<epoch_metadata::strategy::AlgorithmNode> &algorithm) {
-  std::unordered_set<std::string> dataSourceIdList;
   PartialTradeSignalMetaData result;
   result.algorithm.reserve(algorithm.size());
 
   size_t totalExecutors = 0;
   for (const auto &algo : algorithm) {
-    if (algo.type != MARKET_DATA_SOURCE && algo.type != TRADE_SIGNAL_EXECUTOR) {
-      auto &algoRef = result.algorithm.emplace_back(algo);
-      // remove data source form handle id: data source is provided by system
-      for (auto &source_handles : algoRef.inputs | std::views::values) {
-        for (auto &source_handle : source_handles) {
-          if (auto source_node_id =
-                  source_handle.substr(0, source_handle.find('#'));
-              dataSourceIdList.contains(source_node_id)) {
-            source_handle = source_handle.substr(source_handle.find('#') + 1);
-          }
-        }
-      }
-    } else if (algo.type == TRADE_SIGNAL_EXECUTOR) {
+    if (algo.type == TRADE_SIGNAL_EXECUTOR) {
       result.executor = algo;
       ++totalExecutors;
     } else {
-      dataSourceIdList.insert(algo.id);
+      result.algorithm.emplace_back(algo);
     }
   }
   AssertFromStream(totalExecutors == 1,
@@ -652,86 +639,6 @@ std::expected<std::vector<UIOption>, std::string> ConvertOptions(
     return uiOptions;
   }
   return std::unexpected(error);
-}
-
-std::expected<UIData, std::string>
-CreateUIData(const PartialTradeSignalMetaData &meta) {
-  UIData data;
-
-  // We'll use a lambda to add a UINode if it doesn't already exist.
-  // We index nodes by their id.
-  std::unordered_map<std::string, std::reference_wrapper<UINode>> nodeLookup;
-  auto addNode = [&](const std::string &id, const std::string &type,
-                     const std::vector<UIOption> &options = {}) {
-    if (nodeLookup.contains(id)) {
-      return;
-    }
-
-    UINode node;
-    node.id = id;
-    node.type = type;
-    node.options = options;
-    // metadata can be default-initialized.
-    nodeLookup.emplace(id, data.nodes.emplace_back(std::move(node)));
-  };
-
-  // Create the executor node.
-  auto executorOptions = ConvertOptions(meta.executor.options);
-  if (!executorOptions) {
-    return std::unexpected(executorOptions.error());
-  }
-  addNode(meta.executor.id, meta.executor.type, executorOptions.value());
-
-  std::unordered_map<std::string, epoch_metadata::MetaDataOption> optionsMap;
-  for (const auto &option : meta.options) {
-    optionsMap[option.id] = option;
-  }
-
-  // Create nodes for each algorithm.
-  for (const auto &algo : meta.algorithm) {
-    auto algoOptions = ConvertOptions(algo.options, optionsMap);
-    if (!algoOptions) {
-      return std::unexpected(algoOptions.error());
-    }
-    // Add the algorithm node.
-    addNode(algo.id, algo.type, algoOptions.value());
-  }
-
-  // Helper lambda to process inputs for a given algorithm node.
-  auto processInputs =
-      [&](const epoch_metadata::strategy::AlgorithmNode &node) {
-        // For each input mapping, create an edge from the source vertex to the
-        // node.
-        for (const auto &[targetHandle, sourceRefList] : node.inputs) {
-          for (const auto &sourceRef : sourceRefList) {
-            UIVertex targetVertex{node.id, targetHandle};
-            UIVertex sourceVertex;
-            auto pos = sourceRef.find('#');
-            if (pos != std::string::npos) {
-              // Format "sourceNodeId#sourceHandle"
-              sourceVertex.id = sourceRef.substr(0, pos);
-              sourceVertex.handle = sourceRef.substr(pos + 1);
-            } else {
-              // Input comes directly from a PriceBar.
-              // Create a synthetic PriceBar node with an id based on the
-              // handle.
-              sourceVertex.id = MARKET_DATA_SOURCE;
-              sourceVertex.handle = sourceRef;
-              addNode(sourceVertex.id, MARKET_DATA_SOURCE, {});
-            }
-            data.edges.push_back({sourceVertex, targetVertex});
-          }
-        }
-      };
-
-  // Process inputs for the executor.
-  processInputs(meta.executor);
-  // Process inputs for each algorithm.
-  for (const auto &algo : meta.algorithm) {
-    processInputs(algo);
-  }
-
-  return data;
 }
 
 // Public function to perform horizontal alignment with dot layout

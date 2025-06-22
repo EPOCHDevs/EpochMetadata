@@ -159,12 +159,20 @@ void ValidateNodeConnections(const UINode &node,
           ? T{}
           : outputConnectionsIter->second;
 
-  if (inputConnections.empty() && outputConnections.empty()) {
+  if (!transformMetaData.inputs.empty() && inputConnections.empty()) {
     issues.push_back({ValidationCode::OrphanedNode, node,
                       std::format("Node '{}' has no connections", node.id),
                       std::format("Connect node '{}' to other nodes via inputs "
                                   "or outputs to make it functional",
                                   node.id)});
+  }
+  if (!transformMetaData.outputs.empty() && outputConnections.empty()) {
+    issues.push_back(
+        {ValidationCode::OrphanedNode, node,
+         std::format("Node '{}' has no output connections", node.id),
+         std::format("Connect node '{}' to other nodes via outputs "
+                     "to make it functional",
+                     node.id)});
   }
 
   if (transformMetaData.atLeastOneInputRequired && inputConnections.empty()) {
@@ -519,17 +527,6 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
 
     // Skip SCALAR nodes as they are handled properly in backend
     if (transformMetaData->category == epoch_core::TransformCategory::Scalar) {
-      continue;
-    }
-
-    if (node.type == MARKET_DATA_SOURCE && node.timeframe) {
-      issues.push_back(
-          {ValidationCode::TimeframeMismatch, node,
-           std::format("Market data source '{}' has timeframe '{}' set",
-                       node.id, node.timeframe->ToString()),
-           std::format("Consider connecting market data source '{}' to a "
-                       "resampler node instead of setting timeframe directly",
-                       node.id)});
       continue;
     }
 

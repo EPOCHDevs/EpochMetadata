@@ -392,7 +392,8 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::LOW_PRICE_METADATA,
                   IOMetaDataConstants::CLOSE_PRICE_METADATA,
                   IOMetaDataConstants::VOLUME_METADATA},
-      .tags = {"data", "source", "price", "ohlcv"}});
+      .tags = {"data", "source", "price", "ohlcv"},
+      .requiresTimeFrame = true});
 
   return result;
 }

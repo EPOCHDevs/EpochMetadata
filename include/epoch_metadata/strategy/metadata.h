@@ -7,6 +7,7 @@
 #include "enums.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "ui_data.h"
+#include <glaze/json/json_t.hpp>
 
 // including here ensure all transforms have been serialized
 namespace epoch_metadata::strategy {
@@ -76,8 +77,8 @@ template <> struct convert<epoch_metadata::strategy::AlgorithmMetaData> {
                      epoch_metadata::strategy::AlgorithmMetaData &);
 };
 
-template <> struct convert<epoch_metadata::strategy::TradeSignalMetaData> {
-  static bool decode(YAML::Node const &,
-                     epoch_metadata::strategy::TradeSignalMetaData &);
-};
+epoch_metadata::strategy::TradeSignalMetaData decode(glz::json_t const &);
+
+glz::json_t encode(epoch_metadata::strategy::TradeSignalMetaData const &);
+
 } // namespace YAML

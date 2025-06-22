@@ -28,7 +28,7 @@ extern epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
 extern std::vector<AlgorithmNode>
 CreateSortedEdges(const std::unordered_map<std::string, AlgorithmNode> &nodes);
 
-extern PartialTradeSignalMetaData FinalizeAlgorithmMetaData(
+extern PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
     const std::vector<epoch_metadata::strategy::AlgorithmNode> &algorithm);
 
 struct CompilerData {
@@ -133,8 +133,8 @@ CompileUIData(const std::vector<UINode> &sortedNodes,
 
   // Step 3: Generate final metadata
   try {
-    auto metadata =
-        FinalizeAlgorithmMetaData(CreateSortedEdges(compilerData.algorithmMap));
+    auto metadata = CreatePartialTradeSignalMetaData(
+        CreateSortedEdges(compilerData.algorithmMap));
     metadata.options = options;
     return metadata;
   } catch (const std::exception &e) {

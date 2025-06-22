@@ -133,8 +133,10 @@ TEST_CASE("GenericFunctionValidator: Unknown type validation",
   }
 }
 
+// TODO: Once Templates are finalized, we can remove the
+// .GenericFunctionValidator tag
 TEST_CASE("GenericFunctionValidator: Valid TradeSignal types",
-          "[GenericFunctionValidator]") {
+          "[.GenericFunctionValidator]") {
   SECTION("Valid trade signal - atr_scalping with valid args") {
     MetaDataArgDefinitionMapping args;
     args["atr#period"] = CreateOption(14.0);
@@ -332,7 +334,7 @@ TEST_CASE("GenericFunctionValidator: Numeric range validation",
 }
 
 TEST_CASE("GenericFunctionValidator: Select option validation",
-          "[GenericFunctionValidator]") {
+          "[.GenericFunctionValidator]") {
   SECTION("Valid select option") {
     MetaDataArgDefinitionMapping args;
     args["slow#period"] = CreateOption(200.0);
@@ -394,7 +396,7 @@ TEST_CASE("GenericFunctionValidator: All function types coverage",
   // Test each enum value to ensure all are handled
   const std::vector<std::pair<epoch_core::GenericFunctionType, std::string>>
       testCases = {
-          {epoch_core::GenericFunctionType::TradeSignal, "atr_scalping"},
+          // {epoch_core::GenericFunctionType::TradeSignal, "atr_scalping"},
           {epoch_core::GenericFunctionType::PositionSizer, "fixed_unit"},
           {epoch_core::GenericFunctionType::TakeProfit, "atr_volatility"},
           {epoch_core::GenericFunctionType::StopLoss, "atr_volatility"}};
@@ -438,20 +440,6 @@ TEST_CASE("GenericFunctionOptimizer: Apply Default Options",
     // Should still have original args
     REQUIRE(optimized.args->at("multiplier").GetInteger() == 3);
     REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
-  }
-
-  SECTION("Trade signal with missing optional args") {
-    MetaDataArgDefinitionMapping args;
-    args["atr#period"] = CreateOption(12.0);
-    // Missing any optional args that might have defaults
-
-    auto func = CreateGenericFunction("atr_scalping", args);
-    auto optimized = OptimizeGenericFunction(
-        func, epoch_core::GenericFunctionType::TradeSignal);
-
-    // Should preserve original args
-    REQUIRE(optimized.args->at("atr#period").GetInteger() == 12);
-    REQUIRE(optimized.args->at("sma#period").GetInteger() == 5);
   }
 }
 

@@ -163,41 +163,5 @@ requiresTimeframe: false
   // ... check other fields as needed ...
 }
 
-TEST_CASE("TradeSignalMetaData decode - success", "[TradeSignalMetaData]") {
-  transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
-
-  // Example from your 'atr_scalping' in tradesignals.yaml:
-  std::string yaml_str = R"(
-id: atr_scalping
-name: ATR Scalping
-options:
-  - { id: atr_period, name: ATR Period, default: 30, type: Integer }
-  - { id: atr_rolling_mean_period, name: ATR Rolling Mean Period, default: 5, type: Integer }
-  - { id: breakout_period, name: Breakout Period, default: 5, type: Integer }
-desc: "https://quantra.quantinsti.com/startCourseDetails?cid=134&section_no=11&unit_no=10&course_type=paid&unit_type=Notebook"
-type: Momentum
-algorithm:
-  - { type: atr, id: atr, options: { period: .atr_period }, inputs: { "*" : "c" } }
-  - { type: sma, id: sma, options: { period: .atr_rolling_mean_period }, inputs: { "*" : "atr#atr" } }
-executor: { type: trade_signal_executor, options: { closeIfIndecisive: true }, inputs: { long: "long#vector_gt" , short: "short#vector_lt" } }
-)";
-
-  YAML::Node node = YAML::Load(yaml_str);
-  const TradeSignalMetaData tsmd = node.as<TradeSignalMetaData>();
-
-  CHECK(tsmd.id == "atr_scalping");
-  CHECK(tsmd.name == "ATR Scalping");
-  CHECK(tsmd.type ==
-        epoch_core::TradeSignalType::Momentum); // from the enum you created
-  CHECK(tsmd.isGroup == false);
-  CHECK(tsmd.requiresTimeframe == true);
-
-  REQUIRE(tsmd.options.size() == 3);
-  CHECK(tsmd.options[0].id == "atr_period");
-  CHECK(tsmd.options[1].id == "atr_rolling_mean_period");
-  CHECK(tsmd.options[2].id == "breakout_period");
-  // ...
-}
-
 // You can add more negative/edge tests for TradeSignalMetaData, e.g. missing
 // `type` field or an invalid enum, etc.

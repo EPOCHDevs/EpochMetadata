@@ -3,8 +3,15 @@
 //
 #include "epoch_metadata/strategy/metadata.h"
 #include "doc_deserialization_helper.h"
+#include "epoch_metadata/strategy/algorithm_validator.h"
+#include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <epoch_core/macros.h>
+#include <glaze/core/reflect.hpp>
+#include <glaze/json/json_concepts.hpp>
+#include <glaze/json/json_t.hpp>
+#include <glaze/json/write.hpp>
+#include <string>
 
 #include "epoch_metadata/strategy/ui_graph.h"
 
@@ -98,35 +105,6 @@ bool convert<AlgorithmMetaData>::decode(YAML::Node const &node,
   metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
   metadata.tags =
       node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
-  return true;
-}
-
-bool convert<TradeSignalMetaData>::decode(YAML::Node const &node,
-                                          TradeSignalMetaData &metadata) {
-  metadata.id = node["id"].as<std::string>();
-  metadata.name = node["name"].as<std::string>("");
-  metadata.options =
-      node["options"].as<MetaDataOptionList>(MetaDataOptionList{});
-  metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
-  metadata.isGroup = node["isGroup"].as<bool>(false);
-  metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
-  metadata.type = epoch_core::TradeSignalTypeWrapper::FromString(
-      node["type"].as<std::string>());
-
-  auto algorithm = node["algorithm"].as<std::vector<AlgorithmNode>>();
-  auto executor = node["executor"].as<AlgorithmNode>();
-  metadata.tags =
-      node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});
-
-  const auto expectedUIData =
-      CreateUIData({metadata.options, algorithm, executor});
-
-  if (expectedUIData) {
-    metadata.data = expectedUIData.value();
-  } else {
-    SPDLOG_ERROR("Failed to create UI data for {}.\nReason:\n{}", metadata.id,
-                 expectedUIData.error());
-  }
   return true;
 }
 } // namespace YAML
