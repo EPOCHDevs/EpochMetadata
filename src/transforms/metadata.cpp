@@ -432,7 +432,7 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
       .id = TRADE_SIGNAL_EXECUTOR_ID,
       .category = epoch_core::TransformCategory::Executor,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::trade_signal,
       .name = "Trade Signal Executor",
       .options = {closeIfIndecisive},
       .desc = "Executes trade signals. If allow is true, "

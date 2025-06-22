@@ -64,7 +64,8 @@ CREATE_ENUM(
     liquidity,          // Liquidity
     stoch,              // Stochastic oscillator
     previous_high_low,  // Previous High and Low
-    vwap);              // VWAP overlay
+    vwap,               // VWAP overlay
+    trade_signal);      // Trade Signal Executor
 
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
 
