@@ -13,26 +13,26 @@
 #include <utility>
 
 namespace epoch_metadata {
-  bool IsIntraday(epoch_core::EpochOffsetType type) {
-    return (type == epoch_core::EpochOffsetType::Hour ||
-        type == epoch_core::EpochOffsetType::Minute ||
-        type == epoch_core::EpochOffsetType::Second ||
-        type == epoch_core::EpochOffsetType::Milli ||
-        type == epoch_core::EpochOffsetType::Micro ||
-        type == epoch_core::EpochOffsetType::Nano);
-  }
+bool IsIntraday(epoch_core::EpochOffsetType type) {
+  return (type == epoch_core::EpochOffsetType::Hour ||
+          type == epoch_core::EpochOffsetType::Minute ||
+          type == epoch_core::EpochOffsetType::Second ||
+          type == epoch_core::EpochOffsetType::Milli ||
+          type == epoch_core::EpochOffsetType::Micro ||
+          type == epoch_core::EpochOffsetType::Nano);
+}
 
 TimeFrame::TimeFrame(epoch_frame::DateOffsetHandlerPtr offset)
     : m_offset(std::move(offset)) {
-    AssertFalseFromStream(m_offset == nullptr, "TimeFrame offset cannot be "
-                                           "nullptr");
-  }
+  AssertFalseFromStream(m_offset == nullptr, "TimeFrame offset cannot be "
+                                             "nullptr");
+}
 
 bool TimeFrame::IsIntraDay() const {
-    if (!m_offset)
-      return false;
-    return IsIntraday(m_offset->type());
-  }
+  if (!m_offset)
+    return false;
+  return IsIntraday(m_offset->type());
+}
 
 std::string TimeFrame::ToString() const {
   return m_offset ? m_offset->name() : "";
@@ -145,6 +145,22 @@ CreateDateOffsetHandler(Serializer const &buffer) {
   throw std::runtime_error(ss.str());
 }
 
+bool TimeFrame::operator<(TimeFrame const &other) const {
+  if (!m_offset && !other.m_offset)
+    return false;
+  if (!m_offset)
+    return true;
+  if (!other.m_offset)
+    return false;
+  auto m_type = fromOffset(m_offset->type());
+  auto other_type = fromOffset(other.m_offset->type());
+  if (m_type == other_type)
+    return m_offset->n() < other.m_offset->n();
+
+  return epoch_core::StratifyxTimeFrameTypeWrapper::toNumber(m_type) <
+         epoch_core::StratifyxTimeFrameTypeWrapper::toNumber(other_type);
+}
+
 epoch_frame::DateOffsetHandlerPtr
 CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   if (buffer.is_null()) {
@@ -165,7 +181,7 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
   return result;
 }
 
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata
 
 namespace YAML {
 bool convert<epoch_frame::DateOffsetHandlerPtr>::decode(

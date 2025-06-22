@@ -20,9 +20,9 @@ CREATE_ENUM(AnchoredTimeFrameType, Start, End);
 
 namespace epoch_metadata {
 
-  bool IsIntraday(epoch_core::EpochOffsetType);
+bool IsIntraday(epoch_core::EpochOffsetType);
 
-  class TimeFrame {
+class TimeFrame {
 public:
   explicit TimeFrame(epoch_frame::DateOffsetHandlerPtr offset);
 
@@ -38,7 +38,10 @@ public:
 
   bool operator!=(TimeFrame const &other) const;
 
+  bool operator<(TimeFrame const &other) const;
+
   std::string Serialize() const;
+
 private:
   epoch_frame::DateOffsetHandlerPtr m_offset;
 };
@@ -63,7 +66,7 @@ using TimeFrameSet = std::unordered_set<TimeFrame, TimeFrameHash>;
 
 template <class T>
 using TimeFrameHashMap = std::unordered_map<TimeFrame, T, TimeFrameHash>;
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata
 
 namespace glz {
 template <> struct meta<epoch_frame::DateOffsetHandlerPtr> {
@@ -74,7 +77,7 @@ template <> struct meta<epoch_frame::DateOffsetHandlerPtr> {
 
   static constexpr auto write =
       [](const epoch_frame::DateOffsetHandlerPtr &x) -> auto {
-        return epoch_metadata::CreateDateOffsetHandlerJSON(x);
+    return epoch_metadata::CreateDateOffsetHandlerJSON(x);
   };
 
   static constexpr auto value = glz::custom<read, write>;
@@ -89,8 +92,9 @@ template <> struct meta<epoch_metadata::TimeFrame> {
         }
       };
 
-  static constexpr auto write =
-      [](const epoch_metadata::TimeFrame &x) -> auto { return x.GetOffset(); };
+  static constexpr auto write = [](const epoch_metadata::TimeFrame &x) -> auto {
+    return x.GetOffset();
+  };
 
   static constexpr auto value = glz::custom<read, write>;
 };
@@ -129,8 +133,8 @@ template <> struct convert<epoch_frame::DateOffsetHandlerPtr> {
 
 template <> struct convert<epoch_metadata::TimeFrame> {
   static bool decode(const Node &node, epoch_metadata::TimeFrame &rhs) {
-    rhs = epoch_metadata::TimeFrame(
-        node.as<epoch_frame::DateOffsetHandlerPtr>());
+    rhs =
+        epoch_metadata::TimeFrame(node.as<epoch_frame::DateOffsetHandlerPtr>());
     return true;
   }
 };
