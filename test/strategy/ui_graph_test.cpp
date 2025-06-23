@@ -471,18 +471,9 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
   // Verify topological order: algo6 must appear before algo7.
   REQUIRE(meta.algorithm.size() == 3); // 1 DataSource + 2 Algorithms
 
-  // Find the data source and algorithm nodes in order
-  std::vector<const epoch_metadata::strategy::AlgorithmNode *> algoNodes;
-  for (const auto &node : meta.algorithm) {
-    if (node.type != MARKET_DATA_SOURCE) {
-      algoNodes.push_back(&node);
-    }
-  }
-
-  // Verify we have the two algorithm nodes in correct topological order
-  REQUIRE(algoNodes.size() == 2);
-  REQUIRE(algoNodes[0]->id == "algo6");
-  REQUIRE(algoNodes[1]->id == "algo7");
+  REQUIRE(meta.algorithm[0].id == "data6");
+  REQUIRE(meta.algorithm[1].id == "algo6");
+  REQUIRE(meta.algorithm[2].id == "algo7");
 }
 
 // Test 7: Cyclic Dependency Graph Detection
@@ -699,116 +690,4 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   REQUIRE_THAT(
       ValidationIssuesToString(result.error()),
       Catch::Matchers::ContainsSubstring("Found 2 TradeSignalExecutors"));
-}
-
-// Test 11: Timeframe Inheritance
-TEST_CASE("CreateAlgorithmMetaData: Timeframe Inheritance",
-          "[CreateAlgorithmMetaData]") {
-  const std::string json = R"({
-    "nodes": [
-      {
-        "id": "exec11",
-        "type": "trade_signal_executor",
-        "options": [
-          {
-            "id": "closeIfIndecisive",
-            "value": false,
-            "isExposed": false
-          }
-        ],
-        "metadata": {},
-        "timeframe": null
-      },
-      {
-        "id": "algo11_1",
-        "type": "sma",
-        "options": [
-          {
-            "id": "period",
-            "value": 10,
-            "isExposed": false
-          }
-        ],
-        "metadata": {},
-        "timeframe": null
-      },
-      {
-        "id": "algo11_2",
-        "type": "previous_gt",
-        "options": [
-          {
-            "id": "periods",
-            "value": 20,
-            "isExposed": false
-          }
-        ],
-        "metadata": {},
-        "timeframe": null
-      },
-      {
-        "id": "data11",
-        "type": "market_data_source",
-        "options": [],
-        "metadata": {},
-        "timeframe": {"type": "day", "interval": 1}
-      }
-    ],
-    "edges": [
-      {
-        "source": {"id": "data11", "handle": "c"},
-        "target": {"id": "algo11_1", "handle": "*"}
-      },
-      {
-        "source": {"id": "algo11_1", "handle": "result"},
-        "target": {"id": "algo11_2", "handle": "*"}
-      },
-      {
-        "source": {"id": "algo11_2", "handle": "result"},
-        "target": {"id": "exec11", "handle": "long"}
-      }
-    ],
-    "groups": [],
-    "annotations": []
-  })";
-
-  auto data = ParseUIData(json);
-
-  // Call CreateAlgorithmMetaData
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
-
-  // Verify the result
-  {
-    INFO((result.has_value() ? std::string{}
-                             : epoch_metadata::strategy::FormatValidationIssues(
-                                   result.error())));
-    REQUIRE(result.has_value());
-  }
-
-  // Find all nodes in result and verify timeframes
-  int algoFound{};
-  int dataSourceFound{};
-  for (const auto &algo : result.value().algorithm) {
-    if (algo.id.starts_with("algo11")) {
-      ++algoFound;
-      REQUIRE(algo.timeframe.has_value());
-      // The timeframe should be 1 day (algo11_1 has it explicitly, algo11_2
-      // inherits from DataSource)
-      REQUIRE(algo.timeframe->ToString() == "1D");
-    } else if (algo.type == MARKET_DATA_SOURCE) {
-      ++dataSourceFound;
-      REQUIRE(algo.id == "data11");
-      REQUIRE(algo.timeframe.has_value());
-      REQUIRE(algo.timeframe->ToString() == "1D");
-    }
-  }
-  REQUIRE(algoFound == 2);
-  REQUIRE(dataSourceFound == 1);
-
-  // Verify that algo11_1 has DataSource input with full id#handle format
-  auto algo11_1 = std::find_if(
-      result.value().algorithm.begin(), result.value().algorithm.end(),
-      [](const auto &node) { return node.id == "algo11_1"; });
-  REQUIRE(algo11_1 != result.value().algorithm.end());
-  REQUIRE(algo11_1->inputs.contains("*"));
-  REQUIRE(algo11_1->inputs.at("*").front() == "data11#c");
 }

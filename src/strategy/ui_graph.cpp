@@ -217,7 +217,8 @@ std::expected<UIData, std::string> PerformAutoLayout(const UIData &inputData) {
       }
     }
 
-    // Apply layout using dot algorithm AFTER clusters are created and populated
+    // Apply layout using dot algorithm AFTER clusters are created and
+    // populated
     int layoutResult = gvLayout(gvc, g, "dot");
     if (layoutResult != 0) {
       agclose(g);
@@ -232,7 +233,8 @@ std::expected<UIData, std::string> PerformAutoLayout(const UIData &inputData) {
         72.0; // Graphviz uses 72 points per inch
     constexpr double GRAPHVIZ_PAD_POINTS = 4.0; // Default pad in points
 
-    // Convert from Graphviz points to pixels: points * (DPI / points_per_inch)
+    // Convert from Graphviz points to pixels: points * (DPI /
+    // points_per_inch)
     const double GRAPHVIZ_PT_TO_PX = DPI / GRAPHVIZ_POINTS_PER_INCH;
 
     // Process regular nodes
@@ -241,8 +243,8 @@ std::expected<UIData, std::string> PerformAutoLayout(const UIData &inputData) {
       if (nodeMap.contains(uiNode.id)) {
         Agnode_t *node = nodeMap[uiNode.id];
 
-        // 1. Get Graphviz center coordinates in points, add pad, and convert to
-        // pixels
+        // 1. Get Graphviz center coordinates in points, add pad, and convert
+        // to pixels
         const double cx =
             (ND_coord(node).x + GRAPHVIZ_PAD_POINTS) * GRAPHVIZ_PT_TO_PX;
         const double cy =
@@ -260,8 +262,8 @@ std::expected<UIData, std::string> PerformAutoLayout(const UIData &inputData) {
       if (nodeMap.contains(annotation.id)) {
         Agnode_t *node = nodeMap[annotation.id];
 
-        // 1. Get Graphviz center coordinates in points, add pad, and convert to
-        // pixels
+        // 1. Get Graphviz center coordinates in points, add pad, and convert
+        // to pixels
         const double cx =
             (ND_coord(node).x + GRAPHVIZ_PAD_POINTS) * GRAPHVIZ_PT_TO_PX;
         const double cy =
@@ -352,8 +354,8 @@ CreateOptionMapping(const TransformsMetaData &transformMetaData) {
 }
 
 /**
- * Creates an AlgorithmNode from a given UINode, mapping its options and setting
- * the node's properties.
+ * Creates an AlgorithmNode from a given UINode, mapping its options and
+ * setting the node's properties.
  */
 epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
     const UINode &node,
@@ -500,12 +502,14 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
 }
 
 PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
-    const std::vector<epoch_metadata::strategy::AlgorithmNode> &algorithm) {
+    const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
+    std::vector<std::string> const& sortedIds) {
   PartialTradeSignalMetaData result;
   result.algorithm.reserve(algorithm.size());
 
   size_t totalExecutors = 0;
-  for (const auto &algo : algorithm) {
+  for (const auto &algoId : sortedIds) {
+    const auto &algo = algorithm.at(algoId);
     if (algo.type == TRADE_SIGNAL_EXECUTOR) {
       result.executor = algo;
       ++totalExecutors;

@@ -25,11 +25,9 @@ extern epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
         &optionsMapping,
     std::vector<epoch_metadata::MetaDataOption> &options);
 
-extern std::vector<AlgorithmNode>
-CreateSortedEdges(const std::unordered_map<std::string, AlgorithmNode> &nodes);
-
 extern PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
-    const std::vector<epoch_metadata::strategy::AlgorithmNode> &algorithm);
+    const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
+    std::vector<std::string> const& sortedIds);
 
 struct CompilerData {
   std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode>
@@ -77,10 +75,9 @@ CompileNodes(const UIData &validatedGraph,
   return compilerData;
 }
 
-std::expected<std::monostate, std::string>
+void
 CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
   for (const auto &edge : validatedGraph.edges) {
-    const auto &sourceNode = compilerData.nodeMap.at(edge.source.id);
     const auto &targetNode = compilerData.nodeMap.at(edge.target.id);
 
     // Get algorithm node for the target
@@ -89,21 +86,7 @@ CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
     // Assign the input connection
     algo.inputs[edge.target.handle].push_back(
         JoinId(edge.source.id, edge.source.handle));
-
-    // Handle timeframe inheritance (validation should have caught conflicts)
-    const auto &sourceAlgoIter = compilerData.algorithmMap.find(sourceNode.id);
-
-    if (!algo.timeframe) {
-      if (sourceAlgoIter != compilerData.algorithmMap.end() &&
-          sourceAlgoIter->second.timeframe) {
-        algo.timeframe = sourceAlgoIter->second.timeframe;
-      } else if (sourceNode.timeframe) {
-        algo.timeframe = sourceNode.timeframe;
-      }
-    }
   }
-
-  return std::monostate{};
 }
 
 std::expected<PartialTradeSignalMetaData, std::string>
@@ -113,7 +96,7 @@ CompileUIData(const std::vector<UINode> &sortedNodes,
 
   // Step 1: Compile nodes using the pre-sorted order from validation
   CompilerData compilerData;
-
+  std::vector<std::string> sortedIds;
   for (const auto &node : sortedNodes) {
     compilerData.nodeMap[node.id] = node;
 
@@ -123,18 +106,15 @@ CompileUIData(const std::vector<UINode> &sortedNodes,
     }
 
     compilerData.algorithmMap[node.id] = result.value();
+    sortedIds.push_back(node.id);
   }
 
   // Step 2: Compile edges
-  auto edgeResult = CompileEdges(validatedGraph, compilerData);
-  if (!edgeResult) {
-    return std::unexpected("Failed to compile edges");
-  }
+  CompileEdges(validatedGraph, compilerData);
 
   // Step 3: Generate final metadata
   try {
-    auto metadata = CreatePartialTradeSignalMetaData(
-        CreateSortedEdges(compilerData.algorithmMap));
+    auto metadata = CreatePartialTradeSignalMetaData(compilerData.algorithmMap, sortedIds);
     metadata.options = options;
     return metadata;
   } catch (const std::exception &e) {
