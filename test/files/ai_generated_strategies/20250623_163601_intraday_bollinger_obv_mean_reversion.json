@@ -1,0 +1,51 @@
+{
+  "name": "Intraday Bollinger-OBV Mean Reversion",
+  "description": "Intraday mean-reversion strategy that trades S&P 500 E-mini futures and highly liquid S&P 500 constituents using Bollinger Band extremes combined with On-Balance-Volume divergence confirmation. Positions are sized via ATR-based volatility targeting, cut with 0.5 % hard stops and 1 % hard targets, and are exited early if price reverts to the 20-period moving average.",
+  "assets": {
+    "assets": [
+      "ES-Futures",
+      "AAPL-Stocks",
+      "MSFT-Stocks"
+    ],
+    "futures_continuation": {
+      "type": "LiquidityBased",
+      "args": {
+        "adjustment": "BackwardPanamaCanal",
+        "ratio": 0.1
+      }
+    }
+  },
+  "trade_signal": {
+    "type": "volatility_compression_reversal_strategy",
+    "args": {},
+    "timeframe": null
+  },
+  "position_sizer": {
+    "type": "volatility_targeted",
+    "args": {
+      "period": 14,
+      "max_leverage": 1,
+      "vol_target": 0.03
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "stop_loss": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.005
+    },
+    "timeframe": null
+  },
+  "take_profit": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.01
+    },
+    "timeframe": null
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_163601_intraday_bollinger_obv_mean_reversion"
+}

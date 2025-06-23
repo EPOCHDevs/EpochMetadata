@@ -1,0 +1,49 @@
+{
+  "name": "Intraday FX VWAP Mean-Reversion",
+  "description": "Contrarian intraday strategy that buys major FX pairs when price is >0.25 % below the lower VWAP band during Bollinger-Band width contraction (<0.05). Positions are sized to risk 1.5 % of equity with a 0.40 % protective stop and exit either at VWAP re-touch or 0.30 % profit, whichever comes first.",
+  "assets": {
+    "assets": [
+      "^EURUSD-FX",
+      "^GBPUSD-FX"
+    ],
+    "futures_continuation": null
+  },
+  "trade_signal": {
+    "type": "algorithm-vwap-rsi-contrarian-strategy",
+    "args": {
+      "num_pb_min#value": 0.9975,
+      "num_pb_max#value": 1.0,
+      "num_os#value": 20,
+      "num_ob#value": 80,
+      "rsi1#period": 7
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.015
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.004
+    },
+    "timeframe": null
+  },
+  "take_profit": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.003
+    },
+    "timeframe": null
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_163831_intraday_fx_vwap_mean_reversion"
+}

@@ -90,8 +90,8 @@ void RegisterStrategyMetadata(
 
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                  duplicateIdCount[config.id]);
+      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                   duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;

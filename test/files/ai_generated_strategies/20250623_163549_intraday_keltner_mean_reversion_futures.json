@@ -1,0 +1,56 @@
+{
+  "name": "Intraday Keltner Mean Reversion Futures",
+  "description": "Intraday mean-reversion strategy for E-mini index futures (ES, NQ) on 5-minute bars. Long entries when price closes below the lower 20-period EMA Keltner band (ATR\u00d72), volume \u2265150 % of 10-bar average, and RSI(10)<30. Exits at mid-band touch or RSI>45, with hard 0.7 % stop and 1.3 % target. Fixed-fraction sizing risks 2 % of equity per trade.",
+  "assets": {
+    "assets": [
+      "ES-Futures",
+      "NQ-Futures"
+    ],
+    "futures_continuation": {
+      "type": "LiquidityBased",
+      "args": {
+        "adjustment": "BackwardPanamaCanal",
+        "ratio": 0.1
+      }
+    }
+  },
+  "trade_signal": {
+    "type": "volatility_weighted_keltner_reversion",
+    "args": {
+      "n3#period": 20,
+      "n4#value": 2,
+      "n2#period": 20,
+      "n10#period": 10,
+      "n11#period": 10,
+      "n13#period": 5
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.02
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.007
+    },
+    "timeframe": null
+  },
+  "take_profit": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.013
+    },
+    "timeframe": null
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_163549_intraday_keltner_mean_reversion_futures"
+}

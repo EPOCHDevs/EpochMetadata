@@ -1,0 +1,58 @@
+{
+  "name": "Hourly Futures Candlestick-Volume ATR Strategy",
+  "description": "Trades ES, NQ, and YM continuous futures on 1-hour bars using Morning/Evening Star and Engulfing patterns confirmed by 150 % volume spikes. Enters next bar, sizes each trade to risk \u22641.5 % equity, uses 1.5\u00d7ATR14 trailing stop and 2R (\u22483\u00d7ATR) target.",
+  "assets": {
+    "assets": [
+      "ES-Futures",
+      "NQ-Futures",
+      "YM-Futures"
+    ],
+    "futures_continuation": {
+      "type": "LiquidityBased",
+      "args": {
+        "adjustment": "BackwardPanamaCanal",
+        "ratio": 0.1
+      }
+    }
+  },
+  "trade_signal": {
+    "type": "engulfing_volume_strategy_001",
+    "args": {},
+    "timeframe": {
+      "type": "hour",
+      "interval": 1
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.015
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 1.5
+    },
+    "timeframe": {
+      "type": "hour",
+      "interval": 1
+    }
+  },
+  "take_profit": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 3
+    },
+    "timeframe": {
+      "type": "hour",
+      "interval": 1
+    }
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_163815_hourly_futures_candlestick_volume_atr_strategy"
+}
