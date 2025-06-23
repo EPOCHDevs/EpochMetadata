@@ -29,8 +29,6 @@ TimeFrame::TimeFrame(epoch_frame::DateOffsetHandlerPtr offset)
 }
 
 bool TimeFrame::IsIntraDay() const {
-  if (!m_offset)
-    return false;
   return IsIntraday(m_offset->type());
 }
 
@@ -39,10 +37,6 @@ std::string TimeFrame::ToString() const {
 }
 
 bool TimeFrame::operator==(TimeFrame const &other) const {
-  if (!m_offset && !other.m_offset)
-    return true;
-  if (!m_offset || !other.m_offset)
-    return false;
   return m_offset->name() == other.m_offset->name();
 }
 
@@ -51,8 +45,6 @@ bool TimeFrame::operator!=(TimeFrame const &other) const {
 }
 
 std::string TimeFrame::Serialize() const {
-  if (!m_offset)
-    return "null";
   std::string result;
   const auto error = glz::write_json(m_offset, result);
   if (error) {
@@ -64,24 +56,24 @@ std::string TimeFrame::Serialize() const {
 
 epoch_core::EpochOffsetType toOffset(epoch_core::StratifyxTimeFrameType type) {
   switch (type) {
-  case epoch_core::StratifyxTimeFrameType::minute:
-    return epoch_core::EpochOffsetType::Minute;
-  case epoch_core::StratifyxTimeFrameType::hour:
-    return epoch_core::EpochOffsetType::Hour;
-  case epoch_core::StratifyxTimeFrameType::day:
-    return epoch_core::EpochOffsetType::Day;
-  case epoch_core::StratifyxTimeFrameType::week:
-    return epoch_core::EpochOffsetType::Week;
-  case epoch_core::StratifyxTimeFrameType::month:
-    return epoch_core::EpochOffsetType::Month;
-  case epoch_core::StratifyxTimeFrameType::quarter:
-    return epoch_core::EpochOffsetType::Quarter;
-  case epoch_core::StratifyxTimeFrameType::year:
-    return epoch_core::EpochOffsetType::Year;
-  default:
-    break;
+    case epoch_core::StratifyxTimeFrameType::minute:
+      return epoch_core::EpochOffsetType::Minute;
+    case epoch_core::StratifyxTimeFrameType::hour:
+      return epoch_core::EpochOffsetType::Hour;
+    case epoch_core::StratifyxTimeFrameType::day:
+      return epoch_core::EpochOffsetType::Day;
+    case epoch_core::StratifyxTimeFrameType::week:
+      return epoch_core::EpochOffsetType::Week;
+    case epoch_core::StratifyxTimeFrameType::month:
+      return epoch_core::EpochOffsetType::Month;
+    case epoch_core::StratifyxTimeFrameType::quarter:
+      return epoch_core::EpochOffsetType::Quarter;
+    case epoch_core::StratifyxTimeFrameType::year:
+      return epoch_core::EpochOffsetType::Year;
+    default:
+      break;
   }
-  throw std::runtime_error("Invalid Timeframe Type ");
+  std::unreachable();
 }
 
 epoch_core::StratifyxTimeFrameType
@@ -114,46 +106,33 @@ fromOffset(epoch_core::EpochOffsetType type) {
 template <typename Serializer>
 epoch_frame::DateOffsetHandlerPtr
 CreateDateOffsetHandler(Serializer const &buffer) {
-  auto type = toOffset(epoch_core::StratifyxTimeFrameTypeWrapper::FromString(
-      buffer["type"].template as<std::string>()));
+  auto type = epoch_core::StratifyxTimeFrameTypeWrapper::FromString(
+      buffer["type"].template as<std::string>());
   auto interval = buffer["interval"].template as<int>();
   switch (type) {
-  case epoch_core::EpochOffsetType::Day:
-    return epoch_frame::factory::offset::days(interval);
-  case epoch_core::EpochOffsetType::Hour:
-    return epoch_frame::factory::offset::hours(interval);
-  case epoch_core::EpochOffsetType::Minute:
-    return epoch_frame::factory::offset::minutes(interval);
-  case epoch_core::EpochOffsetType::Week:
-    return epoch_frame::factory::offset::weeks(interval);
-  case epoch_core::EpochOffsetType::Month:
-    return epoch_frame::factory::offset::month_end(interval);
-  case epoch_core::EpochOffsetType::Quarter:
-    return epoch_frame::factory::offset::quarter_end(interval);
-  case epoch_core::EpochOffsetType::Year:
-    return epoch_frame::factory::offset::year_end(interval);
-  default:
-    break;
+    case epoch_core::StratifyxTimeFrameType::day:
+      return epoch_frame::factory::offset::days(interval);
+    case epoch_core::StratifyxTimeFrameType::hour:
+      return epoch_frame::factory::offset::hours(interval);
+    case epoch_core::StratifyxTimeFrameType::minute:
+      return epoch_frame::factory::offset::minutes(interval);
+    case epoch_core::StratifyxTimeFrameType::week:
+      return epoch_frame::factory::offset::weeks(interval);
+    case epoch_core::StratifyxTimeFrameType::month:
+      return epoch_frame::factory::offset::month_end(interval);
+    case epoch_core::StratifyxTimeFrameType::quarter:
+      return epoch_frame::factory::offset::quarter_end(interval);
+    case epoch_core::StratifyxTimeFrameType::year:
+      return epoch_frame::factory::offset::year_end(interval);
+    default:
+      break;
   }
-  std::stringstream ss;
-  ss << "Invalid Timeframe Type: ";
-  if constexpr (std::is_same_v<Serializer, YAML::Node>) {
-    ss << buffer;
-  } else {
-    ss << buffer.dump().value_or("Failed to dump");
-  }
-  throw std::runtime_error(ss.str());
+  std::unreachable();
 }
 
 bool TimeFrame::operator<(TimeFrame const &other) const {
-  if (!m_offset && !other.m_offset)
-    return false;
-  if (!m_offset)
-    return true;
-  if (!other.m_offset)
-    return false;
-  auto m_type = fromOffset(m_offset->type());
-  auto other_type = fromOffset(other.m_offset->type());
+  const auto m_type = fromOffset(m_offset->type());
+  const auto other_type = fromOffset(other.m_offset->type());
   if (m_type == other_type)
     return m_offset->n() < other.m_offset->n();
 

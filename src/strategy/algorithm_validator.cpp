@@ -17,7 +17,6 @@
 using namespace epoch_metadata::transforms;
 using namespace epoch_metadata::strategy;
 
-constexpr auto MARKET_DATA_SOURCE = "market_data_source";
 constexpr auto TRADE_SIGNAL_EXECUTOR = "trade_signal_executor";
 
 namespace epoch_metadata::strategy {

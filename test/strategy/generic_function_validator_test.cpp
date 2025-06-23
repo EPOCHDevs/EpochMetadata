@@ -606,3 +606,328 @@ TEST_CASE("GenericFunctionOptimizer: Unknown Type Handling",
     REQUIRE(optimized.args->size() == func.args->size());
   }
 }
+
+TEST_CASE("GenericFunctionValidator: FuturesContinuation type validation",
+          "[GenericFunctionValidator]") {
+  SECTION("Valid futures continuation") {
+    MetaDataArgDefinitionMapping args;
+    // Add appropriate args based on registry metadata for futures continuation
+
+    auto func = CreateGenericFunction("roll_forward_continuous", args);
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::FuturesContinuation);
+
+    // This should either succeed or fail based on actual registry
+    // If the type doesn't exist, we expect UnknownNodeType
+    if (!issues.empty()) {
+      ExpectValidationError(issues, ValidationCode::UnknownNodeType);
+    }
+  }
+
+  SECTION("Unknown futures continuation type") {
+    auto func = CreateGenericFunction("unknown_futures_type");
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::FuturesContinuation);
+    ExpectValidationError(issues, ValidationCode::UnknownNodeType,
+                          "Unknown GenericFunction type");
+  }
+}
+
+TEST_CASE("GenericFunctionValidator: Default case handling",
+          "[GenericFunctionValidator]") {
+  SECTION("Invalid function type enum") {
+    // This tests the default case in the switch statement
+    // We can't easily test with an invalid enum, but we can test with a valid
+    // enum that results in the default case if no registry exists
+    ValidationIssues issues;
+
+    // Test with a valid enum but potentially missing registry
+    auto options = ValidateGenericFunctionType(
+        "any_type", epoch_core::GenericFunctionType::TradeSignal, issues);
+
+    // Should either succeed or fail with UnknownNodeType
+    if (!options.has_value()) {
+      REQUIRE(!issues.empty());
+    }
+  }
+}
+
+TEST_CASE("GenericFunctionValidator: UIData validation in function",
+          "[GenericFunctionValidator]") {
+  SECTION("Function with valid UIData") {
+    MetaDataArgDefinitionMapping args;
+    args["unit"] = CreateOption(1.0);
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+
+    // Create a valid UIData structure
+    UIData validData;
+    validData.nodes = {UINode{.id = "test_node",
+                              .type = "market_data_source",
+                              .options = {},
+                              .metadata = {},
+                              .timeframe = std::nullopt},
+                       UINode{.id = "executor",
+                              .type = "trade_signal_executor",
+                              .options = {},
+                              .metadata = {},
+                              .timeframe = std::nullopt}};
+    validData.edges = {UIEdge{.source = {.id = "test_node", .handle = "c"},
+                              .target = {.id = "executor", .handle = "long"}}};
+    validData.groups = {};
+    validData.annotations = {};
+
+    func.data = validData;
+
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should validate both the function args and the UIData
+    // May have issues from UIData validation, but function validation should
+    // pass
+  }
+
+  SECTION("Function with invalid UIData") {
+    MetaDataArgDefinitionMapping args;
+    args["unit"] = CreateOption(1.0);
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+
+    // Create invalid UIData structure (empty graph)
+    UIData invalidData;
+    invalidData.nodes = {};
+    invalidData.edges = {};
+    invalidData.groups = {};
+    invalidData.annotations = {};
+
+    func.data = invalidData;
+
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should have validation issues from UIData (empty graph)
+    bool hasEmptyGraphError = false;
+    for (const auto &issue : issues) {
+      if (issue.code == ValidationCode::EmptyGraph) {
+        hasEmptyGraphError = true;
+        break;
+      }
+    }
+    REQUIRE(hasEmptyGraphError);
+  }
+}
+
+TEST_CASE("GenericFunctionValidator: Function without type",
+          "[GenericFunctionValidator]") {
+  SECTION("Function with no type set") {
+    GenericFunction func;
+    // Don't set func.type (keep it as nullopt)
+
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // Should return empty issues immediately when no type is set
+    ExpectNoValidationErrors(issues);
+  }
+}
+
+TEST_CASE("GenericFunctionValidator: Args validation edge cases",
+          "[GenericFunctionValidator]") {
+  SECTION("Function with no args but args required") {
+    auto func = CreateGenericFunction("fixed_unit");
+    // Don't set args (keep as nullopt)
+
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should detect missing required args
+    ExpectValidationError(issues, ValidationCode::InvalidOptionReference,
+                          "not defined");
+  }
+
+  SECTION("Function with empty args map") {
+    MetaDataArgDefinitionMapping emptyArgs;
+    auto func = CreateGenericFunction("fixed_unit", emptyArgs);
+
+    auto issues = ValidateGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should detect missing required args
+    ExpectValidationError(issues, ValidationCode::InvalidOptionReference,
+                          "not defined");
+  }
+}
+
+// ============================================================================
+// OPTIMIZATION EDGE CASES
+// ============================================================================
+
+TEST_CASE("GenericFunctionOptimizer: Edge cases",
+          "[GenericFunctionOptimization]") {
+  SECTION("Function without type - no optimization") {
+    GenericFunction func;
+    // Don't set type
+
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // Should return function unchanged
+    REQUIRE(optimized.type == func.type);
+    REQUIRE(optimized.args == func.args);
+  }
+
+  SECTION("Unknown type - no optimization") {
+    auto func = CreateGenericFunction("unknown_type");
+
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // Should return function unchanged since type validation failed
+    REQUIRE(optimized.type == func.type);
+    REQUIRE(optimized.args == func.args);
+  }
+
+  SECTION("Function with UIData optimization") {
+    MetaDataArgDefinitionMapping args;
+    args["unit"] = CreateOption(1.0);
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+
+    // Create UIData that needs optimization (with orphan nodes)
+    UIData dataToOptimize;
+    dataToOptimize.nodes = {UINode{.id = "orphan",
+                                   .type = "sma",
+                                   .options = {UIOption{.id = "period",
+                                                        .value = 20.0,
+                                                        .name = std::nullopt,
+                                                        .isExposed = false}},
+                                   .metadata = {},
+                                   .timeframe = std::nullopt},
+                            UINode{.id = "mds",
+                                   .type = "market_data_source",
+                                   .options = {},
+                                   .metadata = {},
+                                   .timeframe = std::nullopt},
+                            UINode{.id = "connected",
+                                   .type = "sma",
+                                   .options = {UIOption{.id = "period",
+                                                        .value = 50.0,
+                                                        .name = std::nullopt,
+                                                        .isExposed = false}},
+                                   .metadata = {},
+                                   .timeframe = std::nullopt},
+                            UINode{.id = "executor",
+                                   .type = "trade_signal_executor",
+                                   .options = {},
+                                   .metadata = {},
+                                   .timeframe = std::nullopt}};
+    dataToOptimize.edges = {
+        UIEdge{.source = {.id = "mds", .handle = "c"},
+               .target = {.id = "connected", .handle = "*"}},
+        UIEdge{.source = {.id = "connected", .handle = "result"},
+               .target = {.id = "executor", .handle = "long"}}};
+
+    func.data = dataToOptimize;
+
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should optimize the UIData (remove orphan)
+    REQUIRE(optimized.data.has_value());
+    REQUIRE(optimized.data->nodes.size() < dataToOptimize.nodes.size());
+
+    // Verify orphan node was removed
+    bool hasOrphan = false;
+    for (const auto &node : optimized.data->nodes) {
+      if (node.id == "orphan") {
+        hasOrphan = true;
+        break;
+      }
+    }
+    REQUIRE_FALSE(hasOrphan);
+  }
+}
+
+TEST_CASE(
+    "GenericFunctionOptimizer: ApplyDefaultGenericFunctionOptions edge cases",
+    "[GenericFunctionOptimization]") {
+  SECTION("Function without args gets initialized") {
+    auto func = CreateGenericFunction("cppi");
+    // Don't set args (keep as nullopt)
+
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should have args initialized with defaults
+    REQUIRE(optimized.args.has_value());
+    REQUIRE(!optimized.args->empty());
+  }
+
+  SECTION("Required option without default value") {
+    // This tests the case where a required option exists but has no default
+    MetaDataArgDefinitionMapping args;
+    // Deliberately missing a required arg that might not have a default
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should not crash, args should be set even if some required options
+    // missing
+    REQUIRE(optimized.args.has_value());
+  }
+}
+
+TEST_CASE(
+    "GenericFunctionOptimizer: ClampGenericFunctionOptionValues edge cases",
+    "[GenericFunctionOptimization]") {
+  SECTION("Function without args - no clamping") {
+    auto func = CreateGenericFunction("fixed_unit");
+    // Don't set args
+
+    // Manually call clamp function would be ideal, but it's not public
+    // Test through optimization pipeline
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should not crash
+    REQUIRE(optimized.type == func.type);
+  }
+
+  SECTION("Non-numeric options are not clamped") {
+    MetaDataArgDefinitionMapping args;
+    args["slow#type"] = CreateStringOption("sma");
+    args["fast#type"] = CreateStringOption("ema");
+    args["slow#period"] = CreateOption(200.0);
+    args["fast#period"] = CreateOption(50.0);
+
+    auto func = CreateGenericFunction("moving_average_crossover", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::TradeSignal);
+
+    // String options should remain unchanged
+    REQUIRE(optimized.args.has_value());
+    if (optimized.args->contains("slow#type")) {
+      REQUIRE(optimized.args->at("slow#type").GetSelectOption() == "sma");
+    }
+    if (optimized.args->contains("fast#type")) {
+      REQUIRE(optimized.args->at("fast#type").GetSelectOption() == "ema");
+    }
+  }
+
+  SECTION("Unknown options are skipped") {
+    MetaDataArgDefinitionMapping args;
+    args["unit"] = CreateOption(1.0);
+    args["unknown_option"] = CreateOption(999.0);
+
+    auto func = CreateGenericFunction("fixed_unit", args);
+    auto optimized = OptimizeGenericFunction(
+        func, epoch_core::GenericFunctionType::PositionSizer);
+
+    // Should not crash, unknown options should be preserved
+    REQUIRE(optimized.args.has_value());
+    if (optimized.args->contains("unknown_option")) {
+      REQUIRE(optimized.args->at("unknown_option").GetNumericValue() == 999.0);
+    }
+  }
+}

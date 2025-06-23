@@ -2,6 +2,8 @@
 #include "epoch_metadata/time_frame.h"
 #include <catch2/catch_all.hpp>
 #include <epoch_frame/factory/date_offset_factory.h>
+#include <glaze/json/json_t.hpp>
+#include <yaml-cpp/yaml.h>
 
 using namespace epoch_metadata;
 
@@ -195,4 +197,309 @@ TEST_CASE("TimeFrame operator< - practical trading timeframes", "[TimeFrame]") {
   REQUIRE(hour4 < day1);
   REQUIRE(day1 < week1);
   REQUIRE(week1 < month1);
+}
+
+TEST_CASE("IsIntraday function - various offset types", "[IsIntraday]") {
+  // Intraday types
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Hour));
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Minute));
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Second));
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Milli));
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Micro));
+  REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Nano));
+
+  // Non-intraday types
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::Day));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::Week));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::Month));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::MonthEnd));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::Quarter));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::QuarterEnd));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::Year));
+  REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::YearEnd));
+}
+
+TEST_CASE("TimeFrame::IsIntraDay method", "[TimeFrame][IsIntraDay]") {
+  // Intraday timeframes
+  auto hourly = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
+  auto minutely = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 5);
+
+  REQUIRE(hourly.IsIntraDay());
+  REQUIRE(minutely.IsIntraDay());
+
+  // Non-intraday timeframes
+  auto daily = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto weekly = CreateTimeFrame(epoch_core::EpochOffsetType::Week, 1);
+  auto monthly = CreateTimeFrame(epoch_core::EpochOffsetType::Month, 1);
+
+  REQUIRE_FALSE(daily.IsIntraDay());
+  REQUIRE_FALSE(weekly.IsIntraDay());
+  REQUIRE_FALSE(monthly.IsIntraDay());
+}
+
+TEST_CASE("TimeFrame operator== - equality comparisons",
+          "[TimeFrame][operator==]") {
+  // Same type and interval
+  auto day1_a = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto day1_b = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  REQUIRE(day1_a == day1_b);
+
+  // Same type, different intervals
+  auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto day5 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 5);
+  REQUIRE_FALSE(day1 == day5);
+
+  // Different types, same interval
+  auto day1_type = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto hour1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
+  REQUIRE_FALSE(day1_type == hour1);
+
+  // Different types, different intervals
+  auto minute5 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 5);
+  auto week2 = CreateTimeFrame(epoch_core::EpochOffsetType::Week, 2);
+  REQUIRE_FALSE(minute5 == week2);
+}
+
+TEST_CASE("TimeFrame operator!= - inequality comparisons",
+          "[TimeFrame][operator!=]") {
+  // Same type and interval should be equal (not not-equal)
+  auto day1_a = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto day1_b = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  REQUIRE_FALSE(day1_a != day1_b);
+
+  // Same type, different intervals
+  auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto day5 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 5);
+  REQUIRE(day1 != day5);
+
+  // Different types, same interval
+  auto day1_type = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto hour1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
+  REQUIRE(day1_type != hour1);
+
+  // Different types, different intervals
+  auto minute5 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 5);
+  auto week2 = CreateTimeFrame(epoch_core::EpochOffsetType::Week, 2);
+  REQUIRE(minute5 != week2);
+}
+
+TEST_CASE("TimeFrame::Serialize method", "[TimeFrame][Serialize]") {
+  // Test serialization of various timeframes
+  auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto hour4 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 4);
+  auto minute15 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 15);
+
+  // Serialize and check that result is valid JSON
+  std::string day_json = day1.Serialize();
+  std::string hour_json = hour4.Serialize();
+  std::string minute_json = minute15.Serialize();
+
+  REQUIRE_FALSE(day_json.empty());
+  REQUIRE_FALSE(hour_json.empty());
+  REQUIRE_FALSE(minute_json.empty());
+
+  // Check that they contain expected fields
+  REQUIRE(day_json.find("type") != std::string::npos);
+  REQUIRE(day_json.find("interval") != std::string::npos);
+  REQUIRE(hour_json.find("type") != std::string::npos);
+  REQUIRE(hour_json.find("interval") != std::string::npos);
+  REQUIRE(minute_json.find("type") != std::string::npos);
+  REQUIRE(minute_json.find("interval") != std::string::npos);
+}
+
+TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
+          "[CreateDateOffsetHandlerFromJSON]") {
+  // Test null input
+  glz::json_t null_json;
+  auto null_result = CreateDateOffsetHandlerFromJSON(null_json);
+  REQUIRE(null_result == nullptr);
+
+  // Test valid day offset
+  glz::json_t day_json;
+  day_json["type"] = "day";
+  day_json["interval"] = 1;
+  auto day_result = CreateDateOffsetHandlerFromJSON(day_json);
+  REQUIRE(day_result != nullptr);
+  REQUIRE(day_result->type() == epoch_core::EpochOffsetType::Day);
+  REQUIRE(day_result->n() == 1);
+
+  // Test valid hour offset
+  glz::json_t hour_json;
+  hour_json["type"] = "hour";
+  hour_json["interval"] = 4;
+  auto hour_result = CreateDateOffsetHandlerFromJSON(hour_json);
+  REQUIRE(hour_result != nullptr);
+  REQUIRE(hour_result->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(hour_result->n() == 4);
+
+  // Test valid minute offset
+  glz::json_t minute_json;
+  minute_json["type"] = "minute";
+  minute_json["interval"] = 15;
+  auto minute_result = CreateDateOffsetHandlerFromJSON(minute_json);
+  REQUIRE(minute_result != nullptr);
+  REQUIRE(minute_result->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(minute_result->n() == 15);
+
+  // Test valid week offset
+  glz::json_t week_json;
+  week_json["type"] = "week";
+  week_json["interval"] = 2;
+  auto week_result = CreateDateOffsetHandlerFromJSON(week_json);
+  REQUIRE(week_result != nullptr);
+  REQUIRE(week_result->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(week_result->n() == 2);
+
+  // Test valid month offset
+  glz::json_t month_json;
+  month_json["type"] = "month";
+  month_json["interval"] = 3;
+  auto month_result = CreateDateOffsetHandlerFromJSON(month_json);
+  REQUIRE(month_result != nullptr);
+  REQUIRE(month_result->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(month_result->n() == 3);
+
+  // Test valid quarter offset
+  glz::json_t quarter_json;
+  quarter_json["type"] = "quarter";
+  quarter_json["interval"] = 1;
+  auto quarter_result = CreateDateOffsetHandlerFromJSON(quarter_json);
+  REQUIRE(quarter_result != nullptr);
+  REQUIRE(quarter_result->type() == epoch_core::EpochOffsetType::QuarterEnd);
+  REQUIRE(quarter_result->n() == 1);
+
+  // Test valid year offset
+  glz::json_t year_json;
+  year_json["type"] = "year";
+  year_json["interval"] = 5;
+  auto year_result = CreateDateOffsetHandlerFromJSON(year_json);
+  REQUIRE(year_result != nullptr);
+  REQUIRE(year_result->type() == epoch_core::EpochOffsetType::YearEnd);
+  REQUIRE(year_result->n() == 5);
+}
+
+TEST_CASE("CreateDateOffsetHandlerFromJSON - exception paths",
+          "[CreateDateOffsetHandlerFromJSON][exception]") {
+  // Test invalid type
+  glz::json_t invalid_type_json;
+  invalid_type_json["type"] = "invalid_type";
+  invalid_type_json["interval"] = 1;
+  REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(invalid_type_json));
+
+  // Test missing type field
+  glz::json_t missing_type_json;
+  missing_type_json["interval"] = 1;
+  REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(missing_type_json));
+
+  // Test missing interval field
+  glz::json_t missing_interval_json;
+  missing_interval_json["type"] = "day";
+  REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(missing_interval_json));
+}
+
+TEST_CASE("CreateDateOffsetHandlerJSON function",
+          "[CreateDateOffsetHandlerJSON]") {
+  // Test null pointer
+  epoch_frame::DateOffsetHandlerPtr null_ptr = nullptr;
+  auto null_json = CreateDateOffsetHandlerJSON(null_ptr);
+  REQUIRE(null_json.is_null());
+
+  // Test valid day offset
+  auto day_offset = epoch_frame::factory::offset::days(1);
+  auto day_json = CreateDateOffsetHandlerJSON(day_offset);
+  REQUIRE(day_json.is_object());
+  REQUIRE(day_json["type"].as<std::string>() == "day");
+  REQUIRE(day_json["interval"].as<int>() == 1);
+
+  // Test valid hour offset
+  auto hour_offset = epoch_frame::factory::offset::hours(4);
+  auto hour_json = CreateDateOffsetHandlerJSON(hour_offset);
+  REQUIRE(hour_json.is_object());
+  REQUIRE(hour_json["type"].as<std::string>() == "hour");
+  REQUIRE(hour_json["interval"].as<int>() == 4);
+
+  // Test valid minute offset
+  auto minute_offset = epoch_frame::factory::offset::minutes(15);
+  auto minute_json = CreateDateOffsetHandlerJSON(minute_offset);
+  REQUIRE(minute_json.is_object());
+  REQUIRE(minute_json["type"].as<std::string>() == "minute");
+  REQUIRE(minute_json["interval"].as<int>() == 15);
+}
+
+TEST_CASE("JSON serialization round-trip", "[JSON][serialization]") {
+  // Test round-trip serialization: TimeFrame -> JSON -> TimeFrame
+  auto original_day = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto original_hour = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 4);
+  auto original_minute =
+      CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 15);
+
+  // Serialize to JSON
+  std::string day_json = original_day.Serialize();
+  std::string hour_json = original_hour.Serialize();
+  std::string minute_json = original_minute.Serialize();
+
+  // Parse JSON back
+  glz::json_t day_parsed;
+  glz::json_t hour_parsed;
+  glz::json_t minute_parsed;
+
+  REQUIRE_FALSE(glz::read_json(day_parsed, day_json));
+  REQUIRE_FALSE(glz::read_json(hour_parsed, hour_json));
+  REQUIRE_FALSE(glz::read_json(minute_parsed, minute_json));
+
+  // Create new TimeFrame objects from parsed JSON
+  auto day_offset = CreateDateOffsetHandlerFromJSON(day_parsed);
+  auto hour_offset = CreateDateOffsetHandlerFromJSON(hour_parsed);
+  auto minute_offset = CreateDateOffsetHandlerFromJSON(minute_parsed);
+
+  TimeFrame reconstructed_day(day_offset);
+  TimeFrame reconstructed_hour(hour_offset);
+  TimeFrame reconstructed_minute(minute_offset);
+
+  // Verify they match the originals
+  REQUIRE(original_day == reconstructed_day);
+  REQUIRE(original_hour == reconstructed_hour);
+  REQUIRE(original_minute == reconstructed_minute);
+}
+
+TEST_CASE("YAML serialization", "[YAML][serialization]") {
+  // Test YAML serialization and deserialization
+  YAML::Node day_node;
+  day_node["type"] = "day";
+  day_node["interval"] = 1;
+
+  YAML::Node hour_node;
+  hour_node["type"] = "hour";
+  hour_node["interval"] = 4;
+
+  YAML::Node minute_node;
+  minute_node["type"] = "minute";
+  minute_node["interval"] = 15;
+
+  // Convert from YAML
+  auto day_offset = day_node.as<epoch_frame::DateOffsetHandlerPtr>();
+  auto hour_offset = hour_node.as<epoch_frame::DateOffsetHandlerPtr>();
+  auto minute_offset = minute_node.as<epoch_frame::DateOffsetHandlerPtr>();
+
+  REQUIRE(day_offset != nullptr);
+  REQUIRE(hour_offset != nullptr);
+  REQUIRE(minute_offset != nullptr);
+
+  REQUIRE(day_offset->type() == epoch_core::EpochOffsetType::Day);
+  REQUIRE(day_offset->n() == 1);
+
+  REQUIRE(hour_offset->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(hour_offset->n() == 4);
+
+  REQUIRE(minute_offset->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(minute_offset->n() == 15);
+
+  // Test TimeFrame YAML conversion
+  TimeFrame day_tf(day_offset);
+  TimeFrame hour_tf(hour_offset);
+  TimeFrame minute_tf(minute_offset);
+
+  REQUIRE(day_tf.ToString() == day_offset->name());
+  REQUIRE(hour_tf.ToString() == hour_offset->name());
+  REQUIRE(minute_tf.ToString() == minute_offset->name());
 }
