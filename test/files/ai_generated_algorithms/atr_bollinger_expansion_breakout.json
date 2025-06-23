@@ -1,0 +1,502 @@
+{
+  "id": "atr-bollinger-expansion-breakout-001",
+  "name": "ATR-Bollinger Expansion Breakout",
+  "description": "This strategy utilizes the Average True Range (ATR) and Bollinger Bands to identify breakout opportunities in the market. By combining volatility measurement with price action, it aims to capture significant price movements following a period of consolidation.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"ATR-Bollinger Expansion Breakout Strategy\", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Input parameters\natr_length      = input.int(14, minval=1, title=\"ATR Length\")\natr_mult        = input.float(2.0, minval=0.1, step=0.1, title=\"ATR Multiplier\")\nbb_length       = input.int(20, minval=1, title=\"Bollinger Bands Length\")\nbb_mult         = input.float(2.0, minval=0.1, step=0.1, title=\"BB Multiplier\")\nbb_expansion_th = input.float(1.2, minval=0.5, step=0.05, title=\"BB Expansion Factor Threshold\")\nlookback_exp    = input.int(25, minval=5, title=\"Lookback for BB Expansion Min\")\n\n// Indicators\natr = ta.atr(atr_length)\nbasis = ta.sma(close, bb_length)\ndev = bb_mult * ta.stdev(close, bb_length)\nbb_upper = basis + dev\nbb_lower = basis - dev\nbb_width = bb_upper - bb_lower\nbbw_min = ta.lowest(bb_width, lookback_exp)\n\n// Condition: BB width suddenly expands (volatility surge) above X times recent min width\nbbwidth_expanded = bb_width > bbw_min * bb_expansion_th\n\n// Breakout conditions: Price closes outside BB on BB expansion candle\nlong_break = close > bb_upper and bbwidth_expanded\nshort_break = close < bb_lower and bbwidth_expanded\n\n// Optional: Avoid signals if recent bar was already outside the band to avoid cluster signals\nprev_close = close[1]\nprev_upper = bb_upper[1]\nprev_lower = bb_lower[1]\n\nnot_already_long = prev_close <= prev_upper\nnot_already_short = prev_close >= prev_lower\n\n// Entry condition combines expansion, breakout, and not already outside band\nlong_entry = long_break and not_already_long\nshort_entry = short_break and not_already_short\n\n// Stop loss and take profit in ATR\nsl_mult = input.float(1.0, minval=0.5, step=0.1, title=\"Stop Loss ATR Multiple\")\ntp_mult = input.float(2.5, minval=1, step=0.1, title=\"Take Profit ATR Multiple\")\n\nlong_stop = close - atr * sl_mult\nlong_target = close + atr * tp_mult\n\nshort_stop = close + atr * sl_mult\nshort_target = close - atr * tp_mult\n\n// Execute trades\nif long_entry\n    strategy.entry(\"Long\", strategy.long)\n    strategy.exit(\"Long Exit\", \"Long\", stop=long_stop, limit=long_target)\nif short_entry\n    strategy.entry(\"Short\", strategy.short)\n    strategy.exit(\"Short Exit\", \"Short\", stop=short_stop, limit=short_target)\n\n// Plotting\nplot(bb_upper, color=color.blue, linewidth=1, title=\"BB Upper\")\nplot(bb_lower, color=color.blue, linewidth=1, title=\"BB Lower\")\nplot(basis, color=color.orange, linewidth=1, title=\"BB Basis\")\nplot(bb_width, color=color.fuchsia, title=\"BB Width\", style=plot.style_stepline, offset=-bb_length)\nhline(0, \"Zero\", color=color.gray)\n\nbgcolor(long_entry ? color.new(color.green, 85) : na)\nbgcolor(short_entry ? color.new(color.red, 85) : na)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "width",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbw_min",
+        "type": "min",
+        "options": [
+          {
+            "id": "period",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thr_const",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thresh_mul",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exp_cond",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_gt",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_lt",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_close",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_upper",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_lower",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not_long",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not_short",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "width",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "width",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "width",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bbw_min",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw_min",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thresh_mul",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thr_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thresh_mul",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "width",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exp_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thresh_mul",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exp_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "long_gt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "long_gt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "short_lt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "short_lt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "lag_upper",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lag_lower",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "exp_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_gt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exp_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "short_lt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:53:28.981764",
+  "tags": [
+    "ATR",
+    "Bollinger Bands",
+    "Breakout",
+    "Volatility",
+    "Technical Pattern"
+  ]
+}

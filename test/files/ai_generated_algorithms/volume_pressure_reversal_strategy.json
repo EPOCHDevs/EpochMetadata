@@ -1,0 +1,710 @@
+{
+  "id": "unique-id-001",
+  "name": "Volume-Pressure Reversal Strategy",
+  "description": "This strategy targets intraday reversals by leveraging asymmetric volume-pressure imbalances alongside fractal volatility contraction. It specifically trades 15-minute bars of liquid equities or futures, aiming to capitalize on short-term price movements.",
+  "algorithm_type": "Momentum",
+  "prompt": "I want to design a trading strategy that targets intraday reversals by combining asymmetric volume-pressure imbalance with fractal volatility contraction. Specifically, this strategy trades 15-minute bars of liquid equities or futures.\n\nEntry Conditions:\n- Calculate a volume-weighted fractal volatility contraction measure by measuring the standard deviation of price changes over a sliding 9-bar window, weighted by volume and transformed using a square root function to emphasize low volatility regimes.\n- Identify an asymmetric volume-pressure imbalance by comparing the Positive Volume Index (PVI) to the Negative Volume Index (NVI) over the last 5 bars; enter only when PVI significantly exceeds NVI by more than 15% to signal dominant buyer volume under low volatility conditions.\n- Confirm a local fractal support or resistance by detecting fractal swing highs or lows within a 3-bar window aligned with Bollinger Bands %B extremes (below 0.1 or above 0.9).\n- Enter a long position when volume-weighted fractal volatility is at a 9-bar low, PVI > NVI + 15%, and price forms a fractal low near the lower Bollinger Band %B threshold; enter a short position symmetrically on fractal highs near the upper Bollinger Band %B threshold.\n  \nExit Conditions:\n- Exit when the moving average convergence divergence (MACD) histogram reverses sign over a 5-bar period, signaling weakening momentum.\n- Alternatively, exit after a maximum holding period of 12 bars to avoid overstaying during breakout continuation phases.\n  \nStop-Loss:\n- Place a stop-loss immediately beyond the detected fractal high (for shorts) or fractal low (for longs) with a 0.3% price buffer.\n\nThis strategy uniquely integrates volume-weighted fractal volatility contraction with asymmetric volume indices and fractal pattern recognition on Bollinger Band extremes to capture statistically significant intraday reversal opportunities.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "ds1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "vol_std",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_low",
+        "type": "lowest_lte",
+        "options": [
+          {
+            "id": "periods",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pvi_node",
+        "type": "pvi",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "nvi_node",
+        "type": "nvi",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "num_1_15",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mult_nvi",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_pvi",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mult_pvi",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_nvi",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "swing_node",
+        "type": "swing_highs_lows",
+        "options": [
+          {
+            "id": "swing_length",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "neg_one_const",
+        "type": "negative_one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pos_one_const",
+        "type": "one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_low",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_high",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbands_node",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bband_percent",
+        "type": "bband_percent",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "num_0_1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0_9",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_pct_low",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_pct_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macd_node",
+        "type": "macd",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 12,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 26,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "signal_period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_exit",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "ds1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vol_std",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_std",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_low",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "pvi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mult_pvi",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_1_15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mult_pvi",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "nvi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mult_nvi",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_1_15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mult_nvi",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "pvi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pvi",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mult_nvi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pvi",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "nvi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_nvi",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mult_pvi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_nvi",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "swing_node",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "eq_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "neg_one_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "swing_node",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "eq_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "pos_one_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ds1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bbands_node",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bbands_node",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "bband_percent",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "bbands_node",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "bband_percent",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "bband_percent",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_pct_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_pct_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bband_percent",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pct_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0_9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pct_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_pvi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_pct_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_nvi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_pct_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "ds1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "macd_node",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macd_node",
+          "handle": "macd_histogram"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:54:55.389689",
+  "tags": [
+    "momentum",
+    "intraday",
+    "trading",
+    "volatility",
+    "reversal"
+  ]
+}

@@ -1,0 +1,595 @@
+{
+  "id": "unique-algorithm-001",
+  "name": "Single-Day Volatility Breakout Detector",
+  "description": "This strategy identifies single-day volatility contraction breakouts by scanning for days with the lowest True Range in the past 15 trading days. It places a bracket order the following day, buying at the previous day's high and selling at the previous day's low, to capitalize on potential price movements.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Design a strategy that detects \"single-day volatility contraction breakouts\" as follows:\n\n1. Scan for days where the True Range (High-Low) is both the lowest of the past 15 trading days AND less than 60% of the average True Range over that period.\n2. On the day after this contraction, place a bracket order:  \n   - Buy stop at the previous day's high  \n   - Sell stop at the previous day's low\n3. Whichever stop order is triggered becomes the trade direction. Once entered:\n   - Use a stop loss at the opposite side of the signal candle (previous day's low for long, high for short)\n   - Exit at either:\n     - 2x the True Range of the contraction candle in profit (take profit)\n     - Or after 3 trading days, whichever comes first\n4. Only one trade per asset at a time.  \n5. Ignore signals if overall 5-day average volume is below 75% of the 60-day average volume (to avoid illiquid periods).",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "m1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sub1",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lowlte1",
+        "type": "lowest_lte",
+        "options": [
+          {
+            "id": "periods",
+            "value": 15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma1",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num06",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and1",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma2",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma3",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 60,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num075",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.75,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul2",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not1",
+        "type": "logical_not",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and2",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag2",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt3",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and3",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and4",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec1",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "m1",
+          "handle": "h"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "l"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lowlte1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lowlte1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num06",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num075",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "h"
+        },
+        "target": {
+          "id": "lag1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "l"
+        },
+        "target": {
+          "id": "lag2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt3",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt3",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and3",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and3",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and4",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and4",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma1",
+          "handle": "*"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:28:20.643629",
+  "tags": [
+    "volatility",
+    "breakout",
+    "trading",
+    "technical",
+    "strategy"
+  ]
+}

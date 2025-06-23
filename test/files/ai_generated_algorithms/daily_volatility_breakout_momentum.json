@@ -1,0 +1,788 @@
+{
+  "id": "momentum-volatility-breakout-001",
+  "name": "Daily Volatility Breakout Momentum",
+  "description": "This strategy focuses on identifying volatility breakouts on daily timeframes by analyzing the daily price range. It triggers entry signals when the current day's range exceeds 1.5 times the average daily range over the past 14 days, confirmed by increased trading volume.",
+  "algorithm_type": "Momentum",
+  "prompt": "I want to create a volatility breakout strategy focused on daily timeframes that combines range expansion with volume confirmation. The strategy will identify the day when the difference between the high and low (daily range) exceeds the average daily range of the past 14 days by a factor of 1.5 (i.e., today\u2019s range > 1.5 \u00d7 14-day average range). Entry signals trigger only if the daily volume on that day is also greater than the 20-day average volume, confirming strong participation.\n\nFor a long entry: after such a volatility and volume expansion day, the strategy buys at the open of the next day if the open price is above the previous day\u2019s high, signaling a breakout. For a short entry: if the open price is below the previous day\u2019s low after the volatility and volume expansion day, the strategy shorts at that open.\n\nExit conditions: close long positions if price closes below the 10-day moving average or if daily range shrinks below the 14-day average range before an exit; close short positions if price closes above the 10-day moving average or daily range also contracts below average. A fixed stop loss at 1.5\u00d7 ATR(14) from entry price is applied for risk control.\n\nThis strategy leverages sudden volatility spikes confirmed by volume as breakout signals, trading momentum triggered by real market participation rather than just moving average crosses or oscillators.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1_market",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n2_range",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3_avg_range",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4_const_1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5_range_threshold",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6_range_breakout",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7_avg_volume",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8_vol_confirm",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9_expand_bool",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10_const_1",
+        "type": "one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11_const_0",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12_expand_numeric",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13_lag_expand",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14_const_0_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15_expand_prev",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16_lag_high",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17_lag_low",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18_open_above_prev_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n19_open_below_prev_low",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n20_long_entry",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n21_short_entry",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n22_sma10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n23_close_below_sma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n24_close_above_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n25_contraction",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n26_or_long_exit",
+        "type": "logical_or",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n27_or_short_exit",
+        "type": "logical_or",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n28_exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n29_executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "h"
+        },
+        "target": {
+          "id": "n2_range",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "l"
+        },
+        "target": {
+          "id": "n2_range",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n3_avg_range",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n3_avg_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5_range_threshold",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n4_const_1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5_range_threshold",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6_range_breakout",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5_range_threshold",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6_range_breakout",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n7_avg_volume",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n8_vol_confirm",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7_avg_volume",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8_vol_confirm",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n6_range_breakout",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9_expand_bool",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8_vol_confirm",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9_expand_bool",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n9_expand_bool",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12_expand_numeric",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "n10_const_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12_expand_numeric",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "n11_const_0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12_expand_numeric",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "n12_expand_numeric",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13_lag_expand",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n13_lag_expand",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15_expand_prev",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n14_const_0_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15_expand_prev",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n15_expand_prev",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20_long_entry",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n15_expand_prev",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21_short_entry",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "h"
+        },
+        "target": {
+          "id": "n16_lag_high",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "l"
+        },
+        "target": {
+          "id": "n17_lag_low",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "o"
+        },
+        "target": {
+          "id": "n18_open_above_prev_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n16_lag_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18_open_above_prev_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "o"
+        },
+        "target": {
+          "id": "n19_open_below_prev_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n17_lag_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19_open_below_prev_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n18_open_above_prev_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20_long_entry",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n19_open_below_prev_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21_short_entry",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n20_long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n29_executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n21_short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n29_executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n22_sma10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n23_close_below_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n22_sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n23_close_below_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1_market",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n24_close_above_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n22_sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24_close_above_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n25_contraction",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3_avg_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n25_contraction",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n23_close_below_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n26_or_long_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n25_contraction",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n26_or_long_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n24_close_above_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n27_or_short_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n25_contraction",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n27_or_short_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n26_or_long_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n28_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n27_or_short_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n28_exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n28_exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n29_executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:50:37.225759",
+  "tags": [
+    "momentum",
+    "volatility",
+    "breakout",
+    "daily",
+    "strategy"
+  ]
+}

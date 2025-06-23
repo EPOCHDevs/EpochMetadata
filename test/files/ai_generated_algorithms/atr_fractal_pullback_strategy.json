@@ -1,0 +1,656 @@
+{
+  "id": "atr_fractal_pullback_strategy",
+  "name": "ATR Fractal Pullback Strategy",
+  "description": "This strategy utilizes the Average True Range (ATR) to identify potential pullback opportunities in the market. By combining fractal patterns with ATR multipliers, it aims to capture price reversals effectively.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"ATR Fractal Pullback Strategy\", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// === INPUTS ===\natr_len     = input.int(14, title=\"ATR Length\")\natr_mult    = input.float(2.0, title=\"ATR Multiplier\")\nfractal_len = input.int(2, title=\"Fractal Wing Length\")\npullback_perc = input.float(0.5, title=\"Pullback % of ATR\", minval=0.1, maxval=1.0)\nlookback_maxbars = input.int(30, title=\"Max Bars Since Fractal\", minval=5, maxval=50)\n\n// === INDICATORS ===\natr = ta.atr(atr_len)\n\n// --- Bill Williams Fractal Calculation ---\nfractal_high = ta.highest(high, fractal_len * 2 + 1) == high[fractal_len] and high[fractal_len] > high[fractal_len*2] and high[fractal_len] > high[0]\nfractal_low  = ta.lowest(low, fractal_len * 2 + 1) == low[fractal_len] and low[fractal_len] < low[fractal_len*2] and low[fractal_len] < low[0]\n\n// Store most recent swing high/low fractals and their bar indexes\nvar float last_fractal_high = na\nvar int   last_fractal_high_bar = na\nvar float last_fractal_low  = na\nvar int   last_fractal_low_bar = na\n\nif fractal_high\n    last_fractal_high := high[fractal_len]\n    last_fractal_high_bar := bar_index - fractal_len\nif fractal_low\n    last_fractal_low := low[fractal_len]\n    last_fractal_low_bar := bar_index - fractal_len\n\n// --- Pullback price levels ---\nlong_pullback_price  = na(last_fractal_high) ? na : last_fractal_high - atr * pullback_perc\nshort_pullback_price = na(last_fractal_low)  ? na : last_fractal_low + atr * pullback_perc\n\nbar_age_from_high = bar_index - last_fractal_high_bar\nbar_age_from_low  = bar_index - last_fractal_low_bar\n\n// === ENTRY CONDITIONS ===\n// LONG: Price recently set a swing high, then pulls back to ATR-based level but in an uptrend (price above EMA and low volatility contraction)\n// SHORT: Price recently set a swing low, then bounces up to ATR-based level but in a downtrend\n\nema_trend_len = input.int(34, title=\"EMA Trend Length\")\nmin_trend_strength = input.float(1.1, title=\"EMA Trend Strength Threshold (ratio)\", minval=1.01, maxval=2.0)\nema_fast = ta.ema(close, ema_trend_len)\ntrend_up   = close > ema_fast*min_trend_strength\ntrend_down = close < ema_fast/min_trend_strength\n\n// Volatility contraction: ATR shrinking over last 5 bars\natr_shrink = ta.lowest(atr, 5) == atr\n\nlong_entry  = not na(last_fractal_high) and bar_age_from_high < lookback_maxbars and close <= long_pullback_price and trend_up and atr_shrink\nshort_entry = not na(last_fractal_low)  and bar_age_from_low < lookback_maxbars and close >= short_pullback_price and trend_down and atr_shrink\n\n// === EXIT LOGIC ===\n// Take profit at previous fractal, stop at ATR-mult from entry\nlong_tp  = last_fractal_high + atr_mult*atr\nlong_sl  = close - atr_mult*atr\n\nshort_tp = last_fractal_low  - atr_mult*atr\nshort_sl = close + atr_mult*atr\n\n// === TRADING ===\nif (long_entry)\n    strategy.entry(\"Long FractalPB\", strategy.long)\n    strategy.exit(\"Long FractalPB TP/SL\", \"Long FractalPB\", limit=long_tp, stop=long_sl)\n\nif (short_entry)\n    strategy.entry(\"Short FractalPB\", strategy.short)\n    strategy.exit(\"Short FractalPB TP/SL\", \"Short FractalPB\", limit=short_tp, stop=short_sl)\n\n// === PLOTS ===\nplot(ema_fast, color=color.orange, linewidth=1, title=\"EMA Trend\")\nplotshape(fractal_high, style=shape.triangleup, location=location.abovebar, color=color.green, size=size.tiny, title=\"Fractal High\")\nplotshape(fractal_low,  style=shape.triangledown, location=location.belowbar, color=color.red, size=size.tiny, title",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr1",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num_pullback",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_atr_pct",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "swing",
+        "type": "swing_highs_lows",
+        "options": [
+          {
+            "id": "swing_length",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sub_pullback",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_close_pullback",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema_fast",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div_ratio",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_ratio_up",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_ratio_down",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_ratio",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_ratio",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "min_atr5",
+        "type": "min",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_atr_shrink",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_int_one",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_int_neg_one",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_high",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eq_low",
+        "type": "eq",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "add_pullback_short",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_close_pullback",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema_fast",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_ratio_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_ratio_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr_pct",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_pullback",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr_pct",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "level"
+        },
+        "target": {
+          "id": "sub_pullback",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr_pct",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_pullback",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte_close_pullback",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_pullback",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_close_pullback",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "eq_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_int_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "eq_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_int_neg_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "min_atr5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_atr_shrink",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "min_atr5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "eq_atr_shrink",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_close_pullback",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_atr_shrink",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "level"
+        },
+        "target": {
+          "id": "add_pullback_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr_pct",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_pullback_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gte_close_pullback",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "add_pullback_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_close_pullback",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_close_pullback",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "eq_atr_shrink",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema_fast",
+          "handle": "*"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:17:46.984961",
+  "tags": [
+    "ATR",
+    "Fractal",
+    "Pullback",
+    "TechnicalPattern",
+    "Strategy"
+  ]
+}

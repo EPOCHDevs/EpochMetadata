@@ -1,0 +1,639 @@
+{
+  "id": "unique-id-12345",
+  "name": "TEMA KVO Mass Index Strategy",
+  "description": "This trading strategy utilizes the Triple Exponential Moving Average (TEMA) to identify trends and signals for entry. It incorporates the Klinger Volume Oscillator and the Mass Index to enhance decision-making for long positions based on market momentum.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef trading_strategy(data):\n    # Calculate technical indicators\n    data['tema_15'] = talib.TEMA(data['close'], timeperiod=15)\n    data['tema_35'] = talib.TEMA(data['close'], timeperiod=35)\n    data['kvo'] = klinger_volume_oscillator(data)\n    data['mi_14'] = mass_index(data['high'], data['low'], 9, 25)\n\n    # Signal: Entry long if:\n    # (1) 15-TEMA crosses above 35-TEMA (bullish crossover)\n    # (2) Klinger Volume Oscillator crosses above 0\n    # (3) Mass Index exceeds 27, indicating a potential reversal setup\n    data['signal'] = 0\n\n    # TEMA cross\n    data['tema_cross'] = tema_cross = (data['tema_15'] > data['tema_35']) & (data['tema_15'].shift(1) <= data['tema_35'].shift(1))\n\n    # KVO cross above 0\n    data['kvo_cross'] = kvo_cross = (data['kvo'] > 0) & (data['kvo'].shift(1) <= 0)\n\n    # Mass Index spike\n    data['mi_spike'] = (data['mi_14'] > 27) & (data['mi_14'].shift(1) <= 27)\n\n    # Generate long signals\n    data.loc[tema_cross & kvo_cross & data['mi_spike'], 'signal'] = 1\n\n    # Short if:\n    # (1) 15-TEMA crosses below 35-TEMA (bearish crossover)\n    # (2) KVO crosses below 0\n    # (3) Mass Index spike\n    tema_cross_down = (data['tema_15'] < data['tema_35']) & (data['tema_15'].shift(1) >= data['tema_35'].shift(1))\n    kvo_cross_down = (data['kvo'] < 0) & (data['kvo'].shift(1) >= 0)\n    data.loc[tema_cross_down & kvo_cross_down & data['mi_spike'], 'signal'] = -1\n\n    return data\n\ndef klinger_volume_oscillator(data, fast=34, slow=55, signal=13):\n    high = data['high']\n    low = data['low']\n    close = data['close']\n    volume = data['volume']\n    dm = ((high + low)/2) - ((high + low).shift(1)/2)\n    trend = np.where(dm > 0, 1, np.where(dm < 0, -1, 0))\n    cm = []\n    curr_cm = 0\n    for i in range(len(data)):\n        if i == 0:\n            cm.append(volume.iloc[0])\n        elif trend[i] == trend[i-1]:\n            curr_cm += volume.iloc[i]\n            cm.append(curr_cm)\n        else:\n            curr_cm = volume.iloc[i]\n            cm.append(curr_cm)\n    cm = np.array(cm)\n    vf = ((2 * abs(high - low)) / (high + low)) * cm * trend\n    vf[np.isnan(vf)] = 0\n    fast_ema = pd.Series(vf).ewm(span=fast, min_periods=fast).mean()\n    slow_ema = pd.Series(vf).ewm(span=slow, min_periods=slow).mean()\n    return fast_ema - slow_ema\n\ndef mass_index(high, low, ema_period=9, sum_period=25):\n    hl_range = high - low\n    ema1 = hl_range.ewm(span=ema_period, min_periods=ema_period).mean()\n    ema2 = ema1.ewm(span=ema_period, min_periods=ema_period).mean()\n    mass = ema1 / ema2\n    return mass.rolling(window=sum_period).sum()",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "m1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "t15",
+        "type": "tema",
+        "options": [
+          {
+            "id": "period",
+            "value": 15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "t35",
+        "type": "tema",
+        "options": [
+          {
+            "id": "period",
+            "value": 35,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_down",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "kvo_node",
+        "type": "kvo",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 55,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lag_kvo",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_kvo",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_prev_kvo",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "kvo_cross_up",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_kvo",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_prev_kvo",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "kvo_cross_down",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mass_idx",
+        "type": "mass",
+        "options": [
+          {
+            "id": "period",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lag_mass",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num27",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 27,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mass",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_prev_mass",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mass_spike",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "m1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "t15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "m1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "t35",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "t15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "t35",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "t35",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "t15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "kvo_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_kvo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_kvo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "kvo_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_kvo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_kvo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "kvo_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_kvo",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_prev_kvo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_prev_kvo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_prev_kvo",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_prev_kvo",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_prev_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kvo_cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kvo_cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_prev_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kvo_cross_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_kvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kvo_cross_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mass_idx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_mass",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mass_idx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mass",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num27",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mass",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_prev_mass",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num27",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_prev_mass",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_prev_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mass_spike",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mass_spike",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "kvo_cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mass_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "kvo_cross_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mass_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:00:29.375157",
+  "tags": [
+    "technical",
+    "trading",
+    "strategy",
+    "TEMA",
+    "KVO"
+  ]
+}

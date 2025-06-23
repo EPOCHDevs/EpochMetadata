@@ -1,0 +1,346 @@
+{
+  "id": "vwap_bb_compression_breakout",
+  "name": "VWAP-BB Compression Breakout",
+  "description": "This strategy utilizes the VWAP and Bollinger Bands to identify potential breakout opportunities in the market. By analyzing price compression within the Bollinger Bands, it aims to capture significant price movements following periods of low volatility.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"VWAP-Bollinger Bands Compression Breakout Strategy\", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Inputs\nlength_vwap = input.int(20, minval=1, title=\"VWAP Period (intraday only)\")\nlength_bb = input.int(21, minval=2, title=\"Bollinger Bands Length\")\nbb_mult = input.float(2.0, minval=0.1, title=\"BB Multiplier\")\ncompression_factor = input.float(0.5, minval=0.01, maxval=1.0, title=\"Compression Factor (%)\")\natr_length = input.int(14, title=\"ATR Length for Stop Loss/Take Profit\")\natr_mult_sl = input.float(1.5, title=\"ATR SL Multiplier\")\natr_mult_tp = input.float(2.5, title=\"ATR TP Multiplier\")\n\n// VWAP calculation (intraday only)\nuse_vwap = timeframe.isintraday\nvwap_val = ta.vwap\n\n// Bollinger Bands\nbasis = ta.sma(close, length_bb)\ndev = bb_mult * ta.stdev(close, length_bb)\nbb_upper = basis + dev\nbb_lower = basis - dev\nbb_width = bb_upper - bb_lower\n\n// BB compression threshold\nbbw_sma = ta.sma(bb_width, length_bb)\nis_compressed = bb_width < bbw_sma * compression_factor\n\n// ATR for exits\natr = ta.atr(atr_length)\n\n// Breakout Conditions\nbreakout_up = ta.crossover(close, bb_upper)\nbreakout_down = ta.crossunder(close, bb_lower)\n\n// Long Entry Conditions\nlong_condition = is_compressed and breakout_up and (not use_vwap or close > vwap_val)\n\n// Short Entry Conditions\nshort_condition = is_compressed and breakout_down and (not use_vwap or close < vwap_val)\n\n// Execute Trades\nif long_condition\n    strategy.entry(\"Long\", strategy.long)\n    strategy.exit(\"Long Exit\", \"Long\", stop=close - atr*atr_mult_sl, limit=close + atr*atr_mult_tp)\nif short_condition\n    strategy.entry(\"Short\", strategy.short)\n    strategy.exit(\"Short Exit\", \"Short\", stop=close + atr*atr_mult_sl, limit=close - atr*atr_mult_tp)\n\n// Plots\nplot(basis, color=color.yellow, linewidth=1, title=\"BB Basis\")\nplot(bb_upper, color=color.aqua, linewidth=1, title=\"BB Upper\")\nplot(bb_lower, color=color.teal, linewidth=1, title=\"BB Lower\")\nplot(use_vwap ? vwap_val : na, color=color.purple, linewidth=2, title=\"VWAP\")\nbgcolor(is_compressed ? color.new(color.orange,85) : na, title=\"Compression Zone\")",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub1",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_bw",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "comp_factor",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "c_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "c_down",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "c_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "c_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "c_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "c_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma_bw",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_bw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "comp_factor",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "c_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "c_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:48:54.207140",
+  "tags": [
+    "VWAP",
+    "Bollinger Bands",
+    "Breakout",
+    "Technical Analysis",
+    "Compression"
+  ]
+}

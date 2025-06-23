@@ -1,0 +1,617 @@
+{
+  "id": "algorithm-83",
+  "name": "Intraday Gap Doji Strategy",
+  "description": "This strategy identifies trading opportunities based on significant intraday price gaps followed by Doji candlesticks. A long position is taken if the gap is upward and the Doji closes above its open, while a short position is initiated for downward gaps with the Doji closing below its open.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Design a strategy that enters trades when a large intraday price gap (open-to-previous-close >= 1.5x the 20-day Average True Range) is immediately followed by a Doji candlestick with volume at least 1.5 times the 20-day average volume. Go long if the gap is up and the Doji's close is above the open; go short if the gap is down and the Doji's close is below the open. Exit the trade at the end of the next trading session or if price moves 1x ATR against the position intraday, whichever comes first.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr20",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lag1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gap_diff",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "abs_gap",
+        "type": "abs",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr_thresh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "big_gap",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "doji20",
+        "type": "doji",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_thresh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_cond",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "base_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gap_up",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gap_down",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_gt_open",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_lt_open",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "o"
+        },
+        "target": {
+          "id": "gap_diff",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gap_diff",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gap_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "abs_gap",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "atr_thresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "atr_thresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "abs_gap",
+          "handle": "result"
+        },
+        "target": {
+          "id": "big_gap",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "atr_thresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "big_gap",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_thresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_thresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_thresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "big_gap",
+          "handle": "result"
+        },
+        "target": {
+          "id": "base_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "doji20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "base_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "base_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gap_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gap_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gap_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gap_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gap_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gap_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_gt_open",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "o"
+        },
+        "target": {
+          "id": "close_gt_open",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_lt_open",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "o"
+        },
+        "target": {
+          "id": "close_lt_open",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "base_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gap_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_gt_open",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "base_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gap_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_lt_open",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:36:51.979663",
+  "tags": [
+    "technical",
+    "trading",
+    "candlestick",
+    "strategy",
+    "intraday"
+  ]
+}

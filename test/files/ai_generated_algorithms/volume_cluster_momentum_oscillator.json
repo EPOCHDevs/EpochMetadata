@@ -1,0 +1,802 @@
+{
+  "id": "volume_cluster_momentum_oscillator",
+  "name": "Volume Cluster Momentum Oscillator",
+  "description": "This strategy utilizes a momentum oscillator combined with volume clustering to identify potential entry points in trending markets. By analyzing volume and momentum indicators, it aims to enhance trade accuracy and timing.",
+  "algorithm_type": "Momentum",
+  "prompt": "//@version=5\nstrategy(\"Volume Cluster Momentum Oscillator Strategy\", overlay=true)\n\n// Input parameters\nvol_length = input.int(20, title=\"Volume MA Length\", minval=1)\nmomentum_length = input.int(9, title=\"Momentum Length\", minval=1)\nvmo_length = input.int(14, title=\"VMO Smoothing Length\", minval=1)\nvmo_threshold_long = input.float(0.7, title=\"VMO Long Threshold\", minval=0, maxval=2)\nvmo_threshold_short = input.float(-0.7, title=\"VMO Short Threshold\", minval=-2, maxval=0)\ncluster_size = input.int(5, title=\"Volume Cluster Size\", minval=1)\n\n// Step 1: Define Volume Clusters (sum volume over cluster_size bars and normalize)\nvol_cluster = ta.sum(volume, cluster_size)\nvol_ma = ta.sma(volume, vol_length)\nvol_cluster_norm = vol_cluster / (vol_ma * cluster_size)\n\n// Step 2: Momentum of volume clusters: ROC of normalized cluster volume\nvol_cluster_mom = ta.roc(vol_cluster_norm, momentum_length)\n\n// Step 3: Price Momentum normalized by ATR volatility\natr = ta.atr(14)\nprice_momentum = (close - close[momentum_length]) / atr\n\n// Step 4: Combine normalized cluster momentum and price momentum into Volume Momentum Oscillator (VMO)\nvmo_raw = vol_cluster_mom * price_momentum\nvmo = ta.ema(vmo_raw, vmo_length)\n\n// Entry conditions\nlong_condition = (vmo > vmo_threshold_long) and (vol_cluster_norm > 1) and (close > ta.sma(close, 20))\nshort_condition = (vmo < vmo_threshold_short) and (vol_cluster_norm > 1) and (close < ta.sma(close, 20))\n\n// Exit conditions: Opposite signal or neutral VMO\nexit_long = (vmo < 0) or (close < ta.sma(close, 20))\nexit_short = (vmo > 0) or (close > ta.sma(close, 20))\n\n// Execute trades\nif (long_condition) and (strategy.position_size <= 0)\n    strategy.entry(\"Long\", strategy.long)\nif (short_condition) and (strategy.position_size >= 0)\n    strategy.entry(\"Short\", strategy.short)\n\nif (strategy.position_size > 0 and exit_long)\n    strategy.close(\"Long\")\nif (strategy.position_size < 0 and exit_short)\n    strategy.close(\"Short\")\n\n// Plot VMO oscillator and thresholds\nplot(vmo, title=\"Volume Momentum Oscillator\", color=color.orange, linewidth=2)\nhline(vmo_threshold_long, \"Long Threshold\", color=color.green, linestyle=hline.style_dashed)\nhline(vmo_threshold_short, \"Short Threshold\", color=color.red, linestyle=hline.style_dashed)\nplot(vol_cluster_norm, title=\"Normalized Volume Cluster\", color=color.blue, linewidth=1, style=plot.style_stepline)\n\n// Plot close price SMA 20\nplot(ta.sma(close, 20), title=\"SMA 20\", color=color.gray)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sum_vol",
+        "type": "sum",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vma_const",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div_vol_norm",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_vol_norm",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_close9",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_price_diff",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "div_price_mom",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vmo_raw",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema_vmo14",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_close20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_0_7",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_neg0_7",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -0.7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vmo_0_7",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_volnorm_1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_vmo_neg0_7",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_sma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_vmo_zero",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vmo_zero",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_exit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sum_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vma_const",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vma_const",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sum_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_vol_norm",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vma_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_vol_norm",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_vol_norm",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_vol_norm",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag_close9",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sub_price_diff",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_price_diff",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_price_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_price_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_price_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_vol_norm",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vmo_raw",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "div_price_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vmo_raw",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vmo_raw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ema_vmo14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma_close20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ema_vmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vmo_0_7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_0_7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vmo_0_7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_vol_norm",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_volnorm_1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_volnorm_1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_close20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vmo_0_7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_volnorm_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ema_vmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vmo_neg0_7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_neg0_7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vmo_neg0_7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_close20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vmo_neg0_7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_volnorm_1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ema_vmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vmo_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vmo_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ema_vmo14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vmo_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vmo_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vmo_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vmo_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_exit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:29:05.868479",
+  "tags": [
+    "momentum",
+    "oscillator",
+    "volume",
+    "trading",
+    "strategy"
+  ]
+}

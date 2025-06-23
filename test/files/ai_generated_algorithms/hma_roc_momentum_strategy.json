@@ -1,0 +1,842 @@
+{
+  "id": "unique_id_001",
+  "name": "HMA-ROC Momentum Strategy",
+  "description": "This trading strategy utilizes the Hull Moving Average (HMA) as a trend filter to identify market direction. It combines the Rate of Change (ROC) indicator to adjust momentum signals based on volatility, ensuring more reliable entry and exit points.",
+  "algorithm_type": "Momentum",
+  "prompt": "import pandas as pd\nimport numpy as np\nimport talib\n\ndef trading_strategy(data):\n    \"\"\"\n    A unique trading strategy combining Hull Moving Average (HMA) trend filter,\n    the Rate of Change (ROC) volatility-adjusted momentum, and volume-weighted\n    directional confirmation for entries and exits.\n    \"\"\"\n\n    # Calculate Hull Moving Average (HMA) for trend detection\n    def hull_moving_average(series, period):\n        half_length = int(period / 2)\n        sqrt_length = int(np.sqrt(period))\n        wma_half = talib.WMA(series, timeperiod=half_length)\n        wma_full = talib.WMA(series, timeperiod=period)\n        raw_hma = 2 * wma_half - wma_full\n        hma = talib.WMA(raw_hma, timeperiod=sqrt_length)\n        return hma\n\n    # Calculate 55-period HMA on close price as trend base\n    data['hma'] = hull_moving_average(data['close'], 55)\n\n    # Calculate Rate of Change (ROC) with 10-period on close price\n    data['roc'] = talib.ROC(data['close'], timeperiod=10)\n\n    # Calculate 10-period rolling std dev of ROC to measure ROC volatility\n    data['roc_vol'] = data['roc'].rolling(window=10).std()\n\n    # Normalize ROC by ROC volatility to get volatility-adjusted momentum\n    data['adj_momentum'] = data['roc'] / (data['roc_vol'] + 1e-6)\n\n    # Calculate Volume Weighted Close: typical price weighted by volume over 14 periods\n    data['typical_price'] = (data['high'] + data['low'] + data['close']) / 3\n    data['vol_weighted_close'] = (data['typical_price'] * data['volume']).rolling(window=14).sum() / data['volume'].rolling(window=14).sum()\n\n    # Define directional volume confirmation: volume weighted close above/below hma signals confirmation\n    data['dir_vol_confirm'] = 0\n    data.loc[data['vol_weighted_close'] > data['hma'], 'dir_vol_confirm'] = 1\n    data.loc[data['vol_weighted_close'] < data['hma'], 'dir_vol_confirm'] = -1\n\n    # Generate signals:\n    # Long entry: HMA trending up + positive adj_momentum + volume confirmation\n    long_cond = (data['hma'] > data['hma'].shift(1)) & (data['adj_momentum'] > 0.5) & (data['dir_vol_confirm'] == 1)\n    # Short entry: HMA trending down + negative adj_momentum + volume confirmation\n    short_cond = (data['hma'] < data['hma'].shift(1)) & (data['adj_momentum'] < -0.5) & (data['dir_vol_confirm'] == -1)\n\n    data['signal'] = 0\n    data.loc[long_cond, 'signal'] = 1\n    data.loc[short_cond, 'signal'] = -1\n\n    # Exit conditions, neutralize signal if momentum weakens or volume confirmation lost\n    exit_long = (data['adj_momentum'] < 0.2) | (data['dir_vol_confirm'] != 1)\n    exit_short = (data['adj_momentum'] > -0.2) | (data['dir_vol_confirm'] != -1)\n\n    data.loc[(data['signal'].shift(1) == 1) & exit_long, 'signal'] = 0\n    data.loc[(data['signal'].shift(1) == -1) & exit_short, 'signal'] = 0\n\n    # Fill forward last valid signal to hold position until exit signal generated\n    data['signal'] = data['signal'].replace(to_replace=0, method='ffill').fillna(0).astype(int)\n\n    return data[['open','high','low','close','volume','signal']]",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "hma55",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 55,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc10",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "stddev10",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "eps",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1e-06,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "addDenom",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adjDiv",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "typ",
+        "type": "typprice",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "mulTPVol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sumTPVol",
+        "type": "sum",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sumVol",
+        "type": "sum",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "divVW",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagHMA",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numPosTh",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numNegTh",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "neg1",
+        "type": "negative_one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtTrendUp",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltTrendDown",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtMomPos",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltMomNeg",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVolUp",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltVolDown",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "aggLong",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "aggShort",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "selLong",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "selShort",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulNeg",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "addSignal",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adapter",
+        "type": "trade_executor_adapter",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma55",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "stddev10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "stddev10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addDenom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "eps",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addDenom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adjDiv",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "addDenom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adjDiv",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "typ",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulTPVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "mulTPVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mulTPVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sumTPVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sumVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sumTPVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divVW",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sumVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divVW",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "divVW",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVolUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "divVW",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltVolDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltVolDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagHMA",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtTrendUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtTrendUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hma55",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltTrendDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltTrendDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adjDiv",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtMomPos",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numPosTh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtMomPos",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adjDiv",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltMomNeg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numNegTh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltMomNeg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gtTrendUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtMomPos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVolUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggLong",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltTrendDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltMomNeg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltVolDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "aggShort",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "aggLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selLong",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "num1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selLong",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selLong",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "aggShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selShort",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "num1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selShort",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "selShort",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "selShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulNeg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "neg1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulNeg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "selLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addSignal",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulNeg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "addSignal",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "addSignal",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adapter",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adapter",
+          "handle": "long"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "adapter",
+          "handle": "short"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:53:42.223870",
+  "tags": [
+    "momentum",
+    "trading",
+    "HMA",
+    "ROC",
+    "strategy"
+  ]
+}

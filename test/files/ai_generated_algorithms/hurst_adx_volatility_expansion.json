@@ -1,0 +1,569 @@
+{
+  "id": "mean_reverting_hurst_adx_001",
+  "name": "Hurst ADX Volatility Expansion",
+  "description": "This strategy utilizes the Hurst exponent to identify mean-reverting opportunities while incorporating the ADX indicator to confirm trend strength. It aims to capitalize on volatility expansions by entering trades when the ADX surpasses a defined threshold, ensuring robust entries in dynamic market conditions.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "// @version=5\nstrategy(\"Hurst and ADX Volatility Expansion Strategy\", overlay=true, margin_long=100, margin_short=100)\n\n// === Inputs ===\nhurst_len      = input.int(100, title=\"Hurst Exponent Length\", minval=30, maxval=300)\nadx_len        = input.int(14, title=\"ADX Length\")\nadx_threshold  = input.float(25, title=\"ADX Entry Threshold\", minval=10, maxval=50)\nvol_exp_len    = input.int(20, title=\"ATR Expansion Period\", minval=10, maxval=50)\nvol_mult       = input.float(1.5, title=\"ATR Expansion Multiplier\", minval=0.5, maxval=5.0)\ntrail_atr_len  = input.int(14, title=\"Trailing Stop ATR Length\")\ntrail_mult     = input.float(1.0, title=\"Trailing ATR Multiplier\")\n\n// === Indicator Calculations ===\n\n// Hurst Exponent (rolling implementation)\nhurst(src, len) =>\n    // Resample price to approximate fractal dimension\n    norm_range = 0.0\n    for l = 2 to len by 1\n        n = math.floor(len / l)\n        diffs = 0.0\n        for j = 0 to l - 1\n            diffs += math.abs(src[len - 1 - j] - src[len - 1 - (j+1)])\n        diffs /= l\n        norm_range := norm_range + (diffs / l)\n    H = math.log(norm_range + 1e-10) / math.log(len)\n    H\n\nhurst_val = hurst(close, hurst_len)\nhurst_sma = ta.sma(hurst_val, 5)\n\n// ADX\nadx = ta.adx(adx_len)\n\n// ATR for volatility expansion\natr = ta.atr(vol_exp_len)\nprev_atr = atr[1]\n\n// Volatility expansion: today's ATR higher than vol_mult * prior ATR\nvol_expansion = (atr > prev_atr * vol_mult)\n\n// Hurst logic: Hurst exponent above 0.55 (persistent trending), below 0.45 (mean reverting)\ntrend_hurst = hurst_sma > 0.55\nrevert_hurst = hurst_sma < 0.45\n\n// Entry Conditions\nlong_cond  = trend_hurst and adx > adx_threshold and vol_expansion and close > ta.sma(close, 10)\nshort_cond = revert_hurst and adx > adx_threshold and vol_expansion and close < ta.sma(close, 10)\n\n// Exit Conditions: Trailing ATR stop\ntrail_stop_long  = close - ta.atr(trail_atr_len) * trail_mult\ntrail_stop_short = close + ta.atr(trail_atr_len) * trail_mult\n\n// === Strategy Execution ===\nif long_cond\n    strategy.entry(\"HurstLong\", strategy.long)\nif short_cond\n    strategy.entry(\"HurstShort\", strategy.short)\n\nstrategy.exit(\"LongExit\", \"HurstLong\", trail_price=trail_stop_long, trail_points=na, when=strategy.position_size > 0)\nstrategy.exit(\"ShortExit\", \"HurstShort\", trail_price=trail_stop_short, trail_points=na, when=strategy.position_size < 0)\n\n// === Plots for debugging/visuals ===\nplot(hurst_sma, title=\"Hurst Exponent\", color=color.fuchsia)\nhline(0.5, \"Hurst=0.5\", color=color.gray)\nplot(adx, title=\"ADX\", color=color.orange)\nplot(atr, title=\"ATR\", color=color.blue)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "hurst",
+        "type": "hurst_exponent",
+        "options": [
+          {
+            "id": "min_period",
+            "value": 100,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_hurst",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const055",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.55,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_hurst",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const045",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.45,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_hurst",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "const25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_adx",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lag_atr",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const15",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_prevatr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_volexp",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_sma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hurst",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma_hurst",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const055",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const045",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adx",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_atr",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_prevatr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_prevatr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_volexp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_prevatr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_volexp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_volexp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_volexp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:54:23.555860",
+  "tags": [
+    "mean reverting",
+    "Hurst exponent",
+    "ADX",
+    "volatility",
+    "trading strategy"
+  ]
+}

@@ -1,0 +1,505 @@
+{
+  "id": "volatility_squeeze_with_volume_confirmation",
+  "name": "Volatility Squeeze with Volume Confirmation",
+  "description": "This strategy identifies periods of low volatility using Bollinger Bands and enters a position when the price breaks out of the squeeze. A confirmation from above-average volume is required to validate the breakout, with exit signals triggered by opposite movements or a return to the squeeze.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef trading_strategy(data):\n    \"\"\"\n    \"Volatility Expansion Squeeze with Volume Confirmation Strategy\":\n    - Looks for Bollinger Bands squeezes (low volatility).\n    - Enters position when price breaks out of squeeze *and* is confirmed by an above-average volume surge.\n    - Exits positions on opposite signal or re-entry into squeeze.\n    \"\"\"\n\n    # Bollinger Bands settings\n    n = 20\n    k = 2\n\n    data = data.copy()\n    data['mbb'] = data['close'].rolling(n).mean()\n    data['std'] = data['close'].rolling(n).std()\n    data['upper'] = data['mbb'] + k * data['std']\n    data['lower'] = data['mbb'] - k * data['std']\n    data['bb_width'] = data['upper'] - data['lower']\n\n    # Squeeze defined as BB width below 15th percentile of last 120 bars\n    data['bb_width_pct'] = data['bb_width'].rolling(120, min_periods=30).apply(\n        lambda w: pd.Series(w).rank(pct=True)[-1]\n    )\n    data['in_squeeze'] = data['bb_width_pct'] < 0.15\n\n    # Squeeze breakout: last bar was in squeeze, this bar not in squeeze\n    data['squeeze_break'] = (data['in_squeeze'].shift(1)) & (~data['in_squeeze'])\n\n    # Confirm with price closing above upper band (long) or below lower band (short)\n    data['long_breakout'] = data['squeeze_break'] & (data['close'] > data['upper'])\n    data['short_breakout'] = data['squeeze_break'] & (data['close'] < data['lower'])\n\n    # Volume confirmation: today's volume above its 21-bar moving average by at least 30%\n    data['vol_ma'] = data['volume'].rolling(21).mean()\n    data['vol_surge'] = data['volume'] > 1.3 * data['vol_ma']\n\n    # Final signal\n    data['signal'] = 0\n\n    # Enter long\n    data.loc[data['long_breakout'] & data['vol_surge'], 'signal'] = 1\n    # Enter short\n    data.loc[data['short_breakout'] & data['vol_surge'], 'signal'] = -1\n\n    # Exit logic: exit if price closes back between BB after breakout (i.e., mean reversion after thrust)\n    in_trade_long = False\n    in_trade_short = False\n    signals = []\n    for idx, row in data.iterrows():\n        sig = 0\n        if not in_trade_long and not in_trade_short:\n            if row['signal'] == 1:\n                in_trade_long = True\n                sig = 1\n            elif row['signal'] == -1:\n                in_trade_short = True\n                sig = -1\n        elif in_trade_long:\n            # Exit long if close falls below mbb\n            if row['close'] < row['mbb']:\n                in_trade_long = False\n                sig = 0\n            else:\n                sig = 1\n        elif in_trade_short:\n            # Exit short if close rises above mbb\n            if row['close'] > row['mbb']:\n                in_trade_short = False\n                sig = 0\n            else:\n                sig = -1\n        signals.append(sig)\n    data['final_signal'] = signals\n\n    return data",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n2",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "bband_width",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "logical_not",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "bbands_middle"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n4",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:00:51.835137",
+  "tags": [
+    "Bollinger Bands",
+    "Volatility",
+    "Volume Confirmation",
+    "Breakout",
+    "Trading Strategy"
+  ]
+}

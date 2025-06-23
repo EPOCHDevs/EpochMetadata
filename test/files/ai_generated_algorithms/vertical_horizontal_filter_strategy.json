@@ -1,0 +1,336 @@
+{
+  "id": "vhf_strategy_001",
+  "name": "Vertical Horizontal Filter Strategy",
+  "description": "The Vertical Horizontal Filter (VHF) strategy evaluates market trendiness against choppiness by analyzing the price movements over a specified period. It uses the difference between the highest high and lowest low to determine the strength of a trend, providing insights for trading decisions.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef calculate_vhf(close, period):\n    # Vertical Horizontal Filter (VHF) measures trendiness vs choppiness\n    highest_high = close.rolling(window=period).max()\n    lowest_low = close.rolling(window=period).min()\n    numerator = abs(highest_high - lowest_low)\n    denominator = close.diff().abs().rolling(window=period).sum()\n    vhf = numerator / denominator\n    return vhf\n\ndef calculate_mass_index(high, low, period=9, ema_period=25):\n    # Mass Index detects range expansions, often precedes reversals\n    hl_diff = high - low\n    ema1 = hl_diff.ewm(span=period, adjust=False).mean()\n    ema2 = ema1.ewm(span=period, adjust=False).mean()\n    mass = (ema1 / ema2).rolling(window=ema_period).sum()\n    return mass\n\ndef fractal_breakout(df):\n    # Unique pattern: Fractal breakouts with trend regime filter\n    # Step 1: Identify fractal highs/lows\n    df['fractal_high'] = (\n        (df['high'].shift(2) > df['high'].shift(0)) &\n        (df['high'].shift(2) > df['high'].shift(1)) &\n        (df['high'].shift(2) > df['high'].shift(3)) &\n        (df['high'].shift(2) > df['high'].shift(4))\n    ).shift(-2)\n\n    df['fractal_low'] = (\n        (df['low'].shift(2) < df['low'].shift(0)) &\n        (df['low'].shift(2) < df['low'].shift(1)) &\n        (df['low'].shift(2) < df['low'].shift(3)) &\n        (df['low'].shift(2) < df['low'].shift(4))\n    ).shift(-2)\n\n    # Step 2: Regime filter using VHF\n    df['vhf'] = calculate_vhf(df['close'], period=28)\n    df['trendy'] = df['vhf'] > 0.35  # Adjust threshold to instrument volatility profile\n\n    # Step 3: Imminent reversal warning with Mass Index\n    df['mass_index'] = calculate_mass_index(df['high'], df['low'])\n    df['mass_alert'] = ((df['mass_index'] > 27) & (df['mass_index'].shift(1) <= 27))\n\n    # Step 4: Breakout signals\n    df['signal'] = 0\n\n    # Long breakout if price closes above last fractal high in a trendy regime (not mass index alert)\n    last_fractal_high = df['high'][df['fractal_high']].shift(1).reindex(df.index, method='ffill')\n    df.loc[\n        (df['close'] > last_fractal_high) &\n        (df['trendy']) &\n        (~df['mass_alert']),\n        'signal'\n    ] = 1\n\n    # Short breakdown if price closes below last fractal low in a trendy regime (not mass index alert)\n    last_fractal_low = df['low'][df['fractal_low']].shift(1).reindex(df.index, method='ffill')\n    df.loc[\n        (df['close'] < last_fractal_low) &\n        (df['trendy']) &\n        (~df['mass_alert']),\n        'signal'\n    ] = -1\n\n    # Exit signal (to flat): If mass index reversal alert triggers after an entry\n    df['signal'] = np.where(df['mass_alert'], 0, df['signal'])\n\n    return df\n\ndef trading_strategy(data):\n    # Expects data to be a DataFrame with columns: 'open', 'high', 'low', 'close', 'volume'\n    data = data.copy()\n    data = fractal_breakout(data)\n    return data",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "vhf1",
+        "type": "vhf",
+        "options": [
+          {
+            "id": "period",
+            "value": 28,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "th_vhf",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.35,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_trendy",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mass",
+        "type": "mass",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "th_mass",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 27,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mass",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not_mass",
+        "type": "logical_not",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prev_hl",
+        "type": "previous_high_low",
+        "options": [
+          {
+            "id": "interval",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "type",
+            "value": "day",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "long_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "vhf1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vhf1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trendy",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "th_vhf",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trendy",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mass",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "th_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mass",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_mass",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trendy",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trendy",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_hl",
+          "handle": "broken_high"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_hl",
+          "handle": "broken_low"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:29:00.019921",
+  "tags": [
+    "TechnicalPattern",
+    "VHF",
+    "TrendAnalysis",
+    "Choppiness",
+    "TradingStrategy"
+  ]
+}

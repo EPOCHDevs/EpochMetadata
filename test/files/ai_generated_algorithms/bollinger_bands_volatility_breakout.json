@@ -1,0 +1,379 @@
+{
+  "id": "unique-id-001",
+  "name": "Bollinger Bands Volatility Breakout",
+  "description": "This strategy utilizes Bollinger Bands to identify trading opportunities during periods of sudden volatility and range contraction. A long position is initiated when the Bollinger Bands Width reaches a 30-day low and the price closes above the upper band, while a short position is taken when the price closes below the lower band under similar conditions.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Design a technical pattern strategy that trades based on sudden volatility and range contraction. Enter a long position when the 14-period Bollinger Bands Width is at a 30-day low (lowest in 30 periods), and the close breaks above the upper Bollinger Band. Enter a short position when Bollinger Bands Width is at a 30-day low, and the close breaks below the lower Bollinger Band. Exit the trade when price closes back inside the bands or when a 10% expansion from the entry period's Bands Width is registered. Use daily candle data.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "bb1",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bw1",
+        "type": "bband_width",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lowflag",
+        "type": "lowest_lte",
+        "options": [
+          {
+            "id": "periods",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_long",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_short",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_long",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_short",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_lower",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_upper",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_exit",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "bw1",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "bw1",
+          "handle": "bbands_middle"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "bw1",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "bw1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lowflag",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lowflag",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lowflag",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lt_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "and_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gte_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "gte_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb1",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "lte_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:00:15.648246",
+  "tags": [
+    "Bollinger Bands",
+    "Volatility",
+    "Breakout",
+    "Technical Pattern",
+    "Trading Strategy"
+  ]
+}

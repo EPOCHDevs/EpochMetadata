@@ -1,0 +1,612 @@
+{
+  "id": "mean_reverting_gap_volume_reversal",
+  "name": "Gap Volume Reversal Strategy",
+  "description": "This mean-reverting strategy targets significant one-day price gaps that are coupled with a spike in trading volume. It initiates a long position when specific conditions regarding price and volume are met, anticipating a reversal based on candlestick patterns.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "Develop a mean-reverting strategy that identifies large one-day price gaps accompanied by a volume spike, followed by a reversal candlestick pattern on the next day. Specifically: \n\n- Entry: Go long when (1) today\u2019s open is more than 1.5 times the 20-day average true range (ATR) below yesterday\u2019s close (for down gaps), (2) today\u2019s volume is at least 1.5 times the 20-day average volume, and (3) a bullish reversal candlestick pattern (Hammer, Dragonfly Doji, or Engulfing Bull) occurs today.\n- Exit: Sell when price touches the 10-day simple moving average (SMA) or after 5 trading days, whichever comes first.\n- Do the reverse (go short on up gaps with a bearish reversal pattern) for short trades. No additional filters.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr20",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num15",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_atr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_close",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_down",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_up",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_gap_down",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_gap_up",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_spike",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "engulf_bull",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "engulf_bear",
+        "type": "engulfing_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "long_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_all",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_exit",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "o"
+        },
+        "target": {
+          "id": "sub_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "o"
+        },
+        "target": {
+          "id": "sub_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_gap_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_gap_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_gap_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_gap_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol_spike",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_spike",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_gap_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "engulf_bull",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_gap_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_spike",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "engulf_bear",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_all",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_all",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:07:22.529448",
+  "tags": [
+    "mean_reverting",
+    "trading",
+    "strategy",
+    "candlestick",
+    "volume"
+  ]
+}

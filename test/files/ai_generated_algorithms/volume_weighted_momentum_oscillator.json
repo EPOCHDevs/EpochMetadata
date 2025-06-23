@@ -1,0 +1,498 @@
+{
+  "id": "momentum-oscillator-001",
+  "name": "Volume-Weighted Momentum Oscillator",
+  "description": "This strategy utilizes a unique composite volume-volatility oscillator to identify potential trading opportunities. By integrating momentum confirmation through the RSI, it aims to capture significant price movements supported by volume, enhancing trade reliability.",
+  "algorithm_type": "Momentum",
+  "prompt": "import pandas as pd\nimport numpy as np\nimport talib\n\ndef trading_strategy(data):\n    \"\"\"\n    Implements a Unique Composite Volume-Volatility Oscillator Strategy:\n    This strategy combines a custom volume-weighted volatility oscillator\n    with momentum confirmation using RSI to generate entry and exit signals.\n    It is designed to capture bursts of volatility with volume backing,\n    avoiding the common purely price or volume threshold strategies.\n\n    Parameters:\n        data (pd.DataFrame): DataFrame with columns ['open', 'high', 'low', 'close', 'volume']\n\n    Returns:\n        pd.DataFrame with an added 'signal' column: 1 for buy, -1 for sell, 0 otherwise.\n    \"\"\"\n\n    o = data['open']\n    h = data['high']\n    l = data['low']\n    c = data['close']\n    v = data['volume']\n\n    # 1. Calculate True Range-based Volatility\n    tr = talib.TRANGE(h, l, c)\n    # Smooth TR with Wilders smoothing for stable volatility\n    atr = talib.WILDERS(tr, timeperiod=14)\n\n    # 2. Calculate Volume Weighted Typical Price\n    typical_price = (h + l + c) / 3\n    vwtp = (typical_price * v).rolling(14).sum() / v.rolling(14).sum()\n\n    # 3. Compute Rate of Change of ATR and Volume Weighted Typical Price\n    roc_atr = talib.ROCP(atr, timeperiod=3)\n    roc_vwtp = talib.ROCP(vwtp, timeperiod=3)\n\n    # 4. Define a Volume-Volatility Oscillator (VVO)\n    # Oscillator = ROC of ATR weighted by ROC of volume weighted typical price\n    vvo = roc_atr * roc_vwtp\n\n    # 5. RSI for momentum confirmation (period=14)\n    rsi = talib.RSI(c, timeperiod=14)\n\n    # 6. Generate signals based on oscillator and RSI\n    # Buy when VVO crosses above zero indicating rising volatility with volume support and RSI > 50\n    signal = np.zeros(len(data))\n\n    vvo_shift = np.roll(vvo, 1)\n    condition_buy = (vvo > 0) & (vvo_shift <= 0) & (rsi > 50)\n    condition_sell = (vvo < 0) & (vvo_shift >= 0) & (rsi < 50)\n\n    signal[condition_buy] = 1\n    signal[condition_sell] = -1\n\n    data['signal'] = signal\n\n    return data",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr14",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "roc_atr",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc_vol",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vvo_mul",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prev_vvo",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_c",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vvo_gt0",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prev_lte0",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num50",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 50,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi14",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_gt50",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "buy_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vvo_lt0",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prev_gte0",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rsi_lt50",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sell_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "roc_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc_atr",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_mul",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "roc_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_mul",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vvo_mul",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prev_vvo",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vvo_mul",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_gt0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_c",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_gt0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_vvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prev_lte0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_c",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prev_lte0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_gt50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vvo_gt0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_lte0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_gt50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vvo_mul",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_lt0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_c",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vvo_lt0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_vvo",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prev_gte0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_c",
+          "handle": "result"
+        },
+        "target": {
+          "id": "prev_gte0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt50",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rsi_lt50",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vvo_lt0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "prev_gte0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi_lt50",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "buy_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "sell_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:10:59.178997",
+  "tags": [
+    "momentum",
+    "oscillator",
+    "volume",
+    "trading strategy",
+    "RSI"
+  ]
+}

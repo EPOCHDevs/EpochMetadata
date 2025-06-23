@@ -1,0 +1,639 @@
+{
+  "id": "mean_reverting_hurst_volatility_swing_reversion",
+  "name": "Hurst Volatility Swing Reversion",
+  "description": "This strategy utilizes the Hurst exponent to identify mean-reverting price behavior while incorporating volatility measures. By analyzing price swings and volatility, it aims to capitalize on short-term price corrections in the market.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "//@version=5\nstrategy(\"Hurst-Volatility Swing Reversion\", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Inputs\nhurst_len = input.int(50, minval=10, title=\"Hurst Exponent Length\")\nvola_len = input.int(20, minval=5, title=\"Volatility Length\")\nvola_mult = input.float(1.5, minval=0.5, maxval=3, step=0.1, title=\"Volatility Multiplier\")\nswing_len = input.int(5, minval=2, maxval=20, title=\"Swing Lookback Length\")\n\n// Calculate Hurst Exponent (rolling)\nhurst = ta.rolling_hurst(close, hurst_len)\n\n// Calculate volatility via Standard Deviation of returns\nlog_returns = math.log(close / close[1])\nvolatility = ta.stdev(log_returns, vola_len)\n\n// Define a volatility threshold scaled by multiplier\nvol_threshold = vola_mult * volatility\n\n// Identify swing pivots\npivot_high = ta.pivothigh(high, swing_len, swing_len)\npivot_low = ta.pivotlow(low, swing_len, swing_len)\n\n// Price distance from last pivot\nvar float last_ph = na\nvar int last_ph_bar = na\nvar float last_pl = na\nvar int last_pl_bar = na\n\nif not na(pivot_high)\n    last_ph := pivot_high\n    last_ph_bar := bar_index - swing_len\nif not na(pivot_low)\n    last_pl := pivot_low\n    last_pl_bar := bar_index - swing_len\n\n// Distance from current close to last pivots\ndist_to_ph = na(last_ph) ? na : math.abs(close - last_ph)\ndist_to_pl = na(last_pl) ? na : math.abs(close - last_pl)\n\n// Conditions\n\n// Hurst < 0.5 means mean reverting behavior, >0.5 trending\nmean_revert = hurst < 0.5\n\n// Entry Long: mean reverting regime, price close below last pivot low by > vol_threshold\nlong_entry = mean_revert and not na(dist_to_pl) and (close < last_pl) and (dist_to_pl > vol_threshold)\n\n// Entry Short: mean reverting regime, price close above last pivot high by > vol_threshold\nshort_entry = mean_revert and not na(dist_to_ph) and (close > last_ph) and (dist_to_ph > vol_threshold)\n\n// Exit conditions: Hurst goes above 0.5 (trending), or cross middle of pivots to favor exit\nlong_exit = hurst >= 0.5 or (not na(last_ph) and close > (last_pl + (last_ph - last_pl)/2))\nshort_exit = hurst >= 0.5 or (not na(last_pl) and close < (last_pl + (last_ph - last_pl)/2))\n\n// Execute trades\nif (long_entry)\n    strategy.entry(\"Long\", strategy.long)\nif (short_entry)\n    strategy.entry(\"Short\", strategy.short)\n\nif (long_exit)\n    strategy.close(\"Long\")\nif (short_exit)\n    strategy.close(\"Short\")\n\n// Plot pivots\nplotshape(pivot_high, style=shape.triangledown, location=location.abovebar, color=color.red, size=size.tiny, title=\"Pivot High\")\nplotshape(pivot_low, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.tiny, title=\"Pivot Low\")\n\n// Plot Hurst and threshold bands in separate pane\nhline_05 = hline(0.5, \"Hurst 0.5 Threshold\", color=color.gray, linestyle=hline.style_dotted)\nplot(hurst, color=color.orange, title=\"Hurst Exponent\")\n\n// Plot volatility threshold for reference\nplot(vol_threshold, title=\"Volatility Threshold\", color=color.blue)\n\n// Background color to highlight mean reverting regime\nbgcolor(mean_revert ? color.new(color.green, 90) : na)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lag1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div1",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ln1",
+        "type": "ln",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "stddev1",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_mult",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "Volatility Multiplier",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hurst1",
+        "type": "rolling_hurst_exponent",
+        "options": [
+          {
+            "id": "window",
+            "value": 50,
+            "name": "Hurst Length",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_half",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_hurst",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_hurst",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "prevHL",
+        "type": "previous_high_low",
+        "options": [
+          {
+            "id": "interval",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "type",
+            "value": "day",
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sub_low",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "abs_low",
+        "type": "abs",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_high",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "abs_high",
+        "type": "abs",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_low",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_dist_low",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_dist_high",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ln1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ln1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "stddev1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "stddev1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_mult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hurst1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_half",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_hurst",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_half",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_hurst",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sub_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "prevHL",
+          "handle": "previous_low"
+        },
+        "target": {
+          "id": "sub_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "abs_low",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sub_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "prevHL",
+          "handle": "previous_high"
+        },
+        "target": {
+          "id": "sub_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "abs_high",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "prevHL",
+          "handle": "previous_low"
+        },
+        "target": {
+          "id": "lt_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "prevHL",
+          "handle": "previous_high"
+        },
+        "target": {
+          "id": "gt_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "abs_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_dist_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_dist_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "abs_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_dist_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_dist_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_dist_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_dist_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:28:09.926945",
+  "tags": [
+    "mean reverting",
+    "hurst exponent",
+    "volatility",
+    "swing trading",
+    "strategy"
+  ]
+}

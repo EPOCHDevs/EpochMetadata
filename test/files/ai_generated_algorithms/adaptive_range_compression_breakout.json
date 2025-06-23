@@ -1,0 +1,583 @@
+{
+  "id": "adaptive_range_compression_breakout",
+  "name": "Adaptive Range Compression Breakout",
+  "description": "This strategy identifies breakout opportunities by analyzing historical price ranges and applying a compression threshold. It utilizes the HLC3 exponential moving average to filter signals, aiming to capitalize on price movements following periods of low volatility.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"Adaptive Range Compression Breakout Strategy\", overlay=true, max_boxes_count=20)\n\n// === PARAMETERS ===\nrange_length   = input.int(20, minval=5, title=\"Historical Range Length\")\nhlc_avg_length = input.int(7, minval=1, title=\"HLC3 EMA Period\")\nrange_pct_thr  = input.float(0.25, minval=0.05, maxval=1.0, title=\"Compression Threshold (%)\")\nvol_ma_length  = input.int(14, minval=1, title=\"Volume MA Period\")\nvol_factor     = input.float(1.5, minval=1.0, maxval=5.0, title=\"Volume Spike Factor\")\natr_length     = input.int(14, minval=1, title=\"ATR Period\")\natr_mult       = input.float(1.8, minval=0.5, title=\"ATR Multiplier for SL/TP\")\n\n// === INDICATORS ===\nhi = ta.highest(high, range_length)\nlo = ta.lowest(low, range_length)\nrange = hi - lo\npercent_change = range / lo * 100\n\nhlc3 = (high + low + close) / 3\nhlc3_ema = ta.ema(hlc3, hlc_avg_length)\n\nvol_ma = ta.sma(volume, vol_ma_length)\nvol_spike = volume > vol_ma * vol_factor\n\n// Range compression: price is \u201cstuck\u201d in recent tight range\nis_compressing = percent_change < range_pct_thr\n\n// Breakout detection: price closes outside range after compression + volume spike\nbreakup = is_compressing[1] and close > hi[1] and vol_spike\nbreakdn = is_compressing[1] and close < lo[1] and vol_spike\n\n// ATR for dynamic stops/targets\natr = ta.atr(atr_length)\n\n// Entries\nif breakup\n    strategy.entry(\"RangeBreakLong\", strategy.long, stop=na, comment=\"Breakout Up\")\n    strategy.exit(\"TP/SL Long\", from_entry=\"RangeBreakLong\", stop=close - atr*atr_mult, limit=close + atr*atr_mult)\n\nif breakdn\n    strategy.entry(\"RangeBreakShort\", strategy.short, stop=na, comment=\"Breakout Down\")\n    strategy.exit(\"TP/SL Short\", from_entry=\"RangeBreakShort\", stop=close + atr*atr_mult, limit=close - atr*atr_mult)\n\n// Plots for visualization\nplot(hi, color=color.fuchsia, linewidth=1, title=\"Range High\", style=plot.style_linebr)\nplot(lo, color=color.aqua, linewidth=1, title=\"Range Low\", style=plot.style_linebr)\nplot(hlc3_ema, color=color.orange, linewidth=2, title=\"EMA of HLC3\")",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "highMax",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Range Length",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lowMin",
+        "type": "min",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Range Length",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rangeSub",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rangeDiv",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const100",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 100,
+            "name": "Hundred",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "pctMul",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagPct",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "constThr",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.25,
+            "name": "Compression % Threshold",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "compressPrevLT",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagHigh",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagLow",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "closeGTHigh",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "closeLTLow",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volSMA",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "Volume MA Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "constVolFactor",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "Volume Spike Factor",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulVol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volSpikeGT",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "breakoutUpAND",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "breakoutDnAND",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md1",
+          "handle": "h"
+        },
+        "target": {
+          "id": "highMax",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "l"
+        },
+        "target": {
+          "id": "lowMin",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "highMax",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagHigh",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lowMin",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagLow",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "highMax",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rangeSub",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lowMin",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rangeSub",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rangeSub",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rangeDiv",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lowMin",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rangeDiv",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "rangeDiv",
+          "handle": "result"
+        },
+        "target": {
+          "id": "pctMul",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const100",
+          "handle": "result"
+        },
+        "target": {
+          "id": "pctMul",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "pctMul",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagPct",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lagPct",
+          "handle": "result"
+        },
+        "target": {
+          "id": "compressPrevLT",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "constThr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "compressPrevLT",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "closeGTHigh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagHigh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "closeGTHigh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "closeLTLow",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagLow",
+          "handle": "result"
+        },
+        "target": {
+          "id": "closeLTLow",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "volSMA",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volSMA",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "constVolFactor",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "volSpikeGT",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volSpikeGT",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "compressPrevLT",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutUpAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "closeGTHigh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutUpAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volSpikeGT",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutUpAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "compressPrevLT",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutDnAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "closeLTLow",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutDnAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volSpikeGT",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakoutDnAND",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "breakoutUpAND",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "breakoutDnAND",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:00:45.705027",
+  "tags": [
+    "breakout",
+    "compression",
+    "volatility",
+    "strategy",
+    "technical"
+  ]
+}

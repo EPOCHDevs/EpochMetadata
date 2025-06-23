@@ -1,0 +1,666 @@
+{
+  "id": "algorithm_001",
+  "name": "Chaikin Volatility MACD Filter",
+  "description": "This trading strategy utilizes Chaikin Volatility to measure market volatility through the difference between high and low EMAs. It incorporates a smoothed MACD as a trend filter to enhance decision-making in trading.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\nimport talib\n\ndef trading_strategy(data):\n    \"\"\"\n    Strategy Name: Chaikin Volatility & Smoothed MACD Trend Filter\n    \n    Logic:\n    - Uses a custom volatility expansion/contraction measure based on Chaikin Volatility (CV)\n      which is the difference between high and low EMAs.\n    - Uses a smoothed MACD (double EMA smoothing) as a trend filter.\n    - Generates buy signals on volatility contraction followed by volatility expansion, if MACD trend is bullish.\n    - Generates sell signals on volatility expansion turning to contraction if MACD trend is bearish.\n    \"\"\"\n    high = data['high']\n    low = data['low']\n    close = data['close']\n    volume = data['volume']\n    \n    # Chaikin Volatility (EMAdiff of High-Low)\n    span_cv = 10\n    high_ema = high.ewm(span=span_cv, adjust=False).mean()\n    low_ema = low.ewm(span=span_cv, adjust=False).mean()\n    chaikin_vol = (high_ema - low_ema) / low_ema  # volatility measure\n    \n    # Smooth Chaikin Volatility with EMA to reduce noise\n    chaikin_vol_smooth = chaikin_vol.ewm(span=5, adjust=False).mean()\n    \n    # Double-smoothed MACD line as trend indicator:\n    macd, macdsignal, macdhist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)\n    macd_smooth_short = macd.ewm(span=5, adjust=False).mean()\n    macd_smooth = macd_smooth_short.ewm(span=5, adjust=False).mean()\n    \n    data['chaikin_vol'] = chaikin_vol_smooth\n    data['macd_smooth'] = macd_smooth\n    \n    # Detect volatility contraction-expansion cycle\n    # Volatility contraction = chaikin_vol decreasing\n    # Volatility expansion = chaikin_vol increasing\n    vol_diff = chaikin_vol_smooth.diff()\n    \n    # Generate signals:\n    # Buy signal: volatility switches from contraction (negative vol_diff) to expansion (positive vol_diff)\n    # AND MACD trend positive and rising\n    # Sell signal: volatility switches from expansion to contraction AND MACD trend negative and falling\n    \n    data['signal'] = 0\n    buy_condition = (vol_diff > 0) & (vol_diff.shift(1) <= 0) & (macd_smooth > 0) & (macd_smooth.diff() > 0)\n    sell_condition = (vol_diff < 0) & (vol_diff.shift(1) >= 0) & (macd_smooth < 0) & (macd_smooth.diff() < 0)\n    \n    data.loc[buy_condition, 'signal'] = 1\n    data.loc[sell_condition, 'signal'] = -1\n    \n    return data[['open','high','low','close','volume','chaikin_vol','macd_smooth','signal']]",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "emaH",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "emaL",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "subHL",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "divVol",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "emaVol",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagVol",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "diffVol",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macd",
+        "type": "macd",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 12,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 26,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "signal_period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdE1",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdE2",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lagMacd",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "diffMacd",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdPos",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdNeg",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdDiffPos",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "macdDiffNeg",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "buyAgg",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sellAgg",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "h"
+        },
+        "target": {
+          "id": "emaH",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "l"
+        },
+        "target": {
+          "id": "emaL",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "emaH",
+          "handle": "result"
+        },
+        "target": {
+          "id": "subHL",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "emaL",
+          "handle": "result"
+        },
+        "target": {
+          "id": "subHL",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "subHL",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "emaL",
+          "handle": "result"
+        },
+        "target": {
+          "id": "divVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "divVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "emaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "emaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "emaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "diffVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "diffVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "diffVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "diffVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "macd",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macd",
+          "handle": "macd"
+        },
+        "target": {
+          "id": "macdE1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdE1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdE2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdE2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lagMacd",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdE2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "diffMacd",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lagMacd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "diffMacd",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "macdE2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdPos",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdPos",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "macdE2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdNeg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdNeg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "diffMacd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdDiffPos",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdDiffPos",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "diffMacd",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdDiffNeg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "macdDiffNeg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "crossUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buyAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdPos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buyAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdDiffPos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buyAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sellAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdNeg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sellAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "macdDiffNeg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sellAgg",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "buyAgg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "sellAgg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:00:06.551823",
+  "tags": [
+    "technical",
+    "trading",
+    "strategy",
+    "volatility",
+    "macd"
+  ]
+}

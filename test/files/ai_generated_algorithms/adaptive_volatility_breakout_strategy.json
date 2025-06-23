@@ -1,0 +1,640 @@
+{
+  "id": "algorithm_63",
+  "name": "Adaptive Volatility Breakout Strategy",
+  "description": "This trading strategy utilizes Adaptive Volatility Channel Breakouts combined with Volume Regime Filtering to identify potential entry points. It incorporates a reversals filter based on the Hull Moving Average slope and the Mass Index exhaustion signal to enhance decision-making.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef trading_strategy(data):\n    \"\"\"\n    Unique strategy: Combines Adaptive Volatility Channel Breakouts with Volume Regime Filtering,\n    and a reversals filter using the Hull Moving Average slope and Mass Index exhaustion signal.\n    - Long if: (Close breaks above upper volatility channel AND Volume > rolling 90th percentile)\n         AND (Mass Index signals trend reversal exhaustion)\n         AND (HMA slope is positive)\n    - Short if: (Close breaks below lower volatility channel AND Volume > rolling 90th percentile)\n         AND (Mass Index signals trend reversal exhaustion)\n         AND (HMA slope is negative)\n    \"\"\"\n\n    data = data.copy()\n\n    # Adaptive volatility channel\n    data['atr'] = data['high'].combine(data['close'].shift(), max) - data['low'].combine(data['close'].shift(), min)\n    data['atr'] = data['atr'].rolling(20).mean()\n    data['channel_upper'] = data['close'].rolling(20).mean() + 1.2 * data['atr']\n    data['channel_lower'] = data['close'].rolling(20).mean() - 1.2 * data['atr']\n\n    # Volume filter: only trade when volume>90th percentile of last 60 bars\n    data['vol_90pct'] = data['volume'].rolling(60, min_periods=1).quantile(0.9)\n    data['vol_ok'] = data['volume'] > data['vol_90pct']\n\n    # Hull Moving Average (HMA) and its slope\n    def hull_moving_average(series, period):\n        wma_half = series.rolling(period//2).apply(lambda x: np.average(x, weights=np.arange(1, len(x)+1)), raw=True)\n        wma_full = series.rolling(period).apply(lambda x: np.average(x, weights=np.arange(1, len(x)+1)), raw=True)\n        raw_hma = 2 * wma_half - wma_full\n        hma = raw_hma.rolling(int(np.sqrt(period))).apply(lambda x: np.average(x, weights=np.arange(1, len(x)+1)), raw=True)\n        return hma\n\n    data['hma_21'] = hull_moving_average(data['close'], 21)\n    data['hma_slope'] = data['hma_21'].diff(3)  # slope over 3 bars\n\n    # Mass Index (trend reversal exhaustion signal)\n    def mass_index(high, low, n1=9, n2=25):\n        range_ = high - low\n        ema1 = range_.ewm(span=n1, adjust=False).mean()\n        ema2 = ema1.ewm(span=n1, adjust=False).mean()\n        mass = (ema1 / ema2).rolling(n2).sum()\n        return mass\n\n    data['mass_index'] = mass_index(data['high'], data['low'])\n    data['mass_reversal'] = (data['mass_index'] > 27) & (data['mass_index'].shift(1) <= 27)\n\n    # Compose signals\n    data['signal'] = 0\n    long_cond = (\n        (data['close'] > data['channel_upper']) &\n        data['vol_ok'] &\n        data['mass_reversal'] &\n        (data['hma_slope'] > 0)\n    )\n    short_cond = (\n        (data['close'] < data['channel_lower']) &\n        data['vol_ok'] &\n        data['mass_reversal'] &\n        (data['hma_slope'] < 0)\n    )\n    data.loc[long_cond, 'signal'] = 1\n    data.loc[short_cond, 'signal'] = -1\n\n    return data",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma_close",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_1_2",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr20",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "mul_atr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "add_upper",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_lower",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 60,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mass_idx",
+        "type": "mass",
+        "options": [
+          {
+            "id": "period",
+            "value": 25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num_27",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 27,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "crossover_mass",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hma21",
+        "type": "hma",
+        "options": [
+          {
+            "id": "period",
+            "value": 21,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag3",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_slope",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_0",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_slope",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_slope",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trade_exec",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_1_2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_atr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_atr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "add_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mass_idx",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossover_mass",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_27",
+          "handle": "result"
+        },
+        "target": {
+          "id": "crossover_mass",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hma21",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hma21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_slope",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_slope",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_slope",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_slope",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_slope",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_slope",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_slope",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_slope",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossover_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_slope",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "crossover_mass",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_slope",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:15:35.664140",
+  "tags": [
+    "trading",
+    "strategy",
+    "volatility",
+    "breakout",
+    "technical"
+  ]
+}

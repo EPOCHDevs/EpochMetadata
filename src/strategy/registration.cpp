@@ -14,6 +14,7 @@
 #include "epoch_metadata/transforms/registration.h"
 
 #include "epoch_metadata/strategy/validation.h"
+#include <unordered_map>
 
 namespace epoch_metadata::strategy {
 struct AIGeneratedAlgorithmMetaData {
@@ -76,14 +77,24 @@ void RegisterStrategyMetadata(
   take_profit::Registry::GetInstance().Register(
       LoadFromFile<AlgorithmMetaData>(loader, "take_profit"));
 
+  std::unordered_map<std::string, int> duplicateIdCount;
   auto aiGenerated =
       LoadMetaDataT<AIGeneratedAlgorithmMetaData>(aiGeneratedAlgorithms);
-  for (auto const &[i, config] : std::views::enumerate(aiGenerated)) {
+  for (auto [i, config] : std::views::enumerate(aiGenerated)) {
     auto converted = CreateAlgorithmMetaData(config.blueprint);
     if (!converted) {
       SPDLOG_ERROR("{}: Failed to convert trade signal: {}", config.name,
                    FormatValidationIssues(converted.error()));
       continue;
+    }
+
+    if (duplicateIdCount.contains(config.id)) {
+      ++duplicateIdCount[config.id];
+      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                  duplicateIdCount[config.id]);
+      config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
+    } else {
+      duplicateIdCount[config.id] = 0;
     }
 
     bool requiresTimeframe = true;
@@ -110,12 +121,21 @@ void RegisterStrategyMetadata(
   std::vector<StrategyTemplate> templates;
   auto aiGeneratedStrategiesT =
       LoadMetaDataT<AIGeneratedStrategyMetaData>(aiGeneratedStrategies);
-  for (auto const &[i, config] :
-       std::views::enumerate(aiGeneratedStrategiesT)) {
+  duplicateIdCount.clear();
+  for (auto [i, config] : std::views::enumerate(aiGeneratedStrategiesT)) {
 
     if (!config.trade_signal) {
       SPDLOG_ERROR("Failed to convert {} trade signal", config.id);
       continue;
+    }
+
+    if (duplicateIdCount.contains(config.id)) {
+      ++duplicateIdCount[config.id];
+      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                  duplicateIdCount[config.id]);
+      config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
+    } else {
+      duplicateIdCount[config.id] = 0;
     }
 
     auto tradeSignalId = config.trade_signal->type.value();

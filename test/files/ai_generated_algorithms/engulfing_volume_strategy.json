@@ -1,0 +1,441 @@
+{
+  "id": "engulfing_volume_strategy_001",
+  "name": "Engulfing Volume Strategy",
+  "description": "This strategy focuses on trading intraday 'Engulfing' candlestick patterns, specifically Bullish and Bearish Engulfing patterns, which are confirmed by significant volume spikes. Trades are executed based on 15-minute OHLCV data, entering positions when the engulfing candle's volume exceeds the median volume of the last 15 bars by at least 30%.",
+  "algorithm_type": "CandleStickPattern",
+  "prompt": "Develop a strategy that trades around intraday \"Engulfing\" candlestick patterns enhanced by volume climaxes:\n\n- Use 15-minute OHLCV data.\n- Look for Bullish Engulfing or Bearish Engulfing patterns where the engulfing candle has at least 30% higher volume than the previous 15 bars\u2019 median volume.\n- For a Bullish Engulfing pattern:\n  - Enter long at the close of the engulfing bar if the close is above the prior 20-bar Simple Moving Average.\n- For a Bearish Engulfing pattern:\n  - Enter short at the close of the engulfing bar if the close is below the prior 20-bar Simple Moving Average.\n- Exit position when the opposite Engulfing pattern with volume climax occurs, or after 6 bars, whichever comes first.\n- Only one position open at a time.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "smaVol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numConst",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulThresh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtVol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bullEng",
+        "type": "engulfing_bull",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "bearEng",
+        "type": "engulfing_bear",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "smaClose20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gtCloseMa",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ltCloseMa",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bullAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bearAll",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulThresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numConst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulThresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulThresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtVol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "smaClose20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gtCloseMa",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaClose20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gtCloseMa",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ltCloseMa",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaClose20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ltCloseMa",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bullEng",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bullAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bullAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtCloseMa",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bullAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bearEng",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bearAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gtVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bearAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ltCloseMa",
+          "handle": "result"
+        },
+        "target": {
+          "id": "bearAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bullAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "bearAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:10:47.056295",
+  "tags": [
+    "candlestick",
+    "volume",
+    "intraday",
+    "trading",
+    "strategy"
+  ]
+}

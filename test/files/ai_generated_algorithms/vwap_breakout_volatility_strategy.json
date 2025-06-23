@@ -1,0 +1,417 @@
+{
+  "id": "vwap_breakout_volatility_strategy",
+  "name": "VWAP Breakout Volatility Strategy",
+  "description": "This strategy identifies breakout opportunities using the Volume Weighted Average Price (VWAP) while incorporating volatility compression indicators. It aims to capture significant price movements following periods of low volatility, enhancing trading precision.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"VWAP Breakout & Volatility Compression Strategy\", overlay=true)\n\n// --- Inputs\nvwap_session = input.session(\"0930-1600\", \"VWAP Session\")\nvol_length = input.int(20, title=\"Volatility Lookback Length\")\nadx_length = input.int(14, title=\"ADX Length\")\nmin_volatility = input.float(0.5, title=\"Min ATR% Threshold\", step=0.1)\npullback_perc = input.float(0.5, title=\"Pullback % from VWAP for Entry\", minval=0.1, step=0.1)\ntakeprofit_atr_mult = input.float(2.5, title=\"Take Profit ATR Multiplier\")\nstoploss_atr_mult = input.float(1.2, title=\"Stop Loss ATR Multiplier\")\n\n// --- VWAP Calculation (Session VWAP)\nvar float vwap_value = na\nnew_session = ta.change(time(\"D\")) or not session.issession(vwap_session, time)\nif new_session\n    vwap_value := na\nif session.issession(vwap_session, time)\n    vwap_value := na(vwap_value[1]) ? hlcv2vwap(high, low, close, volume) : hlcv2vwap(high, low, close, volume) + (hlcv2vwap(high, low, close, volume) - vwap_value[1]) * 0\nelse\n    vwap_value := na\n\n// Helper: Fallback to built-in VWAP if session logic fails (due to Pine script limits)\nsimple_vwap = ta.vwap\n\nuse_vwap = na(vwap_value) ? simple_vwap : vwap_value\n\n// --- Volatility/Compression\natr = ta.atr(vol_length)\natr_perc = 100 * atr / close\n\nvolatility_is_low = atr_perc < min_volatility\n\n// --- Trend Strength\nadx = ta.adx(adx_length)\ntrend_is_strong = adx > 25\n\n// --- Explosion (Volatility Expansion) Detector\natr_surge = ta.change(atr) > 0 and ta.change(atr, 2) > 0\n\n// --- Entry Conditions\n\n// Long setup: Price breaks above VWAP after compression, with strong trend emerging\nrecent_pullback = use_vwap * (1 - pullback_perc / 100)\nlong_trigger = ta.crossover(close, use_vwap) and close[1] < use_vwap[1] and close > use_vwap and volatility_is_low[1] and trend_is_strong\n\n// Short setup: Price breaks below VWAP after compression, with strong trend emerging\nrecent_pullup = use_vwap * (1 + pullback_perc / 100)\nshort_trigger = ta.crossunder(close, use_vwap) and close[1] > use_vwap[1] and close < use_vwap and volatility_is_low[1] and trend_is_strong\n\n// --- Stop Loss / Take Profit Levels\nlong_stop = close - stoploss_atr_mult * atr\nlong_take = close + takeprofit_atr_mult * atr\nshort_stop = close + stoploss_atr_mult * atr\nshort_take = close - takeprofit_atr_mult * atr\n\n// --- Submit Orders\nif long_trigger\n    strategy.entry(\"VWAP Long\", strategy.long, stop=na, comment=\"VWAP Breakout Long\")\n    strategy.exit(\"Long TP/SL\", from_entry=\"VWAP Long\", limit=long_take, stop=long_stop)\nif short_trigger\n    strategy.entry(\"VWAP Short\", strategy.short, stop=na, comment=\"VWAP Breakout Short\")\n    strategy.exit(\"Short TP/SL\", from_entry=\"VWAP Short\", limit=short_take, stop=short_stop)\n\n// --- Plots\nplot(use_vwap, color=color.purple, linewidth=2, title=\"VWAP\")\nplotshape(long_trigger, title=\"Long Signal\", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)\nplotshape(short_trigger, title=\"Short Signal\", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small)\n\n// --- Utility: Session VWAP calculation (Pine workaround, not built-in)\nhlcv2vwap(_h, _l, _c, _v) =>\n    var float cumulative_vp = na\n    var float cumulative_v = na\n    if new_session\n        cumulative_vp := 0.\n        cumulative_v := 0.\n    cumulative_vp += ((_h + _l + _c) / 3) * _v\n    cumulative_v += _v\n    cum_vwap = cumulative_vp / cumulative_v\n    cum_vwap",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "vwma1",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr20",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adx14",
+        "type": "adx",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div1",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num100",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 100,
+            "name": "Const 100",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "numThr",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "Min Vol %",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num25",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 25,
+            "name": "ADX Threshold",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_vol",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_trend",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_long",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_short",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "atr20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num100",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "numThr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adx14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num25",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_trend",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "cross_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "cross_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_trend",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "all_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "all_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:48:55.783086",
+  "tags": [
+    "VWAP",
+    "breakout",
+    "volatility",
+    "compression",
+    "technical"
+  ]
+}

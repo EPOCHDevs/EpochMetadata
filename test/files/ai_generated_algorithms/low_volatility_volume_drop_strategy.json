@@ -1,0 +1,388 @@
+{
+  "id": "low_volatility_volume_drop_strategy",
+  "name": "Low Volatility Volume Drop Strategy",
+  "description": "This strategy identifies periods of low daily range volatility, defined by the difference between high and low prices, that occur alongside a sequential decline in trading volume over four consecutive days. A trade is initiated based on the next day's opening gap, entering long or short positions depending on whether the open is higher or lower than the previous close.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Develop a technical pattern strategy that detects periods of unusually low daily range volatility (measured as the difference between high and low prices) that coincide with a sequential drop in trading volume over 4 consecutive days. Enter a trade in the direction of the next day's opening gap (if the open is higher than the prior close, go long; if lower, go short), but only if the current day's range is less than 50% of the 20-period average true range and each of the last 4 days' volumes is lower than its preceding day. Set take profit when price moves in favor by 1.5 times the 20-period average true range from entry and stop loss if price moves 1x ATR against the entry.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr1",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub1",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "low1",
+        "type": "lowest_lt",
+        "options": [
+          {
+            "id": "periods",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg1",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag1",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt2",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and1",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and2",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec1",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "h"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "l"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "low1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "low1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "agg1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "o"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "o"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt2",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lag1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "and1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:19:18.872924",
+  "tags": [
+    "technical",
+    "volatility",
+    "trading",
+    "volume",
+    "strategy"
+  ]
+}

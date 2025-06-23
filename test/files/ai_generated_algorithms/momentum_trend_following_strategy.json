@@ -1,0 +1,684 @@
+{
+  "id": "momentum_trend_following_strategy",
+  "name": "Momentum Trend Following Strategy",
+  "description": "This strategy utilizes exponential moving averages (EMA) and Bollinger Bands to identify and capitalize on momentum trends in the market. By analyzing price movements and the Money Flow Index (MFI), it aims to generate buy and sell signals based on market volatility and momentum shifts.",
+  "algorithm_type": "Momentum",
+  "prompt": "import pandas as pd\nimport numpy as np\nimport talib\n\ndef trading_strategy(data):\n    # Calculate features\n    data['ema_13'] = talib.EMA(data['close'], timeperiod=13)\n    data['ema_34'] = talib.EMA(data['close'], timeperiod=34)\n    data['bb_upper'], data['bb_middle'], data['bb_lower'] = talib.BBANDS(data['close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)\n    data['mfi'] = talib.MFI(data['high'], data['low'], data['close'], data['volume'], timeperiod=14)\n    data['cmf'] = chaikin_money_flow(data, 20)\n    data['stoch_k'], data['stoch_d'] = talib.STOCH(data['high'], data['low'], data['close'], fastk_period=14, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)\n\n    # Signal logic\n    data['signal'] = 0\n\n    # LONG ENTRY: Price closes above upper Bollinger Band, EMA13 > EMA34, MFI < 60 (not overbought yet), CMF positive for confirmation\n    buy_condition = (\n        (data['close'] > data['bb_upper']) &\n        (data['ema_13'] > data['ema_34']) &\n        (data['mfi'] < 60) &\n        (data['cmf'] > 0)\n    )\n\n    # SHORT ENTRY: Price closes below lower Bollinger Band, EMA13 < EMA34, MFI > 40 (not oversold yet), CMF negative for confirmation\n    sell_condition = (\n        (data['close'] < data['bb_lower']) &\n        (data['ema_13'] < data['ema_34']) &\n        (data['mfi'] > 40) &\n        (data['cmf'] < 0)\n    )\n\n    # Momentum filter: only enter if Stoch K crosses over D for LONG, under D for SHORT\n    data['stoch_cross_up'] = (data['stoch_k'] > data['stoch_d']) & (data['stoch_k'].shift(1) <= data['stoch_d'].shift(1))\n    data['stoch_cross_down'] = (data['stoch_k'] < data['stoch_d']) & (data['stoch_k'].shift(1) >= data['stoch_d'].shift(1))\n    buy_signal = buy_condition & data['stoch_cross_up']\n    sell_signal = sell_condition & data['stoch_cross_down']\n\n    data.loc[buy_signal, 'signal'] = 1\n    data.loc[sell_signal, 'signal'] = -1\n\n    return data\n\ndef chaikin_money_flow(data, period=20):\n    mf_multiplier = ((data['close'] - data['low']) - (data['high'] - data['close'])) / (data['high'] - data['low']).replace(0, np.nan)\n    mf_volume = mf_multiplier * data['volume']\n    cmf = mf_volume.rolling(window=period, min_periods=period).sum() / data['volume'].rolling(window=period, min_periods=period).sum()\n    return cmf.fillna(0)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "ema13",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 13,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ema34",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mfi_node",
+        "type": "mfi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "adosc_node",
+        "type": "adosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "long_period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "stoch_node",
+        "type": "stoch",
+        "options": [
+          {
+            "id": "k_period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "k_slowing_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "d_period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num60",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 60,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num40",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 40,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num0",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_ema",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_ema",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_upper",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_lower",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_mfi_60",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mfi_40",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_adosc0",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_adosc0",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_up",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "cross_down",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "buy_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sell_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema13",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema34",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "gt_close_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "lt_close_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ema13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ema",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema34",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ema",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ema13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ema",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema34",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_ema",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mfi_60",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num60",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mfi_60",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mfi_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mfi_40",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mfi_40",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adosc0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adosc0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adosc_node",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adosc0",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adosc0",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "stoch_node",
+          "handle": "stoch_k"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stoch_node",
+          "handle": "stoch_d"
+        },
+        "target": {
+          "id": "cross_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "stoch_node",
+          "handle": "stoch_d"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stoch_node",
+          "handle": "stoch_k"
+        },
+        "target": {
+          "id": "cross_down",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_ema",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_mfi_60",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adosc0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "buy_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_ema",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mfi_40",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_adosc0",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "cross_down",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sell_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "buy_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "sell_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:50:39.075852",
+  "tags": [
+    "momentum",
+    "trading",
+    "technical analysis",
+    "EMA",
+    "Bollinger Bands"
+  ]
+}

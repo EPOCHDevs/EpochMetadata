@@ -1,0 +1,598 @@
+{
+  "id": "momentum-volume-compression-001",
+  "name": "Volume-Weighted Momentum Compression",
+  "description": "This strategy focuses on trading medium-volatility stocks by leveraging shifts in volume-weighted price momentum. It combines the analysis of VWAP and EMA with intraday volatility compression patterns to identify optimal entry points.",
+  "algorithm_type": "Momentum",
+  "prompt": "I want to design a daily timeframe strategy that trades medium-volatility stocks by exploiting shifts in volume-weighted price momentum combined with intraday volatility compression patterns.\n\nEntry criteria:  \n- Calculate a volume-weighted average price (VWAP) and a 5-day exponential moving average (EMA) of the closing price.  \n- Compute the daily range (High - Low) and apply a 10-day average true range (ATR) to assess recent volatility.  \n- Identify periods when the daily range is below 60% of the 10-day ATR (volatility compression).  \n- Confirm momentum direction by comparing the 5-day EMA to the VWAP: enter long when EMA crosses above VWAP during volatility compression accompanied by rising volume (volume higher than the 5-day average volume). Enter short when EMA crosses below VWAP under the same compression and volume conditions.  \n\nExit criteria:  \n- Exit when the daily range expands beyond 120% of the 10-day ATR (indicating volatility breakout), or  \n- When the EMA crosses back below (for longs) or above (for shorts) the VWAP, or  \n- A fixed stop-loss set at 2% adverse price move from entry.  \n\nThis approach aims to enter trades anticipating expansion following low-volatility consolidation confirmed by sustained volume momentum, capturing directional moves after quiet periods.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "vwma1",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "ema5",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "smaVol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num06",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num12",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr10",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "mulLow",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mulHigh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "compression",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "breakout",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volRise",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "xUp",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "xDown",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longCond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortCond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "longExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "shortExit",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exitAll",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "h"
+        },
+        "target": {
+          "id": "range",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "l"
+        },
+        "target": {
+          "id": "range",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ema5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "smaVol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "volRise",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "smaVol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volRise",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulLow",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num06",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulLow",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulHigh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mulHigh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "compression",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulLow",
+          "handle": "result"
+        },
+        "target": {
+          "id": "compression",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakout",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mulHigh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "breakout",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ema5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "xUp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "xUp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwma1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "xDown",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "ema5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "xDown",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "compression",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volRise",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "xUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "compression",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volRise",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "xDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortCond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "breakout",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "xDown",
+          "handle": "result"
+        },
+        "target": {
+          "id": "longExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "breakout",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "xUp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "shortExit",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "shortExit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exitAll",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "longCond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "shortCond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exitAll",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:56:11.834220",
+  "tags": [
+    "momentum",
+    "VWAP",
+    "EMA",
+    "volatility",
+    "trading strategy"
+  ]
+}

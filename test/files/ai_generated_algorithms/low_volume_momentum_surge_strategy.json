@@ -1,0 +1,334 @@
+{
+  "id": "low_volume_momentum_surge_strategy",
+  "name": "Low Volume Momentum Surge Strategy",
+  "description": "This swing trading strategy identifies periods of low volume contraction followed by a surge in volatility, confirmed by directional price momentum. It focuses on daily timeframes and utilizes a 14-day rolling average of volume to detect low volume conditions, setting the stage for potential price movements.",
+  "algorithm_type": "Momentum",
+  "prompt": "I want to create a swing trading strategy based on identifying periods of low volume contraction followed by a volatility surge confirmed by directional price momentum. Specifically, on a daily timeframe, the strategy will:\n\n1. Calculate a 14-day rolling average of volume and identify when daily volume falls below 70% of this average for at least 5 consecutive days, signaling a low volume contraction phase.\n2. During this contraction phase, compute the 7-day standard deviation of closing prices to confirm sustained low volatility (below the 20th percentile of the past 60 days).\n3. Entry signal triggers immediately when volume on the current day surges above 120% of the 14-day average volume and the 1-day price return is positive and greater than the 3-day rolling average return, indicating a volatility breakout with positive momentum.\n4. Enter a long position at the close of this breakout day.\n5. Exit conditions:\n   - Price closes below the 7-day close price moving average, suggesting loss of momentum.\n   - Or trade is held for a maximum of 10 trading days.\n6. Use a stop loss set at 2% below entry price to limit downside risk.\n\nThis strategy uniquely combines a volume-based pre-breakout contraction filter with a volatility and momentum confirmation, focusing on the transition from quiet periods to active moves on daily bars.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma_vol14",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num12",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_high",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_volSurge",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mom1",
+        "type": "mom",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mom3",
+        "type": "mom",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_return",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_close7",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_exit",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trade_exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_volSurge",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_volSurge",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "mom1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "mom3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mom1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_return",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mom3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_return",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_volSurge",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_return",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma_close7",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_exit",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_close7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_exit",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_exec",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:48:45.435562",
+  "tags": [
+    "momentum",
+    "swing trading",
+    "volatility",
+    "volume contraction",
+    "technical analysis"
+  ]
+}

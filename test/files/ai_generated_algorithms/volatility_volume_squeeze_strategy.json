@@ -1,0 +1,479 @@
+{
+  "id": "volatility_volume_squeeze_strategy",
+  "name": "Volatility-Volume Squeeze Strategy",
+  "description": "This strategy utilizes Bollinger Bands and Keltner Channels to identify potential breakout opportunities during periods of low volatility and volume. By adapting the bands based on market conditions, it aims to capture significant price movements following a squeeze.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"Volatility-Volume Squeeze with Adaptive Bands\", overlay=true, max_bars_back=200)\n\n// === Inputs ===\nlength_bb         = input.int(20, minval=2, title=\"Bollinger Band Length\")\nmult_bb           = input.float(2.0, minval=0.5, title=\"Bollinger Band Multiplier\")\nlength_kc         = input.int(20, minval=2, title=\"Keltner Channel Length\")\nmult_kc           = input.float(1.5, minval=0.5, title=\"Keltner Multiplier\")\nlength_adi        = input.int(14, minval=2, title=\"Accum/Dist Osc Length\")\nadi_threshold     = input.float(0, title=\"Accum/Dist Osc Threshold\")\nsqueeze_lookback  = input.int(100, minval=20, title=\"Squeeze Lookback Bars\")\nsma_length        = input.int(50, minval=5, title=\"SMA Trend Length\")\nrisk_atr_length   = input.int(14, minval=2, title=\"ATR SL/TP Length\")\nrisk_atr_mult     = input.float(2.0, minval=0.5, title=\"ATR Multiplier\")\n\n// === Indicators ===\n// Bollinger Bands\nbasis = ta.sma(close, length_bb)\ndev   = mult_bb * ta.stdev(close, length_bb)\nbb_upper = basis + dev\nbb_lower = basis - dev\n\n// Keltner Channels (on Typical Price for adaptive bands)\ntypical = (high + low + close)/3\nkc_ma   = ta.sma(typical, length_kc)\nkc_range = mult_kc * ta.atr(length_kc)\nkc_upper = kc_ma + kc_range\nkc_lower = kc_ma - kc_range\n\n// Squeeze: BB inside KC = squeeze ON, BB outside KC = squeeze OFF\nsqueeze_on  = bb_upper < kc_upper and bb_lower > kc_lower\nsqueeze_off = bb_upper > kc_upper or bb_lower < kc_lower\n\n// Accumulation/Distribution Oscillator (for \"fuel\")\n// Williams AccDistOsc is just the change of the Accum/Dist Line\nadl = ta.accdist()\nadi = ta.ema(adl - adl[1], length_adi)\n\n// Simple price trend filter\nsma = ta.sma(close, sma_length)\n\n// ATR for risk management\natr = ta.atr(risk_atr_length)\n\n// Track last squeeze release\nvar float last_squeeze_off = na\nif squeeze_on and not squeeze_on[1]\n    last_squeeze_off := na  // Reset on squeeze start\nif squeeze_off and squeeze_on[1]\n    last_squeeze_off := bar_index\n\n// Find bar_index of most recent squeeze OFF (release)\nvar int last_release = na\nif squeeze_off and squeeze_on[1]\n    last_release := bar_index\n\n// === Entry Conditions ===\nwithin_squeeze = ta.valuewhen(squeeze_on and not squeeze_on[1], bar_index, 0)\nrelease_bar    = ta.valuewhen(squeeze_off and squeeze_on[1], bar_index, 0)\n\n// Define a squeeze \"window\" (recent release)\nrecent_release = not na(release_bar) and (bar_index - release_bar <= 3)\n\n// Long: After squeeze release, price above SMA, AD Osc up (positive \"fuel\"), and close breakout > highest close in squeeze\nsqueeze_high = ta.highest(close, bar_index - within_squeeze + 1)\nlong_breakout = close > squeeze_high and close > sma and adi > adi_threshold and recent_release\n\n// Short: After squeeze release, price below SMA, AD Osc down, and close < lowest close in squeeze\nsqueeze_low = ta.lowest(close, bar_index - within_squeeze + 1)\nshort_breakout = close < squeeze_low and close < sma and adi < -adi_threshold and recent_release\n\n// === Entries and Exits ===\nif long_breakout\n    strategy.entry(\"Long\", strategy.long, stop=na, limit=na)\n    strategy.exit(\"Long SL/TP\", \"Long\", stop=close - risk_atr_mult * atr, limit=close + risk_atr_mult * atr)\nif short_breakout\n    strategy.entry(\"Short\", strategy.short, stop=na, limit=na)\n    strategy.exit(\"Short SL/TP\", \"Short\", stop=close + risk_atr_mult * atr, limit=close - risk_atr_mult * atr)\n\n// === Plots ===\nplot(bb_upper, color=color.aqua, linewidth=1, title=\"BB Upper\")\nplot(bb_lower, color=color.aqua, linewidth=1, title=\"BB Lower\")\nplot(kc_upper, color=color.orange, linewidth=1, title",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "BB Period",
+            "isExposed": true
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "BB StdDev",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "kc",
+        "type": "keltner_channels",
+        "options": [
+          {
+            "id": "roll_period",
+            "value": 20,
+            "name": "KC Period",
+            "isExposed": true
+          },
+          {
+            "id": "band_multiplier",
+            "value": 1.5,
+            "name": "KC Mult",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "lt_upper",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_lower",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "squeeze_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not_squeeze",
+        "type": "logical_not",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 50,
+            "name": "SMA Len",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_close_sma",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_close_sma",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adi",
+        "type": "adosc",
+        "options": [
+          {
+            "id": "short_period",
+            "value": 3,
+            "name": "ADI Short",
+            "isExposed": true
+          },
+          {
+            "id": "long_period",
+            "value": 10,
+            "name": "ADI Long",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "gt_adi_zero",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_adi_zero",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero_const",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "lt_upper",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "kc",
+          "handle": "upper_band"
+        },
+        "target": {
+          "id": "lt_upper",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "gt_lower",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "kc",
+          "handle": "lower_band"
+        },
+        "target": {
+          "id": "gt_lower",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_upper",
+          "handle": "result"
+        },
+        "target": {
+          "id": "squeeze_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_lower",
+          "handle": "result"
+        },
+        "target": {
+          "id": "squeeze_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "squeeze_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not_squeeze",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_close_sma",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adi_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_adi_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "adi",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adi_zero",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_const",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_adi_zero",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "not_squeeze",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_adi_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not_squeeze",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_close_sma",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_adi_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "all_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "all_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:48:57.738121",
+  "tags": [
+    "volatility",
+    "squeeze",
+    "Bollinger Bands",
+    "Keltner Channels",
+    "technical analysis"
+  ]
+}

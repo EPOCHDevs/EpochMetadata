@@ -1,0 +1,826 @@
+{
+  "id": "mean_reversion_kink_volatility_001",
+  "name": "Kink Volatility Mean Reversion",
+  "description": "This algorithm identifies mean-reverting opportunities by analyzing the volatility 'kink' in Bollinger Bandwidth. It utilizes the Hurst exponent to assess the time series' tendency to revert to its mean, enhancing the precision of trade entries and exits.",
+  "algorithm_type": "MeanReverting",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef calculate_hurst(ts, window):\n    lags = range(2, window // 2)\n    tau = [np.std(np.subtract(ts[lag:], ts[:-lag])) for lag in lags]\n    poly = np.polyfit(np.log(lags), np.log(tau), 1)\n    return poly[0]*2.0\n\ndef kink_bandwidth(data, window=12):\n    \"\"\"Detects volatility 'kink' by measuring the change in Bollinger Bandwidth.\"\"\"\n    rolling_std = data['close'].rolling(window).std()\n    mid = data['close'].rolling(window).mean()\n    upper = mid + 2 * rolling_std\n    lower = mid - 2 * rolling_std\n    bandwidth = (upper - lower) / mid\n    return bandwidth.diff(periods=3)\n\ndef trading_strategy(data):\n    # Calculate technical features\n    data['tema'] = talib.TEMA(data['close'], timeperiod=15)\n    data['boll_upper'], data['boll_middle'], data['boll_lower'] = talib.BBANDS(data['close'], timeperiod=17, nbdevup=2, nbdevdn=2)\n    data['bb_width'] = (data['boll_upper'] - data['boll_lower']) / data['boll_middle']\n    data['vol_avg'] = data['volume'].rolling(14).mean()\n    data['vol_ratio'] = data['volume'] / data['vol_avg']\n    \n    # Kink Bandwidth: measure \"volatility inflection\"\n    data['kink_bw'] = kink_bandwidth(data, window=14)\n    \n    # Hurst exponent: regime awareness (trendiness vs mean-reversion)\n    data['hurst'] = data['close'].rolling(70).apply(lambda x: calculate_hurst(x, len(x)) if len(x.dropna()) == 70 else np.nan, raw=False)\n    \n    # Signal logic\n    data['signal'] = 0\n    \n    # Entry: Look for low Hurst (mean-reverting), contraction, and volume spike, AND bandwidth 'kink' turning positive (volatility inflection).\n    long_condition = (\n        (data['hurst'] < 0.45) & \n        (data['bb_width'] < data['bb_width'].rolling(25).quantile(0.30)) &\n        (data['vol_ratio'] > 1.4) &\n        (data['kink_bw'] > 0)\n    )\n    # Entry: High Hurst (trendy), bandwidth begins to expand, and no volume spike (steady climb).\n    short_condition = (\n        (data['hurst'] > 0.55) &\n        (data['bb_width'] > data['bb_width'].rolling(25).quantile(0.70)) &\n        (data['vol_ratio'] < 0.9) &\n        (data['kink_bw'] > 0)\n    )\n    data.loc[long_condition, 'signal'] = 1\n    data.loc[short_condition, 'signal'] = -1\n\n    # Exit: TEMA crosses below/above Bollinger middle for long/short, or volume mean-reverts\n    exit_long = (\n        (data['tema'] < data['boll_middle']) |\n        (data['vol_ratio'] < 1.05)\n    )\n    exit_short = (\n        (data['tema'] > data['boll_middle']) |\n        (data['vol_ratio'] > 1.1)\n    )\n    data.loc[exit_long, 'signal'] = 0\n    data.loc[exit_short, 'signal'] = 0\n\n    return data\n\nimport talib",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "bb",
+        "type": "bbands",
+        "options": [
+          {
+            "id": "period",
+            "value": 17,
+            "name": "",
+            "isExposed": false
+          },
+          {
+            "id": "stddev",
+            "value": 2,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "bbw",
+        "type": "bband_width",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag3",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 3,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "kink",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_v",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vr",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "hurst",
+        "type": "hurst_exponent",
+        "options": [
+          {
+            "id": "min_period",
+            "value": 70,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num045",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.45,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num055",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.55,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num005",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.05,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num01",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num14",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.4,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num09",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_zero",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_one",
+        "type": "one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_neg1",
+        "type": "negative_one",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_hurst_long",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_bbw_long",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol_long",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_kink",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_hurst_short",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_bbw_short",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_vol_short",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "agg_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "if_long",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "if_short",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "add_sig",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "adapter",
+        "type": "trade_executor_adapter",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "bb",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_lower"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_lower"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_middle"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_middle"
+        }
+      },
+      {
+        "source": {
+          "id": "bb",
+          "handle": "bbands_upper"
+        },
+        "target": {
+          "id": "bbw",
+          "handle": "bbands_upper"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kink",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "kink",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_v",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_v",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "hurst",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num045",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_hurst_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_bbw_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num005",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_bbw_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "kink",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_kink",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_kink",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "hurst",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num055",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_hurst_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "bbw",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_bbw_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num01",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_bbw_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vol_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num09",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vol_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_hurst_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_bbw_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_kink",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_hurst_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_bbw_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vol_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_kink",
+          "handle": "result"
+        },
+        "target": {
+          "id": "agg_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_long",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "const_one",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_long",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "num_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_long",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "agg_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_short",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "const_neg1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_short",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "num_zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "if_short",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "if_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_sig",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "if_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_sig",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "add_sig",
+          "handle": "result"
+        },
+        "target": {
+          "id": "adapter",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "adapter",
+          "handle": "long"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "adapter",
+          "handle": "short"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:48:56.001640",
+  "tags": [
+    "mean reversion",
+    "volatility",
+    "Bollinger Bands",
+    "Hurst exponent",
+    "trading strategy"
+  ]
+}

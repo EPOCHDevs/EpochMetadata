@@ -1,0 +1,185 @@
+{
+  "id": "chande_kroll_stop_strategy",
+  "name": "Chande Kroll Stop Trading Strategy",
+  "description": "This trading strategy utilizes the Chande Kroll Stop method, which incorporates the Average True Range (ATR) to determine optimal entry and exit points. By calculating the highest high and lowest low over specified periods, it aims to provide a dynamic stop-loss mechanism that adapts to market volatility.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef trading_strategy(data):\n    # Chande Kroll Stop parameters\n    atr_period = 10\n    multiplier = 2\n    high_period = 9\n    low_period = 9\n\n    # Calculate ATR\n    data['atr'] = average_true_range(data['high'], data['low'], data['close'], atr_period)\n\n    # Chande Kroll upper and lower stops\n    data['highest_high'] = data['high'].rolling(window=high_period).max()\n    data['lowest_low'] = data['low'].rolling(window=low_period).min()\n    data['upper_stop'] = data['highest_high'] - multiplier * data['atr']\n    data['lower_stop'] = data['lowest_low'] + multiplier * data['atr']\n\n    # Superimpose Vortex Indicator for confirmation\n    vi_period = 14\n    data['vi_plus'], data['vi_minus'] = vortex_indicator(data['high'], data['low'], data['close'], vi_period)\n\n    # Calculate signal\n    data['signal'] = 0\n\n    # Buy when price crosses above upper_stop and VI+ > VI-\n    buy_condition = (data['close'].shift(1) <= data['upper_stop'].shift(1)) & \\\n                    (data['close'] > data['upper_stop']) & \\\n                    (data['vi_plus'] > data['vi_minus'])\n\n    # Sell when price crosses below lower_stop and VI- > VI+\n    sell_condition = (data['close'].shift(1) >= data['lower_stop'].shift(1)) & \\\n                     (data['close'] < data['lower_stop']) & \\\n                     (data['vi_minus'] > data['vi_plus'])\n\n    data.loc[buy_condition, 'signal'] = 1\n    data.loc[sell_condition, 'signal'] = -1\n\n    return data\n\ndef average_true_range(high, low, close, period):\n    prev_close = close.shift(1)\n    tr1 = high - low\n    tr2 = (high - prev_close).abs()\n    tr3 = (low - prev_close).abs()\n    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)\n    atr = tr.rolling(window=period, min_periods=period).mean()\n    return atr\n\ndef vortex_indicator(high, low, close, period):\n    prev_high = high.shift(1)\n    prev_low = low.shift(1)\n    prev_close = close.shift(1)\n\n    vm_plus = (high - prev_low).abs()\n    vm_minus = (low - prev_high).abs()\n\n    tr1 = (high - low).abs()\n    tr2 = (high - prev_close).abs()\n    tr3 = (low - prev_close).abs()\n    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)\n\n    sum_vm_plus = vm_plus.rolling(window=period).sum()\n    sum_vm_minus = vm_minus.rolling(window=period).sum()\n    sum_tr = tr.rolling(window=period).sum()\n\n    vi_plus = sum_vm_plus / sum_tr\n    vi_minus = sum_vm_minus / sum_tr\n\n    return vi_plus, vi_minus",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "rsi1",
+        "type": "rsi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "Period",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt70",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const70",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 70,
+            "name": "Value",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt30",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const30",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 30,
+            "name": "Value",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "rsi1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt70",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt70",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt70",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "rsi1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt30",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt30",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:40:50.955046",
+  "tags": [
+    "Chande Kroll",
+    "ATR",
+    "trading strategy",
+    "technical analysis",
+    "stop-loss"
+  ]
+}

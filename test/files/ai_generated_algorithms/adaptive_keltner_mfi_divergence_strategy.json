@@ -1,0 +1,600 @@
+{
+  "id": "adaptive_keltner_mfi_divergence_strategy",
+  "name": "Adaptive Keltner MFI Divergence Strategy",
+  "description": "This strategy utilizes Keltner Channels and the Money Flow Index (MFI) to identify potential divergence signals in the market. By combining these indicators, it aims to capture momentum shifts and improve trade entry and exit points.",
+  "algorithm_type": "Momentum",
+  "prompt": "//@version=5\nstrategy(\"Adaptive Keltner-MFI Divergence Strategy\", overlay=true, margin_long=100, margin_short=100)\n\n// Inputs\nlengthKC = input.int(20, \"Keltner Channel Length\")\nmultKC = input.float(1.5, \"Keltner Channel Multiplier\")\nlengthMFI = input.int(14, \"MFI Length\")\nlengthATR = input.int(14, \"ATR Length\")\nlengthLR = input.int(30, \"Linear Regression Length\")\n\n// Typical price for Keltner and Linear Regression\ntypPrice = ta.typical_price\n\n// Calculate Keltner Channels (EMA + ATR)\nemaKC = ta.ema(typPrice, lengthKC)\natrKC = ta.atr(lengthATR)\nupperKC = emaKC + multKC * atrKC\nlowerKC = emaKC - multKC * atrKC\n\n// Money Flow Index & its Linear Regression slope as momentum trend\nmfi = ta.mfi(high, low, close, volume, lengthMFI)\nlrMFI_slope = ta.linearreg_slope(mfi, lengthLR)\n\n// Price Linear Regression slope\nlrPrice_slope = ta.linearreg_slope(close, lengthLR)\n\n// Detect divergence:\n// Bullish divergence = price LR slope < 0 AND MFI LR slope > 0\nbull_div = (lrPrice_slope < 0) and (lrMFI_slope > 0) and (close < lowerKC)\n\n// Bearish divergence = price LR slope > 0 AND MFI LR slope < 0\nbear_div = (lrPrice_slope > 0) and (lrMFI_slope < 0) and (close > upperKC)\n\n// Entry Conditions\nif (bull_div)\n    strategy.entry(\"Long\", strategy.long)\n\nif (bear_div)\n    strategy.entry(\"Short\", strategy.short)\n\n// Exit Conditions: cross back inside midline (emaKC) from opposite side\nexitLong = strategy.position_size > 0 and close > emaKC\nexitShort = strategy.position_size < 0 and close < emaKC\n\nif exitLong\n    strategy.close(\"Long\")\nif exitShort\n    strategy.close(\"Short\")\n\n// Plotting\nplot(emaKC, color=color.orange, title=\"EMA Midline\")\np1 = plot(upperKC, color=color.green, title=\"Upper Keltner\")\np2 = plot(lowerKC, color=color.red, title=\"Lower Keltner\")\nfill(p1, p2, color=color.new(color.gray, 90), title=\"Keltner Channel\")\n\nplot(mfi, title=\"MFI\", color=color.blue)\nhline(50, color=color.gray, linestyle=hline.style_dotted)\n\n// Signal shapes for divergence\nplotshape(bull_div, title=\"Bullish Divergence Entry\", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)\nplotshape(bear_div, title=\"Bearish Divergence Entry\", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n2",
+        "type": "typprice",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n3",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "mfi",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n10",
+        "type": "linregslope",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "linregslope",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n19",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n20",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n22",
+        "type": "crossany",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n21",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n3",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n17",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n18",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n19",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n22",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:06:14.140221",
+  "tags": [
+    "momentum",
+    "keltner",
+    "mfi",
+    "divergence",
+    "strategy"
+  ]
+}

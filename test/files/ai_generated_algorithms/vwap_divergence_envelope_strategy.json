@@ -1,0 +1,641 @@
+{
+  "id": "algorithm_001",
+  "name": "VWAP Divergence Envelope Strategy",
+  "description": "This strategy utilizes the VWAP (Volume Weighted Average Price) to identify potential reversal points based on divergence patterns. By incorporating an envelope percentage, it enhances the precision of entry and exit signals, allowing traders to capitalize on market fluctuations effectively.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "// @version=5\nstrategy(\"VWAP Divergence Envelope Reversal Strategy\", overlay=true, max_bars_back=200)\n\n// === User Inputs ===\nenvelope_pct      = input.float(1.25, title=\"Envelope Percentage (%)\", minval=0.1, step=0.05)\nvwap_lookback     = input.int(48, title=\"VWAP Divergence Lookback (bars)\", minval=5, maxval=500)\nmin_divergence    = input.float(0.7, title=\"Min VWAP Divergence (%)\", minval=0.1, step=0.1)\nmin_volume_factor = input.float(1.5, title=\"Min Volume Spike (x average)\", minval=0.1, step=0.1)\natr_length        = input.int(14, title=\"ATR Length\", minval=2)\nrisk_atr_mult     = input.float(1.0, title=\"Stop ATR Multiplier\", minval=0.1, step=0.1)\n\n// === VWAP Envelope Calculation ===\nvwap                = ta.vwap\nenvelope_upper      = vwap * (1 + envelope_pct/100)\nenvelope_lower      = vwap * (1 - envelope_pct/100)\n\n// === VWAP Divergence Calculation ===\nvwap_distance_pct   = 100 * (close - vwap) / vwap\n\n// Local extrema of vwap_distance\nvwap_div_hi = ta.highest(vwap_distance_pct, vwap_lookback)\nvwap_div_lo = ta.lowest(vwap_distance_pct, vwap_lookback)\n\n// Volume Spike Filter\navg_volume          = ta.sma(volume, vwap_lookback)\nvolume_spike        = volume > avg_volume * min_volume_factor\n\n// Entry Conditions (Counter-Trend Envelope Extremes + VWAP Divergence + Volume Spike)\n\n// Long: Price at/below lower envelope, extreme negative vwap divergence, volume spike\nlong_envelope       = close <= envelope_lower\nlong_divergence     = vwap_distance_pct == vwap_div_lo and vwap_distance_pct < -min_divergence\nlong_condition      = long_envelope and long_divergence and volume_spike\n\n// Short: Price at/above upper envelope, extreme positive vwap divergence, volume spike\nshort_envelope      = close >= envelope_upper\nshort_divergence    = vwap_distance_pct == vwap_div_hi and vwap_distance_pct > min_divergence\nshort_condition     = short_envelope and short_divergence and volume_spike\n\n// Risk Management\natr_val             = ta.atr(atr_length)\n\n// === Execute Trades ===\nif long_condition\n    strategy.entry(\"Long\", strategy.long)\n    strategy.exit(\"Long Exit\", from_entry=\"Long\", stop=close - atr_val * risk_atr_mult)\n\nif short_condition\n    strategy.entry(\"Short\", strategy.short)\n    strategy.exit(\"Short Exit\", from_entry=\"Short\", stop=close + atr_val * risk_atr_mult)\n\n// === Plots ===\nplot(vwap, color=color.orange, linewidth=2, title=\"VWAP\")\nplot(envelope_upper, color=color.green, style=plot.style_line, linewidth=1, title=\"Upper Envelope\")\nplot(envelope_lower, color=color.red, style=plot.style_line, linewidth=1, title=\"Lower Envelope\")",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "sma_p",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_v",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 48,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_low",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.9875,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_up",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.0125,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_1p5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_neg",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -0.007,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_pos",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.007,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_low",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_up",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lte_long",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gte_short",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_delta",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "div_ratio",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_neg",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_pos",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "low_eq",
+        "type": "lowest_eq",
+        "options": [
+          {
+            "id": "periods",
+            "value": 48,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "high_eq",
+        "type": "highest_eq",
+        "options": [
+          {
+            "id": "periods",
+            "value": 48,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vol",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_long",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "all_short",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sma_p",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_v",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_p",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_p",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lte_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lte_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gte_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gte_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "sub_delta",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_p",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_delta",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_delta",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_p",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_neg",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_neg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_neg",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pos",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_pos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_pos",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "low_eq",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "div_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "high_eq",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_v",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_1p5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lte_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "low_eq",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_neg",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_long",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gte_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "high_eq",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_pos",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "all_short",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "all_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "all_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:28:19.209544",
+  "tags": [
+    "VWAP",
+    "Divergence",
+    "Reversal",
+    "Envelope",
+    "TechnicalPattern"
+  ]
+}

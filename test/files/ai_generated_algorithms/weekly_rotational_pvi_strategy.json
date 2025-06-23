@@ -1,0 +1,367 @@
+{
+  "id": "algorithm-001",
+  "name": "Weekly Rotational PVI Strategy",
+  "description": "This strategy ranks assets weekly based on the highest 10-day sum of positive volume index (PVI) change. It allocates equal positions to the top 5 ranked assets that meet a specific volatility criterion, ensuring a dynamic and responsive trading approach.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "Develop a rotational trading strategy that, at the close of each week, ranks all assets by the highest 10-day sum of positive volume index (PVI) change. For the next week, allocate equal positions to the top 5 ranked assets whose 5-day average true range (ATR) divided by price is above 2%. Exit any asset from the portfolio if it drops out of the top 10 PVI gainers or its ATR/price ratio falls below 1.2% at the next weekly rebalance. Remain in cash for any unfilled slots.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "pvi1",
+        "type": "pvi",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "roc1",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr1",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "div1",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_entry",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.02,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "top5",
+        "type": "top_k",
+        "options": [
+          {
+            "id": "k",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and1",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec1",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "top10",
+        "type": "top_k",
+        "options": [
+          {
+            "id": "k",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "not1",
+        "type": "logical_not",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_exit",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.012,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt1",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "or1",
+        "type": "logical_or",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "md1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "pvi1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "roc1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "top5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "top10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "div1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "div1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "top5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "top10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "not1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "not1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "or1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "div1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_exit",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "or1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "or1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:15:40.413655",
+  "tags": [
+    "trading",
+    "strategy",
+    "PVI",
+    "volatility",
+    "momentum"
+  ]
+}

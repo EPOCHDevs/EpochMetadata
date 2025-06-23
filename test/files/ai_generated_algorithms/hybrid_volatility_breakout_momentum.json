@@ -1,0 +1,571 @@
+{
+  "id": "hybrid-volatility-breakout-momentum",
+  "name": "Hybrid Volatility Breakout Momentum",
+  "description": "This strategy combines volatility breakout and volume confirmation to trade liquid large-cap equities on a 15-minute timeframe. It triggers entries when the True Range exceeds its moving average, indicating rising volatility, while ensuring that the VWAP is above a certain threshold for volume confirmation.",
+  "algorithm_type": "Momentum",
+  "prompt": "I want to create a hybrid volatility-breakout and volume-confirmation strategy on a 15-minute timeframe that trades liquid large-cap equities. Entry triggers when the True Range for the last 10 bars exceeds its 30-bar Simple Moving Average by at least 25%, signaling rising intraday volatility. At the same time, the Volume Weighted Average Price (VWAP) over the last 10 bars must be above the 30-bar VWAP, confirming bullish volume pressure. A long position is entered at the close of the breakout candle if the close is above that candle\u2019s midpoint and volume is at least 10% greater than the 20-bar average volume. For shorts, the strategy enters when the 10-bar True Range exceeds 30-bar SMA Threshold as above, but the 10-bar VWAP is below the 30-bar VWAP, and the closing price is below the candle midpoint with volume 10% above average. Exit occurs either on a 1.5% adverse move from entry price, a 1% favorable price retracement measured from the highest/lowest price since entry, or when the 10-bar True Range falls below its 30-bar SMA for two consecutive bars, indicating volatility contraction. This strategy uniquely combines volatility expansion with volume-weighted price levels to confirm breakouts and uses short-term VWAP relationships for directional bias rather than traditional moving averages or momentum oscillators.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "md",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "tr",
+        "type": "tr",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "sma10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma30",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ratio",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const125",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.25,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_ratio",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwap10",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "vwap30",
+        "type": "vwma",
+        "options": [
+          {
+            "id": "period",
+            "value": 30,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "gt_vwap",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_vwap",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const11",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_thresh",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "midpoint",
+        "type": "medprice",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "close_gt",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_lt",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_cond",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "tr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "tr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma30",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const125",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vwap",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vwap",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vwap",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap30",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_vwap",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_thresh",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_thresh",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "v"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_thresh",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_gt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "midpoint",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_gt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "md",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_lt",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "midpoint",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_lt",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vwap",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_gt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_vwap",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_lt",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:12:05.384528",
+  "tags": [
+    "momentum",
+    "volatility",
+    "breakout",
+    "volume",
+    "equities"
+  ]
+}

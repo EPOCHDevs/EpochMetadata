@@ -1,0 +1,423 @@
+{
+  "id": "fractal_volume_keltner_reversal",
+  "name": "Fractal Volume Keltner Reversal",
+  "description": "This strategy utilizes Keltner Channels to identify potential reversal points in the market based on fractal patterns and volume analysis. By combining these elements, it aims to enhance trading decisions and optimize entry and exit points.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "//@version=5\nstrategy(\"Fractal Volume-Enhanced Keltner Reversal\", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Input parameters\nlength_KC = input.int(20, \"Keltner Channels Length\", minval=1)\nmult_KC = input.float(1.5, \"Keltner Channels Multiplier\", step=0.1)\nlength_fractal = input.int(7, \"Fractal Length (Odd)\", minval=3)\nvol_sma_len = input.int(20, \"Volume SMA Length\", minval=1)\nvol_mult = input.float(1.5, \"Volume Surge Multiplier\", step=0.1)\n\n// Keltner Channels Calculation\nema_kc = ta.ema(close, length_KC)\natr_kc = ta.atr(length_KC)\nupper_kc = ema_kc + mult_KC * atr_kc\nlower_kc = ema_kc - mult_KC * atr_kc\n\n// Fractal functions: detect fractal highs and lows\nfractal_high() =>\n    left = length_fractal >> 1\n    right = length_fractal - left - 1\n    is_fractal = true\n    center_idx = left\n    center_high = high[center_idx]\n    for i = 0 to left - 1\n        if not (high[center_idx] > high[center_idx - (i + 1)])\n            is_fractal := false\n    for i = 0 to right - 1\n        if not (high[center_idx] >= high[center_idx + (i + 1)])\n            is_fractal := false\n    is_fractal\n\nfractal_low() =>\n    left = length_fractal >> 1\n    right = length_fractal - left - 1\n    is_fractal = true\n    center_idx = left\n    center_low = low[center_idx]\n    for i = 0 to left - 1\n        if not (low[center_idx] < low[center_idx - (i + 1)])\n            is_fractal := false\n    for i = 0 to right - 1\n        if not (low[center_idx] <= low[center_idx + (i + 1)])\n            is_fractal := false\n    is_fractal\n\n// Because fractal checks need lookback, check fractals at bar index 'length_fractal -1'\nfractalHighConfirmed = bar_index >= length_fractal - 1 and fractal_high()\nfractalLowConfirmed = bar_index >= length_fractal - 1 and fractal_low()\n\n// Confirm fractal bar index location\nfractal_bar_idx = bar_index - (length_fractal >> 1)\n\n// Volume surge condition\nvol_sma = ta.sma(volume, vol_sma_len)\nvol_surge = volume > vol_mult * vol_sma\n\n// Entry conditions:\n// Long entry: Price closes below lower Keltner Channel, fractal low confirmed at that bar, and volume surge on fractal bar\nlong_entry_cond = false\nif fractalLowConfirmed\n    // Check volume surge at the fractal bar index\n    fractal_vol = request.security(syminfo.tickerid, timeframe.period, volume[length_fractal >> 1])\n    fractal_vol_sma = request.security(syminfo.tickerid, timeframe.period, vol_sma[length_fractal >> 1])\n    vol_surge_fractal = fractal_vol > vol_mult * fractal_vol_sma\n    fractal_low_price = low[length_fractal >> 1]\n    long_entry_cond := (close < lower_kc) and (vol_surge_fractal)\n\n// Short entry: Price closes above upper Keltner Channel, fractal high confirmed at that bar, and volume surge on fractal bar\nshort_entry_cond = false\nif fractalHighConfirmed\n    fractal_vol_h = request.security(syminfo.tickerid, timeframe.period, volume[length_fractal >> 1])\n    fractal_vol_sma_h = request.security(syminfo.tickerid, timeframe.period, vol_sma[length_fractal >> 1])\n    vol_surge_fractal_h = fractal_vol_h > vol_mult * fractal_vol_sma_h\n    fractal_high_price = high[length_fractal >> 1]\n    short_entry_cond := (close > upper_kc) and (vol_surge_fractal_h)\n\n// Enter trades when fractal bar is current bar adjusted for fractal lag\nif not strategy.position_size\n    if long_entry_cond\n        strategy.entry(\"Long\", strategy.long)\n    if short_entry_cond\n        strategy.entry(\"Short\", strategy.short)\n\n// Exit conditions:\n// Exit long: Close crosses above",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n2",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n4",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "trade_signal_executor",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:06:05.008393",
+  "tags": [
+    "Keltner Channels",
+    "Fractal",
+    "Volume Analysis",
+    "Reversal Strategy",
+    "Technical Pattern"
+  ]
+}

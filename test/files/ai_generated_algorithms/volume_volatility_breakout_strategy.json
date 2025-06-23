@@ -1,0 +1,340 @@
+{
+  "id": "algorithm_001",
+  "name": "Volume-Volatility Breakout Strategy",
+  "description": "This strategy utilizes a combination of volume and volatility indicators to identify breakout opportunities in the market. By analyzing the Average True Range (ATR) and volume clusters, it aims to capture significant price movements following periods of consolidation.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "//@version=5\nstrategy(\"Volume-Volatility Cluster Breakout Strategy\", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Input parameters\nvolatility_length = input.int(14, \"Volatility Length (ATR)\")\nvolatility_mult = input.float(1.8, \"Volatility Multiplier\", step=0.1)\nvol_cluster_length = input.int(20, \"Volume Cluster Length\")\nvol_cluster_quantile = input.float(0.8, \"Volume Cluster Quantile (0-1)\", minval=0.5, maxval=1.0, step=0.05)\n\n// Calculate volatility using ATR\natr_val = ta.atr(volatility_length)\n\n// Calculate volume clusters: mark bars with volume in top quantile over vol_cluster_length\nvol_sorted = ta.highest(volume, vol_cluster_length)\nvol_threshold = ta.percentile(volume, vol_cluster_length, vol_cluster_quantile * 100)\nvol_cluster = volume >= vol_threshold\n\n// Define cluster breakouts as breakout above cluster high or below cluster low\nvar float cluster_high = na\nvar float cluster_low = na\n\nif vol_cluster\n    cluster_high := math.max(nz(cluster_high, high), high)\n    cluster_low := math.min(nz(cluster_low, low), low)\nelse\n    // Reset cluster bounds when not in cluster volume bars\n    cluster_high := na\n    cluster_low := na\n\n// Wait for a confirmed breakout above cluster high + volatility buffer for long\nlong_breakout = not na(cluster_high) and close > cluster_high + volatility_mult * atr_val\nshort_breakout = not na(cluster_low) and close < cluster_low - volatility_mult * atr_val\n\n// Define an internal cooldown to avoid immediate reentries (5 bars)\nvar int long_cooldown = 0\nvar int short_cooldown = 0\nlong_cooldown := long_cooldown > 0 ? long_cooldown - 1 : 0\nshort_cooldown := short_cooldown > 0 ? short_cooldown - 1 : 0\n\n// Entry conditions\nlong_entry = long_breakout and long_cooldown == 0 and strategy.position_size <= 0\nshort_entry = short_breakout and short_cooldown == 0 and strategy.position_size >= 0\n\n// Exit conditions: cross back inside cluster bounds or opposite breakout\nlong_exit = strategy.position_size > 0 and (close < cluster_high or short_breakout)\nshort_exit = strategy.position_size < 0 and (close > cluster_low or long_breakout)\n\n// Execute trades\nif (long_entry)\n    strategy.entry(\"Long\", strategy.long)\n    long_cooldown := 5\nif (short_entry)\n    strategy.entry(\"Short\", strategy.short)\n    short_cooldown := 5\nif (long_exit)\n    strategy.close(\"Long\")\nif (short_exit)\n    strategy.close(\"Short\")\n\n// Plot cluster bounds\nplot(cluster_high, title=\"Cluster High\", color=color.green, style=plot.style_linebr)\nplot(cluster_low, title=\"Cluster Low\", color=color.red, style=plot.style_linebr)\n// Plot ATR bands around cluster for visual\nplot(not na(cluster_high) ? cluster_high + volatility_mult * atr_val : na, title=\"Upper Volatility Band\", color=color.new(color.green, 70), style=plot.style_line)\nplot(not na(cluster_low) ? cluster_low - volatility_mult * atr_val : na, title=\"Lower Volatility Band\", color=color.new(color.red, 70), style=plot.style_line)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr1",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "ATR Period",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num_mult",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.8,
+            "name": "Multiplier",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "max_high",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Lookback",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "add_up",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "min_low",
+        "type": "min",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Lookback",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub_low",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_long",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_short",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "any_close",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "Exit If Indecisive",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "h"
+        },
+        "target": {
+          "id": "max_high",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_mult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "max_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_up",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "add_up",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "gt_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "add_up",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "l"
+        },
+        "target": {
+          "id": "min_low",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "min_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sub_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "lt_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sub_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "any_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "any_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:54:23.573916",
+  "tags": [
+    "technical",
+    "breakout",
+    "volume",
+    "volatility",
+    "strategy"
+  ]
+}

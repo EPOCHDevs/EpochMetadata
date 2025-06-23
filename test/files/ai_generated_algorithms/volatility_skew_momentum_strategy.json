@@ -1,0 +1,601 @@
+{
+  "id": "volatility_skew_momentum_strategy",
+  "name": "Volatility Skew Momentum Strategy",
+  "description": "This strategy integrates volatility skew analysis with momentum trading principles. It computes various volatility metrics, including realized volatility and mean daily range, to identify potential trading opportunities based on skewness over a rolling window.",
+  "algorithm_type": "Momentum",
+  "prompt": "import pandas as pd\nimport numpy as np\nimport talib\n\ndef volatility_skew_momentum_strategy(data):\n    \"\"\"\n    A unique strategy combining volatility skew and momentum:\n    - Computes three volatility measures: realized volatility (rolling std of returns),\n      mean daily range (high-low), and volume volatility.\n    - Calculates skewness of these volatilities over a rolling window to detect volatility skew.\n    - Uses momentum via Rate of Change (ROC).\n    - Generates buy if volatility skew is positive and momentum is positive.\n    - Generates sell if volatility skew is negative and momentum is negative.\n    - Otherwise, hold (signal 0).\n    \"\"\"\n\n    # Calculate daily log returns\n    data['log_return'] = np.log(data['close'] / data['close'].shift(1))\n\n    # Rolling window\n    window = 20\n\n    # Realized volatility: rolling std of log returns annualized\n    data['realized_vol'] = data['log_return'].rolling(window).std() * np.sqrt(252)\n\n    # Daily range: high - low\n    data['daily_range'] = data['high'] - data['low']\n\n    # Rolling mean daily range (as proxy volatility)\n    data['range_vol'] = data['daily_range'].rolling(window).mean()\n\n    # Volume returns\n    data['vol_return'] = np.log(data['volume'] / data['volume'].shift(1))\n\n    # Volume volatility: rolling std of volume returns\n    data['volume_vol'] = data['vol_return'].rolling(window).std()\n\n    # Calculate skewness of the three volatility proxies in the rolling window\n    def skewness(series):\n        mean = series.mean()\n        std = series.std()\n        n = len(series)\n        if std == 0 or n < 3:\n            return 0\n        m3 = ((series - mean) ** 3).sum() / n\n        return m3 / std**3\n    \n    # Create a DataFrame of volatilities\n    vol_df = data[['realized_vol', 'range_vol', 'volume_vol']]\n\n    # Rolling skewness for each volatility\n    data['skew_realized_vol'] = vol_df['realized_vol'].rolling(window).apply(skewness, raw=False)\n    data['skew_range_vol'] = vol_df['range_vol'].rolling(window).apply(skewness, raw=False)\n    data['skew_volume_vol'] = vol_df['volume_vol'].rolling(window).apply(skewness, raw=False)\n\n    # Combine skewness by averaging (volatility skew measure)\n    data['vol_skew'] = data[['skew_realized_vol', 'skew_range_vol', 'skew_volume_vol']].mean(axis=1)\n\n    # Momentum: 14-period Rate of Change (ROC)\n    data['roc_14'] = talib.ROC(data['close'], timeperiod=14)\n\n    # Signals: \n    # Buy if vol_skew > 0 and roc_14 > 0\n    # Sell if vol_skew < 0 and roc_14 < 0\n    # Else 0 (hold)\n    data['signal'] = 0\n    data.loc[(data['vol_skew'] > 0) & (data['roc_14'] > 0), 'signal'] = 1\n    data.loc[(data['vol_skew'] < 0) & (data['roc_14'] < 0), 'signal'] = -1\n\n    # Clean intermediate columns to keep only useful output\n    return data[['open','high','low','close','volume','signal']]",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mds",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "ln_close",
+        "type": "ln",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_close",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "log_ret",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "real_vol",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "daily_range",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "ln_vol",
+        "type": "ln",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lag_vol",
+        "type": "lag",
+        "options": [
+          {
+            "id": "period",
+            "value": 1,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_return",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "volume_vol",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_mean",
+        "type": "agg_mean",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "skew_diff",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "zero",
+        "type": "zero",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_skew",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mom",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_cond",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_skew",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_mom",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_cond",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "ln_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ln_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_close",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ln_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "log_ret",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_close",
+          "handle": "result"
+        },
+        "target": {
+          "id": "log_ret",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "log_ret",
+          "handle": "result"
+        },
+        "target": {
+          "id": "real_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "h"
+        },
+        "target": {
+          "id": "daily_range",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "l"
+        },
+        "target": {
+          "id": "daily_range",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "daily_range",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "v"
+        },
+        "target": {
+          "id": "ln_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ln_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lag_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "ln_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_return",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lag_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_return",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_return",
+          "handle": "result"
+        },
+        "target": {
+          "id": "volume_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "real_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_mean",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_mean",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "volume_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_mean",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "real_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "skew_diff",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_mean",
+          "handle": "result"
+        },
+        "target": {
+          "id": "skew_diff",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "skew_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_skew",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_skew",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mds",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_skew",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "skew_diff",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_skew",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_skew",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "zero",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_skew",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "long_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:49:05.442362",
+  "tags": [
+    "momentum",
+    "volatility",
+    "skew",
+    "trading",
+    "strategy"
+  ]
+}

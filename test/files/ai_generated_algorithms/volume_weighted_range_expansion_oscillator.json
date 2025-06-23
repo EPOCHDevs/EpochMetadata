@@ -1,0 +1,764 @@
+{
+  "id": "VWRECO-001",
+  "name": "Volume-Weighted Range Expansion Oscillator",
+  "description": "The Volume-Weighted Range Expansion/Contraction Oscillator (VW-RECO) is a trading strategy that identifies long entry points when the price surpasses a dynamic VWAP-based high threshold, coupled with volume expansion beyond a rolling upper percentile. This entry is contingent upon the condition that the 5-day rolling price range is contracting below its 15-day average, indicating a potential breakout opportunity.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "import pandas as pd\nimport numpy as np\n\ndef trading_strategy(data):\n    \"\"\"\n    Unique trading algorithm: \"Volume-Weighted Range Expansion/Contraction Oscillator (VW-RECO)\"\n    - Enters long when price breaks above a dynamic VWAP-based high threshold *and* volume expands beyond a rolling upper percentile,\n      but only if the 5-day rolling price range contracts below its 15-day average (signalling potential for breakout after contraction).\n    - Enters short on the symmetric analogue for breakdowns.\n    - Exits to neutral if contraction reverses (range re-expands) or price closes back inside threshold.\n    \"\"\"\n    data = data.copy()\n    window_vwap = 10\n    window_range = 5\n    window_range_avg = 15\n    window_vol = 20\n    vol_percentile = 0.8  # 80th percentile for volume expansion\n\n    # 1. Calculate 10-day rolling VWAP\n    data['vwap'] = (data['close'] * data['volume']).rolling(window=window_vwap).sum() / data['volume'].rolling(window=window_vwap).sum()\n\n    # 2. Dynamic high/low threshold: VWAP +/\u2212 0.8 * rolling price range (5)\n    data['range_5'] = data['high'].rolling(window_range).max() - data['low'].rolling(window_range).min()\n    data['threshold_high'] = data['vwap'] + 0.8 * data['range_5']\n    data['threshold_low'] = data['vwap'] - 0.8 * data['range_5']\n\n    # 3. Normalize volume to detect expansion: Z-score and Percentile\n    data['vol_norm'] = (data['volume'] - data['volume'].rolling(window_vol).mean()) / data['volume'].rolling(window_vol).std()\n    data['vol_expanded'] = data['volume'] > data['volume'].rolling(window_vol).quantile(vol_percentile)\n\n    # 4. Range contraction: is 5d range below its 15d average?\n    data['range_15_avg'] = data['range_5'].rolling(window_range_avg).mean()\n    data['range_contracted'] = data['range_5'] < data['range_15_avg']\n\n    data['signal'] = 0\n\n    # LONG ENTRY: price breaks above threshold_high, with high volume, and range is contracted\n    long_entries = (\n        (data['close'] > data['threshold_high']) &\n        (data['vol_expanded']) &\n        (data['range_contracted'])\n    )\n\n    # SHORT ENTRY: price breaks below threshold_low, with high volume, and range is contracted\n    short_entries = (\n        (data['close'] < data['threshold_low']) &\n        (data['vol_expanded']) &\n        (data['range_contracted'])\n    )\n\n    # Exit to neutral: if range expands again, or price closes back into threshold band\n    range_expanded = data['range_5'] > data['range_15_avg']\n    price_within_band = (data['close'] <= data['threshold_high']) & (data['close'] >= data['threshold_low'])\n\n    position = 0\n    signals = []\n    for i in range(len(data)):\n        if position == 0:\n            if long_entries.iloc[i]:\n                position = 1\n            elif short_entries.iloc[i]:\n                position = -1\n        elif position == 1:\n            if range_expanded.iloc[i] or price_within_band.iloc[i]:\n                position = 0\n        elif position == -1:\n            if range_expanded.iloc[i] or price_within_band.iloc[i]:\n                position = 0\n        signals.append(position)\n    data['signal'] = signals\n\n    return data",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "src",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "mul_cv",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sum_cv10",
+        "type": "sum",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sum_v10",
+        "type": "sum",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vwap_div",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "max_high5",
+        "type": "max",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "min_low5",
+        "type": "min",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range5",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_08",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.8,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range_mult",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thr_high",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "thr_low",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol20",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_exp",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_range15",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 15,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range_contr",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_break",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_break",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_entry",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range_expand",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_below_high",
+        "type": "lte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "close_above_low",
+        "type": "gte",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "within_band",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_any",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "mul_cv",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "mul_cv",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_cv",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sum_cv10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sum_v10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sum_cv10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vwap_div",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sum_v10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vwap_div",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "h"
+        },
+        "target": {
+          "id": "max_high5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "l"
+        },
+        "target": {
+          "id": "min_low5",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "max_high5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range5",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "min_low5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range5",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_mult",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_08",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_mult",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap_div",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thr_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "range_mult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thr_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vwap_div",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thr_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "range_mult",
+          "handle": "result"
+        },
+        "target": {
+          "id": "thr_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol20",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_exp",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_exp",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma_range15",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_contr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_range15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_contr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "long_break",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thr_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_break",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "short_break",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thr_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_break",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "long_break",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_exp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range_contr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "short_break",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_exp",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range_contr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_entry",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_expand",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_range15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "range_expand",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_below_high",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thr_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_below_high",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "src",
+          "handle": "c"
+        },
+        "target": {
+          "id": "close_above_low",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "thr_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "close_above_low",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "close_below_high",
+          "handle": "result"
+        },
+        "target": {
+          "id": "within_band",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "close_above_low",
+          "handle": "result"
+        },
+        "target": {
+          "id": "within_band",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "range_expand",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "within_band",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_any",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "long_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "short_entry",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_any",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:52:47.952000",
+  "tags": [
+    "trading",
+    "technical",
+    "VWAP",
+    "volume",
+    "oscillator"
+  ]
+}

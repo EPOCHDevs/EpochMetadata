@@ -1,0 +1,343 @@
+{
+  "id": "momentum_strategy_001",
+  "name": "Volatility-Volume Momentum Strategy",
+  "description": "This strategy utilizes volatility and volume indicators to identify potential trading opportunities. It combines standard deviation and moving averages to assess market sentiment and make informed trading decisions.",
+  "algorithm_type": "Momentum",
+  "prompt": "//@version=5\nstrategy(\"Volatility-Volume Sentiment Strategy\", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Input parameters\nvolatility_length = input.int(14, \"Volatility Length (StdDev)\", minval=5)\nvolume_ma_length = input.int(20, \"Volume MA Length\", minval=5)\natr_length = input.int(14, \"ATR Length\", minval=5)\nvolatility_mult = input.float(1.5, \"Volatility Threshold Multiplier\", step=0.1)\nvol_vol_mult = input.float(1.2, \"Volume Threshold Multiplier\", step=0.05)\nroc_length = input.int(9, \"ROC Length\", minval=1)\nroc_threshold = input.float(0.2, \"ROC % Threshold\", step=0.05)\n\n// Calculate volatility (StdDev of close returns)\nreturns = math.log(close / close[1])\nvolatility = ta.stdev(returns, volatility_length)\n\n// Calculate ATR as a measure of price volatility in raw units\natr = ta.atr(atr_length)\n\n// Volume dynamics\nvol_ma = ta.sma(volume, volume_ma_length)\nvolatility_volume = volume / vol_ma\n\n// Momentum: Rate of Change on Close Price\nroc = 100 * (close - close[roc_length]) / close[roc_length]\n\n// Define regime filter based on close relative to EMA (ATR scaled to volatility)\nema_length = 50\nema_val = ta.ema(close, ema_length)\nvolatility_threshold = volatility_mult * volatility\natr_threshold = volatility_mult * (atr / close)  // normalized ATR\n\n// Condense to a volatility regime: True if volatility spikes above recent historical norm\nvolatility_regime = (volatility > volatility_threshold)\n\n// Price momentum: ROC thresholds define up or down momentum\nmomentum_bull = roc > roc_threshold\nmomentum_bear = roc < -roc_threshold\n\n// Volume surge condition\nvolume_surge = volatility_volume > vol_vol_mult\n\n// Entry conditions:\n// Long: volatility regime active, momentum bullish, volume surge, price above EMA + ATR buffer\nlong_condition = volatility_regime and momentum_bull and volume_surge and close > ema_val * (1 + atr_threshold)\n\n// Short: volatility regime active, momentum bearish, volume surge, price below EMA - ATR buffer\nshort_condition = volatility_regime and momentum_bear and volume_surge and close < ema_val * (1 - atr_threshold)\n\n// Exit conditions:\n// Exits on opposite signal or volatility regime fading\nexit_long = short_condition or not volatility_regime\nexit_short = long_condition or not volatility_regime\n\n// Trade execution\nif long_condition and strategy.position_size <= 0\n    strategy.entry(\"Long\", strategy.long)\nif short_condition and strategy.position_size >= 0\n    strategy.entry(\"Short\", strategy.short)\n\nif exit_long and strategy.position_size > 0\n    strategy.close(\"Long\")\nif exit_short and strategy.position_size < 0\n    strategy.close(\"Short\")\n\n// Plot EMA and ATR buffer bands\nplot(ema_val, color=color.orange, title=\"EMA 50\")\nplot(ema_val * (1 + atr_threshold), color=color.new(color.green, 60), title=\"EMA + ATR Buffer\")\nplot(ema_val * (1 - atr_threshold), color=color.new(color.red, 60), title=\"EMA - ATR Buffer\")\n\n// Plot volume surge and volatility regime as background shading\nbgcolor(volume_surge and volatility_regime ? color.new(color.green, 90) : na)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num_vol",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "Vol Surge Threshold",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_roc",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.2,
+            "name": "ROC Bull Threshold",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "num_neg_roc",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": -0.2,
+            "name": "ROC Bear Threshold",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_ratio",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_vol",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "roc1",
+        "type": "roc",
+        "options": [
+          {
+            "id": "period",
+            "value": 9,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt_mom",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "lt_mom",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_long",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "and_short",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_ratio",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_ratio",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_ratio",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_vol",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "roc1",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "roc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_roc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "roc1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mom",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num_neg_roc",
+          "handle": "result"
+        },
+        "target": {
+          "id": "lt_mom",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "lt_mom",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "and_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "and_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "and_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:59:56.482019",
+  "tags": [
+    "momentum",
+    "volatility",
+    "volume",
+    "trading",
+    "strategy"
+  ]
+}

@@ -1,0 +1,682 @@
+{
+  "id": "volatility_weighted_keltner_reversion",
+  "name": "Volatility-Weighted Keltner Reversion",
+  "description": "This strategy utilizes a volatility-weighted approach to identify potential reversals within the Keltner Channel. By incorporating EMA and ATR indicators, it aims to capitalize on price fluctuations while managing risk effectively.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "//@version=5\nstrategy(\"Volatility-Weighted Keltner Channel Reversion\", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10)\n\n// Input parameters\nlen_ema = input.int(34, title=\"EMA Length for Trend\")\nlen_atr = input.int(14, title=\"ATR Length\")\nmult = input.float(1.5, title=\"ATR Multiplier\")\nvol_len = input.int(20, title=\"Volume MA Length\")\nvol_weight_len = input.int(10, title=\"Volatility Weight Length\")\nvol_weight_smoothing = input.int(5, title=\"Volatility Weight Smoothing\")\n\n// Calculate base EMA for trend direction\nema_trend = ta.ema(close, len_ema)\n\n// Calculate ATR for channel width\natr_val = ta.atr(len_atr)\n\n// Calculate Keltner Channels\nupper_band_base = ema_trend + mult * atr_val\nlower_band_base = ema_trend - mult * atr_val\n\n// Volume weighted volatility factor: \n// Use standard deviation of close over vol_weight_len weighted by normalized volume moving average\nvol_ma = ta.sma(volume, vol_len)\nvol_norm = volume / vol_ma\nvol_norm_smooth = ta.sma(vol_norm, vol_weight_smoothing)\nclose_std = ta.stdev(close, vol_weight_len)\nvolatility_weight = close_std * vol_norm_smooth\n\n// Adjust Keltner Bands by volatility_weight normalized with ATR\nvol_factor = math.min(math.max(volatility_weight / atr_val, 0.5), 3)  // Bound between 0.5 and 3 for stability\nupper_band = ema_trend + mult * atr_val * vol_factor\nlower_band = ema_trend - mult * atr_val * vol_factor\n\n// Entry logic:\n// Long when price crosses below lower_band (oversold) and trend is bullish (close > ema_trend)\n// Short when price crosses above upper_band (overbought) and trend is bearish (close < ema_trend)\nlong_signal = ta.crossunder(close, lower_band) and close > ema_trend\nshort_signal = ta.crossover(close, upper_band) and close < ema_trend\n\n// Exit logic:\n// Exit longs when price closes back above ema_trend (mean reversion expected)\n// Exit shorts when price closes back below ema_trend\nexit_long = ta.crossover(close, ema_trend)\nexit_short = ta.crossunder(close, ema_trend)\n\n// Execute trades\nif (long_signal)\n    strategy.entry(\"Long\", strategy.long)\nif (short_signal)\n    strategy.entry(\"Short\", strategy.short)\nif (exit_long)\n    strategy.close(\"Long\")\nif (exit_short)\n    strategy.close(\"Short\")\n\n// Plot\nplot(ema_trend, color=color.orange, title=\"EMA Trend\")\nplot(upper_band, color=color.red, title=\"Upper Volatility Keltner\")\nplot(lower_band, color=color.green, title=\"Lower Volatility Keltner\")\nplotshape(long_signal, title=\"Long Entry\", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.tiny, text=\"LE\")\nplotshape(short_signal, title=\"Short Entry\", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.tiny, text=\"SE\")",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n2",
+        "type": "ema",
+        "options": [
+          {
+            "id": "period",
+            "value": 34,
+            "name": "EMA Period",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n3",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "ATR Period",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "n4",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "ATR Multiplier",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n5",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n6",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n7",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n8",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n9",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n10",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "Vol Weight Length",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n11",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "Volume MA",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n12",
+        "type": "div",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n13",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 5,
+            "name": "Vol Weight Smooth",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n14",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n15",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n16",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n17",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n18",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n19",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n20",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n21",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n22",
+        "type": "crossover",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n23",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "n24",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n2",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n10",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n11",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "v"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n11",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n12",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n12",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n13",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n13",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n14",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n4",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n5",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n14",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n3",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n6",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n7",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n8",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n9",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n15",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n16",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n8",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n17",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n9",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n18",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n18",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n15",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n19",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n17",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n16",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n20",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n21",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n2",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "n1",
+          "handle": "c"
+        },
+        "target": {
+          "id": "n22",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "n21",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n23",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n22",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n23",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "n19",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "n20",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "n23",
+          "handle": "result"
+        },
+        "target": {
+          "id": "n24",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:50:49.400979",
+  "tags": [
+    "Keltner Channel",
+    "Volatility",
+    "Reversion",
+    "Technical Pattern",
+    "ATR"
+  ]
+}

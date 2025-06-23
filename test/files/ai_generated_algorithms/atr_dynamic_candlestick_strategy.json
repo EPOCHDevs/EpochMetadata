@@ -1,0 +1,359 @@
+{
+  "id": "atr_dynamic_candlestick_strategy_001",
+  "name": "ATR Dynamic Candlestick Strategy",
+  "description": "This strategy utilizes the Average True Range (ATR) to dynamically adjust candlestick patterns for trading signals. It incorporates user-defined parameters for volatility filtering and Marubozu body percentage thresholds to enhance decision-making in volatile markets.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "//~@version=5\nstrategy(\"ATR Dynamic Candlestick Combo\", overlay=true, max_bars_back=1000)\n\n// ====== User Inputs ======\natr_length    = input.int(14, title=\"ATR Length\")\natr_mult      = input.float(1.2, title=\"ATR Multiplier for Volatility Filter\", step=0.01, minval=0.5)\nmarubozu_thr  = input.float(0.95, title=\"Marubozu Body% Threshold (e.g. 0.95=95%)\", minval=0.8, maxval=1.0)\ncombo_window  = input.int(3, title=\"Candlestick Combo Window\", minval=2, maxval=5)\nrisk_percent  = input.float(1, minval=0.1, maxval=5, title=\"Risk % Per Trade\")\n\n// ====== Helper Functions ======\nf_body_size() =>\n    math.abs(close - open)\nf_candle_range() =>\n    high - low\nf_marubozu() =>\n    // True if body >= [marubozu_thr]% of range, and small wicks\n    rng = f_candle_range()\n    bd = f_body_size()\n    lower_wick = math.min(open, close) - low\n    upper_wick = high - math.max(open, close)\n    is_long = close > open and \n              bd >= marubozu_thr * rng and \n              lower_wick <= 0.05*rng and \n              upper_wick <= 0.05*rng\n    is_short = open > close and \n               bd >= marubozu_thr * rng and \n               lower_wick <= 0.05*rng and \n               upper_wick <= 0.05*rng\n    [is_long, is_short]\n\n// ====== Volatility Filter ======\natr_val = ta.atr(atr_length)\nrange_ok = f_candle_range() > atr_mult * atr_val\n\n// ====== Combination/Sequence Detection ======\nvar float recent_highest = na\nvar float recent_lowest = na\nvar int   marubozu_longs = 0\nvar int   marubozu_shorts = 0\n\nmaru_long = f_marubozu()[0]\nmaru_short = f_marubozu()[1]\n\nmarubozu_longs := maru_long ? marubozu_longs+1 : 0\nmarubozu_shorts := maru_short ? marubozu_shorts+1 : 0\n\n// Only trigger if we have a \"combo\" of marubozu in a row\ncombo_long_ok  = marubozu_longs >= combo_window and range_ok\ncombo_short_ok = marubozu_shorts >= combo_window and range_ok\n\n// ====== Trade Sizing ======\ncapital = strategy.equity\nrisk_amt = capital * (risk_percent/100)\n\n// Stop-loss and take-profit logic: \n// Enter at close, SL at prev candle's low/high, TP at 2x risk\nlong_stop = low[1]\nshort_stop = high[1]\nlong_risk = close - long_stop\nshort_risk = short_stop - close\n\nlong_qty  = long_risk > 0 ? risk_amt / long_risk : na\nshort_qty = short_risk > 0 ? risk_amt / short_risk : na\n\n// ====== Entry & Exit ======\nif combo_long_ok and not na(long_qty)\n    strategy.entry(\"ATRMaruLong\", strategy.long, qty = long_qty)\n    strategy.exit(\"ATRMaruLong-TP\", from_entry=\"ATRMaruLong\", stop=long_stop, limit=close + 2 * long_risk)\nif combo_short_ok and not na(short_qty)\n    strategy.entry(\"ATRMaruShort\", strategy.short, qty = short_qty)\n    strategy.exit(\"ATRMaruShort-TP\", from_entry=\"ATRMaruShort\", stop=short_stop, limit=close - 2 * short_risk)\n\n// ====== Plots ======\nplotshape(combo_long_ok,  style=shape.triangleup,  color=color.green,  location=location.belowbar, size=size.small, title=\"Combo Long Signal\")\nplotshape(combo_short_ok, style=shape.triangledown, color=color.red,    location=location.abovebar, size=size.small, title=\"Combo Short Signal\")\nplot(atr_val, title=\"ATR\", color=color.purple, linewidth=1, transp=70)",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "atr1",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 14,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "white1",
+        "type": "white_marubozu",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "black1",
+        "type": "black_marubozu",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_short",
+            "value": 0.5,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "body_long",
+            "value": 1.4,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_none",
+            "value": 0.05,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "wick_long",
+            "value": 0.6,
+            "name": null,
+            "isExposed": false
+          },
+          {
+            "id": "near",
+            "value": 0.3,
+            "name": null,
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "day",
+          "interval": 1
+        }
+      },
+      {
+        "id": "num1",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.2,
+            "name": "ATR Multiplier",
+            "isExposed": true
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul1",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sub1",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "gt1",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "andLong",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "andShort",
+        "type": "logical_and",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exec1",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "h"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "l"
+        },
+        "target": {
+          "id": "sub1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "atr1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "num1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "sub1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "gt1",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "white1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andLong",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andLong",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "black1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andShort",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "gt1",
+          "handle": "result"
+        },
+        "target": {
+          "id": "andShort",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "andLong",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "andShort",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exec1",
+          "handle": "short"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T14:34:42.646923",
+  "tags": [
+    "ATR",
+    "candlestick",
+    "technical analysis",
+    "volatility",
+    "trading strategy"
+  ]
+}

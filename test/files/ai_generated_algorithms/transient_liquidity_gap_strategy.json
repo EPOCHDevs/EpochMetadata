@@ -1,0 +1,649 @@
+{
+  "id": "transient_liquidity_gap_strategy",
+  "name": "Transient Liquidity Gap Strategy",
+  "description": "This strategy focuses on identifying transient liquidity gaps in 15-minute bars by analyzing volume and range anomalies. It triggers entries when volume significantly drops and range expands, allowing for adaptive exit timing to optimize returns.",
+  "algorithm_type": "TechnicalPattern",
+  "prompt": "I want to develop a strategy trading 15-minute bars that identifies transient liquidity gaps using volume- and range-based anomaly detection combined with adaptive exit timing.\n\nEntry conditions: When the current 15-minute bar\u2019s volume is below the 10-period volume average by at least 40% (indicating a volume dry-up), AND the bar\u2019s range (High - Low) exceeds the 20-period average range by at least 50% (indicating price uncertainty), enter a trade in the direction of the last confirmed price swing (defined by a 5-bar swing high or low). This entry aims to capture quick rebounds from short-lived illiquidity-induced price moves.\n\nExit conditions: Use an adaptive trailing stop based on the volume-weighted average true range (VWATR) over the last 10 bars multiplied by the rolling 7-bar standard deviation of closing prices. Exit the position when price retreats below this dynamic stop level. Alternatively, exit if the trade lasts longer than 10 bars without hitting the stop, to avoid stagnation.\n\nThis strategy combines volume drought and expanded price range as a signal of temporary liquidity gaps and exploits the subsequent short-term price correction, with volatility-adaptive exits tuned by recent price dispersion and volume-weighted volatility.",
+  "blueprint": {
+    "nodes": [
+      {
+        "id": "mkt",
+        "type": "market_data_source",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "sma_vol",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_0_6",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0.6,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_vol_thr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "vol_cond",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "range_sub",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "sma_rng",
+        "type": "sma",
+        "options": [
+          {
+            "id": "period",
+            "value": 20,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "const_1_5",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 1.5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "mul_rng_thr",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "rng_cond",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "entry_and",
+        "type": "agg_all_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "swing",
+        "type": "swing_highs_lows",
+        "options": [
+          {
+            "id": "swing_length",
+            "value": 5,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "zero_num",
+        "type": "number",
+        "options": [
+          {
+            "id": "value",
+            "value": 0,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "select_signal",
+        "type": "boolean_select",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "trade_adapter",
+        "type": "trade_executor_adapter",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "atr10",
+        "type": "atr",
+        "options": [
+          {
+            "id": "period",
+            "value": 10,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": {
+          "type": "minute",
+          "interval": 15
+        }
+      },
+      {
+        "id": "stddev7",
+        "type": "stddev",
+        "options": [
+          {
+            "id": "period",
+            "value": 7,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "stop_dist",
+        "type": "mul",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "long_stop",
+        "type": "sub",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_long",
+        "type": "lt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "short_stop",
+        "type": "add",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_short",
+        "type": "gt",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "exit_or",
+        "type": "agg_any_of",
+        "options": [],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      },
+      {
+        "id": "executor",
+        "type": "trade_signal_executor",
+        "options": [
+          {
+            "id": "closeIfIndecisive",
+            "value": false,
+            "name": "",
+            "isExposed": false
+          }
+        ],
+        "metadata": {
+          "parentId": null
+        },
+        "timeframe": null
+      }
+    ],
+    "edges": [
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "sma_vol",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_vol",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol_thr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_0_6",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_vol_thr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "v"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_vol_thr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "vol_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "h"
+        },
+        "target": {
+          "id": "range_sub",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "l"
+        },
+        "target": {
+          "id": "range_sub",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range_sub",
+          "handle": "result"
+        },
+        "target": {
+          "id": "sma_rng",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "sma_rng",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_rng_thr",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "const_1_5",
+          "handle": "result"
+        },
+        "target": {
+          "id": "mul_rng_thr",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "range_sub",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rng_cond",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "mul_rng_thr",
+          "handle": "result"
+        },
+        "target": {
+          "id": "rng_cond",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "vol_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "rng_cond",
+          "handle": "result"
+        },
+        "target": {
+          "id": "entry_and",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "entry_and",
+          "handle": "result"
+        },
+        "target": {
+          "id": "select_signal",
+          "handle": "condition"
+        }
+      },
+      {
+        "source": {
+          "id": "swing",
+          "handle": "high_low"
+        },
+        "target": {
+          "id": "select_signal",
+          "handle": "true"
+        }
+      },
+      {
+        "source": {
+          "id": "zero_num",
+          "handle": "result"
+        },
+        "target": {
+          "id": "select_signal",
+          "handle": "false"
+        }
+      },
+      {
+        "source": {
+          "id": "select_signal",
+          "handle": "result"
+        },
+        "target": {
+          "id": "trade_adapter",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "trade_adapter",
+          "handle": "long"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "long"
+        }
+      },
+      {
+        "source": {
+          "id": "trade_adapter",
+          "handle": "short"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "short"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "stddev7",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "atr10",
+          "handle": "result"
+        },
+        "target": {
+          "id": "stop_dist",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stddev7",
+          "handle": "result"
+        },
+        "target": {
+          "id": "stop_dist",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "long_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stop_dist",
+          "handle": "result"
+        },
+        "target": {
+          "id": "long_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "exit_long",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "long_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_long",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "short_stop",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "stop_dist",
+          "handle": "result"
+        },
+        "target": {
+          "id": "short_stop",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "mkt",
+          "handle": "c"
+        },
+        "target": {
+          "id": "exit_short",
+          "handle": "*0"
+        }
+      },
+      {
+        "source": {
+          "id": "short_stop",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_short",
+          "handle": "*1"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_long",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_short",
+          "handle": "result"
+        },
+        "target": {
+          "id": "exit_or",
+          "handle": "*"
+        }
+      },
+      {
+        "source": {
+          "id": "exit_or",
+          "handle": "result"
+        },
+        "target": {
+          "id": "executor",
+          "handle": "close"
+        }
+      }
+    ]
+  },
+  "timestamp": "2025-06-23T15:40:12.591631",
+  "tags": [
+    "liquidity",
+    "anomaly detection",
+    "volume analysis",
+    "15-minute bars",
+    "adaptive exits"
+  ]
+}
