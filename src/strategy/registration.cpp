@@ -164,7 +164,8 @@ void RegisterStrategyMetadata(
         if (node.timeframe.has_value()) {
           SPDLOG_DEBUG("Resetting all algorithm node({}) timeframe for {}",
                        node.id, config.id);
-          node.timeframe = {};
+          strategy.strategy.trade_signal.timeframe = std::nullopt;
+          break;
         }
       }
     }
