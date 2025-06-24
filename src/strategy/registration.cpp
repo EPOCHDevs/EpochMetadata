@@ -90,8 +90,8 @@ void RegisterStrategyMetadata(
 
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                  duplicateIdCount[config.id]);
+      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                   duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;
@@ -129,15 +129,10 @@ void RegisterStrategyMetadata(
       continue;
     }
 
-    if (config.trade_signal->timeframe) {
-      SPDLOG_WARN("Resetting trade signal timeframe: {}", config.id);
-      config.trade_signal->timeframe = {};
-    }
-
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                  duplicateIdCount[config.id]);
+      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                   duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;
@@ -152,7 +147,6 @@ void RegisterStrategyMetadata(
       continue;
     }
     const auto savedStrategy = optionalSavedStrategy.value().get();
-
     StrategyConfig strategyConfig{.name = config.name,
                                   .description = config.description,
                                   .data = config.assets,
@@ -164,8 +158,17 @@ void RegisterStrategyMetadata(
     StrategyTemplate strategy{.id = config.id,
                               .strategy = strategyConfig,
                               .category = config.category};
-
-    strategy.strategy.trade_signal.data = savedStrategy.data;
+    auto data = savedStrategy.data;
+    if (config.trade_signal->timeframe) {
+      for (auto &node : data.nodes) {
+        if (node.timeframe.has_value()) {
+          SPDLOG_DEBUG("Resetting all algorithm node({}) timeframe for {}",
+                       node.id, config.id);
+          node.timeframe = {};
+        }
+      }
+    }
+    strategy.strategy.trade_signal.data = data;
     strategy_templates::Registry::GetInstance().Register(strategy);
   }
 }
