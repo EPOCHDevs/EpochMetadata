@@ -1,0 +1,50 @@
+{
+  "name": "Weekly Sector ETF Hurst Reversion",
+  "description": "Mean-reversion system that goes long major U.S. sector ETFs (XLF, XLV, XLE, XLC) on weekly bars when the market shows extreme oversold conditions confirmed by volume and price-rejection. Core signal relies on the Mean-Reverting Hurst Impulse Reversal indicator; positions are sized conservatively at \u22645 % equity, capped to three concurrent trades, with a 2 % trailing stop and 6 % profit target.",
+  "assets": {
+    "assets": [
+      "XLF-Stocks",
+      "XLV-Stocks",
+      "XLE-Stocks",
+      "XLC-Stocks"
+    ],
+    "futures_continuation": null
+  },
+  "trade_signal": {
+    "type": "mean_reverting_hurst_impulse_reversal",
+    "args": {
+      "ema_fast#period": 7,
+      "ema_slow#period": 21,
+      "hurst#window": 100,
+      "ema_impulse#period": 3
+    },
+    "timeframe": {
+      "type": "week",
+      "interval": 1
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 0.05,
+      "risk": 0.02
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.02
+    },
+    "timeframe": null
+  },
+  "take_profit": {
+    "type": "fixed_percent_ratio_offset",
+    "args": {
+      "ratio": 0.06
+    },
+    "timeframe": null
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_232647_weekly_sector_etf_hurst_reversion"
+}

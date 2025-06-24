@@ -1,0 +1,57 @@
+{
+  "name": "Intraday VW-MACD RSI TrendFutures",
+  "description": "Intraday trend-following futures strategy trading ES & NQ on 5-minute bars. Entries: Volume-Weighted MACD histogram > 0 with RSI(14) > 50. Exits: MACD histogram < 0 or RSI < 45. Risk per trade 1 % of equity sized via ATR(14). Stop 1.2\u00d7ATR, target 2\u00d7ATR. Intraday only, flat by close.",
+  "assets": {
+    "assets": [
+      "ES-Futures",
+      "NQ-Futures"
+    ],
+    "futures_continuation": {
+      "type": "LiquidityBased",
+      "args": {
+        "adjustment": "BackwardPanamaCanal",
+        "ratio": 0.1
+      }
+    }
+  },
+  "trade_signal": {
+    "type": "volume_weighted_macd_rsi_filter",
+    "args": {},
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.01
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 1.2
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "take_profit": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 2
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_231924_intraday_vw_macd_rsi_trendfutures"
+}

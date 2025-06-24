@@ -1,0 +1,57 @@
+{
+  "name": "Intraday Futures Volatility Contraction Breakout",
+  "description": "Price-Action breakout strategy for ES and CL futures on 5-minute bars. Detects volatility contraction zones where ATR(14) falls below 50 % of the 30-bar ATR, enters breakouts confirmed by volume, and manages risk with ATR-based trailing stops and 1:2 R:R targets. Sizing risks 1 % equity per trade, max two concurrent positions.",
+  "assets": {
+    "assets": [
+      "ES-Futures",
+      "CL-Futures"
+    ],
+    "futures_continuation": {
+      "type": "LiquidityBased",
+      "args": {
+        "adjustment": "BackwardPanamaCanal",
+        "ratio": 0.1
+      }
+    }
+  },
+  "trade_signal": {
+    "type": "volatility_contraction_breakout_strategy",
+    "args": {},
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.01
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 1.5
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "take_profit": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 14,
+      "multiple": 3
+    },
+    "timeframe": {
+      "type": "minute",
+      "interval": 5
+    }
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_231935_intraday_futures_volatility_contraction_breakout"
+}

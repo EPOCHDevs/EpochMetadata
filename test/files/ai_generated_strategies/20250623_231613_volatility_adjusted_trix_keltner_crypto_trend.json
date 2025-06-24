@@ -1,0 +1,54 @@
+{
+  "name": "Volatility-Adjusted TRIX Keltner Crypto Trend",
+  "description": "Daily-bar trend-following strategy for BTC and ETH that combines a volatility-scaled TRIX momentum oscillator with Keltner Channel confirmation. Trades long when the adjusted 15-period TRIX crosses above its 9-period signal and price closes above the upper KC band; trades short on the opposite conditions. Uses ATR-based fixed-fraction risk (2 % equity), a 1.2\u00d7ATR trailing stop, and a 3\u00d7ATR profit target to adapt to crypto volatility.",
+  "assets": {
+    "assets": [
+      "^BTCUSD-Crypto",
+      "^ETHUSD-Crypto"
+    ],
+    "futures_continuation": null
+  },
+  "trade_signal": {
+    "type": "volatility_adjusted_trix_keltner_strategy",
+    "args": {
+      "atr20#period": 20,
+      "kc20#roll_period": 20,
+      "kc20#band_multiplier": 1.5,
+      "trix#period": 15,
+      "trix_smooth#period": 9
+    },
+    "timeframe": null
+  },
+  "position_sizer": {
+    "type": "fixed_fraction",
+    "args": {
+      "fraction": 1,
+      "risk": 0.02
+    },
+    "timeframe": null
+  },
+  "stop_loss": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 20,
+      "multiple": 1.2
+    },
+    "timeframe": {
+      "type": "day",
+      "interval": 1
+    }
+  },
+  "take_profit": {
+    "type": "atr_volatility",
+    "args": {
+      "period": 20,
+      "multiple": 3
+    },
+    "timeframe": {
+      "type": "day",
+      "interval": 1
+    }
+  },
+  "category": "TrendFollowing",
+  "id": "20250623_231613_volatility_adjusted_trix_keltner_crypto_trend"
+}
