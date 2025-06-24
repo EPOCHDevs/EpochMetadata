@@ -90,8 +90,8 @@ void RegisterStrategyMetadata(
 
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                   duplicateIdCount[config.id]);
+      SPDLOG_WARN("Duplicate ID found: {}. Total duplicates: {}", config.id,
+                  duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;
@@ -127,6 +127,11 @@ void RegisterStrategyMetadata(
     if (!config.trade_signal) {
       SPDLOG_ERROR("Failed to convert {} trade signal", config.id);
       continue;
+    }
+
+    if (config.trade_signal->timeframe) {
+      SPDLOG_WARN("Resetting trade signal timeframe: {}", config.id);
+      config.trade_signal->timeframe = {};
     }
 
     if (duplicateIdCount.contains(config.id)) {
