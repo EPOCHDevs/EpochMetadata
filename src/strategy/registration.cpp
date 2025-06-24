@@ -159,13 +159,13 @@ void RegisterStrategyMetadata(
                               .strategy = strategyConfig,
                               .category = config.category};
     auto data = savedStrategy.data;
+
     if (config.trade_signal->timeframe) {
       for (auto &node : data.nodes) {
         if (node.timeframe.has_value()) {
           SPDLOG_DEBUG("Resetting all algorithm node({}) timeframe for {}",
                        node.id, config.id);
-          strategy.strategy.trade_signal.timeframe = std::nullopt;
-          break;
+          node.timeframe = std::nullopt;
         }
       }
     }
