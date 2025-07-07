@@ -20,7 +20,8 @@ struct GenericFunction {
   bool operator==(const GenericFunction &other) const {
     return (type == other.type) && (args == other.args) &&
            (timeframe == other.timeframe) &&
-           ((data && other.data) && (*data == *other.data));
+           ((data && other.data) && (*data == *other.data)) &&
+           (glz::write_json(kwarg) == glz::write_json(other.kwarg));
   }
 };
 
