@@ -15,6 +15,7 @@ struct GenericFunction {
   std::optional<epoch_metadata::MetaDataArgDefinitionMapping> args{};
   std::optional<epoch_metadata::TimeFrame> timeframe{};
   std::optional<UIData> data{};
+  glz::json_t kwarg{};
 
   bool operator==(const GenericFunction &other) const {
     return (type == other.type) && (args == other.args) &&
