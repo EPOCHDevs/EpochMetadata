@@ -77,6 +77,7 @@ template <> struct convert<epoch_metadata::strategy::AlgorithmMetaData> {
                      epoch_metadata::strategy::AlgorithmMetaData &);
 };
 
+
 epoch_metadata::strategy::TradeSignalMetaData decode(glz::json_t const &);
 
 glz::json_t encode(epoch_metadata::strategy::TradeSignalMetaData const &);

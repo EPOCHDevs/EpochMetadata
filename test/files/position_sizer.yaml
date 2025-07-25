@@ -69,12 +69,23 @@ fixed_percent:
 fixed_fraction:
   name: "Fixed Fraction"
   options:
-    - { id: fraction, name: "Max % Allocation(Ratio)", type: Decimal, default: 1,
-        min: 0, max: 1, step_size: 0.000001 }
-    - { id: risk, name: "Max % Risk(Ratio)", type: Decimal, default: 0.03,
+    - { id: fraction, name: "Fraction of Equity to Risk", type: Decimal, default: 0.02,
         min: 0, max: 1, step_size: 0.001 }
-  desc: "Uses a fixed fraction of the portfolio value to determine the position size, with a maximum percentage allocation and risk tolerance."
-  tags: ["position", "sizer", "fixed", "fraction", "portfolio", "protection"]
+    - { id: trade_risk, name: "Trade Risk (Dollars)", type: Decimal, default: 100,
+        min: 0.01, max: 100000, step_size: 0.01 }
+  desc: "Uses Ralph Vince's fixed fractional position sizing formula: N = f * Equity / |Trade Risk|. Risks the same percentage of account equity on each trade."
+  tags: ["position", "sizer", "fixed", "fraction", "risk", "vince"]
+  requiresTimeframe: false
+
+fixed_fraction_pip:
+  name: "Fixed Fraction (Pip Risk)"
+  options:
+    - { id: fraction, name: "Fraction of Equity to Risk", type: Decimal, default: 0.02,
+        min: 0, max: 1, step_size: 0.001 }
+    - { id: trade_risk_pips, name: "Trade Risk (Pips)", type: Decimal, default: 10,
+        min: 0.1, max: 1000, step_size: 0.1 }
+  desc: "Uses fixed fractional position sizing with pip-based risk. Formula: N = f * Equity / (Trade Risk Pips * Min Tick). Converts pip risk to dollar risk automatically."
+  tags: ["position", "sizer", "fixed", "fraction", "pip", "forex"]
   requiresTimeframe: false
 
 volatility_targeted:
