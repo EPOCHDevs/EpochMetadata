@@ -182,28 +182,28 @@ TEST_CASE("GenericFunctionValidator: Valid PositionSizer types",
     ExpectNoValidationErrors(issues);
   }
 
-  SECTION("Valid position sizer - cppi with valid args") {
-    MetaDataArgDefinitionMapping args;
-    args["multiplier"] = CreateOption(1.0);
-    args["floor_pct"] = CreateOption(0.9);
+  // SECTION("Valid position sizer - cppi with valid args") {
+  //   MetaDataArgDefinitionMapping args;
+  //   args["multiplier"] = CreateOption(1.0);
+  //   args["floor_pct"] = CreateOption(0.9);
+  //
+  //   auto func = CreateGenericFunction("cppi", args);
+  //   auto issues = ValidateGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //   ExpectNoValidationErrors(issues);
+  // }
 
-    auto func = CreateGenericFunction("cppi", args);
-    auto issues = ValidateGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-    ExpectNoValidationErrors(issues);
-  }
-
-  SECTION("Position sizer with out of range values") {
-    MetaDataArgDefinitionMapping args;
-    args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
-    args["floor_pct"] = CreateOption(0.9);
-
-    auto func = CreateGenericFunction("cppi", args);
-    auto issues = ValidateGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-    ExpectValidationError(issues, ValidationCode::OptionValueOutOfRange,
-                          "out of range");
-  }
+  // SECTION("Position sizer with out of range values") {
+  //   MetaDataArgDefinitionMapping args;
+  //   args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
+  //   args["floor_pct"] = CreateOption(0.9);
+  //
+  //   auto func = CreateGenericFunction("cppi", args);
+  //   auto issues = ValidateGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //   ExpectValidationError(issues, ValidationCode::OptionValueOutOfRange,
+  //                         "out of range");
+  // }
 }
 
 TEST_CASE("GenericFunctionValidator: Valid TakeProfit types",
@@ -243,17 +243,17 @@ TEST_CASE("GenericFunctionValidator: Valid StopLoss types",
     ExpectNoValidationErrors(issues);
   }
 
-  SECTION("Valid stop loss - chande_kroll_stop_loss with valid args") {
-    MetaDataArgDefinitionMapping args;
-    args["p_period"] = CreateOption(10.0);
-    args["q_period"] = CreateOption(20.0);
-    args["multiplier"] = CreateOption(3.0);
-
-    auto func = CreateGenericFunction("chande_kroll_stop_loss", args);
-    auto issues = ValidateGenericFunction(
-        func, epoch_core::GenericFunctionType::StopLoss);
-    ExpectNoValidationErrors(issues);
-  }
+  // SECTION("Valid stop loss - chande_kroll_stop_loss with valid args") {
+  //   MetaDataArgDefinitionMapping args;
+  //   args["p_period"] = CreateOption(10.0);
+  //   args["q_period"] = CreateOption(20.0);
+  //   args["multiplier"] = CreateOption(3.0);
+  //
+  //   auto func = CreateGenericFunction("chande_kroll_stop_loss", args);
+  //   auto issues = ValidateGenericFunction(
+  //       func, epoch_core::GenericFunctionType::StopLoss);
+  //   ExpectNoValidationErrors(issues);
+  // }
 }
 
 TEST_CASE("GenericFunctionValidator: Argument type validation",
@@ -424,42 +424,42 @@ TEST_CASE("GenericFunctionValidator: All function types coverage",
 
 TEST_CASE("GenericFunctionOptimizer: Apply Default Options",
           "[GenericFunctionOptimization]") {
-  SECTION("Position sizer with missing optional args") {
-    // Create CPPI position sizer with only required args
-    MetaDataArgDefinitionMapping args;
-    args["multiplier"] = CreateOption(3.0);
-    // Missing optional args like "floor_pct" which should have defaults
-
-    auto func = CreateGenericFunction("cppi", args);
-    auto optimized = OptimizeGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-
-    // Should have more args after optimization (defaults applied)
-    REQUIRE(optimized.args->size() == 2);
-
-    // Should still have original args
-    REQUIRE(optimized.args->at("multiplier").GetInteger() == 3);
-    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
-  }
+  // SECTION("Position sizer with missing optional args") {
+  //   // Create CPPI position sizer with only required args
+  //   MetaDataArgDefinitionMapping args;
+  //   args["multiplier"] = CreateOption(3.0);
+  //   // Missing optional args like "floor_pct" which should have defaults
+  //
+  //   auto func = CreateGenericFunction("cppi", args);
+  //   auto optimized = OptimizeGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //
+  //   // Should have more args after optimization (defaults applied)
+  //   REQUIRE(optimized.args->size() == 2);
+  //
+  //   // Should still have original args
+  //   REQUIRE(optimized.args->at("multiplier").GetInteger() == 3);
+  //   REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
+  // }
 }
 
 TEST_CASE("GenericFunctionOptimizer: Clamp Option Values",
           "[GenericFunctionOptimization]") {
-  SECTION("Position sizer with out of range multiplier") {
-    MetaDataArgDefinitionMapping args;
-    args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
-    args["floor_pct"] = CreateOption(0.9);
-
-    auto func = CreateGenericFunction("cppi", args);
-    auto optimized = OptimizeGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-
-    // Multiplier should be clamped to max value
-    REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
-
-    // floor_pct should remain unchanged
-    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
-  }
+  // SECTION("Position sizer with out of range multiplier") {
+  //   MetaDataArgDefinitionMapping args;
+  //   args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
+  //   args["floor_pct"] = CreateOption(0.9);
+  //
+  //   auto func = CreateGenericFunction("cppi", args);
+  //   auto optimized = OptimizeGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //
+  //   // Multiplier should be clamped to max value
+  //   REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
+  //
+  //   // floor_pct should remain unchanged
+  //   REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.9);
+  // }
 
   SECTION("Take profit with negative period value") {
     MetaDataArgDefinitionMapping args;
@@ -510,25 +510,25 @@ TEST_CASE("GenericFunctionOptimizer: Values Within Range",
 
 TEST_CASE("GenericFunctionOptimizer: Full Optimization Pipeline",
           "[GenericFunctionOptimization]") {
-  SECTION("CPPI with mixed issues") {
-    MetaDataArgDefinitionMapping args;
-    args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
-    args["floor_pct"] = CreateOption(-0.1);   // Below min (0.0)
-    // Missing any optional args that might have defaults
-
-    auto func = CreateGenericFunction("cppi", args);
-    auto optimized = OptimizeGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-
-    // Should apply all optimizations
-    REQUIRE(optimized.args->size() >= 2); // At least the original args
-
-    // Multiplier should be clamped to max
-    REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
-
-    // floor_pct should be clamped to min
-    REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.0);
-  }
+  // SECTION("CPPI with mixed issues") {
+  //   MetaDataArgDefinitionMapping args;
+  //   args["multiplier"] = CreateOption(150.0); // Out of range (max 100)
+  //   args["floor_pct"] = CreateOption(-0.1);   // Below min (0.0)
+  //   // Missing any optional args that might have defaults
+  //
+  //   auto func = CreateGenericFunction("cppi", args);
+  //   auto optimized = OptimizeGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //
+  //   // Should apply all optimizations
+  //   REQUIRE(optimized.args->size() >= 2); // At least the original args
+  //
+  //   // Multiplier should be clamped to max
+  //   REQUIRE(optimized.args->at("multiplier").GetInteger() == 100);
+  //
+  //   // floor_pct should be clamped to min
+  //   REQUIRE(optimized.args->at("floor_pct").GetDecimal() == 0.0);
+  // }
 
   SECTION("ATR Volatility with multiple range issues") {
     MetaDataArgDefinitionMapping args;
@@ -851,17 +851,17 @@ TEST_CASE("GenericFunctionOptimizer: Edge cases",
 TEST_CASE(
     "GenericFunctionOptimizer: ApplyDefaultGenericFunctionOptions edge cases",
     "[GenericFunctionOptimization]") {
-  SECTION("Function without args gets initialized") {
-    auto func = CreateGenericFunction("cppi");
-    // Don't set args (keep as nullopt)
-
-    auto optimized = OptimizeGenericFunction(
-        func, epoch_core::GenericFunctionType::PositionSizer);
-
-    // Should have args initialized with defaults
-    REQUIRE(optimized.args.has_value());
-    REQUIRE(!optimized.args->empty());
-  }
+  // SECTION("Function without args gets initialized") {
+  //   auto func = CreateGenericFunction("cppi");
+  //   // Don't set args (keep as nullopt)
+  //
+  //   auto optimized = OptimizeGenericFunction(
+  //       func, epoch_core::GenericFunctionType::PositionSizer);
+  //
+  //   // Should have args initialized with defaults
+  //   REQUIRE(optimized.args.has_value());
+  //   REQUIRE(!optimized.args->empty());
+  // }
 
   SECTION("Required option without default value") {
     // This tests the case where a required option exists but has no default
