@@ -61,7 +61,7 @@ std::optional<MetaDataOptionList>
     auto metaData = trade_signal::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "Unknown GenericFunction type: " + type,
+                        "[TradeSignal]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
@@ -72,7 +72,7 @@ std::optional<MetaDataOptionList>
     auto metaData = position_sizer::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "Unknown GenericFunction type: " + type,
+                        "[PositionSizer]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
@@ -82,7 +82,7 @@ std::optional<MetaDataOptionList>
     auto metaData = take_profit::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "Unknown GenericFunction type: " + type,
+                        "[TakeProfit]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
@@ -92,7 +92,7 @@ std::optional<MetaDataOptionList>
     auto metaData = stop_loss::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "Unknown GenericFunction type: " + type,
+                        "[StopLoss]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
@@ -103,12 +103,34 @@ std::optional<MetaDataOptionList>
         futures_continuation::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "Unknown GenericFunction type: " + type,
+                        "[FuturesContinuation]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
     return metaData.value().get().options;
   }
+    case epoch_core::GenericFunctionType::Slippage: {
+      auto metaData =
+          slippage::Registry::GetInstance().GetMetaData(type);
+      if (!metaData) {
+        issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
+                          "[Slippage]Unknown GenericFunction type: " + type,
+                          "Provide a valid GenericFunction type"});
+        return std::nullopt;
+      }
+      return metaData.value().get().options;
+    }
+    case epoch_core::GenericFunctionType::Commission: {
+      auto metaData =
+          commission::Registry::GetInstance().GetMetaData(type);
+      if (!metaData) {
+        issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
+                          "[Commission]Unknown GenericFunction type: " + type,
+                          "Provide a valid GenericFunction type"});
+        return std::nullopt;
+      }
+      return metaData.value().get().options;
+    }
   default:
     issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
                       "Unknown GenericFunction type: " + type,
