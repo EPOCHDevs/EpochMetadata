@@ -577,8 +577,8 @@ UIData OptimizeUIData(const UIData &graph) {
   UIData optimizedGraph = graph;
 
   // Apply optimization phases in order
-  RemoveOrphanNodes(optimizedGraph);
   RemoveStuckBoolNodesFromExecutor(optimizedGraph);
+  RemoveOrphanNodes(optimizedGraph);
   ApplyDefaultOptions(optimizedGraph);
   ClampOptionValues(optimizedGraph);
   RemoveUnnecessaryTimeframes(optimizedGraph);
