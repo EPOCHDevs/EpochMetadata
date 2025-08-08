@@ -370,9 +370,10 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
   for (const auto &[id, value, name, isExposed] : node.options) {
     if (isExposed) {
       AssertFromStream(name.has_value(), "Exposed option must have a name.");
-      AssertFalseFromStream(node.type == TRADE_SIGNAL_EXECUTOR,
-                            "TradeSignalExecutor options cannot be exposed.");
-
+      if (node.type == TRADE_SIGNAL_EXECUTOR) {
+        SPDLOG_WARN("TradeSignalExecutor options cannot be exposed.");
+        break;
+      }
       epoch_metadata::MetaDataOption transformOption;
       // if option value is provided, use that, otherwise use the default
       if (optionsMapping.contains(id)) {
