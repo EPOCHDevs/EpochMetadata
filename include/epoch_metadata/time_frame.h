@@ -11,12 +11,26 @@
 #include <unordered_set>
 #include <yaml-cpp/yaml.h>
 
+CREATE_ENUM(StratifyxMonth, jan, feb, mar, apr, may, jun, jul, aug, sep, oct,
+            nov, dec);
 CREATE_ENUM(StratifyxTimeFrameType, minute, hour, day, week, month, quarter,
-            year);
+            year, bday, cbday);
+CREATE_ENUM(WeekOfMonth, First, Second, Third, Fourth);
 CREATE_ENUM(StratifyxBarType, TickBar, VolumeBar, DollarBar, TickImbalanceBar,
             VolumeImbalanceBar, DollarImbalanceBar, TimeBar);
 
 CREATE_ENUM(AnchoredTimeFrameType, Start, End);
+
+struct DateOffsetOption {
+  epoch_core::StratifyxTimeFrameType type{
+      epoch_core::StratifyxTimeFrameType::Null};
+  uint32_t interval{0};
+  epoch_core::AnchoredTimeFrameType anchor{
+      epoch_core::AnchoredTimeFrameType::Null};
+  epoch_core::WeekOfMonth week_of_month{epoch_core::WeekOfMonth::Null};
+  epoch_core::EpochDayOfWeek weekday{epoch_core::EpochDayOfWeek::Null};
+  epoch_core::StratifyxMonth month{epoch_core::StratifyxMonth::Null};
+};
 
 namespace epoch_metadata {
 
@@ -127,6 +141,11 @@ template <> struct meta<std::optional<epoch_metadata::TimeFrame>> {
 } // namespace glz
 
 namespace YAML {
+
+template <> struct convert<DateOffsetOption> {
+  static bool decode(const Node &node, DateOffsetOption &rhs);
+};
+
 template <> struct convert<epoch_frame::DateOffsetHandlerPtr> {
   static bool decode(const Node &node, epoch_frame::DateOffsetHandlerPtr &rhs);
 };

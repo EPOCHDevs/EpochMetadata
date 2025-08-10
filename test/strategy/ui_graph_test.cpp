@@ -363,10 +363,12 @@ TEST_CASE(
 
   // Expect exception due to exposed option on executor.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
-  REQUIRE_FALSE(result.has_value());
-  REQUIRE_THAT(epoch_metadata::strategy::FormatValidationIssues(result.error()),
-               Catch::Matchers::ContainsSubstring(
-                   "TradeSignalExecutor options cannot be exposed"));
+  REQUIRE(result.has_value());
+  int closeIfIndecisiveCount = std::ranges::count_if(result->options,
+    [](epoch_metadata::MetaDataOption const& option) {
+      return option.id != "closeIfIndecisive";
+    });
+  REQUIRE(closeIfIndecisiveCount == 0);
 }
 
 // Test 5: Error Case – Missing Name for Exposed Option

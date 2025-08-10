@@ -1,7 +1,8 @@
-#include "common.h"
 #include "epoch_metadata/time_frame.h"
 #include <catch2/catch_all.hpp>
+#include <chrono>
 #include <epoch_frame/factory/date_offset_factory.h>
+#include <epoch_frame/relative_delta_options.h>
 #include <glaze/json/json_t.hpp>
 #include <yaml-cpp/yaml.h>
 
@@ -502,4 +503,144 @@ TEST_CASE("YAML serialization", "[YAML][serialization]") {
   REQUIRE(day_tf.ToString() == day_offset->name());
   REQUIRE(hour_tf.ToString() == hour_offset->name());
   REQUIRE(minute_tf.ToString() == minute_offset->name());
+}
+
+TEST_CASE("CreateDateOffsetHandlerJSON - anchored types and extras",
+          "[CreateDateOffsetHandlerJSON][anchored]") {
+  // Month start/end anchors
+  auto m_start = epoch_frame::factory::offset::month_start(2);
+  auto m_start_json = CreateDateOffsetHandlerJSON(m_start);
+  REQUIRE(m_start_json.is_object());
+  REQUIRE(m_start_json["type"].as<std::string>() == "month");
+  REQUIRE(m_start_json["interval"].as<int>() == 2);
+  REQUIRE(m_start_json["anchor"].as<std::string>() == "Start");
+
+  auto m_end = epoch_frame::factory::offset::month_end(3);
+  auto m_end_json = CreateDateOffsetHandlerJSON(m_end);
+  REQUIRE(m_end_json.is_object());
+  REQUIRE(m_end_json["type"].as<std::string>() == "month");
+  REQUIRE(m_end_json["interval"].as<int>() == 3);
+  REQUIRE(m_end_json["anchor"].as<std::string>() == "End");
+
+  // Quarter with starting month
+  auto q_start = epoch_frame::factory::offset::quarter_start(
+      1, std::optional<std::chrono::month>{std::chrono::month{3}});
+  auto q_start_json = CreateDateOffsetHandlerJSON(q_start);
+  REQUIRE(q_start_json.is_object());
+  REQUIRE(q_start_json["type"].as<std::string>() == "quarter");
+  REQUIRE(q_start_json["interval"].as<int>() == 1);
+  REQUIRE(q_start_json["anchor"].as<std::string>() == "Start");
+  REQUIRE_FALSE(q_start_json["month"].is_null());
+
+  // Year with month
+  auto y_end = epoch_frame::factory::offset::year_end(
+      5, std::optional<std::chrono::month>{std::chrono::month{2}});
+  auto y_end_json = CreateDateOffsetHandlerJSON(y_end);
+  REQUIRE(y_end_json.is_object());
+  REQUIRE(y_end_json["type"].as<std::string>() == "year");
+  REQUIRE(y_end_json["interval"].as<int>() == 5);
+  REQUIRE(y_end_json["anchor"].as<std::string>() == "End");
+  REQUIRE_FALSE(y_end_json["month"].is_null());
+
+  // Weekly: best-effort extras for weekday/week_of_month if present
+  auto rd_week = epoch_frame::factory::offset::date_offset(
+      1, epoch_frame::RelativeDeltaOption{
+             .weekday = epoch_frame::Weekday{
+                 epoch_core::EpochDayOfWeekWrapper::FromString("Monday"), 2}});
+  auto rd_week_json = CreateDateOffsetHandlerJSON(rd_week);
+  REQUIRE(rd_week_json.is_object());
+  REQUIRE(rd_week_json["type"].as<std::string>() == "week");
+  REQUIRE_FALSE(rd_week_json["weekday"].is_null());
+  REQUIRE_FALSE(rd_week_json["week_of_month"].is_null());
+}
+
+TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
+          "[CreateDateOffsetHandlerFromJSON][bday]") {
+  // Business day
+  glz::json_t bday_json;
+  bday_json["type"] = "bday";
+  bday_json["interval"] = 4;
+  auto bday = CreateDateOffsetHandlerFromJSON(bday_json);
+  REQUIRE(bday != nullptr);
+  REQUIRE(bday->type() == epoch_core::EpochOffsetType::BusinessDay);
+  REQUIRE(bday->n() == 4);
+
+  // Custom business day
+  glz::json_t cbday_json;
+  cbday_json["type"] = "cbday";
+  cbday_json["interval"] = 2;
+  auto cbday = CreateDateOffsetHandlerFromJSON(cbday_json);
+  REQUIRE(cbday != nullptr);
+  REQUIRE(cbday->type() == epoch_core::EpochOffsetType::CustomBusinessDay);
+  REQUIRE(cbday->n() == 2);
+}
+
+TEST_CASE("CreateDateOffsetHandlerFromJSON - anchored read",
+          "[CreateDateOffsetHandlerFromJSON][anchored]") {
+  // Month start
+  glz::json_t month_start_json;
+  month_start_json["type"] = "month";
+  month_start_json["interval"] = 1;
+  month_start_json["anchor"] = "Start";
+  auto m_start = CreateDateOffsetHandlerFromJSON(month_start_json);
+  REQUIRE(m_start != nullptr);
+  auto m_start_roundtrip = CreateDateOffsetHandlerJSON(m_start);
+  REQUIRE(m_start_roundtrip["anchor"].as<std::string>() == "Start");
+
+  // Year end with month
+  glz::json_t year_end_json;
+  year_end_json["type"] = "year";
+  year_end_json["interval"] = 3;
+  year_end_json["anchor"] = "End";
+  year_end_json["month"] = "feb";
+  auto y_end = CreateDateOffsetHandlerFromJSON(year_end_json);
+  REQUIRE(y_end != nullptr);
+  auto y_end_roundtrip = CreateDateOffsetHandlerJSON(y_end);
+  REQUIRE(y_end_roundtrip["anchor"].as<std::string>() == "End");
+  REQUIRE_FALSE(y_end_roundtrip["month"].is_null());
+}
+
+TEST_CASE("CreateTimeFrameFromYAML - basic and anchored",
+          "[CreateTimeFrameFromYAML]") {
+  // Basic day
+  YAML::Node day_node;
+  day_node["type"] = "day";
+  day_node["interval"] = 1;
+  auto day_tf = CreateTimeFrameFromYAML(day_node);
+  REQUIRE(day_tf.ToString() == day_tf.GetOffset()->name());
+  REQUIRE(day_tf.GetOffset()->type() == epoch_core::EpochOffsetType::Day);
+
+  // Anchored month end
+  YAML::Node month_node;
+  month_node["type"] = "month";
+  month_node["interval"] = 2;
+  month_node["anchor"] = "End";
+  auto month_tf = CreateTimeFrameFromYAML(month_node);
+  REQUIRE(month_tf.GetOffset()->type() ==
+          epoch_core::EpochOffsetType::MonthEnd);
+}
+
+TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]") {
+  auto d1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto d1_dup = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto h1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
+
+  TimeFrameSet set;
+  set.insert(d1);
+  set.insert(d1_dup);
+  set.insert(h1);
+
+  REQUIRE(set.size() == 2);
+  REQUIRE(set.find(d1) != set.end());
+  REQUIRE(set.find(h1) != set.end());
+}
+
+TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]") {
+  auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
+  auto bday1 = TimeFrame(epoch_frame::factory::offset::bday(1));
+  auto cbday1 = TimeFrame(epoch_frame::factory::offset::cbday(
+      epoch_frame::BusinessMixinParams{}, 1));
+
+  REQUIRE(day1 < bday1);
+  REQUIRE(bday1 < cbday1);
 }
