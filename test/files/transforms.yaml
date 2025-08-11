@@ -843,3 +843,53 @@ trade_executor_adapter:
   tags: ["signal", "adapter", "trade", "position", "boolean"]
   category: ControlFlow
   renderKind: Simple
+
+# ======== CUSTOM OVERLAYS & STATISTICS ======== #
+
+donchian_channel:
+  name: Donchian Channel
+  desc: "Price channel with upper and lower bands from rolling high/low and a middle line as their average. Useful for breakouts and trend following."
+  options:
+    - { id: window, name: Window, type: Integer, default: 20, min: 1, max: 10000, step_size: 1 }
+  outputs:
+    - { type: Decimal, id: "upper", name: "Upper" }
+    - { type: Decimal, id: "middle", name: "Middle" }
+    - { type: Decimal, id: "lower", name: "Lower" }
+  tags: ["overlay", "trend", "bands", "price-channels", "breakout"]
+  category: Trend
+  renderKind: Standard
+  plotKind: bbands
+  requiresTimeFrame: true
+  requiredDataSources: ["h", "l"]
+
+ichimoku:
+  name: Ichimoku Cloud
+  desc: "Multi-line trend system: Tenkan-sen, Kijun-sen, Senkou Span A/B (cloud), and Chikou span."
+  options:
+    - { id: p_tenkan, name: Tenkan Period, type: Integer, default: 9, min: 1, max: 10000, step_size: 1 }
+    - { id: p_kijun, name: Kijun Period, type: Integer, default: 26, min: 1, max: 10000, step_size: 1 }
+    - { id: p_senkou_b, name: Senkou B Period, type: Integer, default: 52, min: 1, max: 10000, step_size: 1 }
+  outputs:
+    - { type: Decimal, id: "tenkan", name: "Tenkan-sen" }
+    - { type: Decimal, id: "kijun", name: "Kijun-sen" }
+    - { type: Decimal, id: "senkou_a", name: "Senkou A" }
+    - { type: Decimal, id: "senkou_b", name: "Senkou B" }
+    - { type: Decimal, id: "chikou", name: "Chikou Span" }
+  tags: ["overlay", "trend", "cloud", "multi-line", "price-channels"]
+  category: Trend
+  renderKind: Standard
+  plotKind: line
+  requiresTimeFrame: true
+  requiredDataSources: ["h", "l", "c"]
+
+zscore:
+  name: Z-Score
+  desc: "Rolling z-score of the input series: (x_t - mean)/stddev over the configured window."
+  inputs: [NUMBER]
+  options:
+    - { id: window, name: Window, type: Integer, default: 20, min: 1, max: 10000, step_size: 1 }
+  outputs: [DECIMAL_RESULT]
+  tags: ["indicator", "statistics", "normalization", "standardization"]
+  category: Statistical
+  renderKind: Standard
+  plotKind: panel_line
