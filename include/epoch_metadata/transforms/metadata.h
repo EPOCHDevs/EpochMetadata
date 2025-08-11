@@ -41,10 +41,12 @@ CREATE_ENUM(
     bb_percent_b,       // Bollinger Bands %B
     column,             // column plot
     cci,                // Commodity Channel Index
+    chande_kroll_stop,  // Chande Kroll Stop
     elders,             // Elder Ray Index
     fisher,             // Fisher Transform,
     fosc,               // Forcast Oscillator
     h_line,             // horizontal line
+    ichimoku,           // Ichimoku Cloud
     line,               // generic overlay
     panel_line,         // generic overlay, but not on top of the main plot,
     panel_line_percent, // generic overlay, but not on top of the main plot,
@@ -65,6 +67,7 @@ CREATE_ENUM(
     stoch,              // Stochastic oscillator
     previous_high_low,  // Previous High and Low
     vwap,               // VWAP overlay
+    vortex,             // Vortex Indicator
     trade_signal);      // Trade Signal Executor
 
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
