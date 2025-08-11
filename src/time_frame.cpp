@@ -7,8 +7,8 @@
 
 #include "date_time/date_offsets.h"
 #include "epoch_core/macros.h"
+#include "epoch_frame/factory/calendar_factory.h"
 #include "epoch_frame/factory/date_offset_factory.h"
-#include "epoch_frame/relative_delta_options.h"
 #include <cctype>
 #include <glaze/json/json_t.hpp>
 #include <utility>
@@ -64,16 +64,20 @@ toEpochOffsetType(epoch_core::StratifyxTimeFrameType type) {
     return epoch_core::EpochOffsetType::Day;
   case epoch_core::StratifyxTimeFrameType::week:
     return epoch_core::EpochOffsetType::Week;
+  case epoch_core::StratifyxTimeFrameType::week_of_month:
+    return epoch_core::EpochOffsetType::WeekOfMonth;
   case epoch_core::StratifyxTimeFrameType::month:
     return epoch_core::EpochOffsetType::Month;
+  case epoch_core::StratifyxTimeFrameType::bmonth:
+    return epoch_core::EpochOffsetType::BusinessMonth;
   case epoch_core::StratifyxTimeFrameType::quarter:
     return epoch_core::EpochOffsetType::Quarter;
   case epoch_core::StratifyxTimeFrameType::year:
     return epoch_core::EpochOffsetType::Year;
   case epoch_core::StratifyxTimeFrameType::bday:
     return epoch_core::EpochOffsetType::BusinessDay;
-  case epoch_core::StratifyxTimeFrameType::cbday:
-    return epoch_core::EpochOffsetType::CustomBusinessDay;
+  case epoch_core::StratifyxTimeFrameType::session:
+    return epoch_core::EpochOffsetType::SessionAnchor;
   default:
     break;
   }
@@ -91,10 +95,17 @@ fromOffset(epoch_core::EpochOffsetType type) {
     return epoch_core::StratifyxTimeFrameType::day;
   case epoch_core::EpochOffsetType::Week:
     return epoch_core::StratifyxTimeFrameType::week;
+  case epoch_core::EpochOffsetType::WeekOfMonth:
+  case epoch_core::EpochOffsetType::LastWeekOfMonth:
+    return epoch_core::StratifyxTimeFrameType::week_of_month;
   case epoch_core::EpochOffsetType::Month:
   case epoch_core::EpochOffsetType::MonthStart:
   case epoch_core::EpochOffsetType::MonthEnd:
     return epoch_core::StratifyxTimeFrameType::month;
+  case epoch_core::EpochOffsetType::BusinessMonth:
+  case epoch_core::EpochOffsetType::BusinessMonthStart:
+  case epoch_core::EpochOffsetType::BusinessMonthEnd:
+    return epoch_core::StratifyxTimeFrameType::bmonth;
   case epoch_core::EpochOffsetType::Quarter:
   case epoch_core::EpochOffsetType::QuarterStart:
   case epoch_core::EpochOffsetType::QuarterEnd:
@@ -105,8 +116,8 @@ fromOffset(epoch_core::EpochOffsetType type) {
     return epoch_core::StratifyxTimeFrameType::year;
   case epoch_core::EpochOffsetType::BusinessDay:
     return epoch_core::StratifyxTimeFrameType::bday;
-  case epoch_core::EpochOffsetType::CustomBusinessDay:
-    return epoch_core::StratifyxTimeFrameType::cbday;
+  case epoch_core::EpochOffsetType::SessionAnchor:
+    return epoch_core::StratifyxTimeFrameType::session;
   case epoch_core::EpochOffsetType::RelativeDelta:
     return epoch_core::StratifyxTimeFrameType::week;
   default:
@@ -137,6 +148,7 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
   case epoch_core::StratifyxTimeFrameType::minute:
     return epoch_frame::factory::offset::minutes(option.interval);
   case epoch_core::StratifyxTimeFrameType::week: {
+    // If no specific week-of-month constraint, use simple weekly offset
     if (option.week_of_month == epoch_core::WeekOfMonth::Null) {
       std::optional<epoch_core::EpochDayOfWeek> weekday_opt = std::nullopt;
       if (option.weekday != epoch_core::EpochDayOfWeek::Null) {
@@ -144,28 +156,50 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
       }
       return epoch_frame::factory::offset::weeks(option.interval, weekday_opt);
     }
-    std::optional<int> n = std::nullopt;
-    if (option.week_of_month == epoch_core::WeekOfMonth::First) {
-      n = 1;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Second) {
-      n = 2;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Third) {
-      n = 3;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Fourth) {
-      n = 4;
+
+    // week-of-month configuration requires a weekday
+    if (option.weekday == epoch_core::EpochDayOfWeek::Null) {
+      return epoch_frame::factory::offset::weeks(option.interval);
     }
-    if (option.weekday != epoch_core::EpochDayOfWeek::Null) {
-      return epoch_frame::factory::offset::date_offset(
-          1, epoch_frame::RelativeDeltaOption{
-                 .weekday = epoch_frame::Weekday{option.weekday, n}});
+
+    if (option.week_of_month == epoch_core::WeekOfMonth::Last) {
+      return epoch_frame::factory::offset::last_week_of_month(option.interval,
+                                                              option.weekday);
     }
-    return epoch_frame::factory::offset::weeks(option.interval);
+
+    int week_index = 0; // 0-based index
+    switch (option.week_of_month) {
+    case epoch_core::WeekOfMonth::First:
+      week_index = 0;
+      break;
+    case epoch_core::WeekOfMonth::Second:
+      week_index = 1;
+      break;
+    case epoch_core::WeekOfMonth::Third:
+      week_index = 2;
+      break;
+    case epoch_core::WeekOfMonth::Fourth:
+      week_index = 3;
+      break;
+    default:
+      week_index = 0;
+      break;
+    }
+    return epoch_frame::factory::offset::week_of_month(
+        option.interval, week_index, option.weekday);
   }
   case epoch_core::StratifyxTimeFrameType::month: {
     if (option.anchor == epoch_core::AnchoredTimeFrameType::Start) {
       return epoch_frame::factory::offset::month_start(option.interval);
     }
     return epoch_frame::factory::offset::month_end(option.interval);
+  }
+  case epoch_core::StratifyxTimeFrameType::bmonth: {
+    // Business month begin/end
+    if (option.anchor == epoch_core::AnchoredTimeFrameType::Start) {
+      return epoch_frame::factory::offset::bmonth_begin(option.interval);
+    }
+    return epoch_frame::factory::offset::bmonth_end(option.interval);
   }
   case epoch_core::StratifyxTimeFrameType::quarter: {
     std::optional<std::chrono::month> m = std::nullopt;
@@ -188,11 +222,22 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
     return epoch_frame::factory::offset::year_end(option.interval, m);
   }
   case epoch_core::StratifyxTimeFrameType::bday: {
-    return epoch_frame::factory::offset::bday(option.interval);
+    return epoch_frame::factory::offset::bday(option.interval,
+                                              option.time_offset);
   }
-  case epoch_core::StratifyxTimeFrameType::cbday: {
-    return epoch_frame::factory::offset::cbday(
-        epoch_frame::BusinessMixinParams{}, option.interval);
+  case epoch_core::StratifyxTimeFrameType::session: {
+    using epoch_frame::calendar::CalendarFactory;
+    const auto cal_name =
+        epoch_core::MarketCalendarNameWrapper::ToString(option.market_calendar);
+    auto cal = CalendarFactory::instance().get_calendar(cal_name);
+    auto which =
+        option.session_anchor == epoch_core::SessionAnchorType::AfterOpen
+            ? epoch_frame::SessionAnchorWhich::AfterOpen
+            : epoch_frame::SessionAnchorWhich::BeforeClose;
+    const auto delta = option.time_offset.value_or(
+        epoch_frame::TimeDelta{epoch_frame::TimeDelta::Components{}});
+    return epoch_frame::factory::offset::session_anchor(cal, which, delta,
+                                                        option.interval);
   }
   default:
     break;
@@ -212,68 +257,7 @@ CreateDateOffsetHandler(Serializer const &buffer) {
     static_assert(false, "Invalid serializer type");
   }
 
-  switch (option.type) {
-  case epoch_core::StratifyxTimeFrameType::day:
-    return epoch_frame::factory::offset::days(option.interval);
-  case epoch_core::StratifyxTimeFrameType::hour:
-    return epoch_frame::factory::offset::hours(option.interval);
-  case epoch_core::StratifyxTimeFrameType::minute:
-    return epoch_frame::factory::offset::minutes(option.interval);
-  case epoch_core::StratifyxTimeFrameType::week: {
-    if (option.week_of_month == epoch_core::WeekOfMonth::Null) {
-      return epoch_frame::factory::offset::weeks(1, option.weekday);
-    }
-    std::optional<int> n = std::nullopt;
-    if (option.week_of_month == epoch_core::WeekOfMonth::First) {
-      n = 1;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Second) {
-      n = 2;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Third) {
-      n = 3;
-    } else if (option.week_of_month == epoch_core::WeekOfMonth::Fourth) {
-      n = 4;
-    }
-    return epoch_frame::factory::offset::date_offset(
-        1, epoch_frame::RelativeDeltaOption{
-               .weekday = epoch_frame::Weekday{option.weekday, n}});
-  }
-  case epoch_core::StratifyxTimeFrameType::month: {
-    if (option.anchor == epoch_core::AnchoredTimeFrameType::Start) {
-      return epoch_frame::factory::offset::month_start(option.interval);
-    }
-    return epoch_frame::factory::offset::month_end(option.interval);
-  }
-  case epoch_core::StratifyxTimeFrameType::quarter: {
-    std::optional<std::chrono::month> m = std::nullopt;
-    if (option.month != epoch_core::StratifyxMonth::Null) {
-      m = toChronoMonth(option.month);
-    }
-    if (option.anchor == epoch_core::AnchoredTimeFrameType::Start) {
-      return epoch_frame::factory::offset::quarter_start(option.interval, m);
-    }
-    return epoch_frame::factory::offset::quarter_end(option.interval, m);
-  }
-  case epoch_core::StratifyxTimeFrameType::year: {
-    std::optional<std::chrono::month> m = std::nullopt;
-    if (option.month != epoch_core::StratifyxMonth::Null) {
-      m = toChronoMonth(option.month);
-    }
-    if (option.anchor == epoch_core::AnchoredTimeFrameType::Start) {
-      return epoch_frame::factory::offset::year_start(option.interval, m);
-    }
-    return epoch_frame::factory::offset::year_end(option.interval, m);
-  }
-  case epoch_core::StratifyxTimeFrameType::bday: {
-    return epoch_frame::factory::offset::bday(option.interval);
-  }
-  case epoch_core::StratifyxTimeFrameType::cbday: {
-    return epoch_frame::factory::offset::cbday(
-        epoch_frame::BusinessMixinParams{}, option.interval);
-  }
-  default:
-    break;
-  }
-  std::unreachable();
+  return MakeHandlerFromOption(option);
 }
 
 bool TimeFrame::operator<(TimeFrame const &other) const {
@@ -293,8 +277,9 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   }
   // Manually parse JSON into DateOffsetOption to avoid requiring glaze meta
   DateOffsetOption option;
-  AssertFromFormat(buffer.contains("type") && buffer.contains("interval"),
-    "DateOffsetHandler JSON must contain type and interval fields");
+  AssertFromFormat(
+      buffer.contains("type") && buffer.contains("interval"),
+      "DateOffsetHandler JSON must contain type and interval fields");
 
   const auto &type_node = buffer["type"];
   const auto &interval_node = buffer["interval"];
@@ -316,8 +301,8 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   if (buffer.contains("week_of_month")) {
     const auto &wom_node = buffer["week_of_month"];
     if (!wom_node.is_null()) {
-      option.week_of_month =
-          epoch_core::WeekOfMonthWrapper::FromString(wom_node.as<std::string>());
+      option.week_of_month = epoch_core::WeekOfMonthWrapper::FromString(
+          wom_node.as<std::string>());
     }
   }
 
@@ -334,6 +319,46 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
     if (!month_node.is_null()) {
       option.month = epoch_core::StratifyxMonthWrapper::FromString(
           month_node.as<std::string>());
+    }
+  }
+
+  // Optional time_offset for business day offsets
+  if (buffer.contains("time_offset")) {
+    const auto &to_node = buffer["time_offset"];
+    if (!to_node.is_null() && to_node.is_object()) {
+      epoch_frame::TimeDelta::Components c{};
+      if (to_node.contains("days"))
+        c.days = to_node["days"].as<double>();
+      if (to_node.contains("hours"))
+        c.hours = to_node["hours"].as<double>();
+      if (to_node.contains("minutes"))
+        c.minutes = to_node["minutes"].as<double>();
+      if (to_node.contains("seconds"))
+        c.seconds = to_node["seconds"].as<double>();
+      if (to_node.contains("milliseconds"))
+        c.milliseconds = to_node["milliseconds"].as<double>();
+      if (to_node.contains("microseconds"))
+        c.microseconds = to_node["microseconds"].as<double>();
+      if (to_node.contains("weeks"))
+        c.weeks = to_node["weeks"].as<double>();
+      option.time_offset = epoch_frame::TimeDelta{c};
+    }
+  }
+
+  // Session-anchored fields
+  if (buffer.contains("market_calendar")) {
+    const auto &mc_node = buffer["market_calendar"];
+    if (!mc_node.is_null()) {
+      option.market_calendar =
+          epoch_core::MarketCalendarNameWrapper::FromString(
+              mc_node.as<std::string>());
+    }
+  }
+  if (buffer.contains("session_anchor")) {
+    const auto &sa_node = buffer["session_anchor"];
+    if (!sa_node.is_null()) {
+      option.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
+          sa_node.as<std::string>());
     }
   }
 
@@ -440,6 +465,22 @@ bool convert<DateOffsetOption>::decode(const Node &node,
       node["weekday"].as<std::string>("Null"));
   rhs.month = epoch_core::StratifyxMonthWrapper::FromString(
       node["month"].as<std::string>("Null"));
+  if (node["time_offset"]) {
+    const auto &to_node = node["time_offset"];
+    epoch_frame::TimeDelta::Components c{};
+    c.days = to_node["days"].as<double>(0);
+    c.hours = to_node["hours"].as<double>(0);
+    c.minutes = to_node["minutes"].as<double>(0);
+    c.seconds = to_node["seconds"].as<double>(0);
+    c.milliseconds = to_node["milliseconds"].as<double>(0);
+    c.microseconds = to_node["microseconds"].as<double>(0);
+    c.weeks = to_node["weeks"].as<double>(0);
+    rhs.time_offset = epoch_frame::TimeDelta{c};
+  }
+  rhs.market_calendar = epoch_core::MarketCalendarNameWrapper::FromString(
+      node["market_calendar"].as<std::string>("Null"));
+  rhs.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
+      node["session_anchor"].as<std::string>("Null"));
   return true;
 }
 } // namespace YAML

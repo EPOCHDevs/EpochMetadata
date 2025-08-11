@@ -351,6 +351,15 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(week_result->type() == epoch_core::EpochOffsetType::Week);
   REQUIRE(week_result->n() == 2);
 
+  // Test week-of-month direct configuration (Second Tuesday)
+  glz::json_t wom_json;
+  wom_json["type"] = "week";
+  wom_json["interval"] = 1;
+  wom_json["week_of_month"] = "Second";
+  wom_json["weekday"] = "Tuesday";
+  auto wom_result = CreateDateOffsetHandlerFromJSON(wom_json);
+  REQUIRE(wom_result != nullptr);
+
   // Test valid month offset
   glz::json_t month_json;
   month_json["type"] = "month";
@@ -560,19 +569,21 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
   glz::json_t bday_json;
   bday_json["type"] = "bday";
   bday_json["interval"] = 4;
+  bday_json["time_offset"]["minutes"] = 30;
   auto bday = CreateDateOffsetHandlerFromJSON(bday_json);
   REQUIRE(bday != nullptr);
   REQUIRE(bday->type() == epoch_core::EpochOffsetType::BusinessDay);
   REQUIRE(bday->n() == 4);
 
-  // Custom business day
-  glz::json_t cbday_json;
-  cbday_json["type"] = "cbday";
-  cbday_json["interval"] = 2;
-  auto cbday = CreateDateOffsetHandlerFromJSON(cbday_json);
-  REQUIRE(cbday != nullptr);
-  REQUIRE(cbday->type() == epoch_core::EpochOffsetType::CustomBusinessDay);
-  REQUIRE(cbday->n() == 2);
+  // Session anchored via JSON (NYSE before close -30m)
+  glz::json_t session_json;
+  session_json["type"] = "session";
+  session_json["interval"] = 1;
+  session_json["market_calendar"] = "NYSE";
+  session_json["session_anchor"] = "BeforeClose";
+  session_json["time_offset"]["minutes"] = 30;
+  auto session = CreateDateOffsetHandlerFromJSON(session_json);
+  REQUIRE(session != nullptr);
 }
 
 TEST_CASE("CreateDateOffsetHandlerFromJSON - anchored read",
@@ -618,6 +629,33 @@ TEST_CASE("CreateTimeFrameFromYAML - basic and anchored",
   auto month_tf = CreateTimeFrameFromYAML(month_node);
   REQUIRE(month_tf.GetOffset()->type() ==
           epoch_core::EpochOffsetType::MonthEnd);
+
+  // Week-of-month via YAML (Last Friday)
+  YAML::Node wom_node;
+  wom_node["type"] = "week";
+  wom_node["interval"] = 1;
+  wom_node["week_of_month"] = "Last";
+  wom_node["weekday"] = "Friday";
+  auto wom_tf = CreateTimeFrameFromYAML(wom_node);
+  REQUIRE(wom_tf.GetOffset() != nullptr);
+
+  // bday with time_offset via YAML
+  YAML::Node bday_node;
+  bday_node["type"] = "bday";
+  bday_node["interval"] = 1;
+  bday_node["time_offset"]["minutes"] = 15;
+  auto bday_tf = CreateTimeFrameFromYAML(bday_node);
+  REQUIRE(bday_tf.GetOffset() != nullptr);
+
+  // Session via YAML (CMEEquity after open +15m)
+  YAML::Node session_node;
+  session_node["type"] = "session";
+  session_node["interval"] = 2;
+  session_node["market_calendar"] = "NYSE";
+  session_node["session_anchor"] = "AfterOpen";
+  session_node["time_offset"]["minutes"] = 15;
+  auto session_tf = CreateTimeFrameFromYAML(session_node);
+  REQUIRE(session_tf.GetOffset() != nullptr);
 }
 
 TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]") {
@@ -638,9 +676,6 @@ TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]") {
 TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]") {
   auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto bday1 = TimeFrame(epoch_frame::factory::offset::bday(1));
-  auto cbday1 = TimeFrame(epoch_frame::factory::offset::cbday(
-      epoch_frame::BusinessMixinParams{}, 1));
 
   REQUIRE(day1 < bday1);
-  REQUIRE(bday1 < cbday1);
 }

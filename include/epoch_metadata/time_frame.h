@@ -13,13 +13,19 @@
 
 CREATE_ENUM(StratifyxMonth, jan, feb, mar, apr, may, jun, jul, aug, sep, oct,
             nov, dec);
-CREATE_ENUM(StratifyxTimeFrameType, minute, hour, day, week, month, quarter,
-            year, bday, cbday);
-CREATE_ENUM(WeekOfMonth, First, Second, Third, Fourth);
+CREATE_ENUM(StratifyxTimeFrameType, minute, hour, day, week, month, bmonth,
+            quarter, year, bday, session, week_of_month);
+CREATE_ENUM(WeekOfMonth, First, Second, Third, Fourth, Last);
 CREATE_ENUM(StratifyxBarType, TickBar, VolumeBar, DollarBar, TickImbalanceBar,
             VolumeImbalanceBar, DollarImbalanceBar, TimeBar);
 
 CREATE_ENUM(AnchoredTimeFrameType, Start, End);
+
+// Calendars supported by session-anchored offsets. These should map to
+// calendar aliases registered in the calendar factory.
+CREATE_ENUM(MarketCalendarName, NYSE);
+
+CREATE_ENUM(SessionAnchorType, AfterOpen, BeforeClose);
 
 struct DateOffsetOption {
   epoch_core::StratifyxTimeFrameType type{
@@ -30,6 +36,12 @@ struct DateOffsetOption {
   epoch_core::WeekOfMonth week_of_month{epoch_core::WeekOfMonth::Null};
   epoch_core::EpochDayOfWeek weekday{epoch_core::EpochDayOfWeek::Null};
   epoch_core::StratifyxMonth month{epoch_core::StratifyxMonth::Null};
+  std::optional<epoch_frame::TimeDelta> time_offset{std::nullopt};
+  // Session-anchored options
+  epoch_core::MarketCalendarName market_calendar{
+      epoch_core::MarketCalendarName::Null};
+  epoch_core::SessionAnchorType session_anchor{
+      epoch_core::SessionAnchorType::Null};
 };
 
 namespace epoch_metadata {
