@@ -148,20 +148,9 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
   case epoch_core::StratifyxTimeFrameType::minute:
     return epoch_frame::factory::offset::minutes(option.interval);
   case epoch_core::StratifyxTimeFrameType::week: {
-    // If no specific week-of-month constraint, use simple weekly offset
-    if (option.week_of_month == epoch_core::WeekOfMonth::Null) {
-      std::optional<epoch_core::EpochDayOfWeek> weekday_opt = std::nullopt;
-      if (option.weekday != epoch_core::EpochDayOfWeek::Null) {
-        weekday_opt = option.weekday;
-      }
-      return epoch_frame::factory::offset::weeks(option.interval, weekday_opt);
-    }
-
-    // week-of-month configuration requires a weekday
-    if (option.weekday == epoch_core::EpochDayOfWeek::Null) {
-      return epoch_frame::factory::offset::weeks(option.interval);
-    }
-
+    return epoch_frame::factory::offset::weeks(option.interval, option.weekday);
+  }
+  case epoch_core::StratifyxTimeFrameType::week_of_month: {
     if (option.week_of_month == epoch_core::WeekOfMonth::Last) {
       return epoch_frame::factory::offset::last_week_of_month(option.interval,
                                                               option.weekday);
