@@ -35,13 +35,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
       {
         "id": "exec1",
         "type": "trade_signal_executor",
-        "options": [
-          {
-            "id": "closeIfIndecisive",
-            "value": false,
-            "isExposed": false
-          }
-        ],
+        "options": [],
         "metadata": {},
         "timeframe": null
       },
@@ -95,8 +89,6 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   // Verify executor.
   REQUIRE(meta.executor.id == "exec1");
   REQUIRE(meta.executor.type == TRADE_SIGNAL_EXECUTOR);
-  REQUIRE(meta.executor.options.contains("closeIfIndecisive"));
-  REQUIRE(meta.executor.options["closeIfIndecisive"].GetBoolean() == false);
   REQUIRE(meta.executor.inputs.contains("long"));
   // Executor input should reference algorithm node output.
   REQUIRE(meta.executor.inputs["long"].front() == "algo1#result");
@@ -137,13 +129,7 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
       {
         "id": "exec2",
         "type": "trade_signal_executor",
-        "options": [
-          {
-            "id": "closeIfIndecisive",
-            "value": false,
-            "isExposed": false
-          }
-        ],
+        "options": [],
         "metadata": {},
         "timeframe": null
       },
@@ -243,13 +229,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
       {
         "id": "exec3",
         "type": "trade_signal_executor",
-        "options": [
-          {
-            "id": "closeIfIndecisive",
-            "value": false,
-            "isExposed": false
-          }
-        ],
+        "options": [],
         "metadata": {},
         "timeframe": null
       },
@@ -332,9 +312,8 @@ TEST_CASE(
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec4";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false,
-      std::make_optional(std::string("Should not be exposed")), true});
+  // Executor options are not supported; ensure presence does not break
+  // creation.
   data.nodes.push_back(executor);
 
   // Dummy algorithm node to complete graph.
@@ -364,11 +343,6 @@ TEST_CASE(
   // Expect exception due to exposed option on executor.
   auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
   REQUIRE(result.has_value());
-  int closeIfIndecisiveCount = std::ranges::count_if(result->options,
-    [](epoch_metadata::MetaDataOption const& option) {
-      return option.id != "closeIfIndecisive";
-    });
-  REQUIRE(closeIfIndecisiveCount == 0);
 }
 
 // Test 5: Error Case – Missing Name for Exposed Option
@@ -381,8 +355,7 @@ TEST_CASE(
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec5";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor);
 
   // Algorithm node with an exposed option missing a name.
@@ -423,8 +396,7 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec6";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor);
 
   // Algorithm nodes with dependency: algo6 -> algo7.
@@ -487,8 +459,7 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec7";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor);
 
   // Create two algorithm nodes to form a cycle: algo1 -> algo2 -> algo1
@@ -553,8 +524,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec8";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor);
 
   // Algorithm node with unknown type
@@ -601,8 +571,7 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
   epoch_metadata::strategy::UINode executor;
   executor.id = "exec9";
   executor.type = TRADE_SIGNAL_EXECUTOR;
-  executor.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor);
 
   // Algorithm node
@@ -642,16 +611,14 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   epoch_metadata::strategy::UINode executor1;
   executor1.id = "exec10_1";
   executor1.type = TRADE_SIGNAL_EXECUTOR;
-  executor1.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", false, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor1);
 
   // Second executor node
   epoch_metadata::strategy::UINode executor2;
   executor2.id = "exec10_2";
   executor2.type = TRADE_SIGNAL_EXECUTOR;
-  executor2.options.push_back(epoch_metadata::strategy::UIOption{
-      "closeIfIndecisive", true, std::nullopt, false});
+  // No executor options
   data.nodes.push_back(executor2);
 
   // Algorithm node

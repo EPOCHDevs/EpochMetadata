@@ -394,9 +394,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::VOLUME_METADATA},
       .tags = {"data", "source", "price", "ohlcv"},
       .requiresTimeFrame = true,
-  .requiredDataSources = {
-        "o", "h", "l", "c", "v"
-  }});
+      .requiredDataSources = {"o", "h", "l", "c", "v"}});
 
   return result;
 }
@@ -406,30 +404,25 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
 
   IOMetaData longMetaData{.type = epoch_core::IODataType::Boolean,
                           .id = "long",
-                          .name = "Enter Long Trade"};
+                          .name = "Enter Long"};
 
   IOMetaData shortMetaData{.type = epoch_core::IODataType::Boolean,
                            .id = "short",
-                           .name = "Enter Short Trade"};
+                           .name = "Enter Short"};
 
-  IOMetaData closePositionMetaData{
+  IOMetaData closeLongPositionMetaData{
       .type = epoch_core::IODataType::Boolean,
-      .id = "close",
-      .name = "Exit Trade",
+      .id = "exit_long",
+      .name = "Exit Long",
   };
 
-  IOMetaData allowSignalsMetaData{.type = epoch_core::IODataType::Boolean,
-                                  .id = "allow",
-                                  .name = "Allow Trading",
-                                  .allowMultipleConnections = false,
-                                  .isFilter = true};
-
-  MetaDataOption closeIfIndecisive{
-      .id = "closeIfIndecisive",
-      .name = "Exit If Indecisive",
-      .type = epoch_core::MetaDataOptionType::Boolean,
-      .defaultValue = false,
+  IOMetaData closeShortPositionMetaData{
+      .type = epoch_core::IODataType::Boolean,
+      .id = "exit_short",
+      .name = "Exit Short",
   };
+
+  // No indecision option; we use a fixed policy documented in the description.
 
   return {TransformsMetaData{
       .id = TRADE_SIGNAL_EXECUTOR_ID,
@@ -437,11 +430,13 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .plotKind = epoch_core::TransformPlotKind::trade_signal,
       .name = "Trade Signal Executor",
-      .options = {closeIfIndecisive},
-      .desc = "Executes trade signals. If allow is true, "
-              "all other signals are ignored.",
-      .inputs = {allowSignalsMetaData, longMetaData, shortMetaData,
-                 closePositionMetaData},
+      .options = {},
+      .desc = "Executes trade signals. Precedence: handle exits first ("
+              "'Exit Long'/'Exit Short'). For entries, if both 'Enter Long' "
+              "and 'Enter Short' are true on the same step, skip opening any "
+              "new position. Otherwise, open the requested side.",
+      .inputs = {longMetaData, shortMetaData, closeLongPositionMetaData,
+                 closeShortPositionMetaData},
       .atLeastOneInputRequired = true,
       .requiresTimeFrame = false}};
 }

@@ -577,7 +577,7 @@ UIData OptimizeUIData(const UIData &graph) {
   UIData optimizedGraph = graph;
 
   // Apply optimization phases in order
-  RemoveStuckBoolNodesFromExecutor(optimizedGraph);
+  // RemoveStuckBoolNodesFromExecutor(optimizedGraph);
   RemoveOrphanNodes(optimizedGraph);
   ApplyDefaultOptions(optimizedGraph);
   ClampOptionValues(optimizedGraph);
@@ -621,7 +621,7 @@ void RemoveStuckBoolNodesFromExecutor(UIData &graph) {
     return; // No executor found
   }
 
-  // Find edges connected to the executor's allow handle
+  // Legacy: if any edges were connected to a removed 'allow' handle, drop them
   auto edgeIt = graph.edges.begin();
   while (edgeIt != graph.edges.end()) {
     if (edgeIt->target.id == executorIt->id &&
@@ -634,7 +634,6 @@ void RemoveStuckBoolNodesFromExecutor(UIData &graph) {
       if (sourceNodeIt != graph.nodes.end() &&
           (sourceNodeIt->type == "bool_true" ||
            sourceNodeIt->type == "bool_false")) {
-        // Remove this edge
         edgeIt = graph.edges.erase(edgeIt);
       } else {
         ++edgeIt;

@@ -2,7 +2,6 @@
 #include "epoch_metadata/strategy/ui_data.h"
 #include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/strategy/validation_error.h"
-#include "epoch_metadata/transforms/registry.h"
 #include <catch.hpp>
 #include <catch2/catch_message.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -734,14 +733,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
         {
           "id": "executor",
           "type": "trade_signal_executor",
-          "options": [
-            {
-              "id": "closeIfIndecisive",
-              "value": false,
-              "name": "Exit If Indecisive",
-              "isExposed": false
-            }
-          ],
+          "options": [],
           "metadata": {
             "parentId": null
           },
@@ -1432,33 +1424,6 @@ TEST_CASE("AlgorithmValidator: Multiple Option Validation Issues",
   // Should find out of range, unknown option, and exposed option without name
   REQUIRE(foundCodes.contains(ValidationCode::OptionValueOutOfRange));
   REQUIRE(foundCodes.contains(ValidationCode::InvalidOptionReference));
-}
-
-TEST_CASE("AlgorithmValidator: Boolean Option Validation",
-          "[AlgorithmValidator]") {
-  const std::string json = R"({
-        "nodes": [
-            {
-                "id": "executor",
-                "type": "trade_signal_executor",
-                "options": [
-                    {"id": "closeIfIndecisive", "value": "not_a_boolean"}
-                ],
-                "metadata": {},
-                "timeframe": null
-            }
-        ],
-        "edges": [],
-        "groups": [],
-        "annotations": []
-    })";
-
-  auto data = ParseUIData(json);
-  auto result = ValidateUIData(data);
-
-  // Boolean option with string value should fail type validation
-  ExpectValidationError(result, ValidationCode::InvalidOptionReference,
-                        "invalid type");
 }
 
 TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
@@ -2421,19 +2386,19 @@ TEST_CASE("AlgorithmOptimizer: Multiple Bool Connections Removal",
             },
             {
                 "source": {"id": "bool_true_1", "handle": "result"},
-                "target": {"id": "executor", "handle": "allow"}
+                "target": {"id": "executor", "handle": "short"}
             },
             {
                 "source": {"id": "bool_true_2", "handle": "result"},
-                "target": {"id": "executor", "handle": "allow"}
+                "target": {"id": "executor", "handle": "long"}
             },
             {
                 "source": {"id": "bool_false_1", "handle": "result"},
-                "target": {"id": "executor", "handle": "allow"}
+                "target": {"id": "executor", "handle": "exit_short"}
             },
             {
                 "source": {"id": "valid_condition", "handle": "result"},
-                "target": {"id": "executor", "handle": "allow"}
+                "target": {"id": "executor", "handle": "exit_long"}
             }
         ],
         "groups": [],
@@ -2442,29 +2407,9 @@ TEST_CASE("AlgorithmOptimizer: Multiple Bool Connections Removal",
 
   auto data = ParseUIData(json);
 
-  // Original should have 4 connections to allow handle
-  int originalAllowConnections = 0;
-  for (const auto &edge : data.edges) {
-    if (edge.target.id == "executor" && edge.target.handle == "allow") {
-      originalAllowConnections++;
-    }
-  }
-  REQUIRE(originalAllowConnections == 4);
-
+  // Optimization is no longer applicable to 'allow'; just ensure optimizer runs
   auto optimized = OptimizeUIData(data);
-
-  // Should only have 1 connection to allow handle (from valid_condition)
-  int optimizedAllowConnections = 0;
-  for (const auto &edge : optimized.edges) {
-    if (edge.target.id == "executor" && edge.target.handle == "allow") {
-      optimizedAllowConnections++;
-      // Should not be from bool_true or bool_false nodes
-      REQUIRE(edge.source.id != "bool_true_1");
-      REQUIRE(edge.source.id != "bool_true_2");
-      REQUIRE(edge.source.id != "bool_false_1");
-    }
-  }
-  REQUIRE(optimizedAllowConnections == 1);
+  REQUIRE(optimized.edges.size() == data.edges.size());
 }
 
 TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
@@ -2523,7 +2468,7 @@ TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
                 },
                 {
                     "source": {"id": "bool_with_timeframe", "handle": "result"},
-                    "target": {"id": "executor", "handle": "allow"}
+                    "target": {"id": "executor", "handle": "short"}
                 }
             ],
             "groups": [],
