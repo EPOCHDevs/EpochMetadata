@@ -403,11 +403,11 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
   std::vector<TransformsMetaData> result;
 
   IOMetaData longMetaData{.type = epoch_core::IODataType::Boolean,
-                          .id = "long",
+                          .id = "enter_long",
                           .name = "Enter Long"};
 
   IOMetaData shortMetaData{.type = epoch_core::IODataType::Boolean,
-                           .id = "short",
+                           .id = "enter_short",
                            .name = "Enter Short"};
 
   IOMetaData closeLongPositionMetaData{
