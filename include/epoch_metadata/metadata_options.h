@@ -29,6 +29,24 @@ public:
 
   MetaDataOptionDefinition() = default;
 
+  // Overloads for directly passing our variant type T
+  MetaDataOptionDefinition(const T &value) {
+    if (std::holds_alternative<std::string>(value)) {
+      m_optionsVariant = ParseStringOverride(std::get<std::string>(value));
+    } else {
+      m_optionsVariant = value;
+    }
+  }
+
+  MetaDataOptionDefinition(T &&value) {
+    if (std::holds_alternative<std::string>(value)) {
+      m_optionsVariant =
+          ParseStringOverride(std::move(std::get<std::string>(value)));
+    } else {
+      m_optionsVariant = std::move(value);
+    }
+  }
+
   // Overload for string-like types
   template <typename StringLike>
     requires(std::is_convertible_v<std::decay_t<StringLike>, std::string_view>)
@@ -40,7 +58,8 @@ public:
   // Overload for types directly constructible into the variant
   template <typename K>
     requires(!std::is_convertible_v<std::decay_t<K>, std::string_view> &&
-             std::is_constructible_v<T, K>)
+             std::is_constructible_v<T, K> &&
+             !std::is_same_v<std::decay_t<K>, T>)
   MetaDataOptionDefinition(K &&value)
       : m_optionsVariant(std::forward<K>(value)) {}
 

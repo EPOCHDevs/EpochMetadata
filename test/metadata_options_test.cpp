@@ -315,6 +315,49 @@ TEST_CASE("MetaDataOptionDefinition - String override parsing",
   }
 }
 
+TEST_CASE("MetaDataOptionDefinition - Construct from variant T",
+          "[MetaDataOptionDefinition]") {
+  using VariantT = MetaDataOptionDefinition::T;
+
+  SECTION("Lvalue variant with string coerces via parser") {
+    VariantT v = std::string("true");
+    MetaDataOptionDefinition def(v);
+    REQUIRE(def.IsType<bool>());
+    REQUIRE(def.GetBoolean() == true);
+
+    v = std::string("-12.75");
+    MetaDataOptionDefinition def2(v);
+    REQUIRE(def2.IsType<double>());
+    REQUIRE(def2.GetDecimal() == Catch::Approx(-12.75));
+
+    v = std::string("abc");
+    MetaDataOptionDefinition def3(v);
+    REQUIRE(def3.IsType<std::string>());
+    REQUIRE(def3.GetSelectOption() == "abc");
+  }
+
+  SECTION("Rvalue variant with string coerces via parser") {
+    MetaDataOptionDefinition def(VariantT{std::string("1e2")});
+    REQUIRE(def.IsType<double>());
+    REQUIRE(def.GetDecimal() == Catch::Approx(100.0));
+  }
+
+  SECTION("Variant with non-string types are preserved") {
+    MetaDataOptionDefinition def_d(VariantT{42.0});
+    REQUIRE(def_d.IsType<double>());
+    REQUIRE(def_d.GetDecimal() == Catch::Approx(42.0));
+
+    MetaDataOptionDefinition def_b(VariantT{true});
+    REQUIRE(def_b.IsType<bool>());
+    REQUIRE(def_b.GetBoolean() == true);
+
+    MetaDataArgRef ref{"my_ref"};
+    MetaDataOptionDefinition def_r(VariantT{ref});
+    REQUIRE(def_r.IsType<MetaDataArgRef>());
+    REQUIRE(def_r.GetRef() == "my_ref");
+  }
+}
+
 TEST_CASE("CreateMetaDataArgDefinition - Error paths",
           "[MetaDataOptionDefinition]") {
   SECTION("Throws on non-scalar YAML node") {
