@@ -392,7 +392,7 @@ TEST_CASE("AlgorithmValidator: Invalid Edge - Empty Handle",
         "edges": [
             {
                 "source": {"id": "mds", "handle": ""},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -531,7 +531,7 @@ TEST_CASE("AlgorithmValidator: Missing Required Option",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -580,7 +580,7 @@ TEST_CASE("AlgorithmValidator: Invalid Option Type", "[AlgorithmValidator]") {
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -629,7 +629,7 @@ TEST_CASE("AlgorithmValidator: Unknown Option", "[AlgorithmValidator]") {
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -678,7 +678,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Without Name",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -779,7 +779,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           },
           "target": {
             "id": "executor",
-            "handle": "long"
+            "handle": "enter_long"
           }
         },
         {
@@ -789,7 +789,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           },
           "target": {
             "id": "executor",
-            "handle": "short"
+            "handle": "enter_short"
           }
         }
       ],
@@ -1052,7 +1052,7 @@ TEST_CASE("AlgorithmValidator: Multiple Connections to Same Handle",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1119,7 +1119,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Source Not Numeric",
             },
             {
                 "source": {"id": "add_node", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1178,7 +1178,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Target Not Numeric",
             },
             {
                 "source": {"id": "and_node", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1226,7 +1226,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too Low",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1274,7 +1274,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too High",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1348,7 +1348,7 @@ TEST_CASE("AlgorithmValidator: Option Value In Valid Range",
             },
             {
                 "source": {"id": "gt", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1401,7 +1401,7 @@ TEST_CASE("AlgorithmValidator: Multiple Option Validation Issues",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1450,7 +1450,7 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
         "edges": [
             {
                 "source": {"id": "sma11", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1520,11 +1520,11 @@ TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
             },
             {
                 "source": {"id": "gt_node", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             },
             {
                 "source": {"id": "bool_scalar", "handle": "result"},
-                "target": {"id": "executor", "handle": "short"}
+                "target": {"id": "executor", "handle": "enter_short"}
             }
         ],
         "groups": [],
@@ -1617,7 +1617,7 @@ TEST_CASE("AlgorithmValidator: All Nodes No Timeframe - Valid",
             },
             {
                 "source": {"id": "gt", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1689,7 +1689,7 @@ TEST_CASE("AlgorithmValidator: Market Data Source With Timeframe Is Valid",
             },
             {
                 "source": {"id": "gt", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1747,7 +1747,7 @@ TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1807,7 +1807,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Name Validation",
             },
             {
                 "source": {"id": "sma_with_exposed_option", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1865,7 +1865,7 @@ TEST_CASE("AlgorithmValidator: Multiple Connections To Single Handle",
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             }
         ],
         "groups": [],
@@ -1915,7 +1915,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
                 },
                 {
                     "source": {"id": "integer_input_node", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -1966,7 +1966,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
                 },
                 {
                     "source": {"id": "numeric_input_node", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2048,7 +2048,7 @@ TEST_CASE("AlgorithmValidator: Node Input Requirements",
                 },
                 {
                     "source": {"id": "binary_transform", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2086,7 +2086,7 @@ TEST_CASE("AlgorithmValidator: Timeframe Validation", "[AlgorithmValidator]") {
             "edges": [
                 {
                     "source": {"id": "number_with_timeframe", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2139,7 +2139,7 @@ TEST_CASE("AlgorithmOptimizer: Apply Default Options Edge Cases",
                 },
                 {
                     "source": {"id": "incomplete_sma", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2201,7 +2201,7 @@ TEST_CASE("AlgorithmOptimizer: Apply Default Options Edge Cases",
                 },
                 {
                     "source": {"id": "partial_sma", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2274,11 +2274,11 @@ TEST_CASE("AlgorithmOptimizer: Clamp Multiple Values",
             },
             {
                 "source": {"id": "extreme_sma", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             },
             {
                 "source": {"id": "extreme_rsi", "handle": "result"},
-                "target": {"id": "executor", "handle": "short"}
+                "target": {"id": "executor", "handle": "enter_short"}
             }
         ],
         "groups": [],
@@ -2382,15 +2382,15 @@ TEST_CASE("AlgorithmOptimizer: Multiple Bool Connections Removal",
             },
             {
                 "source": {"id": "valid_condition", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             },
             {
                 "source": {"id": "bool_true_1", "handle": "result"},
-                "target": {"id": "executor", "handle": "short"}
+                "target": {"id": "executor", "handle": "enter_short"}
             },
             {
                 "source": {"id": "bool_true_2", "handle": "result"},
-                "target": {"id": "executor", "handle": "long"}
+                "target": {"id": "executor", "handle": "enter_long"}
             },
             {
                 "source": {"id": "bool_false_1", "handle": "result"},
@@ -2460,15 +2460,15 @@ TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
                 },
                 {
                     "source": {"id": "ma_with_timeframe", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 },
                 {
                     "source": {"id": "number_with_timeframe", "handle": "result"},
-                    "target": {"id": "executor", "handle": "short"}
+                    "target": {"id": "executor", "handle": "enter_short"}
                 },
                 {
                     "source": {"id": "bool_with_timeframe", "handle": "result"},
-                    "target": {"id": "executor", "handle": "short"}
+                    "target": {"id": "executor", "handle": "enter_short"}
                 }
             ],
             "groups": [],
@@ -2561,7 +2561,7 @@ TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
                 },
                 {
                     "source": {"id": "ma", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2643,7 +2643,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
                 },
                 {
                     "source": {"id": "add_node", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2702,7 +2702,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
                 },
                 {
                     "source": {"id": "and_node", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],
@@ -2768,7 +2768,7 @@ TEST_CASE("AlgorithmValidator: Any Type Compatibility",
                 },
                 {
                     "source": {"id": "select_node", "handle": "result"},
-                    "target": {"id": "executor", "handle": "long"}
+                    "target": {"id": "executor", "handle": "enter_long"}
                 }
             ],
             "groups": [],

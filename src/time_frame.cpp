@@ -14,6 +14,57 @@
 #include <utility>
 
 namespace epoch_metadata {
+std::unordered_map<std::string, epoch_frame::DateOffsetHandlerPtr>
+    TIMEFRAME_MAPPING{
+        {std::string(tf_str::k1Min), epoch_frame::factory::offset::minutes(1)},
+        {std::string(tf_str::k2Min), epoch_frame::factory::offset::minutes(2)},
+        {std::string(tf_str::k3Min), epoch_frame::factory::offset::minutes(3)},
+        {std::string(tf_str::k5Min), epoch_frame::factory::offset::minutes(5)},
+        {std::string(tf_str::k10Min),
+         epoch_frame::factory::offset::minutes(10)},
+        {std::string(tf_str::k15Min),
+         epoch_frame::factory::offset::minutes(15)},
+        {std::string(tf_str::k30Min),
+         epoch_frame::factory::offset::minutes(30)},
+        {std::string(tf_str::k45Min),
+         epoch_frame::factory::offset::minutes(45)},
+        {std::string(tf_str::k1H), epoch_frame::factory::offset::hours(1)},
+        {std::string(tf_str::k2H), epoch_frame::factory::offset::hours(2)},
+        {std::string(tf_str::k3H), epoch_frame::factory::offset::hours(3)},
+        {std::string(tf_str::k4H), epoch_frame::factory::offset::hours(4)},
+        {std::string(tf_str::k1W_SUN),
+         epoch_frame::factory::offset::weeks(
+             1, epoch_core::EpochDayOfWeek::Sunday)},
+        {std::string(tf_str::k1W_MON),
+         epoch_frame::factory::offset::weeks(
+             1, epoch_core::EpochDayOfWeek::Monday)},
+        {std::string(tf_str::k1W_FRI),
+         epoch_frame::factory::offset::weeks(
+             1, epoch_core::EpochDayOfWeek::Friday)},
+        {std::string(tf_str::k1W_MON_1st),
+         epoch_frame::factory::offset::week_of_month(
+             1, 0, epoch_core::EpochDayOfWeek::Monday)},
+        {std::string(tf_str::k1W_MON_2nd),
+         epoch_frame::factory::offset::week_of_month(
+             1, 1, epoch_core::EpochDayOfWeek::Monday)},
+        {std::string(tf_str::k1W_MON_3rd),
+         epoch_frame::factory::offset::week_of_month(
+             1, 2, epoch_core::EpochDayOfWeek::Monday)},
+        {std::string(tf_str::k1W_FRI_Last),
+         epoch_frame::factory::offset::last_week_of_month(
+             1, epoch_core::EpochDayOfWeek::Friday)},
+        {std::string(tf_str::k1D), epoch_frame::factory::offset::days(1)},
+        {std::string(tf_str::k1ME), epoch_frame::factory::offset::month_end(1)},
+        {std::string(tf_str::k1MS),
+         epoch_frame::factory::offset::month_start(1)},
+        {std::string(tf_str::k1QE),
+         epoch_frame::factory::offset::quarter_end(1)},
+        {std::string(tf_str::k1QS),
+         epoch_frame::factory::offset::quarter_start(1)},
+        {std::string(tf_str::k1YE), epoch_frame::factory::offset::year_end(1)},
+        {std::string(tf_str::k1YS),
+         epoch_frame::factory::offset::year_start(1)}};
+
 bool IsIntraday(epoch_core::EpochOffsetType type) {
   return (type == epoch_core::EpochOffsetType::Hour ||
           type == epoch_core::EpochOffsetType::Minute ||
@@ -25,8 +76,8 @@ bool IsIntraday(epoch_core::EpochOffsetType type) {
 
 TimeFrame::TimeFrame(epoch_frame::DateOffsetHandlerPtr offset)
     : m_offset(std::move(offset)) {
-  AssertFalseFromStream(m_offset == nullptr, "TimeFrame offset cannot be "
-                                             "nullptr");
+  AssertFromStream(m_offset != nullptr, "TimeFrame offset cannot be "
+                                        "nullptr");
 }
 
 bool TimeFrame::IsIntraDay() const { return IsIntraday(m_offset->type()); }
@@ -239,8 +290,21 @@ epoch_frame::DateOffsetHandlerPtr
 CreateDateOffsetHandler(Serializer const &buffer) {
   DateOffsetOption option;
   if constexpr (std::is_same_v<Serializer, glz::json_t>) {
+    if (buffer.is_string()) {
+      auto str = buffer.get_string();
+      AssertFromStream(TIMEFRAME_MAPPING.contains(str),
+                       "Invalid timeframe: " + str);
+      return TIMEFRAME_MAPPING.at(str);
+    }
     option = buffer.template as<DateOffsetOption>();
   } else if constexpr (std::is_same_v<Serializer, YAML::Node>) {
+    if (buffer.IsScalar()) {
+      auto str = buffer.template as<std::string>();
+      AssertFromStream(TIMEFRAME_MAPPING.contains(str),
+                       "Invalid timeframe: " + str);
+      return TIMEFRAME_MAPPING.at(str);
+    }
+
     option = buffer.template as<DateOffsetOption>();
   } else {
     static_assert(false, "Invalid serializer type");
@@ -264,47 +328,55 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   if (buffer.is_null()) {
     return nullptr;
   }
+  if (buffer.is_string()) {
+    auto str = buffer.as<std::string>();
+    AssertFromStream(TIMEFRAME_MAPPING.contains(str),
+                     "Invalid timeframe: " + str);
+    return TIMEFRAME_MAPPING.at(str);
+  }
+
   // Manually parse JSON into DateOffsetOption to avoid requiring glaze meta
   DateOffsetOption option;
   AssertFromFormat(
-      buffer.contains("type") && buffer.contains("interval"),
+      buffer.contains(std::string(tf_str::kType)) &&
+          buffer.contains(std::string(tf_str::kInterval)),
       "DateOffsetHandler JSON must contain type and interval fields");
 
-  const auto &type_node = buffer["type"];
-  const auto &interval_node = buffer["interval"];
-  AssertFalseFromStream(type_node.is_null(), "Missing required field: type");
-  AssertFalseFromStream(interval_node.is_null(),
-                        "Missing required field: interval");
+  const auto &type_node = buffer[std::string(tf_str::kType)];
+  const auto &interval_node = buffer[std::string(tf_str::kInterval)];
+  AssertFromStream(!type_node.is_null(), "Missing required field: type");
+  AssertFromStream(!interval_node.is_null(),
+                   "Missing required field: interval");
   option.type = epoch_core::StratifyxTimeFrameTypeWrapper::FromString(
       type_node.as<std::string>());
   option.interval = static_cast<uint32_t>(interval_node.as<int64_t>());
 
-  if (buffer.contains("anchor")) {
-    const auto &anchor_node = buffer["anchor"];
+  if (buffer.contains(std::string(tf_str::kAnchor))) {
+    const auto &anchor_node = buffer[std::string(tf_str::kAnchor)];
     if (!anchor_node.is_null()) {
       option.anchor = epoch_core::AnchoredTimeFrameTypeWrapper::FromString(
           anchor_node.as<std::string>());
     }
   }
 
-  if (buffer.contains("week_of_month")) {
-    const auto &wom_node = buffer["week_of_month"];
+  if (buffer.contains(std::string(tf_str::kWeekOfMonth))) {
+    const auto &wom_node = buffer[std::string(tf_str::kWeekOfMonth)];
     if (!wom_node.is_null()) {
       option.week_of_month = epoch_core::WeekOfMonthWrapper::FromString(
           wom_node.as<std::string>());
     }
   }
 
-  if (buffer.contains("weekday")) {
-    const auto &weekday_node = buffer["weekday"];
+  if (buffer.contains(std::string(tf_str::kWeekday))) {
+    const auto &weekday_node = buffer[std::string(tf_str::kWeekday)];
     if (!weekday_node.is_null()) {
       option.weekday = epoch_core::EpochDayOfWeekWrapper::FromString(
           weekday_node.as<std::string>());
     }
   }
 
-  if (buffer.contains("month")) {
-    const auto &month_node = buffer["month"];
+  if (buffer.contains(std::string(tf_str::kMonth))) {
+    const auto &month_node = buffer[std::string(tf_str::kMonth)];
     if (!month_node.is_null()) {
       option.month = epoch_core::StratifyxMonthWrapper::FromString(
           month_node.as<std::string>());
@@ -312,39 +384,41 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   }
 
   // Optional time_offset for business day offsets
-  if (buffer.contains("time_offset")) {
-    const auto &to_node = buffer["time_offset"];
+  if (buffer.contains(std::string(tf_str::kTimeOffset))) {
+    const auto &to_node = buffer[std::string(tf_str::kTimeOffset)];
     if (!to_node.is_null() && to_node.is_object()) {
       epoch_frame::TimeDelta::Components c{};
-      if (to_node.contains("days"))
-        c.days = to_node["days"].as<double>();
-      if (to_node.contains("hours"))
-        c.hours = to_node["hours"].as<double>();
-      if (to_node.contains("minutes"))
-        c.minutes = to_node["minutes"].as<double>();
-      if (to_node.contains("seconds"))
-        c.seconds = to_node["seconds"].as<double>();
-      if (to_node.contains("milliseconds"))
-        c.milliseconds = to_node["milliseconds"].as<double>();
-      if (to_node.contains("microseconds"))
-        c.microseconds = to_node["microseconds"].as<double>();
-      if (to_node.contains("weeks"))
-        c.weeks = to_node["weeks"].as<double>();
+      if (to_node.contains(std::string(tf_str::kDays)))
+        c.days = to_node[std::string(tf_str::kDays)].as<double>();
+      if (to_node.contains(std::string(tf_str::kHours)))
+        c.hours = to_node[std::string(tf_str::kHours)].as<double>();
+      if (to_node.contains(std::string(tf_str::kMinutes)))
+        c.minutes = to_node[std::string(tf_str::kMinutes)].as<double>();
+      if (to_node.contains(std::string(tf_str::kSeconds)))
+        c.seconds = to_node[std::string(tf_str::kSeconds)].as<double>();
+      if (to_node.contains(std::string(tf_str::kMilliseconds)))
+        c.milliseconds =
+            to_node[std::string(tf_str::kMilliseconds)].as<double>();
+      if (to_node.contains(std::string(tf_str::kMicroseconds)))
+        c.microseconds =
+            to_node[std::string(tf_str::kMicroseconds)].as<double>();
+      if (to_node.contains(std::string(tf_str::kWeeks)))
+        c.weeks = to_node[std::string(tf_str::kWeeks)].as<double>();
       option.time_offset = epoch_frame::TimeDelta{c};
     }
   }
 
   // Session-anchored fields
-  if (buffer.contains("market_calendar")) {
-    const auto &mc_node = buffer["market_calendar"];
+  if (buffer.contains(std::string(tf_str::kMarketCalendar))) {
+    const auto &mc_node = buffer[std::string(tf_str::kMarketCalendar)];
     if (!mc_node.is_null()) {
       option.market_calendar =
           epoch_core::MarketCalendarNameWrapper::FromString(
               mc_node.as<std::string>());
     }
   }
-  if (buffer.contains("session_anchor")) {
-    const auto &sa_node = buffer["session_anchor"];
+  if (buffer.contains(std::string(tf_str::kSessionAnchor))) {
+    const auto &sa_node = buffer[std::string(tf_str::kSessionAnchor)];
     if (!sa_node.is_null()) {
       option.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
           sa_node.as<std::string>());
@@ -362,8 +436,9 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
   }
 
   const auto tf_type = fromOffset(x->type());
-  result["type"] = epoch_core::StratifyxTimeFrameTypeWrapper::ToString(tf_type);
-  result["interval"] = static_cast<int64_t>(x->n());
+  result[std::string(tf_str::kType)] =
+      epoch_core::StratifyxTimeFrameTypeWrapper::ToString(tf_type);
+  result[std::string(tf_str::kInterval)] = static_cast<int64_t>(x->n());
 
   // Add anchor information for anchored types
   if (tf_type == epoch_core::StratifyxTimeFrameType::month ||
@@ -371,20 +446,22 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
       tf_type == epoch_core::StratifyxTimeFrameType::year) {
     const auto anchor = x->is_end() ? epoch_core::AnchoredTimeFrameType::End
                                     : epoch_core::AnchoredTimeFrameType::Start;
-    result["anchor"] =
+    result[std::string(tf_str::kAnchor)] =
         epoch_core::AnchoredTimeFrameTypeWrapper::ToString(anchor);
     if (tf_type == epoch_core::StratifyxTimeFrameType::quarter) {
       auto handler = dynamic_cast<epoch_frame::QuarterOffsetHandler *>(x.get());
       if (handler) {
-        result["month"] = epoch_core::StratifyxMonthWrapper::ToString(
-            fromChronoMonth(handler->get_starting_month()));
+        result[std::string(tf_str::kMonth)] =
+            epoch_core::StratifyxMonthWrapper::ToString(
+                fromChronoMonth(handler->get_starting_month()));
       }
     }
     if (tf_type == epoch_core::StratifyxTimeFrameType::year) {
       auto handler = dynamic_cast<epoch_frame::YearOffsetHandler *>(x.get());
       if (handler) {
-        result["month"] = epoch_core::StratifyxMonthWrapper::ToString(
-            fromChronoMonth(handler->get_month()));
+        result[std::string(tf_str::kMonth)] =
+            epoch_core::StratifyxMonthWrapper::ToString(
+                fromChronoMonth(handler->get_month()));
       }
     }
   }
@@ -395,7 +472,7 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
     if (auto week_handler = dynamic_cast<epoch_frame::WeekHandler *>(x.get())) {
       auto weekday = week_handler->get_weekday();
       if (weekday) {
-        result["weekday"] =
+        result[std::string(tf_str::kWeekday)] =
             epoch_core::EpochDayOfWeekWrapper::ToString(weekday.value());
       }
     }
@@ -403,7 +480,7 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
             dynamic_cast<epoch_frame::RelativeDeltaOffsetHandler *>(x.get())) {
       auto weekday = rd_handler->get_relative_delta().weekday();
       if (weekday) {
-        result["weekday"] =
+        result[std::string(tf_str::kWeekday)] =
             epoch_core::EpochDayOfWeekWrapper::ToString(weekday->weekday());
         auto n = weekday->n().value_or(1);
         auto wom = epoch_core::WeekOfMonth::Null;
@@ -416,7 +493,8 @@ CreateDateOffsetHandlerJSON(epoch_frame::DateOffsetHandlerPtr const &x) {
         } else if (n == 4) {
           wom = epoch_core::WeekOfMonth::Fourth;
         }
-        result["week_of_month"] = epoch_core::WeekOfMonthWrapper::ToString(wom);
+        result[std::string(tf_str::kWeekOfMonth)] =
+            epoch_core::WeekOfMonthWrapper::ToString(wom);
       }
     }
   }
@@ -444,32 +522,48 @@ bool convert<epoch_frame::DateOffsetHandlerPtr>::decode(
 bool convert<DateOffsetOption>::decode(const Node &node,
                                        DateOffsetOption &rhs) {
   rhs.type = epoch_core::StratifyxTimeFrameTypeWrapper::FromString(
-      node["type"].as<std::string>());
-  rhs.interval = node["interval"].as<uint32_t>(1);
+      node[std::string(epoch_metadata::tf_str::kType)].as<std::string>());
+  rhs.interval =
+      node[std::string(epoch_metadata::tf_str::kInterval)].as<uint32_t>(1);
   rhs.anchor = epoch_core::AnchoredTimeFrameTypeWrapper::FromString(
-      node["anchor"].as<std::string>("Start"));
+      node[std::string(epoch_metadata::tf_str::kAnchor)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kAnchorStart)));
   rhs.week_of_month = epoch_core::WeekOfMonthWrapper::FromString(
-      node["week_of_month"].as<std::string>("Null"));
+      node[std::string(epoch_metadata::tf_str::kWeekOfMonth)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kNull)));
   rhs.weekday = epoch_core::EpochDayOfWeekWrapper::FromString(
-      node["weekday"].as<std::string>("Null"));
+      node[std::string(epoch_metadata::tf_str::kWeekday)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kNull)));
   rhs.month = epoch_core::StratifyxMonthWrapper::FromString(
-      node["month"].as<std::string>("Null"));
-  if (node["time_offset"]) {
-    const auto &to_node = node["time_offset"];
+      node[std::string(epoch_metadata::tf_str::kMonth)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kNull)));
+  if (node[std::string(epoch_metadata::tf_str::kTimeOffset)]) {
+    const auto &to_node =
+        node[std::string(epoch_metadata::tf_str::kTimeOffset)];
     epoch_frame::TimeDelta::Components c{};
-    c.days = to_node["days"].as<double>(0);
-    c.hours = to_node["hours"].as<double>(0);
-    c.minutes = to_node["minutes"].as<double>(0);
-    c.seconds = to_node["seconds"].as<double>(0);
-    c.milliseconds = to_node["milliseconds"].as<double>(0);
-    c.microseconds = to_node["microseconds"].as<double>(0);
-    c.weeks = to_node["weeks"].as<double>(0);
+    c.days = to_node[std::string(epoch_metadata::tf_str::kDays)].as<double>(0);
+    c.hours =
+        to_node[std::string(epoch_metadata::tf_str::kHours)].as<double>(0);
+    c.minutes =
+        to_node[std::string(epoch_metadata::tf_str::kMinutes)].as<double>(0);
+    c.seconds =
+        to_node[std::string(epoch_metadata::tf_str::kSeconds)].as<double>(0);
+    c.milliseconds =
+        to_node[std::string(epoch_metadata::tf_str::kMilliseconds)].as<double>(
+            0);
+    c.microseconds =
+        to_node[std::string(epoch_metadata::tf_str::kMicroseconds)].as<double>(
+            0);
+    c.weeks =
+        to_node[std::string(epoch_metadata::tf_str::kWeeks)].as<double>(0);
     rhs.time_offset = epoch_frame::TimeDelta{c};
   }
   rhs.market_calendar = epoch_core::MarketCalendarNameWrapper::FromString(
-      node["market_calendar"].as<std::string>("Null"));
+      node[std::string(epoch_metadata::tf_str::kMarketCalendar)]
+          .as<std::string>(std::string(epoch_metadata::tf_str::kNull)));
   rhs.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
-      node["session_anchor"].as<std::string>("Null"));
+      node[std::string(epoch_metadata::tf_str::kSessionAnchor)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kNull)));
   return true;
 }
 } // namespace YAML

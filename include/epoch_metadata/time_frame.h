@@ -8,8 +8,64 @@
 #include "epoch_frame/time_delta.h"
 #include <epoch_core/enum_wrapper.h>
 #include <epoch_frame/factory/date_offset_factory.h>
+#include <string_view>
 #include <unordered_set>
 #include <yaml-cpp/yaml.h>
+
+// String constants for JSON/YAML keys and common values.
+namespace epoch_metadata::tf_str {
+inline constexpr std::string_view kType = "type";
+inline constexpr std::string_view kInterval = "interval";
+inline constexpr std::string_view kAnchor = "anchor";
+inline constexpr std::string_view kWeekOfMonth = "week_of_month";
+inline constexpr std::string_view kWeekday = "weekday";
+inline constexpr std::string_view kMonth = "month";
+inline constexpr std::string_view kTimeOffset = "time_offset";
+inline constexpr std::string_view kMarketCalendar = "market_calendar";
+inline constexpr std::string_view kSessionAnchor = "session_anchor";
+
+// Time offset component fields
+inline constexpr std::string_view kDays = "days";
+inline constexpr std::string_view kHours = "hours";
+inline constexpr std::string_view kMinutes = "minutes";
+inline constexpr std::string_view kSeconds = "seconds";
+inline constexpr std::string_view kMilliseconds = "milliseconds";
+inline constexpr std::string_view kMicroseconds = "microseconds";
+inline constexpr std::string_view kWeeks = "weeks";
+
+// Common values
+inline constexpr std::string_view kAnchorStart = "Start";
+inline constexpr std::string_view kAnchorEnd = "End";
+inline constexpr std::string_view kNull = "Null";
+
+// Common timeframe mapping keys
+inline constexpr std::string_view k1Min = "1Min";
+inline constexpr std::string_view k2Min = "2Min";
+inline constexpr std::string_view k3Min = "3Min";
+inline constexpr std::string_view k5Min = "5Min";
+inline constexpr std::string_view k10Min = "10Min";
+inline constexpr std::string_view k15Min = "15Min";
+inline constexpr std::string_view k30Min = "30Min";
+inline constexpr std::string_view k45Min = "45Min";
+inline constexpr std::string_view k1H = "1H";
+inline constexpr std::string_view k2H = "2H";
+inline constexpr std::string_view k3H = "3H";
+inline constexpr std::string_view k4H = "4H";
+inline constexpr std::string_view k1W_SUN = "1W-SUN";
+inline constexpr std::string_view k1W_MON = "1W-MON";
+inline constexpr std::string_view k1W_FRI = "1W-FRI";
+inline constexpr std::string_view k1W_MON_1st = "1W-MON-1st";
+inline constexpr std::string_view k1W_MON_2nd = "1W-MON-2nd";
+inline constexpr std::string_view k1W_MON_3rd = "1W-MON-3rd";
+inline constexpr std::string_view k1W_FRI_Last = "1W-FRI-Last";
+inline constexpr std::string_view k1D = "1D";
+inline constexpr std::string_view k1ME = "1ME";
+inline constexpr std::string_view k1MS = "1MS";
+inline constexpr std::string_view k1QE = "1QE";
+inline constexpr std::string_view k1QS = "1QS";
+inline constexpr std::string_view k1YE = "1YE";
+inline constexpr std::string_view k1YS = "1YS";
+} // namespace epoch_metadata::tf_str
 
 CREATE_ENUM(StratifyxMonth, jan, feb, mar, apr, may, jun, jul, aug, sep, oct,
             nov, dec);

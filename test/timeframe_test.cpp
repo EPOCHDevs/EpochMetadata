@@ -679,3 +679,69 @@ TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]") {
 
   REQUIRE(day1 < bday1);
 }
+
+TEST_CASE("TIMEFRAME_MAPPING - YAML scalar shortcuts",
+          "[TimeFrame][YAML][Mapping]") {
+  // Simple minute mapping
+  auto node_1min = YAML::Load("1Min");
+  auto off_1min = node_1min.as<epoch_frame::DateOffsetHandlerPtr>();
+  REQUIRE(off_1min != nullptr);
+  REQUIRE(off_1min->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(off_1min->n() == 1);
+
+  // Hour mapping
+  auto node_1h = YAML::Load("1H");
+  auto off_1h = node_1h.as<epoch_frame::DateOffsetHandlerPtr>();
+  REQUIRE(off_1h != nullptr);
+  REQUIRE(off_1h->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(off_1h->n() == 1);
+
+  // Week with weekday mapping
+  auto node_week_fri = YAML::Load("1W-FRI");
+  auto off_week_fri = node_week_fri.as<epoch_frame::DateOffsetHandlerPtr>();
+  REQUIRE(off_week_fri != nullptr);
+  REQUIRE(off_week_fri->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(off_week_fri->n() == 1);
+
+  // Week-of-month mapping (should produce a valid handler)
+  auto node_wom = YAML::Load("1W-MON-2nd");
+  auto off_wom = node_wom.as<epoch_frame::DateOffsetHandlerPtr>();
+  REQUIRE(off_wom != nullptr);
+
+  // Month end shortcut
+  auto node_me = YAML::Load("1ME");
+  auto off_me = node_me.as<epoch_frame::DateOffsetHandlerPtr>();
+  REQUIRE(off_me != nullptr);
+  REQUIRE(off_me->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(off_me->n() == 1);
+}
+
+TEST_CASE("TIMEFRAME_MAPPING - Glaze string shortcuts",
+          "[TimeFrame][JSON][Mapping]") {
+  // Prepare a JSON string token by parsing a JSON string literal
+  glz::json_t j_1min;
+  REQUIRE_FALSE(glz::read_json(j_1min, "\"1Min\""));
+  auto off_1min = CreateDateOffsetHandlerFromJSON(j_1min);
+  REQUIRE(off_1min != nullptr);
+  REQUIRE(off_1min->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(off_1min->n() == 1);
+
+  glz::json_t j_1h;
+  REQUIRE_FALSE(glz::read_json(j_1h, "\"1H\""));
+  auto off_1h = CreateDateOffsetHandlerFromJSON(j_1h);
+  REQUIRE(off_1h != nullptr);
+  REQUIRE(off_1h->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(off_1h->n() == 1);
+
+  glz::json_t j_wom;
+  REQUIRE_FALSE(glz::read_json(j_wom, "\"1W-MON-3rd\""));
+  auto off_wom = CreateDateOffsetHandlerFromJSON(j_wom);
+  REQUIRE(off_wom != nullptr);
+
+  glz::json_t j_me;
+  REQUIRE_FALSE(glz::read_json(j_me, "\"1ME\""));
+  auto off_me = CreateDateOffsetHandlerFromJSON(j_me);
+  REQUIRE(off_me != nullptr);
+  REQUIRE(off_me->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(off_me->n() == 1);
+}

@@ -67,7 +67,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
       },
       {
         "source": {"id": "algo1", "handle": "result"},
-        "target": {"id": "exec1", "handle": "long"}
+        "target": {"id": "exec1", "handle": "enter_long"}
       }
     ],
     "groups": [],
@@ -89,9 +89,9 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   // Verify executor.
   REQUIRE(meta.executor.id == "exec1");
   REQUIRE(meta.executor.type == TRADE_SIGNAL_EXECUTOR);
-  REQUIRE(meta.executor.inputs.contains("long"));
+  REQUIRE(meta.executor.inputs.contains("enter_long"));
   // Executor input should reference algorithm node output.
-  REQUIRE(meta.executor.inputs["long"].front() == "algo1#result");
+  REQUIRE(meta.executor.inputs["enter_long"].front() == "algo1#result");
 
   // Verify algorithm nodes (now includes DataSource)
   REQUIRE(meta.algorithm.size() == 2); // 1 DataSource + 1 Algorithm
@@ -162,7 +162,7 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
       },
       {
         "source": {"id": "algo2", "handle": "result"},
-        "target": {"id": "exec2", "handle": "long"}
+        "target": {"id": "exec2", "handle": "enter_long"}
       }
     ],
     "groups": [],
@@ -183,8 +183,8 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
 
   // Verify executor.
   REQUIRE(meta.executor.id == "exec2");
-  REQUIRE(meta.executor.inputs.contains("long"));
-  REQUIRE(meta.executor.inputs["long"].front() == "algo2#result");
+  REQUIRE(meta.executor.inputs.contains("enter_long"));
+  REQUIRE(meta.executor.inputs["enter_long"].front() == "algo2#result");
 
   // Verify algorithm nodes (now includes DataSource)
   REQUIRE(meta.algorithm.size() == 2); // 1 DataSource + 1 Algorithm
@@ -261,7 +261,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
       },
       {
         "source": {"id": "algo3", "handle": "result"},
-        "target": {"id": "exec3", "handle": "long"}
+        "target": {"id": "exec3", "handle": "enter_long"}
       }
     ],
     "groups": [],
@@ -282,8 +282,8 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
 
   // Verify executor.
   REQUIRE(meta.executor.id == "exec3");
-  REQUIRE(meta.executor.inputs.find("long") != meta.executor.inputs.end());
-  REQUIRE(meta.executor.inputs["long"].front() == "algo3#result");
+  REQUIRE(meta.executor.inputs.find("enter_long") != meta.executor.inputs.end());
+  REQUIRE(meta.executor.inputs["enter_long"].front() == "algo3#result");
 
   // Verify algorithm nodes (now includes DataSource)
   REQUIRE(meta.algorithm.size() == 2); // 1 DataSource + 1 Algorithm
@@ -337,7 +337,7 @@ TEST_CASE(
 
   // Edge from algo to executor.
   epoch_metadata::strategy::UIVertex algoOut{"algo_dummy", "result"};
-  epoch_metadata::strategy::UIVertex execV{"exec4", "long"};
+  epoch_metadata::strategy::UIVertex execV{"exec4", "enter_long"};
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to exposed option on executor.
@@ -377,7 +377,7 @@ TEST_CASE(
   epoch_metadata::strategy::UIVertex algoV{"algo5", "*"};
   data.edges.push_back({dsV, algoV});
   epoch_metadata::strategy::UIVertex algoOut{"algo5", "result"};
-  epoch_metadata::strategy::UIVertex execV{"exec5", "long"};
+  epoch_metadata::strategy::UIVertex execV{"exec5", "enter_long"};
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to missing name for exposed option.
@@ -429,7 +429,7 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
 
   // Edge from algo7 to executor.
   epoch_metadata::strategy::UIVertex out7{"algo7", "result"};
-  epoch_metadata::strategy::UIVertex execV{"exec6", "long"};
+  epoch_metadata::strategy::UIVertex execV{"exec6", "enter_long"};
   data.edges.push_back({out7, execV});
 
   // Call CreateAlgorithmMetaData.
@@ -503,7 +503,7 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
 
   // Also connect algo2 to executor so the graph is complete
   epoch_metadata::strategy::UIVertex out2ToExec{"algo2", "result"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec7", "long"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec7", "enter_long"};
   data.edges.push_back({out2ToExec, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the cycle
@@ -550,7 +550,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
 
   // algo -> executor
   epoch_metadata::strategy::UIVertex algoOut{"algo_unknown", "result"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec8", "long"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec8", "enter_long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to unknown node type
@@ -590,7 +590,7 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
 
   // Create a valid edge from algo to executor
   epoch_metadata::strategy::UIVertex algoOut{"algo9", "result"};
-  epoch_metadata::strategy::UIVertex execVertex{"exec9", "long"};
+  epoch_metadata::strategy::UIVertex execVertex{"exec9", "enter_long"};
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the invalid edge
@@ -643,12 +643,12 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
 
   // algo -> executor1
   epoch_metadata::strategy::UIVertex algoOut1{"algo10", "result"};
-  epoch_metadata::strategy::UIVertex exec1Vertex{"exec10_1", "long"};
+  epoch_metadata::strategy::UIVertex exec1Vertex{"exec10_1", "enter_long"};
   data.edges.push_back({algoOut1, exec1Vertex});
 
   // algo -> executor2
   epoch_metadata::strategy::UIVertex algoOut2{"algo10", "result"};
-  epoch_metadata::strategy::UIVertex exec2Vertex{"exec10_2", "short"};
+  epoch_metadata::strategy::UIVertex exec2Vertex{"exec10_2", "enter_short"};
   data.edges.push_back({algoOut2, exec2Vertex});
 
   // Call CreateAlgorithmMetaData - should fail due to multiple executors
