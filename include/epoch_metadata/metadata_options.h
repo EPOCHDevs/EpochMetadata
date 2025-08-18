@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <epoch_core/enum_wrapper.h>
 #include <glaze/glaze.hpp>
+#include <string_view>
 #include <unordered_set>
 #include <variant>
 #include <yaml-cpp/yaml.h>
@@ -28,16 +29,20 @@ public:
 
   MetaDataOptionDefinition() = default;
 
-  template <typename K>
-    requires std::is_constructible_v<T, K>
-  MetaDataOptionDefinition(K &&value) {
-    if constexpr (std::is_same_v<std::decay_t<K>, std::string>) {
-      // Parse without moving first, to avoid using a moved-from string
-      m_optionsVariant = ParseStringOverride(value);
-    } else {
-      m_optionsVariant = std::forward<K>(value);
-    }
+  // Overload for string-like types
+  template <typename StringLike>
+    requires(std::is_convertible_v<std::decay_t<StringLike>, std::string_view>)
+  MetaDataOptionDefinition(StringLike &&value) {
+    std::string materialized{std::forward<StringLike>(value)};
+    m_optionsVariant = ParseStringOverride(std::move(materialized));
   }
+
+  // Overload for types directly constructible into the variant
+  template <typename K>
+    requires(!std::is_convertible_v<std::decay_t<K>, std::string_view> &&
+             std::is_constructible_v<T, K>)
+  MetaDataOptionDefinition(K &&value)
+      : m_optionsVariant(std::forward<K>(value)) {}
 
   [[nodiscard]] auto GetVariant() const { return m_optionsVariant; }
 

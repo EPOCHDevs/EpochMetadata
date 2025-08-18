@@ -277,6 +277,25 @@ TEST_CASE("MetaDataOptionDefinition - String override parsing",
     REQUIRE(w1.GetDecimal() == Catch::Approx(10.0));
   }
 
+  SECTION("Parses string-like inputs (const char* and string_view)") {
+    // const char*
+    MetaDataOptionDefinition c1("false");
+    REQUIRE(c1.IsType<bool>());
+    REQUIRE(c1.GetBoolean() == false);
+
+    // string_view
+    std::string_view sv{"1e2"};
+    MetaDataOptionDefinition c2(sv);
+    REQUIRE(c2.IsType<double>());
+    REQUIRE(c2.GetDecimal() == Catch::Approx(100.0));
+
+    // mixed: leading/trailing whitespace via string_view
+    std::string_view svw{"  +3.25  "};
+    MetaDataOptionDefinition c3(svw);
+    REQUIRE(c3.IsType<double>());
+    REQUIRE(c3.GetDecimal() == Catch::Approx(3.25));
+  }
+
   SECTION("Leaves non-parsable strings as string") {
     MetaDataOptionDefinition s1(std::string("abc"));
     REQUIRE(s1.IsType<std::string>());
