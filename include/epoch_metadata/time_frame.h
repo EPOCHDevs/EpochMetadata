@@ -8,6 +8,7 @@
 #include "epoch_frame/time_delta.h"
 #include <epoch_core/enum_wrapper.h>
 #include <epoch_frame/factory/date_offset_factory.h>
+#include <glaze/json/json_t.hpp>
 #include <string_view>
 #include <unordered_set>
 #include <yaml-cpp/yaml.h>
@@ -107,6 +108,7 @@ bool IsIntraday(epoch_core::EpochOffsetType);
 class TimeFrame {
 public:
   explicit TimeFrame(epoch_frame::DateOffsetHandlerPtr offset);
+  explicit TimeFrame(std::string mapping_key);
 
   bool IsIntraDay() const;
 
@@ -124,8 +126,18 @@ public:
 
   std::string Serialize() const;
 
+  // Public interface to check original construction
+  [[nodiscard]] bool WasCreatedFromString() const {
+    return m_created_from_string;
+  }
+  [[nodiscard]] const std::string &SourceString() const {
+    return m_mapping_key;
+  }
+
 private:
   epoch_frame::DateOffsetHandlerPtr m_offset;
+  bool m_created_from_string{false};
+  std::string m_mapping_key{};
 };
 
 TimeFrame CreateTimeFrameFromYAML(YAML::Node const &);
@@ -166,16 +178,25 @@ template <> struct meta<epoch_frame::DateOffsetHandlerPtr> {
 };
 
 template <> struct meta<epoch_metadata::TimeFrame> {
-  static constexpr auto read =
-      [](epoch_metadata::TimeFrame &x,
-         const epoch_frame::DateOffsetHandlerPtr &input) {
-        if (input) {
-          x = epoch_metadata::TimeFrame(input);
-        }
-      };
+  static constexpr auto read = [](epoch_metadata::TimeFrame &x,
+                                  const glz::json_t &input) {
+    if (input.is_string()) {
+      x = epoch_metadata::TimeFrame(input.as<std::string>());
+      return;
+    }
+    auto offset = epoch_metadata::CreateDateOffsetHandlerFromJSON(input);
+    if (offset) {
+      x = epoch_metadata::TimeFrame(offset);
+    }
+  };
 
   static constexpr auto write = [](const epoch_metadata::TimeFrame &x) -> auto {
-    return x.GetOffset();
+    if (x.WasCreatedFromString()) {
+      glz::json_t out;
+      out = x.SourceString();
+      return out;
+    }
+    return epoch_metadata::CreateDateOffsetHandlerJSON(x.GetOffset());
   };
 
   static constexpr auto value = glz::custom<read, write>;
@@ -220,6 +241,10 @@ template <> struct convert<epoch_frame::DateOffsetHandlerPtr> {
 
 template <> struct convert<epoch_metadata::TimeFrame> {
   static bool decode(const Node &node, epoch_metadata::TimeFrame &rhs) {
+    if (node.IsScalar()) {
+      rhs = epoch_metadata::TimeFrame(node.as<std::string>());
+      return true;
+    }
     rhs =
         epoch_metadata::TimeFrame(node.as<epoch_frame::DateOffsetHandlerPtr>());
     return true;

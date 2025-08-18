@@ -80,6 +80,13 @@ TimeFrame::TimeFrame(epoch_frame::DateOffsetHandlerPtr offset)
                                         "nullptr");
 }
 
+TimeFrame::TimeFrame(std::string mapping_key)
+    : m_created_from_string(true), m_mapping_key(std::move(mapping_key)) {
+  AssertFromStream(TIMEFRAME_MAPPING.contains(m_mapping_key),
+                   "Invalid timeframe: " + m_mapping_key);
+  m_offset = TIMEFRAME_MAPPING.at(m_mapping_key);
+}
+
 bool TimeFrame::IsIntraDay() const { return IsIntraday(m_offset->type()); }
 
 std::string TimeFrame::ToString() const {
@@ -95,6 +102,9 @@ bool TimeFrame::operator!=(TimeFrame const &other) const {
 }
 
 std::string TimeFrame::Serialize() const {
+  if (m_created_from_string) {
+    return m_mapping_key;
+  }
   std::string result;
   const auto error = glz::write_json(m_offset, result);
   if (error) {
