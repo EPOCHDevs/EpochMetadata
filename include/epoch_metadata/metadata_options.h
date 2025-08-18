@@ -3,6 +3,11 @@
 //
 
 #pragma once
+#include <algorithm>
+#include <cctype>
+#include <cerrno>
+#include <cmath>
+#include <cstdlib>
 #include <epoch_core/enum_wrapper.h>
 #include <glaze/glaze.hpp>
 #include <unordered_set>
@@ -25,8 +30,14 @@ public:
 
   template <typename K>
     requires std::is_constructible_v<T, K>
-  MetaDataOptionDefinition(K &&value)
-      : m_optionsVariant(std::forward<K>(value)) {}
+  MetaDataOptionDefinition(K &&value) {
+    if constexpr (std::is_same_v<std::decay_t<K>, std::string>) {
+      // Parse without moving first, to avoid using a moved-from string
+      m_optionsVariant = ParseStringOverride(value);
+    } else {
+      m_optionsVariant = std::forward<K>(value);
+    }
+  }
 
   [[nodiscard]] auto GetVariant() const { return m_optionsVariant; }
 
@@ -87,6 +98,46 @@ private:
       errorStreamer << "Error: An unknown error occurred." << std::endl;
     }
     throw std::runtime_error(errorStreamer.str());
+  }
+
+  static T ParseStringOverride(std::string input) {
+    // trim leading/trailing whitespace
+    auto is_space = [](unsigned char ch) { return std::isspace(ch) != 0; };
+    input.erase(input.begin(),
+                std::find_if(input.begin(), input.end(),
+                             [&](unsigned char ch) { return !is_space(ch); }));
+    input.erase(std::find_if(input.rbegin(), input.rend(),
+                             [&](unsigned char ch) { return !is_space(ch); })
+                    .base(),
+                input.end());
+
+    // lowercase copy for boolean check
+    std::string lowered = input;
+    std::transform(
+        lowered.begin(), lowered.end(), lowered.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+    if (lowered == "true") {
+      return T{true};
+    }
+    if (lowered == "false") {
+      return T{false};
+    }
+
+    // numeric check using strtod; accepts +/-, decimals, and scientific
+    // notation
+    if (!input.empty()) {
+      char *end_ptr = nullptr;
+      errno = 0;
+      double parsed = std::strtod(input.c_str(), &end_ptr);
+      if (end_ptr != nullptr && *end_ptr == '\0' && errno == 0 &&
+          std::isfinite(parsed)) {
+        return T{parsed};
+      }
+    }
+
+    // fallback to original string
+    return T{std::move(input)};
   }
 };
 

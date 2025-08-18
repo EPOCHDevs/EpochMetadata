@@ -227,6 +227,75 @@ TEST_CASE("MetaDataOptionDefinition - GetHash", "[MetaDataOptionDefinition]") {
   }
 }
 
+TEST_CASE("MetaDataOptionDefinition - String override parsing",
+          "[MetaDataOptionDefinition]") {
+  SECTION("Parses boolean strings case-insensitively") {
+    MetaDataOptionDefinition d1(std::string("true"));
+    REQUIRE(d1.IsType<bool>());
+    REQUIRE(d1.GetBoolean() == true);
+
+    MetaDataOptionDefinition d2(std::string("FALSE"));
+    REQUIRE(d2.IsType<bool>());
+    REQUIRE(d2.GetBoolean() == false);
+
+    MetaDataOptionDefinition d3(std::string("TrUe"));
+    REQUIRE(d3.IsType<bool>());
+    REQUIRE(d3.GetBoolean() == true);
+  }
+
+  SECTION("Trims whitespace and parses booleans") {
+    MetaDataOptionDefinition d1(std::string("  false   "));
+    REQUIRE(d1.IsType<bool>());
+    REQUIRE(d1.GetBoolean() == false);
+
+    MetaDataOptionDefinition d2(std::string("  true\t"));
+    REQUIRE(d2.IsType<bool>());
+    REQUIRE(d2.GetBoolean() == true);
+  }
+
+  SECTION("Parses numeric strings to double") {
+    MetaDataOptionDefinition i1(std::string("42"));
+    REQUIRE(i1.IsType<double>());
+    REQUIRE(i1.GetDecimal() == Catch::Approx(42.0));
+
+    MetaDataOptionDefinition n1(std::string("-3.5"));
+    REQUIRE(n1.IsType<double>());
+    REQUIRE(n1.GetDecimal() == Catch::Approx(-3.5));
+
+    MetaDataOptionDefinition e1(std::string("1e3"));
+    REQUIRE(e1.IsType<double>());
+    REQUIRE(e1.GetDecimal() == Catch::Approx(1000.0));
+
+    MetaDataOptionDefinition p1(std::string("+7.25"));
+    REQUIRE(p1.IsType<double>());
+    REQUIRE(p1.GetDecimal() == Catch::Approx(7.25));
+  }
+
+  SECTION("Trims whitespace and parses numerics") {
+    MetaDataOptionDefinition w1(std::string("   10  "));
+    REQUIRE(w1.IsType<double>());
+    REQUIRE(w1.GetDecimal() == Catch::Approx(10.0));
+  }
+
+  SECTION("Leaves non-parsable strings as string") {
+    MetaDataOptionDefinition s1(std::string("abc"));
+    REQUIRE(s1.IsType<std::string>());
+    REQUIRE(s1.GetSelectOption() == "abc");
+
+    MetaDataOptionDefinition s2(std::string("trueish"));
+    REQUIRE(s2.IsType<std::string>());
+    REQUIRE(s2.GetSelectOption() == "trueish");
+
+    MetaDataOptionDefinition s3(std::string("10.5.3"));
+    REQUIRE(s3.IsType<std::string>());
+    REQUIRE(s3.GetSelectOption() == "10.5.3");
+
+    MetaDataOptionDefinition s4(std::string("1e2x"));
+    REQUIRE(s4.IsType<std::string>());
+    REQUIRE(s4.GetSelectOption() == "1e2x");
+  }
+}
+
 TEST_CASE("CreateMetaDataArgDefinition - Error paths",
           "[MetaDataOptionDefinition]") {
   SECTION("Throws on non-scalar YAML node") {
