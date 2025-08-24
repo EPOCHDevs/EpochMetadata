@@ -8,6 +8,8 @@
 #include <unordered_set>
 
 namespace epoch_metadata {
+using SequenceItem = std::variant<double, std::string>;
+using Sequence = std::vector<SequenceItem>;
 void MetaDataOptionDefinition::AssertType(
     epoch_core::MetaDataOptionType const &argType,
     std::unordered_set<std::string> const &selections) const {
@@ -27,6 +29,28 @@ void MetaDataOptionDefinition::AssertType(
                          << epoch_core::toString(selections));
     break;
   }
+  case epoch_core::MetaDataOptionType::NumericList: {
+    AssertType<Sequence>();
+    // Additional validation: ensure all items are numeric
+    const auto &seq = GetValueByType<Sequence>();
+    for (const auto &item : seq) {
+      if (!std::holds_alternative<double>(item)) {
+        throw std::runtime_error("NumericList contains non-numeric values");
+      }
+    }
+    break;
+  }
+  case epoch_core::MetaDataOptionType::StringList: {
+    AssertType<Sequence>();
+    // Additional validation: ensure all items are strings
+    const auto &seq = GetValueByType<Sequence>();
+    for (const auto &item : seq) {
+      if (!std::holds_alternative<std::string>(item)) {
+        throw std::runtime_error("StringList contains non-string values");
+      }
+    }
+    break;
+  }
   case epoch_core::MetaDataOptionType::Null:
     throw std::runtime_error("Null value not allowed.");
   }
@@ -42,6 +66,9 @@ bool MetaDataOptionDefinition::IsType(
     return std::holds_alternative<bool>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Select:
     return std::holds_alternative<std::string>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::NumericList:
+  case epoch_core::MetaDataOptionType::StringList:
+    return std::holds_alternative<Sequence>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
     return false;
   }
@@ -67,6 +94,17 @@ size_t MetaDataOptionDefinition::GetHash() const {
         using K = std::decay_t<decltype(arg)>;
         if constexpr (std::same_as<K, MetaDataArgRef>) {
           return std::hash<std::string>{}(GetRef());
+        } else if constexpr (std::same_as<K, Sequence>) {
+          size_t seed = 0;
+          for (const auto &item : arg) {
+            size_t h = std::visit(
+                [](const auto &v) {
+                  return std::hash<std::decay_t<decltype(v)>>{}(v);
+                },
+                item);
+            seed ^= h + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+          }
+          return seed;
         } else {
           return std::hash<K>{}(arg);
         }
@@ -82,6 +120,24 @@ std::string MetaDataOptionDefinition::ToString() const {
           return std::string(GetRef());
         } else if constexpr (std::same_as<K, std::string>) {
           return arg;
+        } else if constexpr (std::same_as<K, Sequence>) {
+          std::string out = "[";
+          for (size_t i = 0; i < arg.size(); ++i) {
+            std::visit(
+                [&out](const auto &v) {
+                  if constexpr (std::same_as<std::decay_t<decltype(v)>,
+                                             double>) {
+                    out += std::to_string(v);
+                  } else {
+                    out += v;
+                  }
+                },
+                arg[i]);
+            if (i + 1 < arg.size())
+              out += ",";
+          }
+          out += "]";
+          return out;
         } else {
           return std::to_string(arg);
         }
@@ -91,9 +147,18 @@ std::string MetaDataOptionDefinition::ToString() const {
 
 MetaDataOptionDefinition
 CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
-  AssertFromStream(node.IsScalar(), "invalid transform option type: "
-                                        << node << ", expected a scalar for "
-                                        << arg.id << ".");
+  if (arg.type == epoch_core::MetaDataOptionType::NumericList ||
+      arg.type == epoch_core::MetaDataOptionType::StringList) {
+    AssertFromStream(node.IsSequence() || node.IsScalar(),
+                     "invalid transform option type: "
+                         << node
+                         << ", expected a sequence or bracketed string for "
+                         << arg.id << ".");
+  } else {
+    AssertFromStream(node.IsScalar(), "invalid transform option type: "
+                                          << node << ", expected a scalar for "
+                                          << arg.id << ".");
+  }
   switch (arg.type) {
   case epoch_core::MetaDataOptionType::Integer:
   case epoch_core::MetaDataOptionType::Decimal:
@@ -102,6 +167,18 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
     return MetaDataOptionDefinition{node.as<bool>()};
   }
   case epoch_core::MetaDataOptionType::Select: {
+    return MetaDataOptionDefinition{node.as<std::string>()};
+  }
+  case epoch_core::MetaDataOptionType::NumericList: {
+    if (node.IsSequence()) {
+      return MetaDataOptionDefinition{node.as<std::vector<double>>()};
+    }
+    return MetaDataOptionDefinition{node.as<std::string>()};
+  }
+  case epoch_core::MetaDataOptionType::StringList: {
+    if (node.IsSequence()) {
+      return MetaDataOptionDefinition{node.as<std::vector<std::string>>()};
+    }
     return MetaDataOptionDefinition{node.as<std::string>()};
   }
   case epoch_core::MetaDataOptionType::Null:
@@ -126,8 +203,20 @@ void MetaDataOption::decode(const YAML::Node &element) {
 
   id = element["id"].as<std::string>();
   name = element["name"].as<std::string>();
-  type = epoch_core::MetaDataOptionTypeWrapper::FromString(
-      element["type"].as<std::string>());
+  {
+    auto rawType = element["type"].as<std::string>();
+    std::string lowered = rawType;
+    std::transform(
+        lowered.begin(), lowered.end(), lowered.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (lowered == "numeric_list") {
+      type = epoch_core::MetaDataOptionType::NumericList;
+    } else if (lowered == "string_list") {
+      type = epoch_core::MetaDataOptionType::StringList;
+    } else {
+      type = epoch_core::MetaDataOptionTypeWrapper::FromString(rawType);
+    }
+  }
 
   selectOption = element["selectOption"].as<std::vector<SelectOption>>(
       std::vector<SelectOption>{});

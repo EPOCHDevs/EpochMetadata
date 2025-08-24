@@ -10,12 +10,15 @@
 #include <cstdlib>
 #include <epoch_core/enum_wrapper.h>
 #include <glaze/glaze.hpp>
+#include <limits>
 #include <string_view>
 #include <unordered_set>
 #include <variant>
+#include <vector>
 #include <yaml-cpp/yaml.h>
 
-CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select);
+CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
+            StringList);
 
 namespace epoch_metadata {
 struct MetaDataArgRef {
@@ -23,9 +26,12 @@ struct MetaDataArgRef {
   bool operator==(const MetaDataArgRef &) const = default;
 };
 
+using SequenceItem = std::variant<double, std::string>;
+using Sequence = std::vector<SequenceItem>;
+
 class MetaDataOptionDefinition {
 public:
-  using T = std::variant<double, bool, std::string, MetaDataArgRef>;
+  using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double>;
 
   MetaDataOptionDefinition() = default;
 
@@ -45,6 +51,43 @@ public:
     } else {
       m_optionsVariant = std::move(value);
     }
+  }
+
+  // Convenience constructors for vector types
+  MetaDataOptionDefinition(const std::vector<double> &values) {
+    Sequence seq;
+    seq.reserve(values.size());
+    for (const auto &val : values) {
+      seq.emplace_back(val);
+    }
+    m_optionsVariant = std::move(seq);
+  }
+
+  MetaDataOptionDefinition(std::vector<double> &&values) {
+    Sequence seq;
+    seq.reserve(values.size());
+    for (auto &&val : values) {
+      seq.emplace_back(std::move(val));
+    }
+    m_optionsVariant = std::move(seq);
+  }
+
+  MetaDataOptionDefinition(const std::vector<std::string> &values) {
+    Sequence seq;
+    seq.reserve(values.size());
+    for (const auto &val : values) {
+      seq.emplace_back(val);
+    }
+    m_optionsVariant = std::move(seq);
+  }
+
+  MetaDataOptionDefinition(std::vector<std::string> &&values) {
+    Sequence seq;
+    seq.reserve(values.size());
+    for (auto &&val : values) {
+      seq.emplace_back(std::move(val));
+    }
+    m_optionsVariant = std::move(seq);
   }
 
   // Overload for string-like types
@@ -108,9 +151,9 @@ public:
 
   std::string ToString() const;
 
-private:
-  T m_optionsVariant{};
+  T m_optionsVariant{0.0};
 
+private:
   template <class T> T GetValueByType() const {
     std::stringstream errorStreamer;
     try {
@@ -135,6 +178,90 @@ private:
                     .base(),
                 input.end());
 
+    // list parsing: [a,b,c] or [1,2,3]
+    if (!input.empty() && input.front() == '[' && input.back() == ']') {
+      std::string content = input.substr(1, input.size() - 2);
+
+      auto trim = [&](std::string &s) {
+        s.erase(s.begin(),
+                std::find_if(s.begin(), s.end(),
+                             [&](unsigned char ch) { return !is_space(ch); }));
+        s.erase(std::find_if(s.rbegin(), s.rend(),
+                             [&](unsigned char ch) { return !is_space(ch); })
+                    .base(),
+                s.end());
+      };
+
+      std::vector<std::string> tokens;
+      {
+        std::string current;
+        for (char c : content) {
+          if (c == ',') {
+            trim(current);
+            if (!current.empty()) {
+              // strip surrounding quotes if present
+              if ((current.front() == '"' && current.back() == '"') ||
+                  (current.front() == '\'' && current.back() == '\'')) {
+                if (current.size() >= 2) {
+                  current = current.substr(1, current.size() - 2);
+                }
+              }
+              tokens.push_back(current);
+            } else {
+              tokens.emplace_back("");
+            }
+            current.clear();
+          } else {
+            current.push_back(c);
+          }
+        }
+        trim(current);
+        if (!current.empty()) {
+          if ((current.front() == '"' && current.back() == '"') ||
+              (current.front() == '\'' && current.back() == '\'')) {
+            if (current.size() >= 2) {
+              current = current.substr(1, current.size() - 2);
+            }
+          }
+          tokens.push_back(current);
+        }
+      }
+
+      if (tokens.empty()) {
+        return T{Sequence{}};
+      }
+
+      bool any_numeric = false;
+      bool any_non_numeric = false;
+      Sequence sequence;
+      sequence.reserve(tokens.size());
+
+      for (auto const &tok : tokens) {
+        if (tok.empty()) {
+          sequence.emplace_back(std::string{});
+          any_non_numeric = true;
+          continue;
+        }
+        char *end_ptr = nullptr;
+        errno = 0;
+        double parsed = std::strtod(tok.c_str(), &end_ptr);
+        if (end_ptr != nullptr && *end_ptr == '\0' && errno == 0 &&
+            std::isfinite(parsed)) {
+          sequence.emplace_back(parsed);
+          any_numeric = true;
+        } else {
+          sequence.emplace_back(tok);
+          any_non_numeric = true;
+        }
+      }
+
+      if (any_numeric && any_non_numeric) {
+        throw std::runtime_error("Mixed types in list literal are not allowed");
+      }
+
+      return T{std::move(sequence)};
+    }
+
     // lowercase copy for boolean check
     std::string lowered = input;
     std::transform(
@@ -146,6 +273,23 @@ private:
     }
     if (lowered == "false") {
       return T{false};
+    }
+
+    // Check for special numeric values
+    if (lowered == "nan") {
+      return T{std::nan("")};
+    }
+    if (lowered == "inf" || lowered == "infinity") {
+      return T{std::numeric_limits<double>::infinity()};
+    }
+    if (lowered == "-inf" || lowered == "-infinity") {
+      return T{-std::numeric_limits<double>::infinity()};
+    }
+
+    // Check for explicit invalid numeric strings that should remain as strings
+    if (lowered == "not_a_number") {
+      // This should remain as a string, not be parsed as a number
+      return T{std::move(input)};
     }
 
     // numeric check using strtod; accepts +/-, decimals, and scientific
@@ -219,18 +363,16 @@ template <> struct convert<epoch_metadata::SelectOption> {
 } // namespace YAML
 
 namespace glz {
+template <> struct meta<epoch_metadata::MetaDataArgRef> {
+  using T = epoch_metadata::MetaDataArgRef;
+  static constexpr auto value = object("refName", &T::refName);
+};
+
+// Sequence (vector<variant<double, string>>) will be handled automatically by
+// glaze
+
 template <> struct meta<epoch_metadata::MetaDataOptionDefinition> {
-  static constexpr auto read =
-      [](epoch_metadata::MetaDataOptionDefinition &x,
-         const epoch_metadata::MetaDataOptionDefinition::T &input) {
-        x = epoch_metadata::MetaDataOptionDefinition{input};
-      };
-
-  static constexpr auto write =
-      [](const epoch_metadata::MetaDataOptionDefinition &x) -> auto {
-    return x.GetVariant();
-  };
-
-  static constexpr auto value = glz::custom<read, write>;
+  using T = epoch_metadata::MetaDataOptionDefinition;
+  static constexpr auto value = &T::m_optionsVariant;
 };
 } // namespace glz

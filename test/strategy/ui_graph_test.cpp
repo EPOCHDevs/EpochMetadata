@@ -6,6 +6,8 @@
 #include <catch.hpp>
 #include <glaze/glaze.hpp>
 
+using namespace epoch_metadata;
+
 namespace {
 constexpr auto MARKET_DATA_SOURCE = "market_data_source";
 constexpr auto TRADE_SIGNAL_EXECUTOR = "trade_signal_executor";
@@ -63,7 +65,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
     "edges": [
       {
         "source": {"id": "data1", "handle": "c"},
-        "target": {"id": "algo1", "handle": "*"}
+        "target": {"id": "algo1", "handle": "SLOT"}
       },
       {
         "source": {"id": "algo1", "handle": "result"},
@@ -114,8 +116,8 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   REQUIRE(algoNode->id == "algo1");
   REQUIRE(algoNode->type == "previous_gt");
   // DataSource input mapping: now retains full id#handle format
-  REQUIRE(algoNode->inputs.contains("*"));
-  REQUIRE(algoNode->inputs["*"].front() == "data1#c");
+  REQUIRE(algoNode->inputs.contains("SLOT"));
+  REQUIRE(algoNode->inputs["SLOT"].front() == "data1#c");
   // Non-exposed option is expected to be copied.
   REQUIRE(algoNode->options.contains("periods"));
   REQUIRE(algoNode->options["periods"].GetInteger() == 1);
@@ -158,7 +160,7 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
     "edges": [
       {
         "source": {"id": "data2", "handle": "c"},
-        "target": {"id": "algo2", "handle": "*"}
+        "target": {"id": "algo2", "handle": "SLOT"}
       },
       {
         "source": {"id": "algo2", "handle": "result"},
@@ -198,8 +200,8 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
   // Type is set from the target handle.
   REQUIRE(algoNode->type == "previous_gt");
   // DataSource input mapping: now retains full id#handle format
-  REQUIRE(algoNode->inputs.contains("*"));
-  REQUIRE(algoNode->inputs["*"].front() == "data2#c");
+  REQUIRE(algoNode->inputs.contains("SLOT"));
+  REQUIRE(algoNode->inputs["SLOT"].front() == "data2#c");
 
   // Exposed option should now be a reference (starting with a dot).
   REQUIRE(algoNode->options.find("periods") != algoNode->options.end());
@@ -257,7 +259,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
     "edges": [
       {
         "source": {"id": "data3", "handle": "c"},
-        "target": {"id": "algo3", "handle": "*"}
+        "target": {"id": "algo3", "handle": "SLOT"}
       },
       {
         "source": {"id": "algo3", "handle": "result"},
@@ -282,7 +284,8 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
 
   // Verify executor.
   REQUIRE(meta.executor.id == "exec3");
-  REQUIRE(meta.executor.inputs.find("enter_long") != meta.executor.inputs.end());
+  REQUIRE(meta.executor.inputs.find("enter_long") !=
+          meta.executor.inputs.end());
   REQUIRE(meta.executor.inputs["enter_long"].front() == "algo3#result");
 
   // Verify algorithm nodes (now includes DataSource)
@@ -298,8 +301,8 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
   REQUIRE(algoNode->type == "previous_gt");
 
   // DataSource input mapping: now retains full id#handle format
-  REQUIRE(algoNode->inputs.find("*") != algoNode->inputs.end());
-  REQUIRE(algoNode->inputs["*"].front() == "data3#c");
+  REQUIRE(algoNode->inputs.find("SLOT") != algoNode->inputs.end());
+  REQUIRE(algoNode->inputs["SLOT"].front() == "data3#c");
 }
 
 // Test 4: Error Case – Exposed Option in Executor Node
@@ -332,7 +335,7 @@ TEST_CASE(
 
   // Edge from PriceBar to algo
   epoch_metadata::strategy::UIVertex dsVertex{"data_dummy", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo_dummy", "*"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo_dummy", "SLOT"};
   data.edges.push_back({dsVertex, algoVertex});
 
   // Edge from algo to executor.
@@ -374,7 +377,7 @@ TEST_CASE(
 
   // Edges:
   epoch_metadata::strategy::UIVertex dsV{"data5", "c"};
-  epoch_metadata::strategy::UIVertex algoV{"algo5", "*"};
+  epoch_metadata::strategy::UIVertex algoV{"algo5", "SLOT"};
   data.edges.push_back({dsV, algoV});
   epoch_metadata::strategy::UIVertex algoOut{"algo5", "result"};
   epoch_metadata::strategy::UIVertex execV{"exec5", "enter_long"};
@@ -416,7 +419,7 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
 
   // Create a dependency edge: algo6 outputs to algo7.
   epoch_metadata::strategy::UIVertex out6{"algo6", "result"};
-  epoch_metadata::strategy::UIVertex in7{"algo7", "*"};
+  epoch_metadata::strategy::UIVertex in7{"algo7", "SLOT"};
   data.edges.push_back({out6, in7});
   // Also, add an edge from a PriceBar to algo6 using valid handle "c".
   epoch_metadata::strategy::UINode PriceBar;
@@ -424,7 +427,7 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
   PriceBar.type = MARKET_DATA_SOURCE;
   data.nodes.push_back(PriceBar);
   epoch_metadata::strategy::UIVertex dsV{"data6", "c"};
-  epoch_metadata::strategy::UIVertex in6{"algo6", "*"};
+  epoch_metadata::strategy::UIVertex in6{"algo6", "SLOT"};
   data.edges.push_back({dsV, in6});
 
   // Edge from algo7 to executor.
@@ -486,19 +489,19 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
   // Create edges to form a cycle
   // PriceBar -> algo1 (initial input)
   epoch_metadata::strategy::UIVertex dsVertex{"data7", "c"};
-  epoch_metadata::strategy::UIVertex algo1Vertex{"algo1", "*"};
+  epoch_metadata::strategy::UIVertex algo1Vertex{"algo1", "SLOT"};
   data.edges.push_back({dsVertex, algo1Vertex});
 
   // algo1 -> algo2
   epoch_metadata::strategy::UIVertex out1{"algo1", "result"};
-  epoch_metadata::strategy::UIVertex in2{"algo2", "*"};
+  epoch_metadata::strategy::UIVertex in2{"algo2", "SLOT"};
   data.edges.push_back({out1, in2});
 
   // algo2 -> algo1 (completing the cycle)
   // This creates a cycle since algo1 already has input from PriceBar
   // but we're trying to add another input from algo2
   epoch_metadata::strategy::UIVertex out2{"algo2", "result"};
-  epoch_metadata::strategy::UIVertex in1{"algo1", "*"};
+  epoch_metadata::strategy::UIVertex in1{"algo1", "SLOT"};
   data.edges.push_back({out2, in1});
 
   // Also connect algo2 to executor so the graph is complete
@@ -545,7 +548,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
   // Create edges
   // PriceBar -> algo
   epoch_metadata::strategy::UIVertex dsVertex{"data8", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo_unknown", "*"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo_unknown", "SLOT"};
   data.edges.push_back({dsVertex, algoVertex});
 
   // algo -> executor
@@ -585,7 +588,7 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
   // Create an edge that references a non-existent source node
   epoch_metadata::strategy::UIVertex nonExistentSource{"non_existent_node",
                                                        "result"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo9", "*"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo9", "SLOT"};
   data.edges.push_back({nonExistentSource, algoVertex});
 
   // Create a valid edge from algo to executor
@@ -638,7 +641,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   // Create edges
   // PriceBar -> algo
   epoch_metadata::strategy::UIVertex dsVertex{"data10", "c"};
-  epoch_metadata::strategy::UIVertex algoVertex{"algo10", "*"};
+  epoch_metadata::strategy::UIVertex algoVertex{"algo10", "SLOT"};
   data.edges.push_back({dsVertex, algoVertex});
 
   // algo -> executor1

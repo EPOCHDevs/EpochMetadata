@@ -276,7 +276,8 @@ void ValidateEdgeDataType(const UIEdge &edge,
   }
 
   for (auto mustMatchTypes :
-       {epoch_core::IODataType::Boolean, epoch_core::IODataType::String}) {
+       {epoch_core::IODataType::Boolean, epoch_core::IODataType::String,
+        epoch_core::IODataType::List, epoch_core::IODataType::Struct}) {
     if (types.contains(mustMatchTypes) && types.size() == 2) {
       issues.push_back(
           {ValidationCode::InvalidEdge, edge,

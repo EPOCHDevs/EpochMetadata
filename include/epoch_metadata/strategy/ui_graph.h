@@ -1,4 +1,5 @@
 #pragma once
+#include "epoch_metadata/constants.h"
 #include "metadata.h"
 #include "ui_data.h"
 #include "validation_error.h"

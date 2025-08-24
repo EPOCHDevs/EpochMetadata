@@ -277,7 +277,7 @@ TEST_CASE("AlgorithmValidator: Orphaned Node with no output connections",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "orphan", "handle": "*"}
+                "target": {"id": "orphan", "handle": "SLOT"}
             }
         ],
         "groups": [],
@@ -356,7 +356,7 @@ TEST_CASE("AlgorithmValidator: Invalid Edge - Unknown Handle",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "unknown_handle"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             }
         ],
         "groups": [],
@@ -427,7 +427,7 @@ TEST_CASE("AlgorithmValidator: Self Loop Edge", "[AlgorithmValidator]") {
         "edges": [
             {
                 "source": {"id": "node1", "handle": "result"},
-                "target": {"id": "node1", "handle": "*"}
+                "target": {"id": "node1", "handle": "SLOT"}
             }
         ],
         "groups": [],
@@ -527,7 +527,7 @@ TEST_CASE("AlgorithmValidator: Missing Required Option",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -576,7 +576,7 @@ TEST_CASE("AlgorithmValidator: Invalid Option Type", "[AlgorithmValidator]") {
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -625,7 +625,7 @@ TEST_CASE("AlgorithmValidator: Unknown Option", "[AlgorithmValidator]") {
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -674,7 +674,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Without Name",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -749,7 +749,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           },
           "target": {
             "id": "min50",
-            "handle": "*"
+            "handle": "SLOT"
           }
         },
         {
@@ -759,7 +759,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           },
           "target": {
             "id": "gt1",
-            "handle": "*0"
+            "handle": "SLOT0"
           }
         },
         {
@@ -769,7 +769,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
           },
           "target": {
             "id": "gt1",
-            "handle": "*1"
+            "handle": "SLOT1"
           }
         },
         {
@@ -886,7 +886,7 @@ TEST_CASE("AlgorithmValidator: Invalid Connection Count",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sub", "handle": "*0"}
+                "target": {"id": "sub", "handle": "SLOT0"}
             }
         ],
         "groups": [],
@@ -930,7 +930,7 @@ TEST_CASE("AlgorithmValidator: Edge Data Type Mismatch",
         "edges": [
             {
                 "source": {"id": "bool_node", "handle": "result"},
-                "target": {"id": "number_node", "handle": "*0"}
+                "target": {"id": "number_node", "handle": "SLOT0"}
             }
         ],
         "groups": [],
@@ -1044,11 +1044,11 @@ TEST_CASE("AlgorithmValidator: Multiple Connections to Same Handle",
         "edges": [
             {
                 "source": {"id": "mds1", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "mds2", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1103,19 +1103,19 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Source Not Numeric",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "gt_node", "handle": "*0"}
+                "target": {"id": "gt_node", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "gt_node", "handle": "*1"}
+                "target": {"id": "gt_node", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "gt_node", "handle": "result"},
-                "target": {"id": "add_node", "handle": "*0"}
+                "target": {"id": "add_node", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "add_node", "handle": "*1"}
+                "target": {"id": "add_node", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "add_node", "handle": "result"},
@@ -1170,11 +1170,11 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Target Not Numeric",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma_node", "handle": "*"}
+                "target": {"id": "sma_node", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma_node", "handle": "result"},
-                "target": {"id": "and_node", "handle": "*0"}
+                "target": {"id": "and_node", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "and_node", "handle": "result"},
@@ -1222,7 +1222,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too Low",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1270,7 +1270,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too High",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1332,19 +1332,19 @@ TEST_CASE("AlgorithmValidator: Option Value In Valid Range",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma1", "handle": "*"}
+                "target": {"id": "sma1", "handle": "SLOT"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma2", "handle": "*"}
+                "target": {"id": "sma2", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma1", "handle": "result"},
-                "target": {"id": "gt", "handle": "*0"}
+                "target": {"id": "gt", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "sma2", "handle": "result"},
-                "target": {"id": "gt", "handle": "*1"}
+                "target": {"id": "gt", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "gt", "handle": "result"},
@@ -1397,7 +1397,7 @@ TEST_CASE("AlgorithmValidator: Multiple Option Validation Issues",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1508,15 +1508,15 @@ TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "gt_node", "handle": "*0"}
+                "target": {"id": "gt_node", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "gt_node", "handle": "*1"}
+                "target": {"id": "gt_node", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "gt_node", "handle": "result"},
@@ -1601,19 +1601,19 @@ TEST_CASE("AlgorithmValidator: All Nodes No Timeframe - Valid",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma1", "handle": "*"}
+                "target": {"id": "sma1", "handle": "SLOT"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma2", "handle": "*"}
+                "target": {"id": "sma2", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma1", "handle": "result"},
-                "target": {"id": "gt", "handle": "*0"}
+                "target": {"id": "gt", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "sma2", "handle": "result"},
-                "target": {"id": "gt", "handle": "*1"}
+                "target": {"id": "gt", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "gt", "handle": "result"},
@@ -1677,15 +1677,15 @@ TEST_CASE("AlgorithmValidator: Market Data Source With Timeframe Is Valid",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
-                "target": {"id": "gt", "handle": "*0"}
+                "target": {"id": "gt", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "zero", "handle": "result"},
-                "target": {"id": "gt", "handle": "*1"}
+                "target": {"id": "gt", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "gt", "handle": "result"},
@@ -1743,7 +1743,7 @@ TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1803,7 +1803,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Name Validation",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "sma_with_exposed_option", "handle": "*"}
+                "target": {"id": "sma_with_exposed_option", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma_with_exposed_option", "handle": "result"},
@@ -1857,11 +1857,11 @@ TEST_CASE("AlgorithmValidator: Multiple Connections To Single Handle",
         "edges": [
             {
                 "source": {"id": "mds1", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "mds2", "handle": "c"},
-                "target": {"id": "sma", "handle": "*"}
+                "target": {"id": "sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "sma", "handle": "result"},
@@ -1911,7 +1911,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
             "edges": [
                 {
                     "source": {"id": "number_node", "handle": "result"},
-                    "target": {"id": "integer_input_node", "handle": "*"}
+                    "target": {"id": "integer_input_node", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "integer_input_node", "handle": "result"},
@@ -1962,7 +1962,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
             "edges": [
                 {
                     "source": {"id": "string_node", "handle": "result"},
-                    "target": {"id": "numeric_input_node", "handle": "*"}
+                    "target": {"id": "numeric_input_node", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "numeric_input_node", "handle": "result"},
@@ -2044,7 +2044,7 @@ TEST_CASE("AlgorithmValidator: Node Input Requirements",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "binary_transform", "handle": "*0"}
+                    "target": {"id": "binary_transform", "handle": "SLOT0"}
                 },
                 {
                     "source": {"id": "binary_transform", "handle": "result"},
@@ -2135,7 +2135,7 @@ TEST_CASE("AlgorithmOptimizer: Apply Default Options Edge Cases",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "incomplete_sma", "handle": "*"}
+                    "target": {"id": "incomplete_sma", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "incomplete_sma", "handle": "result"},
@@ -2197,7 +2197,7 @@ TEST_CASE("AlgorithmOptimizer: Apply Default Options Edge Cases",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "partial_sma", "handle": "*"}
+                    "target": {"id": "partial_sma", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "partial_sma", "handle": "result"},
@@ -2266,11 +2266,11 @@ TEST_CASE("AlgorithmOptimizer: Clamp Multiple Values",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "extreme_sma", "handle": "*"}
+                "target": {"id": "extreme_sma", "handle": "SLOT"}
             },
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "extreme_rsi", "handle": "*"}
+                "target": {"id": "extreme_rsi", "handle": "SLOT"}
             },
             {
                 "source": {"id": "extreme_sma", "handle": "result"},
@@ -2374,11 +2374,11 @@ TEST_CASE("AlgorithmOptimizer: Multiple Bool Connections Removal",
         "edges": [
             {
                 "source": {"id": "mds", "handle": "c"},
-                "target": {"id": "valid_condition", "handle": "*0"}
+                "target": {"id": "valid_condition", "handle": "SLOT0"}
             },
             {
                 "source": {"id": "mds", "handle": "h"},
-                "target": {"id": "valid_condition", "handle": "*1"}
+                "target": {"id": "valid_condition", "handle": "SLOT1"}
             },
             {
                 "source": {"id": "valid_condition", "handle": "result"},
@@ -2456,7 +2456,7 @@ TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "ma_with_timeframe", "handle": "*"}
+                    "target": {"id": "ma_with_timeframe", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "ma_with_timeframe", "handle": "result"},
@@ -2557,7 +2557,7 @@ TEST_CASE("AlgorithmOptimizer: Remove Unnecessary Timeframes",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "ma", "handle": "*"}
+                    "target": {"id": "ma", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "ma", "handle": "result"},
@@ -2627,19 +2627,19 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "gt_node", "handle": "*0"}
+                    "target": {"id": "gt_node", "handle": "SLOT0"}
                 },
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "gt_node", "handle": "*1"}
+                    "target": {"id": "gt_node", "handle": "SLOT1"}
                 },
                 {
                     "source": {"id": "gt_node", "handle": "result"},
-                    "target": {"id": "add_node", "handle": "*0"}
+                    "target": {"id": "add_node", "handle": "SLOT0"}
                 },
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "add_node", "handle": "*1"}
+                    "target": {"id": "add_node", "handle": "SLOT1"}
                 },
                 {
                     "source": {"id": "add_node", "handle": "result"},
@@ -2694,11 +2694,11 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
             "edges": [
                 {
                     "source": {"id": "mds", "handle": "c"},
-                    "target": {"id": "ma_node", "handle": "*"}
+                    "target": {"id": "ma_node", "handle": "SLOT"}
                 },
                 {
                     "source": {"id": "ma_node", "handle": "result"},
-                    "target": {"id": "and_node", "handle": "*0"}
+                    "target": {"id": "and_node", "handle": "SLOT0"}
                 },
                 {
                     "source": {"id": "and_node", "handle": "result"},

@@ -48,3 +48,42 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
           sampleArgStr, inputsStr, outputsStr,
           testTransformsMetaData.atLeastOneInputRequired));
 }
+
+TEST_CASE("IOMetaDataConstants: List and Struct types are available",
+          "[IOMetaDataConstants]") {
+  using namespace epoch_metadata::transforms;
+
+  SECTION("List metadata constants exist") {
+    REQUIRE(IOMetaDataConstants::LIST_INPUT_METADATA.type ==
+            epoch_core::IODataType::List);
+    REQUIRE(IOMetaDataConstants::LIST_OUTPUT_METADATA.type ==
+            epoch_core::IODataType::List);
+    REQUIRE(IOMetaDataConstants::LIST_INPUT_METADATA.id == "SLOT");
+    REQUIRE(IOMetaDataConstants::LIST_OUTPUT_METADATA.id == "result");
+  }
+
+  SECTION("Struct metadata constants exist") {
+    REQUIRE(IOMetaDataConstants::STRUCT_INPUT_METADATA.type ==
+            epoch_core::IODataType::Struct);
+    REQUIRE(IOMetaDataConstants::STRUCT_OUTPUT_METADATA.type ==
+            epoch_core::IODataType::Struct);
+    REQUIRE(IOMetaDataConstants::STRUCT_INPUT_METADATA.id == "SLOT");
+    REQUIRE(IOMetaDataConstants::STRUCT_OUTPUT_METADATA.id == "result");
+  }
+
+  SECTION("List and Struct are in the MAP") {
+    REQUIRE(IOMetaDataConstants::MAP.contains("LIST"));
+    REQUIRE(IOMetaDataConstants::MAP.contains("LIST_RESULT"));
+    REQUIRE(IOMetaDataConstants::MAP.contains("STRUCT"));
+    REQUIRE(IOMetaDataConstants::MAP.contains("STRUCT_RESULT"));
+
+    REQUIRE(IOMetaDataConstants::MAP.at("LIST").type ==
+            epoch_core::IODataType::List);
+    REQUIRE(IOMetaDataConstants::MAP.at("LIST_RESULT").type ==
+            epoch_core::IODataType::List);
+    REQUIRE(IOMetaDataConstants::MAP.at("STRUCT").type ==
+            epoch_core::IODataType::Struct);
+    REQUIRE(IOMetaDataConstants::MAP.at("STRUCT_RESULT").type ==
+            epoch_core::IODataType::Struct);
+  }
+}

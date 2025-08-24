@@ -18,7 +18,7 @@ type: atr
 options:
   period: 20
 inputs:
-  "*": "c"
+  ARG: "c"
 )";
 
   YAML::Node node = YAML::Load(yaml_str);
@@ -44,7 +44,7 @@ type: atr
 options:
   period: .periodParam
 inputs:
-  "*": "c"
+  ARG: "c"
 )";
 
   YAML::Node node = YAML::Load(yaml_str);
@@ -70,7 +70,7 @@ TEST_CASE("AlgorithmNode decode - missing required option throws",
 type: atr
 options: {}   # 'period' is not provided
 inputs:
-  "*": "c"
+  ARG: "c"
 )";
 
   YAML::Node node = YAML::Load(yaml_str);

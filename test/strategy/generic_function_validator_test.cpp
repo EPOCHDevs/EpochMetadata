@@ -823,7 +823,7 @@ TEST_CASE("GenericFunctionOptimizer: Edge cases",
                                    .timeframe = std::nullopt}};
     dataToOptimize.edges = {
         UIEdge{.source = {.id = "mds", .handle = "c"},
-               .target = {.id = "connected", .handle = "*"}},
+               .target = {.id = "connected", .handle = ARG}},
         UIEdge{.source = {.id = "connected", .handle = "result"},
                .target = {.id = "executor", .handle = "long"}}};
 

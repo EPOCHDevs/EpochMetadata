@@ -70,7 +70,8 @@ CREATE_ENUM(
     vortex,             // Vortex Indicator
     trade_signal);      // Trade Signal Executor
 
-CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any);
+CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any, List,
+            Struct);
 
 namespace epoch_metadata::transforms {
 constexpr auto MARKET_DATA_SOURCE_ID = "market_data_source";
@@ -191,6 +192,18 @@ struct IOMetaDataConstants {
   inline static IOMetaData NUMBER_OUTPUT_METADATA{
       epoch_core::IODataType::Number, "result", "", true};
 
+  inline static IOMetaData LIST_INPUT_METADATA{epoch_core::IODataType::List,
+                                               ARG, "", false};
+
+  inline static IOMetaData LIST_OUTPUT_METADATA{epoch_core::IODataType::List,
+                                                "result", "", true};
+
+  inline static IOMetaData STRUCT_INPUT_METADATA{epoch_core::IODataType::Struct,
+                                                 ARG, "", false};
+
+  inline static IOMetaData STRUCT_OUTPUT_METADATA{
+      epoch_core::IODataType::Struct, "result", "", true};
+
   inline static std::unordered_map<std::string, IOMetaData> MAP{
       {"CLOSE", CLOSE_PRICE_METADATA},
       {"OPEN", OPEN_PRICE_METADATA},
@@ -205,7 +218,11 @@ struct IOMetaDataConstants {
       {"NUMBER_RESULT", NUMBER_OUTPUT_METADATA},
       {"ANY_RESULT", ANY_OUTPUT_METADATA},
       {"BOOLEAN", BOOLEAN_INPUT_METADATA},
-      {"BOOLEAN_RESULT", BOOLEAN_OUTPUT_METADATA}};
+      {"BOOLEAN_RESULT", BOOLEAN_OUTPUT_METADATA},
+      {"LIST", LIST_INPUT_METADATA},
+      {"LIST_RESULT", LIST_OUTPUT_METADATA},
+      {"STRUCT", STRUCT_INPUT_METADATA},
+      {"STRUCT_RESULT", STRUCT_OUTPUT_METADATA}};
 };
 
 std::vector<TransformsMetaData> MakeComparativeMetaData();
