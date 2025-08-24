@@ -3,9 +3,11 @@
 //
 #include "catch2/catch_session.hpp"
 #include "common.h"
+#include "epoch_frame/factory/calendar_factory.h"
 #include "epoch_metadata/strategy/registration.h"
 
 int main(int argc, char *argv[]) {
+  epoch_frame::calendar::CalendarFactory::instance().Init();
   epoch_metadata::strategy::RegisterStrategyMetadata(
       epoch_metadata::DEFAULT_YAML_LOADER,
       epoch_metadata::LoadAIGeneratedResources(

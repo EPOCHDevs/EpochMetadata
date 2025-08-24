@@ -893,3 +893,355 @@ zscore:
   category: Statistical
   renderKind: Standard
   plotKind: panel_line
+
+# ======== HIDDEN MARKOV MODEL (HMM) REGIME DETECTION ======== #
+
+hmm_2_states:
+  name: Hidden Markov Model (2 States)
+  desc: "Gaussian HMM for regime detection and probabilities over multiple input features."
+  options:
+    - { id: max_iterations, name: Max Iterations, type: Integer, default: 1000, min: 1, step_size: 1 }
+    - { id: tolerance, name: Convergence Tolerance, type: Decimal, default: 0.00001, min: 0.0 }
+    - { id: compute_zscore, name: Z-Score Normalize, type: Boolean, default: true }
+    - { id: min_training_samples, name: Min Training Samples, type: Integer, default: 100, min: 1 }
+    - { id: lookback_window, name: Lookback Window, type: Integer, default: 0, min: 0 }
+  inputs:
+    - { type: Number, id: "*", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "prob_state_0", name: "P(State 0)" }
+    - { type: Decimal, id: "prob_state_1", name: "P(State 1)" }
+    - { type: Decimal, id: "trans_to_state_0", name: "P(Transition→0)" }
+    - { type: Decimal, id: "trans_to_state_1", name: "P(Transition→1)" }
+    - { type: Decimal, id: "state_persistence", name: "State Persistence" }
+  tags: ["hmm", "regime", "statistical", "state", "volatility"]
+  category: Statistical
+  renderKind: Standard
+
+hmm_3_states:
+  name: Hidden Markov Model (3 States)
+  desc: "Gaussian HMM for regime detection and probabilities over multiple input features."
+  options:
+    - { id: max_iterations, name: Max Iterations, type: Integer, default: 1000, min: 1, step_size: 1 }
+    - { id: tolerance, name: Convergence Tolerance, type: Decimal, default: 0.00001, min: 0.0 }
+    - { id: compute_zscore, name: Z-Score Normalize, type: Boolean, default: true }
+    - { id: min_training_samples, name: Min Training Samples, type: Integer, default: 100, min: 1 }
+    - { id: lookback_window, name: Lookback Window, type: Integer, default: 0, min: 0 }
+  inputs:
+    - { type: Number, id: "*", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "prob_state_0", name: "P(State 0)" }
+    - { type: Decimal, id: "prob_state_1", name: "P(State 1)" }
+    - { type: Decimal, id: "prob_state_2", name: "P(State 2)" }
+    - { type: Decimal, id: "trans_to_state_0", name: "P(Transition→0)" }
+    - { type: Decimal, id: "trans_to_state_1", name: "P(Transition→1)" }
+    - { type: Decimal, id: "trans_to_state_2", name: "P(Transition→2)" }
+    - { type: Decimal, id: "state_persistence", name: "State Persistence" }
+  tags: ["hmm", "regime", "statistical", "state", "volatility"]
+  category: Statistical
+  renderKind: Standard
+
+hmm_4_states:
+  name: Hidden Markov Model (4 States)
+  desc: "Gaussian HMM for regime detection and probabilities over multiple input features."
+  options:
+    - { id: max_iterations, name: Max Iterations, type: Integer, default: 1000, min: 1, step_size: 1 }
+    - { id: tolerance, name: Convergence Tolerance, type: Decimal, default: 0.00001, min: 0.0 }
+    - { id: compute_zscore, name: Z-Score Normalize, type: Boolean, default: true }
+    - { id: min_training_samples, name: Min Training Samples, type: Integer, default: 100, min: 1 }
+    - { id: lookback_window, name: Lookback Window, type: Integer, default: 0, min: 0 }
+  inputs:
+    - { type: Number, id: "*", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "prob_state_0", name: "P(State 0)" }
+    - { type: Decimal, id: "prob_state_1", name: "P(State 1)" }
+    - { type: Decimal, id: "prob_state_2", name: "P(State 2)" }
+    - { type: Decimal, id: "prob_state_3", name: "P(State 3)" }
+    - { type: Decimal, id: "trans_to_state_0", name: "P(Transition→0)" }
+    - { type: Decimal, id: "trans_to_state_1", name: "P(Transition→1)" }
+    - { type: Decimal, id: "trans_to_state_2", name: "P(Transition→2)" }
+    - { type: Decimal, id: "trans_to_state_3", name: "P(Transition→3)" }
+    - { type: Decimal, id: "state_persistence", name: "State Persistence" }
+  tags: ["hmm", "regime", "statistical", "state", "volatility"]
+  category: Statistical
+  renderKind: Standard
+
+# ======== SCALAR AGGREGATIONS (Apache Arrow) ======== #
+
+scalar_mean:
+  name: Scalar Mean
+  desc: "Mean over the entire input series, emitted as a single-row result at the last index."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "statistics", "mean"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_sum:
+  name: Scalar Sum
+  desc: "Sum over the entire input series, emitted as a single-row result at the last index."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "statistics", "sum"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_min:
+  name: Scalar Min
+  desc: "Minimum value over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "min"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_max:
+  name: Scalar Max
+  desc: "Maximum value over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "max"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_stddev:
+  name: Scalar StdDev
+  desc: "Standard deviation over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+    - { id: ddof, name: Delta Degrees of Freedom, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "statistics", "stddev"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_variance:
+  name: Scalar Variance
+  desc: "Variance over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+    - { id: ddof, name: Delta Degrees of Freedom, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "statistics", "variance"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_quantile:
+  name: Scalar Quantile
+  desc: "Quantile over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+    - { id: quantile, name: Quantile, type: Decimal, default: 0.5, min: 0.0, max: 1.0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "statistics", "quantile"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_count:
+  name: Scalar Count
+  desc: "Count of values in the input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+  inputs: [NUMBER]
+  outputs: [NUMBER_RESULT]
+  tags: ["aggregate", "scalar", "count"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_count_all:
+  name: Scalar Count All
+  desc: "Count of all values including nulls."
+  options: []
+  inputs: [NUMBER]
+  outputs: [NUMBER_RESULT]
+  tags: ["aggregate", "scalar", "count"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_count_distinct:
+  name: Scalar Count Distinct
+  desc: "Count of distinct values in the input series."
+  options: []
+  inputs:
+    - { type: Any, id: "*", name: "Values", allowMultipleConnections: false }
+  outputs: [NUMBER_RESULT]
+  tags: ["aggregate", "scalar", "count", "distinct"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_all:
+  name: Scalar All
+  desc: "True if all values are true."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [BOOLEAN]
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "scalar", "boolean", "all"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_any:
+  name: Scalar Any
+  desc: "True if any value is true."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [BOOLEAN]
+  outputs: [BOOLEAN_RESULT]
+  tags: ["aggregate", "scalar", "boolean", "any"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_first:
+  name: Scalar First
+  desc: "First value in the input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "first"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_last:
+  name: Scalar Last
+  desc: "Last value in the input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "last"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_first_last:
+  name: Scalar First/Last
+  desc: "First and last values over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs:
+    - { type: Decimal, id: "result#first", name: "First" }
+    - { type: Decimal, id: "result#last", name: "Last" }
+  tags: ["aggregate", "scalar", "first", "last"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_min_max:
+  name: Scalar Min/Max
+  desc: "Minimum and maximum values over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs:
+    - { type: Decimal, id: "result#min", name: "Min" }
+    - { type: Decimal, id: "result#max", name: "Max" }
+  tags: ["aggregate", "scalar", "min", "max"]
+  category: Aggregate
+  renderKind: Standard
+
+scalar_mode:
+  name: Scalar Mode
+  desc: "Most frequent value and its count."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs:
+    - { type: Decimal, id: "result#mode", name: "Mode" }
+    - { type: Number, id: "result#count", name: "Count" }
+  tags: ["aggregate", "scalar", "mode"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_index:
+  name: Scalar Index
+  desc: "Index of the matching value based on the function's criteria."
+  options: []
+  inputs: [NUMBER]
+  outputs: [NUMBER_RESULT]
+  tags: ["aggregate", "scalar", "index"]
+  category: Utility
+  renderKind: Standard
+
+scalar_product:
+  name: Scalar Product
+  desc: "Product over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "product"]
+  category: Math
+  renderKind: Standard
+
+scalar_approximate_median:
+  name: Scalar Approximate Median
+  desc: "Approximate median over the entire input series."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "median"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_kurtosis:
+  name: Scalar Kurtosis
+  desc: "Kurtosis over the entire input series."
+  options: []
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "kurtosis"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_skew:
+  name: Scalar Skew
+  desc: "Skewness over the entire input series."
+  options: []
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "skew"]
+  category: Statistical
+  renderKind: Standard
+
+scalar_tdigest:
+  name: Scalar T-Digest
+  desc: "T-Digest based aggregate (e.g., quantile estimation)."
+  options:
+    - { id: skip_nulls, name: Skip Nulls, type: Boolean, default: true }
+    - { id: min_count, name: Min Count, type: Integer, default: 1, min: 0 }
+    - { id: quantile, name: Quantile, type: Decimal, default: 0.5, min: 0.0, max: 1.0 }
+  inputs: [NUMBER]
+  outputs: [DECIMAL_RESULT]
+  tags: ["aggregate", "scalar", "tdigest", "quantile"]
+  category: Statistical
+  renderKind: Standard
