@@ -192,6 +192,9 @@ struct IOMetaDataConstants {
   inline static IOMetaData NUMBER_OUTPUT_METADATA{
       epoch_core::IODataType::Number, "result", "", true};
 
+  inline static IOMetaData INTEGER_OUTPUT_METADATA{
+      epoch_core::IODataType::Integer, "result", "", true};
+
   inline static IOMetaData LIST_INPUT_METADATA{epoch_core::IODataType::List,
                                                ARG, "", false};
 
@@ -215,6 +218,7 @@ struct IOMetaDataConstants {
       {"NUMBER", NUMBER_INPUT_METADATA},
       {"ANY", ANY_INPUT_METADATA},
       {"DECIMAL_RESULT", DECIMAL_OUTPUT_METADATA},
+      {"INTEGER_RESULT", INTEGER_OUTPUT_METADATA},
       {"NUMBER_RESULT", NUMBER_OUTPUT_METADATA},
       {"ANY_RESULT", ANY_OUTPUT_METADATA},
       {"BOOLEAN", BOOLEAN_INPUT_METADATA},
