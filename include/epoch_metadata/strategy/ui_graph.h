@@ -7,7 +7,7 @@
 namespace epoch_metadata::strategy {
 // Main compiler interface - validate then compile
 std::expected<PartialTradeSignalMetaData, ValidationIssues>
-CreateAlgorithmMetaData(const UIData &data);
+CreateAlgorithmMetaData(const UIData &data, bool strict);
 
 // Layout function using Graphviz dot algorithm with defaults
 std::expected<UIData, std::string> AlignHorizontally(const UIData &data);

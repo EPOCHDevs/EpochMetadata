@@ -11,7 +11,7 @@ namespace epoch_metadata::strategy {
 /// Complete compiler pipeline: validate UIData then compile to metadata
 /// This is the main entry point for the "compiler"
 std::expected<PartialTradeSignalMetaData, ValidationIssues>
-CompileAlgorithmMetaData(const UIData &sourceGraph);
+CompileAlgorithmMetaData(const UIData &sourceGraph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence);
 
 /// Utility function to format validation issues for display
 std::string FormatValidationIssues(const ValidationIssues &issues);

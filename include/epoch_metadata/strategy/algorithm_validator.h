@@ -22,10 +22,12 @@ struct ValidationCache {
 /// Semantic validation of UIData (source code validation)
 /// This validates the graph structure, type consistency, etc. before
 /// compilation
-ValidationResult ValidateUIData(const UIData &graph);
+ValidationResult ValidateUIData(const UIData &graph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence);
 
 /// Individual validation phases
-void ValidateNode(const UIData &graph, ValidationCache &cache,
+void ValidateNode(const UIData &graph,
+                  bool enforceOrphanedNodeCheck,
+                  ValidationCache &cache,
                   ValidationIssues &issues);
 void ValidateEdgeReferences(const std::vector<UIEdge> &edges,
                             const ValidationCache &cache,
@@ -39,7 +41,7 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
 /// Optimization functions for UIData
 /// Optimizes the algorithm by removing orphan nodes, fixing stuck bool nodes,
 /// applying default values, clamping values, and other improvements
-UIData OptimizeUIData(const UIData &graph);
+UIData OptimizeUIData(const UIData &graph, bool optimizeOrphanedNodes);
 
 /// Individual optimization phases
 void RemoveOrphanNodes(UIData &graph);

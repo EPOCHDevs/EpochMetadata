@@ -79,7 +79,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   auto data = ParseUIData(json);
 
   // Call CreateAlgorithmMetaData.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   {
     INFO((result.has_value() ? std::string{}
                              : epoch_metadata::strategy::FormatValidationIssues(
@@ -174,7 +174,7 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
   auto data = ParseUIData(json);
 
   // Call CreateAlgorithmMetaData.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   {
     INFO((result.has_value() ? std::string{}
                              : epoch_metadata::strategy::FormatValidationIssues(
@@ -273,7 +273,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Inputs Aggregation",
   auto data = ParseUIData(json);
 
   // Call CreateAlgorithmMetaData.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   {
     INFO((result.has_value() ? std::string{}
                              : epoch_metadata::strategy::FormatValidationIssues(
@@ -344,7 +344,7 @@ TEST_CASE(
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to exposed option on executor.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   REQUIRE(result.has_value());
 }
 
@@ -384,7 +384,7 @@ TEST_CASE(
   data.edges.push_back({algoOut, execV});
 
   // Expect exception due to missing name for exposed option.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   REQUIRE_FALSE(result.has_value());
   REQUIRE_THAT(epoch_metadata::strategy::FormatValidationIssues(result.error()),
                Catch::Matchers::ContainsSubstring("empty display name"));
@@ -436,7 +436,7 @@ TEST_CASE("CreateAlgorithmMetaData: Topological Sorting of Algorithm Nodes",
   data.edges.push_back({out7, execV});
 
   // Call CreateAlgorithmMetaData.
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
   {
     INFO((result.has_value() ? std::string{}
                              : epoch_metadata::strategy::FormatValidationIssues(
@@ -510,7 +510,7 @@ TEST_CASE("CreateAlgorithmMetaData: Cyclic Dependency Detection",
   data.edges.push_back({out2ToExec, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the cycle
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
 
   // Verify that the function detected the cycle and returned an error
   REQUIRE_FALSE(result.has_value());
@@ -557,7 +557,7 @@ TEST_CASE("CreateAlgorithmMetaData: Unknown Node Type Detection",
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to unknown node type
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
 
   // Verify that the function detected the unknown type and returned an error
   REQUIRE_FALSE(result.has_value());
@@ -597,7 +597,7 @@ TEST_CASE("CreateAlgorithmMetaData: Invalid Edge Detection",
   data.edges.push_back({algoOut, execVertex});
 
   // Call CreateAlgorithmMetaData - should fail due to the invalid edge
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
 
   // Verify that the function detected the invalid edge and returned an error
   REQUIRE_FALSE(result.has_value());
@@ -655,7 +655,7 @@ TEST_CASE("CreateAlgorithmMetaData: Multiple Executors Detection",
   data.edges.push_back({algoOut2, exec2Vertex});
 
   // Call CreateAlgorithmMetaData - should fail due to multiple executors
-  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data);
+  auto result = epoch_metadata::strategy::CreateAlgorithmMetaData(data, true);
 
   // Verify that the function detected multiple executors and returned an error
   REQUIRE_FALSE(result.has_value());

@@ -524,8 +524,8 @@ PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
 }
 
 std::expected<PartialTradeSignalMetaData, ValidationIssues>
-CreateAlgorithmMetaData(const UIData &data) {
-  return CompileAlgorithmMetaData(data);
+CreateAlgorithmMetaData(const UIData &data, bool strict) {
+  return CompileAlgorithmMetaData(data, strict, strict);
 }
 
 std::expected<std::vector<UIOption>, std::string> ConvertOptions(

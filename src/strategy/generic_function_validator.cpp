@@ -28,7 +28,7 @@ ValidationIssues ValidateGenericFunction(const GenericFunction &function,
       function.type.value(), issues);
 
   if (function.data) {
-    auto data_issues = ValidateUIData(function.data.value());
+    auto data_issues = ValidateUIData(function.data.value(), true, true);
     if (!data_issues.has_value()) {
       auto data_issues_copy = data_issues.error();
       issues.insert(issues.end(), data_issues_copy.begin(),
@@ -233,7 +233,7 @@ GenericFunction OptimizeGenericFunction(const GenericFunction &function,
 
   // If the function has data, optimize it too
   if (optimizedFunction.data.has_value()) {
-    optimizedFunction.data = OptimizeUIData(optimizedFunction.data.value());
+    optimizedFunction.data = OptimizeUIData(optimizedFunction.data.value(), true);
   }
 
   return optimizedFunction;

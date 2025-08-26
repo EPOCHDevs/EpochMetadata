@@ -140,6 +140,7 @@ void BuildNodeConnections(const std::vector<UIEdge> &edges,
 
 void ValidateNodeConnections(const UINode &node,
                              const TransformsMetaData &transformMetaData,
+                             bool enforceOrphanedNodeCheck,
                              ValidationCache &cache, ValidationIssues &issues) {
 
   const auto &inputConnectionsIter =
@@ -158,20 +159,22 @@ void ValidateNodeConnections(const UINode &node,
           ? T{}
           : outputConnectionsIter->second;
 
-  if (!transformMetaData.inputs.empty() && inputConnections.empty()) {
-    issues.push_back({ValidationCode::OrphanedNode, node,
-                      std::format("Node '{}' has no connections", node.id),
-                      std::format("Connect node '{}' to other nodes via inputs "
-                                  "or outputs to make it functional",
-                                  node.id)});
-  }
-  if (!transformMetaData.outputs.empty() && outputConnections.empty()) {
-    issues.push_back(
-        {ValidationCode::OrphanedNode, node,
-         std::format("Node '{}' has no output connections", node.id),
-         std::format("Connect node '{}' to other nodes via outputs "
-                     "to make it functional",
-                     node.id)});
+  if (enforceOrphanedNodeCheck) {
+    if (!transformMetaData.inputs.empty() && inputConnections.empty()) {
+      issues.push_back({ValidationCode::OrphanedNode, node,
+                        std::format("Node '{}' has no connections", node.id),
+                        std::format("Connect node '{}' to other nodes via inputs "
+                                    "or outputs to make it functional",
+                                    node.id)});
+    }
+    if (!transformMetaData.outputs.empty() && outputConnections.empty()) {
+      issues.push_back(
+          {ValidationCode::OrphanedNode, node,
+           std::format("Node '{}' has no output connections", node.id),
+           std::format("Connect node '{}' to other nodes via outputs "
+                       "to make it functional",
+                       node.id)});
+    }
   }
 
   if (transformMetaData.atLeastOneInputRequired && inputConnections.empty()) {
@@ -219,7 +222,9 @@ void ValidateNodeConnections(const UINode &node,
   }
 }
 
-void ValidateNode(const UIData &graph, ValidationCache &cache,
+void ValidateNode(const UIData &graph,
+                  bool enforceOrphanedNodeCheck,
+                  ValidationCache &cache,
                   ValidationIssues &issues) {
   const auto &registry =
       transforms::ITransformRegistry::GetInstance().GetMetaData();
@@ -245,7 +250,7 @@ void ValidateNode(const UIData &graph, ValidationCache &cache,
       const auto &transformMetaData = registry.at(node.type);
       cache.nodeMap[node.id] = {node, transformMetaData};
       ValidateNodeOptions(node, transformMetaData, issues);
-      ValidateNodeConnections(node, transformMetaData, cache, issues);
+      ValidateNodeConnections(node, transformMetaData, enforceOrphanedNodeCheck, cache, issues);
     }
 
     if (cache.validatedNodeIds.contains(node.id)) {
@@ -423,12 +428,10 @@ void ValidateEdgeReferences(const std::vector<UIEdge> &edges,
 
 void ValidateExecutorPresence(const UIData &graph, ValidationIssues &issues) {
   size_t executorCount = 0;
-  UINode executorNode;
 
   for (const auto &node : graph.nodes) {
     if (node.type == TRADE_SIGNAL_EXECUTOR) {
       executorCount++;
-      executorNode = node;
     }
   }
 
@@ -534,19 +537,21 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
   }
 }
 
-ValidationResult ValidateUIData(const UIData &graph) {
+ValidationResult ValidateUIData(const UIData &graph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence) {
   ValidationIssues allIssues;
   ValidationCache cache;
 
   // Run validation phases in proper order:
   // 1. Basic node validation - builds cache
-  ValidateNode(graph, cache, allIssues);
+  ValidateNode(graph, enforceOrphanedNodeCheck, cache, allIssues);
 
   // 2. Edge validation - uses cache
   ValidateEdgeReferences(graph.edges, cache, allIssues);
 
   // 3. Executor presence check
-  ValidateExecutorPresence(graph, allIssues);
+  if (enforceExecutorPresence) {
+    ValidateExecutorPresence(graph, allIssues);
+  }
 
   // 4. Cycle detection - IMPORTANT: fills sortedNodeIds in cache
   ValidateAcyclic(graph, cache, allIssues);
@@ -574,12 +579,15 @@ ValidationResult ValidateUIData(const UIData &graph) {
 // Optimization Functions Implementation
 // ============================================================================
 
-UIData OptimizeUIData(const UIData &graph) {
+UIData OptimizeUIData(const UIData &graph, bool optimizeOrphanedNodes) {
   UIData optimizedGraph = graph;
 
   // Apply optimization phases in order
   // RemoveStuckBoolNodesFromExecutor(optimizedGraph);
-  RemoveOrphanNodes(optimizedGraph);
+  if (optimizeOrphanedNodes) {
+    RemoveOrphanNodes(optimizedGraph);
+  }
+
   ApplyDefaultOptions(optimizedGraph);
   ClampOptionValues(optimizedGraph);
   RemoveUnnecessaryTimeframes(optimizedGraph);

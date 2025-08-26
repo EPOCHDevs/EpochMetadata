@@ -81,7 +81,7 @@ void RegisterStrategyMetadata(
   auto aiGenerated =
       LoadMetaDataT<AIGeneratedAlgorithmMetaData>(aiGeneratedAlgorithms);
   for (auto [i, config] : std::views::enumerate(aiGenerated)) {
-    auto converted = CreateAlgorithmMetaData(config.blueprint);
+    auto converted = CreateAlgorithmMetaData(config.blueprint, true);
     if (!converted) {
       SPDLOG_ERROR("{}: Failed to convert trade signal: {}", config.name,
                    FormatValidationIssues(converted.error()));
