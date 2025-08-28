@@ -22,7 +22,7 @@ struct ValidationCache {
 /// Semantic validation of UIData (source code validation)
 /// This validates the graph structure, type consistency, etc. before
 /// compilation
-ValidationResult ValidateUIData(const UIData &graph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence);
+ValidationResult ValidateUIData(const UIData &graph, bool strictMode);
 
 /// Individual validation phases
 void ValidateNode(const UIData &graph,

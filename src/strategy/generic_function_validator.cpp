@@ -28,7 +28,7 @@ ValidationIssues ValidateGenericFunction(const GenericFunction &function,
       function.type.value(), issues);
 
   if (function.data) {
-    auto data_issues = ValidateUIData(function.data.value(), true, true);
+    auto data_issues = ValidateUIData(function.data.value(), true);
     if (!data_issues.has_value()) {
       auto data_issues_copy = data_issues.error();
       issues.insert(issues.end(), data_issues_copy.begin(),

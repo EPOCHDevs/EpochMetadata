@@ -5,9 +5,9 @@
 namespace epoch_metadata::strategy {
 
 std::expected<PartialTradeSignalMetaData, ValidationIssues>
-CompileAlgorithmMetaData(const UIData &sourceGraph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence) {
+CompileAlgorithmMetaData(const UIData &sourceGraph, bool strictMode) {
   // Step 1: Validate the source code (UIData) - returns sorted nodes on success
-  auto validationResult = ValidateUIData(sourceGraph, enforceOrphanedNodeCheck, enforceExecutorPresence);
+  auto validationResult = ValidateUIData(sourceGraph, strictMode);
   if (!validationResult) {
     return std::unexpected(validationResult.error());
   }
@@ -15,7 +15,7 @@ CompileAlgorithmMetaData(const UIData &sourceGraph, bool enforceOrphanedNodeChec
   // Step 2: Compile the validated and sorted source to metadata
   // Use the sorted nodes for efficient compilation
   const auto &sortedNodes = validationResult.value();
-  auto compilationResult = CompileUIData(sortedNodes, sourceGraph);
+  auto compilationResult = CompileUIData(sortedNodes, sourceGraph, strictMode);
   if (!compilationResult) {
     // Compilation failure after successful validation is unexpected
     // Wrap as validation issue for consistent error handling

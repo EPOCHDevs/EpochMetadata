@@ -27,7 +27,7 @@ extern epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
 
 extern PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
     const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
-    std::vector<std::string> const& sortedIds);
+    std::vector<std::string> const& sortedIds, bool strictMode);
 
 struct CompilerData {
   std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode>
@@ -91,7 +91,8 @@ CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
 
 std::expected<PartialTradeSignalMetaData, std::string>
 CompileUIData(const std::vector<UINode> &sortedNodes,
-              const UIData &validatedGraph) {
+              const UIData &validatedGraph,
+              bool strictMode) {
   epoch_metadata::MetaDataOptionList options;
 
   // Step 1: Compile nodes using the pre-sorted order from validation
@@ -114,7 +115,8 @@ CompileUIData(const std::vector<UINode> &sortedNodes,
 
   // Step 3: Generate final metadata
   try {
-    auto metadata = CreatePartialTradeSignalMetaData(compilerData.algorithmMap, sortedIds);
+    auto metadata = CreatePartialTradeSignalMetaData(compilerData.algorithmMap,
+      sortedIds, strictMode);
     metadata.options = options;
     return metadata;
   } catch (const std::exception &e) {

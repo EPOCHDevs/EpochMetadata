@@ -69,7 +69,7 @@ TEST_CASE("AlgorithmValidator: Empty Graph", "[AlgorithmValidator]") {
   if (const auto error = glz::read_json(data, json)) {
     INFO(glz::format_error(error));
   } else {
-    const auto validationResult = ValidateUIData(data, true, true);
+    const auto validationResult = ValidateUIData(data, true);
     ExpectValidationError(validationResult, ValidationCode::EmptyGraph,
                           "Graph contains no nodes");
   }
@@ -92,7 +92,7 @@ TEST_CASE("AlgorithmValidator: Missing Executor", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  const auto result = ValidateUIData(data, true, true);
+  const auto result = ValidateUIData(data, true);
   ExpectValidationError(result, ValidationCode::MissingExecutor,
                         "No TradeSignalExecutor");
 }
@@ -121,7 +121,7 @@ TEST_CASE("AlgorithmValidator: Multiple Executors", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::MultipleExecutors,
                         "Found 2 TradeSignalExecutors");
@@ -151,7 +151,7 @@ TEST_CASE("AlgorithmValidator: Unknown Node Type", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::UnknownNodeType,
                         "Unknown node type");
@@ -181,7 +181,7 @@ TEST_CASE("AlgorithmValidator: Empty Node Id", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidNodeId,
                         "Node has empty id");
@@ -218,7 +218,7 @@ TEST_CASE("AlgorithmValidator: Duplicate Node Id", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidNodeId,
                         "Duplicate node id");
@@ -249,7 +249,7 @@ TEST_CASE("AlgorithmValidator: Orphaned Node with no connections",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::OrphanedNode,
                         "has no connections");
@@ -285,7 +285,7 @@ TEST_CASE("AlgorithmValidator: Orphaned Node with no output connections",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::OrphanedNode,
                         "has no output connections");
@@ -321,7 +321,7 @@ TEST_CASE("AlgorithmValidator: Invalid Edge - Unknown Node",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidEdge,
                         "references unknown source node");
@@ -364,7 +364,7 @@ TEST_CASE("AlgorithmValidator: Invalid Edge - Unknown Handle",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidEdge,
                         "references unknown source handle");
@@ -400,7 +400,7 @@ TEST_CASE("AlgorithmValidator: Invalid Edge - Empty Handle",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidEdge,
                         "references unknown source handle");
@@ -435,7 +435,7 @@ TEST_CASE("AlgorithmValidator: Self Loop Edge", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidEdge,
                         "same source and target");
@@ -492,7 +492,7 @@ TEST_CASE("AlgorithmValidator: Cycle Detection", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::CycleDetected,
                         "Cycle detected");
@@ -539,7 +539,7 @@ TEST_CASE("AlgorithmValidator: Missing Required Option",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA requires period option
   ExpectValidationError(result, ValidationCode::MissingRequiredOption,
@@ -588,7 +588,7 @@ TEST_CASE("AlgorithmValidator: Invalid Option Type", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidOptionReference,
                         "invalid type");
@@ -637,7 +637,7 @@ TEST_CASE("AlgorithmValidator: Unknown Option", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidOptionReference,
                         "Unknown option");
@@ -686,7 +686,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Without Name",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidOptionReference,
                         "empty display name");
@@ -798,7 +798,7 @@ TEST_CASE("AlgorithmValidator: Valid Complex Graph", "[AlgorithmValidator]") {
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   auto error = result.has_value() ? std::string{}
                                   : FormatValidationIssues(result.error());
@@ -850,7 +850,7 @@ TEST_CASE("AlgorithmValidator: Missing Required Input",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // Add node requires at least one input
   ExpectValidationError(result, ValidationCode::MissingRequiredInput,
@@ -894,7 +894,7 @@ TEST_CASE("AlgorithmValidator: Invalid Connection Count",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // Sub requires exactly 2 inputs
   ExpectValidationError(result, ValidationCode::InvalidNodeConnection,
@@ -938,7 +938,7 @@ TEST_CASE("AlgorithmValidator: Edge Data Type Mismatch",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // Boolean output cannot connect to number input
   ExpectValidationError(result, ValidationCode::InvalidEdge, "type");
@@ -989,7 +989,7 @@ TEST_CASE("AlgorithmValidator: All Validation Phases Coverage",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   REQUIRE_FALSE(result.has_value());
 
@@ -1060,7 +1060,7 @@ TEST_CASE("AlgorithmValidator: Multiple Connections to Same Handle",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA doesn't allow multiple connections to same input
   ExpectValidationError(result, ValidationCode::InvalidNodeConnection,
@@ -1127,7 +1127,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Source Not Numeric",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // GT node outputs Boolean, but ADD node expects numeric input
   ExpectValidationError(result, ValidationCode::InvalidEdge,
@@ -1186,7 +1186,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Compatibility - Target Not Numeric",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA outputs Number, but AND node expects Boolean input
   ExpectValidationError(result, ValidationCode::InvalidEdge,
@@ -1234,7 +1234,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too Low",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA period should be >= 1 (now that we fixed the metadata)
   ExpectValidationError(result, ValidationCode::OptionValueOutOfRange,
@@ -1282,7 +1282,7 @@ TEST_CASE("AlgorithmValidator: Option Value Out of Range - Too High",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA period should be <= 10000 (max=10000)
   ExpectValidationError(result, ValidationCode::OptionValueOutOfRange,
@@ -1356,7 +1356,7 @@ TEST_CASE("AlgorithmValidator: Option Value In Valid Range",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // This should be valid - both SMA periods (50, 20) are within valid range [1,
   // 10000] and the graph has proper type connections (Decimal -> Decimal ->
@@ -1409,7 +1409,7 @@ TEST_CASE("AlgorithmValidator: Multiple Option Validation Issues",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   REQUIRE_FALSE(result.has_value());
 
@@ -1458,7 +1458,7 @@ TEST_CASE("AlgorithmValidator: Decimal Option Range Validation",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA period value is out of range (max=10000)
   ExpectValidationError(result, ValidationCode::OptionValueOutOfRange,
@@ -1532,7 +1532,7 @@ TEST_CASE("AlgorithmValidator: SCALAR Node Timeframe Exclusion",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // This should be valid - SCALAR nodes (like "number") should be excluded
   // from timeframe validation, so connecting a node with timeframe to a
@@ -1625,7 +1625,7 @@ TEST_CASE("AlgorithmValidator: All Nodes No Timeframe - Valid",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // This should be valid - all nodes have no timeframes
   REQUIRE(result.has_value());
@@ -1697,7 +1697,7 @@ TEST_CASE("AlgorithmValidator: Market Data Source With Timeframe Is Valid",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
   auto errorStr =
       result.has_value() ? "" : FormatValidationIssues(result.error());
   INFO(errorStr);
@@ -1755,7 +1755,7 @@ TEST_CASE("AlgorithmValidator: Node With Timeframe But RequiresTimeFrame False",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // Should fail because trade_signal_executor has requiresTimeFrame=false but
   // timeframe is set
@@ -1815,7 +1815,7 @@ TEST_CASE("AlgorithmValidator: Exposed Option Name Validation",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   ExpectValidationError(result, ValidationCode::InvalidOptionReference,
                         "empty display name");
@@ -1873,7 +1873,7 @@ TEST_CASE("AlgorithmValidator: Multiple Connections To Single Handle",
     })";
 
   auto data = ParseUIData(json);
-  auto result = ValidateUIData(data, true, true);
+  auto result = ValidateUIData(data, true);
 
   // SMA transform typically doesn't allow multiple connections to the same
   // handle
@@ -1923,7 +1923,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Number to numeric types should be compatible
     if (!result.has_value()) {
@@ -1974,7 +1974,7 @@ TEST_CASE("AlgorithmValidator: Data Type Compatibility - Number Types",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Should have type compatibility error (Boolean to Decimal)
     ExpectValidationError(result, ValidationCode::InvalidEdge,
@@ -2008,7 +2008,7 @@ TEST_CASE("AlgorithmValidator: Node Input Requirements",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     ExpectValidationError(result, ValidationCode::MissingRequiredInput,
                           "has no input connections");
@@ -2056,7 +2056,7 @@ TEST_CASE("AlgorithmValidator: Node Input Requirements",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Add transform requires 2 inputs but only has 1
     ExpectValidationError(result, ValidationCode::InvalidNodeConnection,
@@ -2094,7 +2094,7 @@ TEST_CASE("AlgorithmValidator: Timeframe Validation", "[AlgorithmValidator]") {
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     ExpectValidationError(result, ValidationCode::TimeframeMismatch,
                           "requiresTimeFrame is false");
@@ -2651,7 +2651,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Should detect that GT (Boolean) output cannot connect to ADD (Number)
     // input
@@ -2710,7 +2710,7 @@ TEST_CASE("AlgorithmValidator: Numeric Type Validation Edge Cases",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Should detect that MA (Number) output cannot connect to AND (Boolean)
     // input
@@ -2776,7 +2776,7 @@ TEST_CASE("AlgorithmValidator: Any Type Compatibility",
         })";
 
     auto data = ParseUIData(json);
-    auto result = ValidateUIData(data, true, true);
+    auto result = ValidateUIData(data, true);
 
     // Should be valid since boolean_select has Any type inputs for true/false
     // values

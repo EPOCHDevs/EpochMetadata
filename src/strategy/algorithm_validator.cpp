@@ -537,19 +537,19 @@ void ValidateTimeframeConsistency(ValidationCache &cache,
   }
 }
 
-ValidationResult ValidateUIData(const UIData &graph, bool enforceOrphanedNodeCheck, bool enforceExecutorPresence) {
+ValidationResult ValidateUIData(const UIData &graph, bool strictMode) {
   ValidationIssues allIssues;
   ValidationCache cache;
 
   // Run validation phases in proper order:
   // 1. Basic node validation - builds cache
-  ValidateNode(graph, enforceOrphanedNodeCheck, cache, allIssues);
+  ValidateNode(graph, strictMode, cache, allIssues);
 
   // 2. Edge validation - uses cache
   ValidateEdgeReferences(graph.edges, cache, allIssues);
 
   // 3. Executor presence check
-  if (enforceExecutorPresence) {
+  if (strictMode) {
     ValidateExecutorPresence(graph, allIssues);
   }
 

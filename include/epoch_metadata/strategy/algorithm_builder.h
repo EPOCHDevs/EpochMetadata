@@ -11,6 +11,6 @@ namespace epoch_metadata::strategy {
 /// Only returns errors for truly unexpected compilation failures
 std::expected<PartialTradeSignalMetaData, std::string>
 CompileUIData(const std::vector<UINode> &sortedNodes,
-              const UIData &validatedGraph);
+              const UIData &validatedGraph, bool strictMode);
 
 } // namespace epoch_metadata::strategy

@@ -504,7 +504,7 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
 
 PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
     const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
-    std::vector<std::string> const& sortedIds) {
+    std::vector<std::string> const& sortedIds, bool strictMode) {
   PartialTradeSignalMetaData result;
   result.algorithm.reserve(algorithm.size());
 
@@ -518,14 +518,18 @@ PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
       result.algorithm.emplace_back(algo);
     }
   }
-  AssertFromStream(totalExecutors == 1,
+
+  if (strictMode) {
+    AssertFromStream(totalExecutors == 1,
                    "Expected exactly one executor. Found: " << totalExecutors);
+  }
+
   return result;
 }
 
 std::expected<PartialTradeSignalMetaData, ValidationIssues>
 CreateAlgorithmMetaData(const UIData &data, bool strict) {
-  return CompileAlgorithmMetaData(data, strict, strict);
+  return CompileAlgorithmMetaData(data, strict);
 }
 
 std::expected<std::vector<UIOption>, std::string> ConvertOptions(
