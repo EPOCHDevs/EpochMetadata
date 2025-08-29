@@ -48,6 +48,7 @@ CREATE_ENUM(
     h_line,             // horizontal line
     ichimoku,           // Ichimoku Cloud
     line,               // generic overlay
+    gap,                // Gap indicator
     panel_line,         // generic overlay, but not on top of the main plot,
     panel_line_percent, // generic overlay, but not on top of the main plot,
     qstick,             // Qstick indicator
@@ -66,6 +67,7 @@ CREATE_ENUM(
     liquidity,          // Liquidity
     stoch,              // Stochastic oscillator
     previous_high_low,  // Previous High and Low
+    pivot_point_sr,     // Pivot Point Support/Resistance
     vwap,               // VWAP overlay
     vortex,             // Vortex Indicator
     trade_signal);      // Trade Signal Executor

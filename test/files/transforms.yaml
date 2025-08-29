@@ -754,7 +754,7 @@ pivot_point_sr:
   tags: ["indicator", "support-resistance", "pivot", "reversal", "levels"]
   category: PriceAction
   renderKind: Simple
-  plotKind: h_line
+  plotKind: pivot_point_sr
   requiresTimeFrame: true
   requiredDataSources: ["h", "l", "c"]
 
@@ -1141,3 +1141,21 @@ scalar_tdigest:
   tags: ["aggregate", "scalar", "tdigest", "quantile"]
   category: Statistical
   renderKind: Standard
+
+# ======== GAP CLASSIFICATION ======== #
+
+gap_classify:
+  name: Gap Classify
+  desc: "Detects overnight gaps between previous close and current open at day boundaries, flags up/down gaps, whether they were filled intraday, and the fraction of fill (0-1)."
+  outputs:
+    - { type: Boolean, id: "up", name: "Gap Up" }
+    - { type: Boolean, id: "down", name: "Gap Down" }
+    - { type: Boolean, id: "up_filled", name: "Gap Up Filled" }
+    - { type: Boolean, id: "down_filled", name: "Gap Down Filled" }
+    - { type: Decimal, id: "up_fill_size", name: "Gap Up Fill %" }
+    - { type: Decimal, id: "down_fill_size", name: "Gap Down Fill %" }
+  tags: ["indicator", "gap", "overnight", "fill", "price-action"]
+  category: PriceAction
+  renderKind: Standard
+  plotKind: gap
+  requiredDataSources: ["o", "h", "l", "c"]
