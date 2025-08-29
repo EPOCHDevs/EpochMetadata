@@ -795,6 +795,87 @@ TEST_CASE("MetaDataOptionDefinition - glaze JSON roundtrip for vectors",
   }
 }
 
+TEST_CASE("MetaDataOptionDefinition - Time options",
+          "[MetaDataOptionDefinition][Time]") {
+  SECTION("AssertType and IsType succeed for HH:MM and HH:MM:SS") {
+    MetaDataOptionDefinition def_hm(std::string("07:30"));
+    REQUIRE_NOTHROW(def_hm.AssertType(epoch_core::MetaDataOptionType::Time));
+    REQUIRE(def_hm.IsType(epoch_core::MetaDataOptionType::Time));
+
+    MetaDataOptionDefinition def_hms(std::string("23:59:59"));
+    REQUIRE_NOTHROW(def_hms.AssertType(epoch_core::MetaDataOptionType::Time));
+    REQUIRE(def_hms.IsType(epoch_core::MetaDataOptionType::Time));
+  }
+
+  SECTION("GetTime parses HH:MM correctly with seconds defaulted to 0") {
+    MetaDataOptionDefinition def(std::string("07:05"));
+    auto t = def.GetTime();
+    REQUIRE(t.hour == 7);
+    REQUIRE(t.minute == 5);
+    REQUIRE(t.second == 0);
+    REQUIRE(t.ToSeconds() == 7 * 3600 + 5 * 60);
+  }
+
+  SECTION("GetTime parses HH:MM:SS correctly") {
+    MetaDataOptionDefinition def(std::string("23:59:59"));
+    auto t = def.GetTime();
+    REQUIRE(t.hour == 23);
+    REQUIRE(t.minute == 59);
+    REQUIRE(t.second == 59);
+    REQUIRE(t.ToSeconds() == 23 * 3600 + 59 * 60 + 59);
+  }
+
+  SECTION("AssertType(Time) throws for invalid formats") {
+    MetaDataOptionDefinition too_high_hour(std::string("24:00"));
+    REQUIRE_THROWS_AS(
+        too_high_hour.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+
+    MetaDataOptionDefinition too_high_min(std::string("12:60:00"));
+    REQUIRE_THROWS_AS(
+        too_high_min.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+
+    MetaDataOptionDefinition too_high_sec(std::string("12:30:60"));
+    REQUIRE_THROWS_AS(
+        too_high_sec.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+
+    MetaDataOptionDefinition no_colons(std::string("123000"));
+    REQUIRE_THROWS_AS(
+        no_colons.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+
+    MetaDataOptionDefinition bad_chars(std::string("12-30-00"));
+    REQUIRE_THROWS_AS(
+        bad_chars.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+
+    MetaDataOptionDefinition empty_token(std::string("12:"));
+    REQUIRE_THROWS_AS(
+        empty_token.AssertType(epoch_core::MetaDataOptionType::Time),
+        std::runtime_error);
+  }
+
+  SECTION("CreateMetaDataArgDefinition handles Time from YAML scalar") {
+    YAML::Node node;
+    node = std::string("08:30:15");
+
+    MetaDataOption opt;
+    opt.id = "session_time";
+    opt.name = "Session Time";
+    opt.type = epoch_core::MetaDataOptionType::Time;
+
+    auto def = CreateMetaDataArgDefinition(node, opt);
+    REQUIRE(def.IsType(epoch_core::MetaDataOptionType::Time));
+    REQUIRE_NOTHROW(def.AssertType(epoch_core::MetaDataOptionType::Time));
+    auto t = def.GetTime();
+    REQUIRE(t.hour == 8);
+    REQUIRE(t.minute == 30);
+    REQUIRE(t.second == 15);
+  }
+}
+
 TEST_CASE("MetaDataOption::decode type mapping for list types",
           "[MetaDataOption][YAML][Lists]") {
   SECTION("numeric_list with default sequence") {

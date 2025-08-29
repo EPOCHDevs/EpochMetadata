@@ -29,6 +29,35 @@ void MetaDataOptionDefinition::AssertType(
                          << epoch_core::toString(selections));
     break;
   }
+  case epoch_core::MetaDataOptionType::Time: {
+    AssertType<std::string>();
+    auto const &val = GetValueByType<std::string>();
+    auto count_colon =
+        static_cast<int>(std::count(val.begin(), val.end(), ':'));
+    AssertFromStream(count_colon == 1 || count_colon == 2,
+                     "Time must be HH:MM or HH:MM:SS, got: " << val);
+    auto parse_component = [](std::string const &s, size_t &pos) -> int {
+      size_t next = s.find(':', pos);
+      std::string token = s.substr(
+          pos, next == std::string::npos ? std::string::npos : next - pos);
+      AssertFromStream(!token.empty() && std::ranges::all_of(token, ::isdigit),
+                       "Invalid time component: " << token);
+      int v = std::stoi(token);
+      pos = (next == std::string::npos) ? std::string::npos : next + 1;
+      return v;
+    };
+    size_t pos = 0;
+    int hh = parse_component(val, pos);
+    int mm = parse_component(val, pos);
+    int ss = 0;
+    if (pos != std::string::npos) {
+      ss = parse_component(val, pos);
+    }
+    AssertFromStream(0 <= hh && hh < 24, "Hour out of range: " << hh);
+    AssertFromStream(0 <= mm && mm < 60, "Minute out of range: " << mm);
+    AssertFromStream(0 <= ss && ss < 60, "Second out of range: " << ss);
+    break;
+  }
   case epoch_core::MetaDataOptionType::NumericList: {
     AssertType<Sequence>();
     // Additional validation: ensure all items are numeric
@@ -66,6 +95,8 @@ bool MetaDataOptionDefinition::IsType(
     return std::holds_alternative<bool>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Select:
     return std::holds_alternative<std::string>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::Time:
+    return std::holds_alternative<std::string>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::NumericList:
   case epoch_core::MetaDataOptionType::StringList:
     return std::holds_alternative<Sequence>(m_optionsVariant);
@@ -86,6 +117,34 @@ double MetaDataOptionDefinition::GetNumericValue() const {
   ss << "Invalid Numeric MetaDataOptionType Type\n";
   ss << "Got: " << typeid(m_optionsVariant).name() << "\n";
   throw std::runtime_error(ss.str());
+}
+
+TimeObject MetaDataOptionDefinition::GetTime() const {
+  AssertFromStream(std::holds_alternative<std::string>(m_optionsVariant),
+                   "GetTime expects a string Time option");
+  const auto &val = std::get<std::string>(m_optionsVariant);
+  auto parse_component = [](std::string const &s, size_t &pos) -> int {
+    size_t next = s.find(':', pos);
+    std::string token = s.substr(
+        pos, next == std::string::npos ? std::string::npos : next - pos);
+    AssertFromStream(!token.empty() && std::ranges::all_of(token, ::isdigit),
+                     "Invalid time component: " << token);
+    int v = std::stoi(token);
+    pos = (next == std::string::npos) ? std::string::npos : next + 1;
+    return v;
+  };
+
+  size_t pos = 0;
+  int hh = parse_component(val, pos);
+  int mm = parse_component(val, pos);
+  int ss = 0;
+  if (pos != std::string::npos) {
+    ss = parse_component(val, pos);
+  }
+  AssertFromStream(0 <= hh && hh < 24, "Hour out of range: " << hh);
+  AssertFromStream(0 <= mm && mm < 60, "Minute out of range: " << mm);
+  AssertFromStream(0 <= ss && ss < 60, "Second out of range: " << ss);
+  return TimeObject{hh, mm, ss};
 }
 
 size_t MetaDataOptionDefinition::GetHash() const {
@@ -167,6 +226,9 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
     return MetaDataOptionDefinition{node.as<bool>()};
   }
   case epoch_core::MetaDataOptionType::Select: {
+    return MetaDataOptionDefinition{node.as<std::string>()};
+  }
+  case epoch_core::MetaDataOptionType::Time: {
     return MetaDataOptionDefinition{node.as<std::string>()};
   }
   case epoch_core::MetaDataOptionType::NumericList: {

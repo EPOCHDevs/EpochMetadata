@@ -18,9 +18,18 @@
 #include <yaml-cpp/yaml.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList);
+            StringList, Time);
 
 namespace epoch_metadata {
+struct TimeObject {
+  int hour{0};
+  int minute{0};
+  int second{0};
+
+  [[nodiscard]] int ToSeconds() const {
+    return hour * 3600 + minute * 60 + second;
+  }
+};
 struct MetaDataArgRef {
   std::string refName{};
   bool operator==(const MetaDataArgRef &) const = default;
@@ -121,6 +130,8 @@ public:
   }
 
   [[nodiscard]] auto GetBoolean() const { return GetValueByType<bool>(); }
+
+  [[nodiscard]] TimeObject GetTime() const;
 
   std::string GetRef() const {
     return GetValueByType<MetaDataArgRef>().refName;
