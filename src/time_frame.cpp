@@ -7,13 +7,71 @@
 
 #include "date_time/date_offsets.h"
 #include "epoch_core/macros.h"
-#include "epoch_frame/factory/calendar_factory.h"
 #include "epoch_frame/factory/date_offset_factory.h"
 #include <cctype>
 #include <glaze/json/json_t.hpp>
 #include <utility>
 
 namespace epoch_metadata {
+namespace {
+struct SessionRegistry {
+  using Time = epoch_frame::Time;
+  using SessionRange = epoch_frame::SessionRange;
+
+  SessionRegistry() {
+    // All sessions defined in UTC
+    registry[epoch_core::SessionType::Sydney] = SessionRange{
+        Time{std::chrono::hours(21), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(6), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::Tokyo] = SessionRange{
+        Time{std::chrono::hours(0), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(9), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::London] = SessionRange{
+        Time{std::chrono::hours(7), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(16), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::NewYork] = SessionRange{
+        Time{std::chrono::hours(13), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(22), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::AsianKillZone] = SessionRange{
+        Time{std::chrono::hours(0), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(4), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::LondonOpenKillZone] = SessionRange{
+        Time{std::chrono::hours(6), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(9), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::NewYorkKillZone] = SessionRange{
+        Time{std::chrono::hours(11), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(14), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+    registry[epoch_core::SessionType::LondonCloseKillZone] = SessionRange{
+        Time{std::chrono::hours(14), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
+        Time{std::chrono::hours(16), std::chrono::minutes(0),
+             std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+  }
+
+  bool contains(epoch_core::SessionType s) const {
+    return registry.contains(s);
+  }
+  SessionRange at(epoch_core::SessionType s) const { return registry.at(s); }
+
+  std::unordered_map<epoch_core::SessionType, SessionRange> registry{};
+};
+
+static const SessionRegistry kSessionRegistry{};
+} // namespace
 std::unordered_map<std::string, epoch_frame::DateOffsetHandlerPtr>
     TIMEFRAME_MAPPING{
         {std::string(tf_str::k1Min), epoch_frame::factory::offset::minutes(1)},
@@ -276,18 +334,17 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
                                               option.time_offset);
   }
   case epoch_core::StratifyxTimeFrameType::session: {
-    using epoch_frame::calendar::CalendarFactory;
-    const auto cal_name =
-        epoch_core::MarketCalendarNameWrapper::ToString(option.market_calendar);
-    auto cal = CalendarFactory::instance().get_calendar(cal_name);
+    AssertFromStream(option.session != epoch_core::SessionType::Null,
+                     "Session timeframe requires a valid session");
     auto which =
         option.session_anchor == epoch_core::SessionAnchorType::AfterOpen
             ? epoch_frame::SessionAnchorWhich::AfterOpen
             : epoch_frame::SessionAnchorWhich::BeforeClose;
     const auto delta = option.time_offset.value_or(
         epoch_frame::TimeDelta{epoch_frame::TimeDelta::Components{}});
-    return epoch_frame::factory::offset::session_anchor(cal, which, delta,
-                                                        option.interval);
+    auto session_range = kSessionRegistry.at(option.session);
+    return epoch_frame::factory::offset::session_anchor(session_range, which,
+                                                        delta, option.interval);
   }
   default:
     break;
@@ -419,12 +476,11 @@ CreateDateOffsetHandlerFromJSON(glz::json_t const &buffer) {
   }
 
   // Session-anchored fields
-  if (buffer.contains(std::string(tf_str::kMarketCalendar))) {
-    const auto &mc_node = buffer[std::string(tf_str::kMarketCalendar)];
-    if (!mc_node.is_null()) {
-      option.market_calendar =
-          epoch_core::MarketCalendarNameWrapper::FromString(
-              mc_node.as<std::string>());
+  if (buffer.contains(std::string(tf_str::kSession))) {
+    const auto &session_node = buffer[std::string(tf_str::kSession)];
+    if (!session_node.is_null()) {
+      option.session = epoch_core::SessionTypeWrapper::FromString(
+          session_node.as<std::string>());
     }
   }
   if (buffer.contains(std::string(tf_str::kSessionAnchor))) {
@@ -568,9 +624,9 @@ bool convert<DateOffsetOption>::decode(const Node &node,
         to_node[std::string(epoch_metadata::tf_str::kWeeks)].as<double>(0);
     rhs.time_offset = epoch_frame::TimeDelta{c};
   }
-  rhs.market_calendar = epoch_core::MarketCalendarNameWrapper::FromString(
-      node[std::string(epoch_metadata::tf_str::kMarketCalendar)]
-          .as<std::string>(std::string(epoch_metadata::tf_str::kNull)));
+  rhs.session = epoch_core::SessionTypeWrapper::FromString(
+      node[std::string(epoch_metadata::tf_str::kSession)].as<std::string>(
+          std::string(epoch_metadata::tf_str::kNull)));
   rhs.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
       node[std::string(epoch_metadata::tf_str::kSessionAnchor)].as<std::string>(
           std::string(epoch_metadata::tf_str::kNull)));

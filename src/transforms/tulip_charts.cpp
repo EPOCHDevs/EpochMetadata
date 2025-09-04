@@ -181,7 +181,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "period",
                      .name = "Period",
                      .type = epoch_core::MetaDataOptionType::Integer,
-                     .defaultValue = static_cast<double>(defaults->period),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->period)},
                      .isRequired = true,
                      .min = 1, // Period must be at least 1
                      .max = 1000};
@@ -193,7 +195,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "body_none",
                      .name = "Body None Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->body_none),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->body_none)},
                      .isRequired = true};
     options.push_back(o);
   }
@@ -203,7 +207,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "body_short",
                      .name = "Body Short Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->body_short),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->body_short)},
                      .isRequired = true};
     options.push_back(o);
   }
@@ -213,7 +219,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "body_long",
                      .name = "Body Long Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->body_long),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->body_long)},
                      .isRequired = true};
     options.push_back(o);
   }
@@ -223,7 +231,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "wick_none",
                      .name = "Wick None Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->wick_none),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->wick_none)},
                      .isRequired = true};
     options.push_back(o);
   }
@@ -233,7 +243,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "wick_long",
                      .name = "Wick Long Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->wick_long),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->wick_long)},
                      .isRequired = true};
     options.push_back(o);
   }
@@ -243,7 +255,9 @@ std::vector<MetaDataOption> MakeCandleOptions() {
     MetaDataOption o{.id = "near",
                      .name = "Near Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
-                     .defaultValue = static_cast<double>(defaults->near),
+                     .defaultValue =
+                         epoch_metadata::MetaDataOptionDefinition{
+                             static_cast<double>(defaults->near)},
                      .isRequired = true};
     options.push_back(o);
   }

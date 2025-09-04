@@ -575,11 +575,11 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
   REQUIRE(bday->type() == epoch_core::EpochOffsetType::BusinessDay);
   REQUIRE(bday->n() == 4);
 
-  // Session anchored via JSON (NYSE before close -30m)
+  // Session anchored via JSON (NewYork before close -30m)
   glz::json_t session_json;
   session_json["type"] = "session";
   session_json["interval"] = 1;
-  session_json["market_calendar"] = "NYSE";
+  session_json["session"] = "NewYork";
   session_json["session_anchor"] = "BeforeClose";
   session_json["time_offset"]["minutes"] = 30;
   auto session = CreateDateOffsetHandlerFromJSON(session_json);
@@ -647,11 +647,11 @@ TEST_CASE("CreateTimeFrameFromYAML - basic and anchored",
   auto bday_tf = CreateTimeFrameFromYAML(bday_node);
   REQUIRE(bday_tf.GetOffset() != nullptr);
 
-  // Session via YAML (CMEEquity after open +15m)
+  // Session via YAML (NewYork after open +15m)
   YAML::Node session_node;
   session_node["type"] = "session";
   session_node["interval"] = 2;
-  session_node["market_calendar"] = "NYSE";
+  session_node["session"] = "NewYork";
   session_node["session_anchor"] = "AfterOpen";
   session_node["time_offset"]["minutes"] = 15;
   auto session_tf = CreateTimeFrameFromYAML(session_node);

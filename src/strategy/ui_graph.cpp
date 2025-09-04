@@ -379,10 +379,12 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
       if (optionsMapping.contains(id)) {
         transformOption = optionsMapping.at(id);
         if (value) {
-          transformOption.defaultValue = value;
+          transformOption.defaultValue =
+              epoch_metadata::MetaDataOptionDefinition{value.value()};
         }
       } else {
-        transformOption.defaultValue = value;
+        transformOption.defaultValue =
+            epoch_metadata::MetaDataOptionDefinition{value.value()};
         transformOption.type = epoch_core::MetaDataOptionType::Decimal;
       }
 
@@ -391,9 +393,11 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
 
       options.push_back(transformOption);
       // Set the algorithm option to a reference string.
-      newAlgo.options[id] = epoch_metadata::MetaDataArgRef{transformOption.id};
+      newAlgo.options[id] = epoch_metadata::MetaDataOptionDefinition{
+          epoch_metadata::MetaDataArgRef{transformOption.id}};
     } else if (value.has_value()) {
-      newAlgo.options[id] = value.value();
+      newAlgo.options[id] =
+          epoch_metadata::MetaDataOptionDefinition{value.value()};
     }
   }
 
@@ -503,8 +507,9 @@ std::string ProcessEdge(const UIEdge &edge, LookUpData &lookupData) {
 }
 
 PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
-    const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
-    std::vector<std::string> const& sortedIds, bool strictMode) {
+    const std::unordered_map<
+        std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
+    std::vector<std::string> const &sortedIds, bool strictMode) {
   PartialTradeSignalMetaData result;
   result.algorithm.reserve(algorithm.size());
 
@@ -520,8 +525,9 @@ PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
   }
 
   if (strictMode) {
-    AssertFromStream(totalExecutors == 1,
-                   "Expected exactly one executor. Found: " << totalExecutors);
+    AssertFromStream(
+        totalExecutors == 1,
+        "Expected exactly one executor. Found: " << totalExecutors);
   }
 
   return result;

@@ -284,8 +284,7 @@ void MetaDataOption::decode(const YAML::Node &element) {
       std::vector<SelectOption>{});
 
   if (element["default"]) {
-    defaultValue =
-        CreateMetaDataArgDefinition(element["default"], *this).GetVariant();
+    defaultValue = CreateMetaDataArgDefinition(element["default"], *this);
   }
   min = element["min"].as<double>(0);
   max = element["max"].as<double>(10000);

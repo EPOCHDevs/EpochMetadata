@@ -22,7 +22,7 @@ inline constexpr std::string_view kWeekOfMonth = "week_of_month";
 inline constexpr std::string_view kWeekday = "weekday";
 inline constexpr std::string_view kMonth = "month";
 inline constexpr std::string_view kTimeOffset = "time_offset";
-inline constexpr std::string_view kMarketCalendar = "market_calendar";
+inline constexpr std::string_view kSession = "session";
 inline constexpr std::string_view kSessionAnchor = "session_anchor";
 
 // Time offset component fields
@@ -78,9 +78,10 @@ CREATE_ENUM(StratifyxBarType, TickBar, VolumeBar, DollarBar, TickImbalanceBar,
 
 CREATE_ENUM(AnchoredTimeFrameType, Start, End);
 
-// Calendars supported by session-anchored offsets. These should map to
-// calendar aliases registered in the calendar factory.
-CREATE_ENUM(MarketCalendarName, NYSE);
+// Sessions supported by session-anchored offsets. Maps to concrete
+// SessionRange.
+CREATE_ENUM(SessionType, Sydney, Tokyo, London, NewYork, AsianKillZone,
+            LondonOpenKillZone, NewYorkKillZone, LondonCloseKillZone);
 
 CREATE_ENUM(SessionAnchorType, AfterOpen, BeforeClose);
 
@@ -94,9 +95,8 @@ struct DateOffsetOption {
   epoch_core::EpochDayOfWeek weekday{epoch_core::EpochDayOfWeek::Null};
   epoch_core::StratifyxMonth month{epoch_core::StratifyxMonth::Null};
   std::optional<epoch_frame::TimeDelta> time_offset{std::nullopt};
-  // Session-anchored options
-  epoch_core::MarketCalendarName market_calendar{
-      epoch_core::MarketCalendarName::Null};
+  // Session-anchored `
+  epoch_core::SessionType session{epoch_core::SessionType::Null};
   epoch_core::SessionAnchorType session_anchor{
       epoch_core::SessionAnchorType::Null};
 };

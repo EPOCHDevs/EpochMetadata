@@ -13,7 +13,7 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
       .id = "arg_id",
       .name = "arg_name",
       .type = epoch_core::MetaDataOptionType::Decimal,
-      .defaultValue = 10.5,
+      .defaultValue = epoch_metadata::MetaDataOptionDefinition{10.5},
       .isRequired = true,
       .selectOption = {{"label1", "value1"}, {"label2", "value2"}}};
 

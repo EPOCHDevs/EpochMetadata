@@ -42,10 +42,10 @@ class MetaDataOptionDefinition {
 public:
   using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double>;
 
-  MetaDataOptionDefinition() = default;
+  explicit MetaDataOptionDefinition() = default;
 
   // Overloads for directly passing our variant type T
-  MetaDataOptionDefinition(const T &value) {
+  explicit MetaDataOptionDefinition(const T &value) {
     if (std::holds_alternative<std::string>(value)) {
       m_optionsVariant = ParseStringOverride(std::get<std::string>(value));
     } else {
@@ -53,7 +53,7 @@ public:
     }
   }
 
-  MetaDataOptionDefinition(T &&value) {
+  explicit MetaDataOptionDefinition(T &&value) {
     if (std::holds_alternative<std::string>(value)) {
       m_optionsVariant =
           ParseStringOverride(std::move(std::get<std::string>(value)));
@@ -63,7 +63,7 @@ public:
   }
 
   // Convenience constructors for vector types
-  MetaDataOptionDefinition(const std::vector<double> &values) {
+  explicit MetaDataOptionDefinition(const std::vector<double> &values) {
     Sequence seq;
     seq.reserve(values.size());
     for (const auto &val : values) {
@@ -72,7 +72,7 @@ public:
     m_optionsVariant = std::move(seq);
   }
 
-  MetaDataOptionDefinition(std::vector<double> &&values) {
+  explicit MetaDataOptionDefinition(std::vector<double> &&values) {
     Sequence seq;
     seq.reserve(values.size());
     for (auto &&val : values) {
@@ -81,7 +81,7 @@ public:
     m_optionsVariant = std::move(seq);
   }
 
-  MetaDataOptionDefinition(const std::vector<std::string> &values) {
+  explicit MetaDataOptionDefinition(const std::vector<std::string> &values) {
     Sequence seq;
     seq.reserve(values.size());
     for (const auto &val : values) {
@@ -90,7 +90,7 @@ public:
     m_optionsVariant = std::move(seq);
   }
 
-  MetaDataOptionDefinition(std::vector<std::string> &&values) {
+  explicit MetaDataOptionDefinition(std::vector<std::string> &&values) {
     Sequence seq;
     seq.reserve(values.size());
     for (auto &&val : values) {
@@ -102,7 +102,7 @@ public:
   // Overload for string-like types
   template <typename StringLike>
     requires(std::is_convertible_v<std::decay_t<StringLike>, std::string_view>)
-  MetaDataOptionDefinition(StringLike &&value) {
+  explicit MetaDataOptionDefinition(StringLike &&value) {
     std::string materialized{std::forward<StringLike>(value)};
     m_optionsVariant = ParseStringOverride(std::move(materialized));
   }
@@ -112,7 +112,7 @@ public:
     requires(!std::is_convertible_v<std::decay_t<K>, std::string_view> &&
              std::is_constructible_v<T, K> &&
              !std::is_same_v<std::decay_t<K>, T>)
-  MetaDataOptionDefinition(K &&value)
+  explicit MetaDataOptionDefinition(K &&value)
       : m_optionsVariant(std::forward<K>(value)) {}
 
   [[nodiscard]] auto GetVariant() const { return m_optionsVariant; }
