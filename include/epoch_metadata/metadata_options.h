@@ -195,6 +195,11 @@ private:
           "Empty string is not a valid MetaDataOptionDefinition value");
     }
 
+    // MetaDataArgRef encoded as $ref:<name>
+    if (input.rfind("$ref:", 0) == 0) {
+      return T{MetaDataArgRef{input.substr(5)}};
+    }
+
     // list parsing: [a,b,c] or [1,2,3]
     if (!input.empty() && input.front() == '[' && input.back() == ']') {
       std::string content = input.substr(1, input.size() - 2);
@@ -385,38 +390,35 @@ template <> struct meta<epoch_metadata::MetaDataArgRef> {
   static constexpr auto value = object("refName", &T::refName);
 };
 
-// Sequence (vector<variant<double, string>>) will be handled automatically by
-// glaze
-
 template <> struct meta<epoch_metadata::MetaDataOptionDefinition> {
-  using T = epoch_metadata::MetaDataOptionDefinition;
-  static constexpr auto value = &T::m_optionsVariant;
-};
+  static constexpr auto read =
+      [](epoch_metadata::MetaDataOptionDefinition &value, const json_t &in) {
+        if (in.is_number()) {
+          value = epoch_metadata::MetaDataOptionDefinition{in.get<double>()};
+        } else if (in.is_boolean()) {
+          value = epoch_metadata::MetaDataOptionDefinition{in.get<bool>()};
+        } else if (in.is_string()) {
+          value =
+              epoch_metadata::MetaDataOptionDefinition{in.get<std::string>()};
+        } else if (in.is_object() && in.contains("refName")) {
+          auto refName = in["refName"].get<std::string>();
+          value = epoch_metadata::MetaDataOptionDefinition{
+              epoch_metadata::MetaDataArgRef{refName}};
+        } else {
+          auto dumped = in.dump();
+          if (!dumped.has_value()) {
+            throw std::runtime_error("Failed to dump JSON: " +
+                                     glz::format_error(dumped.error()));
+          }
+          value = epoch_metadata::MetaDataOptionDefinition{dumped.value()};
+        }
+      };
 
-// Custom JSON (de)serialization: always use string IO for
-// MetaDataOptionDefinition
-template <> struct to<JSON, epoch_metadata::MetaDataOptionDefinition> {
-  template <auto Opts>
-  static void op(const epoch_metadata::MetaDataOptionDefinition &x,
-                 auto &&...args) noexcept {
-    const std::string out = x.ToString();
-    serialize<JSON>::op<Opts>(out, args...);
-  }
-};
+  static constexpr auto write =
+      [](const epoch_metadata::MetaDataOptionDefinition &x) -> auto {
+    return x.GetVariant();
+  };
 
-template <> struct from<JSON, epoch_metadata::MetaDataOptionDefinition> {
-  template <auto Opts>
-  static void op(epoch_metadata::MetaDataOptionDefinition &value,
-                 auto &&...args) {
-    std::string in;
-    parse<JSON>::op<Opts>(in, args...);
-    // Special prefix handling for encoded MetaDataArgRef
-    if (in.rfind("$ref:", 0) == 0) {
-      value = epoch_metadata::MetaDataOptionDefinition{
-          epoch_metadata::MetaDataArgRef{in.substr(5)}};
-    } else {
-      value = epoch_metadata::MetaDataOptionDefinition{in};
-    }
-  }
+  static constexpr auto value = glz::custom<read, write>;
 };
 } // namespace glz
