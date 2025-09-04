@@ -8,6 +8,21 @@
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
 
+TEST_CASE("SessionVariant decode - success", "[SessionVariant]") {
+  transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
+
+  std::string yaml_str = R"(
+  session: { start: "09:00", end: "16:00" }
+  )";
+
+  YAML::Node node = YAML::Load(yaml_str);
+  auto session = node["session"].as<SessionVariant>();
+  REQUIRE(std::holds_alternative<epoch_frame::SessionRange>(session));
+  auto session_range = std::get<epoch_frame::SessionRange>(session);
+  REQUIRE(session_range.start == TimeFromString("09:00"));
+  REQUIRE(session_range.end == TimeFromString("16:00"));
+}
+
 TEST_CASE("AlgorithmNode decode - success", "[AlgorithmNode]") {
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
@@ -19,6 +34,7 @@ options:
   period: 20
 inputs:
   ARG: "c"
+session: "NewYork"
 )";
 
   YAML::Node node = YAML::Load(yaml_str);
@@ -32,6 +48,12 @@ inputs:
   REQUIRE(algoNode.options.count("period") == 1);
   REQUIRE(algoNode.options.at("period").IsType<double>());
   REQUIRE(algoNode.options.at("period").GetInteger() == 20);
+  // ATR requires timeframe, so session should be set
+  REQUIRE(algoNode.session.has_value());
+  // Default is SessionType::NewYork
+  REQUIRE(std::holds_alternative<epoch_core::SessionType>(*algoNode.session));
+  REQUIRE(std::get<epoch_core::SessionType>(*algoNode.session) ==
+          epoch_core::SessionType::NewYork);
 }
 
 TEST_CASE("AlgorithmNode decode ref - success", "[AlgorithmNode]") {
@@ -58,6 +80,8 @@ inputs:
   REQUIRE(algoNode.options.count("period") == 1);
   REQUIRE(algoNode.options.at("period").IsType<MetaDataArgRef>());
   REQUIRE(algoNode.options.at("period").GetRef() == "periodParam");
+  // ATR requires timeframe, so session should be set
+  REQUIRE_FALSE(algoNode.session.has_value());
 }
 
 TEST_CASE("AlgorithmNode decode - missing required option throws",

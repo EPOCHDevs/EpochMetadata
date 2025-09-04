@@ -119,10 +119,7 @@ double MetaDataOptionDefinition::GetNumericValue() const {
   throw std::runtime_error(ss.str());
 }
 
-TimeObject MetaDataOptionDefinition::GetTime() const {
-  AssertFromStream(std::holds_alternative<std::string>(m_optionsVariant),
-                   "GetTime expects a string Time option");
-  const auto &val = std::get<std::string>(m_optionsVariant);
+epoch_frame::Time TimeFromString(std::string const &val) {
   auto parse_component = [](std::string const &s, size_t &pos) -> int {
     size_t next = s.find(':', pos);
     std::string token = s.substr(
@@ -144,7 +141,15 @@ TimeObject MetaDataOptionDefinition::GetTime() const {
   AssertFromStream(0 <= hh && hh < 24, "Hour out of range: " << hh);
   AssertFromStream(0 <= mm && mm < 60, "Minute out of range: " << mm);
   AssertFromStream(0 <= ss && ss < 60, "Second out of range: " << ss);
-  return TimeObject{hh, mm, ss};
+  return epoch_frame::Time{chrono_hour(hh), chrono_minute(mm),
+                           chrono_second(ss), chrono_millisecond(0), "UTC"};
+}
+
+epoch_frame::Time MetaDataOptionDefinition::GetTime() const {
+  AssertFromStream(std::holds_alternative<std::string>(m_optionsVariant),
+                   "GetTime expects a string Time option");
+  const auto &val = GetValueByType<std::string>();
+  return TimeFromString(val);
 }
 
 size_t MetaDataOptionDefinition::GetHash() const {

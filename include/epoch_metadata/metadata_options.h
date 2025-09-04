@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <epoch_core/enum_wrapper.h>
+#include <epoch_frame/datetime.h>
 #include <glaze/glaze.hpp>
 #include <limits>
 #include <string_view>
@@ -21,15 +22,9 @@ CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
             StringList, Time);
 
 namespace epoch_metadata {
-struct TimeObject {
-  int hour{0};
-  int minute{0};
-  int second{0};
 
-  [[nodiscard]] int ToSeconds() const {
-    return hour * 3600 + minute * 60 + second;
-  }
-};
+epoch_frame::Time TimeFromString(std::string const &str);
+
 struct MetaDataArgRef {
   std::string refName{};
   bool operator==(const MetaDataArgRef &) const = default;
@@ -131,7 +126,7 @@ public:
 
   [[nodiscard]] auto GetBoolean() const { return GetValueByType<bool>(); }
 
-  [[nodiscard]] TimeObject GetTime() const;
+  [[nodiscard]] epoch_frame::Time GetTime() const;
 
   std::string GetRef() const {
     return GetValueByType<MetaDataArgRef>().refName;

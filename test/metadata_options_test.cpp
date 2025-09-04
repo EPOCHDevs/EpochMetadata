@@ -4,6 +4,7 @@
 //
 
 #include "common.h"
+#include "epoch_frame/aliases.h"
 #include "epoch_metadata/metadata_options.h"
 
 using epoch_metadata::Sequence;
@@ -816,19 +817,21 @@ TEST_CASE("MetaDataOptionDefinition - Time options",
   SECTION("GetTime parses HH:MM correctly with seconds defaulted to 0") {
     MetaDataOptionDefinition def(std::string("07:05"));
     auto t = def.GetTime();
-    REQUIRE(t.hour == 7);
-    REQUIRE(t.minute == 5);
-    REQUIRE(t.second == 0);
-    REQUIRE(t.ToSeconds() == 7 * 3600 + 5 * 60);
+    REQUIRE(static_cast<int>(t.hour.count()) == 7);
+    REQUIRE(static_cast<int>(t.minute.count()) == 5);
+    REQUIRE(static_cast<int>(t.second.count()) == 0);
+    constexpr long long NANO = 1000000000LL;
+    REQUIRE(t.to_duration().count() == (7LL * 3600 + 5LL * 60) * NANO);
   }
 
   SECTION("GetTime parses HH:MM:SS correctly") {
     MetaDataOptionDefinition def(std::string("23:59:59"));
     auto t = def.GetTime();
-    REQUIRE(t.hour == 23);
-    REQUIRE(t.minute == 59);
-    REQUIRE(t.second == 59);
-    REQUIRE(t.ToSeconds() == 23 * 3600 + 59 * 60 + 59);
+    REQUIRE(static_cast<int>(t.hour.count()) == 23);
+    REQUIRE(static_cast<int>(t.minute.count()) == 59);
+    REQUIRE(static_cast<int>(t.second.count()) == 59);
+    constexpr long long NANO = 1000000000LL;
+    REQUIRE(t.to_duration().count() == (23LL * 3600 + 59LL * 60 + 59LL) * NANO);
   }
 
   SECTION("AssertType(Time) throws for invalid formats") {
@@ -876,9 +879,11 @@ TEST_CASE("MetaDataOptionDefinition - Time options",
     REQUIRE(def.IsType(epoch_core::MetaDataOptionType::Time));
     REQUIRE_NOTHROW(def.AssertType(epoch_core::MetaDataOptionType::Time));
     auto t = def.GetTime();
-    REQUIRE(t.hour == 8);
-    REQUIRE(t.minute == 30);
-    REQUIRE(t.second == 15);
+    REQUIRE(static_cast<int>(t.hour.count()) == 8);
+    REQUIRE(static_cast<int>(t.minute.count()) == 30);
+    REQUIRE(static_cast<int>(t.second.count()) == 15);
+    constexpr long long NANO = 1000000000LL;
+    REQUIRE(t.to_duration().count() == (8LL * 3600 + 30LL * 60 + 15LL) * NANO);
   }
 }
 

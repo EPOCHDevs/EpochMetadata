@@ -3,7 +3,9 @@
 //
 #include "epoch_metadata/strategy/metadata.h"
 #include "doc_deserialization_helper.h"
+#include "epoch_metadata/metadata_options.h"
 #include "epoch_metadata/strategy/algorithm_validator.h"
+#include "epoch_metadata/strategy/ui_graph.h"
 #include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <epoch_core/macros.h>
@@ -13,12 +15,28 @@
 #include <glaze/json/write.hpp>
 #include <string>
 
-#include "epoch_metadata/strategy/ui_graph.h"
-
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
 
 namespace YAML {
+bool convert<SessionVariant>::decode(YAML::Node const &node,
+                                     SessionVariant &metadata) {
+  if (node.IsScalar()) {
+    auto session = node.as<std::string>();
+    metadata = epoch_core::SessionTypeWrapper::FromString(session);
+  } else if (node["start"] && node["end"]) {
+    auto start = node["start"].as<std::string>();
+    auto end = node["end"].as<std::string>();
+    metadata = epoch_frame::SessionRange{epoch_metadata::TimeFromString(start),
+                                         epoch_metadata::TimeFromString(end)};
+  } else {
+    throw std::runtime_error("Invalid session variant, must be a scalar or a "
+                             "map with start and end keys, not " +
+                             YAML::Dump(node));
+  }
+  return true;
+}
+
 bool convert<AlgorithmNode>::decode(YAML::Node const &node,
                                     AlgorithmNode &metadata) {
 
@@ -77,6 +95,16 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
       AssertFromFormat(inputs.IsScalar(), "Input {} is not a scalar", input.id);
       metadata.inputs[input.id] = std::vector{inputs.as<std::string>()};
     }
+  }
+
+  // If this transform requires a timeframe/session, set a default session
+  // to signal session context to clients. Use SessionType by default so
+  // clients can override with custom ranges in the UI if desired.
+  if (auto sessionNode = node["session"]) {
+    auto session = sessionNode.as<SessionVariant>();
+    AssertFromStream(transform.requiresTimeFrame,
+                     "requiresTimeFrame is required for session");
+    metadata.session = session;
   }
 
   return true;
