@@ -176,7 +176,7 @@ std::string MetaDataOptionDefinition::ToString() const {
       [this](auto &&arg) {
         using K = std::decay_t<decltype(arg)>;
         if constexpr (std::same_as<K, MetaDataArgRef>) {
-          return std::string(GetRef());
+          return std::string("$ref:") + GetRef();
         } else if constexpr (std::same_as<K, std::string>) {
           return arg;
         } else if constexpr (std::same_as<K, Sequence>) {
@@ -197,6 +197,8 @@ std::string MetaDataOptionDefinition::ToString() const {
           }
           out += "]";
           return out;
+        } else if constexpr (std::same_as<K, bool>) {
+          return arg ? std::string("true") : std::string("false");
         } else {
           return std::to_string(arg);
         }

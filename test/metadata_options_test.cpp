@@ -481,8 +481,8 @@ TEST_CASE("MetaDataOptionDefinition - ToString method",
   SECTION("ToString works for bool") {
     MetaDataOptionDefinition def_true(true);
     MetaDataOptionDefinition def_false(false);
-    REQUIRE(def_true.ToString() == "1");
-    REQUIRE(def_false.ToString() == "0");
+    REQUIRE(def_true.ToString() == "true");
+    REQUIRE(def_false.ToString() == "false");
   }
 
   SECTION("ToString works for string") {
@@ -493,7 +493,7 @@ TEST_CASE("MetaDataOptionDefinition - ToString method",
   SECTION("ToString works for MetaDataArgRef") {
     MetaDataArgRef ref{"reference_name"};
     MetaDataOptionDefinition def(ref);
-    REQUIRE(def.ToString() == "reference_name");
+    REQUIRE(def.ToString() == "$ref:reference_name");
   }
 }
 

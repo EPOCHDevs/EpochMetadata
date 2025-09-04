@@ -386,4 +386,31 @@ template <> struct meta<epoch_metadata::MetaDataOptionDefinition> {
   using T = epoch_metadata::MetaDataOptionDefinition;
   static constexpr auto value = &T::m_optionsVariant;
 };
+
+// Custom JSON (de)serialization: always use string IO for
+// MetaDataOptionDefinition
+template <> struct to<JSON, epoch_metadata::MetaDataOptionDefinition> {
+  template <auto Opts>
+  static void op(const epoch_metadata::MetaDataOptionDefinition &x,
+                 auto &&...args) noexcept {
+    const std::string out = x.ToString();
+    serialize<JSON>::op<Opts>(out, args...);
+  }
+};
+
+template <> struct from<JSON, epoch_metadata::MetaDataOptionDefinition> {
+  template <auto Opts>
+  static void op(epoch_metadata::MetaDataOptionDefinition &value,
+                 auto &&...args) {
+    std::string in;
+    parse<JSON>::op<Opts>(in, args...);
+    // Special prefix handling for encoded MetaDataArgRef
+    if (in.rfind("$ref:", 0) == 0) {
+      value = epoch_metadata::MetaDataOptionDefinition{
+          epoch_metadata::MetaDataArgRef{in.substr(5)}};
+    } else {
+      value = epoch_metadata::MetaDataOptionDefinition{in};
+    }
+  }
+};
 } // namespace glz
