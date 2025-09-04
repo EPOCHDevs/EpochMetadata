@@ -102,6 +102,21 @@ struct DateOffsetOption {
 };
 
 namespace epoch_metadata {
+struct SessionRegistry {
+  using Time = epoch_frame::Time;
+  using SessionRange = epoch_frame::SessionRange;
+
+  SessionRegistry();
+
+  bool contains(epoch_core::SessionType s) const {
+    return registry.contains(s);
+  }
+  SessionRange at(epoch_core::SessionType s) const { return registry.at(s); }
+
+  std::unordered_map<epoch_core::SessionType, SessionRange> registry{};
+};
+
+static const SessionRegistry kSessionRegistry{};
 
 bool IsIntraday(epoch_core::EpochOffsetType);
 
