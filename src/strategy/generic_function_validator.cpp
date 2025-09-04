@@ -41,7 +41,7 @@ ValidationIssues ValidateGenericFunction(const GenericFunction &function,
 
 std::optional<MetaDataOptionList>
 
-  ValidateGenericFunctionType(const std::string &type,
+ValidateGenericFunctionType(const std::string &type,
                             epoch_core::GenericFunctionType functionType,
                             ValidationIssues &issues) {
 
@@ -102,35 +102,34 @@ std::optional<MetaDataOptionList>
     auto metaData =
         futures_continuation::Registry::GetInstance().GetMetaData(type);
     if (!metaData) {
+      issues.push_back(
+          {ValidationCode::UnknownNodeType, functionTypeStr,
+           "[FuturesContinuation]Unknown GenericFunction type: " + type,
+           "Provide a valid GenericFunction type"});
+      return std::nullopt;
+    }
+    return metaData.value().get().options;
+  }
+  case epoch_core::GenericFunctionType::Slippage: {
+    auto metaData = slippage::Registry::GetInstance().GetMetaData(type);
+    if (!metaData) {
       issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                        "[FuturesContinuation]Unknown GenericFunction type: " + type,
+                        "[Slippage]Unknown GenericFunction type: " + type,
                         "Provide a valid GenericFunction type"});
       return std::nullopt;
     }
     return metaData.value().get().options;
   }
-    case epoch_core::GenericFunctionType::Slippage: {
-      auto metaData =
-          slippage::Registry::GetInstance().GetMetaData(type);
-      if (!metaData) {
-        issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                          "[Slippage]Unknown GenericFunction type: " + type,
-                          "Provide a valid GenericFunction type"});
-        return std::nullopt;
-      }
-      return metaData.value().get().options;
+  case epoch_core::GenericFunctionType::Commission: {
+    auto metaData = commission::Registry::GetInstance().GetMetaData(type);
+    if (!metaData) {
+      issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
+                        "[Commission]Unknown GenericFunction type: " + type,
+                        "Provide a valid GenericFunction type"});
+      return std::nullopt;
     }
-    case epoch_core::GenericFunctionType::Commission: {
-      auto metaData =
-          commission::Registry::GetInstance().GetMetaData(type);
-      if (!metaData) {
-        issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
-                          "[Commission]Unknown GenericFunction type: " + type,
-                          "Provide a valid GenericFunction type"});
-        return std::nullopt;
-      }
-      return metaData.value().get().options;
-    }
+    return metaData.value().get().options;
+  }
   default:
     issues.push_back({ValidationCode::UnknownNodeType, functionTypeStr,
                       "Unknown GenericFunction type: " + type,
@@ -233,7 +232,8 @@ GenericFunction OptimizeGenericFunction(const GenericFunction &function,
 
   // If the function has data, optimize it too
   if (optimizedFunction.data.has_value()) {
-    optimizedFunction.data = OptimizeUIData(optimizedFunction.data.value(), true);
+    optimizedFunction.data =
+        OptimizeUIData(optimizedFunction.data.value(), true);
   }
 
   return optimizedFunction;
@@ -253,7 +253,7 @@ void ApplyDefaultGenericFunctionOptions(GenericFunction &function,
         option.defaultValue.has_value()) {
 
       // Add the missing option with default value
-      args[option.id] = option.defaultValue.value();
+      args.insert_or_assign(option.id, option.defaultValue.value());
     }
   }
 }

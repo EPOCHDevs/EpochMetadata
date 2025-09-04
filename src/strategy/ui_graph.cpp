@@ -393,11 +393,12 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
 
       options.push_back(transformOption);
       // Set the algorithm option to a reference string.
-      newAlgo.options[id] = epoch_metadata::MetaDataOptionDefinition{
-          epoch_metadata::MetaDataArgRef{transformOption.id}};
+      newAlgo.options.insert_or_assign(
+          id, epoch_metadata::MetaDataOptionDefinition{
+                  epoch_metadata::MetaDataArgRef{transformOption.id}});
     } else if (value.has_value()) {
-      newAlgo.options[id] =
-          epoch_metadata::MetaDataOptionDefinition{value.value()};
+      newAlgo.options.insert_or_assign(
+          id, epoch_metadata::MetaDataOptionDefinition{value.value()});
     }
   }
 

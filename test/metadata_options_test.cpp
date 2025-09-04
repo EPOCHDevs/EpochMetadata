@@ -21,7 +21,7 @@ TEST_CASE("MetaDataOptionDefinition - JSON read/write with glaze",
     std::string json = glz::write_json(original).value_or("");
     REQUIRE_FALSE(json.empty());
 
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto result = glz::read_json(deserialized, json);
     REQUIRE_FALSE(result);
     REQUIRE(deserialized.GetDecimal() == 42.5);
@@ -33,7 +33,7 @@ TEST_CASE("MetaDataOptionDefinition - JSON read/write with glaze",
     std::string json = glz::write_json(original).value_or("");
     REQUIRE_FALSE(json.empty());
 
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto result = glz::read_json(deserialized, json);
     REQUIRE_FALSE(result);
     REQUIRE(deserialized.GetBoolean() == true);
@@ -45,7 +45,7 @@ TEST_CASE("MetaDataOptionDefinition - JSON read/write with glaze",
     std::string json = glz::write_json(original).value_or("");
     REQUIRE_FALSE(json.empty());
 
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto result = glz::read_json(deserialized, json);
     REQUIRE_FALSE(result);
     REQUIRE(deserialized.GetSelectOption() == "test_string");
@@ -58,7 +58,7 @@ TEST_CASE("MetaDataOptionDefinition - JSON read/write with glaze",
     std::string json = glz::write_json(original).value_or("");
     REQUIRE_FALSE(json.empty());
 
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto result = glz::read_json(deserialized, json);
     REQUIRE_FALSE(result);
     REQUIRE(deserialized.GetRef() == "test_ref");
@@ -525,9 +525,8 @@ TEST_CASE("MetaDataOptionDefinition - Template AssertType method",
 
 TEST_CASE("MetaDataOptionDefinition - Edge cases and comprehensive coverage",
           "[MetaDataOptionDefinition]") {
-  SECTION("Default constructor creates valid object") {
-    MetaDataOptionDefinition def;
-    // Default should be double with value 0
+  SECTION("Zero initialization via double constructor creates valid object") {
+    MetaDataOptionDefinition def(0.0);
     REQUIRE(def.IsType<double>());
     REQUIRE(def.GetDecimal() == 0.0);
   }
@@ -766,7 +765,7 @@ TEST_CASE("MetaDataOptionDefinition - glaze JSON roundtrip for vectors",
     REQUIRE_FALSE(json.empty());
     INFO("JSON output: " << json);
 
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto err = glz::read_json(deserialized, json);
     if (err) {
       INFO("Glaze error: " << glz::format_error(err, json));
@@ -782,7 +781,7 @@ TEST_CASE("MetaDataOptionDefinition - glaze JSON roundtrip for vectors",
     INFO("JSON output: " << json);
 
     // Note: Glaze variant deserialization has limitations with arrays
-    MetaDataOptionDefinition deserialized;
+    MetaDataOptionDefinition deserialized(0.0);
     auto err = glz::read_json(deserialized, json);
     if (err) {
       INFO("Expected glaze limitation: " << glz::format_error(err, json));

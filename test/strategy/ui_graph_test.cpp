@@ -120,7 +120,7 @@ TEST_CASE("CreateAlgorithmMetaData: Basic Executor and Single Algorithm Node",
   REQUIRE(algoNode->inputs["SLOT"].front() == "data1#c");
   // Non-exposed option is expected to be copied.
   REQUIRE(algoNode->options.contains("periods"));
-  REQUIRE(algoNode->options["periods"].GetInteger() == 1);
+  REQUIRE(algoNode->options.at("periods").GetInteger() == 1);
 }
 
 // Test 2: Exposed Options Processing
@@ -205,7 +205,7 @@ TEST_CASE("CreateAlgorithmMetaData: Exposed Option Processing",
 
   // Exposed option should now be a reference (starting with a dot).
   REQUIRE(algoNode->options.find("periods") != algoNode->options.end());
-  std::string optRef = algoNode->options["periods"].GetRef();
+  std::string optRef = algoNode->options.at("periods").GetRef();
   REQUIRE(optRef == "algo2#periods");
 
   // Global metadata.options vector should include the transformed option.
