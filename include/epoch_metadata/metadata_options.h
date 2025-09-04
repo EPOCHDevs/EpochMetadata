@@ -189,6 +189,12 @@ private:
                     .base(),
                 input.end());
 
+    // Disallow empty string after trimming
+    if (input.empty()) {
+      throw std::runtime_error(
+          "Empty string is not a valid MetaDataOptionDefinition value");
+    }
+
     // list parsing: [a,b,c] or [1,2,3]
     if (!input.empty() && input.front() == '[' && input.back() == ']') {
       std::string content = input.substr(1, input.size() - 2);

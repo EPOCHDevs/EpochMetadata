@@ -316,6 +316,13 @@ TEST_CASE("MetaDataOptionDefinition - String override parsing",
     REQUIRE(s4.IsType<std::string>());
     REQUIRE(s4.GetSelectOption() == "1e2x");
   }
+
+  SECTION("Empty string is disallowed") {
+    REQUIRE_THROWS_AS(MetaDataOptionDefinition(std::string("")),
+                      std::runtime_error);
+    REQUIRE_THROWS_AS(MetaDataOptionDefinition(std::string("   \t \n")),
+                      std::runtime_error);
+  }
 }
 
 TEST_CASE("MetaDataOptionDefinition - Construct from variant T",
