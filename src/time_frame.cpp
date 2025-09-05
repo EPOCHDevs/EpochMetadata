@@ -14,47 +14,63 @@
 
 namespace epoch_metadata {
 SessionRegistry::SessionRegistry() {
-  // All sessions defined in UTC
-  registry[epoch_core::SessionType::Sydney] = SessionRange{
-      Time{std::chrono::hours(21), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(6), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+  // Trading Sessions (in their local timezones)
+  // ICT/SMC Kill Zones (fixed in ET)
+  registry[epoch_core::SessionType::Sydney] =
+      SessionRange{Time{std::chrono::hours(8), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "Australia/Sydney"},
+                   Time{std::chrono::hours(17), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "Australia/Sydney"}};
   registry[epoch_core::SessionType::Tokyo] = SessionRange{
-      Time{std::chrono::hours(0), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
       Time{std::chrono::hours(9), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::London] = SessionRange{
-      Time{std::chrono::hours(7), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(16), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::NewYork] = SessionRange{
-      Time{std::chrono::hours(13), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(22), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::AsianKillZone] = SessionRange{
-      Time{std::chrono::hours(0), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(4), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::LondonOpenKillZone] = SessionRange{
-      Time{std::chrono::hours(6), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(9), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::NewYorkKillZone] = SessionRange{
-      Time{std::chrono::hours(11), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(14), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
-  registry[epoch_core::SessionType::LondonCloseKillZone] = SessionRange{
-      Time{std::chrono::hours(14), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"},
-      Time{std::chrono::hours(16), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "UTC"}};
+           std::chrono::seconds(0), std::chrono::microseconds(0), "Asia/Tokyo"},
+      Time{std::chrono::hours(18), std::chrono::minutes(0),
+           std::chrono::seconds(0), std::chrono::microseconds(0),
+           "Asia/Tokyo"}};
+  registry[epoch_core::SessionType::London] =
+      SessionRange{Time{std::chrono::hours(8), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "Europe/London"},
+                   Time{std::chrono::hours(17), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "Europe/London"}};
+  registry[epoch_core::SessionType::NewYork] =
+      SessionRange{Time{std::chrono::hours(9), std::chrono::minutes(30),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"},
+                   Time{std::chrono::hours(16), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"}};
+  registry[epoch_core::SessionType::AsianKillZone] =
+      SessionRange{Time{std::chrono::hours(19), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"},
+                   Time{std::chrono::hours(23), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"}};
+  registry[epoch_core::SessionType::LondonOpenKillZone] =
+      SessionRange{Time{std::chrono::hours(2), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"},
+                   Time{std::chrono::hours(5), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"}};
+  registry[epoch_core::SessionType::NewYorkKillZone] =
+      SessionRange{Time{std::chrono::hours(7), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"},
+                   Time{std::chrono::hours(10), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"}};
+  registry[epoch_core::SessionType::LondonCloseKillZone] =
+      SessionRange{Time{std::chrono::hours(10), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"},
+                   Time{std::chrono::hours(12), std::chrono::minutes(0),
+                        std::chrono::seconds(0), std::chrono::microseconds(0),
+                        "America/New_York"}};
 }
 std::unordered_map<std::string, epoch_frame::DateOffsetHandlerPtr>
     TIMEFRAME_MAPPING{
