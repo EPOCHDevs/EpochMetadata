@@ -24,10 +24,6 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeScalarMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 
-  // Define transforms that are intraday-only (e.g., gap-related nodes)
-  static const std::unordered_set<std::string> kIntradayOnlyIds = {
-      "gap_returns", "gap_classify"};
-
   for (auto &&indicator : std::views::join(metaDataList)) {
     if (!indicator.requiredDataSources.empty()) {
       indicator.requiresTimeFrame = true;

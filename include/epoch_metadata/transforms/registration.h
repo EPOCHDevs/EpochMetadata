@@ -11,8 +11,12 @@
       RegisterStrategyMetaData(#FactoryMetaData, FactoryMetaDataCreator)
 
 namespace epoch_metadata::transforms {
-    void RegisterStrategyMetaData(const std::string &name,
-                                        const TransformsMetaDataCreator &metaData);
+// Define transforms that are intraday-only (e.g., gap-related nodes)
+static const std::unordered_set<std::string> kIntradayOnlyIds = {
+    "gap_returns", "gap_classify"};
 
-    void RegisterTransformMetadata(FileLoaderInterface const &loader);
+void RegisterStrategyMetaData(const std::string &name,
+                              const TransformsMetaDataCreator &metaData);
+
+void RegisterTransformMetadata(FileLoaderInterface const &loader);
 } // namespace epoch_metadata::transforms
