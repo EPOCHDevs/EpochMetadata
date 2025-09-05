@@ -47,7 +47,7 @@ if (BUILD_TEST)
     enable_testing()
 endif()
 
-include(${PROJECT_SOURCE_DIR}/cmake/EpochFolio.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/EpochFrame.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Tulip.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Graphviz.cmake)
 
@@ -84,7 +84,7 @@ target_include_directories(epoch_metadata
 
 target_compile_options(epoch_metadata PRIVATE -Wall -Wextra -Werror)
 target_link_libraries(epoch_metadata PUBLIC
-       epoch::folio
+       epoch::frame
        spdlog::spdlog_header_only
        yaml-cpp::yaml-cpp
        tulip_indicators
