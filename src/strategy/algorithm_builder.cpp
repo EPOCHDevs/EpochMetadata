@@ -1,13 +1,9 @@
 #include "epoch_metadata/strategy/algorithm_builder.h"
-#include "epoch_metadata/strategy/algorithm_validator.h"
 #include "epoch_metadata/strategy/metadata.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <format>
-#include <queue>
-#include <ranges>
 #include <unordered_map>
-#include <unordered_set>
 
 using namespace epoch_metadata::transforms;
 
@@ -26,8 +22,9 @@ extern epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
     std::vector<epoch_metadata::MetaDataOption> &options);
 
 extern PartialTradeSignalMetaData CreatePartialTradeSignalMetaData(
-    const std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
-    std::vector<std::string> const& sortedIds, bool strictMode);
+    const std::unordered_map<
+        std::string, epoch_metadata::strategy::AlgorithmNode> &algorithm,
+    std::vector<std::string> const &sortedIds, bool strictMode);
 
 struct CompilerData {
   std::unordered_map<std::string, epoch_metadata::strategy::AlgorithmNode>
@@ -75,8 +72,7 @@ CompileNodes(const UIData &validatedGraph,
   return compilerData;
 }
 
-void
-CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
+void CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
   for (const auto &edge : validatedGraph.edges) {
     const auto &targetNode = compilerData.nodeMap.at(edge.target.id);
 
@@ -91,8 +87,7 @@ CompileEdges(const UIData &validatedGraph, CompilerData &compilerData) {
 
 std::expected<PartialTradeSignalMetaData, std::string>
 CompileUIData(const std::vector<UINode> &sortedNodes,
-              const UIData &validatedGraph,
-              bool strictMode) {
+              const UIData &validatedGraph, bool strictMode) {
   epoch_metadata::MetaDataOptionList options;
 
   // Step 1: Compile nodes using the pre-sorted order from validation
@@ -116,7 +111,7 @@ CompileUIData(const std::vector<UINode> &sortedNodes,
   // Step 3: Generate final metadata
   try {
     auto metadata = CreatePartialTradeSignalMetaData(compilerData.algorithmMap,
-      sortedIds, strictMode);
+                                                     sortedIds, strictMode);
     metadata.options = options;
     return metadata;
   } catch (const std::exception &e) {

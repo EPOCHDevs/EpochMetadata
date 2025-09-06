@@ -4,10 +4,8 @@
 #include "epoch_metadata/transforms/registry.h"
 #include <cstdio>
 #include <limits>
-#include <queue>
 #include <sstream>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "epoch_metadata/strategy/metadata.h"
 
@@ -405,6 +403,11 @@ epoch_metadata::strategy::AlgorithmNode CreateAlgorithmNode(
   // Set the timeframe if present
   if (auto timeframe = node.timeframe) {
     newAlgo.timeframe = timeframe;
+  }
+
+  // Set the session variant if present
+  if (node.session) {
+    newAlgo.session = node.session;
   }
 
   return newAlgo;

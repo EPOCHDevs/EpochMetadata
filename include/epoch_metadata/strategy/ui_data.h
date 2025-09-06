@@ -1,4 +1,5 @@
 #pragma once
+#include "epoch_metadata/strategy/session_variant.h"
 #include "epoch_metadata/time_frame.h"
 #include <epoch_metadata/metadata_options.h>
 #include <glaze/glaze.hpp>
@@ -37,6 +38,7 @@ struct UINode {
   std::vector<UIOption> options{};
   UINodeMetadata metadata;
   std::optional<TimeFrame> timeframe{std::nullopt};
+  std::optional<SessionVariant> session{std::nullopt};
 
   bool operator==(const UINode &other) const = default;
 };
