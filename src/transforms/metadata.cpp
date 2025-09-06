@@ -347,6 +347,7 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
 
   for (auto const &[id, name] :
        std::initializer_list<std::array<std::string, 2>>{
+           {"null", "Null"},
            {"one", "1"},
            {"negative_one", "-1"},
            {"zero", "0"},
@@ -368,7 +369,9 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
         .name = name,
         .options = {},
         .desc = name,
-        .outputs = {IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
+        .outputs = {id == "null"
+                        ? IOMetaDataConstants::ANY_OUTPUT_METADATA
+                        : IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
         .tags = {"scalar", "constant", "math", "number"}});
   }
 
