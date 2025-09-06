@@ -3,10 +3,9 @@
 //
 
 #pragma once
-#include "date_time/date_offsets.h"
 #include "epoch_frame/day_of_week.h"
 #include "epoch_frame/time_delta.h"
-#include <epoch_core/enum_wrapper.h>
+#include "epoch_metadata/strategy/session_variant.h"
 #include <epoch_frame/factory/date_offset_factory.h>
 #include <glaze/json/json_t.hpp>
 #include <string_view>
@@ -80,8 +79,6 @@ CREATE_ENUM(AnchoredTimeFrameType, Start, End);
 
 // Sessions supported by session-anchored offsets. Maps to concrete
 // SessionRange.
-CREATE_ENUM(SessionType, Sydney, Tokyo, London, NewYork, AsianKillZone,
-            LondonOpenKillZone, NewYorkKillZone, LondonCloseKillZone);
 
 CREATE_ENUM(SessionAnchorType, AfterOpen, BeforeClose);
 
@@ -96,7 +93,7 @@ struct DateOffsetOption {
   epoch_core::StratifyxMonth month{epoch_core::StratifyxMonth::Null};
   std::optional<epoch_frame::TimeDelta> time_offset{std::nullopt};
   // Session-anchored `
-  epoch_core::SessionType session{epoch_core::SessionType::Null};
+  std::optional<epoch_metadata::strategy::SessionVariant> session{std::nullopt};
   epoch_core::SessionAnchorType session_anchor{
       epoch_core::SessionAnchorType::Null};
 };

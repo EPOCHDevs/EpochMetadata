@@ -11,6 +11,7 @@
 #include <cctype>
 #include <glaze/json/json_t.hpp>
 #include <utility>
+#include <variant>
 
 namespace epoch_metadata {
 SessionRegistry::SessionRegistry() {
@@ -334,15 +335,23 @@ MakeHandlerFromOption(DateOffsetOption const &option) {
                                               option.time_offset);
   }
   case epoch_core::StratifyxTimeFrameType::session: {
-    AssertFromStream(option.session != epoch_core::SessionType::Null,
-                     "Session timeframe requires a valid session");
     auto which =
         option.session_anchor == epoch_core::SessionAnchorType::AfterOpen
             ? epoch_frame::SessionAnchorWhich::AfterOpen
             : epoch_frame::SessionAnchorWhich::BeforeClose;
     const auto delta = option.time_offset.value_or(
         epoch_frame::TimeDelta{epoch_frame::TimeDelta::Components{}});
-    auto session_range = kSessionRegistry.at(option.session);
+    AssertFromStream(option.session.has_value(),
+                     "Session timeframe requires a valid session");
+    epoch_frame::SessionRange session_range;
+    if (std::holds_alternative<epoch_frame::SessionRange>(
+            option.session.value())) {
+      session_range =
+          std::get<epoch_frame::SessionRange>(option.session.value());
+    } else {
+      session_range = kSessionRegistry.at(
+          std::get<epoch_core::SessionType>(option.session.value()));
+    }
     return epoch_frame::factory::offset::session_anchor(session_range, which,
                                                         delta, option.interval);
   }
