@@ -5,7 +5,8 @@ FetchContent_Declare(
   graphviz
   GIT_REPOSITORY https://gitlab.com/graphviz/graphviz.git
   GIT_TAG        12.2.1
-  GIT_SHALLOW    TRUE
+  GIT_SHALLOW    FALSE
+  GIT_SUBMODULES ""   # skip Windows submodules
 )
 
 # Configure Graphviz build options for shared libraries
