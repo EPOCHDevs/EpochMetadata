@@ -52,6 +52,7 @@ void TransformsMetaData::decode(const YAML::Node &element) {
       element["requiredDataSources"].as<std::vector<std::string>>(
           std::vector<std::string>{});
   intradayOnly = element["intradayOnly"].as<bool>(false);
+  allowNullInputs = element["allowNullInputs"].as<bool>(false);
 }
 
 TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);

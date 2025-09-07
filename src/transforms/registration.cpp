@@ -4,7 +4,6 @@
 #include "epoch_metadata/transforms/registration.h"
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/transforms/registry.h"
-#include <unordered_map>
 
 namespace epoch_metadata::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -31,6 +30,10 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
 
     if (kIntradayOnlyIds.contains(indicator.id)) {
       indicator.intradayOnly = true;
+    }
+
+    if (indicator.category == epoch_core::TransformCategory::Executor) {
+      indicator.allowNullInputs = true;
     }
 
     ITransformRegistry::GetInstance().Register(indicator);
