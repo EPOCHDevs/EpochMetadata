@@ -3,8 +3,12 @@
 //
 
 #pragma once
+#include "epoch_metadata/asset/symbol.h"
+#include "epoch_metadata/decimal_utils.h"
+#include <decimal.hh>
 #include <epoch_core/macros.h>
 #include <epoch_frame/datetime.h>
+#include <epoch_metadata/glaze_custom_types.h>
 #include <glaze/glaze.hpp>
 
 namespace glz {
@@ -107,4 +111,61 @@ template <> struct meta<epoch_frame::Time> {
 
   static constexpr auto value = glz::custom<read_x, write_x>;
 };
+
+template <> struct to<JSON, decimal::Decimal> {
+  template <auto Opts>
+  static void op(const decimal::Decimal &x, auto &&...args) noexcept {
+    if (x.isnan()) {
+      serialize<JSON>::op<Opts>(nullptr, args...);
+    } else {
+      // Direct serialization without intermediate string conversion
+      serialize<JSON>::op<Opts>(epoch_stratifyx::fromDecimal(x), args...);
+    }
+  }
+};
+
+template <> struct from<JSON, decimal::Decimal> {
+  template <auto Opts> static void op(decimal::Decimal &value, auto &&...args) {
+    json_t val;
+    parse<JSON>::op<Opts>(val, args...);
+    if (val.is_number()) {
+      value = epoch_stratifyx::toDecimal(val.get_number());
+    } else if (val.is_string()) {
+      value = decimal::Decimal(val.get_string());
+    } else if (val.is_null()) {
+      value = decimal::Decimal();
+    } else {
+      throw std::runtime_error("Invalid decimal type");
+    }
+  }
+};
+
+template <> struct to<JSON, epoch_metadata::Symbol> {
+  template <auto Opts>
+  static void op(const epoch_metadata::Symbol &x, auto &&...args) noexcept {
+    serialize<JSON>::op<Opts>(x.get(), args...);
+  }
+};
+
+template <> struct from<JSON, epoch_metadata::Symbol> {
+  template <auto Opts>
+  static void op(epoch_metadata::Symbol &value, auto &&...args) {
+    std::string human_readable;
+    parse<JSON>::op<Opts>(human_readable, args...);
+    value = epoch_metadata::Symbol{human_readable};
+  }
+};
+
+inline std::basic_string_view<uint8_t>
+ToUint8tStringView(const std::string &input) {
+  return {reinterpret_cast<const uint8_t *>(input.data()), input.size()};
+}
+std::string prettify(std::string const &name, auto &&data) {
+  return std::format("{}:\n{}", name,
+                     glz::prettify_json(glz::write_json(data).value()));
+}
+
+std::string prettify(auto &&data) {
+  return glz::prettify_json(glz::write_json(data).value());
+}
 } // namespace glz

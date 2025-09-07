@@ -50,6 +50,7 @@ endif()
 include(${PROJECT_SOURCE_DIR}/cmake/EpochFrame.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Tulip.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Graphviz.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/MPDecimal.cmake)
 
 find_package(glaze REQUIRED)
 find_package(spdlog REQUIRED)
@@ -87,6 +88,8 @@ target_link_libraries(epoch_metadata PUBLIC
        epoch::frame
        spdlog::spdlog_header_only
        yaml-cpp::yaml-cpp
+       libmpdec++
+       libmpdec
        tulip_indicators
        glaze::glaze
         cgraph

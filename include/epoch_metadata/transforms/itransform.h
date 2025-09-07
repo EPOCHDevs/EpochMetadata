@@ -1,0 +1,132 @@
+#pragma once
+//
+// Created by dewe on 1/8/23.
+//
+#include "epoch_folio/transform_configuration.h"
+#include "memory"
+#include "model/common/constants.h"
+#include <epoch_frame/dataframe.h>
+#include <epoch_frame/series.h>
+
+namespace epoch_metadata::transform {
+
+struct ITransformBase {
+
+  virtual std::string GetId() const = 0;
+
+  virtual std::string GetName() const = 0;
+
+  virtual epoch_metadata::MetaDataOptionDefinition
+  GetOption(std::string const &param) const = 0;
+
+  virtual epoch_metadata::MetaDataOptionList GetOptionsMetaData() const = 0;
+
+  virtual std::string GetOutputId(const std::string &output) const = 0;
+
+  virtual std::string GetOutputId() const = 0;
+
+  virtual std::string GetInputId(const std::string &inputId) const = 0;
+
+  virtual std::string GetInputId() const = 0;
+
+  virtual std::vector<std::string> GetInputIds() const = 0;
+
+  virtual std::vector<epoch_metadata::transforms::IOMetaData>
+  GetOutputMetaData() const = 0;
+
+  virtual epoch_metadata::TimeFrame GetTimeframe() const = 0;
+
+  virtual TransformConfiguration GetConfiguration() const = 0;
+
+  virtual epoch_frame::DataFrame
+  TransformData(const epoch_frame::DataFrame &) const = 0;
+
+  virtual ~ITransformBase() = default;
+};
+
+class ITransform : public ITransformBase {
+
+public:
+  explicit ITransform(TransformConfiguration config)
+      : m_config(std::move(config)) {}
+
+  std::string GetId() const final { return m_config.GetId(); }
+
+  inline std::string GetName() const final {
+    return m_config.GetTransformName();
+  }
+
+  epoch_metadata::MetaDataOptionDefinition
+  GetOption(std::string const &param) const final {
+    return m_config.GetOptionValue(param);
+  }
+
+  epoch_metadata::MetaDataOptionList GetOptionsMetaData() const final {
+    return m_config.GetTransformDefinition().GetMetadata().options;
+  }
+
+  std::string GetOutputId(const std::string &output) const override {
+    return m_config.GetOutputId(output);
+  }
+
+  std::string GetOutputId() const final { return m_config.GetOutputId(); }
+
+  std::string GetInputId(const std::string &inputId) const override {
+    return m_config.GetInput(inputId);
+  }
+
+  std::string GetInputId() const override { return m_config.GetInput(); }
+
+  std::vector<std::string> GetInputIds() const override {
+    std::vector<std::string> result;
+
+    const auto inputs = m_config.GetTransformDefinition().GetMetadata().inputs;
+    std::ranges::for_each(
+        inputs, [&](epoch_metadata::transforms::IOMetaData const &io) {
+          auto out = m_config.GetInputs(io.id);
+          if (out.empty()) {
+            AssertFromStream(
+                m_config.GetTransformName() ==
+                    epoch_metadata::transforms::TRADE_SIGNAL_EXECUTOR_ID,
+                "Only trade signal executor can have unconnected inputs.");
+            return;
+          }
+          result.insert(result.end(), out.begin(), out.end());
+        });
+    return result;
+  }
+
+  std::vector<epoch_metadata::transforms::IOMetaData>
+  GetOutputMetaData() const override {
+    return m_config.GetOutputs();
+  }
+
+  epoch_metadata::TimeFrame GetTimeframe() const final {
+    return m_config.GetTimeframe();
+  }
+
+  TransformConfiguration GetConfiguration() const final { return m_config; }
+
+  friend std::ostream &operator<<(std::ostream &os, ITransform const &model) {
+    os << model.m_config.ToString();
+    return os;
+  }
+
+  ~ITransform() override = default;
+  using Ptr = std::shared_ptr<ITransform>;
+
+protected:
+  TransformConfiguration m_config;
+
+  static auto GetValidSeries(epoch_frame::Series const &input) {
+    const auto output = input.loc(input.is_valid());
+    return std::pair{output.contiguous_array(), output};
+  }
+
+  epoch_frame::DataFrame MakeResult(epoch_frame::Series const &series) const {
+    return series.to_frame(GetOutputId());
+  }
+};
+
+using ITransformBasePtr = std::unique_ptr<ITransformBase>;
+} // namespace epoch_metadata::transform
