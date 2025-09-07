@@ -7,7 +7,7 @@
 #include <epoch_core/common_utils.h>
 #include <epoch_frame/datetime.h>
 #include <epoch_metadata/glaze_custom_types.h>
-#include <model/id_sequence.h>
+#include <epoch_metadata/id_sequence.h>
 
 namespace epoch_metadata::transform {
 class TransformConfiguration {
