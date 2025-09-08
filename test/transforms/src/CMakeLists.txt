@@ -1,0 +1,22 @@
+target_sources(epoch_metadata_test PRIVATE
+        scalar_aggregation_test.cpp)
+
+# Temporarily disabled test files with missing dependencies
+# transform_flow_graph_test.cpp transform_metadata_factory.cpp
+# transforms_test.cpp trade_executor_test.cpp
+
+# Temporarily disabled subdirectories with missing dependencies
+# add_subdirectory(cummulative)
+# add_subdirectory(cross_sectional)
+# add_subdirectory(futures)
+# add_subdirectory(hosseinmoein)
+# add_subdirectory(indicators)
+# add_subdirectory(operators)
+# add_subdirectory(price_actions)
+# add_subdirectory(tulip)
+add_subdirectory(volatility)
+# add_subdirectory(statistics)    
+
+
+target_compile_definitions(epoch_metadata_test PUBLIC -DMETADATA_FILES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files")
+MESSAGE("METADATA_FILES_DIR ${METADATA_FILES_DIR}")

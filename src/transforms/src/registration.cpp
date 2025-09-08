@@ -1,0 +1,216 @@
+//
+// Created by adesola on 5/15/25.
+//
+
+#include "epoch_metadata/transforms/registration.h"
+#include "agg.h"
+#include "aggregation_scalar.h"
+#include "data_source.h"
+#include "epoch_metadata/transforms/registry.h"
+#include "epoch_metadata/transforms/transform_registry.h"
+#include "trade_executors.h"
+
+#include "hosseinmoein/indicators/hurst_exponent.h"
+#include "hosseinmoein/volatility/hodges_tompkins.h"
+#include "hosseinmoein/volatility/ulcer_index.h"
+#include "price_actions/smc/bos_choch.h"
+#include "price_actions/smc/fvg.h"
+#include "price_actions/smc/liquidity.h"
+#include "price_actions/smc/ob.h"
+#include "price_actions/smc/previous_high_low.h"
+#include "price_actions/smc/retracements.h"
+#include "price_actions/smc/sessions.h"
+#include "price_actions/smc/swing_highs_lows.h"
+#include "statistics/hmm.h"
+#include <epoch_metadata/strategy/registration.h>
+
+#include "cross_sectional/rank.h"
+#include "cross_sectional/returns.h"
+#include "cummulative/cum_op.h"
+
+#include "hosseinmoein/hosseinmoein.h"
+
+#include "indicators/bband_variant.h"
+#include "indicators/gap_classify.h"
+#include "indicators/gap_returns.h"
+#include "indicators/moving_average.h"
+#include "operators/equality.h"
+#include "operators/logical.h"
+#include "operators/select.h"
+#include "scalar.h"
+#include "tulip/tulip_model.h"
+#include "volatility/volatility.h"
+
+#include <candles.h>
+
+namespace epoch_metadata::transform {
+void InitializeTransforms(
+    std::function<YAML::Node(std::string const &)> const &loader,
+    std::vector<std::string> const &algorithmBuffers,
+    std::vector<std::string> const &strategyBuffers) {
+  epoch_metadata::strategy::RegisterStrategyMetadata(loader, algorithmBuffers,
+                                                     strategyBuffers);
+
+  // Scalar Transforms
+  REGISTER_TRANSFORM(number, NumericScalarDataFrameTransform);
+  REGISTER_TRANSFORM(bool_true, BoolTrueScalar);
+  REGISTER_TRANSFORM(bool_false, BoolFalseScalar);
+  REGISTER_TRANSFORM(zero, ZeroScalar);
+  REGISTER_TRANSFORM(one, OneScalar);
+  REGISTER_TRANSFORM(negative_one, NegativeOneScalar);
+  REGISTER_TRANSFORM(pi, PiScalar);
+  REGISTER_TRANSFORM(e, EScalar);
+  REGISTER_TRANSFORM(phi, PhiScalar);
+  REGISTER_TRANSFORM(sqrt2, Sqrt2Scalar);
+  REGISTER_TRANSFORM(sqrt3, Sqrt3Scalar);
+  REGISTER_TRANSFORM(sqrt5, Sqrt5Scalar);
+  REGISTER_TRANSFORM(ln2, Ln2Scalar);
+  REGISTER_TRANSFORM(ln10, Ln10Scalar);
+  REGISTER_TRANSFORM(log2e, Log2EScalar);
+  REGISTER_TRANSFORM(log10e, Log10EScalar);
+
+  // Vector Transforms
+  REGISTER_TRANSFORM(gt, VectorGT);
+  REGISTER_TRANSFORM(gte, VectorGTE);
+  REGISTER_TRANSFORM(lt, VectorLT);
+  REGISTER_TRANSFORM(lte, VectorLTE);
+  REGISTER_TRANSFORM(eq, VectorEQ);
+  REGISTER_TRANSFORM(neq, VectorNEQ);
+
+  REGISTER_TRANSFORM(logical_or, LogicalOR);
+  REGISTER_TRANSFORM(logical_and, LogicalAND);
+  REGISTER_TRANSFORM(logical_xor, LogicalXOR);
+  REGISTER_TRANSFORM(logical_and_not, LogicalAND_NOT);
+  REGISTER_TRANSFORM(logical_not, LogicalNot);
+
+  REGISTER_TRANSFORM(boolean_select, BooleanSelectTransform);
+  REGISTER_TRANSFORM(select_2, Select2);
+  REGISTER_TRANSFORM(select_3, Select3);
+  REGISTER_TRANSFORM(select_4, Select4);
+  REGISTER_TRANSFORM(select_5, Select5);
+
+  REGISTER_TRANSFORM(previous_gt, GreaterThanPrevious);
+  REGISTER_TRANSFORM(previous_gte, GreaterThanOrEqualsPrevious);
+  REGISTER_TRANSFORM(previous_lt, LessThanPrevious);
+  REGISTER_TRANSFORM(previous_lte, LessThanOrEqualsPrevious);
+  REGISTER_TRANSFORM(previous_eq, EqualsPrevious);
+  REGISTER_TRANSFORM(previous_neq, NotEqualsPrevious);
+
+  REGISTER_TRANSFORM(highest_gt, GreaterThanHighest);
+  REGISTER_TRANSFORM(highest_gte, GreaterThanOrEqualsHighest);
+  REGISTER_TRANSFORM(highest_lt, LessThanHighest);
+  REGISTER_TRANSFORM(highest_lte, LessThanOrEqualsHighest);
+  REGISTER_TRANSFORM(highest_eq, EqualsHighest);
+  REGISTER_TRANSFORM(highest_neq, NotEqualsHighest);
+
+  REGISTER_TRANSFORM(lowest_gt, GreaterThanLowest);
+  REGISTER_TRANSFORM(lowest_gte, GreaterThanOrEqualsLowest);
+  REGISTER_TRANSFORM(lowest_lt, LessThanLowest);
+  REGISTER_TRANSFORM(lowest_lte, LessThanOrEqualsLowest);
+  REGISTER_TRANSFORM(lowest_eq, EqualsLowest);
+  REGISTER_TRANSFORM(lowest_neq, NotEqualsLowest);
+
+  REGISTER_TRANSFORM(market_data_source, DataSourceTransform);
+  REGISTER_TRANSFORM(percentile_select, PercentileSelect);
+  REGISTER_TRANSFORM(boolean_branch, BooleanBranch);
+  REGISTER_TRANSFORM(ratio_branch, RatioBranch);
+
+  REGISTER_TRANSFORM(cum_prod, CumProdOperation);
+  REGISTER_TRANSFORM(cs_momentum, CrossSectionalMomentumOperation);
+  REGISTER_TRANSFORM(top_k, CrossSectionalTopKOperation);
+  REGISTER_TRANSFORM(bottom_k, CrossSectionalBottomKOperation);
+  REGISTER_TRANSFORM(top_k_percent, CrossSectionalTopKPercentileOperation);
+  REGISTER_TRANSFORM(bottom_k_percent,
+                     CrossSectionalBottomKPercentileOperation);
+
+  REGISTER_TRANSFORM(bband_percent, BollingerBandsPercent);
+  REGISTER_TRANSFORM(bband_width, BollingerBandsWidth);
+
+  REGISTER_TRANSFORM(gap_returns, GapReturns);
+  REGISTER_TRANSFORM(gap_classify, GapClassify);
+  REGISTER_TRANSFORM(ma, MovingAverage);
+
+  REGISTER_TRANSFORM(price_diff_vol, PriceDiffVolatility);
+  REGISTER_TRANSFORM(return_vol, ReturnVolatility);
+
+  // Price Action Transforms
+  REGISTER_TRANSFORM(bos_choch, BosChoch);
+  REGISTER_TRANSFORM(fair_value_gap, FairValueGap);
+  REGISTER_TRANSFORM(liquidity, Liquidity);
+  REGISTER_TRANSFORM(order_blocks, OrderBlocks);
+  REGISTER_TRANSFORM(previous_high_low, PreviousHighLow);
+  REGISTER_TRANSFORM(retracements, Retracements);
+  REGISTER_TRANSFORM(sessions, DefaultSessions);
+  REGISTER_TRANSFORM(swing_highs_lows, SwingHighsLows);
+
+  // Aggregate Transforms
+  REGISTER_TRANSFORM(agg_sum, SumAggregateTransform);
+  REGISTER_TRANSFORM(agg_mean, AverageAggregateTransform);
+  REGISTER_TRANSFORM(agg_min, MinAggregateTransform);
+  REGISTER_TRANSFORM(agg_max, MaxAggregateTransform);
+  REGISTER_TRANSFORM(agg_all_of, AllOfAggregateTransform);
+  REGISTER_TRANSFORM(agg_any_of, AnyOfAggregateTransform);
+  REGISTER_TRANSFORM(agg_none_of, NoneOfAggregateTransform);
+  REGISTER_TRANSFORM(agg_all_equal, AllEqualAggregateTransform);
+  REGISTER_TRANSFORM(agg_all_unique, AllUniqueAggregateTransform);
+
+  // Price Action SMC Transforms
+  for (auto const &metaData :
+       std::span(ti_indicators, ti_indicators + ti_indicator_count())) {
+    transform::Register<TulipModelImpl<true>>(metaData.name);
+  }
+  for (auto const &metaData :
+       std::span(tc_candles, tc_candles + tc_candle_count())) {
+    transform::Register<TulipModelImpl<false>>(metaData.name);
+  }
+
+  // Hossein Moein Transforms
+  REGISTER_TRANSFORM(acceleration_bands, AccelerationBands);
+  REGISTER_TRANSFORM(garman_klass, GarmanKlass);
+  REGISTER_TRANSFORM(hodges_tompkins, HodgesTompkins);
+  REGISTER_TRANSFORM(keltner_channels, KeltnerChannels);
+  REGISTER_TRANSFORM(parkinson, Parkinson);
+  REGISTER_TRANSFORM(ulcer_index, UlcerIndex);
+  REGISTER_TRANSFORM(yang_zhang, YangZhang);
+
+  REGISTER_TRANSFORM(chande_kroll_stop, ChandeKrollStop);
+  REGISTER_TRANSFORM(donchian_channel, DonchianChannel);
+  REGISTER_TRANSFORM(elders_thermometer, EldersThermometer);
+  REGISTER_TRANSFORM(hurst_exponent, HurstExponent);
+  REGISTER_TRANSFORM(rolling_hurst_exponent, RollingHurstExponent);
+  REGISTER_TRANSFORM(ichimoku, Ichimoku);
+  REGISTER_TRANSFORM(pivot_point_sr, PivotPointSR);
+  REGISTER_TRANSFORM(price_distance, PriceDistance);
+  REGISTER_TRANSFORM(psl, PSL);
+  REGISTER_TRANSFORM(qqe, QuantQualEstimation);
+  REGISTER_TRANSFORM(vortex, Vortex);
+  REGISTER_TRANSFORM(zscore, ZScore);
+
+  REGISTER_TRANSFORM(trade_executor_adapter, TradeExecutorAdapter);
+  REGISTER_TRANSFORM(trade_signal_executor, TradeExecutorTransform);
+
+  // Aggregation Scalar Transforms - Templated versions for each function
+  REGISTER_TRANSFORM(scalar_all, AllAggregation);
+  REGISTER_TRANSFORM(scalar_any, AnyAggregation);
+  REGISTER_TRANSFORM(scalar_approximate_median, ApproximateMedianAggregation);
+  REGISTER_TRANSFORM(scalar_count, CountAggregation);
+  REGISTER_TRANSFORM(scalar_count_all, CountAllAggregation);
+  REGISTER_TRANSFORM(scalar_count_distinct, CountDistinctAggregation);
+  REGISTER_TRANSFORM(scalar_first, FirstAggregation);
+  REGISTER_TRANSFORM(scalar_kurtosis, KurtosisAggregation);
+  REGISTER_TRANSFORM(scalar_last, LastAggregation);
+  REGISTER_TRANSFORM(scalar_max, MaxAggregation);
+  REGISTER_TRANSFORM(scalar_mean, MeanAggregation);
+  REGISTER_TRANSFORM(scalar_min, MinAggregation);
+  REGISTER_TRANSFORM(scalar_product, ProductAggregation);
+  REGISTER_TRANSFORM(scalar_quantile, QuantileAggregation);
+  REGISTER_TRANSFORM(scalar_skew, SkewAggregation);
+  REGISTER_TRANSFORM(scalar_stddev, StddevAggregation);
+  REGISTER_TRANSFORM(scalar_sum, SumAggregation);
+  REGISTER_TRANSFORM(scalar_tdigest, TDigestAggregation);
+  REGISTER_TRANSFORM(scalar_variance, VarianceAggregation);
+
+  // Statistics Transforms
+  REGISTER_TRANSFORM(hmm, HMMTransform);
+};
+} // namespace epoch_metadata::transform

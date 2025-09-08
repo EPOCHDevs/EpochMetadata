@@ -1,0 +1,1 @@
+target_sources(epoch_metadata_test PRIVATE indicators_test.cpp gap_classify_test.cpp)

@@ -1,0 +1,1 @@
+target_sources(epoch_metadata_test PRIVATE cummulative_test.cpp)
