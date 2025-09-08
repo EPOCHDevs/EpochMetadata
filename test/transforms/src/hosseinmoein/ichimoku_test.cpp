@@ -39,7 +39,7 @@ TEST_CASE("Ichimoku", "[hosseinmoein][ichimoku]") {
       {C.CLOSE(), C.HIGH(), C.LOW(), C.OPEN(), C.VOLUME()});
 
   const auto tf =
-      epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t p_tenkan = 9, p_kijun = 26, p_senkou_b = 52;
   epoch_metadata::MetaDataArgDefinitionMapping opts{

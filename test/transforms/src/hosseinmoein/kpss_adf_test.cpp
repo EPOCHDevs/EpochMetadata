@@ -35,7 +35,7 @@ TEST_CASE("KPSS vs HMDF", "[hosseinmoein][kpss]") {
       index, {df.get_column<double>("IBM_Close")}, {C.CLOSE()});
 
   const auto tf =
-      epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
   const int64_t window = 60;
   const double alpha = 0.05;
 

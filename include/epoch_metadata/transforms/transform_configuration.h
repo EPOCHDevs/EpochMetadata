@@ -24,7 +24,7 @@ public:
   std::string GetId() const { return m_transformDefinition.GetId(); }
 
   std::string GetTransformName() const {
-    return m_transformDefinition.GetMetadata().id;
+    return m_transformDefinition.GetType();
   }
 
   epoch_metadata::TimeFrame GetTimeframe() const {

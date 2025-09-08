@@ -33,7 +33,7 @@ TEST_CASE("ZScore rolling", "[hosseinmoein][zscore]") {
       index, {df.get_column<double>("IBM_Close")}, {C.CLOSE()});
 
   const auto tf =
-      epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
   const int64_t window = 20;
 
   YAML::Node inputs_yaml;

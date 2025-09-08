@@ -5,6 +5,7 @@
 #pragma once
 
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/itransform.h"
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/index.h>
 #include <epoch_frame/series.h>

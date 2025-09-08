@@ -59,7 +59,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
                                                 "IBM_Close", pivot);
     const auto cfg = pivot_point_sr_cfg(
         "pivot_sr_id",
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto pivotPointSR = dynamic_cast<PivotPointSR *>(transformBase.get());
     REQUIRE(pivotPointSR);
@@ -104,7 +104,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
 
     auto cfg = hurst_exponent_cfg(
         "hurst_id", period, C.CLOSE(),
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto hurstExp = dynamic_cast<HurstExponent *>(transformBase.get());
     REQUIRE(hurstExp);
@@ -114,7 +114,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
 
     cfg = rolling_hurst_exponent_cfg(
         "rolling_hurst_id", period, C.CLOSE(),
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     transformBase = MAKE_TRANSFORM(cfg);
     auto rollingHurstExp =
         dynamic_cast<RollingHurstExponent *>(transformBase.get());
@@ -165,7 +165,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
                                                 "IBM_Close", ck_stop);
     const auto cfg = chande_kroll_cfg(
         "ck_stop_id", ck_period, atr_period, ck_multiplier,
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto chandeKroll = dynamic_cast<ChandeKrollStop *>(transformBase.get());
     REQUIRE(chandeKroll);
@@ -194,7 +194,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
     df.single_act_visit<double, double>("IBM_Low", "IBM_High", elders);
     const auto cfg = elders_thermometer_cfg(
         "elders_id", elders_period, 0.1, 0.5,
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto eldersTherm = dynamic_cast<EldersThermometer *>(transformBase.get());
     REQUIRE(eldersTherm);
@@ -224,7 +224,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
         "IBM_Low", "IBM_High", "IBM_Open", "IBM_Close", price_dist);
     const auto cfg = price_distance_cfg(
         "price_dist_id",
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto priceDistance = dynamic_cast<PriceDistance *>(transformBase.get());
     REQUIRE(priceDistance);
@@ -244,7 +244,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
     df.single_act_visit<double, double>("IBM_Close", "IBM_Open", psl_visitor);
     const auto cfg = psl_cfg(
         "psl_id", psl_period,
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto pslTransform = dynamic_cast<PSL *>(transformBase.get());
     REQUIRE(pslTransform);
@@ -264,7 +264,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
     df.single_act_visit<double>("IBM_Close", qqe_visitor);
     const auto cfg = qqe_cfg(
         "qqe_id", qqe_period, smooth_period, 4.236,
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto qqeTransform =
         dynamic_cast<QuantQualEstimation *>(transformBase.get());
@@ -300,7 +300,7 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
                                                 "IBM_Close", vortex_visitor);
     const auto cfg = vortex_cfg(
         "vortex_id", vortex_period,
-        epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto vortexTransform = dynamic_cast<Vortex *>(transformBase.get());
     REQUIRE(vortexTransform);

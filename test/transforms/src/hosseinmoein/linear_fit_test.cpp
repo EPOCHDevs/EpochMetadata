@@ -20,7 +20,7 @@ using namespace epoch_metadata::transform;
 TEST_CASE("LinearFit rolling (slope/intercept/residual)",
           "[hosseinmoein][linear_fit]") {
   const auto tf =
-      epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t window = 20;
   epoch_metadata::MetaDataArgDefinitionMapping opts{

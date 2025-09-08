@@ -39,7 +39,7 @@ TEST_CASE("DonchianChannel", "[hosseinmoein][donchian]") {
       {C.CLOSE(), C.HIGH(), C.LOW(), C.OPEN(), C.VOLUME()});
 
   const auto tf =
-      epoch_metadata::epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t window = 20;
   YAML::Node inputs_yaml; // no inputs

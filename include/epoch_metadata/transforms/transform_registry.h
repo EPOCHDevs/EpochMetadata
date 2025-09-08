@@ -8,6 +8,7 @@
 #include "memory"
 #include "string"
 #include "vector"
+#include <iostream>
 
 namespace epoch_metadata::transform {
 
@@ -28,10 +29,11 @@ struct TransformRegistry {
 
   std::unique_ptr<ITransformBase>
   Get(TransformConfiguration const &config) const {
-    if (m_registry.contains(config.GetTransformName())) {
-      return m_registry.at(config.GetTransformName())(config);
+    std::string transformName = config.GetTransformName();
+    if (m_registry.contains(transformName)) {
+      return m_registry.at(transformName)(config);
     }
-    throw std::runtime_error(config.GetTransformName() + " not in TI Registry");
+    throw std::runtime_error(transformName + " not in TI Registry");
   }
 
   const auto &GetAll() const { return m_registry; }

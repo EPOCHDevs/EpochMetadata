@@ -5,6 +5,7 @@
 #include "epoch_frame/dataframe.h"
 #include "epoch_frame/factory/table_factory.h"
 #include "epoch_metadata/transforms/itransform.h"
+#include "epoch_metadata/bar_attribute.h"
 
 #include <glaze/json/read.hpp>
 
