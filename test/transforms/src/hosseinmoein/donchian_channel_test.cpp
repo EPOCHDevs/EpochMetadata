@@ -9,15 +9,16 @@
 #include "epoch_frame/scalar.h"
 
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/config_helper.h"
 
-#include "transforms/hosseinmoein/indicators/donchian_channel.h"
+#include "transforms/src/hosseinmoein/indicators/donchian_channel.h"
 
 using namespace epoch_frame;
 using namespace epoch_metadata::transform;
 
 TEST_CASE("DonchianChannel", "[hosseinmoein][donchian]") {
-  auto C = epoch_metadata::epoch_metadata::BarsConstants::instance();
+  auto C = epoch_metadata::EpochStratifyXConstants::instance();
   auto path = std::format("{}/test_data/hmdf/IBM.csv",
                           std::filesystem::current_path().string());
 

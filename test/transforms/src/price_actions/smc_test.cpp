@@ -1,7 +1,8 @@
 #include "transforms/src/bar_resampler.h"
 #include "transforms/src/config_helper.h"
+#include "epoch_metadata/bar_attribute.h"
 
-#include "transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_configuration.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
@@ -29,7 +30,7 @@ TEST_CASE("SMC Test") {
   auto index = df["Date"].str().strptime(str_options).dt().tz_localize("UTC");
   df = df.set_index(std::make_shared<DateTimeIndex>(index.value()));
 
-  auto const &C = epoch_metadata::BarsConstants::instance();
+  auto const &C = epoch_metadata::EpochStratifyXConstants::instance();
   std::unordered_map<std::string, std::string> replacements{
       {"Open", C.OPEN()},
       {"High", C.HIGH()},

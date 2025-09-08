@@ -9,9 +9,10 @@
 #include "epoch_frame/scalar.h"
 
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/config_helper.h"
 
-#include "transforms/hosseinmoein/statistics/linear_fit.h"
+#include "transforms/src/hosseinmoein/statistics/linear_fit.h"
 
 using namespace epoch_frame;
 using namespace epoch_metadata::transform;

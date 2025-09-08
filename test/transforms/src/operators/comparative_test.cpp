@@ -2,11 +2,12 @@
 // Created by adesola on 12/3/24.
 //
 #include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/config_helper.h"
 #include "transforms/src/operators/equality.h"
-#include "transforms/operators/logical.h"
-#include "transforms/operators/select.h"
-#include "transforms/transform_definition.h"
+#include "transforms/src/operators/logical.h"
+#include "transforms/src/operators/select.h"
+#include "epoch_metadata/transforms/transform_definition.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"

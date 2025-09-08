@@ -12,6 +12,7 @@
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::transform;
@@ -77,7 +78,7 @@ make_nullable_array(const std::vector<std::optional<T>> &values) {
 }
 
 TEST_CASE("gap_classify - Daily and Intraday") {
-  const auto &C = epoch_metadata::BarsConstants::instance();
+  const auto &C = epoch_metadata::EpochStratifyXConstants::instance();
 
   SECTION("Daily data: up filled and down partial") {
     TransformConfiguration cfg = make_gap_classify_cfg("gap");

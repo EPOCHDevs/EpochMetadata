@@ -4,8 +4,8 @@
 
 #include "transforms/tbb_nodes/function_node.h"
 #include "transforms/tbb_nodes/icache_manager.h"
-#include "transforms/transform_configuration.h"
-#include "transforms/transform_definition.h"
+#include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_definition.h"
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <epoch_frame/datetime.h>

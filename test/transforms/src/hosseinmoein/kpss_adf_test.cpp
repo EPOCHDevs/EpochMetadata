@@ -8,17 +8,18 @@
 #include "epoch_frame/factory/index_factory.h"
 
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/config_helper.h"
 
 // If you already have ADF/KPSS transforms, include their headers here
-// #include "transforms/hosseinmoein/statistics/adf_test.h"
-// #include "transforms/hosseinmoein/statistics/stationary_check.h"
+// #include "transforms/src/hosseinmoein/statistics/adf_test.h"
+// #include "transforms/src/hosseinmoein/statistics/stationary_check.h"
 
 using namespace epoch_frame;
 using namespace epoch_metadata::transform;
 
 TEST_CASE("KPSS vs HMDF", "[hosseinmoein][kpss]") {
-  auto C = epoch_metadata::epoch_metadata::BarsConstants::instance();
+  auto C = epoch_metadata::EpochStratifyXConstants::instance();
   auto path = std::format("{}/test_data/hmdf/IBM.csv",
                           std::filesystem::current_path().string());
 

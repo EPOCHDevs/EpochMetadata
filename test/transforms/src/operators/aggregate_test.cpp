@@ -2,6 +2,7 @@
 // Created by adesola on 1/26/25.
 //
 #include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/agg.h"
 #include "transforms/src/config_helper.h"
 #include "epoch_metadata/transforms/transform_registry.h"

@@ -2,8 +2,9 @@
 #include "epoch_metadata/strategy/registration.h"
 #include <catch.hpp>
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "epoch_metadata/transforms/registration.h"
-#include <transforms/transform_definition.h>
+#include "epoch_metadata/transforms/transform_definition.h"
 #include <unordered_map>
 
 using namespace epoch_metadata;

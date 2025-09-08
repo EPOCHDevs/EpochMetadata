@@ -5,7 +5,7 @@
 #include "epoch_metadata/strategy/registration.h"
 #include "transforms/src/config_helper.h"
 #include "transforms/src/cross_sectional/rank.h"
-#include "transforms/cross_sectional/returns.h"
+#include "transforms/src/cross_sectional/returns.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"

@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/bar_attribute.h"
 
 using namespace epoch_core;
 using namespace epoch_frame;
@@ -71,7 +72,7 @@ TEST_CASE("HMMTransform basic behavior (2 states)", "[hmm]") {
       // Values checks and equality against expected CSV
       // 1) state is integer in [0, N-1]
       auto state_col =
-          out[cfg.GetOutputId("state")].contiguous_array().to_vector<int64_t>();
+          out[cfg.GetOutputId("state")].contiguous_array().template to_vector<int64_t>();
       REQUIRE(state_col.size() == df2.num_rows());
       for (auto s : state_col) {
         REQUIRE(s >= 0);

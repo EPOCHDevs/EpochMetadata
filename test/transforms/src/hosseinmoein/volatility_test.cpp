@@ -1,7 +1,8 @@
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "transforms/src/config_helper.h"
-#include "transforms/hosseinmoein/volatility/volatility.h"
+#include "epoch_metadata/bar_attribute.h"
+#include "transforms/src/hosseinmoein/volatility/volatility.h"
 #include <DataFrame/DataFrame.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <catch.hpp>
@@ -16,7 +17,7 @@ TEST_CASE("VolatilityTest", "[volatility]") {
   using namespace epoch_frame;
   using namespace epoch_metadata::transform;
 
-  auto C = epoch_metadata::epoch_metadata::BarsConstants::instance();
+  auto C = epoch_metadata::EpochStratifyXConstants::instance();
   auto path = std::format("{}/test_data/hmdf/IBM.csv",
                           std::filesystem::current_path().string());
 

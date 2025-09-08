@@ -3,9 +3,10 @@
 //
 #include "epoch_metadata/strategy/registration.h"
 #include "transforms/src/config_helper.h"
-#include "transforms/indicators/bband_variant.h" // includes BollingerBandsPercent, BollingerBandsWidth
-#include "transforms/indicators/gap_returns.h"
-#include "transforms/indicators/moving_average.h"
+#include "epoch_metadata/bar_attribute.h"
+#include "transforms/src/indicators/bband_variant.h" // includes BollingerBandsPercent, BollingerBandsWidth
+#include "transforms/src/indicators/gap_returns.h"
+#include "transforms/src/indicators/moving_average.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
@@ -174,7 +175,7 @@ options: { period: 2, type: sma }
                                      {101.0, 105.0, 110.0}  // OPEN
                                  },
                                  {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
-                                  epoch_metadata::BarsConstants::instance().OPEN()});
+                                  epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
 
       std::vector<double> gapExpected{
           std::numeric_limits<double>::quiet_NaN(), // row0 => no previous row
@@ -207,7 +208,7 @@ options: { period: 2, type: sma }
                                      {101.0, 103.0, 106.0, 108.0}  // OPEN
                                  },
                                  {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
-                                  epoch_metadata::BarsConstants::instance().OPEN()});
+                                  epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
 
       std::vector<double> gapExpected{
           std::numeric_limits<double>::quiet_NaN(), // row0 => no previous =>

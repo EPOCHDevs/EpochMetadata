@@ -2,11 +2,12 @@
 // Created by adesola on 12/3/24.
 //
 #include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/bar_attribute.h"
 #include "transforms/src/config_helper.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
-#include "transforms/tulip/tulip_model.h" // TulipIndicatorModel
+#include "transforms/src/tulip/tulip_model.h" // TulipIndicatorModel
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -212,7 +213,7 @@ options:
   }
 
   SECTION("CandleStick Test") {
-    auto &C = epoch_metadata::BarsConstants::instance();
+    auto &C = epoch_metadata::EpochStratifyXConstants::instance();
     // Example config building for "macd" with periods 12,26,9
     // If your usage is different, adjust accordingly
     TransformConfiguration config{TransformDefinition{YAML::Load(R"(
