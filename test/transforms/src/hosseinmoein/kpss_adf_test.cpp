@@ -7,9 +7,9 @@
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 
-#include "epoch_metadata/constants.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
+#include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/config_helper.h"
 
 // If you already have ADF/KPSS transforms, include their headers here
 // #include "transforms/src/hosseinmoein/statistics/adf_test.h"

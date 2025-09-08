@@ -1,16 +1,16 @@
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/factory/dataframe_factory.h"
-#include "transforms/src/config_helper.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "transforms/src/hosseinmoein/volatility/volatility.h"
 #include <DataFrame/DataFrame.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <catch.hpp>
 #include <epoch_frame/factory/index_factory.h>
 
-#include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 
 TEST_CASE("VolatilityTest", "[volatility]") {
   using namespace hmdf;
@@ -88,7 +88,8 @@ TEST_CASE("VolatilityTest", "[volatility]") {
 
     auto result = garmanKlass->TransformData(input_df);
     auto lhs = result[cfg.GetOutputId()].contiguous_array();
-    auto rhs = Array(factory::array::make_contiguous_array(gk_vol.get_result()));
+    auto rhs =
+        Array(factory::array::make_contiguous_array(gk_vol.get_result()));
 
     INFO(lhs->Diff(*rhs.value()));
     CHECK(lhs.is_equal(rhs));
@@ -98,14 +99,16 @@ TEST_CASE("VolatilityTest", "[volatility]") {
     hodges_tompkins_vol_v ht_vol(period, trading_days);
     df.single_act_visit<double>("IBM_Close", ht_vol);
 
-    const auto cfg = hodges_tompkins_cfg("ht_id", period, trading_days, timeframe);
+    const auto cfg =
+        hodges_tompkins_cfg("ht_id", period, trading_days, timeframe);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto hodgesTompkins = dynamic_cast<HodgesTompkins *>(transformBase.get());
     REQUIRE(hodgesTompkins);
 
     auto result = hodgesTompkins->TransformData(input_df);
     auto lhs = result[cfg.GetOutputId()].contiguous_array();
-    auto rhs = Array(factory::array::make_contiguous_array(ht_vol.get_result()));
+    auto rhs =
+        Array(factory::array::make_contiguous_array(ht_vol.get_result()));
 
     INFO(lhs->Diff(*rhs.value()));
     CHECK(lhs.is_equal(rhs));
@@ -113,10 +116,11 @@ TEST_CASE("VolatilityTest", "[volatility]") {
 
   SECTION("Keltner Channels") {
     keltner_channels_v kc_vol(roll_period, band_multiplier);
-    df.single_act_visit<double, double, double>(
-        "IBM_Low", "IBM_High", "IBM_Close", kc_vol);
+    df.single_act_visit<double, double, double>("IBM_Low", "IBM_High",
+                                                "IBM_Close", kc_vol);
 
-    const auto cfg = keltner_channels_cfg("kc_id", roll_period, band_multiplier, timeframe);
+    const auto cfg =
+        keltner_channels_cfg("kc_id", roll_period, band_multiplier, timeframe);
     auto transformBase = MAKE_TRANSFORM(cfg);
     auto keltnerChannels = dynamic_cast<KeltnerChannels *>(transformBase.get());
     REQUIRE(keltnerChannels);
@@ -128,7 +132,7 @@ TEST_CASE("VolatilityTest", "[volatility]") {
       std::vector<double> rhs;
       if (col == "upper_band") {
         rhs = kc_vol.get_upper_band();
-      }  else if (col == "lower_band") {
+      } else if (col == "lower_band") {
         rhs = kc_vol.get_lower_band();
       }
       auto rhs_arr = Array(factory::array::make_contiguous_array(rhs));
@@ -139,7 +143,8 @@ TEST_CASE("VolatilityTest", "[volatility]") {
   }
 
   SECTION("Parkinson") {
-    hmdf::ParkinsonVolVisitor<double, std::string> p_visitor(period, trading_days);
+    hmdf::ParkinsonVolVisitor<double, std::string> p_visitor(period,
+                                                             trading_days);
     df.single_act_visit<double, double>("IBM_Low", "IBM_High", p_visitor);
 
     const auto cfg = parkinson_cfg("p_id", period, trading_days, timeframe);
@@ -149,14 +154,16 @@ TEST_CASE("VolatilityTest", "[volatility]") {
 
     auto result = parkinson->TransformData(input_df);
     auto lhs = result[cfg.GetOutputId()].contiguous_array();
-    auto rhs = Array(factory::array::make_contiguous_array(p_visitor.get_result()));
+    auto rhs =
+        Array(factory::array::make_contiguous_array(p_visitor.get_result()));
 
     INFO(lhs->Diff(*rhs.value()));
     CHECK(lhs.is_equal(rhs));
   }
 
   SECTION("Ulcer Index") {
-    hmdf::UlcerIndexVisitor<double, std::string> ui_visitor(ulcer_period, false);
+    hmdf::UlcerIndexVisitor<double, std::string> ui_visitor(ulcer_period,
+                                                            false);
     df.single_act_visit<double>("IBM_Close", ui_visitor);
 
     const auto cfg = ulcer_index_cfg("ui_id", ulcer_period, false, timeframe);
@@ -166,7 +173,8 @@ TEST_CASE("VolatilityTest", "[volatility]") {
 
     auto result = ulcerIndex->TransformData(input_df);
     auto lhs = result[cfg.GetOutputId()].contiguous_array();
-    auto rhs = Array(factory::array::make_contiguous_array(ui_visitor.get_result()));
+    auto rhs =
+        Array(factory::array::make_contiguous_array(ui_visitor.get_result()));
 
     INFO(lhs->Diff(*rhs.value()));
     CHECK(lhs.is_equal(rhs));
@@ -184,7 +192,8 @@ TEST_CASE("VolatilityTest", "[volatility]") {
 
     auto result = yangZhang->TransformData(input_df);
     auto lhs = result[cfg.GetOutputId()].contiguous_array();
-    auto rhs = Array(factory::array::make_contiguous_array(yz_vol.get_result()));
+    auto rhs =
+        Array(factory::array::make_contiguous_array(yz_vol.get_result()));
 
     INFO(lhs->Diff(*rhs.value()));
     CHECK(lhs.is_equal(rhs));

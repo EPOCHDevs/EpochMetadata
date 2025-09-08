@@ -8,9 +8,9 @@
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
 
-#include "epoch_metadata/constants.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
+#include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/config_helper.h"
 
 #include "transforms/src/hosseinmoein/indicators/ichimoku.h"
 
@@ -43,9 +43,12 @@ TEST_CASE("Ichimoku", "[hosseinmoein][ichimoku]") {
 
   const int64_t p_tenkan = 9, p_kijun = 26, p_senkou_b = 52;
   epoch_metadata::MetaDataArgDefinitionMapping opts{
-      {"p_tenkan", epoch_metadata::MetaDataOptionDefinition{static_cast<double>(p_tenkan)}},
-      {"p_kijun", epoch_metadata::MetaDataOptionDefinition{static_cast<double>(p_kijun)}},
-      {"p_senkou_b", epoch_metadata::MetaDataOptionDefinition{static_cast<double>(p_senkou_b)}}};
+      {"p_tenkan",
+       epoch_metadata::MetaDataOptionDefinition{static_cast<double>(p_tenkan)}},
+      {"p_kijun",
+       epoch_metadata::MetaDataOptionDefinition{static_cast<double>(p_kijun)}},
+      {"p_senkou_b", epoch_metadata::MetaDataOptionDefinition{
+                         static_cast<double>(p_senkou_b)}}};
   YAML::Node inputs_yaml; // none
   YAML::Node options_yaml;
   options_yaml["p_tenkan"] = p_tenkan;

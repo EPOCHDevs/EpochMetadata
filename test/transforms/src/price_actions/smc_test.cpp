@@ -1,6 +1,6 @@
 #include "epoch_metadata/bar_attribute.h"
 #include "epoch_metadata/transforms/bar_resampler.h"
-#include "transforms/src/config_helper.h"
+#include "epoch_metadata/transforms/config_helper.h"
 
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"

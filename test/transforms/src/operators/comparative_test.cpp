@@ -1,16 +1,16 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
+#include "epoch_metadata/transforms/itransform.h"
+#include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_definition.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 #include "transforms/src/operators/equality.h"
 #include "transforms/src/operators/logical.h"
 #include "transforms/src/operators/select.h"
-#include "epoch_metadata/transforms/transform_definition.h"
-#include "epoch_metadata/transforms/transform_registry.h"
-#include "epoch_metadata/transforms/itransform.h"
-#include "epoch_metadata/transforms/transform_configuration.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -84,9 +84,9 @@ TEST_CASE("Comparative Transforms") {
 
     // Vector-based comparisons
     SECTION("Vector Equals (vector_eq)") {
-      TransformConfiguration config =
-          vector_op("eq", 7, "actual", "expected",
-                    epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = vector_op(
+          "eq", 7, "actual", "expected",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -101,9 +101,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Vector Not Equals (vector_neq)") {
-      TransformConfiguration config =
-          vector_op("neq", 8, "actual", "expected",
-                    epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = vector_op(
+          "neq", 8, "actual", "expected",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -118,9 +118,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Vector Less Than (vector_lt)") {
-      TransformConfiguration config =
-          vector_op("lt", 9, "previous", "current",
-                    epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = vector_op(
+          "lt", 9, "previous", "current",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -135,9 +135,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Vector Less Than Equals (vector_lte)") {
-      TransformConfiguration config =
-          vector_op("lte", 10, "previous", "current",
-                    epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = vector_op(
+          "lte", 10, "previous", "current",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -156,9 +156,9 @@ TEST_CASE("Comparative Transforms") {
     epoch_frame::DataFrame input = MakeBoolDataFrame();
 
     SECTION("Logical OR (logical_or)") {
-      TransformConfiguration config =
-          logical_op("or", 11, "bool_a", "bool_b",
-                     epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = logical_op(
+          "or", 11, "bool_a", "bool_b",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -173,9 +173,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Logical AND (logical_and)") {
-      TransformConfiguration config =
-          logical_op("and", 12, "bool_a", "bool_b",
-                     epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = logical_op(
+          "and", 12, "bool_a", "bool_b",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -207,9 +207,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Logical XOR (logical_xor)") {
-      TransformConfiguration config =
-          logical_op("xor", 14, "bool_a", "bool_b",
-                     epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = logical_op(
+          "xor", 14, "bool_a", "bool_b",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -224,9 +224,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Logical AND NOT (logical_and_not)") {
-      TransformConfiguration config =
-          logical_op("and_not", 15, "bool_a", "bool_b",
-                     epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = logical_op(
+          "and_not", 15, "bool_a", "bool_b",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -263,9 +263,9 @@ TEST_CASE("Comparative Transforms") {
                           arrow::field("value_if_true", arrow::float64()),
                           arrow::field("value_if_false", arrow::float64())});
 
-      TransformConfiguration config =
-          boolean_select(20, "condition", "value_if_true", "value_if_false",
-                         epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = boolean_select(
+          20, "condition", "value_if_true", "value_if_false",
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -280,9 +280,9 @@ TEST_CASE("Comparative Transforms") {
     }
 
     SECTION("Select2 Transform") {
-      TransformConfiguration config =
-          select_n(21, 2, "selector", {"option_0", "option_1"},
-                   epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = select_n(
+          21, 2, "selector", {"option_0", "option_1"},
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -322,9 +322,9 @@ TEST_CASE("Comparative Transforms") {
            arrow::field("option_1", arrow::float64()),
            arrow::field("option_2", arrow::float64())});
 
-      TransformConfiguration config =
-          select_n(22, 3, "selector", {"option_0", "option_1", "option_2"},
-                   epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = select_n(
+          22, 3, "selector", {"option_0", "option_1", "option_2"},
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -415,10 +415,10 @@ TEST_CASE("Comparative Transforms") {
            arrow::field("option_3", arrow::float64()),
            arrow::field("option_4", arrow::float64())});
 
-      TransformConfiguration config =
-          select_n(24, 5, "selector",
-                   {"option_0", "option_1", "option_2", "option_3", "option_4"},
-                   epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      TransformConfiguration config = select_n(
+          24, 5, "selector",
+          {"option_0", "option_1", "option_2", "option_3", "option_4"},
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -442,9 +442,9 @@ TEST_CASE("Additional Comparative Transforms") {
   SECTION("Vector Greater Than (vector_gt)") {
     epoch_frame::DataFrame input = MakeNumericDataFrame();
 
-    TransformConfiguration config =
-        vector_op("gt", 25, "current", "previous",
-                  epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = vector_op(
+        "gt", 25, "current", "previous",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -461,9 +461,9 @@ TEST_CASE("Additional Comparative Transforms") {
   SECTION("Vector Greater Than Equals (vector_gte)") {
     epoch_frame::DataFrame input = MakeNumericDataFrame();
 
-    TransformConfiguration config =
-        vector_op("gte", 26, "current", "previous",
-                  epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = vector_op(
+        "gte", 26, "current", "previous",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -501,9 +501,9 @@ TEST_CASE("Additional Comparative Transforms") {
                         arrow::field("low", arrow::float64())});
 
     // Use the helper function instead of direct YAML
-    TransformConfiguration config =
-        percentile_select("30", "value", "high", "low", 3, 50,
-                          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = percentile_select(
+        "30", "value", "high", "low", 3, 50,
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -543,7 +543,8 @@ TEST_CASE("Additional Comparative Transforms") {
 
     // Use the helper function instead of direct YAML
     TransformConfiguration config = boolean_branch(
-        "31", "condition", epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        "31", "condition",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -576,9 +577,9 @@ TEST_CASE("Additional Comparative Transforms") {
         make_dataframe<double>(index, {{0.5, 1.2, 1.5, 0.8, 2.0}}, {"ratio"});
 
     // Use the helper function instead of direct YAML
-    TransformConfiguration config =
-        ratio_branch("32", "ratio", 1.5, 0.8,
-                     epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = ratio_branch(
+        "32", "ratio", 1.5, 0.8,
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -663,7 +664,8 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", 1,
-                          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+                          epoch_metadata::EpochStratifyXConstants::instance()
+                              .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
         auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -738,7 +740,8 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", lookback,
-                          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+                          epoch_metadata::EpochStratifyXConstants::instance()
+                              .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
         auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -813,7 +816,8 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", lookback,
-                          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+                          epoch_metadata::EpochStratifyXConstants::instance()
+                              .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
         auto transform = dynamic_cast<ITransform *>(transformBase.get());

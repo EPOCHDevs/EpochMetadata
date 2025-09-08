@@ -3,10 +3,10 @@
 //
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
 #include "epoch_metadata/transforms/transform_registry.h"
-#include "transforms/src/config_helper.h"
 #include "transforms/src/volatility/volatility.h"
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/dataframe_factory.h>

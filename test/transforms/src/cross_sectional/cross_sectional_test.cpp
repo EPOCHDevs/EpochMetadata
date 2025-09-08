@@ -2,14 +2,14 @@
 // Created by adesola on 12/3/24.
 //
 #include "epoch_frame/array.h"
-#include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
-#include "transforms/src/cross_sectional/rank.h"
-#include "transforms/src/cross_sectional/returns.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
+#include "transforms/src/cross_sectional/rank.h"
+#include "transforms/src/cross_sectional/returns.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -39,7 +39,8 @@ TEST_CASE("Cross-sectional Transforms") {
                                {"aapl", "msft", "tsla"});
     // Define metadata
     TransformConfiguration config = cs_momentum(
-        19, "returns", epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        19, "returns",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transform = MAKE_TRANSFORM(config);
@@ -72,7 +73,8 @@ TEST_CASE("Cross-sectional Transforms") {
          epoch_frame::DateTime{2020y, std::chrono::January, 2d},
          epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
 
-    const auto daily_tf = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    const auto daily_tf =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     const std::string scores_input = "scores";
 
     SECTION("Regular case with multiple assets") {

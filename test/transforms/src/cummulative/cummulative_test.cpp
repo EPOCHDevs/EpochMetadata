@@ -1,17 +1,17 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
-#include "transforms/src/cummulative/cum_op.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
+#include "transforms/src/cummulative/cum_op.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
-#include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
+#include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
 using namespace epoch_metadata;
@@ -31,9 +31,9 @@ TEST_CASE("Cummulative Transforms") {
     epoch_frame::DataFrame input =
         make_dataframe<double>(index, {{1.0, 2.0, 3.0, 4.0}}, {"input_column"});
 
-    TransformConfiguration config =
-        cum_prod("20", "input_column",
-                 epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = cum_prod(
+        "20", "input_column",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transformBase = MAKE_TRANSFORM(config);

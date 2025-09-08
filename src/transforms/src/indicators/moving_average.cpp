@@ -2,7 +2,7 @@
 // Created by adesola on 12/30/24.
 //
 #include "moving_average.h"
-#include "../config_helper.h"
+#include "epoch_metadata/transforms/config_helper.h"
 
 namespace epoch_metadata::transform {
 MovingAverage::MovingAverage(const TransformConfiguration &config)

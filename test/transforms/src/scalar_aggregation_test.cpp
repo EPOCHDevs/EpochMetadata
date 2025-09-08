@@ -22,9 +22,9 @@
 //
 #include "epoch_metadata/bar_attribute.h"
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/transform_registry.h"
 #include "transforms/src/aggregation_scalar.h"
-#include "transforms/src/config_helper.h"
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
 #include <epoch_core/catch_defs.h>

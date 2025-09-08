@@ -3,12 +3,12 @@
 //
 #include "epoch_frame/array.h"
 #include "epoch_metadata/strategy/registration.h"
-#include "transforms/src/config_helper.h"
-#include "transforms/src/cross_sectional/rank.h"
-#include "transforms/src/cross_sectional/returns.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
+#include "transforms/src/cross_sectional/rank.h"
+#include "transforms/src/cross_sectional/returns.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -60,11 +60,11 @@ TEST_CASE("Transform Metadata Factory") {
   std::vector<double> volume(closePrices.size(), 1);
 
   const std::unordered_map<std::string, arrow::ChunkedArrayPtr> dataSources{
-        {"o", factory::array::make_array(openPrices)},
-        {"c", factory::array::make_array(closePrices)},
-        {"h", factory::array::make_array(highPrices)},
-        {"l", factory::array::make_array(lowPrices)},
-        {"v", factory::array::make_array(volume)}};
+      {"o", factory::array::make_array(openPrices)},
+      {"c", factory::array::make_array(closePrices)},
+      {"h", factory::array::make_array(highPrices)},
+      {"l", factory::array::make_array(lowPrices)},
+      {"v", factory::array::make_array(volume)}};
   const auto index = factory::index::date_range(
       {.start = DateTime::from_date_str("2022-01-01").timestamp(),
        .periods = static_cast<int64_t>(closePrices.size()),
@@ -76,19 +76,19 @@ TEST_CASE("Transform Metadata Factory") {
 
   auto getArrayFromType = [&](auto const &type) {
     switch (type) {
-      case IODataType::Any:
-      case IODataType::Decimal:
-      case IODataType::Number:
-        return factory::array::make_array(closePrices);
-      case IODataType::Integer:
-        return factory::array::make_array(
-            std::vector<int64_t>(closePrices.size(), 0));
-      case IODataType::Boolean:
-        return factory::array::make_array(
-            std::vector<bool>(closePrices.size(), false));
-      default:
-        return factory::array::make_array(
-            std::vector<std::string>(closePrices.size(), ""));
+    case IODataType::Any:
+    case IODataType::Decimal:
+    case IODataType::Number:
+      return factory::array::make_array(closePrices);
+    case IODataType::Integer:
+      return factory::array::make_array(
+          std::vector<int64_t>(closePrices.size(), 0));
+    case IODataType::Boolean:
+      return factory::array::make_array(
+          std::vector<bool>(closePrices.size(), false));
+    default:
+      return factory::array::make_array(
+          std::vector<std::string>(closePrices.size(), ""));
     }
     std::unreachable();
   };
@@ -108,30 +108,30 @@ TEST_CASE("Transform Metadata Factory") {
       if (metadata.inputs.size() == 1 &&
           metadata.inputs.front().allowMultipleConnections) {
         config["inputs"][epoch_metadata::ARG] = std::vector{"1#result"};
-          } else {
-            config["inputs"][epoch_metadata::ARG] = "1#result";
-          }
+      } else {
+        config["inputs"][epoch_metadata::ARG] = "1#result";
+      }
       fields_vec = {"1#result"};
       inputs_vec = {getArrayFromType(metadata.inputs.front().type)};
     } else if (metadata.inputs.size() == 1 &&
-      metadata.inputs.front().allowMultipleConnections) {
-        config["inputs"][epoch_metadata::ARG] = std::vector{"1#result"};
-        fields_vec = {"1#result"};
-        inputs_vec.emplace_back(getArrayFromType(metadata.inputs.front().type));
-      } else {
-        for (auto const &[i, inputMetadata] :
-         metadata.inputs | std::views::enumerate) {
-          config["inputs"][inputMetadata.id] =
-              fields_vec.emplace_back(std::to_string(i));
-          inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
-         }
+               metadata.inputs.front().allowMultipleConnections) {
+      config["inputs"][epoch_metadata::ARG] = std::vector{"1#result"};
+      fields_vec = {"1#result"};
+      inputs_vec.emplace_back(getArrayFromType(metadata.inputs.front().type));
+    } else {
+      for (auto const &[i, inputMetadata] :
+           metadata.inputs | std::views::enumerate) {
+        config["inputs"][inputMetadata.id] =
+            fields_vec.emplace_back(std::to_string(i));
+        inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
       }
+    }
 
-      for (auto const &[i, dataSource] :
-           metadata.requiredDataSources | std::views::enumerate) {
-        config["inputs"][dataSource] = fields_vec.emplace_back(dataSource);
-        inputs_vec.emplace_back(dataSources.at(dataSource));
-      }
+    for (auto const &[i, dataSource] :
+         metadata.requiredDataSources | std::views::enumerate) {
+      config["inputs"][dataSource] = fields_vec.emplace_back(dataSource);
+      inputs_vec.emplace_back(dataSources.at(dataSource));
+    }
 
     if (optionOverrides.contains(id)) {
       for (auto const &node : optionOverrides[id]) {
@@ -145,12 +145,11 @@ TEST_CASE("Transform Metadata Factory") {
         if (optionMetadata.type == MetaDataOptionType::Integer) {
           if (optionMetadata.id == "min_training_samples") {
             config["options"][optionId] = 1;
-          }
-          else {
+          } else {
             const auto defaultInteger =
-    optionMetadata.defaultValue
-        .value_or(epoch_metadata::MetaDataOptionDefinition{2.0})
-        .GetInteger();
+                optionMetadata.defaultValue
+                    .value_or(epoch_metadata::MetaDataOptionDefinition{2.0})
+                    .GetInteger();
             if (optionId.contains("long")) {
               config["options"][optionId] =
                   optionMetadata.defaultValue
@@ -166,22 +165,22 @@ TEST_CASE("Transform Metadata Factory") {
               optionMetadata.defaultValue
                   .value_or(epoch_metadata::MetaDataOptionDefinition{0.2})
                   .GetDecimal();
-                   } else if (optionMetadata.type ==
-                              epoch_core::MetaDataOptionType::Boolean) {
-                     config["options"][optionId] =
-                         optionMetadata.defaultValue
-                             .value_or(epoch_metadata::MetaDataOptionDefinition{true})
-                             .GetBoolean();
-                              } else if (optionMetadata.type ==
-                                         epoch_core::MetaDataOptionType::Select) {
-                                REQUIRE(optionMetadata.selectOption.size() > 0);
-                                config["options"][optionId] =
-                                    optionMetadata.defaultValue
-                                        .value_or(epoch_metadata::MetaDataOptionDefinition{
-                                            optionMetadata.selectOption[0].value})
-                                        .GetSelectOption();
-                                         }
-           }
+        } else if (optionMetadata.type ==
+                   epoch_core::MetaDataOptionType::Boolean) {
+          config["options"][optionId] =
+              optionMetadata.defaultValue
+                  .value_or(epoch_metadata::MetaDataOptionDefinition{true})
+                  .GetBoolean();
+        } else if (optionMetadata.type ==
+                   epoch_core::MetaDataOptionType::Select) {
+          REQUIRE(optionMetadata.selectOption.size() > 0);
+          config["options"][optionId] =
+              optionMetadata.defaultValue
+                  .value_or(epoch_metadata::MetaDataOptionDefinition{
+                      optionMetadata.selectOption[0].value})
+                  .GetSelectOption();
+        }
+      }
     }
 
     return std::tuple{TransformDefinition{config}, std::move(fields_vec),
@@ -213,22 +212,22 @@ TEST_CASE("Transform Metadata Factory") {
 
       auto col = result[outputCol];
       switch (output.type) {
-        case IODataType::Any:
-        case IODataType::Decimal:
-        case IODataType::Number:
-          REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
-          break;
-        case IODataType::Integer:
-          REQUIRE(col.dtype()->id() == arrow::Type::INT64);
-          break;
-        case IODataType::Boolean:
-          REQUIRE(col.dtype()->id() == arrow::Type::BOOL);
-          break;
-        case IODataType::String:
-          REQUIRE(col.dtype()->id() == arrow::Type::STRING);
-          break;
-        default:
-          break;
+      case IODataType::Any:
+      case IODataType::Decimal:
+      case IODataType::Number:
+        REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
+        break;
+      case IODataType::Integer:
+        REQUIRE(col.dtype()->id() == arrow::Type::INT64);
+        break;
+      case IODataType::Boolean:
+        REQUIRE(col.dtype()->id() == arrow::Type::BOOL);
+        break;
+      case IODataType::String:
+        REQUIRE(col.dtype()->id() == arrow::Type::STRING);
+        break;
+      default:
+        break;
       }
     }
   }

@@ -1,13 +1,13 @@
 //
 // Created by adesola on 1/26/25.
 //
-#include "epoch_metadata/constants.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/constants.h"
 #include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
 #include "epoch_metadata/transforms/transform_registry.h"
-#include "transforms/src/config_helper.h"
 #include "transforms/src/scalar.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>

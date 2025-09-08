@@ -1,15 +1,15 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include "epoch_metadata/strategy/registration.h"
-#include "transforms/src/config_helper.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
+#include "epoch_metadata/transforms/itransform.h"
+#include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 #include "transforms/src/indicators/bband_variant.h" // includes BollingerBandsPercent, BollingerBandsWidth
 #include "transforms/src/indicators/gap_returns.h"
 #include "transforms/src/indicators/moving_average.h"
-#include "epoch_metadata/transforms/transform_registry.h"
-#include "epoch_metadata/transforms/itransform.h"
-#include "epoch_metadata/transforms/transform_configuration.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/dataframe_factory.h>
@@ -25,9 +25,9 @@ TEST_CASE("Indicator Transforms") {
 
   SECTION("BBandPercentBModel") {
     // Build transform config
-    TransformConfiguration config =
-        bbands_percent("bbands_pct", "bbands_lower", "bbands_upper",
-                       epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = bbands_percent(
+        "bbands_pct", "bbands_lower", "bbands_upper",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transformBase = MAKE_TRANSFORM(config);
@@ -39,15 +39,15 @@ TEST_CASE("Indicator Transforms") {
          epoch_frame::DateTime{2020y, January, 2d},
          epoch_frame::DateTime{2020y, January, 3d}});
 
-    epoch_frame::DataFrame input =
-        make_dataframe<double>(index,
-                               {
-                                   {0.0, 1.0, 5.0}, // CLOSE
-                                   {1.0, 2.0, 3.0}, // bbands_lower
-                                   {4.0, 5.0, 6.0}  // bbands_upper
-                               },
-                               {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
-                                "bbands_lower", "bbands_upper"});
+    epoch_frame::DataFrame input = make_dataframe<double>(
+        index,
+        {
+            {0.0, 1.0, 5.0}, // CLOSE
+            {1.0, 2.0, 3.0}, // bbands_lower
+            {4.0, 5.0, 6.0}  // bbands_upper
+        },
+        {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
+         "bbands_lower", "bbands_upper"});
 
     // (bars[CLOSE()] - lower) / (upper - lower)
     // Row0 => (0 - 1)/(4-1) = -1/3 => -0.3333...
@@ -127,9 +127,9 @@ options: { period: 2, type: sma }
          epoch_frame::DateTime{2020y, January, 3d},
          epoch_frame::DateTime{2020y, January, 4d}});
 
-    epoch_frame::DataFrame input =
-        make_dataframe<double>(index, {{10.0, 20.0, 30.0, 40.0}},
-                               {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
+    epoch_frame::DataFrame input = make_dataframe<double>(
+        index, {{10.0, 20.0, 30.0, 40.0}},
+        {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
 
     // We'll define the expected output column name from config.GetOutputId()
     // The transform internally uses TulipIndicatorModel =>
@@ -155,8 +155,9 @@ options: { period: 2, type: sma }
   }
 
   SECTION("GapReturns") {
-    TransformConfiguration config =
-        gap_returns("gap", epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = gap_returns(
+        "gap",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transformBase = MAKE_TRANSFORM(config);
@@ -168,14 +169,14 @@ options: { period: 2, type: sma }
            epoch_frame::DateTime{2018y, January, 2d},
            epoch_frame::DateTime{2018y, January, 3d}});
 
-      epoch_frame::DataFrame input =
-          make_dataframe<double>(index,
-                                 {
-                                     {100.0, 102.0, 108.0}, // CLOSE
-                                     {101.0, 105.0, 110.0}  // OPEN
-                                 },
-                                 {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
-                                  epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
+      epoch_frame::DataFrame input = make_dataframe<double>(
+          index,
+          {
+              {100.0, 102.0, 108.0}, // CLOSE
+              {101.0, 105.0, 110.0}  // OPEN
+          },
+          {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
+           epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
 
       std::vector<double> gapExpected{
           std::numeric_limits<double>::quiet_NaN(), // row0 => no previous row
@@ -201,14 +202,14 @@ options: { period: 2, type: sma }
            epoch_frame::DateTime{2024y, September, 2d, 9h, 0min, 0s},
            epoch_frame::DateTime{2024y, September, 2d, 10h, 0min, 0s}});
 
-      epoch_frame::DataFrame input =
-          make_dataframe<double>(index,
-                                 {
-                                     {100.0, 101.0, 105.0, 110.0}, // CLOSE
-                                     {101.0, 103.0, 106.0, 108.0}  // OPEN
-                                 },
-                                 {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
-                                  epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
+      epoch_frame::DataFrame input = make_dataframe<double>(
+          index,
+          {
+              {100.0, 101.0, 105.0, 110.0}, // CLOSE
+              {101.0, 103.0, 106.0, 108.0}  // OPEN
+          },
+          {epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
+           epoch_metadata::EpochStratifyXConstants::instance().OPEN()});
 
       std::vector<double> gapExpected{
           std::numeric_limits<double>::quiet_NaN(), // row0 => no previous =>

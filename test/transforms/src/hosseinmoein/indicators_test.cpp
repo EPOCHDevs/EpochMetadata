@@ -1,8 +1,8 @@
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/scalar.h"
-#include "transforms/src/config_helper.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "transforms/src/hosseinmoein/indicators/indicators.h"
 #include <DataFrame/DataFrame.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
@@ -11,9 +11,9 @@
 #include <cstdint>
 #include <epoch_frame/factory/index_factory.h>
 
-#include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 
 TEST_CASE("IndicatorsTest", "[indicators]") {
   using namespace hmdf;
@@ -123,16 +123,15 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
     auto rolling_lhs =
         rolling_result[cfg.GetOutputId("result")].contiguous_array();
 
-    for (int64_t i = 0; i <static_cast<int64_t>(df.get_index().size()); i++) {
-      if (i < period)
-      {
+    for (int64_t i = 0; i < static_cast<int64_t>(df.get_index().size()); i++) {
+      if (i < period) {
         INFO("[" << i << "] result expanded: " << expanded_lhs[i]);
         CHECK(expanded_lhs[i].is_null());
-      }
-      else {
+      } else {
         StdDataFrame<int64_t> expanded_df;
-        std::vector data(close.begin(), close.begin() + i+1);
-        expanded_df.load_index(StdDataFrame<int64_t>::gen_sequence_index(0, data.size(), 1));
+        std::vector data(close.begin(), close.begin() + i + 1);
+        expanded_df.load_index(
+            StdDataFrame<int64_t>::gen_sequence_index(0, data.size(), 1));
         expanded_df.load_column("IBM_Close", data);
 
         HurstExponentVisitor<double> expanded_hurst({1, 2, 4, 8});
@@ -143,13 +142,16 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
       }
 
       StdDataFrame<int64_t> rolling_df;
-      auto data = (i >= period - 1) ?
-     std::vector(close.begin() + (i - period + 1), close.begin() + i + 1) :
-     std::vector(close.begin(), close.begin() + i + 1);
-      rolling_df.load_index(StdDataFrame<int64_t>::gen_sequence_index(0, data.size(), 1));
+      auto data = (i >= period - 1)
+                      ? std::vector(close.begin() + (i - period + 1),
+                                    close.begin() + i + 1)
+                      : std::vector(close.begin(), close.begin() + i + 1);
+      rolling_df.load_index(
+          StdDataFrame<int64_t>::gen_sequence_index(0, data.size(), 1));
       rolling_df.load_column("IBM_Close", data);
 
-      HurstExponentVisitor<double> rolling_hurst(RollingHurstExponent::lagGrid(period));
+      HurstExponentVisitor<double> rolling_hurst(
+          RollingHurstExponent::lagGrid(period));
       rolling_df.single_act_visit<double>("IBM_Close", rolling_hurst);
       auto rolling_rhs = rolling_hurst.get_result();
 

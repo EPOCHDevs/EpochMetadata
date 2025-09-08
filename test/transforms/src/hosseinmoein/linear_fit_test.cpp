@@ -8,9 +8,9 @@
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
 
-#include "epoch_metadata/constants.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
+#include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/config_helper.h"
 
 #include "transforms/src/hosseinmoein/statistics/linear_fit.h"
 

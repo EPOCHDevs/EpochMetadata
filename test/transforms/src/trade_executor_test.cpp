@@ -4,8 +4,8 @@
 
 #include "epoch_metadata/bar_attribute.h"
 #include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/trade_executors.h"
-#include "transforms/src/config_helper.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>

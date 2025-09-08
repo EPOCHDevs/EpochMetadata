@@ -1,13 +1,13 @@
 //
 // Created by adesola on 1/26/25.
 //
-#include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/agg.h"
-#include "transforms/src/config_helper.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
+#include "transforms/src/agg.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -55,7 +55,8 @@ epoch_frame::DataFrame MakeBooleanTestData() {
 TEST_CASE("Aggregate Transforms - Numeric Operations", "[aggregate]") {
   auto input = MakeMultiColumnTestData();
   std::vector<std::string> columns = {"col_1", "col_2", "col_3"};
-  const auto &timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+  const auto &timeframe =
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("Sum Aggregate") {
     // col_1 + col_2 + col_3 = [17, 39, 61, 83]
@@ -137,7 +138,8 @@ TEST_CASE("Aggregate Transforms - Numeric Operations", "[aggregate]") {
 TEST_CASE("Aggregate Transforms - Boolean Operations", "[aggregate]") {
   auto input = MakeBooleanTestData();
   std::vector<std::string> columns = {"bool_1", "bool_2", "bool_3"};
-  const auto &timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+  const auto &timeframe =
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("AllOf Aggregate") {
     // bool_1 && bool_2 && bool_3 = [false, false, false, false]
@@ -200,7 +202,8 @@ TEST_CASE("Aggregate Transforms - Boolean Operations", "[aggregate]") {
 TEST_CASE("Aggregate Transforms - Comparison Operations", "[aggregate]") {
   auto input = MakeMultiColumnTestData();
   std::vector<std::string> columns = {"col_1", "col_2"};
-  const auto &timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+  const auto &timeframe =
+      epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("IsEqual Aggregate") {
     // col_1 == col_2 = [false, false, false, false]

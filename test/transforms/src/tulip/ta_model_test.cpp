@@ -1,17 +1,17 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epoch_metadata/strategy/registration.h"
+#include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 #include "transforms/src/tulip/tulip_model.h" // TulipIndicatorModel
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
-#include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
+#include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
 using namespace epoch_metadata;
@@ -22,8 +22,9 @@ using namespace epoch_frame;
 TEST_CASE("Tulip Indicator Transforms") {
   SECTION("Moving Average Test") {
     // E.g. an SMA with period=4 on column "x"
-    TransformConfiguration config =
-        sma(0, "x", 4, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    TransformConfiguration config = sma(
+        0, "x", 4,
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transformBase = MAKE_TRANSFORM(config);
@@ -102,7 +103,8 @@ TEST_CASE("Tulip Indicator Transforms") {
         // Build transform config: cross + op => crossany or crossover
         TransformConfiguration config = double_operand_op(
             "cross", op, 0, "x", "y",
-            epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+            epoch_metadata::EpochStratifyXConstants::instance()
+                .DAILY_FREQUENCY);
 
         // Use registry to create the transform
         auto transformBase = MAKE_TRANSFORM(config);
@@ -159,7 +161,8 @@ options:
     std::vector<double> closeValues = {35, 36, 37, 38, 39, 40, 41,
                                        42, 43, 44, 45, 46, 47};
     epoch_frame::DataFrame input = make_dataframe<double>(
-        index, {closeValues}, {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
+        index, {closeValues},
+        {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
 
     // For demonstration, we won't calculate real MACD values manually.
     // Just check that the result has 3 columns matching the Tulip naming.
@@ -201,7 +204,8 @@ options:
     std::vector<double> closeValues = {35, 36, 37, 38, 39, 40, 41,
                                        42, 43, 44, 45, 46, 47};
     epoch_frame::DataFrame input = make_dataframe<double>(
-        index, {closeValues}, {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
+        index, {closeValues},
+        {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()});
 
     auto output = model->TransformData(input);
 
