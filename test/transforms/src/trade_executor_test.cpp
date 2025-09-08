@@ -2,15 +2,15 @@
 // Created by adesola on 5/12/25.
 //
 
+#include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/constants.h"
+#include "epoch_metadata/transforms/trade_executors.h"
+#include "transforms/src/config_helper.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
-#include "epoch_metadata/constants.h"
-#include "epoch_metadata/bar_attribute.h"
-#include "transforms/src/config_helper.h"
-#include "transforms/src/trade_executors.h"
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::transform;
@@ -394,7 +394,8 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
       std::unordered_map<std::string, std::string> inputs = {
           {TE_ENTER_LONG_KEY, "long_signal"}};
       auto config = trade_signal_executor_cfg(
-          "test", inputs, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          "test", inputs,
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -402,7 +403,8 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
       std::unordered_map<std::string, std::string> inputs = {
           {TE_ENTER_SHORT_KEY, "short_signal"}};
       auto config = trade_signal_executor_cfg(
-          "test", inputs, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          "test", inputs,
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -411,7 +413,8 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_LONG_KEY, "long_signal"},
           {TE_EXIT_LONG_KEY, "exit_long_signal"}};
       auto config = trade_signal_executor_cfg(
-          "test", inputs, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          "test", inputs,
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -420,7 +423,8 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_LONG_KEY, "long_signal"},
           {TE_ENTER_SHORT_KEY, "short_signal"}};
       auto config = trade_signal_executor_cfg(
-          "test", inputs, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          "test", inputs,
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -430,7 +434,8 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_SHORT_KEY, "short_signal"},
           {TE_EXIT_LONG_KEY, "exit_long_signal"}};
       auto config = trade_signal_executor_cfg(
-          "test", inputs, epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          "test", inputs,
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
   }
