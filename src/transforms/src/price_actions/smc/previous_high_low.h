@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../bar_resampler.h"
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/scalar.h"
+#include "epoch_metadata/transforms/bar_resampler.h"
 #include "epoch_metadata/transforms/itransform.h"
 
 #include <cstdint>

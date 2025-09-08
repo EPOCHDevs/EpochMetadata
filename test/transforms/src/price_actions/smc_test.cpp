@@ -1,11 +1,10 @@
-#include "transforms/src/bar_resampler.h"
-#include "transforms/src/config_helper.h"
 #include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/bar_resampler.h"
+#include "transforms/src/config_helper.h"
 
-#include "epoch_metadata/transforms/transform_configuration.h"
-#include "epoch_metadata/transforms/transform_registry.h"
 #include "epoch_metadata/transforms/itransform.h"
 #include "epoch_metadata/transforms/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_registry.h"
 #include <arrow/compute/api_vector.h>
 #include <arrow/type_fwd.h>
 #include <catch2/catch_test_macros.hpp>
@@ -44,7 +43,8 @@ TEST_CASE("SMC Test") {
   std::shared_ptr<ITransformBase> shlTransformBase;
 
   auto make_shl = [&]() {
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto config = swing_highs_lows("swing_highs_lows", 5, timeframe);
     shlTransformBase = MAKE_TRANSFORM(config);
     return dynamic_cast<ITransform *>(shlTransformBase.get());
@@ -59,7 +59,8 @@ TEST_CASE("SMC Test") {
                       {})
             .ValueOrDie();
 
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto config = sessions("sessions", "London", timeframe);
     auto transformBase = MAKE_TRANSFORM(config);
     auto sessions_transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -170,7 +171,8 @@ TEST_CASE("SMC Test") {
                       {})
             .ValueOrDie();
 
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto shl = make_shl();
 
     auto config =
@@ -218,7 +220,8 @@ TEST_CASE("SMC Test") {
                         {})
               .ValueOrDie();
 
-      auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      auto timeframe =
+          epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
       auto config = fair_value_gap("fvg", is_join_consecutive, timeframe);
       auto transformBase = MAKE_TRANSFORM(config);
       auto fvg_transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -285,7 +288,8 @@ TEST_CASE("SMC Test") {
                       {})
             .ValueOrDie();
 
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto shl = make_shl();
 
     auto config = bos_choch("bos_choch", shl->GetOutputId("high_low"),
@@ -332,7 +336,8 @@ TEST_CASE("SMC Test") {
                       {})
             .ValueOrDie();
 
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto shl = make_shl();
 
     auto config = liquidity("liquidity", shl->GetOutputId("high_low"),
@@ -381,7 +386,8 @@ TEST_CASE("SMC Test") {
                       {})
             .ValueOrDie();
 
-    auto timeframe = epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     auto shl = make_shl();
 
     auto config = retracements("retracements", shl->GetOutputId("high_low"),

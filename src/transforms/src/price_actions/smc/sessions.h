@@ -4,7 +4,8 @@
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_metadata/transforms/itransform.h"
 
-#include "sessions_utils.h"
+#include "epoch_metadata/bar_attribute.h"
+#include "epoch_metadata/transforms/sessions_utils.h"
 #include <algorithm>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
