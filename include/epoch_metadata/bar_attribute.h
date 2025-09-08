@@ -2,9 +2,12 @@
 //
 // Created by dewe on 1/10/23.
 //
+#include "epoch_metadata/bar_attribute.h"
 #include "epoch_metadata/time_frame.h"
+#include <common/python_utils.h>
 #include <cstdint>
 #include <decimal.hh>
+#include <epoch_core/common_utils.h>
 #include <epoch_frame/datetime.h>
 #include <filesystem>
 #include <map>
@@ -148,4 +151,116 @@ struct EpochStratifyXConstants {
   const decimal::Decimal tenPercent = decimal::Decimal("0.1");
   const decimal::Decimal twentyPercent = decimal::Decimal("0.2");
 };
+
+struct BarsConstants {
+  static const BarsConstants &instance() {
+    static BarsConstants instance;
+    return instance;
+  }
+
+  const std::vector<std::string> all{
+      epoch_metadata::EpochStratifyXConstants::instance().OPEN(),
+      epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
+      epoch_metadata::EpochStratifyXConstants::instance().HIGH(),
+      epoch_metadata::EpochStratifyXConstants::instance().LOW(),
+      epoch_metadata::EpochStratifyXConstants::instance().VOLUME()};
+
+  const std::vector<epoch_metadata::BarAttribute> all_attributes{
+      epoch_metadata::EpochStratifyXConstants::instance().OPEN,
+      epoch_metadata::EpochStratifyXConstants::instance().CLOSE,
+      epoch_metadata::EpochStratifyXConstants::instance().HIGH,
+      epoch_metadata::EpochStratifyXConstants::instance().LOW,
+      epoch_metadata::EpochStratifyXConstants::instance().VOLUME};
+
+  const arrow::FieldVector all_fields{
+      arrow::field(epoch_metadata::EpochStratifyXConstants::instance().OPEN(),
+                   arrow::float64()),
+      arrow::field(epoch_metadata::EpochStratifyXConstants::instance().HIGH(),
+                   arrow::float64()),
+      arrow::field(epoch_metadata::EpochStratifyXConstants::instance().LOW(),
+                   arrow::float64()),
+      arrow::field(epoch_metadata::EpochStratifyXConstants::instance().CLOSE(),
+                   arrow::float64()),
+      arrow::field(epoch_metadata::EpochStratifyXConstants::instance().VOLUME(),
+                   arrow::float64()),
+  };
+};
+
+struct FuturesConstants {
+
+  static const FuturesConstants &instance() {
+    static FuturesConstants instance;
+    return instance;
+  }
+
+  const std::vector<std::string> all = epoch_frame::chain(
+      BarsConstants{}.all,
+      std::vector{
+          epoch_metadata::EpochStratifyXConstants::instance().CONTRACT(),
+          epoch_metadata::EpochStratifyXConstants::instance().OPEN_INTEREST()});
+
+  const arrow::FieldVector all_fields = epoch_frame::chain(
+      BarsConstants{}.all_fields,
+      std::vector{
+          field(epoch_metadata::EpochStratifyXConstants::instance().CONTRACT(),
+                arrow::utf8()),
+          field(epoch_metadata::EpochStratifyXConstants::instance()
+                    .OPEN_INTEREST(),
+                arrow::float64())});
+
+  inline static const std::map<char, chrono_month> month_mapping{
+      {'F', std::chrono::January},   {'G', std::chrono::February},
+      {'H', std::chrono::March},     {'J', std::chrono::April},
+      {'K', std::chrono::May},       {'M', std::chrono::June},
+      {'N', std::chrono::July},      {'Q', std::chrono::August},
+      {'U', std::chrono::September}, {'V', std::chrono::October},
+      {'X', std::chrono::November},  {'Z', std::chrono::December}};
+
+  struct Category {
+    static constexpr auto CURRENCIES = "Currencies";
+    static constexpr auto INDICES = "Indices";
+    static constexpr auto FINANCIALS = "Financials";
+    static constexpr auto METALS = "Metals";
+    static constexpr auto MEATS = "Meats";
+    static constexpr auto SOFTS = "Softs";
+    static constexpr auto ENERGIES = "Energies";
+    static constexpr auto GRAINS = "Grains";
+  };
+};
+
+struct OptionsConstants {
+  static const OptionsConstants &instance() {
+    static OptionsConstants instance;
+    return instance;
+  }
+
+  const std::vector<std::string> all = epoch_core::merge(
+      std::vector{epoch_metadata::EpochStratifyXConstants::instance().PRICE(),
+                  epoch_metadata::EpochStratifyXConstants::instance().IV(),
+                  epoch_metadata::EpochStratifyXConstants::instance().DELTA(),
+                  epoch_metadata::EpochStratifyXConstants::instance().GAMMA(),
+                  epoch_metadata::EpochStratifyXConstants::instance().VEGA(),
+                  epoch_metadata::EpochStratifyXConstants::instance().THETA(),
+                  epoch_metadata::EpochStratifyXConstants::instance().RHO()},
+      FuturesConstants{}.all);
+};
+
+struct QuotesConstants {
+  const std::vector<std::string> all{
+      epoch_metadata::EpochStratifyXConstants::instance().ASK(),
+      epoch_metadata::EpochStratifyXConstants::instance().ASK_VOLUME(),
+      epoch_metadata::EpochStratifyXConstants::instance().BID(),
+      epoch_metadata::EpochStratifyXConstants::instance().BID_VOLUME()};
+};
+
+struct TradesConstants {
+  const std::vector<std::string> all{
+      epoch_metadata::EpochStratifyXConstants::instance().PRICE(),
+      epoch_metadata::EpochStratifyXConstants::instance().VOLUME()};
+};
+
+const std::unordered_map<std::string, std::vector<std::string>> all{
+    {"Quotes", QuotesConstants{}.all}, {"Trades", TradesConstants{}.all}};
+;
+
 } // namespace epoch_metadata

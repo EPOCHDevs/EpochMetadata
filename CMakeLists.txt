@@ -55,6 +55,9 @@ include(${PROJECT_SOURCE_DIR}/cmake/MPDecimal.cmake)
 find_package(glaze REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
+find_package(DataFrame CONFIG REQUIRED)
+find_package(Armadillo CONFIG REQUIRED)
+
 
 add_library(epoch_metadata "")
 add_library(epoch::metadata ALIAS epoch_metadata)
@@ -85,6 +88,8 @@ target_include_directories(epoch_metadata
 
 target_compile_options(epoch_metadata PRIVATE -Wall -Wextra -Werror)
 target_link_libraries(epoch_metadata PUBLIC
+    armadillo
+        DataFrame::DataFrame
        epoch::frame
        spdlog::spdlog_header_only
        yaml-cpp::yaml-cpp

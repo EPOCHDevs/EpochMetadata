@@ -119,7 +119,7 @@ template <> struct to<JSON, decimal::Decimal> {
       serialize<JSON>::op<Opts>(nullptr, args...);
     } else {
       // Direct serialization without intermediate string conversion
-      serialize<JSON>::op<Opts>(epoch_stratifyx::fromDecimal(x), args...);
+      serialize<JSON>::op<Opts>(epoch_metadata::fromDecimal(x), args...);
     }
   }
 };
@@ -129,7 +129,7 @@ template <> struct from<JSON, decimal::Decimal> {
     json_t val;
     parse<JSON>::op<Opts>(val, args...);
     if (val.is_number()) {
-      value = epoch_stratifyx::toDecimal(val.get_number());
+      value = epoch_metadata::toDecimal(val.get_number());
     } else if (val.is_string()) {
       value = decimal::Decimal(val.get_string());
     } else if (val.is_null()) {

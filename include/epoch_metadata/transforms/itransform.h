@@ -2,9 +2,8 @@
 //
 // Created by dewe on 1/8/23.
 //
-#include "epoch_folio/transform_configuration.h"
+#include "epoch_metadata/transforms/transform_configuration.h"
 #include "memory"
-#include "model/common/constants.h"
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/series.h>
 

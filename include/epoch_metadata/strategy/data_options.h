@@ -14,6 +14,6 @@ struct DataOption {
   std::string source;
   std::optional<TemplatedGenericFunction<epoch_core::RolloverType>>
       futures_continuation;
-    std::filesystem::path cache_dir{std::filesystem::temp_directory_path()};
+  std::filesystem::path cache_dir{std::filesystem::temp_directory_path()};
 };
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata::strategy

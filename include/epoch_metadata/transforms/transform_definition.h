@@ -112,11 +112,11 @@ private:
 } // namespace epoch_metadata
 
 // namespace YAML {
-// template <> struct convert<epoch_stratifyx::TransformDefinition> {
+// template <> struct convert<epoch_metadata::TransformDefinition> {
 //   static bool decode(Node const &node,
-//                      epoch_stratifyx::TransformDefinition &def) {
+//                      epoch_metadata::TransformDefinition &def) {
 //     try {
-//       def = epoch_stratifyx::TransformDefinition{node};
+//       def = epoch_metadata::TransformDefinition{node};
 //       return true;
 //     } catch (...) {
 //       return false;

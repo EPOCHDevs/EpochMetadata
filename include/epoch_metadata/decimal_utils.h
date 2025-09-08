@@ -17,7 +17,7 @@ inline std::strong_ordering operator<=>(Decimal const &decimal1,
 }
 } // namespace decimal
 
-namespace epoch_stratifyx {
+namespace epoch_metadata {
 template <typename T> decimal::Decimal toDecimal(T x) {
   std::stringstream ss;
   ss.imbue(
@@ -79,4 +79,4 @@ inline decimal::Decimal operator"" _dec(const char *x, size_t) {
 inline double toDouble(decimal::Decimal const &x) {
   return fromDecimal<double>(x);
 }
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata

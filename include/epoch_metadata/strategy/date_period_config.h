@@ -9,8 +9,8 @@ namespace epoch_metadata::strategy {
 struct DatePeriodConfig {
   epoch_frame::Date from, to;
 
-  bool operator==(const DatePeriodConfig & other) const {
+  bool operator==(const DatePeriodConfig &other) const {
     return from == other.from && to == other.to;
   }
 };
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata::strategy

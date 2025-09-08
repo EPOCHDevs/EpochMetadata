@@ -3,8 +3,8 @@
 // Created by dewe on 1/10/23.
 //
 #include "any"
+#include "epoch_metadata/transforms/itransform.h"
 #include "functional"
-#include "itransform.h"
 #include "memory"
 #include "string"
 #include "vector"
@@ -57,4 +57,4 @@ template <class T> void Register(std::string const &id) {
 
 #define REGISTER_TRANSFORM(id, T) Register<T>(#id)
 #define MAKE_TRANSFORM(config)                                                 \
-  epoch_stratifyx::transform::TransformRegistry::GetInstance().Get(config)
+  epoch_metadata::transform::TransformRegistry::GetInstance().Get(config)

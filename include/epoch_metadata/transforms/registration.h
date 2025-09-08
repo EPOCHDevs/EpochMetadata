@@ -19,4 +19,8 @@ void RegisterStrategyMetaData(const std::string &name,
                               const TransformsMetaDataCreator &metaData);
 
 void RegisterTransformMetadata(FileLoaderInterface const &loader);
+
+void InitializeTransforms(
+    std::function<YAML::Node(std::string const &)> const &,
+    std::vector<std::string> const &, std::vector<std::string> const &);
 } // namespace epoch_metadata::transforms

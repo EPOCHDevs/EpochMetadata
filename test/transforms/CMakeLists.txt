@@ -4,3 +4,6 @@ target_sources(epoch_metadata_test PRIVATE
 
 target_compile_definitions(epoch_metadata_test PRIVATE
         -DGLZ_ENABLE_JSON_PRETTY_PRINT)
+
+
+add_subdirectory(src)

@@ -9,7 +9,7 @@
 #include <set>
 #include <unordered_set>
 
-namespace epoch_stratifyx {
+namespace epoch_metadata {
 
 class ID {
 public:
@@ -70,11 +70,11 @@ template <class T> IDHashMap<T> MakeIDMap(std::vector<T> const &items) {
   return result;
 }
 
-} // namespace epoch_stratifyx
+} // namespace epoch_metadata
 
 namespace glz {
-template <> struct meta<epoch_stratifyx::ID> {
-  static constexpr auto read = [](epoch_stratifyx::ID &x,
+template <> struct meta<epoch_metadata::ID> {
+  static constexpr auto read = [](epoch_metadata::ID &x,
                                   const std::string &input) {
     x = std::stol(input);
   };
