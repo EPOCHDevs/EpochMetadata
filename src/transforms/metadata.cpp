@@ -396,10 +396,12 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::HIGH_PRICE_METADATA,
                   IOMetaDataConstants::LOW_PRICE_METADATA,
                   IOMetaDataConstants::CLOSE_PRICE_METADATA,
-                  IOMetaDataConstants::VOLUME_METADATA},
+                  IOMetaDataConstants::VOLUME_METADATA,
+                  {epoch_core::IODataType::Number, "vw", "Volume Weighted Average Price", true},
+                  {epoch_core::IODataType::Number, "n", "Trade Count", true}},
       .tags = {"data", "source", "price", "ohlcv"},
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c", "v"}});
+      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"}});
 
   return result;
 }
