@@ -129,7 +129,7 @@ class DefaultSessions : public Sessions {
 public:
   explicit DefaultSessions(const TransformConfiguration &cfg)
       : Sessions(cfg, epoch_metadata::kSessionRegistry.at(
-                          cfg.GetOptionValue("session")
+                          cfg.GetOptionValue("session_type")
                               .GetSelectOption<epoch_core::SessionType>())) {}
 };
 
