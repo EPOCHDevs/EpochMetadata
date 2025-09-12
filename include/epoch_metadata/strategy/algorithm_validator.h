@@ -2,8 +2,14 @@
 #include "epoch_metadata/transforms/metadata.h"
 #include "ui_data.h"
 #include "validation_error.h"
+#include <unordered_set>
 
 namespace epoch_metadata::strategy {
+
+// Node types that should be excluded from orphaned node checks
+inline const std::unordered_set<std::string> ORPHAN_CHECK_EXCLUDED_NODE_TYPES = {
+    "sessions", "gap_classify"
+};
 
 using HandleReference = std::unordered_map<std::string, std::vector<UIVertex>>;
 

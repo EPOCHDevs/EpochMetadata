@@ -160,20 +160,23 @@ void ValidateNodeConnections(const UINode &node,
           : outputConnectionsIter->second;
 
   if (enforceOrphanedNodeCheck) {
-    if (!transformMetaData.inputs.empty() && inputConnections.empty()) {
-      issues.push_back({ValidationCode::OrphanedNode, node,
-                        std::format("Node '{}' has no connections", node.id),
-                        std::format("Connect node '{}' to other nodes via inputs "
-                                    "or outputs to make it functional",
-                                    node.id)});
-    }
-    if (!transformMetaData.outputs.empty() && outputConnections.empty()) {
-      issues.push_back(
-          {ValidationCode::OrphanedNode, node,
-           std::format("Node '{}' has no output connections", node.id),
-           std::format("Connect node '{}' to other nodes via outputs "
-                       "to make it functional",
-                       node.id)});
+    // Skip orphaned node check for excluded node types
+    if (ORPHAN_CHECK_EXCLUDED_NODE_TYPES.find(node.type) == ORPHAN_CHECK_EXCLUDED_NODE_TYPES.end()) {
+      if (!transformMetaData.inputs.empty() && inputConnections.empty()) {
+        issues.push_back({ValidationCode::OrphanedNode, node,
+                          std::format("Node '{}' has no connections", node.id),
+                          std::format("Connect node '{}' to other nodes via inputs "
+                                      "or outputs to make it functional",
+                                      node.id)});
+      }
+      if (!transformMetaData.outputs.empty() && outputConnections.empty()) {
+        issues.push_back(
+            {ValidationCode::OrphanedNode, node,
+             std::format("Node '{}' has no output connections", node.id),
+             std::format("Connect node '{}' to other nodes via outputs "
+                         "to make it functional",
+                         node.id)});
+      }
     }
   }
 
@@ -609,9 +612,15 @@ void RemoveOrphanNodes(UIData &graph) {
     connectedNodes.insert(edge.target.id);
   }
 
-  // Remove nodes that have no connections
+  // Remove nodes that have no connections (excluding certain node types)
   auto nodeIt = graph.nodes.begin();
   while (nodeIt != graph.nodes.end()) {
+    // Skip removal for excluded node types
+    if (ORPHAN_CHECK_EXCLUDED_NODE_TYPES.find(nodeIt->type) != ORPHAN_CHECK_EXCLUDED_NODE_TYPES.end()) {
+      ++nodeIt;
+      continue;
+    }
+    
     if (connectedNodes.find(nodeIt->id) == connectedNodes.end()) {
       nodeIt = graph.nodes.erase(nodeIt);
     } else {

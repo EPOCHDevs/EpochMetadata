@@ -291,6 +291,54 @@ TEST_CASE("AlgorithmValidator: Orphaned Node with no output connections",
                         "has no output connections");
 }
 
+TEST_CASE("AlgorithmValidator: Sessions node excluded from orphaned check",
+          "[AlgorithmValidator]") {
+  const std::string json = R"({
+        "nodes": [
+            {
+                "id": "sessions_node",
+                "type": "sessions",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            },
+            {
+                "id": "executor",
+                "type": "trade_signal_executor",
+                "options": [],
+                "metadata": {},
+                "timeframe": null
+            }
+        ],
+        "edges": [],
+        "groups": [],
+        "annotations": []
+    })";
+
+  UIData uiData = glz::read_json<UIData>(json).value();
+  
+  // Sessions node should not be flagged as orphaned even with no connections
+  auto result = epoch_metadata::strategy::ValidateUIData(uiData, true);
+  
+  // Should only report missing executor connections, not orphaned sessions node
+  REQUIRE(!result.has_value());
+  REQUIRE(result.error().size() > 0);
+  
+  // Verify that sessions node is not reported as orphaned
+  bool hasOrphanedError = false;
+  for (const auto& issue : result.error()) {
+    if (issue.code == ValidationCode::OrphanedNode) {
+      const auto* nodePtr = std::get_if<UINode>(&issue.ctx);
+      if (nodePtr && nodePtr->id == "sessions_node") {
+        hasOrphanedError = true;
+        break;
+      }
+    }
+  }
+  
+  REQUIRE(!hasOrphanedError);
+}
+
 TEST_CASE("AlgorithmValidator: Invalid Edge - Unknown Node",
           "[AlgorithmValidator]") {
   const std::string json = R"({
