@@ -113,6 +113,7 @@ struct TransformsMetaData {
   std::vector<std::string> requiredDataSources{};
   bool intradayOnly{false};
   bool allowNullInputs{false};
+  bool isReporter{false};
 
   void decode(YAML::Node const &);
   YAML::Node encode() const { return {}; }
