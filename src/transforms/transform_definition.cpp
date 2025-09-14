@@ -53,7 +53,7 @@ TransformDefinition::TransformDefinition(
           .type = algorithm.type,
           .id = algorithm.id,
           .timeframe = GetTimeFrame(algorithm.id, algorithm.timeframe,
-                                    std::move(fallbackTimeframe)),
+                                    std::move(fallbackTimeframe))
       }) {
 
   auto metaDataPtr =
@@ -89,5 +89,20 @@ TransformDefinition::TransformDefinition(
                              << m_data.metaData.id
                              << ", but at least 1 input was required.");
   }
+
+  if (algorithm.session) {
+    if (std::holds_alternative<epoch_frame::SessionRange>(*algorithm.session)) {
+      auto sessionRange =
+          std::get<epoch_frame::SessionRange>(algorithm.session.value());
+      AssertFromStream(sessionRange.start <= sessionRange.end,
+                       "Invalid session range: " << sessionRange.start << " > "
+                                                  << sessionRange.end);
+    }
+    else {
+      m_data.sessionRange =
+        kSessionRegistry.at(std::get<epoch_core::SessionType>(algorithm.session.value()));
+    }
+  }
+
 }
 } // namespace epoch_metadata
