@@ -1,7 +1,7 @@
 #ifndef CATCH_TRANSFORM_TESTER_HPP
 #define CATCH_TRANSFORM_TESTER_HPP
 
-#include "dataframe_tester.hpp"
+#include "epoch_testing/dataframe_tester.hpp"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_metadata/transforms/itransform.h"

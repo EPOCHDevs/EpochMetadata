@@ -1,5 +1,5 @@
 add_executable(epoch_metadata_test catch_main.cpp metadata_options_test.cpp timeframe_test.cpp)
-target_link_libraries(epoch_metadata_test PRIVATE epoch_metadata Catch2::Catch2)
+target_link_libraries(epoch_metadata_test PRIVATE epoch_metadata epoch_testing_framework Catch2::Catch2)
 target_include_directories(epoch_metadata_test PRIVATE ../src )
 
 add_subdirectory(strategy)

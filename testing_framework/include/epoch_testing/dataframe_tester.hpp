@@ -1,7 +1,7 @@
 #ifndef DATAFRAME_TESTER_HPP
 #define DATAFRAME_TESTER_HPP
 
-#include "transform_tester_base.hpp"
+#include "epoch_testing/transform_tester_base.hpp"
 
 namespace epoch {
 namespace test {

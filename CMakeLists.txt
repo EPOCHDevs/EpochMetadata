@@ -104,6 +104,9 @@ target_link_libraries(epoch_metadata PUBLIC
 
 add_subdirectory(src)
 
+# Add testing framework as a separate module
+add_subdirectory(testing_framework)
+
 if (BUILD_TEST)
     add_subdirectory(test)
 endif()
