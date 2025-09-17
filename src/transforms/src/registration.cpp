@@ -4,7 +4,6 @@
 
 #include "epoch_metadata/transforms/registration.h"
 #include "agg.h"
-#include "aggregation_scalar.h"
 #include "data_source.h"
 #include "epoch_metadata/transforms/registry.h"
 #include "epoch_metadata/transforms/trade_executors.h"
@@ -189,26 +188,6 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(trade_executor_adapter, TradeExecutorAdapter);
   REGISTER_TRANSFORM(trade_signal_executor, TradeExecutorTransform);
 
-  // Aggregation Scalar Transforms - Templated versions for each function
-  REGISTER_TRANSFORM(scalar_all, AllAggregation);
-  REGISTER_TRANSFORM(scalar_any, AnyAggregation);
-  REGISTER_TRANSFORM(scalar_approximate_median, ApproximateMedianAggregation);
-  REGISTER_TRANSFORM(scalar_count, CountAggregation);
-  REGISTER_TRANSFORM(scalar_count_all, CountAllAggregation);
-  REGISTER_TRANSFORM(scalar_count_distinct, CountDistinctAggregation);
-  REGISTER_TRANSFORM(scalar_first, FirstAggregation);
-  REGISTER_TRANSFORM(scalar_kurtosis, KurtosisAggregation);
-  REGISTER_TRANSFORM(scalar_last, LastAggregation);
-  REGISTER_TRANSFORM(scalar_max, MaxAggregation);
-  REGISTER_TRANSFORM(scalar_mean, MeanAggregation);
-  REGISTER_TRANSFORM(scalar_min, MinAggregation);
-  REGISTER_TRANSFORM(scalar_product, ProductAggregation);
-  REGISTER_TRANSFORM(scalar_quantile, QuantileAggregation);
-  REGISTER_TRANSFORM(scalar_skew, SkewAggregation);
-  REGISTER_TRANSFORM(scalar_stddev, StddevAggregation);
-  REGISTER_TRANSFORM(scalar_sum, SumAggregation);
-  REGISTER_TRANSFORM(scalar_tdigest, TDigestAggregation);
-  REGISTER_TRANSFORM(scalar_variance, VarianceAggregation);
 
   // Statistics Transforms
   REGISTER_TRANSFORM(hmm, HMMTransform);

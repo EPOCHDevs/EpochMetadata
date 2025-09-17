@@ -1,7 +1,6 @@
 target_sources(epoch_metadata_test PRIVATE
 transform_metadata_factory.cpp
-transforms_test.cpp trade_executor_test.cpp
-        scalar_aggregation_test.cpp)
+transforms_test.cpp trade_executor_test.cpp)
 
 
 add_subdirectory(cummulative)
