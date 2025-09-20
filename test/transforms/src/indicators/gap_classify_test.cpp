@@ -106,20 +106,20 @@ TEST_CASE("gap_classify - Daily and Intraday") {
     auto result = t->TransformData(bars);
 
     // New nullable Arrow format: gap_up, gap_filled, fill_fraction, gap_size,
-    // psc, psc_timestamp
+    // gap_size_pct, psc, psc_timestamp
     using std::nullopt;
 
     // gap_up: null, true (up gap), false (down gap)
     std::vector<std::optional<bool>> gap_up{nullopt, true, false};
 
-    // gap_filled: null (placeholder - fill detection not implemented yet)
-    std::vector<std::optional<bool>> gap_filled{nullopt, nullopt, nullopt};
+    // gap_filled: null, true (fully filled), false (partial fill 3/7 < 100%)
+    std::vector<std::optional<bool>> gap_filled{nullopt, true, false};
 
-    // fill_fraction: null (placeholder - fill detection not implemented yet)
-    std::vector<std::optional<double>> fill_fraction{nullopt, nullopt, nullopt};
+    // fill_fraction: null, 1.0 (fully filled), 4.0/7.0 (partial fill)
+    std::vector<std::optional<double>> fill_fraction{nullopt, 1.0, 4.0/7.0};
 
-    // gap_size: null, 3.0, 7.0
-    std::vector<std::optional<double>> gap_size{nullopt, 3.0, 7.0};
+    // gap_size: null, 3.0% (3/100*100), 6.73% (7/104*100)
+    std::vector<std::optional<double>> gap_size{nullopt, 3.0, 100.0 * 7.0 / 104.0};
 
     // psc: null, 100.0, 104.0 (prior session close prices)
     std::vector<std::optional<double>> psc{nullopt, 100.0, 104.0};
@@ -172,11 +172,9 @@ TEST_CASE("gap_classify - Daily and Intraday") {
     using std::nullopt;
 
     std::vector<std::optional<bool>> gap_up{nullopt, true, false};
-    std::vector<std::optional<bool>> gap_filled{nullopt, nullopt,
-                                                nullopt}; // placeholder
-    std::vector<std::optional<double>> fill_fraction{nullopt, nullopt,
-                                                     nullopt}; // placeholder
-    std::vector<std::optional<double>> gap_size{nullopt, 3.0, 7.0};
+    std::vector<std::optional<bool>> gap_filled{nullopt, true, false};
+    std::vector<std::optional<double>> fill_fraction{nullopt, 1.0, 4.0/7.0};
+    std::vector<std::optional<double>> gap_size{nullopt, 3.0, 100.0 * 7.0 / 104.0};
     std::vector<std::optional<double>> psc{nullopt, 100.0, 104.0};
 
     auto timestamp_view = index->array().to_timestamp_view();
@@ -229,13 +227,15 @@ TEST_CASE("gap_classify - Daily and Intraday") {
     // gap_up: null, null, true, null, false
     std::vector<std::optional<bool>> gap_up{nullopt, nullopt, true, nullopt,
                                             false};
+    // gap_filled: null, null, true (low=102 <= pc=102), null, false (high=101 < pc=106)
     std::vector<std::optional<bool>> gap_filled{
-        nullopt, nullopt, nullopt, nullopt, nullopt}; // placeholder
+        nullopt, nullopt, true, nullopt, false};
+    // fill_fraction: null, null, (104-102)/2=1.0, null, (101-100)/6=1/6
     std::vector<std::optional<double>> fill_fraction{
-        nullopt, nullopt, nullopt, nullopt, nullopt}; // placeholder
-    // gap_size: null, null, 2.0, null, 6.0
-    std::vector<std::optional<double>> gap_size{nullopt, nullopt, 2.0, nullopt,
-                                                6.0};
+        nullopt, nullopt, 1.0, nullopt, 1.0/6.0};
+    // gap_size: null, null, 1.96% (2/102*100), null, 5.66% (6/106*100)
+    std::vector<std::optional<double>> gap_size{nullopt, nullopt, 100.0 * 2.0 / 102.0,
+                                                nullopt, 100.0 * 6.0 / 106.0};
     // psc: null, null, 102.0, null, 106.0 (prior session close prices)
     std::vector<std::optional<double>> psc{nullopt, nullopt, 102.0, nullopt,
                                            106.0};

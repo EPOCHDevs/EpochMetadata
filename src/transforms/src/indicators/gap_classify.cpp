@@ -21,6 +21,8 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
 
   auto t = bars.index()->array().to_timestamp_view();
   auto open = bars[C.OPEN()].contiguous_array().to_view<double>();
+  auto high = bars[C.HIGH()].contiguous_array().to_view<double>();
+  auto low = bars[C.LOW()].contiguous_array().to_view<double>();
   auto close = bars[C.CLOSE()].contiguous_array().to_view<double>();
 
   const int64_t n = open->length();
@@ -54,30 +56,57 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
   if (n > 0) {
     auto timeIt = t->begin() + 1;
     auto openIt = open->begin() + 1;
+    auto highIt = high->begin() + 1;
+    auto lowIt = low->begin() + 1;
     auto prevCloseIt = close->begin();
 
     for (int64_t i = 1; i < n; ++i) {
       // Optional heuristic: consider a gap only when the bar boundary is a new
       // day
       const bool new_day = floor_to_day(*(timeIt - 1)) != floor_to_day(*timeIt);
-      if (new_day && *openIt && *prevCloseIt) {
+      if (new_day && *openIt && *prevCloseIt && *highIt && *lowIt) {
         const double o = **openIt;
+        const double h = **highIt;
+        const double l = **lowIt;
         const double pc = **prevCloseIt;
-        if (std::isfinite(o) && std::isfinite(pc) && o != pc) {
+        if (std::isfinite(o) && std::isfinite(pc) && std::isfinite(h) &&
+            std::isfinite(l) && o != pc) {
           // We have a gap - record all the gap information
           const bool is_up_gap = o > pc;
-          const double gap = std::abs(o - pc);
+          const double gap_abs = std::abs(o - pc);
+          const double gap_pct = (gap_abs / pc) * 100.0;
 
           gap_up_builder.UnsafeAppend(is_up_gap);
-          gap_size_builder.UnsafeAppend(gap);
-          psc_builder.UnsafeAppend(
-              pc); // Store the actual prior session close price
+          gap_size_builder.UnsafeAppend(gap_pct);  // Now storing percentage
+          psc_builder.UnsafeAppend(pc);
           psc_timestamp_builder.UnsafeAppend(**(timeIt - 1));
 
-          // For now, append null for fill_fraction and gap_filled - will
-          // calculate if needed
-          fill_fraction_builder.UnsafeAppendNull();
-          gap_filled_builder.UnsafeAppendNull();
+          // Calculate gap fill
+          bool gap_filled = false;
+          double fill_fraction = 0.0;
+
+          if (is_up_gap) {
+            // Up gap: filled if low reaches or goes below prior close
+            if (l <= pc) {
+              gap_filled = true;
+              fill_fraction = 1.0;
+            } else if (l < o) {
+              // Partial fill
+              fill_fraction = (o - l) / gap_abs;
+            }
+          } else {
+            // Down gap: filled if high reaches or goes above prior close
+            if (h >= pc) {
+              gap_filled = true;
+              fill_fraction = 1.0;
+            } else if (h > o) {
+              // Partial fill
+              fill_fraction = (h - o) / gap_abs;
+            }
+          }
+
+          gap_filled_builder.UnsafeAppend(gap_filled);
+          fill_fraction_builder.UnsafeAppend(fill_fraction);
         } else {
           // No gap - append nulls
           gap_up_builder.UnsafeAppendNull();
@@ -98,6 +127,8 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
       }
       ++timeIt;
       ++openIt;
+      ++highIt;
+      ++lowIt;
       ++prevCloseIt;
     }
   } else {
