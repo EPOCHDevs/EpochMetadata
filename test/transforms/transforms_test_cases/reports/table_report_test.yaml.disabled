@@ -1,0 +1,60 @@
+tests:
+  - title: "Table Report Test"
+    input:
+      close: [100.5, 101.2, 99.8, 102.3, 101.0, 98.5, 103.2, 100.8]
+      volume: [1500000, 800000, 2000000, 1200000, 900000, 300000, 1100000, 600000]
+    expect:
+      type: "tearsheet"
+      tables:
+        - title: "Top Trading Sessions"
+          type: "table"
+          columns:
+            - name: "rank"
+              type: "integer"
+            - name: "price"
+              type: "decimal"
+            - name: "volume"
+              type: "integer"
+            - name: "value"
+              type: "decimal"
+            - name: "price_category"
+              type: "string"
+          rows:
+            # Expected rows based on the SQL query (sorted by value DESC)
+            - [1, 103.2, 1100000, 113520000, "HIGH"]
+            - [2, 102.3, 1200000, 122760000, "HIGH"]
+            - [3, 100.5, 1500000, 150750000, "MEDIUM"]
+            - [4, 99.8, 2000000, 199600000, "LOW"]
+            - [5, 101.2, 800000, 80960000, "HIGH"]
+            - [6, 101.0, 900000, 90900000, "HIGH"]
+            - [7, 100.8, 600000, 60480000, "MEDIUM"]
+    options:
+      transform_name: "table_report"
+      output_id: "test_table"
+      sql: |
+        SELECT
+          ROW_NUMBER() OVER (ORDER BY close DESC) AS rank,
+          close AS price,
+          volume,
+          close * volume AS value,
+          CASE
+            WHEN close > 101 THEN 'HIGH'
+            WHEN close > 100 THEN 'MEDIUM'
+            ELSE 'LOW'
+          END AS price_category
+        FROM market_data
+        WHERE volume > 500000
+        ORDER BY value DESC
+        LIMIT 10
+      title: "Top Trading Sessions"
+      category: "Market Analysis"
+      max_rows: 10
+      show_index: false
+      selected_columns: ["rank", "price", "volume", "value", "price_category"]
+      widget_type: "TABLE"
+      column_types: ["INTEGER", "DECIMAL", "INTEGER", "DECIMAL", "STRING"]
+      decimal_places: 2
+      format_numbers: true
+      highlight_negative: false
+      sort_column: "value"
+      sort_ascending: false

@@ -23,6 +23,15 @@
 #include "statistics/hmm.h"
 #include <epoch_metadata/strategy/registration.h>
 
+// SQL and Report includes
+// #include "sql/sql_query_transform.h"
+// #include "sql/sql_query_metadata.h"
+#include "reports/numeric_card_report.h"
+#include "reports/boolean_card_report.h"
+#include "reports/any_card_report.h"
+#include "reports/gap_report.h"
+// #include "reports/table_report.h"
+
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
 #include "cummulative/cum_op.h"
@@ -32,6 +41,7 @@
 #include "indicators/bband_variant.h"
 #include "indicators/gap_classify.h"
 #include "indicators/gap_returns.h"
+#include "indicators/lag.h"
 #include "indicators/moving_average.h"
 #include "operators/equality.h"
 #include "operators/logical.h"
@@ -127,6 +137,7 @@ void InitializeTransforms(
 
   REGISTER_TRANSFORM(gap_returns, GapReturns);
   REGISTER_TRANSFORM(gap_classify, GapClassify);
+  REGISTER_TRANSFORM(lag, Lag);
   REGISTER_TRANSFORM(ma, MovingAverage);
 
   REGISTER_TRANSFORM(price_diff_vol, PriceDiffVolatility);
@@ -153,11 +164,14 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(agg_all_equal, AllEqualAggregateTransform);
   REGISTER_TRANSFORM(agg_all_unique, AllUniqueAggregateTransform);
 
-  // Price Action SMC Transforms
+  std::unordered_set<std::string> tiToSkip{"lag"};
   for (auto const &metaData :
        std::span(ti_indicators, ti_indicators + ti_indicator_count())) {
-    transform::Register<TulipModelImpl<true>>(metaData.name);
+    if (not tiToSkip.contains(metaData.name)) {
+      transform::Register<TulipModelImpl<true>>(metaData.name);
+    }
   }
+
   for (auto const &metaData :
        std::span(tc_candles, tc_candles + tc_candle_count())) {
     transform::Register<TulipModelImpl<false>>(metaData.name);
@@ -191,5 +205,26 @@ void InitializeTransforms(
 
   // Statistics Transforms
   REGISTER_TRANSFORM(hmm, HMMTransform);
+
+  // SQL Query Transforms
+  // REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
+  // REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
+  // REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
+  // REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
+
+  // // Register metadata for SQL transforms
+  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform1Metadata());
+  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform2Metadata());
+  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform3Metadata());
+  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform4Metadata());
+  //
+  // Register Reports
+  reports::RegisterReport<reports::NumericCardReport>();
+  reports::RegisterReport<reports::BooleanCardReport>();
+  reports::RegisterReport<reports::AnyCardReport>();
+  // reports::RegisterReport<reports::TableReport>();
+
+  reports::RegisterReport<reports::GapReport>();
+
 };
 } // namespace epoch_metadata::transform

@@ -1,0 +1,269 @@
+tests:
+  # ========================================
+  # Gap Fill Detection Tests
+  # ========================================
+
+  # Scenario 5: Up gap fully filled - Low reaches previous close
+  - title: "Up Gap Fully Filled - Low reaches previous close"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 105
+        "2024-01-02T10:00:00",  # Low reaches 100 (fills gap)
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 99.0, 105.0, 104.0, 103.0]
+      h: [101.0, 100.5, 106.0, 105.0, 104.0]
+      l: [99.0, 98.0, 104.0, 100.0, 102.0]  # Bar 3: low reaches psc of 100
+      c: [100.0, 100.0, 105.0, 103.0, 103.5]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 5.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, true, true]  # Filled at bar 3
+      "gap_classify#gap_retrace": [null, null, 0.2, 1.0, 0.6]  # Continues after fill
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 6: Down gap fully filled - High reaches previous close
+  - title: "Down Gap Fully Filled - High reaches previous close"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap down open at 95
+        "2024-01-02T10:00:00",  # High reaches 100 (fills gap)
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 101.0, 95.0, 96.0, 97.0]
+      h: [102.0, 103.0, 96.0, 100.0, 98.0]  # Bar 3: high reaches psc of 100
+      l: [99.0, 100.0, 94.0, 95.0, 96.0]
+      c: [101.0, 100.0, 95.5, 97.0, 97.5]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, -5.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, true, true]  # Filled at bar 3
+      "gap_classify#gap_retrace": [null, null, 0.2, 1.0, 0.6]  # Continues after fill
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 7: Up gap partially filled
+  - title: "Up Gap Partially Filled - Low retraces partway"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 110
+        "2024-01-02T10:00:00",  # Low only reaches 105 (50% fill)
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 99.0, 110.0, 108.0, 107.0]
+      h: [101.0, 100.5, 112.0, 110.0, 109.0]
+      l: [99.0, 98.0, 109.0, 105.0, 106.0]  # Lowest is 105, gap from 100 to 110
+      c: [100.0, 100.0, 111.0, 107.0, 108.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 10.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, false, false]  # Never fully filled
+      "gap_classify#gap_retrace": [null, null, 0.1, 0.5, 0.4]  # Cumulative retrace
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 8: Down gap partially filled
+  - title: "Down Gap Partially Filled - High retraces partway"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap down open at 90
+        "2024-01-02T10:00:00",  # High only reaches 95 (50% fill)
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 101.0, 90.0, 92.0, 93.0]
+      h: [102.0, 103.0, 91.0, 95.0, 94.0]  # Highest is 95, gap from 100 to 90
+      l: [99.0, 100.0, 89.0, 91.0, 92.0]
+      c: [101.0, 100.0, 90.5, 93.0, 93.5]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, -10.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, false, false]  # Never fully filled
+      "gap_classify#gap_retrace": [null, null, 0.1, 0.5, 0.4]  # Cumulative retrace
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 9: No fill - Price never retraces
+  - title: "No Fill - Price never retraces toward previous close"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 110
+        "2024-01-02T10:00:00",  # Continues higher
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 99.0, 110.0, 112.0, 114.0]
+      h: [101.0, 100.5, 113.0, 115.0, 117.0]
+      l: [99.0, 98.0, 110.0, 111.0, 113.0]  # Never goes below open
+      c: [100.0, 100.0, 112.0, 114.0, 116.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 10.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, false, false]
+      "gap_classify#gap_retrace": [null, null, 0.0, 0.0, 0.0]  # No fill at all
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # ========================================
+  # Multi-Bar Gap Tracking
+  # ========================================
+
+  # Scenario 10: Gap fills on opening bar
+  - title: "Gap Fills on Opening Bar - Immediate fill"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 105, low reaches 100
+        "2024-01-02T10:00:00"
+      ]
+      o: [100.0, 99.0, 105.0, 103.0]
+      h: [101.0, 100.5, 107.0, 104.0]
+      l: [99.0, 98.0, 100.0, 102.0]  # Opening bar low fills gap
+      c: [100.0, 100.0, 103.0, 103.5]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 5.0, null]
+      "gap_classify#gap_filled": [null, null, true, true]  # Filled immediately
+      "gap_classify#gap_retrace": [null, null, 1.0, 0.6]  # Continues after fill
+      "gap_classify#psc": [null, null, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 11: Gap fills later in day
+  - title: "Gap Fills Later in Day - Delayed fill"
+    input:
+      timestamp: [
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 105
+        "2024-01-02T10:00:00",  # No fill
+        "2024-01-02T11:00:00",  # No fill
+        "2024-01-02T14:00:00",  # Fills here
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 105.0, 104.0, 103.5, 102.0, 101.0]
+      h: [100.5, 106.0, 105.0, 104.0, 103.0, 102.0]
+      l: [99.5, 104.0, 103.0, 103.0, 100.0, 100.5]  # Bar 4: fills gap
+      c: [100.0, 105.0, 103.5, 103.2, 101.0, 101.5]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, 5.0, null, null, null, null]
+      "gap_classify#gap_filled": [null, false, false, false, true, true]
+      "gap_classify#gap_retrace": [null, 0.2, 0.4, 0.4, 1.0, 0.9]  # Continues after fill
+      "gap_classify#psc": [null, 100.0, 100.0, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 12: Gap tracking stops at day end
+  - title: "Gap Tracking Stops at Day End - New day resets"
+    input:
+      timestamp: [
+        "2024-01-01T16:00:00",  # Day 1 close
+        "2024-01-02T09:00:00",  # Day 2 gap up
+        "2024-01-02T16:00:00",  # Day 2 close
+        "2024-01-03T09:00:00",  # Day 3 - new day, new gap calculation
+        "2024-01-03T16:00:00"   # Day 3 close
+      ]
+      o: [100.0, 105.0, 104.0, 108.0, 107.0]
+      h: [100.5, 106.0, 105.0, 110.0, 109.0]
+      l: [99.5, 104.0, 103.0, 107.0, 106.0]
+      c: [100.0, 105.0, 104.0, 108.0, 107.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, 5.0, null, 3.846153846153846, null]  # New gaps on day 2 and day 3
+      "gap_classify#gap_filled": [null, false, false, false, false]
+      "gap_classify#gap_retrace": [null, 0.2, 0.4, 0.25, 0.5]
+      "gap_classify#psc": [null, 100.0, 100.0, 104.0, 104.0]  # Persistent per day
+      "gap_classify#psc_timestamp": [null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-02 16:00:00.000000000Z", "2024-01-02 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 13: Partial fill with custom fill_percent
+  - title: "Partial Fill with 50% Fill Threshold"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",
+        "2024-01-01T16:00:00",  # Close at 100
+        "2024-01-02T09:00:00",  # Gap up open at 110
+        "2024-01-02T10:00:00",  # Low reaches 105 (50% fill)
+        "2024-01-02T16:00:00"
+      ]
+      o: [100.0, 99.0, 110.0, 108.0, 107.0]
+      h: [101.0, 100.5, 112.0, 110.0, 109.0]
+      l: [99.0, 98.0, 109.0, 105.0, 106.0]  # 50% retracement
+      c: [100.0, 100.0, 111.0, 107.0, 108.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 10.0, null, null]
+      "gap_classify#gap_filled": [null, null, false, true, true]  # Filled at 50% threshold
+      "gap_classify#gap_retrace": [null, null, 0.1, 0.5, 0.4]  # Continues after fill
+      "gap_classify#psc": [null, null, 100.0, 100.0, 100.0]  # Persistent
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 50  # 50% fill threshold
+      timeframe: "1H"

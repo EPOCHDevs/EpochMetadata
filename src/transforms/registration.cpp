@@ -21,6 +21,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeTulipCandles());
   metaDataList.emplace_back(MakeTradeSignalExecutor());
   metaDataList.emplace_back(MakeScalarMetaData());
+  metaDataList.emplace_back(MakeLagMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

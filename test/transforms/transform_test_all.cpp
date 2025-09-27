@@ -9,7 +9,7 @@ using namespace epoch::test;
 
 TEST_CASE("All Transform Tests - YAML Based", "[Transform][YAML]") {
     // Test only the predefined test_cases directory for this library
-    YamlTransformTester::Config config("transforms_test_cases");
+    YamlTransformTester::Config config(std::vector<std::string>{"transforms_test_cases"});
     config.recursive = true;
     config.requireTestCasesDir = false;
 

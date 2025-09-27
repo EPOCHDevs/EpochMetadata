@@ -26,15 +26,15 @@ struct EqualityTransform : ITransform {
     } else if constexpr (sign ==
                          epoch_core::EqualityOperator::LessThanOrEquals) {
       lhs = lhs <= rhs;
-    } else if constexpr (sign == epoch_core::EqualityOperator::Equals) {
-      lhs = lhs == rhs;
-    } else if constexpr (sign == epoch_core::EqualityOperator::NotEquals) {
-      lhs = lhs != rhs;
-    } else if constexpr (sign == epoch_core::EqualityOperator::GreaterThan) {
-      lhs = lhs > rhs;
-    } else if constexpr (sign == epoch_core::EqualityOperator::LessThan) {
-      lhs = lhs < rhs;
-    }
+                         } else if constexpr (sign == epoch_core::EqualityOperator::Equals) {
+                           lhs = lhs == rhs;
+                         } else if constexpr (sign == epoch_core::EqualityOperator::NotEquals) {
+                           lhs = lhs != rhs;
+                         } else if constexpr (sign == epoch_core::EqualityOperator::GreaterThan) {
+                           lhs = lhs > rhs;
+                         } else if constexpr (sign == epoch_core::EqualityOperator::LessThan) {
+                           lhs = lhs < rhs;
+                         }
     return MakeResult(lhs);
   }
 };

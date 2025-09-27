@@ -312,6 +312,32 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
   return metadataList;
 }
 
+std::vector<TransformsMetaData> MakeLagMetaData() {
+  std::vector<TransformsMetaData> metadataList;
+
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "lag",
+      .category = epoch_core::TransformCategory::Trend,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .name = "Lag",
+      .options = {
+          MetaDataOption{.id = "period",
+                         .name = "Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(1)),
+                         .min = 1}
+      },
+      .desc = "Shifts each element in the input by the specified period, "
+              "creating a lagged series. Works with any data type.",
+      .inputs = {IOMetaDataConstants::ANY_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
+      .tags = {"math", "lag", "delay", "shift", "temporal"},
+      .requiresTimeFrame = false});
+
+  return metadataList;
+}
+
 std::vector<TransformsMetaData> MakeScalarMetaData() {
   std::vector<TransformsMetaData> metadataList;
 

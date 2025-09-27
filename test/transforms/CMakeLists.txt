@@ -1,7 +1,11 @@
 target_sources(epoch_metadata_test PRIVATE
+        dataframe_tester.cpp
         registrations_test.cpp
-        transforms_metadata_test.cpp
-        transform_test_all.cpp)
+        tearsheet_output.cpp
+        transform_test_all.cpp
+        transform_tester.cpp
+        transform_tester_base.cpp
+        transforms_metadata_test.cpp)
 
 target_compile_definitions(epoch_metadata_test PRIVATE
         -DGLZ_ENABLE_JSON_PRETTY_PRINT)

@@ -1,0 +1,112 @@
+tests:
+  # Scenario 1: Up gap detection - Open > previous close, verify gap_up = true
+  - title: "Up Gap Detection - Simple"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",  # Market open day 1
+        "2024-01-01T16:00:00",  # Market close day 1
+        "2024-01-02T09:00:00",  # Market open day 2 - gap here
+        "2024-01-02T16:00:00"   # Market close day 2
+      ]
+      o: [100.0, 101.0, 105.0, 106.0]  # Open on day 2 is higher than close on day 1
+      h: [102.0, 103.0, 108.0, 110.0]
+      l: [99.0, 100.0, 104.0, 105.0]
+      c: [101.0, 102.0, 107.0, 108.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 2.941176470588235, null]  # Positive = up gap
+      "gap_classify#gap_filled": [null, null, false, false]
+      "gap_classify#gap_retrace": [null, null, 0.3333333333333333, 0.0]  # Cumulative: bar2 low=105, no retrace
+      "gap_classify#psc": [null, null, 102.0, 102.0]  # Persistent throughout day
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 2: Down gap detection - Open < previous close, verify gap_up = false
+  - title: "Down Gap Detection - Simple"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",  # Market open day 1
+        "2024-01-01T16:00:00",  # Market close day 1
+        "2024-01-02T09:00:00",  # Market open day 2 - gap here
+        "2024-01-02T16:00:00"   # Market close day 2
+      ]
+      o: [100.0, 104.0, 95.0, 94.0]  # Open on day 2 is lower than close on day 1
+      h: [106.0, 108.0, 98.0, 97.0]
+      l: [99.0, 103.0, 92.0, 91.0]
+      c: [104.0, 105.0, 96.0, 93.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, -9.523809523809524, null]  # Negative = down gap
+      "gap_classify#gap_filled": [null, null, false, false]
+      "gap_classify#gap_retrace": [null, null, 0.3, 0.2]  # Cumulative: bar2 high=97, (97-95)/10=0.2
+      "gap_classify#psc": [null, null, 105.0, 105.0]  # Persistent throughout day
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 3: No gap - Open = previous close, all outputs should be null
+  - title: "No Gap - Open equals previous close"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",  # Market open day 1
+        "2024-01-01T16:00:00",  # Market close day 1
+        "2024-01-02T09:00:00",  # Market open day 2 - no gap
+        "2024-01-02T16:00:00"   # Market close day 2
+      ]
+      o: [100.0, 101.0, 102.0, 103.0]  # Open on day 2 equals close on day 1
+      h: [103.0, 104.0, 108.0, 109.0]
+      l: [98.0, 100.0, 98.0, 101.0]
+      c: [101.0, 102.0, 105.0, 106.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, null, null]  # No gap
+      "gap_classify#gap_filled": [null, null, null, null]
+      "gap_classify#gap_retrace": [null, null, null, null]
+      "gap_classify#psc": [null, null, null, null]
+      "gap_classify#psc_timestamp": [null, null, null, null]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"
+
+  # Scenario 4: Gap size calculation - Verify correct percentage calculation
+  - title: "Gap Size Calculation - Large up gap"
+    input:
+      timestamp: [
+        "2024-01-01T09:00:00",  # Market open day 1
+        "2024-01-01T16:00:00",  # Market close day 1
+        "2024-01-02T09:00:00",  # Market open day 2 - 20% gap
+        "2024-01-02T16:00:00"   # Market close day 2
+      ]
+      o: [100.0, 99.0, 120.0, 119.0]  # 20% gap up
+      h: [102.0, 101.0, 125.0, 124.0]
+      l: [98.0, 97.0, 118.0, 117.0]
+      c: [99.0, 100.0, 122.0, 121.0]
+    timestamp_columns: ["timestamp"]
+    index_column: "timestamp"
+    expect:
+      "gap_classify#gap_size": [null, null, 20.0, null]  # Positive = large up gap
+      "gap_classify#gap_filled": [null, null, false, false]
+      "gap_classify#gap_retrace": [null, null, 0.1, 0.15]  # Cumulative: bar2 low=117, (120-117)/20=0.15
+      "gap_classify#psc": [null, null, 100.0, 100.0]  # Persistent throughout day
+      "gap_classify#psc_timestamp": [null, null, "2024-01-01 16:00:00.000000000Z", "2024-01-01 16:00:00.000000000Z"]
+    options:
+      transform_name: "gap_classify"
+      output_id: "gap_classify"
+      inputs: ""
+      fill_percent: 100
+      timeframe: "1H"

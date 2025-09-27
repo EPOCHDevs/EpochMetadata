@@ -80,6 +80,9 @@ void MetaDataOptionDefinition::AssertType(
     }
     break;
   }
+  case epoch_core::MetaDataOptionType::String:
+    AssertType<std::string>();
+    break;
   case epoch_core::MetaDataOptionType::Null:
     throw std::runtime_error("Null value not allowed.");
   }
@@ -100,6 +103,8 @@ bool MetaDataOptionDefinition::IsType(
   case epoch_core::MetaDataOptionType::NumericList:
   case epoch_core::MetaDataOptionType::StringList:
     return std::holds_alternative<Sequence>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::String:
+    return std::holds_alternative<std::string>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
     return false;
   }
@@ -250,6 +255,8 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
     }
     return MetaDataOptionDefinition{node.as<std::string>()};
   }
+  case epoch_core::MetaDataOptionType::String:
+    return MetaDataOptionDefinition{node.as<std::string>()};
   case epoch_core::MetaDataOptionType::Null:
     break;
   }
@@ -282,6 +289,8 @@ void MetaDataOption::decode(const YAML::Node &element) {
       type = epoch_core::MetaDataOptionType::NumericList;
     } else if (lowered == "string_list") {
       type = epoch_core::MetaDataOptionType::StringList;
+    } else if (lowered == "string") {
+      type = epoch_core::MetaDataOptionType::String;
     } else {
       type = epoch_core::MetaDataOptionTypeWrapper::FromString(rawType);
     }

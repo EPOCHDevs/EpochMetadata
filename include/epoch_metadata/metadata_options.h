@@ -19,7 +19,7 @@
 #include <yaml-cpp/yaml.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList, Time);
+            StringList, Time, String);
 
 namespace epoch_metadata {
 
@@ -138,6 +138,8 @@ public:
   }
 
   std::string GetSelectOption() const { return GetValueByType<std::string>(); }
+
+  std::string GetString() const { return GetValueByType<std::string>(); }
 
   size_t GetHash() const;
 

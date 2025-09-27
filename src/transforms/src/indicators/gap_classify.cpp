@@ -10,6 +10,17 @@
 
 namespace epoch_metadata::transform {
 
+  struct ActiveGap {
+    bool exists = false;
+    double prior_close = 0.0;
+    double gap_open = 0.0;  // Store the opening price when gap occurred
+    double gap_abs = 0.0;  // Absolute gap size for fill calculations
+    double gap_pct = 0.0;  // Signed gap percentage (+ up, - down)
+    int64_t gap_day = -1;
+    int64_t prior_close_timestamp = 0;
+    bool filled = false;  // Track if gap has been filled
+  };
+
 static inline int64_t floor_to_day(std::optional<int64_t> const &timestamp) {
   return static_cast<int64_t>(std::floor(*timestamp / 86400000000000));
 }
@@ -28,9 +39,8 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
   const int64_t n = open->length();
 
   // Arrow builders for nullable arrays
-  arrow::BooleanBuilder gap_up_builder;
   arrow::BooleanBuilder gap_filled_builder;
-  arrow::DoubleBuilder fill_fraction_builder;
+  arrow::DoubleBuilder gap_retrace_builder;
   arrow::DoubleBuilder gap_size_builder;
   arrow::DoubleBuilder psc_builder;
   arrow::TimestampBuilder psc_timestamp_builder(
@@ -38,22 +48,23 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
       arrow::default_memory_pool());
 
   // Reserve space for optimal performance
-  (void)gap_up_builder.Reserve(n);
   (void)gap_filled_builder.Reserve(n);
-  (void)fill_fraction_builder.Reserve(n);
+  (void)gap_retrace_builder.Reserve(n);
   (void)gap_size_builder.Reserve(n);
   (void)psc_builder.Reserve(n);
   (void)psc_timestamp_builder.Reserve(n);
 
   // First pass: append null for index 0
-  gap_up_builder.UnsafeAppendNull();
   gap_filled_builder.UnsafeAppendNull();
-  fill_fraction_builder.UnsafeAppendNull();
+  gap_retrace_builder.UnsafeAppendNull();
   gap_size_builder.UnsafeAppendNull();
   psc_builder.UnsafeAppendNull();
   psc_timestamp_builder.UnsafeAppendNull();
 
   if (n > 0) {
+    // Track active gap for the current day
+    ActiveGap active_gap;
+
     auto timeIt = t->begin() + 1;
     auto openIt = open->begin() + 1;
     auto highIt = high->begin() + 1;
@@ -61,70 +72,113 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
     auto prevCloseIt = close->begin();
 
     for (int64_t i = 1; i < n; ++i) {
-      // Optional heuristic: consider a gap only when the bar boundary is a new
-      // day
-      const bool new_day = floor_to_day(*(timeIt - 1)) != floor_to_day(*timeIt);
-      if (new_day && *openIt && *prevCloseIt && *highIt && *lowIt) {
+      const int64_t current_day = floor_to_day(*timeIt);
+      const bool new_day = floor_to_day(*(timeIt - 1)) != current_day;
+
+      // Check if we're starting a new day with a gap
+      if (new_day && *openIt && *prevCloseIt) {
         const double o = **openIt;
-        const double h = **highIt;
-        const double l = **lowIt;
         const double pc = **prevCloseIt;
-        if (std::isfinite(o) && std::isfinite(pc) && std::isfinite(h) &&
-            std::isfinite(l) && o != pc) {
-          // We have a gap - record all the gap information
-          const bool is_up_gap = o > pc;
-          const double gap_abs = std::abs(o - pc);
-          const double gap_pct = (gap_abs / pc) * 100.0;
 
-          gap_up_builder.UnsafeAppend(is_up_gap);
-          gap_size_builder.UnsafeAppend(gap_pct);  // Now storing percentage
+        if (std::isfinite(o) && std::isfinite(pc) && o != pc) {
+          // New gap detected at market open
+          active_gap.exists = true;
+          active_gap.prior_close = pc;
+          active_gap.gap_open = o;  // Store the gap open price
+          active_gap.gap_abs = std::abs(o - pc);
+          active_gap.gap_pct = ((o - pc) / pc) * 100.0;  // Signed percentage
+          active_gap.gap_day = current_day;
+          active_gap.prior_close_timestamp = **(timeIt - 1);
+          active_gap.filled = false;
+
+          // Record gap size only at market open (signed: + up, - down)
+          gap_size_builder.UnsafeAppend(active_gap.gap_pct);
           psc_builder.UnsafeAppend(pc);
-          psc_timestamp_builder.UnsafeAppend(**(timeIt - 1));
+          psc_timestamp_builder.UnsafeAppend(active_gap.prior_close_timestamp);
 
-          // Calculate gap fill
-          bool gap_filled = false;
-          double fill_fraction = 0.0;
+          // Check if gap is filled in the opening bar
+          double gap_retrace = 0.0;
 
-          if (is_up_gap) {
-            // Up gap: filled if low reaches or goes below prior close
-            if (l <= pc) {
-              gap_filled = true;
-              fill_fraction = 1.0;
-            } else if (l < o) {
-              // Partial fill
-              fill_fraction = (o - l) / gap_abs;
+          if (*highIt && *lowIt) {
+            const double h = **highIt;
+            const double l = **lowIt;
+
+            if (active_gap.gap_pct > 0) {
+              // Up gap: calculate fill fraction
+              if (l < o) {
+                gap_retrace = (o - l) / active_gap.gap_abs;
+              }
+            } else {
+              // Down gap: calculate fill fraction
+              if (h > o) {
+                gap_retrace = (h - o) / active_gap.gap_abs;
+              }
             }
-          } else {
-            // Down gap: filled if high reaches or goes above prior close
-            if (h >= pc) {
-              gap_filled = true;
-              fill_fraction = 1.0;
-            } else if (h > o) {
-              // Partial fill
-              fill_fraction = (h - o) / gap_abs;
+
+            // Check if threshold is met
+            if (!active_gap.filled && gap_retrace >= m_fillPercent) {
+              active_gap.filled = true;
             }
           }
 
-          gap_filled_builder.UnsafeAppend(gap_filled);
-          fill_fraction_builder.UnsafeAppend(fill_fraction);
+          gap_filled_builder.UnsafeAppend(active_gap.filled);
+          gap_retrace_builder.UnsafeAppend(gap_retrace);
         } else {
-          // No gap - append nulls
-          gap_up_builder.UnsafeAppendNull();
+          // No gap at market open
+          active_gap.exists = false;
           gap_filled_builder.UnsafeAppendNull();
-          fill_fraction_builder.UnsafeAppendNull();
+          gap_retrace_builder.UnsafeAppendNull();
           gap_size_builder.UnsafeAppendNull();
           psc_builder.UnsafeAppendNull();
           psc_timestamp_builder.UnsafeAppendNull();
         }
+      } else if (active_gap.exists && current_day == active_gap.gap_day) {
+        // We have an active gap from today - continue tracking
+        gap_size_builder.UnsafeAppendNull();  // Gap size only at open
+
+        // Keep psc and timestamp available throughout the day
+        psc_builder.UnsafeAppend(active_gap.prior_close);
+        psc_timestamp_builder.UnsafeAppend(active_gap.prior_close_timestamp);
+
+        // Continue calculating retrace throughout the day for statistics
+        double gap_retrace = 0.0;
+
+        if (*highIt && *lowIt) {
+          const double h = **highIt;
+          const double l = **lowIt;
+
+          if (active_gap.gap_pct > 0) {
+            // Up gap: calculate cumulative fill fraction
+            if (l < active_gap.gap_open) {
+              gap_retrace = (active_gap.gap_open - l) / active_gap.gap_abs;
+            }
+          } else {
+            // Down gap: calculate cumulative fill fraction
+            if (h > active_gap.gap_open) {
+              gap_retrace = (h - active_gap.gap_open) / active_gap.gap_abs;
+            }
+          }
+
+          // Check if threshold is met (only once)
+          if (!active_gap.filled && gap_retrace >= m_fillPercent) {
+            active_gap.filled = true;
+          }
+
+          gap_filled_builder.UnsafeAppend(active_gap.filled);
+          gap_retrace_builder.UnsafeAppend(gap_retrace);
+        } else {
+          gap_filled_builder.UnsafeAppend(active_gap.filled);
+          gap_retrace_builder.UnsafeAppendNull();
+        }
       } else {
-        // No new day or missing data - append nulls
-        gap_up_builder.UnsafeAppendNull();
+        // No active gap or different day - append nulls
         gap_filled_builder.UnsafeAppendNull();
-        fill_fraction_builder.UnsafeAppendNull();
+        gap_retrace_builder.UnsafeAppendNull();
         gap_size_builder.UnsafeAppendNull();
         psc_builder.UnsafeAppendNull();
         psc_timestamp_builder.UnsafeAppendNull();
       }
+
       ++timeIt;
       ++openIt;
       ++highIt;
@@ -136,26 +190,23 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
   }
 
   // Build the Arrow arrays
-  std::shared_ptr<arrow::Array> gap_up_array;
   std::shared_ptr<arrow::Array> gap_filled_array;
-  std::shared_ptr<arrow::Array> fill_fraction_array;
+  std::shared_ptr<arrow::Array> gap_retrace_array;
   std::shared_ptr<arrow::Array> gap_size_array;
   std::shared_ptr<arrow::Array> psc_array;
   std::shared_ptr<arrow::Array> psc_timestamp_array;
 
-  (void)gap_up_builder.Finish(&gap_up_array);
   (void)gap_filled_builder.Finish(&gap_filled_array);
-  (void)fill_fraction_builder.Finish(&fill_fraction_array);
+  (void)gap_retrace_builder.Finish(&gap_retrace_array);
   (void)gap_size_builder.Finish(&gap_size_array);
   (void)psc_builder.Finish(&psc_array);
   (void)psc_timestamp_builder.Finish(&psc_timestamp_array);
 
   // Create chunked arrays
-  auto gap_up_chunked = std::make_shared<arrow::ChunkedArray>(gap_up_array);
   auto gap_filled_chunked =
       std::make_shared<arrow::ChunkedArray>(gap_filled_array);
-  auto fill_fraction_chunked =
-      std::make_shared<arrow::ChunkedArray>(fill_fraction_array);
+  auto gap_retrace_chunked =
+      std::make_shared<arrow::ChunkedArray>(gap_retrace_array);
   auto gap_size_chunked = std::make_shared<arrow::ChunkedArray>(gap_size_array);
   auto psc_chunked = std::make_shared<arrow::ChunkedArray>(psc_array);
   auto psc_timestamp_chunked =
@@ -164,10 +215,10 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
   // Construct output dataframe
   auto df = epoch_frame::make_dataframe(
       bars.index(),
-      {gap_up_chunked, gap_filled_chunked, fill_fraction_chunked,
+      {gap_filled_chunked, gap_retrace_chunked,
        gap_size_chunked, psc_chunked, psc_timestamp_chunked},
-      {GetOutputId("gap_up"), GetOutputId("gap_filled"),
-       GetOutputId("fill_fraction"), GetOutputId("gap_size"),
+      {GetOutputId("gap_filled"),
+       GetOutputId("gap_retrace"), GetOutputId("gap_size"),
        GetOutputId("psc"), GetOutputId("psc_timestamp")});
 
   return df;

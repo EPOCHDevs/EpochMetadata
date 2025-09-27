@@ -1,9 +1,10 @@
 add_executable(epoch_metadata_test catch_main.cpp metadata_options_test.cpp timeframe_test.cpp)
-target_link_libraries(epoch_metadata_test PRIVATE epoch_metadata epoch_testing_framework Catch2::Catch2)
-target_include_directories(epoch_metadata_test PRIVATE ../src )
+target_link_libraries(epoch_metadata_test PRIVATE epoch_metadata Catch2::Catch2  yaml-cpp::yaml-cpp)
+target_include_directories(epoch_metadata_test PRIVATE ../src . )
 
 add_subdirectory(strategy)
 add_subdirectory(transforms)
+# add_subdirectory(reports) # Reports are now integrated into transforms
 
 set(METADATA_FILES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

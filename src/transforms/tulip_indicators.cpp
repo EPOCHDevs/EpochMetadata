@@ -109,14 +109,6 @@ MakeTulipIndicatorMetaData() {
       .tags = {"simple", "floor", "math", "rounding", "vector"},
       .desc = "Vector Floor. Rounds each element down to the nearest integer."};
 
-  indicatorMetaData["lag"] = IndicatorMetaData{
-      .tags = {"math", "lag", "delay", "shift"},
-      .desc = "Lag. Shifts each element in the input by the "
-              "specified period, creating a lagged series.",
-      .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
-
   indicatorMetaData["ln"] =
       IndicatorMetaData{.tags = {"simple", "ln", "math", "logarithm", "vector"},
                         .desc = "Vector Natural Log. Calculates the natural "
@@ -874,9 +866,14 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
   std::vector<TransformsMetaData> allIndicators(TI_INDICATOR_COUNT);
   static std::unordered_set<std::string> dataSources{"open", "high", "low",
                                                      "close", "volume"};
+    static std::unordered_set<std::string> skipNodes{"lag"};
+
   std::ranges::transform(
-      std::span{ti_indicators, ti_indicators + TI_INDICATOR_COUNT},
+      std::span{ti_indicators, ti_indicators + TI_INDICATOR_COUNT} | std::views::filter([](const ti_indicator_info &tiIndicatorInfo) {
+          return !skipNodes.contains(tiIndicatorInfo.name);
+      }),
       allIndicators.begin(), [&](const ti_indicator_info &tiIndicatorInfo) {
+
         const std::span optionSpan{tiIndicatorInfo.option_names,
                                    tiIndicatorInfo.option_names +
                                        tiIndicatorInfo.options};

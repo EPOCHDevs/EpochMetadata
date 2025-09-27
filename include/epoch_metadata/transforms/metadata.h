@@ -240,6 +240,7 @@ std::vector<TransformsMetaData> MakeDataSource();
 std::vector<TransformsMetaData> MakeTradeSignalExecutor();
 std::vector<TransformsMetaData> MakeTulipIndicators();
 std::vector<TransformsMetaData> MakeTulipCandles();
+std::vector<TransformsMetaData> MakeLagMetaData();
 } // namespace epoch_metadata::transforms
 
 namespace YAML {
