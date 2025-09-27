@@ -3,7 +3,6 @@ target_sources(epoch_metadata_test PRIVATE
         registrations_test.cpp
         tearsheet_output.cpp
         transform_test_all.cpp
-        transform_tester.cpp
         transform_tester_base.cpp
         transforms_metadata_test.cpp)
 

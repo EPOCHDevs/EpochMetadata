@@ -177,70 +177,96 @@ private:
             for (auto& testCase : testCases) {
                 SECTION(testCase.title) {
                     // Convert input Table to DataFrame with timestamp and index support
-                    epoch_frame::DataFrame inputDf = CatchTransformTester::tableToDataFrame(testCase.input,
-                                                                                           testCase.timestamp_columns,
-                                                                                           testCase.index_column);
+                    epoch_frame::DataFrame inputDf = CatchTransformTester::tableToDataFrame(
+                        testCase.input, testCase.timestamp_columns, testCase.index_column);
 
                     INFO("Test: " << testCase.title);
                     INFO("Input DataFrame:\n" << inputDf);
-
-                    // Log options
                     INFO(formatOptions(testCase.options));
 
-                    // Check if this is a tearsheet test (report)
-                    bool isTearsheetTest = testCase.expect && testCase.expect->getType() == "tearsheet";
-
-                    if (isTearsheetTest) {
-                        INFO("Running tearsheet test (report)");
-                        // Run report generation instead of transform
-                        std::unique_ptr<TearsheetOutput> actualOutput;
-                        try {
-                            actualOutput = runReportWithConfig(inputDf, testCase.options);
-                        } catch (const std::exception& e) {
-                            FAIL("Report generation failed: " << e.what());
-                            return;
-                        }
-
-                        INFO("Generated tearsheet output");
-
-                        // Compare with expected tearsheet output
-                        if (testCase.expect) {
-                            INFO("Expected:\n" << testCase.expect->toString());
-                            INFO("Actual:\n" << actualOutput->toString());
-
-                            REQUIRE(actualOutput->equals(*testCase.expect));
-                        } else {
-                            REQUIRE(actualOutput == nullptr);
-                        }
-                    } else {
-                        INFO("Running transform test (DataFrame)");
-                        // Run normal transform
-                        epoch_frame::DataFrame outputDf;
-                        try {
-                            outputDf = transformAdapter(inputDf, testCase.options);
-                        } catch (const std::exception& e) {
-                            FAIL("Transform failed: " << e.what());
-                            return;
-                        }
-
-                        INFO("Output DataFrame:\n" << outputDf);
-
-                        // Convert output to Table for comparison
-                        Table outputTable = CatchTransformTester::dataFrameToTable(outputDf);
-                        auto actualOutput = std::make_unique<DataFrameOutput>(outputTable);
-
-                        // Compare with expected output
-                        if (testCase.expect) {
-                            INFO("Expected:\n" << testCase.expect->toString());
-                            INFO("Actual:\n" << actualOutput->toString());
-
-                             REQUIRE(actualOutput->equals(*testCase.expect));
-                        } else {
-                            REQUIRE(outputTable.empty());
-                        }
-                    }
+                    // Unified runner that handles both transforms and reports
+                    runUnifiedTest(inputDf, testCase, transformAdapter);
                 }
             }
+        }
+    }
+
+    /**
+     * Unified test runner that handles both transforms and reports
+     */
+    static void runUnifiedTest(
+        const epoch_frame::DataFrame& inputDf,
+        DataFrameTransformTester::TestCaseType& testCase,
+        std::function<epoch_frame::DataFrame(const epoch_frame::DataFrame&, const Options&)> transformAdapter) {
+
+        // Determine test type based on expected output
+        bool isReportTest = testCase.expect && testCase.expect->getType() == "tearsheet";
+
+        if (isReportTest) {
+            INFO("Running report test (tearsheet output)");
+            runReportTest(inputDf, testCase);
+        } else {
+            INFO("Running transform test (DataFrame output)");
+            runTransformTest(inputDf, testCase, transformAdapter);
+        }
+    }
+
+    /**
+     * Run a report test that expects tearsheet output
+     */
+    static void runReportTest(
+        const epoch_frame::DataFrame& inputDf,
+        DataFrameTransformTester::TestCaseType& testCase) {
+
+        std::unique_ptr<TearsheetOutput> actualOutput;
+        try {
+            actualOutput = runReportWithConfig(inputDf, testCase.options);
+        } catch (const std::exception& e) {
+            FAIL("Report generation failed: " << e.what());
+            return;
+        }
+
+        INFO("Generated tearsheet output");
+
+        // Compare with expected tearsheet output
+        if (testCase.expect) {
+            INFO("Expected:\n" << testCase.expect->toString());
+            INFO("Actual:\n" << actualOutput->toString());
+            REQUIRE(actualOutput->equals(*testCase.expect));
+        } else {
+            REQUIRE(actualOutput == nullptr);
+        }
+    }
+
+    /**
+     * Run a transform test that expects DataFrame output
+     */
+    static void runTransformTest(
+        const epoch_frame::DataFrame& inputDf,
+        DataFrameTransformTester::TestCaseType& testCase,
+        std::function<epoch_frame::DataFrame(const epoch_frame::DataFrame&, const Options&)> transformAdapter) {
+
+        epoch_frame::DataFrame outputDf;
+        try {
+            outputDf = transformAdapter(inputDf, testCase.options);
+        } catch (const std::exception& e) {
+            FAIL("Transform failed: " << e.what());
+            return;
+        }
+
+        INFO("Output DataFrame:\n" << outputDf);
+
+        // Convert output to Table for comparison
+        Table outputTable = CatchTransformTester::dataFrameToTable(outputDf);
+        auto actualOutput = std::make_unique<DataFrameOutput>(outputTable);
+
+        // Compare with expected output
+        if (testCase.expect) {
+            INFO("Expected:\n" << testCase.expect->toString());
+            INFO("Actual:\n" << actualOutput->toString());
+            REQUIRE(actualOutput->equals(*testCase.expect));
+        } else {
+            REQUIRE(outputTable.empty());
         }
     }
 
@@ -343,32 +369,18 @@ private:
     }
 
     /**
-     * Generic report runner using transform registry for reports
-     * Reports are treated as special transforms that output tearsheets
+     * Unified runner for reports - reports are transforms that implement IReporter
      */
     static std::unique_ptr<TearsheetOutput> runReportWithConfig(const epoch_frame::DataFrame& input,
                                                                const Options& options) {
-        // Build TransformDefinition from options (reports use same pattern as transforms)
-        TransformDefinition definition = buildTransformDefinition(options, input);
+        // Create transform instance using the unified registry approach
+        auto transformPtr = createTransformFromOptions(options, input);
 
-        // Create TransformConfiguration from definition
-        TransformConfiguration config(std::move(definition));
-
-        // Create transform using registry (reports should be registered as transforms)
-        auto transformPtr = TransformRegistry::GetInstance().Get(config);
-        if (!transformPtr) {
-            std::string transformName;
-            auto nameIt = options.find("transform_name");
-            if (nameIt != options.end() && std::holds_alternative<std::string>(nameIt->second)) {
-                transformName = std::get<std::string>(nameIt->second);
-            }
-            throw std::runtime_error("Failed to create report transform: " + transformName);
-        }
-
-        // Check if this transform implements IReporter interface (which extends ITransform)
+        // Cast to IReporter to access tearsheet functionality
         auto reporter = dynamic_cast<epoch_metadata::reports::IReporter*>(transformPtr.get());
         if (!reporter) {
-            throw std::runtime_error("Transform does not implement IReporter interface");
+            std::string transformName = getTransformName(options);
+            throw std::runtime_error("Transform '" + transformName + "' does not implement IReporter interface");
         }
 
         // Run the report transform to generate the dashboard
@@ -377,10 +389,8 @@ private:
         // Extract the generated tearsheet from the reporter
         epoch_proto::TearSheet protoTearsheet = reporter->GetTearSheet();
 
-        // Create empty TearsheetOutput for comparison - we'll compare against the protobuf directly
+        // Create TearsheetOutput for comparison
         auto tearsheet = std::make_unique<TearsheetOutput>();
-
-        // Store the protobuf for comparison
         tearsheet->protoTearsheet = protoTearsheet;
 
         return tearsheet;
@@ -449,11 +459,29 @@ private:
     }
 
     /**
-     * Generic transform runner using TransformConfiguration
-     * This is the same logic as in the original transform_test_all.cpp
+     * Unified transform runner using TransformConfiguration
      */
     static epoch_frame::DataFrame runTransformWithConfig(const epoch_frame::DataFrame& input,
                                                         const Options& options) {
+        // Create transform instance using the unified registry approach
+        auto transformPtr = createTransformFromOptions(options, input);
+
+        // Cast to ITransform (all transforms should implement this)
+        auto transform = dynamic_cast<ITransform*>(transformPtr.get());
+        if (!transform) {
+            std::string transformName = getTransformName(options);
+            throw std::runtime_error("Transform '" + transformName + "' does not implement ITransform interface");
+        }
+
+        // Run the transform
+        return transform->TransformData(input);
+    }
+
+    /**
+     * Helper to create transform from options using the registry
+     */
+    static std::unique_ptr<ITransformBase> createTransformFromOptions(const Options& options,
+                                                                      const epoch_frame::DataFrame& input) {
         // Build TransformDefinition from options
         TransformDefinition definition = buildTransformDefinition(options, input);
 
@@ -463,22 +491,22 @@ private:
         // Create transform using registry
         auto transformPtr = TransformRegistry::GetInstance().Get(config);
         if (!transformPtr) {
-            std::string transformName;
-            auto nameIt = options.find("transform_name");
-            if (nameIt != options.end() && std::holds_alternative<std::string>(nameIt->second)) {
-                transformName = std::get<std::string>(nameIt->second);
-            }
+            std::string transformName = getTransformName(options);
             throw std::runtime_error("Failed to create transform: " + transformName);
         }
 
-        // Cast to ITransform to call TransformData
-        auto transform = dynamic_cast<ITransform*>(transformPtr.get());
-        if (!transform) {
-            throw std::runtime_error("Transform does not implement ITransform interface");
-        }
+        return transformPtr;
+    }
 
-        // Run the transform
-        return transform->TransformData(input);
+    /**
+     * Helper to extract transform name from options
+     */
+    static std::string getTransformName(const Options& options) {
+        auto nameIt = options.find("transform_name");
+        if (nameIt != options.end() && std::holds_alternative<std::string>(nameIt->second)) {
+            return std::get<std::string>(nameIt->second);
+        }
+        return "unknown";
     }
 };
 
