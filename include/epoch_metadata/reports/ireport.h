@@ -20,8 +20,9 @@ namespace epoch_metadata::reports {
 // Following the TradeExecutorTransform pattern for column mapping
 class IReporter : public epoch_metadata::transform::ITransform {
 public:
-  explicit IReporter(epoch_metadata::transform::TransformConfiguration config)
+  explicit IReporter(epoch_metadata::transform::TransformConfiguration config, bool skipRename=false)
       : ITransform(std::move(config)) {
+    if (!skipRename)
     // Build column mapping from inputs like TradeExecutor does
     // Map {transform_id}#result columns to expected names
     BuildColumnMappings();
@@ -48,7 +49,7 @@ public:
 
     // 2. Rename columns to canonical names (e.g., "gap_classifier#result" -> "gap")
     // This follows TradeExecutorTransform pattern
-    auto normalizedDf = df[inputColumns].rename(m_columnMappings);
+    auto normalizedDf = m_columnMappings.empty() ? df[inputColumns] : df[inputColumns].rename(m_columnMappings);
 
     // 3. Child classes implement generateDashboard() to fill m_dashboard
     generateDashboard(normalizedDf);
@@ -83,10 +84,8 @@ protected:
     // Map input columns like "gap_classifier#result" to expected names like "gap"
     const auto inputs = m_config.GetInputs();
     for (const auto& [inputId, inputColumns] : inputs) {
-      if (!inputColumns.empty()) {
-        // Map actual column name to expected name
-        // e.g., "gap_classifier#result" -> "gap"
-        m_columnMappings[inputColumns.front()] = inputId;
+      for (auto const& column: inputColumns) {
+      m_columnMappings.emplace(column, inputId);
       }
     }
 

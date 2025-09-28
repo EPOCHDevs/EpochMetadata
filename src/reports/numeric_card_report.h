@@ -6,16 +6,20 @@
 // Numeric-specific Arrow aggregate functions
 CREATE_ENUM(NumericArrowAggregateFunction,
   approximate_median,  // approximate_median
-  count,               // count
   count_all,           // count_all
   count_distinct,      // count_distinct
+  first_last,          // first_last (returns struct)
+  kurtosis,            // kurtosis
   max,                 // max
   mean,                // mean
   min,                 // min
+  min_max,             // min_max (returns struct)
+  mode,                // mode (returns struct)
   product,             // product
-  quantile,            // quantile
+  skew,                // skew
   stddev,              // stddev
   sum,                 // sum
+  tdigest,             // tdigest
   variance             // variance
 );
 
@@ -48,16 +52,20 @@ template <> struct ReportMetadata<NumericCardReport> {
          .isRequired = false,
          .selectOption = {
                           {"Approximate Median", "approximate_median"},
-                          {"Count", "count"},
                           {"Count All", "count_all"},
                           {"Count Distinct", "count_distinct"},
+                          {"First Last", "first_last"},
+                          {"Kurtosis", "kurtosis"},
                           {"Max", "max"},
                           {"Mean", "mean"},
                           {"Min", "min"},
+                          {"Min Max", "min_max"},
+                          {"Mode", "mode"},
                           {"Product", "product"},
-                          {"Quantile", "quantile"},
+                          {"Skew", "skew"},
                           {"StdDev", "stddev"},
                           {"Sum", "sum"},
+                          {"TDigest", "tdigest"},
                           {"Variance", "variance"}
                         },
          .desc = "Numeric aggregate function to apply to the input series"},
@@ -89,7 +97,7 @@ template <> struct ReportMetadata<NumericCardReport> {
       .isCrossSectional = false,
       .desc = "Generate a single summary card by applying a numeric Arrow aggregate function to the input column.",
       .inputs = {
-        {epoch_core::IODataType::Number, epoch_metadata::ARG}
+        {epoch_core::IODataType::Number, ARG}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,

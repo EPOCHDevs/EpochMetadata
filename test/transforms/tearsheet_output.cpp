@@ -100,6 +100,23 @@ static Value parseTableValue(const YAML::Node& node, const std::string& colType)
     } else if (colType == "boolean") {
         return Value(node.as<bool>());
     } else {
+        // For strings, handle timestamps that YAML might have parsed
+        // Check if this node has a tag indicating it's a timestamp
+        if (!node.Tag().empty() && node.Tag() == "tag:yaml.org,2002:timestamp") {
+            // YAML parsed this as a timestamp, we need to reconstruct it
+            // The Scalar() method should give us something, but YAML has already parsed it
+            std::string scalar = node.Scalar();
+
+            // If we only got a year (like "2023"), this is the YAML timestamp parsing issue
+            // Unfortunately, we can't recover the original string once YAML has parsed it
+            // The best we can do is return what we have
+            return Value(scalar);
+        }
+
+        // Regular string handling
+        if (node.IsScalar()) {
+            return Value(node.Scalar());
+        }
         return Value(node.as<std::string>());
     }
 }

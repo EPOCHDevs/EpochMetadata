@@ -29,8 +29,10 @@
 #include "reports/numeric_card_report.h"
 #include "reports/boolean_card_report.h"
 #include "reports/any_card_report.h"
+#include "reports/index_card_report.h"
+#include "reports/quantile_card_report.h"
 #include "reports/gap_report.h"
-// #include "reports/table_report.h"
+#include "reports/table_report.h"
 
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
@@ -206,14 +208,6 @@ void InitializeTransforms(
   // Statistics Transforms
   REGISTER_TRANSFORM(hmm, HMMTransform);
 
-  // Report Transforms (implements IReporter interface)
-  REGISTER_TRANSFORM(numeric_card_report, reports::NumericCardReport);
-  REGISTER_TRANSFORM(boolean_card_report, reports::BooleanCardReport);
-  REGISTER_TRANSFORM(any_card_report, reports::AnyCardReport);
-  REGISTER_TRANSFORM(gap_report, reports::GapReport);
-  // Legacy cards_report name - maps to any_card_report
-  REGISTER_TRANSFORM(cards_report, reports::AnyCardReport);
-
   // SQL Query Transforms
   // REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
   // REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
@@ -230,7 +224,9 @@ void InitializeTransforms(
   reports::RegisterReport<reports::NumericCardReport>();
   reports::RegisterReport<reports::BooleanCardReport>();
   reports::RegisterReport<reports::AnyCardReport>();
-  // reports::RegisterReport<reports::TableReport>();
+  reports::RegisterReport<reports::IndexCardReport>();
+  reports::RegisterReport<reports::QuantileCardReport>();
+  reports::RegisterReport<reports::TableReport>();
 
   reports::RegisterReport<reports::GapReport>();
 

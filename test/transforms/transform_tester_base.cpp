@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <fstream>
 
 namespace epoch {
 namespace test {
@@ -148,7 +149,19 @@ TransformTesterBase<InputType>::loadTestsFromYAML(const std::string& filePath) {
     std::vector<TestCaseType> testCases;
 
     try {
-        YAML::Node root = YAML::LoadFile(filePath);
+        // Read file content first
+        std::ifstream file(filePath);
+        if (!file.is_open()) {
+            throw std::runtime_error("Cannot open file: " + filePath);
+        }
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string content = buffer.str();
+        file.close();
+
+        // Load from string instead of file
+        // This gives us the same behavior, but we could preprocess if needed
+        YAML::Node root = YAML::Load(content);
 
         if (!root["tests"]) {
             throw std::runtime_error("YAML file must have a 'tests' root node");

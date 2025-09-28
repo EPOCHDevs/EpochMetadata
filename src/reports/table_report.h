@@ -1,16 +1,22 @@
 #pragma once
 
 #include <epoch_metadata/reports/ireport.h>
-#include <epoch_dashboard/tearsheet/table_builder.h>
-#include <epoch_dashboard/tearsheet/dataframe_converter.h>
 #include <epoch_frame/dataframe.h>
+#include <epoch_frame/scalar.h>
+#include <arrow/api.h>
 
 namespace epoch_metadata::reports {
 
 class TableReport : public IReporter {
 public:
   explicit TableReport(epoch_metadata::transform::TransformConfiguration config)
-      : IReporter(std::move(config)) {}
+      : IReporter(std::move(config), true),
+        m_sqlQuery(GetSQLQuery()),
+        m_tableName(GetTableName()),
+        m_tableTitle(GetTableTitle()),
+        m_addIndex(GetAddIndex()),
+        m_indexColumnName(GetIndexColumnName()) {
+  }
 
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
@@ -21,22 +27,28 @@ protected:
   }
 
 private:
-  // Helper methods
+  // Cached configuration values
+  const std::string m_sqlQuery;
+  const std::string m_tableName;
+  const std::string m_tableTitle;
+  const bool m_addIndex;
+  const std::string m_indexColumnName;
+
+  // Configuration getters
   std::string GetSQLQuery() const;
-  std::string GetTitle() const;
-  std::string GetCategory() const;
-  uint32_t GetMaxRows() const;
-  bool GetShowIndex() const;
-  std::vector<std::string> GetSelectedColumns() const;
-  epoch_proto::EpochFolioDashboardWidget GetWidgetType() const;
+  std::string GetTableName() const;
+  bool GetAddIndex() const;
+  std::string GetIndexColumnName() const;
+  std::string GetTableTitle() const;
 
-  epoch_frame::DataFrame ExecuteSQL(const epoch_frame::DataFrame& df) const;
-
-  epoch_proto::Table BuildTableFromDataFrame(
-      const epoch_frame::DataFrame& result) const;
+  // Helper methods
+  epoch_frame::DataFrame PrepareInputDataFrame(const epoch_frame::DataFrame& df,
+                                               bool addIndex,
+                                               const std::string& indexColName) const;
+  epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) const;
 };
 
-// Template specialization for TableReport metadata
+// Metadata specialization for TableReport
 template <> struct ReportMetadata<TableReport> {
   constexpr static const char *kReportId = "table_report";
 
@@ -50,99 +62,43 @@ template <> struct ReportMetadata<TableReport> {
         {.id = "sql",
          .name = "SQL Query",
          .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{
-           "SELECT * FROM input0 LIMIT 100"},
          .isRequired = true,
-         .desc = "SQL query to generate table data. The result will be "
-                 "displayed as a formatted table in the report."},
+         .desc = "SQL query to execute on the input DataFrame"},
+        {.id = "table_name",
+         .name = "Table Name",
+         .type = epoch_core::MetaDataOptionType::String,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
+         .isRequired = false,
+         .desc = "Name to use for the input table in SQL query"},
         {.id = "title",
          .name = "Table Title",
          .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"Results"},
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"SQL Query Result"},
          .isRequired = false,
-         .desc = "Title displayed above the table"},
-        {.id = "category",
-         .name = "Category",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"Data"},
-         .isRequired = false,
-         .desc = "Category name for grouping tables in the report"},
-        {.id = "max_rows",
-         .name = "Maximum Rows",
-         .type = epoch_core::MetaDataOptionType::Integer,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{100.0},
-         .isRequired = false,
-         .min = 1,
-         .max = 10000,
-         .desc = "Maximum number of rows to display in the table"},
-        {.id = "show_index",
-         .name = "Show Index",
+         .desc = "Title for the generated table"},
+        {.id = "add_index",
+         .name = "Add Index",
          .type = epoch_core::MetaDataOptionType::Boolean,
          .defaultValue = epoch_metadata::MetaDataOptionDefinition{false},
          .isRequired = false,
-         .desc = "Include the DataFrame index as the first column"},
-        {.id = "selected_columns",
-         .name = "Selected Columns",
-         .type = epoch_core::MetaDataOptionType::StringList,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{},
-         .isRequired = false,
-         .desc = "List of column names to include in the table. "
-                 "If empty, all columns are included."},
-        {.id = "widget_type",
-         .name = "Widget Type",
+         .desc = "Add DataFrame index as a queryable column"},
+        {.id = "index_column_name",
+         .name = "Index Column Name",
          .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"TABLE"},
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"row_index"},
          .isRequired = false,
-         .desc = "Dashboard widget type (TABLE, GRID, etc.)"},
-        {.id = "column_types",
-         .name = "Column Types",
-         .type = epoch_core::MetaDataOptionType::StringList,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{},
-         .isRequired = false,
-         .desc = "List of column type hints for formatting (DECIMAL, INTEGER, STRING, etc.)"},
-        {.id = "decimal_places",
-         .name = "Decimal Places",
-         .type = epoch_core::MetaDataOptionType::Integer,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{4.0},
-         .isRequired = false,
-         .min = 0,
-         .max = 10,
-         .desc = "Number of decimal places for numeric columns"},
-        {.id = "format_numbers",
-         .name = "Format Numbers",
-         .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
-         .isRequired = false,
-         .desc = "Apply number formatting (thousands separators, etc.)"},
-        {.id = "highlight_negative",
-         .name = "Highlight Negative",
-         .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{false},
-         .isRequired = false,
-         .desc = "Highlight negative values in red"},
-        {.id = "sort_column",
-         .name = "Sort Column",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{""},
-         .isRequired = false,
-         .desc = "Column name to sort by (optional)"},
-        {.id = "sort_ascending",
-         .name = "Sort Ascending",
-         .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
-         .isRequired = false,
-         .desc = "Sort in ascending order (false for descending)"}
+         .desc = "Name for the index column when add_index is true"}
       },
       .isCrossSectional = false,
-      .desc = "Generate table visualizations from SQL query results. "
-              "Executes SQL on input data and creates formatted tables for report display. "
-              "Supports column selection, sorting, formatting, and row limits.",
-      .inputs = {},  // Variadic inputs
+      .desc = "Execute SQL query on input DataFrame and generate table output for tearsheet visualization",
+      .inputs = {
+        {epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}
+      },
       .outputs = {},  // Report outputs via TearSheet
-      .atLeastOneInputRequired = false,
-      .tags = {"report", "table", "dashboard", "sql", "visualization"},
+      .atLeastOneInputRequired = true,
+      .tags = {"report", "table", "sql", "query"},
       .requiresTimeFrame = false,
-      .allowNullInputs = true,
+      .allowNullInputs = false,
       .isReporter = true
     };
   }

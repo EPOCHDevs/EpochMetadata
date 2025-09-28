@@ -6,9 +6,7 @@
 // Any-type Arrow aggregate functions
 CREATE_ENUM(AnyArrowAggregateFunction,
   first,               // first
-  last,                // last
-  mode,                // mode
-  skew                 // skew
+  last                 // last
 );
 
 namespace epoch_metadata::reports {
@@ -40,9 +38,7 @@ template <> struct ReportMetadata<AnyCardReport> {
          .isRequired = false,
          .selectOption = {
                           {"First", "first"},
-                          {"Last", "last"},
-                          {"Mode", "mode"},
-                          {"Skew", "skew"}
+                          {"Last", "last"}
                         },
          .desc = "Generic aggregate function to apply to the input series"},
         {.id = "category",

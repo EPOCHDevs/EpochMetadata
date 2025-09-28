@@ -4,6 +4,8 @@
 #include <epoch_dashboard/tearsheet/card_builder.h>
 #include <epoch_dashboard/tearsheet/scalar_converter.h>
 #include <epoch_frame/dataframe.h>
+#include <epoch_frame/series_or_scalar.h>
+#include <epoch_frame/scalar.h>
 
 namespace epoch_metadata::reports {
 

@@ -4,5 +4,7 @@ target_sources(epoch_metadata PRIVATE
         numeric_card_report.cpp
         boolean_card_report.cpp
         any_card_report.cpp
-#        table_report.cpp
+        index_card_report.cpp
+        quantile_card_report.cpp
+        table_report.cpp
 )

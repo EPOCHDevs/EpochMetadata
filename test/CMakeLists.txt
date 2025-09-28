@@ -4,7 +4,6 @@ target_include_directories(epoch_metadata_test PRIVATE ../src . )
 
 add_subdirectory(strategy)
 add_subdirectory(transforms)
-# add_subdirectory(reports) # Reports are now integrated into transforms
 
 set(METADATA_FILES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

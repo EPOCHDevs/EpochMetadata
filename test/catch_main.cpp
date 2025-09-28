@@ -8,8 +8,14 @@
 #include "epoch_metadata/transforms/registration.h"
 #include <arrow/compute/initialize.h>
 #include <iostream>
+#include <google/protobuf/stubs/common.h>
+#include "absl/log/initialize.h"
+
 
 int main(int argc, char *argv[]) {
+    absl::InitializeLog();                    // optional, just to route logs
+    GOOGLE_PROTOBUF_VERIFY_VERSION;           // checks basic version compat
+
   auto arrowComputeStatus = arrow::compute::Initialize();
   if (!arrowComputeStatus.ok()) {
     std::stringstream errorMsg;
@@ -35,6 +41,7 @@ int main(int argc, char *argv[]) {
   int result = Catch::Session().run(argc, argv);
 
   // your clean-up...
+    google::protobuf::ShutdownProtobufLibrary();
 
   return result;
 }
