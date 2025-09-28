@@ -1,0 +1,89 @@
+{
+  "tests": [
+    {
+      "title": "Lines Chart Report with SQL Aggregation",
+      "input": {
+        "strategy#returns": [
+          0.05,
+          -0.02,
+          0.03,
+          0.08,
+          -0.01,
+          0.04,
+          0.02
+        ],
+        "risk_model#volatility": [
+          0.15,
+          0.15,
+          0.2,
+          0.2,
+          0.18,
+          0.18,
+          0.22
+        ],
+        "sector": [
+          "tech",
+          "finance",
+          "tech",
+          "finance",
+          "energy",
+          "energy",
+          "tech"
+        ],
+        "time_period": [
+          1.0,
+          1.0,
+          2.0,
+          2.0,
+          3.0,
+          3.0,
+          4.0
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "charts": [
+          {
+            "title": "Average Returns by Time Period",
+            "category": "Charts",
+            "type": "WidgetLinesChart",
+            "x_axis": {
+              "data": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ],
+              "type": "TypeDecimal"
+            },
+            "lines": [
+              {
+                "name": "avg_return",
+                "data": [
+                  0.015,
+                  0.055,
+                  0.015,
+                  0.02
+                ],
+                "type": "TypeDecimal"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "lines_chart_report",
+        "sql": "SELECT time_period as x_axis, AVG(strategy_returns) as avg_return FROM input GROUP BY time_period ORDER BY time_period",
+        "table_name": "input",
+        "title": "Average Returns by Time Period",
+        "x_axis_column": "x_axis",
+        "y_value_column": "avg_return",
+        "x_axis_title": "Time Period",
+        "y_axis_title": "Average Return",
+        "output_id": "test_agg_lines_chart",
+        "inputs": "{SLOT: [strategy#returns, risk_model#volatility, sector, time_period]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}

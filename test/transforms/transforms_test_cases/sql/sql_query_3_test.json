@@ -1,0 +1,148 @@
+{
+  "tests": [
+    {
+      "title": "SQL Query 3 - Bollinger Bands components",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00",
+          "2024-01-01T09:34:00",
+          "2024-01-01T09:35:00"
+        ],
+        "price_data#c": [100.0, 101.0, 99.0, 102.0, 101.0, 100.0],
+        "price_data#v": [150000.0, 80000.0, 200000.0, 120000.0, 90000.0, 110000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "bollinger_bands#output0": [100.0, 100.5, 100.0, 100.6667, 100.6667, 101.0],
+          "bollinger_bands#output1": [100.0, 101.5, 101.6330, 103.1611, 103.1611, 102.6330],
+          "bollinger_bands#output2": [100.0, 99.5, 98.3670, 98.1722, 98.1722, 99.3670]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_3",
+        "sql": "SELECT timestamp, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as output0, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) + 2 * COALESCE(STDDEV_POP(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output1, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - 2 * COALESCE(STDDEV_POP(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output2 FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "bollinger_bands",
+        "inputs": "{SLOT: [timestamp, price_data#c, price_data#v]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 3 - RSI components calculation",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00",
+          "2024-01-01T09:34:00"
+        ],
+        "market_feed#o": [100.0, 101.0, 99.5, 102.0, 101.5],
+        "market_feed#c": [100.0, 101.0, 99.5, 102.0, 101.5],
+        "market_feed#v": [100000.0, 150000.0, 200000.0, 80000.0, 120000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "rsi_components#output0": [0.0, 1.0, 0.0, 2.5, 0.0],
+          "rsi_components#output1": [0.0, 0.0, 1.5, 0.0, 0.5],
+          "rsi_components#output2": [0.0, 1.0, -1.5, 2.5, -0.5]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_3",
+        "sql": "SELECT timestamp, GREATEST(0, COALESCE(market_feed_c - LAG(market_feed_c, 1) OVER (ORDER BY timestamp), 0)) as output0, GREATEST(0, COALESCE(LAG(market_feed_c, 1) OVER (ORDER BY timestamp) - market_feed_c, 0)) as output1, COALESCE(market_feed_c - LAG(market_feed_c, 1) OVER (ORDER BY timestamp), 0) as output2 FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "rsi_components",
+        "inputs": "{SLOT: [timestamp, market_feed#o, market_feed#c, market_feed#v]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 3 - Market microstructure metrics",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00"
+        ],
+        "quote_stream#bid": [99.98, 100.98, 99.48, 101.98],
+        "quote_stream#ask": [100.02, 101.02, 99.52, 102.02],
+        "quote_stream#bid_size": [1000.0, 1500.0, 2000.0, 800.0],
+        "quote_stream#ask_size": [1200.0, 1100.0, 1800.0, 1000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "microstructure#output0": [100.0, 101.0, 99.5, 102.0],
+          "microstructure#output1": [0.04, 0.04, 0.04, 0.04],
+          "microstructure#output2": [-0.091, 0.154, 0.053, -0.111]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_3",
+        "sql": "SELECT timestamp, (quote_stream_bid + quote_stream_ask) / 2 as output0, quote_stream_ask - quote_stream_bid as output1, ROUND((quote_stream_bid_size - quote_stream_ask_size) / (quote_stream_bid_size + quote_stream_ask_size), 3) as output2 FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "microstructure",
+        "inputs": "{SLOT: [timestamp, quote_stream#bid, quote_stream#ask, quote_stream#bid_size, quote_stream#ask_size]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 3 - Pivot points calculation",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00"
+        ],
+        "ohlc_data#h": [101.0, 101.5, 100.2, 102.5],
+        "ohlc_data#l": [99.5, 100.5, 99.0, 101.5],
+        "ohlc_data#c": [100.5, 101.2, 99.8, 102.3],
+        "ohlc_data#v": [150000.0, 120000.0, 180000.0, 100000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "pivot_points#output0": [100.33, 101.07, 99.67, 102.1],
+          "pivot_points#output1": [101.17, 101.63, 100.33, 102.7],
+          "pivot_points#output2": [99.67, 100.63, 99.13, 101.7]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_3",
+        "sql": "SELECT timestamp, ROUND((ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3, 2) as output0, ROUND(2 * (ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3 - ohlc_data_l, 2) as output1, ROUND(2 * (ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3 - ohlc_data_h, 2) as output2 FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "pivot_points",
+        "inputs": "{SLOT: [timestamp, ohlc_data#h, ohlc_data#l, ohlc_data#c, ohlc_data#v]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    }
+  ]
+}

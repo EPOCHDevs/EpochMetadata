@@ -1,0 +1,178 @@
+{
+  "tests": [
+    {
+      "title": "SQL Query 1 - Basic OHLCV timeseries query",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00",
+          "2024-01-01T09:34:00"
+        ],
+        "market_data#o": [100.0, 100.5, 101.2, 99.8, 102.3],
+        "market_data#h": [100.8, 101.5, 101.5, 100.2, 102.8],
+        "market_data#l": [99.5, 100.3, 99.8, 99.0, 101.8],
+        "market_data#c": [100.5, 101.2, 99.8, 102.3, 102.0],
+        "market_data#v": [150000.0, 80000.0, 200000.0, 120000.0, 90000.0],
+        "market_data#vw": [100.2, 101.1, 99.9, 102.1, 102.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "timestamp": [
+            "2024-01-01 09:30:00.000000000",
+            "2024-01-01 09:31:00.000000000",
+            "2024-01-01 09:32:00.000000000",
+            "2024-01-01 09:33:00.000000000",
+            "2024-01-01 09:34:00.000000000"
+          ],
+          "market_data_c": [100.5, 101.2, 99.8, 102.3, 102.0],
+          "market_data_v": [150000.0, 80000.0, 200000.0, 120000.0, 90000.0],
+          "market_data_vw": [100.2, 101.1, 99.9, 102.1, 102.0]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_1",
+        "sql": "SELECT timestamp, market_data_c, market_data_v, market_data_vw FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "ohlcv_result",
+        "inputs": "{SLOT: [timestamp, market_data#o, market_data#h, market_data#l, market_data#c, market_data#v, market_data#vw]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 1 - Filter high volume bars",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00",
+          "2024-01-01T09:34:00"
+        ],
+        "feed#o": [100.0, 100.5, 101.2, 99.8, 102.3],
+        "feed#h": [100.8, 101.5, 101.5, 100.2, 102.8],
+        "feed#l": [99.5, 100.3, 99.8, 99.0, 101.8],
+        "feed#c": [100.5, 101.2, 99.8, 102.3, 102.0],
+        "feed#v": [150000.0, 80000.0, 200000.0, 120000.0, 90000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "timestamp": [
+            "2024-01-01 09:30:00.000000000",
+            "2024-01-01 09:32:00.000000000",
+            "2024-01-01 09:33:00.000000000"
+          ],
+          "feed_c": [100.5, 99.8, 102.3],
+          "feed_v": [150000.0, 200000.0, 120000.0],
+          "range": [1.3, 1.7, 1.2]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_1",
+        "sql": "SELECT timestamp, feed_c, feed_v, feed_h - feed_l as range FROM input WHERE feed_v >= 120000",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "high_volume_bars",
+        "inputs": "{SLOT: [timestamp, feed#o, feed#h, feed#l, feed#c, feed#v]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 1 - VWAP calculation with window functions",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00"
+        ],
+        "price_feed#c": [100.0, 101.0, 99.0, 102.0],
+        "price_feed#v": [100000.0, 150000.0, 200000.0, 80000.0],
+        "price_feed#vw": [100.1, 101.0, 99.1, 102.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "timestamp": [
+            "2024-01-01 09:30:00.000000000",
+            "2024-01-01 09:31:00.000000000",
+            "2024-01-01 09:32:00.000000000",
+            "2024-01-01 09:33:00.000000000"
+          ],
+          "price_feed_c": [100.0, 101.0, 99.0, 102.0],
+          "price_feed_v": [100000.0, 150000.0, 200000.0, 80000.0],
+          "vwap": [100.0, 100.6, 99.91, 100.30],
+          "cumulative_volume": [100000.0, 250000.0, 450000.0, 530000.0]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_1",
+        "sql": "SELECT timestamp, price_feed_c, price_feed_v, ROUND(SUM(price_feed_c * price_feed_v) OVER (ORDER BY timestamp) / SUM(price_feed_v) OVER (ORDER BY timestamp), 2) as vwap, SUM(price_feed_v) OVER (ORDER BY timestamp) as cumulative_volume FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "vwap_calc",
+        "inputs": "{SLOT: [timestamp, price_feed#c, price_feed#v, price_feed#vw]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "SQL Query 1 - Moving average with momentum",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T09:31:00",
+          "2024-01-01T09:32:00",
+          "2024-01-01T09:33:00",
+          "2024-01-01T09:34:00"
+        ],
+        "ticker#c": [100.0, 101.0, 102.0, 101.5, 100.5],
+        "ticker#v": [100000.0, 120000.0, 150000.0, 90000.0, 80000.0]
+      },
+      "expect": {
+        "type": "dataframe",
+        "columns": {
+          "timestamp": [
+            "2024-01-01 09:30:00.000000000",
+            "2024-01-01 09:31:00.000000000",
+            "2024-01-01 09:32:00.000000000",
+            "2024-01-01 09:33:00.000000000",
+            "2024-01-01 09:34:00.000000000"
+          ],
+          "ticker_c": [100.0, 101.0, 102.0, 101.5, 100.5],
+          "sma_3": [100.0, 100.5, 101.0, 101.5, 101.33],
+          "momentum": [0.0, 1.0, 1.0, -0.5, -1.0],
+          "volume_ratio": [1.0, 1.2, 1.5, 0.9, 0.8]
+        }
+      },
+      "options": {
+        "transform_name": "sql_query_1",
+        "sql": "SELECT timestamp, ticker_c, ROUND(AVG(ticker_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as sma_3, COALESCE(ticker_c - LAG(ticker_c, 1) OVER (ORDER BY timestamp), 0) as momentum, ticker_v / 100000.0 as volume_ratio FROM input",
+        "table_name": "input",
+        "index_column_name": "timestamp",
+        "output_id": "ma_momentum",
+        "inputs": "{SLOT: [timestamp, ticker#c, ticker#v]}",
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    }
+  ]
+}
