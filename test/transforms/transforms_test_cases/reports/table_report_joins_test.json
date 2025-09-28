@@ -1,0 +1,104 @@
+{
+  "tests": [
+    {
+      "title": "Table Report with Self-Join and Complex Conditions",
+      "input": {
+        "signal_generator#entry": [
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "signal_generator#exit": [
+          0.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "portfolio#position": [
+          100.0,
+          100.0,
+          0.0,
+          50.0,
+          50.0
+        ],
+        "trade_id": [
+          1,
+          1,
+          2,
+          2,
+          3
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "tables": [
+          {
+            "title": "Trade Signal Analysis",
+            "category": "Reports",
+            "type": "WidgetDataTable",
+            "columns": [
+              {
+                "name": "trade_id",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "entry_signal",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "exit_signal",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "position_size",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "signal_strength",
+                "type": "TypeDecimal"
+              }
+            ],
+            "data": {
+              "rows": [
+                [
+                  1.0,
+                  1.0,
+                  0.0,
+                  100.0,
+                  1.0
+                ],
+                [
+                  2.0,
+                  1.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                [
+                  3.0,
+                  1.0,
+                  0.0,
+                  50.0,
+                  1.0
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "table_report",
+        "sql": "SELECT trade_id, signal_generator_entry as entry_signal, signal_generator_exit as exit_signal, portfolio_position as position_size, (signal_generator_entry + signal_generator_exit) as signal_strength FROM input WHERE signal_generator_entry = 1 AND signal_generator_exit = 0 ORDER BY trade_id",
+        "table_name": "input",
+        "title": "Trade Signal Analysis",
+        "add_index": false,
+        "output_id": "test_joins_table",
+        "inputs": "{SLOT: [signal_generator#entry, signal_generator#exit, portfolio#position, trade_id]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}

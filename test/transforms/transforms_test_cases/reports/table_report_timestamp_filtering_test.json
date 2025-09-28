@@ -1,0 +1,121 @@
+{
+  "tests": [
+    {
+      "title": "Table Report with Timestamp Index Filtering and Date Functions",
+      "input": {
+        "price_feed#close": [
+          100.5,
+          101.2,
+          99.8,
+          102.3,
+          101.0,
+          98.5,
+          103.7
+        ],
+        "volume_tracker#daily": [
+          15000.0,
+          12000.0,
+          18000.0,
+          14000.0,
+          16000.0,
+          20000.0,
+          11000.0
+        ],
+        "timestamp": [
+          "2023-01-01T09:30:00",
+          "2023-01-01T10:30:00",
+          "2023-01-01T11:30:00",
+          "2023-01-01T14:30:00",
+          "2023-01-01T15:30:00",
+          "2023-01-02T09:30:00",
+          "2023-01-02T10:30:00"
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "cards": {
+          "cards": []
+        },
+        "tables": [
+          {
+            "title": "Morning Trading Session Analysis",
+            "category": "Reports",
+            "type": "WidgetDataTable",
+            "columns": [
+              {
+                "name": "timestamp",
+                "type": "TypeString"
+              },
+              {
+                "name": "price_feed_close",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "volume_tracker_daily",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "hour",
+                "type": "TypeInteger"
+              },
+              {
+                "name": "vwap",
+                "type": "TypeDecimal"
+              }
+            ],
+            "data": {
+              "rows": [
+                [
+                  "2023-01-01T09:30:00",
+                  100.5,
+                  15000.0,
+                  9,
+                  0.0067
+                ],
+                [
+                  "2023-01-01T10:30:00",
+                  101.2,
+                  12000.0,
+                  10,
+                  0.008433333333
+                ],
+                [
+                  "2023-01-01T11:30:00",
+                  99.8,
+                  18000.0,
+                  11,
+                  0.005544444444
+                ],
+                [
+                  "2023-01-02T09:30:00",
+                  98.5,
+                  20000.0,
+                  9,
+                  0.004925
+                ],
+                [
+                  "2023-01-02T10:30:00",
+                  103.7,
+                  11000.0,
+                  10,
+                  0.009427272727
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "table_report",
+        "sql": "SELECT timestamp, price_feed_close, volume_tracker_daily, CAST(SUBSTR(timestamp, 12, 2) AS INTEGER) as hour, price_feed_close / volume_tracker_daily as vwap FROM input WHERE CAST(SUBSTR(timestamp, 12, 2) AS INTEGER) <= 11 ORDER BY timestamp",
+        "table_name": "input",
+        "title": "Morning Trading Session Analysis",
+        "add_index": true,
+        "index_column_name": "timestamp",
+        "output_id": "test_timestamp_filter_table",
+        "inputs": "{SLOT: [price_feed#close, volume_tracker#daily, timestamp]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}

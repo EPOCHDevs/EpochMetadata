@@ -1,0 +1,107 @@
+{
+  "tests": [
+    {
+      "title": "Table Report with GROUP BY and Aggregation Functions",
+      "input": {
+        "strategy#returns": [
+          0.05,
+          -0.02,
+          0.03,
+          0.08,
+          -0.01,
+          0.04,
+          0.02
+        ],
+        "risk_model#volatility": [
+          0.15,
+          0.15,
+          0.2,
+          0.2,
+          0.18,
+          0.18,
+          0.22
+        ],
+        "sector": [
+          "tech",
+          "finance",
+          "tech",
+          "finance",
+          "energy",
+          "energy",
+          "tech"
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "cards": {
+          "cards": []
+        },
+        "tables": [
+          {
+            "title": "Sector Performance Summary",
+            "category": "Reports",
+            "type": "WidgetDataTable",
+            "columns": [
+              {
+                "name": "sector",
+                "type": "TypeString"
+              },
+              {
+                "name": "avg_return",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "avg_volatility",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "count",
+                "type": "TypeInteger"
+              },
+              {
+                "name": "sharpe_estimate",
+                "type": "TypeDecimal"
+              }
+            ],
+            "data": {
+              "rows": [
+                [
+                  "tech",
+                  0.033333333333333,
+                  0.19,
+                  3.0,
+                  0.175438596491228
+                ],
+                [
+                  "finance",
+                  0.03,
+                  0.175,
+                  2.0,
+                  0.171428571428571
+                ],
+                [
+                  "energy",
+                  0.015,
+                  0.18,
+                  2.0,
+                  0.083333333333333
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "table_report",
+        "sql": "SELECT sector, AVG(strategy_returns) as avg_return, AVG(risk_model_volatility) as avg_volatility, COUNT(*) as count, AVG(strategy_returns) / AVG(risk_model_volatility) as sharpe_estimate FROM input GROUP BY sector ORDER BY avg_return DESC",
+        "table_name": "input",
+        "title": "Sector Performance Summary",
+        "add_index": false,
+        "index_column_name": "row_index",
+        "output_id": "test_agg_table",
+        "inputs": "{SLOT: [strategy#returns, risk_model#volatility, sector]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}

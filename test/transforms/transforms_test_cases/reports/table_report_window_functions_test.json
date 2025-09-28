@@ -1,0 +1,135 @@
+{
+  "tests": [
+    {
+      "title": "Table Report with Window Functions and Complex Analytics",
+      "input": {
+        "price_model#forecast": [
+          100.0,
+          102.0,
+          98.0,
+          105.0,
+          103.0,
+          99.0,
+          107.0
+        ],
+        "momentum_indicator#score": [
+          0.5,
+          0.7,
+          0.3,
+          0.9,
+          0.6,
+          0.4,
+          0.8
+        ],
+        "timestamp": [
+          "2023-01-01",
+          "2023-01-02",
+          "2023-01-03",
+          "2023-01-04",
+          "2023-01-05",
+          "2023-01-06",
+          "2023-01-07"
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "tables": [
+          {
+            "title": "Price Forecast with Moving Analytics",
+            "category": "Reports",
+            "type": "WidgetDataTable",
+            "columns": [
+              {
+                "name": "row_index",
+                "type": "TypeInteger"
+              },
+              {
+                "name": "price_model_forecast",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "momentum_indicator_score",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "prev_price",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "price_change",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "running_avg",
+                "type": "TypeDecimal"
+              }
+            ],
+            "data": {
+              "rows": [
+                [
+                  1,
+                  102.0,
+                  0.7,
+                  null,
+                  null,
+                  102.0
+                ],
+                [
+                  2,
+                  98.0,
+                  0.3,
+                  102.0,
+                  -4.0,
+                  100.0
+                ],
+                [
+                  3,
+                  105.0,
+                  0.9,
+                  98.0,
+                  7.0,
+                  101.666666666667
+                ],
+                [
+                  4,
+                  103.0,
+                  0.6,
+                  105.0,
+                  -2.0,
+                  102.0
+                ],
+                [
+                  5,
+                  99.0,
+                  0.4,
+                  103.0,
+                  -4.0,
+                  101.4
+                ],
+                [
+                  6,
+                  107.0,
+                  0.8,
+                  99.0,
+                  8.0,
+                  102.333333333333
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "table_report",
+        "sql": "SELECT row_index, price_model_forecast, momentum_indicator_score, LAG(price_model_forecast, 1) OVER (ORDER BY row_index) as prev_price, price_model_forecast - LAG(price_model_forecast, 1) OVER (ORDER BY row_index) as price_change, AVG(price_model_forecast) OVER (ORDER BY row_index ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as running_avg FROM input WHERE row_index > 0 ORDER BY row_index",
+        "table_name": "input",
+        "title": "Price Forecast with Moving Analytics",
+        "add_index": true,
+        "index_column_name": "row_index",
+        "output_id": "test_window_table",
+        "inputs": "{SLOT: [price_model#forecast, momentum_indicator#score, timestamp]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}

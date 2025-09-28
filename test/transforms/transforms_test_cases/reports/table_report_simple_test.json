@@ -1,0 +1,87 @@
+{
+  "tests": [
+    {
+      "title": "Simple Table Report Test",
+      "input": {
+        "price": [
+          100.5,
+          101.2,
+          99.8,
+          102.3,
+          101.0
+        ],
+        "volume": [
+          1500.0,
+          800.0,
+          2000.0,
+          1200.0,
+          900.0
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "tables": [
+          {
+            "title": "Price Volume Analysis",
+            "category": "Reports",
+            "type": "WidgetDataTable",
+            "columns": [
+              {
+                "name": "price",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "volume",
+                "type": "TypeDecimal"
+              },
+              {
+                "name": "value",
+                "type": "TypeDecimal"
+              }
+            ],
+            "data": {
+              "rows": [
+                [
+                  102.3,
+                  1200.0,
+                  122760.0
+                ],
+                [
+                  101.2,
+                  800.0,
+                  80960.0
+                ],
+                [
+                  101.0,
+                  900.0,
+                  90900.0
+                ],
+                [
+                  100.5,
+                  1500.0,
+                  150750.0
+                ],
+                [
+                  99.8,
+                  2000.0,
+                  199600.0
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "table_report",
+        "sql": "SELECT price, volume, price * volume as value FROM input ORDER BY price DESC",
+        "table_name": "input",
+        "title": "Price Volume Analysis",
+        "add_index": false,
+        "index_column_name": "row_index",
+        "output_id": "test_table",
+        "inputs": "{SLOT: [price, volume]}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}
