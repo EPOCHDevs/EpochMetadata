@@ -60,11 +60,67 @@ struct TearsheetTable {
     TableData data;
 };
 
+// Chart axis data
+struct ChartAxisData {
+    std::vector<ColumnValue> data;
+    std::string type;
+};
+
+// Chart line data
+struct ChartLineData {
+    std::string name;
+    std::vector<ColumnValue> data;
+    std::string type;
+};
+
+// Bar chart data structure
+struct BarCategory {
+    std::string name;
+    ColumnValue value;
+};
+
+// Pie chart slice structure
+struct PieChartSlice {
+    std::string label;
+    ColumnValue value;
+};
+
+// Histogram bin structure
+struct HistogramBin {
+    double min;
+    double max;
+    int64_t count;
+};
+
+// Tearsheet chart structure - simplified for JSON parsing
+struct TearsheetChart {
+    std::string title;
+    std::string category;
+    std::string type;  // WidgetLinesChart, WidgetBarChart, etc.
+
+    // For Lines/Area charts
+    std::optional<ChartAxisData> x_axis;
+    std::optional<std::vector<ChartLineData>> lines;
+
+    // For Bar charts
+    std::optional<std::vector<BarCategory>> bars;
+    std::optional<bool> vertical;
+    std::optional<bool> stacked;
+
+    // For Pie charts
+    std::optional<std::vector<PieChartSlice>> slices;
+    std::optional<uint32_t> inner_size;
+
+    // For Histograms
+    std::optional<std::vector<HistogramBin>> bins;
+};
+
 // Expected tearsheet output
 struct TearsheetExpect {
     std::string type = "tearsheet";
     std::optional<CardsList> cards;
     std::vector<TearsheetTable> tables;
+    std::vector<TearsheetChart> charts;
 };
 
 // Expected dataframe output

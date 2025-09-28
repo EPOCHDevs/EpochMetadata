@@ -2,10 +2,13 @@
 
 #include "epoch_metadata/transforms/itransform.h"
 #include <epoch_frame/dataframe.h>
-#include <epoch_frame/factory/dataframe_factory.h>
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <regex>
+#include <iostream>
+
+#include "reports/report_utils.h"
 
 namespace epoch_metadata::transform {
 
@@ -15,147 +18,52 @@ class SQLQueryTransform : public ITransform {
                 "SQLQueryTransform supports 1 to 4 outputs only");
 public:
   explicit SQLQueryTransform(const TransformConfiguration &config)
-      : ITransform(config) {
-    ValidateConfiguration();
+      : ITransform(config),
+  m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
+  m_tableName(m_config.GetOptionValue("table_name").GetString()),
+  m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString())
+  {
   }
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(const epoch_frame::DataFrame &df) const override {
-    // Get SQL query from options
-    std::string sql = GetSQLQuery();
+    // Step 1: Store original column names before sanitization
+    std::vector<std::string> originalColumns = df.column_names();
 
-    // Get all input columns to create input DataFrames
-    auto inputIds = GetInputIds();
+    // Step 2: Sanitize column names for SQL compatibility (replace # with _)
+    epoch_frame::DataFrame sanitizedDf = reports::ReportUtils::SanitizeColumnNames(df);
 
-    if (inputIds.empty()) {
-      throw std::runtime_error("At least one input is required for SQLQueryTransform");
-    }
+    // Step 3: Execute SQL query
+    auto resultTable = sanitizedDf.reset_index(m_indexColumnName).query(m_sqlQuery, m_tableName);
 
-    // Prepare input DataFrames map
-    std::unordered_map<std::string, epoch_frame::DataFrame> inputs;
+    // Convert Arrow Table to DataFrame
+    epoch_frame::DataFrame resultDf(resultTable);
 
-    // Check if we have requiredDataSources for market data
-    const auto& metadata = m_config.GetTransformDefinition().GetMetadata();
-    if (!metadata.requiredDataSources.empty()) {
-      // Include market data columns
-      std::vector<std::string> marketCols = metadata.requiredDataSources;
-      inputs["market_data"] = df[marketCols];
-    }
-
-    // Map each input to a DataFrame
-    for (const auto& [inputId, columns] : m_config.GetInputs()) {
-      if (!columns.empty()) {
-        inputs[inputId] = df[columns];
-      }
-    }
-
-    // If we have variadic inputs (like agg_* pattern), create numbered tables
-    if (!inputIds.empty() && inputs.empty()) {
-      // All inputs are in GetInputIds()
-      for (size_t i = 0; i < inputIds.size(); ++i) {
-        inputs["input" + std::to_string(i)] = df[[inputIds[i]]];
-      }
-    }
-
-    // Execute SQL with inputs
-    auto result = ExecuteSQLWithInputs(sql, inputs);
-
-    // Split result into multiple outputs if needed
+    // Step 4: Handle output mapping
     if constexpr (NumOutputs == 1) {
-      return result;
+      // For single output, return entire DataFrame from SQL without setting index
+      // The SQL query defines the exact columns that should be in the output
+      return resultDf;
     } else {
-      return SplitOutputs(result);
+      // For multiple outputs, extract specific columns
+      std::unordered_map<std::string, std::string> outputMap;
+      std::vector<transforms::IOMetaData> outputMetaData = GetOutputMetaData();
+      std::vector<std::string> outputColumns;
+
+      for (auto const& io : outputMetaData) {
+        outputMap[io.id] = GetOutputId(io.id);
+        outputColumns.emplace_back(io.id);
+      }
+
+      resultDf = resultDf[outputColumns].rename(outputMap);
+      return resultDf;
     }
   }
 
 private:
-  void ValidateConfiguration() const {
-    if (GetSQLQuery().empty()) {
-      throw std::runtime_error("SQLQueryTransform: 'sql' option is required");
-    }
-
-    // Validate output column specifications for multi-output variants
-    if constexpr (NumOutputs > 1) {
-      auto outputCols = GetOutputColumnSets();
-      if (outputCols.size() != NumOutputs) {
-        throw std::runtime_error(
-          "SQLQueryTransform" + std::to_string(NumOutputs) +
-          ": Must specify " + std::to_string(NumOutputs) +
-          " output column sets");
-      }
-    }
-  }
-
-  std::string GetSQLQuery() const {
-    auto options = m_config.GetOptions();
-    if (options.contains("sql") && options["sql"].IsScalar()) {
-      return options["sql"].as<std::string>();
-    }
-    return "";
-  }
-
-  std::vector<std::vector<std::string>> GetOutputColumnSets() const {
-    std::vector<std::vector<std::string>> result;
-    auto options = m_config.GetOptions();
-
-    for (size_t i = 0; i < NumOutputs; ++i) {
-      std::string key = "output" + std::to_string(i) + "_columns";
-      if (options.contains(key) && options[key].IsSequence()) {
-        std::vector<std::string> cols;
-        for (const auto& col : options[key]) {
-          cols.push_back(col.as<std::string>());
-        }
-        result.push_back(cols);
-      }
-    }
-    return result;
-  }
-
-  epoch_frame::DataFrame ExecuteSQL(const std::string& sql) const {
-    // Direct SQL execution without DataFrame context
-    return epoch_frame::DataFrame::sql(sql);
-  }
-
-  epoch_frame::DataFrame ExecuteSQLWithInputs(
-      const std::string& sql,
-      const std::unordered_map<std::string, epoch_frame::DataFrame>& inputs) const {
-    // Execute SQL with multiple DataFrames as context
-    return epoch_frame::DataFrame::sql(sql, inputs);
-  }
-
-  epoch_frame::DataFrame SplitOutputs(const epoch_frame::DataFrame& result) const {
-    // For multi-output variants, split columns into separate result sets
-    auto outputCols = GetOutputColumnSets();
-    std::vector<epoch_frame::DataFrame> outputs;
-
-    for (const auto& colSet : outputCols) {
-      outputs.push_back(result[colSet]);
-    }
-
-    // Combine outputs with numbered suffixes
-    // This is a simplified approach - actual implementation would need
-    // to handle the computation graph's multi-output requirements properly
-    epoch_frame::DataFrame combined;
-    for (size_t i = 0; i < outputs.size(); ++i) {
-      std::string suffix = "_output" + std::to_string(i);
-      // Rename columns with output suffix
-      auto renamed = outputs[i];
-      std::unordered_map<std::string, std::string> renameMap;
-      for (const auto& col : outputs[i].column_names()) {
-        renameMap[col] = col + suffix;
-      }
-      renamed = renamed.rename(renameMap);
-
-      if (i == 0) {
-        combined = renamed;
-      } else {
-        // Concatenate horizontally
-        combined = combined.concat(renamed, epoch_frame::AxisType::Column);
-      }
-    }
-
-    return combined;
-  }
+  std::string m_sqlQuery;
+  std::string m_tableName;
+  std::string m_indexColumnName;
 };
 
 // Type aliases for 1-4 output variants

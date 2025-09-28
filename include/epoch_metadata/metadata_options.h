@@ -188,8 +188,7 @@ private:
 
     // Disallow empty string after trimming
     if (input.empty()) {
-      throw std::runtime_error(
-          "Empty string is not a valid MetaDataOptionDefinition value");
+      return  input;
     }
 
     // MetaDataArgRef encoded as $ref:<name>

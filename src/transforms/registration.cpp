@@ -4,6 +4,7 @@
 #include "epoch_metadata/transforms/registration.h"
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/transforms/registry.h"
+#include "src/sql/sql_query_metadata.h"
 
 namespace epoch_metadata::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -22,6 +23,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeTradeSignalExecutor());
   metaDataList.emplace_back(MakeScalarMetaData());
   metaDataList.emplace_back(MakeLagMetaData());
+  metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

@@ -5,178 +5,182 @@
 
 namespace epoch_metadata::transform {
 
-// Metadata for SQLQueryTransform1 (single output)
-inline TransformsMetaData CreateSQLQueryTransform1Metadata(const std::string& name = "sql_query_1") {
-  return {
-    .id = name,
+// Function to create SQL Query metadata for all variants
+inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryMetaData() {
+  std::vector<epoch_metadata::transforms::TransformsMetaData> metadataList;
+
+  // SQLQueryTransform1 - Single output
+  metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
+    .id = "sql_query_1",
     .category = epoch_core::TransformCategory::Utility,
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (1 Output)",
     .options = {
       {.id = "sql",
        .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::Text,
-       .defaultValue = MetaDataOptionDefinition{"SELECT * FROM input0"},
+       .type = epoch_core::MetaDataOptionType::String,
        .isRequired = true,
-       .desc = "SQL query to execute. Reference input DataFrames by their input IDs or as input0, input1, etc."}
+       .desc = "SQL query to execute on timeseries data. "
+               "Column names containing '#' will be automatically sanitized to '_' for SQL compatibility. "
+               "IMPORTANT: Include the index_column_name (default: timestamp) in your SELECT for timeseries merging. "
+               "Example: SELECT timestamp, close, volume FROM input WHERE close > 100"},
+      {.id = "table_name",
+       .name = "Table Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
+       .isRequired = false,
+       .desc = "Name to reference the input DataFrame in your SQL query. Default is 'input'. "
+               "Use this name in your FROM clause (e.g., FROM input)"},
+      {.id = "index_column_name",
+       .name = "Index Column Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+       .isRequired = false,
+       .desc = "Name of the column to use as the output DataFrame index for timeseries data. "
+               "This column will be set as the index after SQL execution to enable proper "
+               "merging with other timeseries. Default is 'timestamp'. Must be included in SQL SELECT."}
     },
     .isCrossSectional = false,
-    .desc = "Execute SQL query on input DataFrames producing a single output table. "
-            "Supports full DuckDB SQL syntax including JOINs, aggregations, window functions, etc.",
-    .inputs = {},  // Variadic inputs handled by GetInputIds()
-    .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
-    .atLeastOneInputRequired = false,  // Can execute SQL without inputs
-    .tags = {"sql", "query", "table", "transform"},
+    .desc = "Execute SQL queries on timeseries data. "
+            "Single output variant - returns entire query result as one DataFrame. "
+            "Result will be indexed by the specified index_column_name for timeseries merging.",
+    .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
+    .outputs = {
+        {epoch_core::IODataType::Any, "output0", "Output 0", true}
+    },
+    .atLeastOneInputRequired = true,
+    .tags = {"sql", "query", "transform", "timeseries", "single-output"},
     .requiresTimeFrame = false,
-    .allowNullInputs = true
-  };
-}
+    .allowNullInputs = false
+  });
 
-// Metadata for SQLQueryTransform2 (two outputs)
-inline TransformsMetaData CreateSQLQueryTransform2Metadata(const std::string& name = "sql_query_2") {
-  return {
-    .id = name,
+  // SQLQueryTransform2 - Two outputs
+  metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
+    .id = "sql_query_2",
     .category = epoch_core::TransformCategory::Utility,
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (2 Outputs)",
     .options = {
       {.id = "sql",
        .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::Text,
-       .defaultValue = MetaDataOptionDefinition{"SELECT * FROM input0"},
+       .type = epoch_core::MetaDataOptionType::String,
        .isRequired = true,
-       .desc = "SQL query to execute. The result will be split into two output tables."},
-      {.id = "output0_columns",
-       .name = "Output 0 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the first output table"},
-      {.id = "output1_columns",
-       .name = "Output 1 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the second output table"}
+       .desc = "SQL query that returns exactly: output0, output1, and index_column_name. "
+               "Example: SELECT price AS output0, volume AS output1, timestamp FROM input"},
+      {.id = "table_name",
+       .name = "Table Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
+       .isRequired = false,
+       .desc = "Name to reference the input DataFrame in SQL query"},
+      {.id = "index_column_name",
+       .name = "Index Column Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+       .isRequired = false,
+       .desc = "Column name to set as output index for timeseries continuity"}
     },
     .isCrossSectional = false,
-    .desc = "Execute SQL query and split results into 2 separate output tables. "
-            "Useful for creating multiple derived datasets from a single query.",
-    .inputs = {},
+    .desc = "Execute SQL query producing 2 separate output ports. "
+            "SQL result MUST contain exactly these columns: output0, output1, and index_column_name. "
+            "Each output port carries its respective result column with the index.",
+    .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output Table 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output Table 1", true}
+      {epoch_core::IODataType::Any, "output0", "Output 0", true},
+      {epoch_core::IODataType::Any, "output1", "Output 1", true}
     },
-    .atLeastOneInputRequired = false,
-    .tags = {"sql", "query", "table", "transform", "multi-output"},
+    .atLeastOneInputRequired = true,
+    .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
     .requiresTimeFrame = false,
-    .allowNullInputs = true
-  };
-}
+    .allowNullInputs = false
+  });
 
-// Metadata for SQLQueryTransform3 (three outputs)
-inline TransformsMetaData CreateSQLQueryTransform3Metadata(const std::string& name = "sql_query_3") {
-  return {
-    .id = name,
+  // SQLQueryTransform3 - Three outputs
+  metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
+    .id = "sql_query_3",
     .category = epoch_core::TransformCategory::Utility,
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (3 Outputs)",
     .options = {
       {.id = "sql",
        .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::Text,
-       .defaultValue = MetaDataOptionDefinition{"SELECT * FROM input0"},
+       .type = epoch_core::MetaDataOptionType::String,
        .isRequired = true,
-       .desc = "SQL query to execute. The result will be split into three output tables."},
-      {.id = "output0_columns",
-       .name = "Output 0 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the first output table"},
-      {.id = "output1_columns",
-       .name = "Output 1 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the second output table"},
-      {.id = "output2_columns",
-       .name = "Output 2 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the third output table"}
+       .desc = "SQL query that returns exactly: output0, output1, output2, and index_column_name. "
+               "Example: SELECT open AS output0, high AS output1, low AS output2, timestamp FROM input"},
+      {.id = "table_name",
+       .name = "Table Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
+       .isRequired = false,
+       .desc = "Name to reference the input DataFrame in SQL query"},
+      {.id = "index_column_name",
+       .name = "Index Column Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+       .isRequired = false,
+       .desc = "Column name to set as output index for timeseries continuity"}
     },
     .isCrossSectional = false,
-    .desc = "Execute SQL query and split results into 3 separate output tables. "
-            "Ideal for complex data transformations requiring multiple derived outputs.",
-    .inputs = {},
+    .desc = "Execute SQL query producing 3 separate output ports. "
+            "SQL result MUST contain exactly: output0, output1, output2, and index_column_name. "
+            "Each output port carries its own data series with the index.",
+    .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output Table 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output Table 1", true},
-      {epoch_core::IODataType::Any, "output2", "Output Table 2", true}
+      {epoch_core::IODataType::Any, "output0", "Output 0", true},
+      {epoch_core::IODataType::Any, "output1", "Output 1", true},
+      {epoch_core::IODataType::Any, "output2", "Output 2", true}
     },
-    .atLeastOneInputRequired = false,
-    .tags = {"sql", "query", "table", "transform", "multi-output"},
+    .atLeastOneInputRequired = true,
+    .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
     .requiresTimeFrame = false,
-    .allowNullInputs = true
-  };
-}
+    .allowNullInputs = false
+  });
 
-// Metadata for SQLQueryTransform4 (four outputs)
-inline TransformsMetaData CreateSQLQueryTransform4Metadata(const std::string& name = "sql_query_4") {
-  return {
-    .id = name,
+  // SQLQueryTransform4 - Four outputs
+  metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
+    .id = "sql_query_4",
     .category = epoch_core::TransformCategory::Utility,
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (4 Outputs)",
     .options = {
       {.id = "sql",
        .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::Text,
-       .defaultValue = MetaDataOptionDefinition{"SELECT * FROM input0"},
+       .type = epoch_core::MetaDataOptionType::String,
        .isRequired = true,
-       .desc = "SQL query to execute. The result will be split into four output tables."},
-      {.id = "output0_columns",
-       .name = "Output 0 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the first output table"},
-      {.id = "output1_columns",
-       .name = "Output 1 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the second output table"},
-      {.id = "output2_columns",
-       .name = "Output 2 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the third output table"},
-      {.id = "output3_columns",
-       .name = "Output 3 Columns",
-       .type = epoch_core::MetaDataOptionType::List,
-       .defaultValue = MetaDataOptionDefinition{},
-       .isRequired = true,
-       .desc = "Column names for the fourth output table"}
+       .desc = "SQL query that returns exactly: output0, output1, output2, output3, and index_column_name. "
+               "Example: SELECT open AS output0, high AS output1, low AS output2, close AS output3, timestamp FROM input"},
+      {.id = "table_name",
+       .name = "Table Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
+       .isRequired = false,
+       .desc = "Name to reference the input DataFrame in SQL query"},
+      {.id = "index_column_name",
+       .name = "Index Column Name",
+       .type = epoch_core::MetaDataOptionType::String,
+       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+       .isRequired = false,
+       .desc = "Column name to set as output index for timeseries continuity"}
     },
     .isCrossSectional = false,
-    .desc = "Execute SQL query and split results into 4 separate output tables. "
-            "Maximum flexibility for complex multi-output transformations.",
-    .inputs = {},
+    .desc = "Execute SQL query producing 4 separate output ports. "
+            "SQL result MUST contain exactly: output0, output1, output2, output3, and index_column_name. "
+            "Each output port is a separate data stream for connecting to different downstream nodes.",
+    .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output Table 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output Table 1", true},
-      {epoch_core::IODataType::Any, "output2", "Output Table 2", true},
-      {epoch_core::IODataType::Any, "output3", "Output Table 3", true}
+      {epoch_core::IODataType::Any, "output0", "Output 0", true},
+      {epoch_core::IODataType::Any, "output1", "Output 1", true},
+      {epoch_core::IODataType::Any, "output2", "Output 2", true},
+      {epoch_core::IODataType::Any, "output3", "Output 3", true}
     },
-    .atLeastOneInputRequired = false,
-    .tags = {"sql", "query", "table", "transform", "multi-output"},
+    .atLeastOneInputRequired = true,
+    .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
     .requiresTimeFrame = false,
-    .allowNullInputs = true
-  };
+    .allowNullInputs = false
+  });
+
+  return metadataList;
 }
 
 } // namespace epoch_metadata::transform

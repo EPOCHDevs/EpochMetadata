@@ -7,4 +7,9 @@ target_sources(epoch_metadata PRIVATE
         index_card_report.cpp
         quantile_card_report.cpp
         table_report.cpp
+        lines_chart_report.cpp
+        bar_chart_report.cpp
+        pie_chart_report.cpp
+        area_chart_report.cpp
+        histogram_chart_report.cpp
 )

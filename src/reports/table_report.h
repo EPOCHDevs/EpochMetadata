@@ -42,10 +42,6 @@ private:
   std::string GetTableTitle() const;
 
   // Helper methods
-  epoch_frame::DataFrame PrepareInputDataFrame(const epoch_frame::DataFrame& df,
-                                               bool addIndex,
-                                               const std::string& indexColName) const;
-  epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) const;
 };
 
 // Metadata specialization for TableReport

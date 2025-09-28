@@ -24,8 +24,8 @@
 #include <epoch_metadata/strategy/registration.h>
 
 // SQL and Report includes
-// #include "sql/sql_query_transform.h"
-// #include "sql/sql_query_metadata.h"
+#include "sql/sql_query_transform.h"
+#include "sql/sql_query_metadata.h"
 #include "reports/numeric_card_report.h"
 #include "reports/boolean_card_report.h"
 #include "reports/any_card_report.h"
@@ -33,6 +33,11 @@
 #include "reports/quantile_card_report.h"
 #include "reports/gap_report.h"
 #include "reports/table_report.h"
+#include "reports/lines_chart_report.h"
+#include "reports/bar_chart_report.h"
+#include "reports/pie_chart_report.h"
+#include "reports/area_chart_report.h"
+#include "reports/histogram_chart_report.h"
 
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
@@ -208,18 +213,11 @@ void InitializeTransforms(
   // Statistics Transforms
   REGISTER_TRANSFORM(hmm, HMMTransform);
 
-  // SQL Query Transforms
-  // REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
-  // REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
-  // REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
-  // REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
-
-  // // Register metadata for SQL transforms
-  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform1Metadata());
-  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform2Metadata());
-  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform3Metadata());
-  // ITransformRegistry::GetInstance().Register(CreateSQLQueryTransform4Metadata());
-  //
+  // SQL Query Transforms (1-4 outputs)
+  REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
+  REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
+  REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
+  REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
   // Register Reports
   reports::RegisterReport<reports::NumericCardReport>();
   reports::RegisterReport<reports::BooleanCardReport>();
@@ -227,6 +225,13 @@ void InitializeTransforms(
   reports::RegisterReport<reports::IndexCardReport>();
   reports::RegisterReport<reports::QuantileCardReport>();
   reports::RegisterReport<reports::TableReport>();
+
+  // Register Chart Reports
+  reports::RegisterReport<reports::LinesChartReport>();
+  reports::RegisterReport<reports::BarChartReport>();
+  reports::RegisterReport<reports::PieChartReport>();
+  reports::RegisterReport<reports::AreaChartReport>();
+  reports::RegisterReport<reports::HistogramChartReport>();
 
   reports::RegisterReport<reports::GapReport>();
 

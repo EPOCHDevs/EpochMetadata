@@ -226,6 +226,25 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
                          << ", expected a sequence or bracketed string for "
                          << arg.id << ".");
   } else {
+    // Skip processing if node is null or undefined
+    if (node.IsNull() || !node.IsDefined()) {
+      // Return default value if available
+      if (arg.defaultValue) {
+        return *arg.defaultValue;
+      }
+      // Otherwise, return an empty value of the appropriate type
+      switch (arg.type) {
+        case epoch_core::MetaDataOptionType::String:
+          return MetaDataOptionDefinition{std::string{}};
+        case epoch_core::MetaDataOptionType::Integer:
+        case epoch_core::MetaDataOptionType::Decimal:
+          return MetaDataOptionDefinition{double{0.0}};
+        case epoch_core::MetaDataOptionType::Boolean:
+          return MetaDataOptionDefinition{false};
+        default:
+          return MetaDataOptionDefinition{};
+      }
+    }
     AssertFromStream(node.IsScalar(), "invalid transform option type: "
                                           << node << ", expected a scalar for "
                                           << arg.id << ".");

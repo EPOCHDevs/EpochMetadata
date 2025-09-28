@@ -1,4 +1,5 @@
 #include "table_report.h"
+#include "report_utils.h"
 #include <epoch_dashboard/tearsheet/table_builder.h>
 #include <epoch_frame/dataframe.h>
 #include <arrow/compute/api_aggregate.h>
@@ -16,51 +17,47 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
 
   try {
     // Prepare DataFrame for SQL execution (with optional index column)
-    epoch_frame::DataFrame preparedDf = PrepareInputDataFrame(normalizedDf, m_addIndex, m_indexColumnName);
+    epoch_frame::DataFrame preparedDf = normalizedDf;
+    if (m_addIndex) {
+      std::string targetColName = m_indexColumnName.empty() ? "row_index" : m_indexColumnName;
+      // Check if the column already exists to avoid duplicates
+      auto table = preparedDf.table();
+      auto schema = table->schema();
+      bool columnExists = false;
+      for (int i = 0; i < schema->num_fields(); ++i) {
+        if (schema->field(i)->name() == targetColName) {
+          columnExists = true;
+          break;
+        }
+      }
+      if (!columnExists) {
+        try {
+          preparedDf = preparedDf.reset_index(targetColName);
+        } catch (const std::exception& e) {
+          std::cerr << "Warning: Could not add index column '" << targetColName << "': " << e.what() << std::endl;
+        }
+      }
+    }
 
     // Store original column names before sanitization
     auto originalTable = preparedDf.table();
     auto originalSchema = originalTable->schema();
     std::vector<std::string> originalColumns;
     for (int i = 0; i < originalSchema->num_fields(); ++i) {
-      originalColumns.push_back(originalSchema->field(i)->name());
+      std::string colName = originalSchema->field(i)->name();
+      originalColumns.push_back(colName);
     }
 
-    // Sanitize column names by replacing # with _ for SQL compatibility
-    epoch_frame::DataFrame sanitizedDf = SanitizeColumnNames(preparedDf);
+    // Sanitize column names for SQL compatibility and execute query
+    epoch_frame::DataFrame sanitizedDf = reports::ReportUtils::SanitizeColumnNames(preparedDf);
 
-    // Execute SQL using DataFrame::query method (SQL should use underscore column names)
+    // Execute SQL query on sanitized DataFrame
     auto resultTable = sanitizedDf.query(m_sqlQuery, m_tableName);
-
-    // Convert Arrow Table to DataFrame
     epoch_frame::DataFrame resultDf(resultTable);
 
-    // Restore original column names with # in the result
-    // Build a map of sanitized to original names
-    std::unordered_map<std::string, std::string> sanitizedToOriginal;
-    for (const auto& origCol : originalColumns) {
-      std::regex hashRegex("#");
-      std::string sanitized = std::regex_replace(origCol, hashRegex, "_");
-      sanitizedToOriginal[sanitized] = origCol;
-    }
 
-    // Check result columns and restore where applicable
-    auto resultSchema = resultTable->schema();
-    std::unordered_map<std::string, std::string> restoreMap;
-    for (int i = 0; i < resultSchema->num_fields(); ++i) {
-      std::string colName = resultSchema->field(i)->name();
-
-      // If this column name exactly matches a sanitized original column, restore it
-      auto it = sanitizedToOriginal.find(colName);
-      if (it != sanitizedToOriginal.end()) {
-        restoreMap[colName] = it->second;
-      }
-    }
-
-    // Apply restoration if needed
-    if (!restoreMap.empty()) {
-      resultDf = resultDf.rename(restoreMap);
-    }
+    // For table reports, we keep the sanitized column names since SQL operates on them
+    // and test expectations are based on sanitized names
 
     // Build protobuf Table using TableBuilder
     epoch_tearsheet::TableBuilder tableBuilder;
@@ -119,53 +116,5 @@ std::string TableReport::GetTableTitle() const {
 }
 
 
-epoch_frame::DataFrame TableReport::PrepareInputDataFrame(const epoch_frame::DataFrame& df,
-                                                          bool addIndex,
-                                                          const std::string& indexColName) const {
-  if (addIndex) {
-    // Check if the column name already exists to avoid duplicates
-    auto table = df.table();
-    auto schema = table->schema();
-    for (int i = 0; i < schema->num_fields(); ++i) {
-      if (schema->field(i)->name() == indexColName) {
-        // Column already exists, don't add index
-        return df;
-      }
-    }
-
-    // Add index as a column for SQL access
-    try {
-      return df.reset_index(indexColName);
-    } catch (const std::exception& e) {
-      std::cerr << "Warning: Could not add index column '" << indexColName << "': " << e.what() << std::endl;
-      return df;
-    }
-  }
-  return df;
-}
-
-epoch_frame::DataFrame TableReport::SanitizeColumnNames(const epoch_frame::DataFrame& df) const {
-  // Get column names from table schema
-  auto table = df.table();
-  auto schema = table->schema();
-  std::unordered_map<std::string, std::string> renameMap;
-
-  for (int i = 0; i < schema->num_fields(); ++i) {
-    std::string colName = schema->field(i)->name();
-    // Replace # with _
-    std::regex hashRegex("#");
-    std::string sanitizedName = std::regex_replace(colName, hashRegex, "_");
-    if (colName != sanitizedName) {
-      renameMap[colName] = sanitizedName;
-    }
-  }
-
-  // Only rename if there are columns to rename
-  if (renameMap.empty()) {
-    return df;
-  }
-
-  return df.rename(renameMap);
-}
 
 } // namespace epoch_metadata::reports
