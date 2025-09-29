@@ -1,4 +1,5 @@
 #include "pie_chart_report.h"
+#include "report_utils.h"
 #include <epoch_dashboard/tearsheet/pie_chart_builder.h>
 #include <epoch_dashboard/tearsheet/chart_types.h>
 #include <epoch_frame/dataframe.h>
@@ -12,11 +13,16 @@ void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
   try {
     epoch_frame::DataFrame preparedDf = normalizedDf;
 
-    // Execute SQL if provided
+    // If SQL query is provided, execute it first
     if (!m_sqlQuery.empty()) {
-      auto sanitizedDf = SanitizeColumnNames(preparedDf);
-      auto resultTable = sanitizedDf.query(m_sqlQuery, m_tableName);
-      preparedDf = epoch_frame::DataFrame(resultTable);
+      // Prepare DataFrame with optional index column for SQL access
+      epoch_frame::DataFrame indexPreparedDf = ReportUtils::PrepareIndexColumn(normalizedDf, m_addIndex, m_indexColumnName);
+
+      // Execute SQL with sanitization
+      preparedDf = ReportUtils::ExecuteSQLWithSanitization(indexPreparedDf, m_sqlQuery, m_tableName);
+    } else {
+      // For non-SQL queries, use the sanitized column names directly
+      preparedDf = ReportUtils::SanitizeColumnNames(normalizedDf);
     }
 
     // Validate required columns
@@ -57,69 +63,6 @@ void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
   }
 }
 
-std::string PieChartReport::GetSQLQuery() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("sql") && options["sql"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["sql"].GetString();
-  }
-  return "";
-}
 
-std::string PieChartReport::GetTableName() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("table_name") && options["table_name"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["table_name"].GetString();
-  }
-  return "input";
-}
-
-std::string PieChartReport::GetChartTitle() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("title") && options["title"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["title"].GetString();
-  }
-  return "";
-}
-
-std::string PieChartReport::GetLabelColumn() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("label_column") && options["label_column"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["label_column"].GetString();
-  }
-  return "label";
-}
-
-std::string PieChartReport::GetValueColumn() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("value_column") && options["value_column"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["value_column"].GetString();
-  }
-  return "value";
-}
-
-uint32_t PieChartReport::GetInnerSize() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("inner_size") && options["inner_size"].IsType(epoch_core::MetaDataOptionType::Integer)) {
-    return static_cast<uint32_t>(options["inner_size"].GetInteger());
-  }
-  return 0;
-}
-
-epoch_frame::DataFrame PieChartReport::SanitizeColumnNames(const epoch_frame::DataFrame& df) const {
-  auto table = df.table();
-  auto schema = table->schema();
-  std::unordered_map<std::string, std::string> renameMap;
-
-  for (int i = 0; i < schema->num_fields(); ++i) {
-    std::string colName = schema->field(i)->name();
-    std::regex hashRegex("#");
-    std::string sanitizedName = std::regex_replace(colName, hashRegex, "_");
-    if (colName != sanitizedName) {
-      renameMap[colName] = sanitizedName;
-    }
-  }
-
-  return renameMap.empty() ? df : df.rename(renameMap);
-}
 
 } // namespace epoch_metadata::reports

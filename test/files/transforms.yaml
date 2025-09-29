@@ -1,11 +1,16 @@
 bband_percent:
   name: Bollinger Bands %B
   desc: "Measures position within Bollinger Bands as a normalized value between 0 and 1. Values above 1 or below 0 indicate extreme conditions."
-  inputs: 
+  usageContext: "Use for mean-reversion strategies to identify overbought (>1.0) and oversold (<0.0) conditions. Best combined with bband_width to detect volatility squeezes before breakouts. Values near 0.5 indicate price is at the middle band."
+  strategyTypes: ["mean-reversion", "bollinger-squeeze", "overbought-oversold"]
+  relatedTransforms: ["bbands", "bband_width"]
+  assetRequirements: ["single-asset"]
+  limitations: "Less reliable in strong trending markets. Works best in range-bound conditions with normal volatility."
+  inputs:
     - { type: Decimal, id: bbands_lower, name: Lower Band, allowMultipleConnections: false }
     - { type: Decimal, id: bbands_upper, name: Upper Band, allowMultipleConnections: false }
   outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "bollinger", "bands", "oscillator", "normalized"]
+  tags: ["indicator", "bollinger", "bands", "oscillator", "normalized", "mean-reversion"]
   category: Volatility
   renderKind: Simple
   plotKind: bb_percent_b
@@ -15,12 +20,17 @@ bband_percent:
 bband_width:
   name: Bollinger Bands Width
   desc: "Measures the width of Bollinger Bands to identify volatility expansion and contraction. Narrows during low volatility and widens during high volatility."
-  inputs: 
+  usageContext: "Detect volatility squeezes (narrow width) that often precede large price moves. Low width values signal consolidation periods and potential breakout opportunities. Use with bband_percent to confirm breakout direction."
+  strategyTypes: ["breakout", "bollinger-squeeze", "volatility-expansion"]
+  relatedTransforms: ["bbands", "bband_percent", "atr"]
+  assetRequirements: ["single-asset"]
+  limitations: "Width alone doesn't indicate breakout direction. Requires additional confirmation from price action or momentum indicators."
+  inputs:
     - { type: Decimal, id: bbands_lower, name: Lower Band, allowMultipleConnections: false }
     - { type: Decimal, id: bbands_middle, name: Middle Band, allowMultipleConnections: false }
     - { type: Decimal, id: bbands_upper, name: Upper Band, allowMultipleConnections: false }
   outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "bollinger", "bands", "volatility", "squeeze"]
+  tags: ["indicator", "bollinger", "bands", "volatility", "squeeze", "breakout"]
   category: Volatility
   renderKind: Simple
   plotKind: panel_line
@@ -28,11 +38,16 @@ bband_width:
 cs_momentum:
   name: Cross-Sectional Momentum
   desc: "Calculates momentum turns across multiple assets in the same time period, enabling relative performance comparison within a universe of securities."
+  usageContext: "Use for portfolio rotation strategies to identify relative strength/weakness across assets. Ranks assets by momentum to select top performers for long positions and bottom performers for short. Requires universe of at least 10+ assets for meaningful results."
+  strategyTypes: ["portfolio-rotation", "relative-strength", "long-short-equity", "factor-investing"]
+  relatedTransforms: ["top_k", "top_k_percent", "bottom_k", "bottom_k_percent"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "CRITICAL: Requires multiple assets to compare. Will not work on single-asset strategies. Performance degrades with universe size below 10 assets. Momentum can persist or reverse depending on timeframe."
   isCrossSectional: true
-  inputs: 
+  inputs:
     - { type: Decimal, id: "SLOT", name: "Returns", allowMultipleConnections: false }
   outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "cross-sectional", "momentum", "relative-performance", "multi-asset"]
+  tags: ["indicator", "cross-sectional", "momentum", "relative-performance", "multi-asset", "portfolio-rotation"]
   category: Momentum
   renderKind: Simple
   plotKind: panel_line
@@ -40,12 +55,25 @@ cs_momentum:
 top_k:
   name: Top K Assets
   desc: "Selects the top K assets based on their values. Useful for identifying the best performing assets in a universe."
+  usageContext: "Filter assets for long-only portfolio strategies. Combine with cs_momentum or other ranking metrics to select top performers. Returns boolean true for top K assets, false for others."
+  strategyTypes: ["portfolio-rotation", "long-only", "top-performers"]
+  relatedTransforms: ["cs_momentum", "top_k_percent", "bottom_k"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Requires universe larger than K. Fixed count may not adapt well to changing market conditions. Consider top_k_percent for dynamic sizing."
   options:
-    - { id: k, name: "Count", type: Integer, default: 10, min: 1, max: 1000, step_size: 1 }
-  inputs: 
+    - id: k
+      name: "Count"
+      type: Integer
+      default: 10
+      min: 1
+      max: 1000
+      step_size: 1
+      desc: "Number of top assets to select"
+      tuningGuidance: "Smaller K (3-5) for concentrated portfolios with higher volatility. Larger K (10-30) for diversification. Ensure universe size is at least 2-3x larger than K for meaningful selection."
+  inputs:
     - { type: Decimal, id: "SLOT", name: "Values", allowMultipleConnections: false }
   outputs: [BOOLEAN_RESULT]
-  tags: ["indicator", "top-k", "assets", "performance", "selection", "best"]
+  tags: ["indicator", "top-k", "assets", "performance", "selection", "best", "portfolio-rotation"]
   category: Momentum
   renderKind: Standard
   isCrossSectional: true
@@ -53,12 +81,25 @@ top_k:
 bottom_k:
   name: Bottom K Assets
   desc: "Selects the bottom K assets based on their values. Useful for identifying the worst performing assets in a universe."
+  usageContext: "Filter assets for short-only or long-short portfolio strategies. Combine with cs_momentum to select worst performers for short positions. Returns boolean true for bottom K assets, false for others."
+  strategyTypes: ["portfolio-rotation", "long-short-equity", "short-only", "bottom-performers"]
+  relatedTransforms: ["cs_momentum", "bottom_k_percent", "top_k"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Requires universe larger than K. Fixed count may not adapt to market conditions. Consider bottom_k_percent for dynamic sizing. Shorting requires additional risk controls."
   options:
-    - { id: k, name: "Count", type: Integer, default: 10, min: 1, max: 1000, step_size: 1 }
-  inputs: 
+    - id: k
+      name: "Count"
+      type: Integer
+      default: 10
+      min: 1
+      max: 1000
+      step_size: 1
+      desc: "Number of bottom assets to select"
+      tuningGuidance: "Smaller K (3-5) for concentrated short positions (higher risk). Larger K (10-30) for diversification. Ensure universe size is at least 2-3x larger than K. Consider transaction costs for small-cap shorts."
+  inputs:
     - { type: Decimal, id: "SLOT", name: "Values", allowMultipleConnections: false }
   outputs: [BOOLEAN_RESULT]
-  tags: ["indicator", "bottom-k", "assets", "performance", "selection", "worst"]
+  tags: ["indicator", "bottom-k", "assets", "performance", "selection", "worst", "portfolio-rotation", "short"]
   category: Momentum
   renderKind: Standard
   isCrossSectional: true
@@ -66,25 +107,51 @@ bottom_k:
 top_k_percent:
   name: Top %K of Assets
   desc: "Selects the top K percent of assets based on their values. Useful for identifying the best performing assets in a universe."
+  usageContext: "Dynamic portfolio sizing that adapts to universe size. Select top percentage for long positions. Better than top_k when universe size changes or for proportional allocation strategies. 10% of 100 assets = 10, 10% of 50 assets = 5."
+  strategyTypes: ["portfolio-rotation", "long-only", "adaptive-sizing", "top-performers"]
+  relatedTransforms: ["cs_momentum", "top_k", "bottom_k_percent"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Requires minimum universe size for meaningful results (recommend 20+ assets for 10%). Very small percentages (<5%) may result in too few holdings. Very large percentages (>50%) defeat purpose of selection."
   options:
-    - { id: k, name: "Percent", type: Integer, default: 10, min: 1, max: 100, step_size: 1 }
-  inputs: 
+    - id: k
+      name: "Percent"
+      type: Integer
+      default: 10
+      min: 1
+      max: 100
+      step_size: 1
+      desc: "Percentage of top assets to select (1-100)"
+      tuningGuidance: "10-20% for concentrated strategies (higher returns, higher volatility). 30-40% for moderate diversification. 50%+ typically too broad for momentum strategies. Adjust based on universe quality - higher % for cleaner universes."
+  inputs:
     - { type: Decimal, id: "SLOT", name: "Values", allowMultipleConnections: false }
   outputs: [BOOLEAN_RESULT]
-  tags: ["indicator", "top-k", "assets", "performance", "selection", "best"]
+  tags: ["indicator", "top-k", "assets", "performance", "selection", "best", "portfolio-rotation", "adaptive"]
   category: Momentum
   renderKind: Standard
   isCrossSectional: true
 
 bottom_k_percent:
   name: Bottom %K of Assets
-  desc: "Selects the bottom K percent of assets based on their values. Useful for identifying the worst performing assets in a universe." 
+  desc: "Selects the bottom K percent of assets based on their values. Useful for identifying the worst performing assets in a universe."
+  usageContext: "Dynamic short portfolio sizing. Select bottom percentage for short or avoidance strategies. Scales automatically with universe size changes. Useful for long-short strategies where you want balanced exposure (e.g., long top 20%, short bottom 20%)."
+  strategyTypes: ["portfolio-rotation", "long-short-equity", "short-only", "adaptive-sizing", "bottom-performers"]
+  relatedTransforms: ["cs_momentum", "bottom_k", "top_k_percent"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Requires minimum universe size (recommend 20+ assets for 10%). Shorting worst performers can have limited upside and unlimited downside risk. Consider borrow costs and liquidity for shorts."
   options:
-    - { id: k, name: "Percent", type: Integer, default: 10, min: 1, max: 100, step_size: 1 }
-  inputs: 
+    - id: k
+      name: "Percent"
+      type: Integer
+      default: 10
+      min: 1
+      max: 100
+      step_size: 1
+      desc: "Percentage of bottom assets to select (1-100)"
+      tuningGuidance: "10-20% for concentrated short strategies. Match with top_k_percent for balanced long-short (e.g., both 20%). Lower percentages for high-conviction shorts. Higher short % increases margin requirements and risk."
+  inputs:
     - { type: Decimal, id: "SLOT", name: "Values", allowMultipleConnections: false }
   outputs: [BOOLEAN_RESULT]
-  tags: ["indicator", "bottom-k", "assets", "performance", "selection", "worst"]
+  tags: ["indicator", "bottom-k", "assets", "performance", "selection", "worst", "portfolio-rotation", "short", "adaptive"]
   category: Momentum
   renderKind: Standard
   isCrossSectional: true
@@ -92,22 +159,16 @@ bottom_k_percent:
 cum_prod:
   name: Cumulative Product
   desc: "Calculates the running product of a series of values. Useful for compounding growth rates or returns over time."
+  usageContext: "Convert periodic returns into cumulative returns. Input (1 + return) to compound returns over time. Essential for calculating total strategy performance from individual period returns. Example: [1.01, 1.02, 0.99] → [1.01, 1.0302, 1.01990]"
+  strategyTypes: ["performance-tracking", "backtesting", "returns-analysis"]
+  relatedTransforms: ["lag"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires returns in (1+r) format, not raw percentages. Does not reset - calculates from strategy start. Very sensitive to large losses (one -50% period requires +100% to recover). Can overflow with very long series."
   inputs: [NUMBER]
   outputs: [DECIMAL_RESULT]
-  tags: ["simple", "cumulative", "product", "compounding", "returns"]
+  tags: ["simple", "cumulative", "product", "compounding", "returns", "performance"]
   category: Math
   renderKind: Simple
-
-gap_returns:
-  name: Gap Returns
-  desc: "Measures the price gap between previous close and current open. Identifies overnight or weekend price movements that can signal significant market events."
-  outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "gap", "returns", "overnight", "price-jump"]
-  category: Momentum
-  renderKind: Simple
-  plotKind: panel_line
-  requiresTimeFrame: true
-  requiredDataSources: ["c", "o"]
 
 ma:
   name: Moving Average
@@ -118,20 +179,27 @@ ma:
       type: Select
       default: sma
       required: true
+      desc: "MA calculation method - each type balances responsiveness vs smoothness differently"
+      tuningGuidance: "SMA: Best for basic trend and support/resistance. EMA: Standard for trend-following (fast response). HMA: Minimize lag while staying smooth. KAMA: Adapts to volatility (best in ranging then trending markets). DEMA/TEMA: Ultra-responsive for scalping. Choose based on timeframe: faster MAs (EMA/HMA/TEMA) for short-term, slower MAs (SMA/TRIMA) for long-term."
       selectOption:
-        - { name: "Double Exponential Moving Average (DEMA)", value: dema }
+        - { name: "Simple Moving Average (SMA)", value: sma }
         - { name: "Exponential Moving Average (EMA)", value: ema }
         - { name: "Hull Moving Average (HMA)", value: hma }
         - { name: "Kaufman's Adaptive Moving Average (KAMA)", value: kama }
-        - { name: "Simple Moving Average (SMA)", value: sma }
+        - { name: "Double Exponential Moving Average (DEMA)", value: dema }
         - { name: "Triple Exponential Moving Average (TEMA)", value: tema }
         - { name: "Triangular Moving Average (TRIMA)", value: trima }
         - { name: "Weighted Moving Average (WMA)", value: wma }
         - { name: "Zero Lag Exponential Moving Average (ZLEMA)", value: zlema }
   desc: "Calculates average price over specified period with multiple calculation methods. Acts as a trend indicator and noise filter."
+  usageContext: "Core trend indicator for directional strategies. Use price crossing MA for trend change signals, or multiple MAs for crossover systems (fast MA crosses slow MA). Common combinations: 20/50 EMA (short-term), 50/200 SMA (golden/death cross). Also acts as dynamic support/resistance."
+  strategyTypes: ["trend-following", "moving-average-crossover", "support-resistance"]
+  relatedTransforms: ["ema", "sma", "dema", "hma"]
+  assetRequirements: ["single-asset"]
+  limitations: "All MAs lag price by design. Whipsaws in choppy/ranging markets. Faster MAs (EMA/TEMA) more false signals but catch trends early. Slower MAs (SMA/TRIMA) fewer signals but more lag. Not suitable as sole entry signal - combine with momentum or volume."
   inputs: [NUMBER]
   outputs: [DECIMAL_RESULT]
-  tags: ["overlay", "moving-average", "trend", "smoothing", "filter"]
+  tags: ["overlay", "moving-average", "trend", "smoothing", "filter", "trend-following"]
   category: Trend
   renderKind: Standard
   plotKind: line
@@ -141,8 +209,13 @@ return_vol:
   options:
     - PERIOD
   desc: "Measures the standard deviation of returns over a specified period. Quantifies historical volatility for risk assessment."
+  usageContext: "Measure realized volatility for position sizing, risk management, or volatility regime detection. Higher volatility → reduce position size. Use for volatility targeting strategies or to detect high-vol regimes for trend-following vs low-vol for mean-reversion."
+  strategyTypes: ["risk-management", "position-sizing", "volatility-targeting", "regime-detection"]
+  relatedTransforms: ["atr", "garman_klass", "price_diff_vol", "bbands"]
+  assetRequirements: ["single-asset"]
+  limitations: "Backward-looking - doesn't predict future volatility. Assumes normal distribution of returns (may underestimate tail risk). Period selection critical: too short = noisy, too long = stale. Consider annualizing for comparison across timeframes."
   outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "volatility", "risk", "standard-deviation", "returns"]
+  tags: ["indicator", "volatility", "risk", "standard-deviation", "returns", "risk-management"]
   category: Volatility
   renderKind: Standard
   plotKind: panel_line
@@ -155,8 +228,13 @@ price_diff_vol:
     - PERIOD
   type: Indicator
   desc: "Calculates the standard deviation of absolute price changes over a specified period. Provides a direct measure of price movement volatility."
+  usageContext: "Alternative volatility measure using absolute price differences instead of percentage returns. More intuitive for price-based stops and position sizing in dollars/points. Useful when absolute price movement matters more than percentage moves (e.g., options, futures)."
+  strategyTypes: ["risk-management", "position-sizing", "volatility-targeting"]
+  relatedTransforms: ["return_vol", "atr", "bbands"]
+  assetRequirements: ["single-asset"]
+  limitations: "Not normalized by price level - $1 move on $10 stock vs $100 stock treated same. Use return_vol for cross-asset comparison. Like return_vol, it's backward-looking and assumes stationarity."
   outputs: [DECIMAL_RESULT]
-  tags: ["indicator", "volatility", "price-movement", "standard-deviation", "risk"]
+  tags: ["indicator", "volatility", "price-movement", "standard-deviation", "risk", "risk-management"]
   category: Volatility
   renderKind: Standard
   plotKind: panel_line
@@ -169,90 +247,135 @@ price_diff_vol:
 agg_all_of:
   name: All Of
   desc: "Returns true only if all connected inputs are true. Useful for checking if multiple conditions are simultaneously met."
+  usageContext: "Combine multiple entry/exit conditions with AND logic. All conditions must be satisfied simultaneously. Use for conservative strategies requiring multiple confirmations (e.g., trend + momentum + volume all aligned)."
+  strategyTypes: ["multi-condition", "confirmation-stacking", "conservative-entry"]
+  relatedTransforms: ["agg_any_of", "logical_and"]
+  assetRequirements: ["single-asset"]
+  limitations: "Stricter filtering = fewer signals. More conditions = lower trade frequency. One false condition blocks entire signal."
   inputs:
     - { type: Boolean, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [BOOLEAN_RESULT]
-  tags: ["aggregate", "boolean", "logic", "all", "and"]
+  tags: ["aggregate", "boolean", "logic", "all", "and", "confirmation"]
   category: Aggregate
   renderKind: Simple
 
 agg_any_of:
   name: Any Of
   desc: "Returns true if at least one of the connected inputs is true. Useful for checking if any condition in a set is met."
+  usageContext: "Combine multiple conditions with OR logic. Any single condition triggers signal. Use for aggressive strategies or multiple entry patterns (e.g., enter on breakout OR momentum OR volume spike). Good for capturing different opportunity types."
+  strategyTypes: ["multi-pattern", "opportunistic-entry", "pattern-basket"]
+  relatedTransforms: ["agg_all_of", "logical_or"]
+  assetRequirements: ["single-asset"]
+  limitations: "More signals but lower quality. Can trigger on weakest condition. May increase false signals. Consider using probability/confidence weighting instead for better results."
   inputs:
     - { type: Boolean, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [BOOLEAN_RESULT]
-  tags: ["aggregate", "boolean", "logic", "any", "or"]
+  tags: ["aggregate", "boolean", "logic", "any", "or", "multi-pattern"]
   category: Aggregate
   renderKind: Simple
 
 agg_none_of:
   name: None Of
   desc: "Returns true only if all connected inputs are false. Useful for ensuring no conditions in a set are met."
+  usageContext: "Filter out unwanted conditions. All connected filters must be inactive. Use for risk filters (e.g., don't trade when: high volatility OR low volume OR earnings week). Common in exit logic or position blocking."
+  strategyTypes: ["risk-filtering", "condition-avoidance", "exit-logic"]
+  relatedTransforms: ["agg_all_of", "agg_any_of"]
+  assetRequirements: ["single-asset"]
+  limitations: "Inverted logic can be confusing. Often clearer to use NOT with agg_any_of. Requires all conditions false simultaneously."
   inputs:
     - { type: Boolean, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [BOOLEAN_RESULT]
-  tags: ["aggregate", "boolean", "logic", "none", "nor"]
+  tags: ["aggregate", "boolean", "logic", "none", "nor", "filtering"]
   category: Aggregate
   renderKind: Simple
 
 agg_max:
   name: Maximum
   desc: "Returns the maximum value among all connected numeric inputs. Useful for finding the highest value in a set."
+  usageContext: "Select highest value from multiple indicators or signals. Use for composite indicators (max of multiple momentum measures) or worst-case scenarios (max drawdown across strategies). Also for multi-asset maximum value selection."
+  strategyTypes: ["composite-indicators", "multi-signal", "worst-case-analysis"]
+  relatedTransforms: ["agg_min", "agg_mean"]
+  assetRequirements: ["single-asset"]
+  limitations: "Sensitive to outliers - one extreme value dominates. Doesn't consider distribution of other values. For cross-asset use, ensure values are comparable (normalized)."
   inputs:
     - { type: Decimal, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [NUMBER_RESULT]
-  tags: ["aggregate", "numeric", "math", "maximum", "highest"]
+  tags: ["aggregate", "numeric", "math", "maximum", "highest", "composite"]
   category: Aggregate
   renderKind: Simple
 
 agg_min:
   name: Minimum
   desc: "Returns the minimum value among all connected numeric inputs. Useful for finding the lowest value in a set."
+  usageContext: "Select lowest value from multiple inputs. Use for conservative position sizing (minimum of multiple risk limits), best-case analysis, or finding bottleneck constraints. Useful in risk management for most conservative estimate."
+  strategyTypes: ["risk-management", "conservative-sizing", "constraint-analysis"]
+  relatedTransforms: ["agg_max", "agg_mean"]
+  assetRequirements: ["single-asset"]
+  limitations: "Sensitive to outliers - one extreme low value dominates. Ignores all other values. For cross-asset use, ensure values are comparable."
   inputs:
     - { type: Number, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [NUMBER_RESULT]
-  tags: ["aggregate", "numeric", "math", "minimum", "lowest"]
+  tags: ["aggregate", "numeric", "math", "minimum", "lowest", "risk-management"]
   category: Aggregate
   renderKind: Simple
 
 agg_sum:
   name: Sum
   desc: "Calculates the sum of all connected numeric inputs. Useful for adding multiple values together."
+  usageContext: "Combine multiple signals, portfolio values, or factor scores additively. Use for composite scoring systems, total portfolio exposure, or cumulative indicators. Common in multi-factor models where factors add together."
+  strategyTypes: ["multi-factor", "scoring-systems", "portfolio-aggregation"]
+  relatedTransforms: ["agg_mean", "cum_prod"]
+  assetRequirements: ["single-asset"]
+  limitations: "Assumes additive relationship between inputs. Sensitive to scale - normalize inputs first if on different scales. Unbounded - can grow indefinitely with more inputs."
   inputs:
     - { type: Number, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [NUMBER_RESULT]
-  tags: ["aggregate", "numeric", "math", "sum", "addition"]
+  tags: ["aggregate", "numeric", "math", "sum", "addition", "multi-factor"]
   category: Aggregate
   renderKind: Simple
 
 agg_mean:
   name: Mean
   desc: "Calculates the arithmetic mean of all connected numeric inputs. Useful for finding the central value in a set."
+  usageContext: "Average multiple signals or indicators for ensemble approach. Better than sum when number of inputs varies. Use for average portfolio returns, consensus signals, or reducing indicator noise through averaging."
+  strategyTypes: ["ensemble-methods", "signal-averaging", "consensus-trading"]
+  relatedTransforms: ["agg_sum", "agg_max", "agg_min"]
+  assetRequirements: ["single-asset"]
+  limitations: "Sensitive to outliers. All inputs weighted equally. For varying reliability, use weighted average instead. Requires normalization if inputs on different scales."
   inputs:
     - { type: Number, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [DECIMAL_RESULT]
-  tags: ["aggregate", "numeric", "math", "mean", "average"]
+  tags: ["aggregate", "numeric", "math", "mean", "average", "ensemble"]
   category: Aggregate
   renderKind: Simple
 
 agg_all_equal:
   name: All Equal
   desc: "Returns true if all connected inputs have the same value. Useful for checking value consistency across multiple sources."
+  usageContext: "Validation and synchronization checks. Verify multiple data sources agree (sanity check), or ensure regime indicators all show same state. Useful for detecting data discrepancies or confirming multi-timeframe alignment."
+  strategyTypes: ["data-validation", "sanity-checking", "multi-timeframe-confirmation"]
+  relatedTransforms: ["agg_all_unique", "eq"]
+  assetRequirements: ["single-asset"]
+  limitations: "Rarely useful in trading strategies - mostly for debugging. Exact equality can be brittle with floating point. Consider using tolerance-based comparison instead."
   inputs:
     - { type: Any, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [BOOLEAN_RESULT]
-  tags: ["aggregate", "comparison", "equality", "consistency", "validation"]
+  tags: ["aggregate", "comparison", "equality", "consistency", "validation", "debugging"]
   category: Aggregate
   renderKind: Simple
 
 agg_all_unique:
   name: All Unique
   desc: "Returns true if all connected inputs have unique values. Useful for ensuring no duplicates exist in a set of values."
+  usageContext: "Detect duplicate signals or ensure diversity in signal sources. Mainly used for validation and debugging. Can verify no indicator redundancy (all providing unique information)."
+  strategyTypes: ["signal-validation", "debugging", "diversity-checking"]
+  relatedTransforms: ["agg_all_equal"]
+  assetRequirements: ["single-asset"]
+  limitations: "Limited practical trading use. More valuable for system validation than strategy logic. Consider correlation analysis for measuring signal independence instead."
   inputs:
     - { type: Any, id: "SLOT", name: "Values", allowMultipleConnections: true }
   outputs: [BOOLEAN_RESULT]
-  tags: ["aggregate", "comparison", "unique", "distinct", "validation"]
+  tags: ["aggregate", "comparison", "unique", "distinct", "validation", "debugging"]
   category: Aggregate
   renderKind: Simple
 
@@ -262,11 +385,18 @@ agg_all_unique:
 percentile_select:
   name: Percentile-Based Select
   desc: "Selects between 'high' and 'low' inputs based on whether a value is above or below a percentile threshold within a lookback period."
+  usageContext: "Adaptive thresholding based on historical distribution. Route different strategies/parameters when indicator in extreme vs normal ranges. More robust than fixed thresholds since adapts to changing volatility/levels. Example: aggressive position size when RSI in top 20th percentile of recent values."
+  strategyTypes: ["adaptive-thresholding", "regime-dependent", "dynamic-allocation"]
+  relatedTransforms: ["boolean_branch", "boolean_select", "percentile_select"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires lookback period of historical data. Thresholds shift with market conditions (feature, not bug). Can lag regime changes if lookback too long. Percentile calculation sensitive to outliers in small samples."
   options:
     - id: lookback
       name: Lookback Period
       type: Integer
       default: 14
+      desc: "Number of historical bars to calculate percentile from"
+      tuningGuidance: "Shorter lookback (10-20) for responsive adaptation to recent conditions. Longer lookback (50-100) for stable thresholds. Match to your strategy timeframe."
     - id: percentile
       name: Percentile Threshold
       type: Integer
@@ -274,12 +404,14 @@ percentile_select:
       min: 0
       max: 100
       step_size: 1
+      desc: "Percentile cutoff (0-100) - above triggers 'high' path, below triggers 'low' path"
+      tuningGuidance: "80th percentile = top 20% gets 'high' treatment. Use 50 for median split. Higher percentiles (80-90) for extreme/rare events. Lower (20-30) for more frequent triggering."
   inputs:
     - { type: Number, id: "value", name: "Value", allowMultipleConnections: false }
     - { type: Any, id: "high", name: "When Above Percentile", allowMultipleConnections: false }
     - { type: Any, id: "low", name: "When Below Percentile", allowMultipleConnections: false }
   outputs: [ANY_RESULT]
-  tags: ["selection", "percentile", "statistics", "conditional", "flow-control"]
+  tags: ["selection", "percentile", "statistics", "conditional", "flow-control", "adaptive"]
   category: ControlFlow
   renderKind: Standard
 
@@ -287,34 +419,48 @@ boolean_branch:
   name: Boolean Branch
   type: ControlFlow
   desc: "Splits a boolean signal into two separate outputs: one for true values and one for inverted (false) values."
+  usageContext: "Route same signal to multiple destinations with opposite logic. Use when you need both long and short signals from one condition, or need inverted signal without NOT operator. Common in long-short strategies."
+  strategyTypes: ["long-short", "signal-routing", "signal-inversion"]
+  relatedTransforms: ["logical_not", "boolean_select"]
+  assetRequirements: ["single-asset"]
+  limitations: "Simple utility - just provides opposite signals. Can be replaced with NOT operator. Main value is reducing graph complexity when same signal used multiple places."
   inputs:
     - { type: Boolean, id: "condition", name: "Condition", allowMultipleConnections: false }
   outputs:
     - { type: Boolean, id: "true", name: "True Path" }
     - { type: Boolean, id: "false", name: "False Path" }
-  tags: ["branching", "boolean", "split", "flow-control", "signal-processing"]
+  tags: ["branching", "boolean", "split", "flow-control", "signal-processing", "long-short"]
   category: ControlFlow
   renderKind: Simple
 
 ratio_branch:
   name: Ratio Branch
   desc: "Splits data based on the ratio between two values: high (above upper threshold), normal (between thresholds), and low (below lower threshold)."
+  usageContext: "Three-way regime detection based on ratio values. Use for momentum vs mean-reversion (high ratio = trend, low = reversion), or relative strength comparisons. Common with volatility ratios, price ratios, or indicator ratios."
+  strategyTypes: ["regime-detection", "three-state-logic", "ratio-analysis"]
+  relatedTransforms: ["gt", "lt", "boolean_branch"]
+  assetRequirements: ["single-asset"]
+  limitations: "Fixed thresholds - not adaptive. Middle 'normal' range can be ambiguous. For pairs trading, typical thresholds need calibration (not 0.5/1.5 default). Consider percentile_select for adaptive thresholds."
   options:
     - id: threshold_high
       name: Upper Threshold
       type: Decimal
       default: 1.5
+      desc: "Ratio above this value triggers 'high' output"
+      tuningGuidance: "For normalized ratios around 1.0, use 1.2-2.0 for high. For volatility ratios, use 1.5-2.0 for expansion. For pairs trading z-scores, use 2.0-3.0 for divergence."
     - id: threshold_low
       name: Lower Threshold
       type: Decimal
       default: 0.5
+      desc: "Ratio below this value triggers 'low' output"
+      tuningGuidance: "Mirror of threshold_high for symmetry (e.g., if high=1.5, use low=0.67=1/1.5). For z-scores, use -2.0 to -3.0. Wider thresholds = less frequent signals."
   inputs:
     - { type: Decimal, id: "ratio", name: "Ratio", allowMultipleConnections: false }
   outputs:
     - { type: Boolean, id: "high", name: "High (Above Upper)" }
     - { type: Boolean, id: "normal", name: "Normal (Between)" }
     - { type: Boolean, id: "low", name: "Low (Below Lower)" }
-  tags: ["branching", "ratio", "threshold", "flow-control", "multi-output"]
+  tags: ["branching", "ratio", "threshold", "flow-control", "multi-output", "regime-detection"]
   category: ControlFlow
   renderKind: Standard
 
@@ -324,15 +470,22 @@ ratio_branch:
 swing_highs_lows:
   name: Swing Highs and Lows
   desc: "Identifies swing high and low points in price data by finding local peaks and valleys within a specified lookback period."
+  usageContext: "Foundation for Smart Money Concepts (SMC) analysis. Identifies key pivot points that form market structure. Feed into other SMC transforms (BOS/CHOCH, liquidity, order blocks). Also useful for support/resistance levels and trend analysis. Essential input for structure-based trading."
+  strategyTypes: ["smart-money-concepts", "market-structure", "support-resistance", "price-action"]
+  relatedTransforms: ["bos_choch", "liquidity", "order_blocks", "retracements", "previous_high_low"]
+  assetRequirements: ["single-asset"]
+  limitations: "Lagging indicator - swing confirmed only after N bars. Shorter swing_length = more noise, longer = less responsive. In strong trends, may miss minor swings. Works best on clean price action with clear swings."
   options:
     - id: swing_length
       name: Swing Length
       type: Integer
       default: 5
+      desc: "Number of bars on each side required to confirm swing point"
+      tuningGuidance: "3-5 for scalping/intraday (more sensitive). 5-10 for swing trading (balanced). 10-20 for position trading (major swings only). Higher values reduce noise but increase lag. Adjust based on timeframe volatility."
   outputs:
     - { type: Integer, id: "high_low", name: "High/Low Direction" }
     - { type: Decimal, id: "level", name: "Level" }
-  tags: ["smc", "price-action", "swing", "pivot", "technical"]
+  tags: ["smc", "price-action", "swing", "pivot", "technical", "market-structure"]
   category: PriceAction
   renderKind: Standard
   plotKind: shl
@@ -342,11 +495,18 @@ swing_highs_lows:
 bos_choch:
   name: Break of Structure & Change of Character
   desc: "Detects Break of Structure (BOS) and Change of Character (CHOCH) patterns, which signal potential trend changes and market structure shifts."
+  usageContext: "Core SMC concept for trend analysis. BOS (Break of Structure) = price breaks previous swing confirming trend continuation. CHOCH (Change of Character) = break of counter-trend structure suggesting reversal. Use with swing_highs_lows input. BOS confirms trend, CHOCH signals potential reversal."
+  strategyTypes: ["smart-money-concepts", "trend-following", "trend-reversal", "market-structure"]
+  relatedTransforms: ["swing_highs_lows", "liquidity", "order_blocks", "fair_value_gap"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires swing_highs_lows as input - can't use standalone. Lagging since waits for structure break confirmation. False signals in choppy markets. Best on trending instruments. Interpretation subjective - what's BOS vs CHOCH depends on timeframe context."
   options:
     - id: close_break
       name: Use Close Price
       type: Boolean
       default: false
+      desc: "Use close price for break detection instead of high/low wicks"
+      tuningGuidance: "False (default) = wick-based breaks, more signals but some false. True = close-based breaks, more conservative but misses some valid breaks. Use true for higher timeframes or volatile markets to reduce noise."
   inputs:
     - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
     - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
@@ -355,7 +515,7 @@ bos_choch:
     - { type: Integer, id: "choch", name: "Change of Character" }
     - { type: Decimal, id: "level", name: "Level" }
     - { type: Integer, id: "broken_index", name: "Broken Index" }
-  tags: ["smc", "price-action", "market-structure", "technical", "trend"]
+  tags: ["smc", "price-action", "market-structure", "technical", "trend", "reversal"]
   category: PriceAction
   renderKind: Standard
   plotKind: bos_choch
@@ -365,17 +525,24 @@ bos_choch:
 fair_value_gap:
   name: Fair Value Gap
   desc: "Identifies Fair Value Gaps (FVG) where price makes a significant move leaving an empty zone that often gets filled later, signaling potential reversal zones."
+  usageContext: "SMC concept: price imbalance zones where market moved too fast, leaving 'gaps' between candle bodies. Price often returns to fill these zones (mitigation). Bullish FVG = support zone, Bearish FVG = resistance. Use for entry/exit targets. Best combined with order blocks and market structure."
+  strategyTypes: ["smart-money-concepts", "mean-reversion", "support-resistance", "institutional-zones"]
+  relatedTransforms: ["order_blocks", "bos_choch", "swing_highs_lows", "liquidity"]
+  assetRequirements: ["single-asset"]
+  limitations: "Not all FVGs get filled - some remain unfilled in strong trends. Mitigation can be partial. Works better on liquid instruments. Intraday FVGs less reliable than higher timeframe FVGs. Requires 3-candle pattern to detect."
   options:
     - id: join_consecutive
       name: Join Consecutive Gaps
       type: Boolean
       default: true
+      desc: "Merge adjacent/overlapping FVGs into larger zones"
+      tuningGuidance: "True (default) = cleaner chart with merged zones, better for slower timeframes. False = all individual FVGs shown, useful for scalping/precision entries. True recommended for swing trading."
   outputs:
     - { type: Integer, id: "fvg", name: "FVG Direction" }
     - { type: Decimal, id: "top", name: "Top" }
     - { type: Decimal, id: "bottom", name: "Bottom" }
     - { type: Integer, id: "mitigated_index", name: "Mitigated Index" }
-  tags: ["smc", "price-action", "gap", "imbalance", "technical"]
+  tags: ["smc", "price-action", "gap", "imbalance", "technical", "institutional-zones"]
   category: PriceAction
   renderKind: Standard
   plotKind: fvg
@@ -385,11 +552,18 @@ fair_value_gap:
 liquidity:
   name: Liquidity
   desc: "Identifies clusters of swing highs or lows that are close to each other, representing areas where significant buyer/seller liquidity is present."
+  usageContext: "SMC liquidity pools concept: clusters of swing points where stop losses accumulate. 'Smart money' sweeps these levels to trigger stops before reversing. Use to anticipate stop hunts and reversal zones. Liquidity above = sell-side liquidity (shorts' stops). Below = buy-side liquidity (longs' stops)."
+  strategyTypes: ["smart-money-concepts", "stop-hunt-trading", "liquidity-sweeps", "reversal-trading"]
+  relatedTransforms: ["swing_highs_lows", "order_blocks", "bos_choch", "fair_value_gap"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires swing_highs_lows input. Not all liquidity pools get swept. Sweep timing unpredictable. Works best on liquid markets where stop hunting is common (forex, futures, major stocks). Range_percent needs calibration per instrument."
   options:
     - id: range_percent
       name: Range Percentage
       type: Decimal
       default: 0.001
+      desc: "Maximum distance between swing points to be considered a cluster (as % of price)"
+      tuningGuidance: "0.001 (0.1%) for stocks/forex. Adjust based on instrument volatility - lower for tight clusters, higher for broader zones. Test on historical data to see clustering behavior. Too low = miss clusters, too high = false clusters."
   inputs:
     - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
     - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
@@ -398,7 +572,7 @@ liquidity:
     - { type: Decimal, id: "level", name: "Level" }
     - { type: Decimal, id: "end", name: "End Index" }
     - { type: Decimal, id: "swept", name: "Swept Index" }
-  tags: ["smc", "price-action", "liquidity", "technical", "cluster"]
+  tags: ["smc", "price-action", "liquidity", "technical", "cluster", "stop-hunt"]
   category: PriceAction
   renderKind: Standard
   plotKind: liquidity
@@ -408,11 +582,18 @@ liquidity:
 order_blocks:
   name: Order Blocks
   desc: "Detects bullish and bearish order blocks which represent areas of significant institutional order flow, often acting as support and resistance zones."
+  usageContext: "SMC cornerstone: the last opposing candle before strong move = institutional order accumulation zone. Bullish OB = last down candle before rally (buy zone). Bearish OB = last up candle before drop (sell zone). Price often retraces to OBs before continuing trend. Combine with FVGs inside OBs for premium entries."
+  strategyTypes: ["smart-money-concepts", "institutional-trading", "support-resistance", "retracement-entries"]
+  relatedTransforms: ["swing_highs_lows", "fair_value_gap", "bos_choch", "liquidity"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires swing_highs_lows input. Not all OBs hold - some get breached in strong momentum. Volume data improves accuracy but not always available. Mitigation can be partial. Best on trending markets - less reliable in ranges."
   options:
     - id: close_mitigation
       name: Use Close for Mitigation
       type: Boolean
       default: false
+      desc: "Require candle close in OB zone for mitigation, not just wick"
+      tuningGuidance: "False (default) = wick touch mitigates OB, more sensitive. True = require close inside OB, more conservative. Use true on higher timeframes to avoid premature mitigation from wicks. False for scalping to catch early reactions."
   inputs:
     - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
   outputs:
@@ -422,7 +603,7 @@ order_blocks:
     - { type: Decimal, id: "ob_volume", name: "Order Block Volume" }
     - { type: Integer, id: "mitigated_index", name: "Mitigated Index" }
     - { type: Decimal, id: "percentage", name: "Strength Percentage" }
-  tags: ["smc", "price-action", "order-block", "institutional", "technical"]
+  tags: ["smc", "price-action", "order-block", "institutional", "technical", "support-resistance"]
   category: PriceAction
   renderKind: Standard
   plotKind: order_blocks
@@ -432,15 +613,24 @@ order_blocks:
 previous_high_low:
   name: Previous High Low
   desc: "Identifies the previous high or low levels within a given interval and tracks when current price breaks these levels."
+  usageContext: "Track key reference levels from previous periods for breakout trading. Previous day high/low crucial for intraday strategies. Break above prev high = bullish, below prev low = bearish. Combine with session analysis. Also acts as support/resistance."
+  strategyTypes: ["breakout", "range-trading", "intraday", "support-resistance"]
+  relatedTransforms: ["sessions", "swing_highs_lows", "donchian_channel"]
+  assetRequirements: ["single-asset"]
+  limitations: "Only tracks one previous period - can't access multiple historical levels. Breaks can be false (whipsaw). Works best on liquid instruments with clear daily ranges. Less useful on 24/7 markets without clear session breaks."
   options:
     - id: interval
       name: Interval
       type: Integer
       default: 1
+      desc: "Number of periods back to reference (1 = previous period)"
+      tuningGuidance: "1 (default) = immediately previous period. 2+ for older reference levels. Usually 1 is most relevant for trading."
     - id: type
       name: Time Frame Type
       type: Select
       default: day
+      desc: "Type of period to reference"
+      tuningGuidance: "Day = most common for intraday strategies. Week for swing trading breakouts. Hour for scalping. Month for position trading. Match to your strategy timeframe."
       selectOption:
         - { name: "Minute", value: "minute" }
         - { name: "Hour", value: "hour" }
@@ -452,7 +642,7 @@ previous_high_low:
     - { type: Decimal, id: "previous_low", name: "Previous Low" }
     - { type: Boolean, id: "broken_high", name: "Broken High" }
     - { type: Boolean, id: "broken_low", name: "Broken Low" }
-  tags: ["smc", "price-action", "high-low", "technical", "breakout"]
+  tags: ["smc", "price-action", "high-low", "technical", "breakout", "intraday"]
   category: PriceAction
   renderKind: Standard
   plotKind: previous_high_low
@@ -462,6 +652,11 @@ previous_high_low:
 retracements:
   name: Retracements
   desc: "Calculates percentage retracements from swing highs and lows, measuring how much price has pulled back from a prior swing point."
+  usageContext: "Measure pullback depth from swing points for retracement entries. Deeper retracements (50-70%) offer better risk/reward but fewer triggers. Shallow retracements (20-30%) indicate strong momentum. Use to time entries on pullbacks in trending markets. Similar to Fibonacci retracements but percentage-based."
+  strategyTypes: ["retracement-trading", "pullback-entries", "trend-following", "smart-money-concepts"]
+  relatedTransforms: ["swing_highs_lows", "bos_choch", "order_blocks"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires swing_highs_lows input. Retracement % doesn't guarantee reversal - can retrace 100% (full reversal). Doesn't predict how far retracement will go. Works best in trending markets - confusing in ranges."
   inputs:
     - { type: Integer, id: "high_low", name: "High/Low Direction", allowMultipleConnections: false }
     - { type: Decimal, id: "level", name: "Level", allowMultipleConnections: false }
@@ -469,7 +664,7 @@ retracements:
     - { type: Integer, id: "direction", name: "Direction" }
     - { type: Decimal, id: "current_retracement", name: "Current Retracement %" }
     - { type: Decimal, id: "deepest_retracement", name: "Deepest Retracement %" }
-  tags: ["smc", "price-action", "retracement", "fibonacci", "technical"]
+  tags: ["smc", "price-action", "retracement", "fibonacci", "technical", "pullback"]
   category: PriceAction
   renderKind: Simple
   plotKind: retracements
@@ -480,11 +675,18 @@ sessions:
   name: Trading Sessions
   type: Indicator
   desc: "Identifies active trading sessions (Sydney, Tokyo, London, New York) and key session-based 'kill zones' where significant price movements often occur."
+  usageContext: "Time-based filters for intraday forex/futures strategies. Major sessions mark periods of high liquidity and volatility. 'Kill zones' are specific windows where institutional orders concentrate, creating breakout opportunities. Use session_high/low as intraday support/resistance levels. Best on 5min-1hr timeframes."
+  strategyTypes: ["intraday", "session-breakout", "time-of-day", "smart-money-concepts"]
+  relatedTransforms: ["previous_high_low", "fair_value_gap", "liquidity"]
+  assetRequirements: ["single-asset"]
+  limitations: "ONLY useful on intraday timeframes (1min-4hr). Meaningless on daily+ bars. Most effective on forex pairs and futures. Less relevant for stocks (use market hours instead). Requires accurate timezone handling."
   options:
     - id: session_type
       name: Session Type
       type: Select
       default: London
+      desc: "Trading session or kill zone to track"
+      tuningGuidance: "Full sessions (London/NY) for broader range breakouts. Kill zones for precise institutional entry windows. London Open (2-5am ET) most volatile for EUR/GBP pairs. NY Kill Zone (7-10am ET) for USD pairs and stock indices. Asian session lower volatility."
       selectOption:
         - { name: "Sydney (08:00-17:00 AEDT/AEST)", value: "Sydney" }
         - { name: "Tokyo (09:00-18:00 JST)", value: "Tokyo" }
@@ -500,7 +702,7 @@ sessions:
     - { type: Decimal, id: "low", name: "Session Low" }
     - { type: Boolean, id: "closed", name: "Session Closed" }
     - { type: Boolean, id: "opened", name: "Session Opened" }
-  tags: ["smc", "price-action", "session", "time-based", "kill-zone"]
+  tags: ["smc", "price-action", "session", "time-based", "kill-zone", "intraday", "forex"]
   category: PriceAction
   renderKind: Standard
   plotKind: sessions
@@ -512,15 +714,24 @@ sessions:
 acceleration_bands:
   name: Acceleration Bands
   desc: "Three bands that expand and contract based on price volatility. Middle band is a simple moving average, while upper and lower bands adjust dynamically with price acceleration."
+  usageContext: "Use for breakout and volatility expansion strategies. Price breaking above upper band signals strong bullish momentum, while breaking below lower band indicates bearish acceleration. Width between bands shows volatility intensity - narrow bands suggest consolidation before potential breakouts."
+  strategyTypes: ["breakout", "trend-following", "volatility-expansion", "momentum"]
+  relatedTransforms: ["bbands", "keltner_channels", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Best suited for trending markets. In ranging markets, price may whipsaw between bands. Multiplier sensitivity requires optimization per asset. Not suitable for low-volatility assets."
   options:
     - id: period
       name: Period
       type: Integer
       default: 20
+      desc: "Lookback period for calculating the moving average baseline and volatility adjustment"
+      tuningGuidance: "Shorter periods (10-15) respond quickly to volatility changes but generate more false signals. Standard 20 balances sensitivity and reliability. Longer periods (30-50) for smoother bands in volatile assets."
     - id: multiplier
       name: Multiplier
       type: Decimal
       default: 2.0
+      desc: "Controls band width - higher values create wider bands that capture more price action"
+      tuningGuidance: "Start with 2.0 (standard deviation analog). Increase to 2.5-3.0 for volatile assets to avoid false breakouts. Decrease to 1.5 for low-volatility assets to increase sensitivity. Backtest to optimize per instrument."
   outputs:
     - { type: Decimal, id: "upper_band", name: "Upper Band" }
     - { type: Decimal, id: "middle_band", name: "Middle Band" }
@@ -535,15 +746,24 @@ acceleration_bands:
 garman_klass:
   name: Garman-Klass Volatility
   desc: "Volatility estimator that uses open, high, low, and close prices, giving more weight to price ranges than traditional volatility measures. Designed to better capture market movements in continuous trading."
+  usageContext: "Use for risk management and position sizing when you need accurate volatility estimates that account for intraday price swings. Superior to close-to-close volatility for capturing true market turbulence. Commonly used in options pricing, VaR calculations, and dynamic portfolio allocation."
+  strategyTypes: ["risk-management", "options-trading", "volatility-targeting", "portfolio-optimization"]
+  relatedTransforms: ["parkinson", "yang_zhang", "return_vol", "ulcer_index"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires OHLC data (not suitable for close-only time series). More computationally intensive than simple volatility. Assumes continuous trading - less accurate for assets with gaps or limited trading hours. Not effective for detecting volatility regime changes in real-time."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback window for volatility calculation - number of bars to include in estimation"
+      tuningGuidance: "Shorter periods (7-10) track volatility changes quickly but are noisier. Standard 14-21 for tactical trading. Longer periods (30-60) for strategic asset allocation and stable risk metrics. Match period to your rebalancing frequency."
     - id: trading_days
       name: Trading Days
       type: Integer
       default: 252
+      desc: "Number of trading periods per year for annualizing volatility (252 for daily US equities, 365 for crypto)"
+      tuningGuidance: "Use 252 for US stocks (trading days/year), 365 for crypto (24/7 markets), ~260 for international equities, or match your data's annual bar count. This scales volatility to annual percentage terms."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "technical", "range-based"]
   category: Volatility
@@ -555,15 +775,24 @@ garman_klass:
 hodges_tompkins:
   name: Hodges-Tompkins Volatility
   desc: "Modified volatility estimator that corrects bias in standard volatility calculations when using small sample sizes. More accurate for shorter time periods than traditional measures."
+  usageContext: "Use when you need accurate short-term volatility estimates with limited data points, such as for intraday strategies, recent IPOs, or newly listed instruments. Particularly valuable for options trading on lower-timeframe charts where standard volatility estimators are biased. Best for tactical trading requiring responsive volatility metrics."
+  strategyTypes: ["intraday-trading", "options-trading", "short-term-mean-reversion", "tactical-allocation"]
+  relatedTransforms: ["garman_klass", "parkinson", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires close prices only (simpler than range-based methods but less information). Bias correction most effective for periods under 30 bars - diminishing benefit with larger samples. Not suitable for detecting structural volatility regime changes."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback window for volatility estimation - bias correction is most effective with shorter periods"
+      tuningGuidance: "Optimal range 5-20 bars where bias correction matters most. Use 7-10 for aggressive intraday strategies, 14 (default) for swing trading, up to 20 for weekly timeframes. Beyond 30 bars, use standard methods as bias becomes negligible."
     - id: trading_periods
       name: Trading Periods Per Year
       type: Integer
       default: 252
+      desc: "Annual period count for annualization (252 for daily, 365 for crypto, ~6500 for hourly)"
+      tuningGuidance: "Match to your timeframe: 252 (daily US stocks), 365 (daily crypto), ~1260 (4-hour bars crypto), ~6500 (hourly), ~90000 (5-min). Accurate annualization requires correct period count."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "bias-corrected", "technical"]
   category: Volatility
@@ -575,15 +804,24 @@ hodges_tompkins:
 keltner_channels:
   name: Keltner Channels
   desc: "Volatility-based envelope indicator that places bands around an exponential moving average. Uses average true range to set band width, making it responsive to volatility changes."
+  usageContext: "Use for trend-following and breakout strategies where ATR-based bands provide clearer signals than standard deviation (Bollinger Bands). Price consistently above upper band signals strong uptrend; below lower band indicates downtrend. Crossovers of price through bands mark potential trend reversals. Combine with other indicators to confirm breakouts vs false signals."
+  strategyTypes: ["trend-following", "breakout", "channel-trading", "momentum"]
+  relatedTransforms: ["bbands", "acceleration_bands", "bband_width"]
+  assetRequirements: ["single-asset"]
+  limitations: "KEY DIFFERENCE vs Bollinger Bands: Uses ATR (absolute price range) instead of standard deviation, making it less responsive to sudden volatility spikes but more stable in trending markets. In low-volatility ranging markets, bands may be too wide for mean-reversion entries. Requires gap-free data for accurate ATR."
   options:
     - id: roll_period
       name: Rolling Period
       type: Integer
       default: 20
+      desc: "Lookback period for both the EMA centerline and ATR calculation"
+      tuningGuidance: "Shorter periods (10-15) for sensitive bands that react quickly to trend changes, useful for day trading. Standard 20 balances trend identification with noise reduction. Longer periods (30-50) for position trading and smoother bands in volatile markets."
     - id: band_multiplier
       name: Band Multiplier
       type: Decimal
       default: 2.0
+      desc: "Multiplier applied to ATR to set band distance from centerline - controls channel width"
+      tuningGuidance: "Start with 2.0 (standard). Increase to 2.5-3.0 for volatile assets to reduce false breakouts and capture stronger trends. Decrease to 1.5 for low-volatility assets or tighter mean-reversion signals. Backtest per asset class."
   outputs:
     - { type: Decimal, id: "upper_band", name: "Upper Band" }
     - { type: Decimal, id: "lower_band", name: "Lower Band" }
@@ -597,15 +835,24 @@ keltner_channels:
 parkinson:
   name: Parkinson Volatility
   desc: "Range-based volatility estimator that uses high and low prices rather than just closing prices. Better captures intraday price movements and is more efficient than close-to-close volatility."
+  usageContext: "Use for risk management and position sizing when you need simple but effective volatility estimates that account for intraday ranges. More efficient than close-to-close methods (requires fewer data points for same accuracy). Ideal for strategies that care about intrabar volatility, such as options selling, stop-loss placement, and breakout detection."
+  strategyTypes: ["risk-management", "options-selling", "breakout-detection", "position-sizing"]
+  relatedTransforms: ["garman_klass", "yang_zhang", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Assumes no overnight gaps - underestimates volatility in markets with large opening gaps (earnings, news events). Only requires high/low but ignores open/close information (less complete than Garman-Klass or Yang-Zhang). Not suitable for assets with sparse tick data or wide bid-ask spreads."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback window for high-low range volatility estimation"
+      tuningGuidance: "Shorter periods (7-10) capture recent volatility changes quickly, useful for dynamic position sizing. Standard 14-21 for general risk metrics. Longer periods (30-60) for stable strategic allocation and smoother volatility estimates. Match to your trading horizon."
     - id: trading_periods
       name: Trading Periods Per Year
       type: Integer
       default: 252
+      desc: "Annual trading period count for annualizing volatility estimate"
+      tuningGuidance: "Use 252 for US daily equities, 365 for daily crypto (24/7), ~260 for international stocks, or your actual annual bar count. Critical for comparing volatility across different timeframes or asset classes."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "range-based", "technical"]
   category: Volatility
@@ -617,15 +864,24 @@ parkinson:
 ulcer_index:
   name: Ulcer Index
   desc: "Risk measure that quantifies downside risk by measuring depth and duration of drawdowns. Higher values indicate deeper or longer drawdowns from recent highs."
+  usageContext: "Use for risk-adjusted performance evaluation and portfolio construction when downside risk is more important than total volatility. Unlike standard deviation which penalizes upside equally, Ulcer Index focuses purely on drawdown pain. Ideal for comparing strategies or assets where avoiding losses matters more than capturing gains. Common in conservative portfolios and retirement accounts."
+  strategyTypes: ["risk-management", "drawdown-control", "conservative-allocation", "performance-evaluation"]
+  relatedTransforms: ["return_vol", "garman_klass", "cum_prod"]
+  assetRequirements: ["single-asset"]
+  limitations: "Only measures drawdown depth/duration, not recovery speed or upside potential. Less useful for assessing strategies with asymmetric payoffs (e.g., tail-risk hedging). Requires sufficient lookback to capture meaningful drawdown history - ineffective with limited data. Not predictive of future drawdowns."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback window for measuring drawdown depth and duration from rolling high"
+      tuningGuidance: "Shorter periods (7-14) for tactical drawdown monitoring and dynamic risk adjustment. Standard 14-30 for general risk assessment. Longer periods (60-252) for strategic evaluation of long-term drawdown characteristics. Match to your investment horizon and pain tolerance."
     - id: use_sum
       name: Use Sum
       type: Boolean
       default: false
+      desc: "If true, uses sum of squared drawdowns; if false, uses root-mean-square (RMS) calculation"
+      tuningGuidance: "False (RMS, default): Standard calculation comparable across different periods and assets. True (sum): Emphasizes cumulative drawdown severity over time, useful for penalizing persistent drawdowns. Use RMS for cross-asset comparison, sum for pain-weighted portfolio construction."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "drawdown", "technical"]
   category: Volatility
@@ -637,15 +893,24 @@ ulcer_index:
 yang_zhang:
   name: Yang-Zhang Volatility
   desc: "Advanced volatility estimator that accounts for opening jumps and combines overnight and intraday volatility. Designed to be robust against price jumps and more accurate than simpler measures."
+  usageContext: "Use for the most accurate volatility estimates in markets with significant overnight gaps or opening jumps (e.g., earnings announcements, geopolitical events). Separates overnight volatility from intraday volatility for better risk modeling. Preferred for options pricing, VaR models, and sophisticated risk management where volatility decomposition matters. Most comprehensive of range-based estimators."
+  strategyTypes: ["options-trading", "risk-management", "sophisticated-portfolio-optimization", "earnings-strategies"]
+  relatedTransforms: ["garman_klass", "parkinson", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Most complex volatility estimator - requires full OHLC data and more computation. Benefit over simpler methods (Garman-Klass, Parkinson) is marginal in markets without frequent gaps. Overkill for strategies that only need relative volatility ranking. Not suitable for continuous 24/7 markets (crypto) where open/close distinction is arbitrary."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback window for comprehensive OHLC volatility estimation with jump adjustment"
+      tuningGuidance: "Shorter periods (7-10) capture recent volatility regime shifts, useful for dynamic hedging. Standard 14-21 balances accuracy with responsiveness. Longer periods (30-60) for stable strategic risk metrics. More robust than simpler estimators at shorter periods due to jump correction."
     - id: trading_periods
       name: Trading Periods Per Year
       type: Integer
       default: 252
+      desc: "Annual period count for volatility annualization (252 for US daily equities)"
+      tuningGuidance: "Use 252 for US equities (standard), ~260 for international markets, match your actual annual bar count. Critical for comparing across timeframes. Not recommended for 24/7 crypto markets where overnight component is meaningless."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "volatility", "risk", "technical", "complex"]
   category: Volatility
@@ -659,19 +924,30 @@ yang_zhang:
 chande_kroll_stop:
   name: Chande Kroll Stop
   desc: "Trend-following indicator that provides dynamic stop-loss levels. Combines volatility and moving averages to set appropriate stop points for both long and short positions."
+  usageContext: "Use for dynamic stop-loss placement in trend-following strategies. Long_stop provides trailing stops for long positions (placed below price), short_stop for short positions (above price). More sophisticated than fixed-percentage stops because it adapts to volatility. Prevents premature exits in trending markets while protecting gains."
+  strategyTypes: ["trend-following", "stop-loss-management", "position-protection", "breakout"]
+  relatedTransforms: ["keltner_channels", "previous_high_low", "swing_highs_lows"]
+  assetRequirements: ["single-asset"]
+  limitations: "Lagging indicator - stops trail price, so won't prevent all losses in sudden reversals. Requires parameter tuning per asset and timeframe to balance protection vs premature exit. Not suitable for range-bound or choppy markets where frequent stop-outs occur. Works best in established trends."
   options:
     - id: p_period
       name: Price Period
       type: Integer
       default: 10
+      desc: "Lookback period for identifying highest high (short stop) and lowest low (long stop)"
+      tuningGuidance: "Shorter periods (5-7) keep stops tighter, better for volatile assets or active trading but increase exit frequency. Standard 10 balances protection with staying power. Longer periods (15-20) for position trading in smooth trends, reduces whipsaws."
     - id: q_period
       name: ATR Period
       type: Integer
       default: 20
+      desc: "Period for calculating Average True Range used in volatility adjustment"
+      tuningGuidance: "Shorter periods (10-15) make stops more responsive to recent volatility changes. Standard 20 provides stable ATR measure. Longer periods (30-50) smooth volatility spikes for strategic positions. Should typically be longer than p_period."
     - id: multiplier
       name: Multiplier
       type: Decimal
       default: 3.0
+      desc: "ATR multiplier controlling stop distance from price extremes - higher values = wider stops"
+      tuningGuidance: "Lower multipliers (1.5-2.5) for tighter stops and quicker exits, suitable for scalping or day trading. Standard 3.0 balances room for noise with protection. Higher values (3.5-5.0) for swing trading or volatile assets to avoid stop-outs during normal pullbacks. Backtest to optimize."
   outputs:
     - { type: Decimal, id: "long_stop", name: "Long Stop" }
     - { type: Decimal, id: "short_stop", name: "Short Stop" }
@@ -685,19 +961,30 @@ chande_kroll_stop:
 elders_thermometer:
   name: Elder's Force Index Thermometer
   desc: "Measures buying and selling pressure using price movement and volume. Generates buy and sell signals when pressure reaches extreme levels defined by threshold factors."
+  usageContext: "Use for volume-confirmed momentum trading. Combines price change with volume to measure the 'force' behind moves - strong price moves on high volume generate high force readings. Buy/sell signals trigger at extreme force levels indicating exhaustion or capitulation. Particularly effective for identifying pullback entries in trends or reversal points."
+  strategyTypes: ["momentum", "volume-analysis", "pullback-entry", "exhaustion-reversal"]
+  relatedTransforms: ["ma", "return_vol", "cum_prod"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires both price and volume data - not suitable for instruments without reliable volume (forex spot, some crypto pairs). Extreme readings can stay extreme longer than expected in strong trends. Buy/sell factors require optimization per asset. Less effective in low-volume environments."
   options:
     - id: period
       name: Period
       type: Integer
       default: 13
+      desc: "EMA period for smoothing the raw force index to reduce noise"
+      tuningGuidance: "Shorter periods (5-9) for sensitive, responsive signals suited to intraday or active swing trading. Standard 13 (Fibonacci number) balances signal quality with lag. Longer periods (20-30) for position trading, filtering out short-term noise."
     - id: buy_factor
       name: Buy Factor
       type: Decimal
       default: 0.5
+      desc: "Threshold multiplier for generating buy signals - lower values trigger more signals"
+      tuningGuidance: "Lower values (0.3-0.4) for more frequent buy signals in aggressive strategies. Standard 0.5 filters for significant selling pressure exhaustion. Higher values (0.6-0.8) for conservative entries only at extreme lows. Optimize based on backtest win rate."
     - id: sell_factor
       name: Sell Factor
       type: Decimal
       default: 0.5
+      desc: "Threshold multiplier for generating sell signals - lower values trigger more signals"
+      tuningGuidance: "Lower values (0.3-0.4) for more frequent sell signals, useful for profit-taking in momentum strategies. Standard 0.5 captures strong buying pressure exhaustion. Higher values (0.6-0.8) for rare, extreme overbought conditions only. Balance with buy_factor for symmetric strategy."
   outputs:
     - { type: Decimal, id: "result", name: "Force Index" }
     - { type: Decimal, id: "ema", name: "EMA of Force Index" }
@@ -713,12 +1000,19 @@ elders_thermometer:
 hurst_exponent:
   name: Hurst Exponent
   desc: "Measures the long-term memory or persistence of a time series. Values above 0.5 indicate trend-following behavior, while values below 0.5 suggest mean-reverting tendencies."
+  usageContext: "Use for regime detection and strategy selection. H > 0.5 suggests persistent/trending behavior - favor trend-following strategies. H < 0.5 indicates mean-reverting behavior - favor mean-reversion strategies. H ≈ 0.5 is random walk (efficient market). Critical for adaptive systems that switch between trend and mean-reversion modes based on market state."
+  strategyTypes: ["regime-detection", "strategy-selection", "adaptive-trading", "market-microstructure"]
+  relatedTransforms: ["rolling_hurst_exponent", "return_vol", "zscore"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires substantial data history (100+ bars minimum) for stable estimates. Computation is expensive - not suitable for real-time high-frequency use. Estimates can be unstable with noisy or non-stationary data. Value is backward-looking and doesn't predict future regime changes. Best used on rolling basis (see rolling_hurst_exponent)."
   inputs: [NUMBER]
   options:
     - id: min_period
       name: Minimum Period
       type: Integer
       default: 1
+      desc: "Minimum lag for R/S analysis calculation - affects sensitivity to short-term vs long-term persistence"
+      tuningGuidance: "Start with 1 (default) to include all timescales. Increase to 2-5 to focus on longer-term persistence and ignore ultra-short-term noise. Rarely needs adjustment unless analyzing specific frequency bands. Keep low for general regime detection."
   outputs:
     - { type: Decimal, id: "result", name: "Hurst Exponent" }
   tags: ["indicator", "fractal", "time-series", "trend", "mean-reversion"]
@@ -729,12 +1023,19 @@ hurst_exponent:
 rolling_hurst_exponent:
   name: Rolling Hurst Exponent
   desc: "Calculates the Hurst exponent over a rolling window of data. Provides insights into changing market behavior between trending and mean-reverting regimes."
+  usageContext: "Use for adaptive strategy switching that responds to regime changes. Monitors whether the market is currently trending (H>0.5) or mean-reverting (H<0.5) and adjusts strategy accordingly. More practical than static hurst_exponent because it tracks evolving market dynamics. Ideal for meta-strategies that allocate between trend-following and mean-reversion sub-strategies based on detected regime."
+  strategyTypes: ["adaptive-trading", "regime-switching", "dynamic-strategy-allocation", "meta-strategy"]
+  relatedTransforms: ["hurst_exponent", "return_vol", "rolling_hurst_exponent"]
+  assetRequirements: ["single-asset"]
+  limitations: "KEY DIFFERENCE vs hurst_exponent: This calculates on rolling windows for time-varying regime detection; static hurst_exponent uses all available data. Requires large window (100+) for stability but then lags regime changes. Computationally intensive - may be slow on intrabar timeframes. Produces unstable/noisy readings with insufficient window size."
   inputs: [NUMBER]
   options:
     - id: window
       name: Window Size
       type: Integer
       default: 100
+      desc: "Rolling window size for Hurst calculation - larger windows = more stable but laggier regime detection"
+      tuningGuidance: "Minimum 100 bars (default) for somewhat stable estimates. Use 150-200 for more reliable regime detection with acceptable lag. Larger windows (300-500) for strategic allocation with smooth regime signals. Smaller windows (<100) produce noisy, unreliable estimates. Balance stability vs responsiveness."
   outputs:
     - { type: Decimal, id: "result", name: "Rolling Hurst Exponent" }
   tags: ["indicator", "fractal", "time-series", "rolling", "regime-change"]
@@ -745,6 +1046,11 @@ rolling_hurst_exponent:
 pivot_point_sr:
   name: Pivot Points with Support/Resistance
   desc: "Calculates classical pivot points with multiple levels of support and resistance. Used to identify potential reversal zones and price targets."
+  usageContext: "Use for intraday trading to identify key support/resistance levels where price is likely to pause or reverse. Pivot point acts as neutral zone; price above pivot suggests bullish bias, below suggests bearish. R1/R2/R3 are upside targets and resistance; S1/S2/S3 are downside targets and support. Widely used in day trading, especially for range-bound markets and mean-reversion."
+  strategyTypes: ["intraday-trading", "support-resistance", "mean-reversion", "range-trading", "target-setting"]
+  relatedTransforms: ["previous_high_low", "donchian_channel", "retracements"]
+  assetRequirements: ["single-asset"]
+  limitations: "Most effective on liquid intraday timeframes (1-minute to 1-hour) where floor traders historically used them. Less reliable on higher timeframes or illiquid assets. Becomes self-fulfilling prophecy - works because many traders watch same levels. Requires prior day's H/L/C, so not available at market open without history."
   outputs:
     - { type: Decimal, id: "pivot", name: "Pivot Point" }
     - { type: Decimal, id: "resist_1", name: "Resistance 1" }
@@ -764,6 +1070,11 @@ price_distance:
   name: Price Distance
   type: Indicator
   desc: "Measures the relative distance between key price points (open, high, low, close) in a single bar. Quantifies volatility and the shape of price movement within periods."
+  usageContext: "Use to quantify intrabar volatility and candlestick shape characteristics. High price_distance indicates large wicks/tails (rejection at extremes), while low values suggest tight consolidation or strong directional bars. Useful for filtering out choppy periods, identifying volatility expansion, or selecting high-conviction signals with clean price action."
+  strategyTypes: ["volatility-filtering", "price-action-analysis", "signal-quality-filtering", "candlestick-pattern-detection"]
+  relatedTransforms: ["return_vol", "garman_klass", "gap_returns"]
+  assetRequirements: ["single-asset"]
+  limitations: "Only measures spatial distance, not directional information (bullish vs bearish). Absolute values depend on price level - best used relative or normalized. Most meaningful on intraday or daily timeframes; less informative on monthly/yearly bars. Requires full OHLC data."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "price-action", "volatility", "intrabar", "technical"]
   category: Volatility
@@ -775,11 +1086,18 @@ price_distance:
 psl:
   name: Price Swing Label
   desc: "Identifies and labels price swings as bullish or bearish based on recent price action. Helps detect trend changes and potential reversal points."
+  usageContext: "Use for swing structure identification and trend change detection. Labels each bar's swing character (+1 for bullish swing, -1 for bearish swing, 0 for neutral). Changes in label direction signal potential trend reversals or swing structure breaks. Particularly useful for price action strategies that enter on swing structure confirmation."
+  strategyTypes: ["swing-trading", "trend-reversal", "price-action", "structure-breaks"]
+  relatedTransforms: ["swing_highs_lows", "bos_choch", "previous_high_low"]
+  assetRequirements: ["single-asset"]
+  limitations: "Simple swing labeling may lag actual reversals. No threshold for swing significance - all swings treated equally regardless of magnitude. Requires parameter tuning per timeframe. More sophisticated than raw price changes but less comprehensive than full swing_highs_lows analysis."
   options:
     - id: period
       name: Period
       type: Integer
       default: 10
+      desc: "Lookback period for identifying swing character from price action"
+      tuningGuidance: "Shorter periods (5-7) for sensitive swing detection on lower timeframes, catches minor swings but noisier. Standard 10 balances swing identification with false signals. Longer periods (15-20) for major swings only on higher timeframes. Match to your trading timeframe and swing definition."
   outputs:
     - { type: Decimal, id: "result", name: "Swing Label" }
   tags: ["indicator", "price-action", "swing", "trend-change", "reversal"]
@@ -792,19 +1110,30 @@ psl:
 qqe:
   name: Quantitative Qualitative Estimation
   desc: "Enhanced RSI-based indicator with smoothing and adaptive bands. Generates potential trading signals when price crosses the upper or lower threshold lines."
+  usageContext: "Use as a smoother, less noisy alternative to raw RSI for momentum and overbought/oversold detection. QQE line crossing above long_line suggests bullish momentum; crossing below short_line indicates bearish momentum. Adaptive bands reduce false signals compared to fixed RSI thresholds. Best for trend-following with momentum confirmation, not strict mean-reversion."
+  strategyTypes: ["momentum", "trend-following", "overbought-oversold", "signal-generation"]
+  relatedTransforms: ["ma", "bband_percent", "zscore"]
+  assetRequirements: ["single-asset"]
+  limitations: "Still an RSI derivative - shares RSI's lag and tendency to stay overbought/oversold in strong trends. More parameters to optimize than simple RSI. Threshold crossovers can whipsaw in ranging markets. Not as widely used as standard RSI, less established interpretation."
   options:
     - id: avg_period
       name: Average Period
       type: Integer
       default: 14
+      desc: "Base RSI calculation period before additional smoothing"
+      tuningGuidance: "Standard RSI 14 period is default for general use. Shorter periods (7-10) for faster response in active trading. Longer periods (21-28) for smoother, less sensitive signals in position trading. Coordinate with smooth_period for overall responsiveness."
     - id: smooth_period
       name: Smoothing Period
       type: Integer
       default: 5
+      desc: "EMA period applied to RSI to create the base QQE line - reduces noise"
+      tuningGuidance: "Shorter smoothing (3-4) maintains more RSI responsiveness, good for active strategies. Standard 5 provides moderate noise reduction. Longer smoothing (7-10) creates very smooth signals but increases lag. Lower values if using longer avg_period, higher if using shorter avg_period."
     - id: width_factor
       name: Width Factor
       type: Decimal
       default: 4.236
+      desc: "Multiplier for threshold band width around RSI MA - controls signal sensitivity"
+      tuningGuidance: "Standard 4.236 (Fibonacci-derived) provides balanced signal frequency. Lower values (3.0-4.0) generate more frequent signals, suitable for active trading but more false positives. Higher values (5.0-6.0) filter for stronger momentum moves with fewer signals. Optimize per asset volatility."
   outputs:
     - { type: Decimal, id: "result", name: "QQE" }
     - { type: Decimal, id: "rsi_ma", name: "RSI Moving Average" }
@@ -820,11 +1149,18 @@ qqe:
 vortex:
   name: Vortex Indicator
   desc: "Identifies the start of new trends and trend direction using price movement patterns. Comprised of two lines that cross during trend changes."
+  usageContext: "Use for trend identification and directional confirmation. VI+ crossing above VI- signals uptrend start; VI- crossing above VI+ signals downtrend start. Values above 1.0 indicate strong directional movement. Best used to confirm trend direction for entry timing or to validate signals from other indicators. More responsive to trend changes than moving averages."
+  strategyTypes: ["trend-following", "trend-identification", "directional-confirmation", "crossover-trading"]
+  relatedTransforms: ["ma", "swing_highs_lows", "bos_choch"]
+  assetRequirements: ["single-asset"]
+  limitations: "Crossovers can whipsaw in ranging/choppy markets, generating false trend signals. Both lines oscillate, making absolute level interpretation difficult. Works best with trending assets; underperforms in sideways markets. Requires confirmation from price action or other indicators to avoid false starts."
   options:
     - id: period
       name: Period
       type: Integer
       default: 14
+      desc: "Lookback period for calculating positive and negative vortex movement"
+      tuningGuidance: "Shorter periods (7-10) detect trend changes quickly but generate more false crossovers in noisy markets. Standard 14 balances sensitivity with reliability. Longer periods (21-28) produce smoother, more confirmed trend signals with reduced whipsaws. Match to your trend trading timeframe."
   outputs:
     - { type: Decimal, id: "plus_indicator", name: "VI+" }
     - { type: Decimal, id: "minus_indicator", name: "VI-" }
@@ -838,6 +1174,11 @@ vortex:
 trade_executor_adapter:
   name: Trade Executor Adapter
   desc: "Converts numerical trade signal/value (Positive, Negative) into boolean long and short execution flags. Used for connecting signal generators to execution components."
+  usageContext: "Use as a utility node to convert continuous signals (e.g., momentum indicators, ML model scores) into discrete long/short boolean flags for execution. Positive input values trigger long=true, negative values trigger short=true. Essential bridge between signal generation and trade execution systems that require binary decisions."
+  strategyTypes: ["signal-conversion", "execution-logic", "utility"]
+  relatedTransforms: ["boolean_branch", "percentile_select"]
+  assetRequirements: ["single-asset"]
+  limitations: "Simple sign-based conversion with no hysteresis or filtering - may flip frequently with noisy signals. No threshold or deadzone - any positive triggers long, any negative triggers short. Consider adding signal filtering or threshold logic before this adapter if signals are noisy."
   inputs: [NUMBER]
   outputs:
     - { type: Boolean, id: "long", name: "Long" }
@@ -851,8 +1192,21 @@ trade_executor_adapter:
 donchian_channel:
   name: Donchian Channel
   desc: "Price channel with upper and lower bands from rolling high/low and a middle line as their average. Useful for breakouts and trend following."
+  usageContext: "Use for breakout and trend-following strategies. Upper band = highest high over window, lower band = lowest low, middle = average. Price breaking above upper band signals bullish breakout; breaking below lower indicates bearish breakout. Classic trend-following entry: buy on upper band break with stop at lower band. Popular in turtle trading and commodity systems."
+  strategyTypes: ["breakout", "trend-following", "channel-trading", "turtle-trading"]
+  relatedTransforms: ["keltner_channels", "bbands", "previous_high_low"]
+  assetRequirements: ["single-asset"]
+  limitations: "Lagging indicator - breakouts signal after move starts, often at worst entry point. High false breakout rate in ranging markets. No volatility adjustment (unlike Keltner/Bollinger) - fixed period range. Works best in trending markets with clear directional moves. Less effective in choppy conditions."
   options:
-    - { id: window, name: Window, type: Integer, default: 20, min: 1, max: 10000, step_size: 1 }
+    - id: window
+      name: Window
+      type: Integer
+      default: 20
+      min: 1
+      max: 10000
+      step_size: 1
+      desc: "Lookback period for highest high and lowest low calculation"
+      tuningGuidance: "Shorter windows (10-15) for active breakout trading, catches earlier moves but more false signals. Classic 20 (turtle system default) balances sensitivity with reliability. Longer windows (40-55) for position trading and major trend identification. Match to your intended holding period."
   outputs:
     - { type: Decimal, id: "bbands_upper", name: "Upper" }
     - { type: Decimal, id: "bbands_middle", name: "Middle" }
@@ -867,10 +1221,39 @@ donchian_channel:
 ichimoku:
   name: Ichimoku Cloud
   desc: "Multi-line trend system: Tenkan-sen, Kijun-sen, Senkou Span A/B (cloud), and Chikou span."
+  usageContext: "Use for comprehensive trend analysis combining momentum, support/resistance, and trend direction. Price above cloud = bullish, below = bearish. Tenkan-Kijun cross signals trend changes. Cloud provides dynamic support/resistance zones. Chikou span confirms trend strength when above/below price. Popular in forex and Japanese equity markets. Best for position trading and multi-timeframe analysis."
+  strategyTypes: ["trend-following", "support-resistance", "multi-timeframe-analysis", "position-trading"]
+  relatedTransforms: ["ma", "donchian_channel", "keltner_channels"]
+  assetRequirements: ["single-asset"]
+  limitations: "Complex system with 5 components - steep learning curve and many signals to interpret. Default parameters (9/26/52) optimized for weekly Japanese stock market, may need adjustment for other markets/timeframes. Future-plotted cloud (Senkou spans) can confuse beginners. Lagging nature of all components - confirms trends after they start. Not suitable for ranging markets."
   options:
-    - { id: p_tenkan, name: Tenkan Period, type: Integer, default: 9, min: 1, max: 10000, step_size: 1 }
-    - { id: p_kijun, name: Kijun Period, type: Integer, default: 26, min: 1, max: 10000, step_size: 1 }
-    - { id: p_senkou_b, name: Senkou B Period, type: Integer, default: 52, min: 1, max: 10000, step_size: 1 }
+    - id: p_tenkan
+      name: Tenkan Period
+      type: Integer
+      default: 9
+      min: 1
+      max: 10000
+      step_size: 1
+      desc: "Conversion line period (short-term momentum) - midpoint of highest high and lowest low"
+      tuningGuidance: "Default 9 from Japanese 1.5-week cycle. For daily charts outside Japan, consider 10 for round number. Shorter values (5-7) for more responsive signals in volatile markets. Keep ~1/3 of Kijun period ratio."
+    - id: p_kijun
+      name: Kijun Period
+      type: Integer
+      default: 26
+      min: 1
+      max: 10000
+      step_size: 1
+      desc: "Base line period (medium-term trend) - midpoint of highest high and lowest low"
+      tuningGuidance: "Default 26 from Japanese monthly cycle. For non-Japanese markets, 20 or 30 work well. Should be ~3x Tenkan period. Longer values (40-50) for smoother, less sensitive trend identification."
+    - id: p_senkou_b
+      name: Senkou B Period
+      type: Integer
+      default: 52
+      min: 1
+      max: 10000
+      step_size: 1
+      desc: "Leading span B period (long-term trend) - slower cloud boundary"
+      tuningGuidance: "Default 52 from Japanese bi-monthly cycle. Should be ~2x Kijun period to maintain component relationship. For non-Japanese markets, 40, 60, or match your strategic timeframe. Forms more stable cloud boundary."
   outputs:
     - { type: Decimal, id: "tenkan", name: "Tenkan-sen" }
     - { type: Decimal, id: "kijun", name: "Kijun-sen" }
@@ -887,9 +1270,22 @@ ichimoku:
 zscore:
   name: Z-Score
   desc: "Rolling z-score of the input series: (x_t - mean)/stddev over the configured window."
+  usageContext: "Use for mean-reversion strategies and outlier detection. Normalizes any indicator to standard deviations from rolling mean. Z > +2 indicates overbought (2 std devs above mean), Z < -2 oversold. Ideal for comparing signal strength across different assets or making indicators stationary for ML models. Common thresholds: ±1.5 (aggressive), ±2.0 (standard), ±2.5 (conservative)."
+  strategyTypes: ["mean-reversion", "statistical-arbitrage", "outlier-detection", "pairs-trading", "ml-feature-engineering"]
+  relatedTransforms: ["bband_percent", "return_vol", "hurst_exponent"]
+  assetRequirements: ["single-asset"]
+  limitations: "Assumes distribution is roughly normal - breaks down with skewed or heavy-tailed data. Extreme values can persist longer than expected in trending regimes. Window size critical - too short creates noise, too long misses regime changes. Not suitable for non-stationary series without detrending first."
   inputs: [NUMBER]
   options:
-    - { id: window, name: Window, type: Integer, default: 20, min: 1, max: 10000, step_size: 1 }
+    - id: window
+      name: Window
+      type: Integer
+      default: 20
+      min: 1
+      max: 10000
+      step_size: 1
+      desc: "Rolling window size for calculating mean and standard deviation"
+      tuningGuidance: "Shorter windows (10-15) for responsive mean-reversion entries, captures recent regime quickly but noisier. Standard 20 balances stability with adaptation. Longer windows (40-60) for stable normalization in ML features or cross-asset comparisons. Match window to your mean-reversion timeframe."
   outputs: [DECIMAL_RESULT]
   tags: ["indicator", "statistics", "normalization", "standardization"]
   category: Statistical
@@ -901,13 +1297,56 @@ zscore:
 hmm:
   name: Hidden Markov Model
   desc: "Gaussian HMM for regime detection and probabilities over multiple input features."
+  usageContext: "Use for sophisticated regime detection combining multiple market features (volatility, momentum, volume). Automatically discovers hidden market states (e.g., low-vol trending, high-vol ranging, crisis) from data. State output indicates current regime for strategy switching. Transition matrix reveals regime change probabilities. More robust than single-indicator regime detection. Best for adaptive strategies that allocate between sub-strategies based on detected market state."
+  strategyTypes: ["regime-detection", "adaptive-trading", "multi-strategy-allocation", "quantitative-modeling"]
+  relatedTransforms: ["hurst_exponent", "rolling_hurst_exponent", "return_vol", "zscore"]
+  assetRequirements: ["single-asset"]
+  limitations: "Complex statistical model - requires substantial training data (100+ samples minimum). Computationally expensive, may be slow. Regime labels are arbitrary (State 0/1/2) and require interpretation. Model can overfit with too many states or too few samples. No guarantee states remain stable out-of-sample. Needs retraining as market dynamics evolve."
   options:
-    - { id: n_states, name: Number of States, type: Integer, default: 3, min: 1, max: 10, step_size: 1 }
-    - { id: max_iterations, name: Max Iterations, type: Integer, default: 1000, min: 1, step_size: 1 }
-    - { id: tolerance, name: Convergence Tolerance, type: Decimal, default: 0.00001, min: 0.0 }
-    - { id: compute_zscore, name: Z-Score Normalize, type: Boolean, default: true }
-    - { id: min_training_samples, name: Min Training Samples, type: Integer, default: 100, min: 1 }
-    - { id: lookback_window, name: Lookback Window, type: Integer, default: 0, min: 0 }
+    - id: n_states
+      name: Number of States
+      type: Integer
+      default: 3
+      min: 1
+      max: 10
+      step_size: 1
+      desc: "Number of hidden market regimes to identify (e.g., 2=bull/bear, 3=low/med/high vol)"
+      tuningGuidance: "Start with 2-3 states for interpretability. 2 states for simple bull/bear or high/low vol. 3 states (default) for low/medium/high volatility or trending/ranging/crisis. More states (4-5) capture nuance but harder to interpret and require more data. Avoid >5 states unless you have very long history."
+    - id: max_iterations
+      name: Max Iterations
+      type: Integer
+      default: 1000
+      min: 1
+      step_size: 1
+      desc: "Maximum EM algorithm iterations for model fitting convergence"
+      tuningGuidance: "1000 (default) sufficient for most cases. Increase to 2000-5000 if model doesn't converge (check logs). Lower to 500 for faster fitting if convergence is quick. More states or features require more iterations."
+    - id: tolerance
+      name: Convergence Tolerance
+      type: Decimal
+      default: 0.00001
+      min: 0.0
+      desc: "Convergence threshold for log-likelihood improvement in EM algorithm"
+      tuningGuidance: "Default 1e-5 provides good balance. Lower values (1e-6, 1e-7) for more precise fit but slower convergence. Higher values (1e-4, 1e-3) for faster fitting with acceptable accuracy. Tighter tolerance with more training data."
+    - id: compute_zscore
+      name: Z-Score Normalize
+      type: Boolean
+      default: true
+      desc: "Whether to normalize input features using z-score before HMM training"
+      tuningGuidance: "True (default) recommended - puts features on same scale, prevents domination by high-magnitude features. False only if you've pre-normalized inputs or want raw feature values to define regimes. Nearly always use true."
+    - id: min_training_samples
+      name: Min Training Samples
+      type: Integer
+      default: 100
+      min: 1
+      desc: "Minimum data points required before starting HMM training"
+      tuningGuidance: "100 (default) is bare minimum for 2-3 states. Use 200+ for stable estimates with 3+ states. Increase to 500-1000 for robust models with multiple features. Insufficient data causes unstable regime assignments."
+    - id: lookback_window
+      name: Lookback Window
+      type: Integer
+      default: 0
+      min: 0
+      desc: "If >0, uses only last N samples for training (rolling HMM); if 0, uses all available data"
+      tuningGuidance: "0 (default) uses all data for most stable model. Set to 252-500 for rolling HMM that adapts to recent market dynamics. Rolling window helps in non-stationary markets but requires more samples and is computationally expensive. Balance between stability (larger/all data) and adaptiveness (rolling)."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:
@@ -923,8 +1362,21 @@ hmm:
 gap_classify:
   name: Gap Classify
   desc: "Detects overnight gaps between previous close and current open at day boundaries, flags up/down gaps, whether they were filled intraday, and the fraction of fill (0-1)."
+  usageContext: "Track gap FILL BEHAVIOR for gap fade/fill strategies. gap_filled indicates if gap closed completely, gap_retrace shows partial fill percentage, gap_size shows gap magnitude. Use for strategies that fade large gaps expecting mean reversion, or avoid entering after gaps that don't fill (showing strong momentum)."
+  strategyTypes: ["gap-fade", "mean-reversion", "gap-analysis"]
+  relatedTransforms: ["price_diff_vol", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires intraday bars to detect fills. Best on stocks/indices with regular trading hours. 24/7 markets (crypto/forex) have less meaningful 'gaps' due to continuous trading. Gap size output provides both size and fill behavior in one transform."
   options:
-   - { id: fill_percent, name: Fill Percentage, type: Integer, default: 100, min: 0, max: 1000, step_size: 1 }
+   - id: fill_percent
+     name: Fill Percentage
+     type: Integer
+     default: 100
+     min: 0
+     max: 1000
+     step_size: 1
+     desc: "Minimum percentage of gap that must be retraced to consider it 'filled'"
+     tuningGuidance: "100% = full fill required (conservative). 50% = half-fill sufficient (more signals). Use lower values (50-75%) for partial fade strategies, 100% for pure gap fill plays."
   outputs:
     - { type: Boolean, id: "gap_filled", name: "Gap Filled" }
     - { type: Decimal, id: "gap_retrace", name: "Gap Retrace Fraction" }
@@ -932,7 +1384,7 @@ gap_classify:
     - { type: Decimal, id: "psc", name: "Prior Session Close" }
     - { type: Integer, id: "psc_timestamp", name: "PSC Timestamp" }
 
-  tags: ["indicator", "gap", "overnight", "fill", "price-action"]
+  tags: ["indicator", "gap", "overnight", "fill", "price-action", "gap-fade", "mean-reversion"]
   category: PriceAction
   renderKind: Standard
   plotKind: gap

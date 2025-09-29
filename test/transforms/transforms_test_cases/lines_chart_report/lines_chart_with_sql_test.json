@@ -3,26 +3,26 @@
     {
       "title": "Lines Chart Report with SQL Query",
       "input": {
-        "price": [
+        "timestamp": [
+          "2024-01-01T09:00:00",
+          "2024-01-01T10:00:00",
+          "2024-01-01T11:00:00",
+          "2024-01-01T12:00:00",
+          "2024-01-01T13:00:00"
+        ],
+        "market#price": [
           100.5,
           101.2,
           99.8,
           102.3,
           101.0
         ],
-        "volume": [
+        "market#volume": [
           1500.0,
           800.0,
           2000.0,
           1200.0,
           900.0
-        ],
-        "timestamp": [
-          1.0,
-          2.0,
-          3.0,
-          4.0,
-          5.0
         ]
       },
       "expect": {
@@ -34,13 +34,13 @@
             "type": "WidgetLinesChart",
             "x_axis": {
               "data": [
+                0.0,
                 1.0,
                 2.0,
                 3.0,
-                4.0,
-                5.0
+                4.0
               ],
-              "type": "TypeDecimal"
+              "type": "TypeInteger"
             },
             "lines": [
               {
@@ -60,7 +60,7 @@
       },
       "options": {
         "transform_name": "lines_chart_report",
-        "sql": "SELECT timestamp as x_axis, price FROM input ORDER BY timestamp",
+        "sql": "SELECT timestamp as x_axis, market_price as price FROM input ORDER BY timestamp",
         "table_name": "input",
         "title": "Price Over Time",
         "x_axis_column": "x_axis",
@@ -68,9 +68,15 @@
         "x_axis_title": "Time",
         "y_axis_title": "Price ($)",
         "output_id": "test_sql_lines_chart",
-        "inputs": "{SLOT: [price, volume, timestamp]}",
+        "use_index": true,
+        "index_column": "timestamp",
+        "inputs": "{SLOT: [market#price, market#volume]}",
         "timeframe": "1D"
-      }
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
     }
   ]
 }

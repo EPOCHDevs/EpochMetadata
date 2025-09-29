@@ -3,6 +3,15 @@
     {
       "title": "Lines Chart Report with SQL Aggregation",
       "input": {
+        "timestamp": [
+          "2024-01-01T09:00:00",
+          "2024-01-01T09:01:00",
+          "2024-01-01T09:02:00",
+          "2024-01-01T09:03:00",
+          "2024-01-01T09:04:00",
+          "2024-01-01T09:05:00",
+          "2024-01-01T09:06:00"
+        ],
         "strategy#returns": [
           0.05,
           -0.02,
@@ -21,7 +30,7 @@
           0.18,
           0.22
         ],
-        "sector": [
+        "portfolio#sector": [
           "tech",
           "finance",
           "tech",
@@ -30,7 +39,7 @@
           "energy",
           "tech"
         ],
-        "time_period": [
+        "analysis#time_period": [
           1.0,
           1.0,
           2.0,
@@ -73,7 +82,7 @@
       },
       "options": {
         "transform_name": "lines_chart_report",
-        "sql": "SELECT time_period as x_axis, AVG(strategy_returns) as avg_return FROM input GROUP BY time_period ORDER BY time_period",
+        "sql": "SELECT analysis_time_period as x_axis, AVG(strategy_returns) as avg_return FROM input GROUP BY analysis_time_period ORDER BY analysis_time_period",
         "table_name": "input",
         "title": "Average Returns by Time Period",
         "x_axis_column": "x_axis",
@@ -81,9 +90,15 @@
         "x_axis_title": "Time Period",
         "y_axis_title": "Average Return",
         "output_id": "test_agg_lines_chart",
-        "inputs": "{SLOT: [strategy#returns, risk_model#volatility, sector, time_period]}",
+        "use_index": true,
+        "index_column": "timestamp",
+        "inputs": "{SLOT: [strategy#returns, risk_model#volatility, portfolio#sector, analysis#time_period]}",
         "timeframe": "1D"
-      }
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
     }
   ]
 }

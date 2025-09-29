@@ -623,7 +623,7 @@ inline auto sessions = [](std::string const &id,
 type: sessions
 id: {}
 options:
-  "session": {}
+  "session_type": {}
 timeframe: {}
 )",
                              id, session_name, timeframe.Serialize()))}};

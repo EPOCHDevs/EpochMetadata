@@ -3,14 +3,21 @@
     {
       "title": "Simple Bar Chart Report Test",
       "input": {
-        "category": [
+        "timestamp": [
+          "2024-01-01T09:00:00",
+          "2024-01-01T10:00:00",
+          "2024-01-01T11:00:00",
+          "2024-01-01T12:00:00",
+          "2024-01-01T13:00:00"
+        ],
+        "sector#category": [
           "Tech",
           "Finance",
           "Energy",
           "Healthcare",
           "Consumer"
         ],
-        "value": [
+        "sector#value": [
           150.5,
           120.2,
           98.8,
@@ -55,16 +62,124 @@
       "options": {
         "transform_name": "bar_chart_report",
         "title": "Sector Performance",
-        "category_column": "category",
-        "value_column": "value",
+        "category_column": "sector_category",
+        "value_column": "sector_value",
         "vertical": true,
         "stacked": false,
         "x_axis_title": "Sector",
         "y_axis_title": "Performance",
         "output_id": "test_bar_chart",
-        "inputs": "{SLOT: [category, value]}",
+        "inputs": "{SLOT: [sector#category, sector#value]}",
         "timeframe": "1D"
       }
+    },
+    {
+      "title": "Bar Chart Report with SQL Aggregation",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:30:00",
+          "2024-01-01T10:30:00",
+          "2024-01-01T11:30:00",
+          "2024-01-01T12:30:00",
+          "2024-01-01T13:30:00",
+          "2024-01-01T14:30:00",
+          "2024-01-01T15:30:00",
+          "2024-01-01T16:30:00",
+          "2024-01-02T09:30:00",
+          "2024-01-02T10:30:00"
+        ],
+        "portfolio#sector": [
+          "Tech",
+          "Tech",
+          "Finance",
+          "Finance",
+          "Energy",
+          "Energy",
+          "Healthcare",
+          "Healthcare",
+          "Consumer",
+          "Consumer"
+        ],
+        "portfolio#market_cap": [
+          2800000.0,
+          2850000.0,
+          1500000.0,
+          1520000.0,
+          800000.0,
+          790000.0,
+          2200000.0,
+          2250000.0,
+          1200000.0,
+          1180000.0
+        ],
+        "portfolio#daily_volume": [
+          25000000.0,
+          28000000.0,
+          15000000.0,
+          16000000.0,
+          8000000.0,
+          7500000.0,
+          12000000.0,
+          13000000.0,
+          9000000.0,
+          8500000.0
+        ]
+      },
+      "expect": {
+        "type": "tearsheet",
+        "charts": [
+          {
+            "title": "Average Market Cap by Sector",
+            "category": "Charts",
+            "type": "WidgetBarChart",
+            "bars": [
+              {
+                "name": "Healthcare",
+                "value": 2225000.0
+              },
+              {
+                "name": "Tech",
+                "value": 2825000.0
+              },
+              {
+                "name": "Finance",
+                "value": 1510000.0
+              },
+              {
+                "name": "Consumer",
+                "value": 1190000.0
+              },
+              {
+                "name": "Energy",
+                "value": 795000.0
+              }
+            ],
+            "vertical": true,
+            "stacked": false
+          }
+        ]
+      },
+      "options": {
+        "transform_name": "bar_chart_report",
+        "title": "Average Market Cap by Sector",
+        "sql": "SELECT portfolio_sector as category, AVG(portfolio_market_cap) as value FROM input GROUP BY portfolio_sector ORDER BY value DESC",
+        "table_name": "input",
+        "category_column": "category",
+        "value_column": "value",
+        "vertical": true,
+        "stacked": false,
+        "x_axis_title": "Sector",
+        "y_axis_title": "Average Market Cap ($)",
+        "add_index": true,
+        "index_column_name": "timestamp",
+        "output_id": "test_bar_chart_sql",
+        "inputs": "{SLOT: [portfolio#sector, portfolio#market_cap, portfolio#daily_volume]}",
+        "timeframe": "1H"
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
     }
   ]
 }

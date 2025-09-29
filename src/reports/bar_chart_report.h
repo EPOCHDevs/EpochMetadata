@@ -10,16 +10,18 @@ class BarChartReport : public IReporter {
 public:
   explicit BarChartReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlQuery(GetSQLQuery()),
-        m_tableName(GetTableName()),
-        m_chartTitle(GetChartTitle()),
-        m_categoryColumn(GetCategoryColumn()),
-        m_valueColumn(GetValueColumn()),
-        m_vertical(GetVertical()),
-        m_stacked(GetStacked()),
-        m_barWidth(GetBarWidth()),
-        m_xAxisTitle(GetXAxisTitle()),
-        m_yAxisTitle(GetYAxisTitle()) {
+        m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
+        m_tableName(m_config.GetOptionValue("table_name").GetString()),
+        m_chartTitle(m_config.GetOptionValue("title").GetString()),
+        m_categoryColumn(m_config.GetOptionValue("category_column").GetString()),
+        m_valueColumn(m_config.GetOptionValue("value_column").GetString()),
+        m_vertical(m_config.GetOptionValue("vertical").GetBoolean()),
+        m_stacked(m_config.GetOptionValue("stacked").GetBoolean()),
+        m_barWidth(static_cast<uint32_t>(m_config.GetOptionValue("bar_width").GetInteger())),
+        m_xAxisTitle(m_config.GetOptionValue("x_axis_title").GetString()),
+        m_yAxisTitle(m_config.GetOptionValue("y_axis_title").GetString()),
+        m_addIndex(m_config.GetOptionValue("add_index").GetBoolean()),
+        m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString()) {
   }
 
 protected:
@@ -36,20 +38,10 @@ private:
   const uint32_t m_barWidth;
   const std::string m_xAxisTitle;
   const std::string m_yAxisTitle;
+  const bool m_addIndex;
+  const std::string m_indexColumnName;
 
-  std::string GetSQLQuery() const;
-  std::string GetTableName() const;
-  std::string GetChartTitle() const;
-  std::string GetCategoryColumn() const;
-  std::string GetValueColumn() const;
-  bool GetVertical() const;
-  bool GetStacked() const;
-  uint32_t GetBarWidth() const;
-  std::string GetXAxisTitle() const;
-  std::string GetYAxisTitle() const;
 
-  epoch_frame::DataFrame PrepareInputDataFrame(const epoch_frame::DataFrame& df) const;
-  epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) const;
 };
 
 template <> struct ReportMetadata<BarChartReport> {
@@ -116,7 +108,19 @@ template <> struct ReportMetadata<BarChartReport> {
          .name = "Y Axis Title",
          .type = epoch_core::MetaDataOptionType::String,
          .isRequired = false,
-         .desc = "Title for the y-axis"}
+         .desc = "Title for the y-axis"},
+        {.id = "add_index",
+         .name = "Add Index",
+         .type = epoch_core::MetaDataOptionType::Boolean,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
+         .isRequired = false,
+         .desc = "Add DataFrame index as a queryable column for SQL queries"},
+        {.id = "index_column_name",
+         .name = "Index Column Name",
+         .type = epoch_core::MetaDataOptionType::String,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+         .isRequired = false,
+         .desc = "Name for the index column when add_index is true"}
       },
       .isCrossSectional = false,
       .desc = "Generates bar chart from DataFrame. Required columns: category, value",

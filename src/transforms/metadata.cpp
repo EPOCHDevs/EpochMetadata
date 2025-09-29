@@ -53,6 +53,13 @@ void TransformsMetaData::decode(const YAML::Node &element) {
           std::vector<std::string>{});
   intradayOnly = element["intradayOnly"].as<bool>(false);
   allowNullInputs = element["allowNullInputs"].as<bool>(false);
+
+  // Enhanced metadata for RAG/LLM
+  strategyTypes = element["strategyTypes"].as<std::vector<std::string>>(std::vector<std::string>{});
+  relatedTransforms = element["relatedTransforms"].as<std::vector<std::string>>(std::vector<std::string>{});
+  assetRequirements = element["assetRequirements"].as<std::vector<std::string>>(std::vector<std::string>{});
+  usageContext = element["usageContext"].as<std::string>("");
+  limitations = element["limitations"].as<std::string>("");
 }
 
 TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);
@@ -73,7 +80,11 @@ TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
       .inputs = {{epoch_core::IODataType::Boolean, "condition", "Condition"},
                  {epoch_core::IODataType::Any, "true", "True Value"},
                  {epoch_core::IODataType::Any, "false", "False Value"}},
-      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA}};
+      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
+      .strategyTypes = {"conditional-logic"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Conditional routing for strategy logic. Route different values based on conditions like time-of-day filters, regime detection, or risk states. Common use: switch between aggressive/conservative position sizing based on volatility regime.",
+      .limitations = "Can only choose between two values. For more options, use select_N transforms (select_2, select_3, etc.)."};
 }
 
 TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
@@ -87,7 +98,15 @@ TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
 
   metadata.isCrossSectional = false;
-  metadata.desc = name;
+  metadata.desc = name + " comparison. Returns true when first input " +
+                  (id == "gt" ? "is greater than" :
+                   id == "gte" ? "is greater than or equal to" :
+                   id == "lt" ? "is less than" :
+                   id == "lte" ? "is less than or equal to" :
+                   id == "eq" ? "equals" : "does not equal") + " second input.";
+  metadata.usageContext = "Basic comparison for signal generation. Common uses: price vs MA crossovers, indicator threshold levels, multi-timeframe confirmations.";
+  metadata.strategyTypes = {"signal-generation", "threshold-detection"};
+  metadata.assetRequirements = {"single-asset"};
   metadata.tags = {"math", "comparison", name, "operator"};
 
   // Inputs
@@ -122,6 +141,10 @@ TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
   metadata.isCrossSectional = false;
   metadata.desc = "Selects one of " + std::to_string(N) +
                   " inputs based on a zero-indexed selector value";
+  metadata.usageContext = "Multi-way routing for strategy logic. Use integer index to select between " + std::to_string(N) + " different values/signals. Common use: regime-based strategy selection where index comes from market state detection (e.g., 0=trend strategy, 1=mean-reversion, 2=defensive).";
+  metadata.strategyTypes = {"multi-strategy-selection", "regime-switching", "conditional-routing"};
+  metadata.assetRequirements = {"single-asset"};
+  metadata.limitations = "Index must be integer 0 to " + std::to_string(N-1) + ". Out-of-range indices may cause errors. For binary choice, use boolean_branch instead.";
   metadata.tags = {"flow-control", "selector", "switch", "conditional"};
 
   // Inputs: "index", "option_0", "option_1", ..., "option_{N-1}"
@@ -156,7 +179,11 @@ TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
   metadata.renderKind = epoch_core::TransformNodeRenderKind::Operator;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
-  metadata.desc = name;
+  metadata.desc = name + " boolean operator for combining conditions.";
+  metadata.usageContext = "Combine multiple signals/conditions into complex trading logic. AND for requiring all conditions, OR for any condition, NOT for inverting signals. Common pattern: (price > MA) AND (volume > threshold) for confirmed breakouts.";
+  metadata.strategyTypes = {"signal-combination", "conditional-logic", "multi-condition-filtering"};
+  metadata.assetRequirements = {"single-asset"};
+  metadata.limitations = "Simple boolean logic only - no fuzzy logic or weighted combinations. Chain multiple operators for complex conditions (can become visually cluttered).";
   metadata.tags = {"logic", "boolean", "operator", trimmedName};
 
   // Inputs
@@ -225,17 +252,21 @@ TransformsMetaData MakeValueCompareMetaData(
 
   // Create description based on type and operator
   std::string desc;
+  std::string usageContext;
   if (value_type == "previous") {
     desc = "Signals when the current value is " + op_name + " the value " +
            std::to_string(default_periods) + " period(s) ago.";
+    usageContext = "Detects momentum and trend changes by comparing current value to historical values. Use for rate-of-change signals, momentum confirmation, or lag-based entry timing. Higher periods = longer-term momentum detection.";
   } else if (value_type == "highest") {
     desc = "Signals when the current value is " + op_name +
            " the highest value within " + "the past " +
            std::to_string(default_periods) + " periods.";
+    usageContext = "Identifies breakouts to new highs or pullbacks from highs. 'Greater Than Highest' signals new high breakouts. 'Less Than Highest' indicates pullback depth. Useful for breakout strategies and identifying strength/weakness.";
   } else { // lowest
     desc = "Signals when the current value is " + op_name +
            " the lowest value within " + "the past " +
            std::to_string(default_periods) + " periods.";
+    usageContext = "Identifies breakouts to new lows or bounces from lows. 'Less Than Lowest' signals new low breakdowns. 'Greater Than Lowest' indicates bounce strength. Useful for breakdown detection and oversold bounce strategies.";
   }
 
   TransformsMetaData metadata;
@@ -246,6 +277,10 @@ TransformsMetaData MakeValueCompareMetaData(
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.desc = desc;
+  metadata.usageContext = usageContext;
+  metadata.strategyTypes = {value_type == "previous" ? "momentum" : "breakout", "signal-generation", "threshold-detection"};
+  metadata.assetRequirements = {"single-asset"};
+  metadata.limitations = "Lagging indicator - signals occur after moves start. Sensitive to lookback period choice. No volatility adjustment.";
   metadata.tags = tags;
 
   // Period option
@@ -326,14 +361,20 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
                          .name = "Period",
                          .type = epoch_core::MetaDataOptionType::Integer,
                          .defaultValue = MetaDataOptionDefinition(static_cast<double>(1)),
-                         .min = 1}
+                         .min = 1,
+                         .desc = "Number of periods to shift the data backward",
+                         .tuningGuidance = "Lag 1 for previous bar comparison. Larger lags for detecting longer-term patterns or creating features for machine learning models. Common: 1 (prev bar), 5 (prev week on daily), 20 (prev month)."}
       },
       .desc = "Shifts each element in the input by the specified period, "
               "creating a lagged series. Works with any data type.",
       .inputs = {IOMetaDataConstants::ANY_INPUT_METADATA},
       .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
       .tags = {"math", "lag", "delay", "shift", "temporal"},
-      .requiresTimeFrame = false});
+      .requiresTimeFrame = false,
+      .strategyTypes = {"feature-engineering", "temporal-comparison"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",
+      .limitations = "Shifts data backward, so first N bars will be null/undefined. Not a predictive transform - only accesses past data."});
 
   return metadataList;
 }
@@ -356,7 +397,11 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
       .desc = "Outputs a constant numeric value. Useful for injecting fixed "
               "numbers into a pipeline.",
       .outputs = {IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
-      .tags = {"scalar", "constant", "number"}});
+      .tags = {"scalar", "constant", "number"},
+      .strategyTypes = {"parameter-injection", "threshold-setting"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Inject constant values for thresholds, parameters, or fixed position sizes. Common uses: threshold levels for signals (e.g., RSI > 70), fixed position sizing, mathematical constants in calculations.",
+      .limitations = "Static value only - cannot adapt to market conditions. For dynamic values, use indicators or calculations."});
 
   for (bool boolConstant : {true, false}) {
     metadataList.emplace_back(TransformsMetaData{
@@ -369,7 +414,11 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
         .desc =
             std::format("Outputs a constant boolean value of {}", boolConstant),
         .outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA},
-        .tags = {"scalar", "constant", "boolean"}});
+        .tags = {"scalar", "constant", "boolean"},
+        .strategyTypes = {"testing", "placeholder-logic"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = boolConstant ? "Always-true condition for testing, enabling branches, or placeholder logic." : "Always-false condition for disabling branches, testing, or placeholder logic.",
+        .limitations = "Constant value - no dynamic behavior. Mainly for development/testing."});
   }
 
   for (auto const &[id, name] :
@@ -427,7 +476,11 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   {epoch_core::IODataType::Number, "n", "Trade Count", true}},
       .tags = {"data", "source", "price", "ohlcv"},
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"}});
+      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"},
+      .strategyTypes = {"data-input"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Foundation node providing raw OHLCV market data to all strategies. Every strategy pipeline starts here. Outputs connect to indicators, comparisons, and calculations. VWAP and trade count available for advanced volume analysis.",
+      .limitations = "Data quality depends on feed provider. Historical data may have gaps or errors. Intraday data limited by subscription/exchange access."});
 
   return result;
 }
@@ -471,7 +524,11 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
       .inputs = {longMetaData, shortMetaData, closeLongPositionMetaData,
                  closeShortPositionMetaData},
       .atLeastOneInputRequired = true,
-      .requiresTimeFrame = false}};
+      .requiresTimeFrame = false,
+      .strategyTypes = {"execution", "position-management"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Terminal node that converts boolean signals into trade execution. Connect entry/exit conditions from your strategy logic. Handles position state management - exits before entries, no simultaneous long+short entries. Every backtestable strategy must end with this node.",
+      .limitations = "Simple execution only - no position sizing, no risk management, no order types. Assumes immediate fills at close price. Simultaneous long+short entry signals conflict and result in no action (prevents ambiguity)."}};
 }
 
 std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData() {

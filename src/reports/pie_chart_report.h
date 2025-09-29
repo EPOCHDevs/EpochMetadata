@@ -10,12 +10,14 @@ class PieChartReport : public IReporter {
 public:
   explicit PieChartReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlQuery(GetSQLQuery()),
-        m_tableName(GetTableName()),
-        m_chartTitle(GetChartTitle()),
-        m_labelColumn(GetLabelColumn()),
-        m_valueColumn(GetValueColumn()),
-        m_innerSize(GetInnerSize()) {
+        m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
+        m_tableName(m_config.GetOptionValue("table_name").GetString()),
+        m_chartTitle(m_config.GetOptionValue("title").GetString()),
+        m_labelColumn(m_config.GetOptionValue("label_column").GetString()),
+        m_valueColumn(m_config.GetOptionValue("value_column").GetString()),
+        m_innerSize(static_cast<uint32_t>(m_config.GetOptionValue("inner_size").GetInteger())),
+        m_addIndex(m_config.GetOptionValue("add_index").GetBoolean()),
+        m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString()) {
   }
 
 protected:
@@ -28,15 +30,9 @@ private:
   const std::string m_labelColumn;
   const std::string m_valueColumn;
   const uint32_t m_innerSize;
+  const bool m_addIndex;
+  const std::string m_indexColumnName;
 
-  std::string GetSQLQuery() const;
-  std::string GetTableName() const;
-  std::string GetChartTitle() const;
-  std::string GetLabelColumn() const;
-  std::string GetValueColumn() const;
-  uint32_t GetInnerSize() const;
-
-  epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) const;
 };
 
 template <> struct ReportMetadata<PieChartReport> {
@@ -83,7 +79,19 @@ template <> struct ReportMetadata<PieChartReport> {
          .isRequired = false,
          .min = 0,
          .max = 100,
-         .desc = "Inner radius percentage for donut chart (0 for pie, 50 for donut)"}
+         .desc = "Inner radius percentage for donut chart (0 for pie, 50 for donut)"},
+        {.id = "add_index",
+         .name = "Add Index",
+         .type = epoch_core::MetaDataOptionType::Boolean,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
+         .isRequired = false,
+         .desc = "Add DataFrame index as a queryable column for SQL queries"},
+        {.id = "index_column_name",
+         .name = "Index Column Name",
+         .type = epoch_core::MetaDataOptionType::String,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+         .isRequired = false,
+         .desc = "Name for the index column when add_index is true"}
       },
       .isCrossSectional = false,
       .desc = "Generates pie/donut chart from DataFrame. Required columns: label, value",

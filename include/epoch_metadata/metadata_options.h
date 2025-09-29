@@ -351,6 +351,7 @@ struct MetaDataOption {
   double max{std::numeric_limits<double>::max()};
   double step_size{0.000001};
   std::string desc{};
+  std::string tuningGuidance{};  // How to adjust this parameter for different strategies
 
   void decode(YAML::Node const &);
 

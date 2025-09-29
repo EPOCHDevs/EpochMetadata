@@ -10,13 +10,15 @@ class HistogramChartReport : public IReporter {
 public:
   explicit HistogramChartReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlQuery(GetSQLQuery()),
-        m_tableName(GetTableName()),
-        m_chartTitle(GetChartTitle()),
-        m_valuesColumn(GetValuesColumn()),
-        m_bins(GetBins()),
-        m_xAxisTitle(GetXAxisTitle()),
-        m_yAxisTitle(GetYAxisTitle()) {
+        m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
+        m_tableName(m_config.GetOptionValue("table_name").GetString()),
+        m_chartTitle(m_config.GetOptionValue("title").GetString()),
+        m_valuesColumn(m_config.GetOptionValue("values_column").GetString()),
+        m_bins(static_cast<uint32_t>(m_config.GetOptionValue("bins").GetInteger())),
+        m_xAxisTitle(m_config.GetOptionValue("x_axis_title").GetString()),
+        m_yAxisTitle(m_config.GetOptionValue("y_axis_title").GetString()),
+        m_addIndex(m_config.GetOptionValue("add_index").GetBoolean()),
+        m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString()) {
   }
 
 protected:
@@ -30,16 +32,9 @@ private:
   const uint32_t m_bins;
   const std::string m_xAxisTitle;
   const std::string m_yAxisTitle;
+  const bool m_addIndex;
+  const std::string m_indexColumnName;
 
-  std::string GetSQLQuery() const;
-  std::string GetTableName() const;
-  std::string GetChartTitle() const;
-  std::string GetValuesColumn() const;
-  uint32_t GetBins() const;
-  std::string GetXAxisTitle() const;
-  std::string GetYAxisTitle() const;
-
-  epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) const;
 };
 
 template <> struct ReportMetadata<HistogramChartReport> {
@@ -90,7 +85,19 @@ template <> struct ReportMetadata<HistogramChartReport> {
          .name = "Y Axis Title",
          .type = epoch_core::MetaDataOptionType::String,
          .isRequired = false,
-         .desc = "Title for the y-axis"}
+         .desc = "Title for the y-axis"},
+        {.id = "add_index",
+         .name = "Add Index",
+         .type = epoch_core::MetaDataOptionType::Boolean,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
+         .isRequired = false,
+         .desc = "Add DataFrame index as a queryable column for SQL queries"},
+        {.id = "index_column_name",
+         .name = "Index Column Name",
+         .type = epoch_core::MetaDataOptionType::String,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
+         .isRequired = false,
+         .desc = "Name for the index column when add_index is true"}
       },
       .isCrossSectional = false,
       .desc = "Generates histogram from DataFrame. Required column: values",

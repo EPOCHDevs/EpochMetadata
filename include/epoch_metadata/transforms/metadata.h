@@ -115,6 +115,13 @@ struct TransformsMetaData {
   bool allowNullInputs{false};
   bool isReporter{false};
 
+  // Enhanced metadata for RAG/LLM strategy construction
+  std::vector<std::string> strategyTypes{};  // e.g., "mean-reversion", "breakout", "trend-following"
+  std::vector<std::string> relatedTransforms{};  // Cross-references to complementary transforms
+  std::vector<std::string> assetRequirements{};  // e.g., "single-asset", "multi-asset-required"
+  std::string usageContext{};  // When/why to use this transform
+  std::string limitations{};  // Important caveats or constraints
+
   void decode(YAML::Node const &);
   YAML::Node encode() const { return {}; }
 };

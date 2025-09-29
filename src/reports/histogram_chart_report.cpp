@@ -1,4 +1,5 @@
 #include "histogram_chart_report.h"
+#include "report_utils.h"
 #include <epoch_dashboard/tearsheet/histogram_chart_builder.h>
 #include <epoch_frame/dataframe.h>
 #include <sstream>
@@ -11,11 +12,16 @@ void HistogramChartReport::generateTearsheet(const epoch_frame::DataFrame &norma
   try {
     epoch_frame::DataFrame preparedDf = normalizedDf;
 
-    // Execute SQL if provided
+    // If SQL query is provided, execute it first
     if (!m_sqlQuery.empty()) {
-      auto sanitizedDf = SanitizeColumnNames(preparedDf);
-      auto resultTable = sanitizedDf.query(m_sqlQuery, m_tableName);
-      preparedDf = epoch_frame::DataFrame(resultTable);
+      // Prepare DataFrame with optional index column for SQL access
+      epoch_frame::DataFrame indexPreparedDf = ReportUtils::PrepareIndexColumn(normalizedDf, m_addIndex, m_indexColumnName);
+
+      // Execute SQL with sanitization
+      preparedDf = ReportUtils::ExecuteSQLWithSanitization(indexPreparedDf, m_sqlQuery, m_tableName);
+    } else {
+      // For non-SQL queries, use the sanitized column names directly
+      preparedDf = ReportUtils::SanitizeColumnNames(normalizedDf);
     }
 
     // Validate required column
@@ -58,77 +64,5 @@ void HistogramChartReport::generateTearsheet(const epoch_frame::DataFrame &norma
   }
 }
 
-std::string HistogramChartReport::GetSQLQuery() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("sql") && options["sql"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["sql"].GetString();
-  }
-  return "";
-}
-
-std::string HistogramChartReport::GetTableName() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("table_name") && options["table_name"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["table_name"].GetString();
-  }
-  return "input";
-}
-
-std::string HistogramChartReport::GetChartTitle() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("title") && options["title"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["title"].GetString();
-  }
-  return "";
-}
-
-std::string HistogramChartReport::GetValuesColumn() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("values_column") && options["values_column"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["values_column"].GetString();
-  }
-  return "values";
-}
-
-uint32_t HistogramChartReport::GetBins() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("bins") && options["bins"].IsType(epoch_core::MetaDataOptionType::Integer)) {
-    return static_cast<uint32_t>(options["bins"].GetInteger());
-  }
-  return 30;
-}
-
-std::string HistogramChartReport::GetXAxisTitle() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("x_axis_title") && options["x_axis_title"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["x_axis_title"].GetString();
-  }
-  return "";
-}
-
-std::string HistogramChartReport::GetYAxisTitle() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("y_axis_title") && options["y_axis_title"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["y_axis_title"].GetString();
-  }
-  return "";
-}
-
-epoch_frame::DataFrame HistogramChartReport::SanitizeColumnNames(const epoch_frame::DataFrame& df) const {
-  auto table = df.table();
-  auto schema = table->schema();
-  std::unordered_map<std::string, std::string> renameMap;
-
-  for (int i = 0; i < schema->num_fields(); ++i) {
-    std::string colName = schema->field(i)->name();
-    std::regex hashRegex("#");
-    std::string sanitizedName = std::regex_replace(colName, hashRegex, "_");
-    if (colName != sanitizedName) {
-      renameMap[colName] = sanitizedName;
-    }
-  }
-
-  return renameMap.empty() ? df : df.rename(renameMap);
-}
 
 } // namespace epoch_metadata::reports

@@ -289,7 +289,9 @@ void MetaDataOption::decode(const YAML::Node &element) {
         .name = "Period",
         .type = epoch_core::MetaDataOptionType::Integer,
         .min = 1, // Period must be at least 1
-        .max = 1000}}};
+        .max = 1000,
+        .desc = "Number of bars to look back for calculation",
+        .tuningGuidance = "Shorter periods (5-20) are more responsive but noisier. Longer periods (50-200) are smoother but lag more. Common values: 14 (swing trading), 20 (daily), 50/200 (long-term trends)"}}};
 
   if (element.IsScalar()) {
     *this = epoch_core::lookup(PLACEHOLDER_MAP, element.as<std::string>());
@@ -326,5 +328,7 @@ void MetaDataOption::decode(const YAML::Node &element) {
   step_size = element["step_size"].as<double>(0.000001);
 
   isRequired = element["required"].as<bool>(true);
+  desc = element["desc"].as<std::string>("");
+  tuningGuidance = element["tuningGuidance"].as<std::string>("");
 }
 } // namespace epoch_metadata

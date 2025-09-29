@@ -200,14 +200,33 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                             protoData->set_type(epoch_proto::TypeString);
                         } else if (data.type == "TypeBoolean") {
                             protoData->set_type(epoch_proto::TypeBoolean);
+                        } else if (data.type == "TypePercent") {
+                            protoData->set_type(epoch_proto::TypePercent);
+                        } else if (data.type == "TypeMonetary") {
+                            protoData->set_type(epoch_proto::TypeMonetary);
+                        } else if (data.type == "TypeDate") {
+                            protoData->set_type(epoch_proto::TypeDate);
                         }
 
-                        // Set value
+                        // Set value using correct scalar variant based on type
                         epoch_proto::Scalar* protoValue = protoData->mutable_value();
                         if (std::holds_alternative<double>(data.value)) {
-                            protoValue->set_decimal_value(std::get<double>(data.value));
+                            double val = std::get<double>(data.value);
+                            // Use the correct variant based on the type field
+                            if (data.type == "TypePercent") {
+                                protoValue->set_percent_value(val);
+                            } else if (data.type == "TypeMonetary") {
+                                protoValue->set_monetary_value(val);
+                            } else {
+                                protoValue->set_decimal_value(val);
+                            }
                         } else if (std::holds_alternative<int64_t>(data.value)) {
-                            protoValue->set_integer_value(std::get<int64_t>(data.value));
+                            int64_t val = std::get<int64_t>(data.value);
+                            if (data.type == "TypeDate") {
+                                protoValue->set_date_value(val);
+                            } else {
+                                protoValue->set_integer_value(val);
+                            }
                         } else if (std::holds_alternative<bool>(data.value)) {
                             protoValue->set_boolean_value(std::get<bool>(data.value));
                         } else if (std::holds_alternative<std::string>(data.value)) {
@@ -238,6 +257,14 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                         protoCol->set_type(epoch_proto::TypeInteger);
                     } else if (col.type == "TypeString") {
                         protoCol->set_type(epoch_proto::TypeString);
+                    } else if (col.type == "TypePercent") {
+                        protoCol->set_type(epoch_proto::TypePercent);
+                    } else if (col.type == "TypeMonetary") {
+                        protoCol->set_type(epoch_proto::TypeMonetary);
+                    } else if (col.type == "TypeDate") {
+                        protoCol->set_type(epoch_proto::TypeDate);
+                    } else if (col.type == "TypeBoolean") {
+                        protoCol->set_type(epoch_proto::TypeBoolean);
                     }
                 }
 
@@ -247,12 +274,29 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                 // Add rows
                 for (const auto& row : table.data.rows) {
                     epoch_proto::TableRow* protoRow = tableData->add_rows();
-                    for (const auto& cell : row) {
+                    for (size_t colIdx = 0; colIdx < row.size(); ++colIdx) {
+                        const auto& cell = row[colIdx];
                         auto* scalar = protoRow->add_values();
+
+                        // Use the column type to determine which scalar variant to use
+                        std::string colType = (colIdx < table.columns.size()) ? table.columns[colIdx].type : "TypeDecimal";
+
                         if (std::holds_alternative<double>(cell)) {
-                            scalar->set_decimal_value(std::get<double>(cell));
+                            double val = std::get<double>(cell);
+                            if (colType == "TypePercent") {
+                                scalar->set_percent_value(val);
+                            } else if (colType == "TypeMonetary") {
+                                scalar->set_monetary_value(val);
+                            } else {
+                                scalar->set_decimal_value(val);
+                            }
                         } else if (std::holds_alternative<int64_t>(cell)) {
-                            scalar->set_integer_value(std::get<int64_t>(cell));
+                            int64_t val = std::get<int64_t>(cell);
+                            if (colType == "TypeDate") {
+                                scalar->set_date_value(val);
+                            } else {
+                                scalar->set_integer_value(val);
+                            }
                         } else if (std::holds_alternative<std::string>(cell)) {
                             scalar->set_string_value(std::get<std::string>(cell));
                         } else if (std::holds_alternative<std::nullptr_t>(cell)) {
@@ -263,14 +307,7 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
             }
             }
 
-            // For chart tests, we expect the tearsheet to have charts generated by the report.
-            // If the expected output contains charts, add a minimal chart structure to indicate
-            // that charts are expected, even if we don't match the exact content.
-            if (!tearsheetExpect.charts.empty()) {
-                epoch_proto::ChartList* chartList = tearsheet->protoTearsheet.mutable_charts();
-                // Add a dummy chart to indicate that charts are expected
-                chartList->add_charts();
-            }
+            // Charts will be compared properly if specified in test expectations
 
             testCase.expect = std::move(tearsheet);
 
