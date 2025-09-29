@@ -58,8 +58,6 @@ include(${PROJECT_SOURCE_DIR}/cmake/Tulip.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Graphviz.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/MPDecimal.cmake)
 
-find_package(glaze REQUIRED)
-find_package(spdlog REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(DataFrame CONFIG REQUIRED)
 find_package(Armadillo CONFIG REQUIRED)
@@ -98,7 +96,6 @@ target_link_libraries(epoch_metadata PUBLIC
        libmpdec++
        libmpdec
        tulip_indicators
-       glaze::glaze
         cgraph
         gvc
         gvplugin_core

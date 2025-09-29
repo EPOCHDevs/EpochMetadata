@@ -1,0 +1,358 @@
+{
+  "tests": [
+    {
+      "title": "Gap Report Cards - Basic Scenario",
+      "input": {
+        "timestamp": [
+          "2024-01-01T09:00:00",
+          "2024-01-02T09:00:00",
+          "2024-01-03T09:00:00",
+          "2024-01-04T09:00:00",
+          "2024-01-05T09:00:00"
+        ],
+        "gap_size": [
+          1.5,
+          -0.8,
+          2.1,
+          -1.2,
+          0.7
+        ],
+        "gap_filled": [
+          true,
+          false,
+          true,
+          true,
+          false
+        ],
+        "gap_retrace": [
+          0.5,
+          0.0,
+          0.8,
+          0.6,
+          0.0
+        ],
+        "psc": [
+          100.0,
+          101.5,
+          100.7,
+          102.8,
+          101.6
+        ],
+        "psc_timestamp": [
+          1640995200,
+          1641081600,
+          1641168000,
+          1641254400,
+          1641340800
+        ],
+        "c": [
+          101.2,
+          101.0,
+          102.9,
+          102.5,
+          101.8
+        ]
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp",
+      "expect": {
+        "type": "tearsheet",
+        "cards": {
+          "cards": [
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Total Gaps",
+                  "value": 5,
+                  "group": 0,
+                  "type": "TypeInteger"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Up %",
+                  "value": 60.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Down %",
+                  "value": 40.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Fill Rate",
+                  "value": 60.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "test_gap_cards",
+        "fill_time_pivot_hour": 13,
+        "histogram_bins": 5,
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "timeframe": "1D"
+      }
+    },
+    {
+      "title": "Gap Report Cards - All Gaps Filled",
+      "input": {
+        "timestamp": [
+          "2024-01-06T09:00:00",
+          "2024-01-07T09:00:00",
+          "2024-01-08T09:00:00"
+        ],
+        "gap_size": [
+          1.2,
+          0.8,
+          -1.5
+        ],
+        "gap_filled": [
+          true,
+          true,
+          true
+        ],
+        "gap_retrace": [
+          0.3,
+          0.7,
+          0.0
+        ],
+        "psc": [
+          100.0,
+          101.2,
+          102.0
+        ],
+        "psc_timestamp": [
+          1641427200,
+          1641513600,
+          1641600000
+        ],
+        "c": [
+          101.5,
+          102.1,
+          101.8
+        ]
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp",
+      "expect": {
+        "type": "tearsheet",
+        "cards": {
+          "cards": [
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Total Gaps",
+                  "value": 3,
+                  "group": 0,
+                  "type": "TypeInteger"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Up %",
+                  "value": 66.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Down %",
+                  "value": 33.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Fill Rate",
+                  "value": 100.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "test_gap_cards_all_filled",
+        "fill_time_pivot_hour": 13,
+        "histogram_bins": 5,
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "timeframe": "1D"
+      }
+    },
+    {
+      "title": "Gap Report Cards - No Gaps Filled",
+      "input": {
+        "timestamp": [
+          "2024-01-09T09:00:00",
+          "2024-01-10T09:00:00",
+          "2024-01-11T09:00:00",
+          "2024-01-12T09:00:00"
+        ],
+        "gap_size": [
+          2.0,
+          -1.0,
+          1.5,
+          -0.5
+        ],
+        "gap_filled": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "gap_retrace": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "psc": [
+          100.0,
+          102.0,
+          101.0,
+          101.5
+        ],
+        "psc_timestamp": [
+          1641686400,
+          1641772800,
+          1641859200,
+          1641945600
+        ],
+        "c": [
+          99.8,
+          101.5,
+          100.2,
+          101.2
+        ]
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp",
+      "expect": {
+        "type": "tearsheet",
+        "cards": {
+          "cards": [
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Total Gaps",
+                  "value": 4,
+                  "group": 0,
+                  "type": "TypeInteger"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Up %",
+                  "value": 50.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Gap Down %",
+                  "value": 50.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            },
+            {
+              "category": "Reports",
+              "group_size": 1,
+              "type": "WidgetCard",
+              "data": [
+                {
+                  "title": "Fill Rate",
+                  "value": 0.0,
+                  "group": 0,
+                  "type": "TypePercent"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "test_gap_cards_none_filled",
+        "fill_time_pivot_hour": 13,
+        "histogram_bins": 5,
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "timeframe": "1D"
+      }
+    }
+  ]
+}
