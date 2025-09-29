@@ -21,10 +21,6 @@ public:
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
 
-  void generateDashboard(const epoch_frame::DataFrame &normalizedDf) const override {
-    // Dashboard generation uses the same implementation as tearsheet
-    generateTearsheet(normalizedDf);
-  }
 
 private:
   // Cached configuration values

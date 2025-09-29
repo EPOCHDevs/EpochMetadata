@@ -10,6 +10,5 @@ target_sources(epoch_metadata PRIVATE
         lines_chart_report.cpp
         bar_chart_report.cpp
         pie_chart_report.cpp
-        area_chart_report.cpp
         histogram_chart_report.cpp
 )

@@ -36,7 +36,6 @@
 #include "reports/lines_chart_report.h"
 #include "reports/bar_chart_report.h"
 #include "reports/pie_chart_report.h"
-#include "reports/area_chart_report.h"
 #include "reports/histogram_chart_report.h"
 
 #include "cross_sectional/rank.h"
@@ -230,7 +229,6 @@ void InitializeTransforms(
   reports::RegisterReport<reports::LinesChartReport>();
   reports::RegisterReport<reports::BarChartReport>();
   reports::RegisterReport<reports::PieChartReport>();
-  reports::RegisterReport<reports::AreaChartReport>();
   reports::RegisterReport<reports::HistogramChartReport>();
 
   reports::RegisterReport<reports::GapReport>();

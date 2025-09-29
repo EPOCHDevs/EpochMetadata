@@ -405,6 +405,100 @@ public:
                                 }
                             }
 
+                            // Parse charts
+                            if (expectJson.contains("charts") && expectJson["charts"].holds<glz::json_t::array_t>()) {
+                                for (auto& chartJson : expectJson["charts"].get<glz::json_t::array_t>()) {
+                                    if (chartJson.holds<glz::json_t::object_t>()) {
+                                        auto& chart = chartJson.get<glz::json_t::object_t>();
+                                        TearsheetChart tearChart;
+
+                                        // Parse basic chart properties
+                                        if (chart.contains("title") && chart["title"].holds<std::string>()) {
+                                            tearChart.title = chart["title"].get<std::string>();
+                                        }
+                                        if (chart.contains("category") && chart["category"].holds<std::string>()) {
+                                            tearChart.category = chart["category"].get<std::string>();
+                                        }
+                                        if (chart.contains("type") && chart["type"].holds<std::string>()) {
+                                            tearChart.type = chart["type"].get<std::string>();
+                                        }
+
+                                        // Parse x_axis for line charts
+                                        if (chart.contains("x_axis") && chart["x_axis"].holds<glz::json_t::object_t>()) {
+                                            auto& xAxisJson = chart["x_axis"].get<glz::json_t::object_t>();
+                                            ChartAxisData xAxisData;
+
+                                            if (xAxisJson.contains("type") && xAxisJson["type"].holds<std::string>()) {
+                                                xAxisData.type = xAxisJson["type"].get<std::string>();
+                                            }
+
+                                            if (xAxisJson.contains("data") && xAxisJson["data"].holds<glz::json_t::array_t>()) {
+                                                for (auto& dataPoint : xAxisJson["data"].get<glz::json_t::array_t>()) {
+                                                    if (dataPoint.holds<double>()) {
+                                                        double val = dataPoint.get<double>();
+                                                        if (std::floor(val) == val && std::abs(val) < 1e15) {
+                                                            xAxisData.data.push_back(static_cast<int64_t>(val));
+                                                        } else {
+                                                            xAxisData.data.push_back(val);
+                                                        }
+                                                    } else if (dataPoint.holds<std::string>()) {
+                                                        xAxisData.data.push_back(dataPoint.get<std::string>());
+                                                    } else if (dataPoint.holds<bool>()) {
+                                                        xAxisData.data.push_back(dataPoint.get<bool>());
+                                                    } else {
+                                                        xAxisData.data.push_back(std::nullptr_t{});
+                                                    }
+                                                }
+                                            }
+
+                                            tearChart.x_axis = xAxisData;
+                                        }
+
+                                        // Parse lines for line charts
+                                        if (chart.contains("lines") && chart["lines"].holds<glz::json_t::array_t>()) {
+                                            std::vector<ChartLineData> linesData;
+                                            for (auto& lineJson : chart["lines"].get<glz::json_t::array_t>()) {
+                                                if (lineJson.holds<glz::json_t::object_t>()) {
+                                                    auto& line = lineJson.get<glz::json_t::object_t>();
+                                                    ChartLineData lineData;
+
+                                                    if (line.contains("name") && line["name"].holds<std::string>()) {
+                                                        lineData.name = line["name"].get<std::string>();
+                                                    }
+                                                    if (line.contains("type") && line["type"].holds<std::string>()) {
+                                                        lineData.type = line["type"].get<std::string>();
+                                                    }
+
+                                                    if (line.contains("data") && line["data"].holds<glz::json_t::array_t>()) {
+                                                        for (auto& dataPoint : line["data"].get<glz::json_t::array_t>()) {
+                                                            if (dataPoint.holds<double>()) {
+                                                                double val = dataPoint.get<double>();
+                                                                if (std::floor(val) == val && std::abs(val) < 1e15) {
+                                                                    lineData.data.push_back(static_cast<int64_t>(val));
+                                                                } else {
+                                                                    lineData.data.push_back(val);
+                                                                }
+                                                            } else if (dataPoint.holds<std::string>()) {
+                                                                lineData.data.push_back(dataPoint.get<std::string>());
+                                                            } else if (dataPoint.holds<bool>()) {
+                                                                lineData.data.push_back(dataPoint.get<bool>());
+                                                            } else {
+                                                                lineData.data.push_back(std::nullptr_t{});
+                                                            }
+                                                        }
+                                                    }
+
+                                                    linesData.push_back(lineData);
+                                                }
+                                            }
+                                            tearChart.lines = linesData;
+                                        }
+
+                                        tearsheet.charts.push_back(tearChart);
+                                    }
+                                }
+                            }
+
                             tc.expect = tearsheet;
 
                         } else if (expectType == "dataframe") {

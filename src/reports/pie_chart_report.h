@@ -21,10 +21,6 @@ public:
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
 
-  void generateDashboard(const epoch_frame::DataFrame &normalizedDf) const override {
-    generateTearsheet(normalizedDf);
-  }
-
 private:
   const std::string m_sqlQuery;
   const std::string m_tableName;

@@ -135,7 +135,7 @@ namespace {
 
     // Group by daily normalized index to get one record per day
     auto normalized = gaps.index()->normalize()->as_chunked_array();
-    auto daily_df = gaps.group_by_apply(normalized).apply([
+    auto daily_df = gaps.group_by_apply(normalized, false).apply([
         &make_gap_dataframe,
         &make_empty_gap_dataframe, this](epoch_frame::DataFrame const& in) -> epoch_frame::DataFrame {
       if (in.num_rows() == 0) {
@@ -247,6 +247,7 @@ namespace {
     auto total_gaps_card = CardBuilder()
         .setType(epoch_proto::WidgetCard)
         .setCategory("Reports")
+        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Total Gaps")
@@ -263,10 +264,11 @@ namespace {
     auto gap_up_pct_card = CardBuilder()
         .setType(epoch_proto::WidgetCard)
         .setCategory("Reports")
+        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Gap Up %")
-                .setValue(ScalarFactory::fromDecimal(gap_up_pct))
+                .setValue(ScalarFactory::fromPercentValue(gap_up_pct))
                 .setType(epoch_proto::TypePercent)
                 .build()
         )
@@ -279,10 +281,11 @@ namespace {
     auto gap_down_pct_card = CardBuilder()
         .setType(epoch_proto::WidgetCard)
         .setCategory("Reports")
+        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Gap Down %")
-                .setValue(ScalarFactory::fromDecimal(gap_down_pct))
+                .setValue(ScalarFactory::fromPercentValue(gap_down_pct))
                 .setType(epoch_proto::TypePercent)
                 .build()
         )
@@ -295,10 +298,11 @@ namespace {
     auto fill_rate_card = CardBuilder()
         .setType(epoch_proto::WidgetCard)
         .setCategory("Reports")
+        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Fill Rate")
-                .setValue(ScalarFactory::fromDecimal(fill_rate))
+                .setValue(ScalarFactory::fromPercentValue(fill_rate))
                 .setType(epoch_proto::TypePercent)
                 .build()
         )

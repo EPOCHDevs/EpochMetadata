@@ -52,7 +52,7 @@ public:
     auto normalizedDf = m_columnMappings.empty() ? df[inputColumns] : df[inputColumns].rename(m_columnMappings);
 
     // 3. Child classes implement generateDashboard() to fill m_dashboard
-    generateDashboard(normalizedDf);
+    generateTearsheet(normalizedDf);
 
     // 4. Return normalized DataFrame (computation graph expects DataFrame output)
     return normalizedDf;
@@ -64,20 +64,11 @@ public:
   }
 
 
-  // Public method for testing that bypasses transform input validation
-  void generateTearsheetForTesting(const epoch_frame::DataFrame &normalizedDf) const {
-    generateTearsheet(normalizedDf);
-    generateDashboard(normalizedDf);
-  }
-
   virtual ~IReporter() = default;
 
 protected:
   // Child classes only need to implement this to fill m_tearsheet
   virtual void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const = 0;
-
-  // New method for dashboard generation using builders
-  virtual void generateDashboard(const epoch_frame::DataFrame &normalizedDf) const = 0;
 
   void BuildColumnMappings() {
     // Similar to TradeExecutorTransform constructor

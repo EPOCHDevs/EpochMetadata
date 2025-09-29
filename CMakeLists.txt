@@ -82,8 +82,6 @@ if(BUILD_SHARED_LIBS)
     )
 endif()
 
-target_compile_definitions(epoch_metadata PUBLIC -DSPDLOG_USE_STD_FORMAT)
-
 target_include_directories(epoch_metadata
         PUBLIC
         ${PROJECT_SOURCE_DIR}/include
@@ -96,7 +94,6 @@ target_link_libraries(epoch_metadata PUBLIC
     armadillo
         DataFrame::DataFrame
        epoch::dashboard
-       spdlog::spdlog_header_only
        yaml-cpp::yaml-cpp
        libmpdec++
        libmpdec

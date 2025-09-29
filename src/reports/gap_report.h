@@ -47,12 +47,6 @@ protected:
   void
   generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
 
-  void
-  generateDashboard(const epoch_frame::DataFrame &normalizedDf) const override {
-    // Dashboard generation not implemented for this report
-    (void)normalizedDf;
-  }
-
 public:
   epoch_tearsheet::DashboardBuilder generate_impl(const epoch_frame::DataFrame &df) const;
 
@@ -105,7 +99,15 @@ template <> struct ReportMetadata<GapReport> {
           .isRequired = false,
           .min = 0,
           .max = 23,
-          .desc = "The hour used to categorize gap fill times (e.g., 13 for 'before 13:00' vs 'after 13:00'). Used in fill time analysis to identify early vs late session fills."}},
+          .desc = "The hour used to categorize gap fill times (e.g., 13 for 'before 13:00' vs 'after 13:00'). Used in fill time analysis to identify early vs late session fills."},
+        {.id = "histogram_bins",
+          .name = "Histogram Bins",
+          .type = epoch_core::MetaDataOptionType::Integer,
+          .defaultValue = epoch_metadata::MetaDataOptionDefinition{10.0},
+          .isRequired = false,
+          .min = 3,
+          .max = 50,
+          .desc = "Number of bins to use for the gap size distribution histogram. Controls the granularity of the size distribution visualization."}},
     .isCrossSectional = false,
     .desc = "Comprehensive gap analysis report that examines price gaps "
             "between trading sessions. Analyzes opening price gaps relative "
