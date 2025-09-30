@@ -15,6 +15,13 @@ struct IndicatorMetaData {
   epoch_core::TransformNodeRenderKind renderKind{
       epoch_core::TransformNodeRenderKind::Simple};
   epoch_core::TransformPlotKind plotKind{epoch_core::TransformPlotKind::Null};
+
+  // Enhanced metadata for RAG/LLM
+  std::vector<std::string> strategyTypes{};
+  std::vector<std::string> relatedTransforms{};
+  std::vector<std::string> assetRequirements{"single-asset"};
+  std::string usageContext{};
+  std::string limitations{};
 };
 
 std::unordered_map<std::string, IndicatorMetaData>
@@ -254,7 +261,13 @@ MakeTulipIndicatorMetaData() {
               "trend, regardless of its direction.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::panel_line};
+      .plotKind = epoch_core::TransformPlotKind::panel_line,
+      .strategyTypes = {"trend-strength", "regime-detection", "trend-following"},
+      .relatedTransforms = {"adxr", "di", "dm", "dx"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Measures trend strength (not direction). ADX >25 = trending, <20 = ranging/choppy. Use as filter: trade trend strategies when ADX >25, mean-reversion when ADX <20. Rising ADX = strengthening trend, falling ADX = weakening trend. Combine with +DI/-DI for direction. High ADX doesn't indicate bullish/bearish, just strong trend.",
+      .limitations = "Significant lag - based on smoothed moving averages. Slow to signal trend changes. Can stay high during corrections within trends. No direction info (use DI indicators). Works best with 14-25 period on daily charts. Not suitable for very short timeframes. Requires patience - signals develop slowly."};
+
 
   indicatorMetaData["adxr"] = IndicatorMetaData{
       .tags = {"indicator", "adxr", "trend", "directional-movement"},
@@ -286,7 +299,13 @@ MakeTulipIndicatorMetaData() {
               "period, identifying trends and corrections.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::aroon};
+      .plotKind = epoch_core::TransformPlotKind::aroon,
+      .strategyTypes = {"trend-identification", "trend-strength", "trend-beginning-detection"},
+      .relatedTransforms = {"aroonosc", "adx", "dx"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Two lines: Aroon Up and Aroon Down (0-100). Measures time since highest high / lowest low in period. Up above 70 & Down below 30 = strong uptrend. Down above 70 & Up below 30 = strong downtrend. Both below 50 = consolidation. Crossovers signal trend changes. Better at identifying trend beginnings than ADX. Default 25 period.",
+      .limitations = "Based solely on time since highs/lows, ignores price magnitude. Can give early signals before trend established. Consolidation periods (both low) ambiguous. Requires confirmation from other indicators. Less popular than ADX. Works best on trending instruments with clear swings."};
+
 
   indicatorMetaData["aroonosc"] = IndicatorMetaData{
       .tags = {"indicator", "aroonosc", "trend", "oscillator"},
@@ -302,7 +321,13 @@ MakeTulipIndicatorMetaData() {
               "the average range between price points.",
       .category = epoch_core::TransformCategory::Volatility,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::panel_line};
+      .plotKind = epoch_core::TransformPlotKind::panel_line,
+      .strategyTypes = {"risk-management", "position-sizing", "stop-loss-placement", "volatility-targeting"},
+      .relatedTransforms = {"tr", "natr", "bbands", "return_vol"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Essential for position sizing and stop placement. Use ATR multiples for stops (e.g., 2x ATR stop gives breathing room). Higher ATR = more volatile = smaller position or wider stops. Trend filters: rising ATR suggests expansion/breakout, falling ATR suggests consolidation. Not directional - only measures volatility magnitude.",
+      .limitations = "Lagging - based on past volatility. Doesn't predict future volatility. Absolute value in price units - not normalized (use NATR for cross-asset comparison). Can be slow to adapt to regime changes with standard 14 period. Gaps affect calculation. Consider shorter periods (7-10) for faster adaptation."};
+
 
   indicatorMetaData["avgprice"] = IndicatorMetaData{
       .tags = {"overlay", "avgprice", "price", "average"},
@@ -318,7 +343,13 @@ MakeTulipIndicatorMetaData() {
               "moving average, adapting to market conditions.",
       .category = epoch_core::TransformCategory::Volatility,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::bbands};
+      .plotKind = epoch_core::TransformPlotKind::bbands,
+      .strategyTypes = {"mean-reversion", "breakout", "bollinger-squeeze", "volatility-expansion"},
+      .relatedTransforms = {"bband_percent", "bband_width", "atr", "keltner_channels"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Three bands: middle (SMA), upper (+2 stddev), lower (-2 stddev). Mean-reversion: price at bands suggests overbought/oversold. Breakout: squeeze (narrow bands) precedes big moves. Price riding upper band = strong uptrend. Width measures volatility. Combine with %B indicator for normalized position. Use band walks for trend continuation.",
+      .limitations = "Not directional on its own - just identifies extremes. Bands can expand indefinitely in trending markets (no fixed overbought/oversold). Squeeze detection requires bband_width. Default 20-period/2-stddev may need adjustment per asset. Can give false signals in strong trends when price 'walks the bands'."};
+
 
   indicatorMetaData["bop"] = IndicatorMetaData{
       .tags = {"indicator", "bop", "price", "balance-of-power", "momentum"},
@@ -334,7 +365,13 @@ MakeTulipIndicatorMetaData() {
               "measures variations from the statistical mean.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::cci};
+      .plotKind = epoch_core::TransformPlotKind::cci,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "trend-following", "breakout"},
+      .relatedTransforms = {"rsi", "stoch", "willr", "mfi"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Unbounded oscillator measuring deviation from statistical mean. Typical range: -100 to +100, but can go beyond. CCI >+100 = overbought, <-100 = oversold. Unlike RSI/Stoch, extreme readings can persist in trends. Use for: mean-reversion in ranges (fade extremes), trend-following in trends (ride extremes), divergence detection. Zero-line crosses indicate momentum shifts.",
+      .limitations = "Unbounded nature makes fixed thresholds less reliable than RSI. Extreme readings normal in strong trends - not always reversal signals. Requires context (trending vs ranging) to interpret correctly. Default 20-period may need adjustment. More volatile than RSI. Consider using with ADX to distinguish trending/ranging regimes."};
+
 
   indicatorMetaData["cmo"] = IndicatorMetaData{
       .tags = {"indicator", "cmo", "momentum", "oscillator"},
@@ -358,7 +395,13 @@ MakeTulipIndicatorMetaData() {
               "lag with a double smoothing mechanism.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "low-lag-trend", "fast-moving-average"},
+      .relatedTransforms = {"ema", "tema", "hma", "zlema"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Faster-responding MA than EMA. Uses double smoothing (EMA of EMA) to reduce lag while maintaining smoothness. Good for catching trend changes quickly. Use for crossover systems where responsiveness matters. Period typically 10-30. Responds faster than SMA/EMA but slower than HMA/TEMA.",
+      .limitations = "More sensitive to noise than SMA/EMA. Can whipsaw in choppy markets. Still lags price, just less than traditional MAs. False signals increase with faster response. Best in trending markets with clear direction. Consider combining with ADX to filter ranging periods."};
+
 
   indicatorMetaData["di"] = IndicatorMetaData{
       .tags = {"indicator", "di", "trend", "directional-indicator"},
@@ -398,7 +441,13 @@ MakeTulipIndicatorMetaData() {
               "weight to recent prices, reducing lag.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "moving-average-crossover", "dynamic-support-resistance"},
+      .relatedTransforms = {"sma", "dema", "tema", "hma", "kama"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Faster-reacting trend indicator than SMA due to exponential weighting. Use for trend identification, crossover systems, or dynamic support/resistance. More responsive to recent price action. Common combinations: 12/26 EMA (MACD basis), 8/21 (short-term), 20/50 (medium-term). Price above EMA = uptrend, below = downtrend.",
+      .limitations = "Still lags price, just less than SMA. More sensitive to noise and false signals than SMA. Can whipsaw in ranging markets. Early signals may be false breakouts. Consider combining with volume or momentum confirmation."};
+
 
   indicatorMetaData["emv"] = IndicatorMetaData{
       .tags = {"indicator", "emv", "volume", "ease-of-movement"},
@@ -430,7 +479,13 @@ MakeTulipIndicatorMetaData() {
               "improve smoothness by using weighted averages.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "low-lag-trend", "smooth-responsive"},
+      .relatedTransforms = {"ema", "wma", "dema", "tema"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Best balance between lag reduction and smoothness. Uses weighted moving average of weighted differences to minimize lag while staying smooth. Excellent for trend identification without excessive noise. Color change (slope change) provides clear trend signals. Popular for swing trading. Period typically 9-21 for shorter-term.",
+      .limitations = "Calculation complex - harder to understand intuitively. Can occasionally overshoot in ranging markets. Less well-known than EMA/SMA. Parameter tuning more critical than simple MAs. Requires adequate trend for best performance. Not ideal for very short-term scalping."};
+
 
   indicatorMetaData["kama"] = IndicatorMetaData{
       .tags = {"overlay", "kama", "moving-average", "adaptive", "kaufman"},
@@ -480,7 +535,13 @@ MakeTulipIndicatorMetaData() {
               "indicator showing relationship between two moving averages.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::macd};
+      .plotKind = epoch_core::TransformPlotKind::macd,
+      .strategyTypes = {"trend-following", "momentum", "divergence-trading", "crossover"},
+      .relatedTransforms = {"ema", "ppo", "apo", "trix"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Combines trend and momentum in one indicator. Three components: MACD line (12-26 EMA diff), Signal line (9 EMA of MACD), Histogram (MACD - Signal). Signals: MACD crosses Signal (bullish/bearish), histogram expansion/contraction (momentum strength), divergence (price vs MACD disagreement). Use for trend confirmation and entry timing.",
+      .limitations = "Lagging indicator based on EMAs. Default 12/26/9 parameters may not suit all timeframes or assets. Can give false signals in ranging markets. Histogram can be misleading during consolidation. Works best in trending markets. Requires parameter optimization for different instruments."};
+
 
   indicatorMetaData["marketfi"] = IndicatorMetaData{
       .tags = {"indicator", "marketfi", "volume", "market-facilitation-index"},
@@ -512,7 +573,13 @@ MakeTulipIndicatorMetaData() {
               "selling pressure based on price and volume.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::rsi};
+      .plotKind = epoch_core::TransformPlotKind::rsi,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "volume-confirmation", "divergence-trading"},
+      .relatedTransforms = {"rsi", "obv", "ad", "stoch"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Volume-weighted RSI - accounts for money flow not just price. MFI >80 = overbought with strong buying volume, <20 = oversold with strong selling volume. More reliable than RSI when volume confirms price moves. Use divergences (price new high but MFI doesn't = bearish). Failure swings (MFI fails to exceed previous high/low) signal reversals. Combine with RSI for confirmation.",
+      .limitations = "Requires quality volume data - unreliable with sporadic/low volume. More parameters than RSI = more curve-fitting risk. Can give early signals in strong trends. 80/20 thresholds may need adjustment per asset. Lagging like RSI. Works best on liquid instruments with consistent volume. Consider volume profile analysis for illiquid assets."};
+
 
   indicatorMetaData["mom"] = IndicatorMetaData{
       .tags = {"indicator", "mom", "momentum", "rate-of-change"},
@@ -553,7 +620,13 @@ MakeTulipIndicatorMetaData() {
               "rises and subtracts when price falls.",
       .category = epoch_core::TransformCategory::Volume,
       .renderKind = epoch_core::TransformNodeRenderKind::Simple,
-      .plotKind = epoch_core::TransformPlotKind::panel_line};
+      .plotKind = epoch_core::TransformPlotKind::panel_line,
+      .strategyTypes = {"trend-confirmation", "divergence-trading", "volume-analysis", "accumulation-distribution"},
+      .relatedTransforms = {"ad", "vwap", "vosc", "pvi", "nvi"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Cumulative volume indicator for confirming trends and spotting divergences. Rising OBV with rising price = healthy uptrend (volume confirms). OBV diverging from price = potential reversal (e.g., price makes new high but OBV doesn't = bearish divergence). Use to identify accumulation/distribution phases. Most powerful for divergence detection.",
+      .limitations = "Cumulative nature means scale can be misleading - focus on direction and divergences not absolute values. Doesn't account for volume magnitude of individual bars. Can be distorted by large volume spikes. Best on liquid assets with consistent volume. Requires long history to establish baseline. Consider normalizing or using rate of change."};
+
 
   indicatorMetaData["ppo"] = IndicatorMetaData{
       .tags = {"indicator", "ppo", "momentum", "percentage-price-oscillator"},
@@ -611,7 +684,12 @@ MakeTulipIndicatorMetaData() {
               "conditions.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::rsi};
+      .plotKind = epoch_core::TransformPlotKind::rsi,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "divergence-trading", "momentum"},
+      .relatedTransforms = {"stochrsi", "mfi", "willr", "cci"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Core momentum indicator for overbought (>70) and oversold (<30) conditions. Use for mean-reversion entries, divergence signals, or momentum confirmation. Common patterns: RSI >70 = overbought (potential reversal), RSI <30 = oversold (potential bounce). Combine with price action for best results. Divergence (price makes new high but RSI doesn't) signals weakening momentum.",
+      .limitations = "Lagging indicator - signals occur after price moves. Can stay overbought/oversold during strong trends. Standard 70/30 thresholds may need adjustment for different assets. Whipsaws in ranging markets. Consider using dynamic overbought/oversold levels or combine with trend filters."};
 
   indicatorMetaData["sma"] = IndicatorMetaData{
       .tags = {"overlay", "sma", "moving-average", "simple"},
@@ -619,7 +697,13 @@ MakeTulipIndicatorMetaData() {
               "points, smoothing price data to identify trends.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "moving-average-crossover", "support-resistance"},
+      .relatedTransforms = {"ema", "wma", "dema", "tema", "hma"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Basic trend indicator and dynamic support/resistance. Use price crossing SMA for trend changes, or SMA crossovers for signals (e.g., 50/200 golden cross). Shorter periods (10-20) for responsive signals, longer (50-200) for major trend. Common: 20 SMA for short-term, 50/200 for long-term golden/death cross.",
+      .limitations = "Significant lag - all data points weighted equally including old data. Whipsaws in choppy markets. Slower than EMA to react to price changes. Not suitable as sole signal - combine with momentum or volume. Moving averages are inherently lagging by design."};
+
 
   indicatorMetaData["stoch"] = IndicatorMetaData{
       .tags = {"indicator", "stoch", "momentum", "oscillator", "stochastic"},
@@ -628,7 +712,13 @@ MakeTulipIndicatorMetaData() {
           "period, indicating momentum and overbought/oversold conditions.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::stoch};
+      .plotKind = epoch_core::TransformPlotKind::stoch,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum", "divergence-trading"},
+      .relatedTransforms = {"stochrsi", "rsi", "willr", "mfi"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Two lines: %K (fast) and %D (slow, smoothed). Overbought >80, oversold <20. Signals: K crosses D (bullish/bearish), divergence with price, extreme readings. More sensitive than RSI - reacts faster to price changes. Use for timing entries in range-bound markets or pullback entries in trends. Common settings: 14,3,3 (standard) or 5,3,3 (faster).",
+      .limitations = "Very sensitive - many false signals in trending markets. Can remain overbought/oversold during strong trends. Requires smoothing (%D) to reduce noise. Best in ranging/oscillating markets. Not reliable as standalone - combine with trend filter. Parameter sensitivity high - different settings dramatically change signals."};
+
 
   indicatorMetaData["stochrsi"] = IndicatorMetaData{
       .tags = {"indicator", "stochrsi", "momentum", "oscillator", "stochastic"},
@@ -636,7 +726,13 @@ MakeTulipIndicatorMetaData() {
               "creating a more sensitive oscillator.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::rsi};
+      .plotKind = epoch_core::TransformPlotKind::rsi,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum", "fast-oscillator"},
+      .relatedTransforms = {"rsi", "stoch", "willr"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "More sensitive version of RSI using stochastic calculation on RSI values. Oscillates 0-1 (or 0-100). More responsive to price changes than RSI - better for short-term trading. Use >0.8 for overbought, <0.2 for oversold. Generates more signals than RSI. Best with %K and %D lines for crossovers. Popular for crypto and volatile assets.",
+      .limitations = "Extremely sensitive - very high false signal rate. Can stay overbought/oversold for extended periods in trends. Requires heavy filtering or confirmation. Not suitable as standalone indicator. Best in strongly ranging markets. Too noisy for position trading. Consider using only in confirmed ranges with other filters."};
+
 
   indicatorMetaData["tema"] = IndicatorMetaData{
       .tags = {"overlay", "tema", "moving-average", "triple-exponential"},
@@ -644,7 +740,13 @@ MakeTulipIndicatorMetaData() {
               "smooth price fluctuations and reduce lag.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "ultra-low-lag", "scalping", "fast-moving-average"},
+      .relatedTransforms = {"dema", "ema", "hma", "zlema"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Ultra-responsive MA using triple smoothing (EMA of EMA of EMA). Fastest traditional MA for catching trend changes. Best for short-term trading and scalping. Excellent for quick entries/exits. Use with shorter periods (5-15) for maximum responsiveness. Popular in high-frequency strategies.",
+      .limitations = "Most sensitive to noise - highest false signal rate. Whipsaws badly in ranging markets. Requires strong trend filter. Can overshoot in volatile conditions. Best only for very short-term trading. Needs tight stops due to frequent reversals. Not suitable for position trading."};
+
 
   indicatorMetaData["tr"] = IndicatorMetaData{
       .tags = {"indicator", "tr", "volatility", "true-range"},
@@ -734,7 +836,13 @@ MakeTulipIndicatorMetaData() {
           "by volume, giving more importance to high-volume price moves.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "volume-confirmation", "institutional-flow"},
+      .relatedTransforms = {"sma", "ema", "vwap", "obv"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Moving average weighted by volume - gives more weight to high-volume price levels. Better represents institutional/smart money positioning than simple MAs. Use like SMA but with volume confirmation built-in. Breaks more significant than SMA breaks. Good for identifying support/resistance with volume context. Compare to SMA to see volume impact.",
+      .limitations = "Requires quality volume data - unreliable on low-volume or manipulated volume. Calculation heavier than simple MAs. Less widely used than SMA/EMA. Volume weighting can distort in illiquid periods. Best on liquid instruments with genuine volume. Consider VWAP for intraday instead."};
+
 
   indicatorMetaData["wad"] = IndicatorMetaData{
       .tags = {"indicator", "wad", "volume",
@@ -767,7 +875,13 @@ MakeTulipIndicatorMetaData() {
               "overbought/oversold conditions relative to high-low range.",
       .category = epoch_core::TransformCategory::Momentum,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::rsi};
+      .plotKind = epoch_core::TransformPlotKind::rsi,
+      .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum"},
+      .relatedTransforms = {"stoch", "rsi", "cci"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Inverted stochastic oscillator ranging from 0 to -100. -20 to 0 = overbought, -80 to -100 = oversold. Shows where close is relative to high-low range. More volatile than RSI. Use for timing entries in trends (buy oversold in uptrend, sell overbought in downtrend). Divergence signals valuable. Default period 14.",
+      .limitations = "Inverted scale (-100 to 0) can be confusing. Very similar to Fast Stochastic %K. Can remain in extreme zones during strong trends. High false signal rate without filters. Best combined with trend indicator. Less popular than RSI/Stochastic. Consider using regular Stochastic instead for clearer interpretation."};
+
 
   indicatorMetaData["wma"] = IndicatorMetaData{
       .tags = {"overlay", "wma", "moving-average", "weighted"},
@@ -775,7 +889,13 @@ MakeTulipIndicatorMetaData() {
               "weight to recent data and less to older data.",
       .category = epoch_core::TransformCategory::Trend,
       .renderKind = epoch_core::TransformNodeRenderKind::Standard,
-      .plotKind = epoch_core::TransformPlotKind::line};
+      .plotKind = epoch_core::TransformPlotKind::line,
+      .strategyTypes = {"trend-following", "weighted-trend"},
+      .relatedTransforms = {"sma", "ema", "hma", "vwma"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Linear weighted MA giving more importance to recent prices. Faster than SMA, slower than EMA. Weights decrease linearly (most recent = N, oldest = 1). Good middle ground between SMA and EMA. Use for trend following when you want more responsiveness than SMA but more stability than EMA. Common in trading systems as baseline trend.",
+      .limitations = "Still lags price significantly. Arbitrarily chosen linear weighting may not suit all markets. Less popular than EMA - fewer traders watching same levels. Doesn't adapt to volatility. Can whipsaw in choppy conditions. For most uses, EMA is preferred for better mathematical properties."};
+
 
   indicatorMetaData["zlema"] = IndicatorMetaData{
       .tags = {"overlay", "zlema", "moving-average", "zero-lag"},
@@ -909,7 +1029,12 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             .outputs = MakeTulipOutputs(outputSpan),
             .tags = metadata.tags,
             .requiresTimeFrame = requiredDataSources.size() > 0,
-            .requiredDataSources = requiredDataSources};
+            .requiredDataSources = requiredDataSources,
+            .strategyTypes = metadata.strategyTypes,
+            .relatedTransforms = metadata.relatedTransforms,
+            .assetRequirements = metadata.assetRequirements,
+            .usageContext = metadata.usageContext,
+            .limitations = metadata.limitations};
       });
   return allIndicators;
 }
