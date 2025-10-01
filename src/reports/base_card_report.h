@@ -12,7 +12,7 @@ namespace epoch_metadata::reports {
 class BaseCardReport : public IReporter {
 public:
   explicit BaseCardReport(epoch_metadata::transform::TransformConfiguration config)
-      : IReporter(std::move(config)) {}
+      : IReporter(std::move(config), true) {}
 
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
