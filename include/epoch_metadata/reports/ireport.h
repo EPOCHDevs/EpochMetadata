@@ -11,7 +11,6 @@
 #include <epoch_metadata/transforms/transform_registry.h>
 #include <yaml-cpp/yaml.h>
 
-#include "epoch_protos/tearsheet.pb.h"
 #include <epoch_dashboard/tearsheet/tearsheet_builder.h>
 
 namespace epoch_metadata::reports {
@@ -59,7 +58,7 @@ public:
   }
 
   // Public getter for the generated TearSheet
-  epoch_proto::TearSheet GetTearSheet() const {
+  epoch_proto::TearSheet GetTearSheet() const final {
     return m_dashboard.build();
   }
 

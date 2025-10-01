@@ -6,6 +6,7 @@
 #include "memory"
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/series.h>
+#include "epoch_protos/tearsheet.pb.h"
 
 namespace epoch_metadata::transform {
 
@@ -39,6 +40,8 @@ struct ITransformBase {
 
   virtual epoch_frame::DataFrame
   TransformData(const epoch_frame::DataFrame &) const = 0;
+
+  virtual  epoch_proto::TearSheet GetTearSheet() const = 0;
 
   virtual ~ITransformBase() = default;
 };
@@ -109,6 +112,10 @@ public:
   friend std::ostream &operator<<(std::ostream &os, ITransform const &model) {
     os << model.m_config.ToString();
     return os;
+  }
+
+  epoch_proto::TearSheet GetTearSheet() const override {
+    return epoch_proto::TearSheet::default_instance();
   }
 
   ~ITransform() override = default;
