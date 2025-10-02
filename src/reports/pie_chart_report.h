@@ -10,7 +10,7 @@ namespace epoch_metadata::reports {
     explicit PieChartReport(epoch_metadata::transform::TransformConfiguration config)
         : IReporter(std::move(config), true),
           m_chartTitle(m_config.GetOptionValue("title").GetString()),
-          m_category(m_config.GetOptionValue("title").GetString()){
+          m_category(m_config.GetOptionValue("category").GetString()){
     }
 
   protected:

@@ -125,11 +125,19 @@ public:
     static Table dataFrameToTable(const epoch_frame::DataFrame& df) {
         Table table;
 
-        for (auto const& colName: df.column_names()) {
+        // Reset index to include it as a column for comparison
+        // This ensures the index (e.g., timestamp) is validated in tests
+        // Check if index has a name (non-range indices typically have names)
+        epoch_frame::DataFrame df_with_index = df;
+        if (!df.index()->name().empty()) {
+            df_with_index = df.reset_index();
+        }
+
+        for (auto const& colName: df_with_index.column_names()) {
             Column column;
 
             // Get the series for this column
-            auto series = df[colName];
+            auto series = df_with_index[colName];
 
             // Convert series values to Column
             for (size_t i = 0; i < series.size(); ++i) {

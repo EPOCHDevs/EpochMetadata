@@ -342,6 +342,26 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                                     pieData->set_y(static_cast<double>(std::get<int64_t>(slice.value)));
                                 }
                             }
+                        } else if (chart.series.has_value()) {
+                            // Handle nested pie with multiple series
+                            for (const auto& seriesData : chart.series.value()) {
+                                epoch_proto::PieDataDef* pieDataDef = pieDef->add_data();
+                                pieDataDef->set_name(seriesData.name);
+                                pieDataDef->set_size(std::to_string(seriesData.size) + "%");
+                                pieDataDef->set_inner_size(std::to_string(seriesData.inner_size) + "%");
+
+                                // Add each data point as PieData
+                                for (const auto& point : seriesData.data) {
+                                    epoch_proto::PieData* pieData = pieDataDef->add_points();
+                                    pieData->set_name(point.label);
+
+                                    if (std::holds_alternative<double>(point.value)) {
+                                        pieData->set_y(std::get<double>(point.value));
+                                    } else if (std::holds_alternative<int64_t>(point.value)) {
+                                        pieData->set_y(static_cast<double>(std::get<int64_t>(point.value)));
+                                    }
+                                }
+                            }
                         }
                     } else if (chart.type == "WidgetBarChart") {
                         // Bar chart conversion
@@ -351,9 +371,11 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                         barDef->mutable_chart_def()->set_type(epoch_proto::WidgetBar);
 
                         if (chart.vertical.has_value()) {
+                            std::cerr << "DEBUG PROTO CONVERT: Setting vertical=" << chart.vertical.value() << std::endl;
                             barDef->set_vertical(chart.vertical.value());
                         }
                         if (chart.stacked.has_value()) {
+                            std::cerr << "DEBUG PROTO CONVERT: Setting stacked=" << chart.stacked.value() << std::endl;
                             barDef->set_stacked(chart.stacked.value());
                         }
 
@@ -430,8 +452,7 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                         histogramDef->mutable_chart_def()->set_category(chart.category);
                         histogramDef->mutable_chart_def()->set_type(epoch_proto::WidgetHistogram);
 
-                        // Note: bins in the test JSON are expected output, not input
-                        // For now, we'll store bin count if available
+                        // Set bins count if available (histograms store raw data and bins_count, not individual bins)
                         if (chart.bins.has_value()) {
                             histogramDef->set_bins_count(static_cast<uint32_t>(chart.bins->size()));
                         }

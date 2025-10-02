@@ -28,7 +28,10 @@ void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
     auto pieData = ReportUtils::createPieDataFromSeries(normalizedSeries);
     chartBuilder.addSeries(labelColumn, pieData, epoch_tearsheet::PieSize{100}, std::nullopt);
 
-    m_dashboard.addChart(chartBuilder.build());
+    auto chart = chartBuilder.build();
+    std::cerr << "DEBUG PieChartReport: built chart with type_case=" << chart.chart_type_case()
+              << " (expected kPieDef=7)" << std::endl;
+    m_dashboard.addChart(chart);
 
   } catch (const std::exception& e) {
     std::cerr << "Error: PieChartReport execution failed: " << e.what() << std::endl;

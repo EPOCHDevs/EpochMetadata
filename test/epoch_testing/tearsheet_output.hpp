@@ -774,20 +774,34 @@ private:
 
     bool compareBarCharts(const epoch_proto::BarDef& a, const epoch_proto::BarDef& b) const {
         if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            std::cerr << "DEBUG compareBarCharts: ChartDef doesn't match" << std::endl;
             return false;
         }
-        if (a.vertical() != b.vertical()) return false;
-        if (a.stacked() != b.stacked()) return false;
-        if (a.data_size() != b.data_size()) return false;
+        if (a.vertical() != b.vertical()) {
+            std::cerr << "DEBUG compareBarCharts: vertical mismatch - a=" << a.vertical() << ", b=" << b.vertical() << std::endl;
+            return false;
+        }
+        if (a.stacked() != b.stacked()) {
+            std::cerr << "DEBUG compareBarCharts: stacked mismatch - a=" << a.stacked() << ", b=" << b.stacked() << std::endl;
+            return false;
+        }
+        if (a.data_size() != b.data_size()) {
+            std::cerr << "DEBUG compareBarCharts: data_size mismatch - a=" << a.data_size() << ", b=" << b.data_size() << std::endl;
+            return false;
+        }
 
         for (int i = 0; i < a.data_size(); ++i) {
             const auto& aData = a.data(i);
             const auto& bData = b.data(i);
-            if (aData.values_size() != bData.values_size()) return false;
+            if (aData.values_size() != bData.values_size()) {
+                std::cerr << "DEBUG compareBarCharts: values_size mismatch at series " << i << " - a=" << aData.values_size() << ", b=" << bData.values_size() << std::endl;
+                return false;
+            }
 
             const double epsilon = 0.01;
             for (int j = 0; j < aData.values_size(); ++j) {
                 if (std::abs(aData.values(j) - bData.values(j)) >= epsilon) {
+                    std::cerr << "DEBUG compareBarCharts: value mismatch at series " << i << ", value " << j << " - a=" << aData.values(j) << ", b=" << bData.values(j) << std::endl;
                     return false;
                 }
             }

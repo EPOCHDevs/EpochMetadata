@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <iostream>
+
 
 namespace epoch {
 namespace test {
@@ -85,6 +87,14 @@ struct PieChartSlice {
     ColumnValue value;
 };
 
+// Pie chart series structure (for nested pies)
+struct PieChartSeries {
+    std::string name;
+    uint32_t size;
+    uint32_t inner_size;
+    std::vector<PieChartSlice> data;
+};
+
 // Histogram bin structure
 struct HistogramBin {
     double min;
@@ -109,6 +119,7 @@ struct TearsheetChart {
 
     // For Pie charts
     std::optional<std::vector<PieChartSlice>> slices;
+    std::optional<std::vector<PieChartSeries>> series;
     std::optional<uint32_t> inner_size;
 
     // For Histograms
@@ -492,6 +503,163 @@ public:
                                                 }
                                             }
                                             tearChart.lines = linesData;
+                                        }
+
+                                        // Parse slices for pie charts
+                                        if (chart.contains("slices") && chart["slices"].holds<glz::json_t::array_t>()) {
+                                            std::vector<PieChartSlice> slicesData;
+                                            for (auto& sliceJson : chart["slices"].get<glz::json_t::array_t>()) {
+                                                if (sliceJson.holds<glz::json_t::object_t>()) {
+                                                    auto& slice = sliceJson.get<glz::json_t::object_t>();
+                                                    PieChartSlice sliceData;
+
+                                                    if (slice.contains("label") && slice["label"].holds<std::string>()) {
+                                                        sliceData.label = slice["label"].get<std::string>();
+                                                    }
+
+                                                    if (slice.contains("value")) {
+                                                        auto& val = slice["value"];
+                                                        if (val.holds<double>()) {
+                                                            double dval = val.get<double>();
+                                                            // Convert to int64 if it's a whole number
+                                                            if (std::floor(dval) == dval && std::abs(dval) < 1e15) {
+                                                                sliceData.value = static_cast<int64_t>(dval);
+                                                            } else {
+                                                                sliceData.value = dval;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    slicesData.push_back(sliceData);
+                                                }
+                                            }
+                                            tearChart.slices = slicesData;
+                                        }
+
+                                        // Parse series for nested pie charts
+                                        if (chart.contains("series") && chart["series"].holds<glz::json_t::array_t>()) {
+                                            std::vector<PieChartSeries> seriesData;
+                                            for (auto& seriesJson : chart["series"].get<glz::json_t::array_t>()) {
+                                                if (seriesJson.holds<glz::json_t::object_t>()) {
+                                                    auto& seriesObj = seriesJson.get<glz::json_t::object_t>();
+                                                    PieChartSeries series;
+
+                                                    if (seriesObj.contains("name") && seriesObj["name"].holds<std::string>()) {
+                                                        series.name = seriesObj["name"].get<std::string>();
+                                                    }
+                                                    if (seriesObj.contains("size")) {
+                                                        auto& sizeVal = seriesObj["size"];
+                                                        if (sizeVal.holds<double>()) {
+                                                            series.size = static_cast<uint32_t>(sizeVal.get<double>());
+                                                        }
+                                                    }
+                                                    if (seriesObj.contains("inner_size")) {
+                                                        auto& innerVal = seriesObj["inner_size"];
+                                                        if (innerVal.holds<double>()) {
+                                                            series.inner_size = static_cast<uint32_t>(innerVal.get<double>());
+                                                        }
+                                                    }
+
+                                                    if (seriesObj.contains("data") && seriesObj["data"].holds<glz::json_t::array_t>()) {
+                                                        for (auto& dataPoint : seriesObj["data"].get<glz::json_t::array_t>()) {
+                                                            if (dataPoint.holds<glz::json_t::object_t>()) {
+                                                                auto& point = dataPoint.get<glz::json_t::object_t>();
+                                                                PieChartSlice pointData;
+
+                                                                if (point.contains("name") && point["name"].holds<std::string>()) {
+                                                                    pointData.label = point["name"].get<std::string>();
+                                                                }
+
+                                                                if (point.contains("y")) {
+                                                                    auto& yVal = point["y"];
+                                                                    if (yVal.holds<double>()) {
+                                                                        pointData.value = yVal.get<double>();
+                                                                    }
+                                                                }
+
+                                                                series.data.push_back(pointData);
+                                                            }
+                                                        }
+                                                    }
+
+                                                    seriesData.push_back(series);
+                                                }
+                                            }
+                                            tearChart.series = seriesData;
+                                        }
+
+                                        // Parse bars for bar charts
+                                        if (chart.contains("bars") && chart["bars"].holds<glz::json_t::array_t>()) {
+                                            std::vector<BarCategory> barsData;
+                                            for (auto& barJson : chart["bars"].get<glz::json_t::array_t>()) {
+                                                if (barJson.holds<glz::json_t::object_t>()) {
+                                                    auto& bar = barJson.get<glz::json_t::object_t>();
+                                                    BarCategory barData;
+
+                                                    if (bar.contains("name") && bar["name"].holds<std::string>()) {
+                                                        barData.name = bar["name"].get<std::string>();
+                                                    }
+
+                                                    if (bar.contains("value")) {
+                                                        auto& val = bar["value"];
+                                                        if (val.holds<double>()) {
+                                                            barData.value = val.get<double>();
+                                                        }
+                                                    }
+
+                                                    barsData.push_back(barData);
+                                                }
+                                            }
+                                            tearChart.bars = barsData;
+                                        }
+
+                                        // Parse vertical and stacked for bar charts
+                                        if (chart.contains("vertical")) {
+                                            auto& vertVal = chart["vertical"];
+                                            if (vertVal.holds<bool>()) {
+                                                tearChart.vertical = vertVal.get<bool>();
+                                                std::cout << "DEBUG JSON PARSE: Setting vertical=" << vertVal.get<bool>() << std::endl;
+                                            }
+                                        }
+                                        if (chart.contains("stacked")) {
+                                            auto& stackedVal = chart["stacked"];
+                                            if (stackedVal.holds<bool>()) {
+                                                tearChart.stacked = stackedVal.get<bool>();
+                                                std::cout << "DEBUG JSON PARSE: Setting stacked=" << stackedVal.get<bool>() << std::endl;
+                                            }
+                                        }
+
+                                        // Parse bins for histogram charts
+                                        if (chart.contains("bins") && chart["bins"].holds<glz::json_t::array_t>()) {
+                                            std::vector<HistogramBin> binsData;
+                                            for (auto& binJson : chart["bins"].get<glz::json_t::array_t>()) {
+                                                if (binJson.holds<glz::json_t::object_t>()) {
+                                                    auto& bin = binJson.get<glz::json_t::object_t>();
+                                                    HistogramBin binData;
+
+                                                    if (bin.contains("min")) {
+                                                        auto& minVal = bin["min"];
+                                                        if (minVal.holds<double>()) {
+                                                            binData.min = minVal.get<double>();
+                                                        }
+                                                    }
+                                                    if (bin.contains("max")) {
+                                                        auto& maxVal = bin["max"];
+                                                        if (maxVal.holds<double>()) {
+                                                            binData.max = maxVal.get<double>();
+                                                        }
+                                                    }
+                                                    if (bin.contains("count")) {
+                                                        auto& countVal = bin["count"];
+                                                        if (countVal.holds<double>()) {
+                                                            binData.count = static_cast<int64_t>(countVal.get<double>());
+                                                        }
+                                                    }
+
+                                                    binsData.push_back(binData);
+                                                }
+                                            }
+                                            tearChart.bins = binsData;
                                         }
 
                                         tearsheet.charts.push_back(tearChart);
