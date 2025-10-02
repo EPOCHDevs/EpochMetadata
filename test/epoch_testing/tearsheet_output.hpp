@@ -658,8 +658,7 @@ private:
         }
         // Allow actual to have tables even if expected doesn't specify them (gap_report always generates tables)
 
-        // Compare charts section - be lenient about chart comparison for now
-        // Only fail if expected explicitly has charts but actual doesn't
+        // Compare charts section
         bool a_has_charts = a.has_charts() && a.charts().charts_size() > 0;
         bool b_has_charts = b.has_charts() && b.charts().charts_size() > 0;
 
@@ -668,8 +667,187 @@ private:
             std::cerr << "DEBUG: Expected charts but actual has none - a_has_charts=" << a_has_charts << ", b_has_charts=" << b_has_charts << std::endl;
             return false;
         }
-        // Allow actual to have charts even if expected doesn't specify them (gap_report always generates charts)
+        if (a_has_charts && b_has_charts && !compareChartLists(a.charts(), b.charts())) {
+            std::cerr << "DEBUG: Chart lists don't match" << std::endl;
+            return false;
+        }
+        // Allow actual to have charts even if expected doesn't specify them
 
+        return true;
+    }
+
+    bool compareChartLists(const epoch_proto::ChartList& a, const epoch_proto::ChartList& b) const {
+        if (a.charts_size() != b.charts_size()) {
+            std::cerr << "DEBUG compareChartLists: Size mismatch - a=" << a.charts_size() << ", b=" << b.charts_size() << std::endl;
+            return false;
+        }
+
+        for (int i = 0; i < a.charts_size(); ++i) {
+            if (!compareCharts(a.charts(i), b.charts(i))) {
+                std::cerr << "DEBUG compareChartLists: Chart " << i << " doesn't match" << std::endl;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool compareCharts(const epoch_proto::Chart& a, const epoch_proto::Chart& b) const {
+        // Both charts must have the same oneof type set
+        if (a.chart_type_case() != b.chart_type_case()) {
+            std::cerr << "DEBUG compareCharts: Chart type mismatch - a=" << a.chart_type_case()
+                      << ", b=" << b.chart_type_case() << std::endl;
+            return false;
+        }
+
+        // Compare based on chart type
+        switch (a.chart_type_case()) {
+            case epoch_proto::Chart::kPieDef:
+                return comparePieCharts(a.pie_def(), b.pie_def());
+            case epoch_proto::Chart::kBarDef:
+                return compareBarCharts(a.bar_def(), b.bar_def());
+            case epoch_proto::Chart::kLinesDef:
+                return compareLinesCharts(a.lines_def(), b.lines_def());
+            case epoch_proto::Chart::kHistogramDef:
+                return compareHistogramCharts(a.histogram_def(), b.histogram_def());
+            default:
+                std::cerr << "DEBUG compareCharts: Unknown chart type" << std::endl;
+                return false;
+        }
+    }
+
+    bool comparePieCharts(const epoch_proto::PieDef& a, const epoch_proto::PieDef& b) const {
+        // Compare chart def
+        if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            std::cerr << "DEBUG comparePieCharts: ChartDef doesn't match" << std::endl;
+            return false;
+        }
+
+        // Compare data series
+        if (a.data_size() != b.data_size()) {
+            std::cerr << "DEBUG comparePieCharts: Data size mismatch - a=" << a.data_size()
+                      << ", b=" << b.data_size() << std::endl;
+            return false;
+        }
+
+        for (int i = 0; i < a.data_size(); ++i) {
+            if (!comparePieDataDef(a.data(i), b.data(i))) {
+                std::cerr << "DEBUG comparePieCharts: PieDataDef " << i << " doesn't match" << std::endl;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool comparePieDataDef(const epoch_proto::PieDataDef& a, const epoch_proto::PieDataDef& b) const {
+        // Compare points
+        if (a.points_size() != b.points_size()) {
+            std::cerr << "DEBUG comparePieDataDef: Points size mismatch - a=" << a.points_size()
+                      << ", b=" << b.points_size() << std::endl;
+            return false;
+        }
+
+        for (int i = 0; i < a.points_size(); ++i) {
+            if (!comparePieData(a.points(i), b.points(i))) {
+                std::cerr << "DEBUG comparePieDataDef: PieData " << i << " doesn't match" << std::endl;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool comparePieData(const epoch_proto::PieData& a, const epoch_proto::PieData& b) const {
+        if (a.name() != b.name()) {
+            std::cerr << "DEBUG comparePieData: Name mismatch - a='" << a.name()
+                      << "', b='" << b.name() << "'" << std::endl;
+            return false;
+        }
+
+        // Compare y values with tolerance
+        const double epsilon = 0.01;
+        if (std::abs(a.y() - b.y()) >= epsilon) {
+            std::cerr << "DEBUG comparePieData: Y value mismatch - a=" << a.y()
+                      << ", b=" << b.y() << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    bool compareBarCharts(const epoch_proto::BarDef& a, const epoch_proto::BarDef& b) const {
+        if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            return false;
+        }
+        if (a.vertical() != b.vertical()) return false;
+        if (a.stacked() != b.stacked()) return false;
+        if (a.data_size() != b.data_size()) return false;
+
+        for (int i = 0; i < a.data_size(); ++i) {
+            const auto& aData = a.data(i);
+            const auto& bData = b.data(i);
+            if (aData.values_size() != bData.values_size()) return false;
+
+            const double epsilon = 0.01;
+            for (int j = 0; j < aData.values_size(); ++j) {
+                if (std::abs(aData.values(j) - bData.values(j)) >= epsilon) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool compareLinesCharts(const epoch_proto::LinesDef& a, const epoch_proto::LinesDef& b) const {
+        if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            return false;
+        }
+        if (a.lines_size() != b.lines_size()) return false;
+
+        for (int i = 0; i < a.lines_size(); ++i) {
+            if (!compareLine(a.lines(i), b.lines(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool compareLine(const epoch_proto::Line& a, const epoch_proto::Line& b) const {
+        if (a.name() != b.name()) return false;
+        if (a.data_size() != b.data_size()) return false;
+
+        const double epsilon = 0.01;
+        for (int i = 0; i < a.data_size(); ++i) {
+            if (a.data(i).x() != b.data(i).x()) return false;
+            if (std::abs(a.data(i).y() - b.data(i).y()) >= epsilon) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool compareHistogramCharts(const epoch_proto::HistogramDef& a, const epoch_proto::HistogramDef& b) const {
+        if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            return false;
+        }
+        // For histograms, we just check bin count for now
+        if (a.bins_count() != b.bins_count()) return false;
+        return true;
+    }
+
+    bool compareChartDef(const epoch_proto::ChartDef& a, const epoch_proto::ChartDef& b) const {
+        if (a.title() != b.title()) {
+            std::cerr << "DEBUG compareChartDef: Title mismatch - a='" << a.title()
+                      << "', b='" << b.title() << "'" << std::endl;
+            return false;
+        }
+        if (a.category() != b.category()) {
+            std::cerr << "DEBUG compareChartDef: Category mismatch - a='" << a.category()
+                      << "', b='" << b.category() << "'" << std::endl;
+            return false;
+        }
+        if (a.type() != b.type()) {
+            std::cerr << "DEBUG compareChartDef: Type mismatch - a=" << a.type()
+                      << ", b=" << b.type() << std::endl;
+            return false;
+        }
         return true;
     }
 

@@ -26,11 +26,9 @@
       },
       "options": {
         "transform_name": "sql_query_4",
-        "sql": "SELECT timestamp, feed_data_o as output0, feed_data_h as output1, feed_data_l as output2, feed_data_c as output3 FROM input ORDER BY timestamp",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 as output0, input1 as output1, input2 as output2, input3 as output3 FROM table ORDER BY timestamp",
         "output_id": "ohlc_timeseries",
-        "inputs": "{SLOT: [timestamp, feed_data#o, feed_data#h, feed_data#l, feed_data#c]}",
+        "inputs": "{SLOT: [feed_data#o, feed_data#h, feed_data#l, feed_data#c]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -64,11 +62,9 @@
       },
       "options": {
         "transform_name": "sql_query_4",
-        "sql": "SELECT timestamp, price_stream_c as output0, ROUND(AVG(price_stream_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as output1, ROUND(AVG(price_stream_c) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW), 2) as output2, ROUND(AVG(price_stream_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - AVG(price_stream_c) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW), 2) as output3 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 as output0, ROUND(AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as output1, ROUND(AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW), 2) as output2, ROUND(AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW), 2) as output3 FROM table",
         "output_id": "macd_components",
-        "inputs": "{SLOT: [timestamp, price_stream#c, price_stream#v]}",
+        "inputs": "{SLOT: [price_stream#c, price_stream#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -102,11 +98,9 @@
       },
       "options": {
         "transform_name": "sql_query_4",
-        "sql": "SELECT timestamp, market_data_c * market_data_v as output0, ROUND(market_data_v / market_data_trades, 2) as output1, ROUND(SUM(market_data_c * market_data_v) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) / SUM(market_data_v) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING), 2) as output2, AVG(market_data_v) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output3 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 * input1 as output0, ROUND(input1 / input2, 2) as output1, ROUND(SUM(input0 * input1) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) / SUM(input1) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING), 2) as output2, AVG(input1) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output3 FROM table",
         "output_id": "volume_analysis",
-        "inputs": "{SLOT: [timestamp, market_data#c, market_data#v, market_data#trades, market_data#vw]}",
+        "inputs": "{SLOT: [market_data#c, market_data#v, market_data#trades, market_data#vw]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -140,11 +134,9 @@
       },
       "options": {
         "transform_name": "sql_query_4",
-        "sql": "SELECT timestamp, COALESCE(ticker_c - LAG(ticker_c, 1) OVER (ORDER BY timestamp), 0) as output0, AVG(ticker_v) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) as output1, AVG(ticker_volatility) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output2, CASE WHEN COALESCE(ticker_c - LAG(ticker_c, 1) OVER (ORDER BY timestamp), 0) > 0 THEN 1 ELSE 0 END as output3 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, COALESCE(input0 - LAG(input0, 1) OVER (ORDER BY timestamp), 0) as output0, AVG(input1) OVER (ORDER BY timestamp ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) as output1, AVG(input2) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output2, CASE WHEN COALESCE(input0 - LAG(input0, 1) OVER (ORDER BY timestamp), 0) > 0 THEN 1 ELSE 0 END as output3 FROM table",
         "output_id": "regime_indicators",
-        "inputs": "{SLOT: [timestamp, ticker#c, ticker#v, ticker#volatility, ticker#vw]}",
+        "inputs": "{SLOT: [ticker#c, ticker#v, ticker#volatility, ticker#vw]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -179,11 +171,9 @@
       },
       "options": {
         "transform_name": "sql_query_4",
-        "sql": "SELECT timestamp, ROUND(AVG(ohlc_feed_c) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING), 3) as output0, MAX(ohlc_feed_c) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output1, MIN(ohlc_feed_c) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output2, ROW_NUMBER() OVER (ORDER BY timestamp) - 1 as output3 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, ROUND(AVG(input3) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING), 3) as output0, MAX(input3) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output1, MIN(input3) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output2, ROW_NUMBER() OVER (ORDER BY timestamp) - 1 as output3 FROM table",
         "output_id": "intraday_stats",
-        "inputs": "{SLOT: [timestamp, ohlc_feed#o, ohlc_feed#h, ohlc_feed#l, ohlc_feed#c]}",
+        "inputs": "{SLOT: [ohlc_feed#o, ohlc_feed#h, ohlc_feed#l, ohlc_feed#c]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [

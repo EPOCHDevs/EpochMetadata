@@ -121,11 +121,9 @@
       },
       "options": {
         "transform_name": "table_report",
-        "sql": "SELECT row_index, price_model_forecast, momentum_indicator_score, LAG(price_model_forecast, 1) OVER (ORDER BY row_index) as prev_price, price_model_forecast - LAG(price_model_forecast, 1) OVER (ORDER BY row_index) as price_change, AVG(price_model_forecast) OVER (ORDER BY row_index ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as running_avg FROM input WHERE row_index > 0 ORDER BY row_index",
-        "table_name": "input",
+        "sql": "SELECT timestamp as row_index, input0 as price_model_forecast, input1 as momentum_indicator_score, LAG(input0, 1) OVER (ORDER BY timestamp) as prev_price, input0 - LAG(input0, 1) OVER (ORDER BY timestamp) as price_change, AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as running_avg FROM table WHERE timestamp > 0 ORDER BY timestamp",
         "title": "Price Forecast with Moving Analytics",
         "add_index": true,
-        "index_column_name": "row_index",
         "output_id": "test_window_table",
         "inputs": "{SLOT: [price_model#forecast, momentum_indicator#score, timestamp]}",
         "timeframe": "1D"

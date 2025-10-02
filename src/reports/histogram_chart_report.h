@@ -10,31 +10,22 @@ class HistogramChartReport : public IReporter {
 public:
   explicit HistogramChartReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
-        m_tableName(m_config.GetOptionValue("table_name").GetString()),
         m_chartTitle(m_config.GetOptionValue("title").GetString()),
-        m_valuesColumn(m_config.GetOptionValue("values_column").GetString()),
         m_bins(static_cast<uint32_t>(m_config.GetOptionValue("bins").GetInteger())),
-        m_xAxisTitle(m_config.GetOptionValue("x_axis_title").GetString()),
-        m_yAxisTitle(m_config.GetOptionValue("y_axis_title").GetString()),
-        m_addIndex(m_config.GetOptionValue("add_index").GetBoolean()),
-        m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString()) {
+        m_xAxisLabel(m_config.GetOptionValue("x_axis_label").GetString()),
+        m_yAxisLabel(m_config.GetOptionValue("y_axis_label").GetString()),
+        m_category(m_config.GetOptionValue("category").GetString()) {
   }
 
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
 
 private:
-  const std::string m_sqlQuery;
-  const std::string m_tableName;
   const std::string m_chartTitle;
-  const std::string m_valuesColumn;
   const uint32_t m_bins;
-  const std::string m_xAxisTitle;
-  const std::string m_yAxisTitle;
-  const bool m_addIndex;
-  const std::string m_indexColumnName;
-
+  const std::string m_xAxisLabel;
+  const std::string m_yAxisLabel;
+  const std::string m_category;
 };
 
 template <> struct ReportMetadata<HistogramChartReport> {
@@ -47,62 +38,39 @@ template <> struct ReportMetadata<HistogramChartReport> {
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Histogram Chart Report",
       .options = {
-        {.id = "sql",
-         .name = "SQL Query",
-         .type = epoch_core::MetaDataOptionType::String,
-         .isRequired = false,
-         .desc = "Optional SQL query to transform input DataFrame before charting"},
-        {.id = "table_name",
-         .name = "Table Name",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-         .isRequired = false,
-         .desc = "Name to use for the input table in SQL query"},
         {.id = "title",
          .name = "Chart Title",
          .type = epoch_core::MetaDataOptionType::String,
          .isRequired = false,
          .desc = "Title for the generated chart"},
-        {.id = "values_column",
-         .name = "Values Column",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"values"},
-         .isRequired = false,
-         .desc = "Column name for values to histogram (default: 'values')"},
         {.id = "bins",
          .name = "Number of Bins",
          .type = epoch_core::MetaDataOptionType::Integer,
+         .defaultValue = epoch_metadata::MetaDataOptionDefinition{30.0},
          .isRequired = false,
          .min = 1,
          .max = 100,
-         .desc = "Number of bins for the histogram (default: 30)"},
-        {.id = "x_axis_title",
-         .name = "X Axis Title",
+         .desc = "Number of bins for the histogram"},
+        {.id = "x_axis_label",
+         .name = "X Axis Label",
          .type = epoch_core::MetaDataOptionType::String,
          .isRequired = false,
-         .desc = "Title for the x-axis"},
-        {.id = "y_axis_title",
-         .name = "Y Axis Title",
+         .desc = "Label for the x-axis"},
+        {.id = "y_axis_label",
+         .name = "Y Axis Label",
          .type = epoch_core::MetaDataOptionType::String,
          .isRequired = false,
-         .desc = "Title for the y-axis"},
-        {.id = "add_index",
-         .name = "Add Index",
-         .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{true},
-         .isRequired = false,
-         .desc = "Add DataFrame index as a queryable column for SQL queries"},
-        {.id = "index_column_name",
-         .name = "Index Column Name",
+         .desc = "Label for the y-axis"},
+        {.id = "category",
+         .name = "Category",
          .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
-         .isRequired = false,
-         .desc = "Name for the index column when add_index is true"}
+         .isRequired = true,
+         .desc = "For grouping in dashboard"}
       },
       .isCrossSectional = false,
-      .desc = "Generates histogram from DataFrame. Required column: values",
+      .desc = "Generates histogram chart from timeseries data. Processes values directly without SQL aggregation.",
       .inputs = {
-        {epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}
+        {epoch_core::IODataType::Number, "value", "Value Column"}
       },
       .outputs = {},
       .atLeastOneInputRequired = true,

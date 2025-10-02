@@ -1,6 +1,7 @@
 #pragma once
 
 #include <epoch_metadata/reports/ireport.h>
+#include <epoch_metadata/transforms/sql_options.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/scalar.h>
 #include <arrow/api.h>
@@ -12,10 +13,8 @@ public:
   explicit TableReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
         m_sqlQuery(GetSQLQuery()),
-        m_tableName(GetTableName()),
         m_tableTitle(GetTableTitle()),
-        m_addIndex(GetAddIndex()),
-        m_indexColumnName(GetIndexColumnName()) {
+        m_addIndex(GetAddIndex()) {
   }
 
 protected:
@@ -25,16 +24,12 @@ protected:
 private:
   // Cached configuration values
   const std::string m_sqlQuery;
-  const std::string m_tableName;
   const std::string m_tableTitle;
   const bool m_addIndex;
-  const std::string m_indexColumnName;
 
   // Configuration getters
   std::string GetSQLQuery() const;
-  std::string GetTableName() const;
   bool GetAddIndex() const;
-  std::string GetIndexColumnName() const;
   std::string GetTableTitle() const;
 
   // Helper methods
@@ -51,35 +46,14 @@ template <> struct ReportMetadata<TableReport> {
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Table Report",
       .options = {
-        {.id = "sql",
-         .name = "SQL Query",
-         .type = epoch_core::MetaDataOptionType::String,
-         .isRequired = true,
-         .desc = "SQL query to execute on the input DataFrame"},
-        {.id = "table_name",
-         .name = "Table Name",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-         .isRequired = false,
-         .desc = "Name to use for the input table in SQL query"},
+        epoch_metadata::transforms::SQL_OPTION,
+        epoch_metadata::transforms::ADD_INDEX_OPTION,
         {.id = "title",
          .name = "Table Title",
          .type = epoch_core::MetaDataOptionType::String,
          .defaultValue = epoch_metadata::MetaDataOptionDefinition{"SQL Query Result"},
          .isRequired = false,
-         .desc = "Title for the generated table"},
-        {.id = "add_index",
-         .name = "Add Index",
-         .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{false},
-         .isRequired = false,
-         .desc = "Add DataFrame index as a queryable column"},
-        {.id = "index_column_name",
-         .name = "Index Column Name",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_metadata::MetaDataOptionDefinition{"row_index"},
-         .isRequired = false,
-         .desc = "Name for the index column when add_index is true"}
+         .desc = "Title for the generated table"}
       },
       .isCrossSectional = false,
       .desc = "Execute SQL query on input DataFrame and generate table output for tearsheet visualization",

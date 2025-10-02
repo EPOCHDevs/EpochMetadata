@@ -24,11 +24,9 @@
       },
       "options": {
         "transform_name": "sql_query_3",
-        "sql": "SELECT timestamp, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as output0, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) + 2 * COALESCE(STDDEV_POP(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output1, AVG(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - 2 * COALESCE(STDDEV_POP(price_data_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output2 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as output0, AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) + 2 * COALESCE(STDDEV_POP(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output1, AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - 2 * COALESCE(STDDEV_POP(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) as output2 FROM table",
         "output_id": "bollinger_bands",
-        "inputs": "{SLOT: [timestamp, price_data#c, price_data#v]}",
+        "inputs": "{SLOT: [price_data#c, price_data#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -60,11 +58,9 @@
       },
       "options": {
         "transform_name": "sql_query_3",
-        "sql": "SELECT timestamp, GREATEST(0, COALESCE(market_feed_c - LAG(market_feed_c, 1) OVER (ORDER BY timestamp), 0)) as output0, GREATEST(0, COALESCE(LAG(market_feed_c, 1) OVER (ORDER BY timestamp) - market_feed_c, 0)) as output1, COALESCE(market_feed_c - LAG(market_feed_c, 1) OVER (ORDER BY timestamp), 0) as output2 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, GREATEST(0, COALESCE(input1 - LAG(input1, 1) OVER (ORDER BY timestamp), 0)) as output0, GREATEST(0, COALESCE(LAG(input1, 1) OVER (ORDER BY timestamp) - input1, 0)) as output1, COALESCE(input1 - LAG(input1, 1) OVER (ORDER BY timestamp), 0) as output2 FROM table",
         "output_id": "rsi_components",
-        "inputs": "{SLOT: [timestamp, market_feed#o, market_feed#c, market_feed#v]}",
+        "inputs": "{SLOT: [market_feed#o, market_feed#c, market_feed#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -96,11 +92,9 @@
       },
       "options": {
         "transform_name": "sql_query_3",
-        "sql": "SELECT timestamp, (quote_stream_bid + quote_stream_ask) / 2 as output0, quote_stream_ask - quote_stream_bid as output1, ROUND((quote_stream_bid_size - quote_stream_ask_size) / (quote_stream_bid_size + quote_stream_ask_size), 3) as output2 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, (input0 + input1) / 2 as output0, input1 - input0 as output1, ROUND((input2 - input3) / (input2 + input3), 3) as output2 FROM table",
         "output_id": "microstructure",
-        "inputs": "{SLOT: [timestamp, quote_stream#bid, quote_stream#ask, quote_stream#bid_size, quote_stream#ask_size]}",
+        "inputs": "{SLOT: [quote_stream#bid, quote_stream#ask, quote_stream#bid_size, quote_stream#ask_size]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -132,11 +126,9 @@
       },
       "options": {
         "transform_name": "sql_query_3",
-        "sql": "SELECT timestamp, ROUND((ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3, 2) as output0, ROUND(2 * (ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3 - ohlc_data_l, 2) as output1, ROUND(2 * (ohlc_data_h + ohlc_data_l + ohlc_data_c) / 3 - ohlc_data_h, 2) as output2 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, ROUND((input0 + input1 + input2) / 3, 2) as output0, ROUND(2 * (input0 + input1 + input2) / 3 - input1, 2) as output1, ROUND(2 * (input0 + input1 + input2) / 3 - input0, 2) as output2 FROM table",
         "output_id": "pivot_points",
-        "inputs": "{SLOT: [timestamp, ohlc_data#h, ohlc_data#l, ohlc_data#c, ohlc_data#v]}",
+        "inputs": "{SLOT: [ohlc_data#h, ohlc_data#l, ohlc_data#c, ohlc_data#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [

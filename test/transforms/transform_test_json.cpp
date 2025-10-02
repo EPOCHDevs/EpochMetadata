@@ -307,7 +307,137 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
             }
             }
 
-            // Charts will be compared properly if specified in test expectations
+            // Convert charts
+            if (!tearsheetExpect.charts.empty()) {
+                epoch_proto::ChartList* chartList = tearsheet->protoTearsheet.mutable_charts();
+                for (const auto& chart : tearsheetExpect.charts) {
+                    epoch_proto::Chart* protoChart = chartList->add_charts();
+
+                    // Determine chart type and convert accordingly
+                    if (chart.type == "WidgetPieChart") {
+                        // Pie chart conversion
+                        epoch_proto::PieDef* pieDef = protoChart->mutable_pie_def();
+                        pieDef->mutable_chart_def()->set_title(chart.title);
+                        pieDef->mutable_chart_def()->set_category(chart.category);
+                        pieDef->mutable_chart_def()->set_type(epoch_proto::WidgetPie);
+
+                        if (chart.slices.has_value()) {
+                            // Create a single PieDataDef series
+                            epoch_proto::PieDataDef* pieDataDef = pieDef->add_data();
+                            pieDataDef->set_name("default");
+                            pieDataDef->set_size("100%");
+
+                            if (chart.inner_size.has_value()) {
+                                pieDataDef->set_inner_size(std::to_string(chart.inner_size.value()) + "%");
+                            }
+
+                            // Add each slice as PieData
+                            for (const auto& slice : chart.slices.value()) {
+                                epoch_proto::PieData* pieData = pieDataDef->add_points();
+                                pieData->set_name(slice.label);
+
+                                if (std::holds_alternative<double>(slice.value)) {
+                                    pieData->set_y(std::get<double>(slice.value));
+                                } else if (std::holds_alternative<int64_t>(slice.value)) {
+                                    pieData->set_y(static_cast<double>(std::get<int64_t>(slice.value)));
+                                }
+                            }
+                        }
+                    } else if (chart.type == "WidgetBarChart") {
+                        // Bar chart conversion
+                        epoch_proto::BarDef* barDef = protoChart->mutable_bar_def();
+                        barDef->mutable_chart_def()->set_title(chart.title);
+                        barDef->mutable_chart_def()->set_category(chart.category);
+                        barDef->mutable_chart_def()->set_type(epoch_proto::WidgetBar);
+
+                        if (chart.vertical.has_value()) {
+                            barDef->set_vertical(chart.vertical.value());
+                        }
+                        if (chart.stacked.has_value()) {
+                            barDef->set_stacked(chart.stacked.value());
+                        }
+
+                        if (chart.bars.has_value()) {
+                            // Set up x-axis categories
+                            epoch_proto::AxisDef* xAxis = barDef->mutable_chart_def()->mutable_x_axis();
+                            xAxis->set_type(epoch_proto::AxisCategory);
+
+                            // Create single BarData series with all values
+                            epoch_proto::BarData* barData = barDef->add_data();
+                            barData->set_name("values");
+
+                            for (const auto& bar : chart.bars.value()) {
+                                xAxis->add_categories(bar.name);
+
+                                if (std::holds_alternative<double>(bar.value)) {
+                                    barData->add_values(std::get<double>(bar.value));
+                                } else if (std::holds_alternative<int64_t>(bar.value)) {
+                                    barData->add_values(static_cast<double>(std::get<int64_t>(bar.value)));
+                                }
+                            }
+                        }
+                    } else if (chart.type == "WidgetLinesChart") {
+                        // Line chart conversion
+                        epoch_proto::LinesDef* linesDef = protoChart->mutable_lines_def();
+                        linesDef->mutable_chart_def()->set_title(chart.title);
+                        linesDef->mutable_chart_def()->set_category(chart.category);
+                        linesDef->mutable_chart_def()->set_type(epoch_proto::WidgetLines);
+
+                        // Set up x-axis
+                        if (chart.x_axis.has_value()) {
+                            epoch_proto::AxisDef* xAxis = linesDef->mutable_chart_def()->mutable_x_axis();
+
+                            // Map type string to proto type
+                            if (chart.x_axis->type == "TypeDecimal") {
+                                xAxis->set_type(epoch_proto::AxisLinear);
+                            } else if (chart.x_axis->type == "TypeTimestamp") {
+                                xAxis->set_type(epoch_proto::AxisDateTime);
+                            }
+                        }
+
+                        // Add lines
+                        if (chart.lines.has_value()) {
+                            for (const auto& lineData : chart.lines.value()) {
+                                epoch_proto::Line* line = linesDef->add_lines();
+                                line->set_name(lineData.name);
+
+                                // Add data points - for line charts, x comes from x_axis
+                                if (chart.x_axis.has_value()) {
+                                    for (size_t i = 0; i < lineData.data.size() && i < chart.x_axis->data.size(); ++i) {
+                                        epoch_proto::Point* point = line->add_data();
+
+                                        // Set x value
+                                        if (std::holds_alternative<int64_t>(chart.x_axis->data[i])) {
+                                            point->set_x(std::get<int64_t>(chart.x_axis->data[i]));
+                                        } else if (std::holds_alternative<double>(chart.x_axis->data[i])) {
+                                            point->set_x(static_cast<int64_t>(std::get<double>(chart.x_axis->data[i])));
+                                        }
+
+                                        // Set y value
+                                        if (std::holds_alternative<double>(lineData.data[i])) {
+                                            point->set_y(std::get<double>(lineData.data[i]));
+                                        } else if (std::holds_alternative<int64_t>(lineData.data[i])) {
+                                            point->set_y(static_cast<double>(std::get<int64_t>(lineData.data[i])));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else if (chart.type == "WidgetHistogramChart") {
+                        // Histogram conversion
+                        epoch_proto::HistogramDef* histogramDef = protoChart->mutable_histogram_def();
+                        histogramDef->mutable_chart_def()->set_title(chart.title);
+                        histogramDef->mutable_chart_def()->set_category(chart.category);
+                        histogramDef->mutable_chart_def()->set_type(epoch_proto::WidgetHistogram);
+
+                        // Note: bins in the test JSON are expected output, not input
+                        // For now, we'll store bin count if available
+                        if (chart.bins.has_value()) {
+                            histogramDef->set_bins_count(static_cast<uint32_t>(chart.bins->size()));
+                        }
+                    }
+                }
+            }
 
             testCase.expect = std::move(tearsheet);
 

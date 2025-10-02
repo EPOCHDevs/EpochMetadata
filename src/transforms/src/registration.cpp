@@ -33,9 +33,9 @@
 #include "reports/quantile_card_report.h"
 #include "reports/gap_report.h"
 #include "reports/table_report.h"
-#include "reports/lines_chart_report.h"
 #include "reports/bar_chart_report.h"
 #include "reports/pie_chart_report.h"
+#include "reports/nested_pie_chart_report.h"
 #include "reports/histogram_chart_report.h"
 
 #include "cross_sectional/rank.h"
@@ -215,6 +215,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
   REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
   REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
+
   // Register Reports
   reports::RegisterReport<reports::NumericCardReport>();
   reports::RegisterReport<reports::BooleanCardReport>();
@@ -224,9 +225,9 @@ void InitializeTransforms(
   reports::RegisterReport<reports::TableReport>();
 
   // Register Chart Reports
-  reports::RegisterReport<reports::LinesChartReport>();
   reports::RegisterReport<reports::BarChartReport>();
   reports::RegisterReport<reports::PieChartReport>();
+  reports::RegisterReport<reports::NestedPieChartReport>();
   reports::RegisterReport<reports::HistogramChartReport>();
 
   reports::RegisterReport<reports::GapReport>();

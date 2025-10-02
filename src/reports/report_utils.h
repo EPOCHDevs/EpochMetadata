@@ -1,8 +1,11 @@
 #pragma once
 
 #include <epoch_frame/dataframe.h>
+#include <epoch_frame/index.h>
+#include <epoch_dashboard/tearsheet/chart_types.h>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <regex>
 
 namespace epoch_metadata::reports {
@@ -10,6 +13,31 @@ namespace epoch_metadata::reports {
 // Shared utility functions for all report types
 class ReportUtils {
 public:
+  // Convert a Series to vector of PieData for pie chart rendering
+  static std::vector<epoch_proto::PieData> createPieDataFromSeries(const epoch_frame::Series& series) {
+    std::vector<epoch_proto::PieData> pieData;
+    for (int64_t i = 0; i < static_cast<int64_t>(series.size()); ++i) {
+      epoch_proto::PieData data;
+      data.set_name(series.index()->at(i).repr());
+      data.set_y(series.iloc(i).as_double());
+      pieData.emplace_back(std::move(data));
+    }
+    return pieData;
+  }
+
+  // Group by column, sum values, and normalize as percentage
+  static epoch_frame::Series normalizeSeriesAsPercentage(
+      const epoch_frame::DataFrame& df,
+      const std::string& groupColumn,
+      const std::string& valueColumn) {
+    auto grouped = df[{groupColumn, valueColumn}]
+                      .group_by_agg(groupColumn)
+                      .sum()
+                      .to_series();
+    auto total = df[valueColumn].sum();
+    return (grouped / total) * epoch_frame::Scalar{100.0};
+  }
+
   // Sanitize column names by replacing # with _ for SQL compatibility
   static epoch_frame::DataFrame SanitizeColumnNames(const epoch_frame::DataFrame& df) {
     auto table = df.table();

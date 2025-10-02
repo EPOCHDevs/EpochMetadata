@@ -34,11 +34,9 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, market_data_c, market_data_v, market_data_vw FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input3 as market_data_c, input4 as market_data_v, input5 as market_data_vw FROM table",
         "output_id": "ohlcv_result",
-        "inputs": "{SLOT: [timestamp, market_data#o, market_data#h, market_data#l, market_data#c, market_data#v, market_data#vw]}",
+        "inputs": "{SLOT: [market_data#o, market_data#h, market_data#l, market_data#c, market_data#v, market_data#vw]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -77,11 +75,9 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, feed_c, feed_v, feed_h - feed_l as range FROM input WHERE feed_v >= 120000",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input3 as feed_c, input4 as feed_v, input1 - input2 as range FROM table WHERE input4 >= 120000",
         "output_id": "high_volume_bars",
-        "inputs": "{SLOT: [timestamp, feed#o, feed#h, feed#l, feed#c, feed#v]}",
+        "inputs": "{SLOT: [feed#o, feed#h, feed#l, feed#c, feed#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -119,11 +115,9 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, price_feed_c, price_feed_v, ROUND(SUM(price_feed_c * price_feed_v) OVER (ORDER BY timestamp) / SUM(price_feed_v) OVER (ORDER BY timestamp), 2) as vwap, SUM(price_feed_v) OVER (ORDER BY timestamp) as cumulative_volume FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 as price_feed_c, input1 as price_feed_v, ROUND(SUM(input0 * input1) OVER (ORDER BY timestamp) / SUM(input1) OVER (ORDER BY timestamp), 2) as vwap, SUM(input1) OVER (ORDER BY timestamp) as cumulative_volume FROM table",
         "output_id": "vwap_calc",
-        "inputs": "{SLOT: [timestamp, price_feed#c, price_feed#v, price_feed#vw]}",
+        "inputs": "{SLOT: [price_feed#c, price_feed#v, price_feed#vw]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -162,11 +156,9 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, ticker_c, ROUND(AVG(ticker_c) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as sma_3, COALESCE(ticker_c - LAG(ticker_c, 1) OVER (ORDER BY timestamp), 0) as momentum, ticker_v / 100000.0 as volume_ratio FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 as ticker_c, ROUND(AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as sma_3, COALESCE(input0 - LAG(input0, 1) OVER (ORDER BY timestamp), 0) as momentum, input1 / 100000.0 as volume_ratio FROM table",
         "output_id": "ma_momentum",
-        "inputs": "{SLOT: [timestamp, ticker#c, ticker#v]}",
+        "inputs": "{SLOT: [ticker#c, ticker#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [

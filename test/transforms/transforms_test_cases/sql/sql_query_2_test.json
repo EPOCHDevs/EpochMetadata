@@ -22,11 +22,9 @@
       },
       "options": {
         "transform_name": "sql_query_2",
-        "sql": "SELECT timestamp, market_data_c as output0, COALESCE(market_data_c - LAG(market_data_c, 1) OVER (ORDER BY timestamp), 0) as output1 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, input0 as output0, COALESCE(input0 - LAG(input0, 1) OVER (ORDER BY timestamp), 0) as output1 FROM table",
         "output_id": "price_momentum",
-        "inputs": "{SLOT: [timestamp, market_data#c, market_data#v]}",
+        "inputs": "{SLOT: [market_data#c, market_data#v]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -55,11 +53,9 @@
       },
       "options": {
         "transform_name": "sql_query_2",
-        "sql": "SELECT timestamp, (quote_data_bid + quote_data_ask) / 2 as output0, quote_data_ask - quote_data_bid as output1 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, (input0 + input1) / 2 as output0, input1 - input0 as output1 FROM table",
         "output_id": "spread_analysis",
-        "inputs": "{SLOT: [timestamp, quote_data#bid, quote_data#ask]}",
+        "inputs": "{SLOT: [quote_data#bid, quote_data#ask]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -90,11 +86,9 @@
       },
       "options": {
         "transform_name": "sql_query_2",
-        "sql": "SELECT timestamp, AVG(ticker_v) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output0, ticker_v * ticker_c as output1 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, AVG(input0) OVER (ORDER BY timestamp ROWS UNBOUNDED PRECEDING) as output0, input0 * input1 as output1 FROM table",
         "output_id": "volume_profile",
-        "inputs": "{SLOT: [timestamp, ticker#v, ticker#c, ticker#vw]}",
+        "inputs": "{SLOT: [ticker#v, ticker#c, ticker#vw]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [
@@ -125,11 +119,9 @@
       },
       "options": {
         "transform_name": "sql_query_2",
-        "sql": "SELECT timestamp, (ohlc_feed_h + ohlc_feed_l) / 2 as output0, ohlc_feed_h - ohlc_feed_l as output1 FROM input",
-        "table_name": "input",
-        "index_column_name": "timestamp",
+        "sql": "SELECT timestamp, (input0 + input1) / 2 as output0, input0 - input1 as output1 FROM table",
         "output_id": "range_analysis",
-        "inputs": "{SLOT: [timestamp, ohlc_feed#h, ohlc_feed#l, ohlc_feed#c]}",
+        "inputs": "{SLOT: [ohlc_feed#h, ohlc_feed#l, ohlc_feed#c]}",
         "timeframe": "1Min"
       },
       "timestamp_columns": [

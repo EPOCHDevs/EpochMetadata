@@ -11,50 +11,22 @@ namespace epoch_metadata::reports {
 
 void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   try {
-    epoch_frame::DataFrame preparedDf = normalizedDf;
+    // Get column names from input mapping
+    auto labelColumn = m_config.GetInput("label");
+    auto valueColumn = m_config.GetInput("value");
 
-    // If SQL query is provided, execute it first
-    if (!m_sqlQuery.empty()) {
-      // Prepare DataFrame with optional index column for SQL access
-      epoch_frame::DataFrame indexPreparedDf = ReportUtils::PrepareIndexColumn(normalizedDf, m_addIndex, m_indexColumnName);
+    // Normalize series as percentage using utility function
+    auto normalizedSeries = ReportUtils::normalizeSeriesAsPercentage(
+        normalizedDf, labelColumn, valueColumn);
 
-      // Execute SQL with sanitization
-      preparedDf = ReportUtils::ExecuteSQLWithSanitization(indexPreparedDf, m_sqlQuery, m_tableName);
-    } else {
-      // For non-SQL queries, use the sanitized column names directly
-      preparedDf = ReportUtils::SanitizeColumnNames(normalizedDf);
-    }
-
-    // Validate required columns
-    auto schema = preparedDf.table()->schema();
-    bool hasLabelColumn = false;
-    bool hasValueColumn = false;
-
-    for (int i = 0; i < schema->num_fields(); ++i) {
-      std::string fieldName = schema->field(i)->name();
-      if (fieldName == m_labelColumn) hasLabelColumn = true;
-      if (fieldName == m_valueColumn) hasValueColumn = true;
-    }
-
-    if (!hasLabelColumn || !hasValueColumn) {
-      std::cerr << "Error: PieChartReport - required columns not found" << std::endl;
-      return;
-    }
-
-    // Build pie chart
+    // Build simple pie chart directly from data
     epoch_tearsheet::PieChartBuilder chartBuilder;
-    chartBuilder.setTitle(m_chartTitle.empty() ? "Pie Chart" : m_chartTitle)
-                .setCategory("Charts");
+    chartBuilder.setTitle(m_chartTitle)
+                .setCategory(m_category);
 
-    // Configure pie size and inner size for donut
-    epoch_tearsheet::PieSize size(100);  // 100% size
-    std::optional<epoch_tearsheet::PieInnerSize> innerSize;
-    if (m_innerSize > 0) {
-      innerSize = epoch_tearsheet::PieInnerSize(m_innerSize);
-    }
-
-    // Use fromDataFrame to populate chart
-    chartBuilder.fromDataFrame(preparedDf, m_labelColumn, m_valueColumn, "Series", size, innerSize);
+    // Convert series to pie data using utility function
+    auto pieData = ReportUtils::createPieDataFromSeries(normalizedSeries);
+    chartBuilder.addSeries(labelColumn, pieData, epoch_tearsheet::PieSize{100}, std::nullopt);
 
     m_dashboard.addChart(chartBuilder.build());
 

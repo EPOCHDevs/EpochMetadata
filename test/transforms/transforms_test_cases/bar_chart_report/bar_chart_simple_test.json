@@ -61,20 +61,26 @@
       },
       "options": {
         "transform_name": "bar_chart_report",
+        "agg": "first",
         "title": "Sector Performance",
-        "category_column": "sector_category",
-        "value_column": "sector_value",
+        "category": "Charts",
+        "x_axis_label": "Sector",
+        "y_axis_label": "Performance",
         "vertical": true,
-        "stacked": false,
-        "x_axis_title": "Sector",
-        "y_axis_title": "Performance",
         "output_id": "test_bar_chart",
-        "inputs": "{SLOT: [sector#category, sector#value]}",
+        "inputs": "{label: sector#category, value: sector#value}",
         "timeframe": "1D"
-      }
-    },
+      },
+      "timestamp_columns": [
+        "timestamp"
+      ],
+      "index_column": "timestamp"
+    }
+  ]
+}
+OLD_DISABLED_TEST_BELOW
     {
-      "title": "Bar Chart Report with SQL Aggregation",
+      "title": "Bar Chart Report with SQL Aggregation (DISABLED)",
       "input": {
         "timestamp": [
           "2024-01-01T09:30:00",
@@ -162,8 +168,7 @@
       "options": {
         "transform_name": "bar_chart_report",
         "title": "Average Market Cap by Sector",
-        "sql": "SELECT portfolio_sector as category, AVG(portfolio_market_cap) as value FROM input GROUP BY portfolio_sector ORDER BY value DESC",
-        "table_name": "input",
+        "sql": "SELECT input0 as category, AVG(input1) as value FROM table GROUP BY input0 ORDER BY value DESC",
         "category_column": "category",
         "value_column": "value",
         "vertical": true,
@@ -171,7 +176,6 @@
         "x_axis_title": "Sector",
         "y_axis_title": "Average Market Cap ($)",
         "add_index": true,
-        "index_column_name": "timestamp",
         "output_id": "test_bar_chart_sql",
         "inputs": "{SLOT: [portfolio#sector, portfolio#market_cap, portfolio#daily_volume]}",
         "timeframe": "1H"

@@ -19,22 +19,21 @@ class SQLQueryTransform : public ITransform {
 public:
   explicit SQLQueryTransform(const TransformConfiguration &config)
       : ITransform(config),
-  m_sqlQuery(m_config.GetOptionValue("sql").GetString()),
-  m_tableName(m_config.GetOptionValue("table_name").GetString()),
-  m_indexColumnName(m_config.GetOptionValue("index_column_name").GetString())
+  m_sqlQuery(m_config.GetOptionValue("sql").GetString())
   {
   }
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(const epoch_frame::DataFrame &df) const override {
-    // Step 1: Store original column names before sanitization
-    std::vector<std::string> originalColumns = df.column_names();
+    // Step 1: Build input rename mapping (input0, input1, input2, ...)
+    auto inputRenameMap = this->BuildVARGInputRenameMapping();
 
-    // Step 2: Sanitize column names for SQL compatibility (replace # with _)
-    epoch_frame::DataFrame sanitizedDf = reports::ReportUtils::SanitizeColumnNames(df);
+    // Step 2: Rename data columns to input0, input1, input2, ...
+    epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
 
-    // Step 3: Execute SQL query
-    auto resultTable = sanitizedDf.reset_index(m_indexColumnName).query(m_sqlQuery, m_tableName);
+    // Step 3: Execute SQL query with timestamp index
+    // SQLQueryTransform is a timeseries transform - index is always added as 'timestamp'
+    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery, "table");
 
     // Convert Arrow Table to DataFrame
     epoch_frame::DataFrame resultDf(resultTable);
@@ -62,8 +61,6 @@ public:
 
 private:
   std::string m_sqlQuery;
-  std::string m_tableName;
-  std::string m_indexColumnName;
 };
 
 // Type aliases for 1-4 output variants

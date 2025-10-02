@@ -1,6 +1,7 @@
 #pragma once
 
 #include "epoch_metadata/transforms/metadata.h"
+#include "epoch_metadata/transforms/sql_options.h"
 #include "sql_query_transform.h"
 
 namespace epoch_metadata::transform {
@@ -16,29 +17,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (1 Output)",
     .options = {
-      {.id = "sql",
-       .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::String,
-       .isRequired = true,
-       .desc = "SQL query to execute on timeseries data. "
-               "Column names containing '#' will be automatically sanitized to '_' for SQL compatibility. "
-               "IMPORTANT: Include the index_column_name (default: timestamp) in your SELECT for timeseries merging. "
-               "Example: SELECT timestamp, close, volume FROM input WHERE close > 100"},
-      {.id = "table_name",
-       .name = "Table Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-       .isRequired = false,
-       .desc = "Name to reference the input DataFrame in your SQL query. Default is 'input'. "
-               "Use this name in your FROM clause (e.g., FROM input)"},
-      {.id = "index_column_name",
-       .name = "Index Column Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
-       .isRequired = false,
-       .desc = "Name of the column to use as the output DataFrame index for timeseries data. "
-               "This column will be set as the index after SQL execution to enable proper "
-               "merging with other timeseries. Default is 'timestamp'. Must be included in SQL SELECT."}
+      epoch_metadata::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL queries on timeseries data. "
@@ -66,24 +45,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (2 Outputs)",
     .options = {
-      {.id = "sql",
-       .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::String,
-       .isRequired = true,
-       .desc = "SQL query that returns exactly: output0, output1, and index_column_name. "
-               "Example: SELECT price AS output0, volume AS output1, timestamp FROM input"},
-      {.id = "table_name",
-       .name = "Table Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-       .isRequired = false,
-       .desc = "Name to reference the input DataFrame in SQL query"},
-      {.id = "index_column_name",
-       .name = "Index Column Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
-       .isRequired = false,
-       .desc = "Column name to set as output index for timeseries continuity"}
+      epoch_metadata::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 2 separate output ports. "
@@ -112,24 +74,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (3 Outputs)",
     .options = {
-      {.id = "sql",
-       .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::String,
-       .isRequired = true,
-       .desc = "SQL query that returns exactly: output0, output1, output2, and index_column_name. "
-               "Example: SELECT open AS output0, high AS output1, low AS output2, timestamp FROM input"},
-      {.id = "table_name",
-       .name = "Table Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-       .isRequired = false,
-       .desc = "Name to reference the input DataFrame in SQL query"},
-      {.id = "index_column_name",
-       .name = "Index Column Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
-       .isRequired = false,
-       .desc = "Column name to set as output index for timeseries continuity"}
+      epoch_metadata::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 3 separate output ports. "
@@ -159,24 +104,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (4 Outputs)",
     .options = {
-      {.id = "sql",
-       .name = "SQL Query",
-       .type = epoch_core::MetaDataOptionType::String,
-       .isRequired = true,
-       .desc = "SQL query that returns exactly: output0, output1, output2, output3, and index_column_name. "
-               "Example: SELECT open AS output0, high AS output1, low AS output2, close AS output3, timestamp FROM input"},
-      {.id = "table_name",
-       .name = "Table Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"input"},
-       .isRequired = false,
-       .desc = "Name to reference the input DataFrame in SQL query"},
-      {.id = "index_column_name",
-       .name = "Index Column Name",
-       .type = epoch_core::MetaDataOptionType::String,
-       .defaultValue = epoch_metadata::MetaDataOptionDefinition{"timestamp"},
-       .isRequired = false,
-       .desc = "Column name to set as output index for timeseries continuity"}
+      epoch_metadata::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 4 separate output ports. "
