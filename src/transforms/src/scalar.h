@@ -105,4 +105,6 @@ struct BoolFalseScalar : ScalarDataFrameTransform<bool> {
 };
 
 using NumericScalarDataFrameTransform = ScalarDataFrameTransform<double>;
+    using StringScalarDataFrameTransform = ScalarDataFrameTransform<std::string>;
+
 } // namespace epoch_metadata::transform

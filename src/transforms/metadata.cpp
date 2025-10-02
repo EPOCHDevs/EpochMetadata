@@ -403,6 +403,27 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
       .usageContext = "Inject constant values for thresholds, parameters, or fixed position sizes. Common uses: threshold levels for signals (e.g., RSI > 70), fixed position sizing, mathematical constants in calculations.",
       .limitations = "Static value only - cannot adapt to market conditions. For dynamic values, use indicators or calculations."});
 
+    metadataList.emplace_back(TransformsMetaData{
+    .id = "text",
+    .category = epoch_core::TransformCategory::Scalar,
+    .renderKind = epoch_core::TransformNodeRenderKind::Input,
+    .plotKind = epoch_core::TransformPlotKind::Null,
+    .name = "Text",
+    .options =
+        {
+            MetaDataOption{.id = "value",
+                           .name = "",
+                           .type = epoch_core::MetaDataOptionType::String},
+        },
+    .desc = "Outputs a constant text/string value. Useful for injecting fixed "
+            "text into a pipeline.",
+    .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+    .tags = {"scalar", "constant", "text", "string"},
+    .strategyTypes = {"parameter-injection", "labeling"},
+    .assetRequirements = {"single-asset"},
+    .usageContext = "Inject constant text values for labels, identifiers, or text-based parameters. Common uses: asset identifiers, category labels, text annotations.",
+    .limitations = "Static value only - cannot adapt to market conditions. For dynamic text, use string operations or text indicators."});
+
   for (bool boolConstant : {true, false}) {
     metadataList.emplace_back(TransformsMetaData{
         .id = std::format("bool_{}", boolConstant),

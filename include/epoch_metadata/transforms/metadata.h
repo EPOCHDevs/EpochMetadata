@@ -195,8 +195,17 @@ struct IOMetaDataConstants {
   inline static IOMetaData BOOLEAN_INPUT2_METADATA{
       epoch_core::IODataType::Boolean, ARG2, "", false};
 
+  inline static IOMetaData STRING_INPUT_METADATA{
+      epoch_core::IODataType::String, ARG, "", false};
+
+  inline static IOMetaData STRING_INPUT0_METADATA{
+      epoch_core::IODataType::String, ARG0, "", false};
+
   inline static IOMetaData DECIMAL_OUTPUT_METADATA{
       epoch_core::IODataType::Decimal, "result", "", true};
+
+  inline static IOMetaData STRING_OUTPUT_METADATA{
+      epoch_core::IODataType::String, "result", "", true};
 
   inline static IOMetaData BOOLEAN_OUTPUT_METADATA{
       epoch_core::IODataType::Boolean, "result", "", true};

@@ -67,6 +67,8 @@ void InitializeTransforms(
 
   // Scalar Transforms
   REGISTER_TRANSFORM(number, NumericScalarDataFrameTransform);
+  REGISTER_TRANSFORM(text, StringScalarDataFrameTransform);
+
   REGISTER_TRANSFORM(bool_true, BoolTrueScalar);
   REGISTER_TRANSFORM(bool_false, BoolFalseScalar);
   REGISTER_TRANSFORM(zero, ZeroScalar);
