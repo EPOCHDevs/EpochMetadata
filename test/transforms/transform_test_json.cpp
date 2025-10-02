@@ -380,21 +380,41 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                         }
 
                         if (chart.bars.has_value()) {
-                            // Set up x-axis categories
-                            epoch_proto::AxisDef* xAxis = barDef->mutable_chart_def()->mutable_x_axis();
-                            xAxis->set_type(epoch_proto::AxisCategory);
+                            const auto& bars = chart.bars.value();
 
-                            // Create single BarData series with all values
-                            epoch_proto::BarData* barData = barDef->add_data();
-                            barData->set_name("values");
+                            // Check if this is multi-series format (bars have data arrays)
+                            bool isMultiSeries = !bars.empty() && !bars[0].data.empty();
 
-                            for (const auto& bar : chart.bars.value()) {
-                                xAxis->add_categories(bar.name);
+                            if (isMultiSeries) {
+                                // Multi-series format: each bar is a series with name and data array
+                                for (const auto& bar : bars) {
+                                    epoch_proto::BarData* barData = barDef->add_data();
+                                    barData->set_name(bar.name);
 
-                                if (std::holds_alternative<double>(bar.value)) {
-                                    barData->add_values(std::get<double>(bar.value));
-                                } else if (std::holds_alternative<int64_t>(bar.value)) {
-                                    barData->add_values(static_cast<double>(std::get<int64_t>(bar.value)));
+                                    for (const auto& val : bar.data) {
+                                        if (std::holds_alternative<double>(val)) {
+                                            barData->add_values(std::get<double>(val));
+                                        } else if (std::holds_alternative<int64_t>(val)) {
+                                            barData->add_values(static_cast<double>(std::get<int64_t>(val)));
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Single series format: each bar is a category with a single value
+                                epoch_proto::AxisDef* xAxis = barDef->mutable_chart_def()->mutable_x_axis();
+                                xAxis->set_type(epoch_proto::AxisCategory);
+
+                                epoch_proto::BarData* barData = barDef->add_data();
+                                barData->set_name("values");
+
+                                for (const auto& bar : bars) {
+                                    xAxis->add_categories(bar.name);
+
+                                    if (std::holds_alternative<double>(bar.value)) {
+                                        barData->add_values(std::get<double>(bar.value));
+                                    } else if (std::holds_alternative<int64_t>(bar.value)) {
+                                        barData->add_values(static_cast<double>(std::get<int64_t>(bar.value)));
+                                    }
                                 }
                             }
                         }

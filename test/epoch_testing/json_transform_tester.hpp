@@ -75,10 +75,11 @@ struct ChartLineData {
     std::string type;
 };
 
-// Bar chart data structure
+// Bar chart data structure (supports both single value and array of values)
 struct BarCategory {
     std::string name;
-    ColumnValue value;
+    ColumnValue value;  // For simple bars (single value)
+    std::vector<ColumnValue> data;  // For series (array of values)
 };
 
 // Pie chart slice structure
@@ -600,10 +601,20 @@ public:
                                                         barData.name = bar["name"].get<std::string>();
                                                     }
 
+                                                    // Handle single value format
                                                     if (bar.contains("value")) {
                                                         auto& val = bar["value"];
                                                         if (val.holds<double>()) {
                                                             barData.value = val.get<double>();
+                                                        }
+                                                    }
+
+                                                    // Handle data array format (for multi-series charts)
+                                                    if (bar.contains("data") && bar["data"].holds<glz::json_t::array_t>()) {
+                                                        for (auto& dataVal : bar["data"].get<glz::json_t::array_t>()) {
+                                                            if (dataVal.holds<double>()) {
+                                                                barData.data.push_back(dataVal.get<double>());
+                                                            }
                                                         }
                                                     }
 

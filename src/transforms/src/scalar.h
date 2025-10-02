@@ -19,15 +19,28 @@ template <typename T> struct ScalarDataFrameTransform : ITransform {
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
-    auto arrowArray = epoch_frame::factory::array::make_array(
-        std::vector<T>(bars.size(), m_value));
-    return epoch_frame::make_dataframe(bars.index(), {arrowArray},
-                                       {GetOutputId()});
+      if constexpr (std::is_same_v<T, std::nullopt_t>) {
+          auto arrowArray = arrow::MakeArrayOfNull(arrow::null(), bars.size()).MoveValueUnsafe();
+          return make_dataframe(bars.index(), {std::make_shared<arrow::ChunkedArray>(arrowArray)},
+                                             {GetOutputId()});
+      }
+      else {
+          auto arrowArray = epoch_frame::factory::array::make_array(
+    std::vector<T>(bars.size(), m_value));
+          return epoch_frame::make_dataframe(bars.index(), {arrowArray},
+                                             {GetOutputId()});
+      }
   }
 
 private:
   T m_value;
 };
+
+    struct NullScalar : ScalarDataFrameTransform<std::nullopt_t> {
+        explicit NullScalar(const TransformConfiguration &config)
+            : ScalarDataFrameTransform(config, std::nullopt) {}
+    };
+
 
 struct ZeroScalar : ScalarDataFrameTransform<double> {
   explicit ZeroScalar(const TransformConfiguration &config)

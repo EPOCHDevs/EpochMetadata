@@ -787,6 +787,15 @@ private:
         }
         if (a.data_size() != b.data_size()) {
             std::cerr << "DEBUG compareBarCharts: data_size mismatch - a=" << a.data_size() << ", b=" << b.data_size() << std::endl;
+            std::cerr << "  Actual bar chart data:" << std::endl;
+            for (int i = 0; i < a.data_size(); ++i) {
+                std::cerr << "    Series " << i << ": name='" << a.data(i).name() << "', values=[";
+                for (int j = 0; j < a.data(i).values_size(); ++j) {
+                    if (j > 0) std::cerr << ", ";
+                    std::cerr << a.data(i).values(j);
+                }
+                std::cerr << "]" << std::endl;
+            }
             return false;
         }
 
