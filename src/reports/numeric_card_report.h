@@ -8,13 +8,10 @@ CREATE_ENUM(NumericArrowAggregateFunction,
   approximate_median,  // approximate_median
   count_all,           // count_all
   count_distinct,      // count_distinct
-  first_last,          // first_last (returns struct)
   kurtosis,            // kurtosis
   max,                 // max
   mean,                // mean
   min,                 // min
-  min_max,             // min_max (returns struct)
-  mode,                // mode (returns struct)
   product,             // product
   skew,                // skew
   stddev,              // stddev
@@ -54,13 +51,10 @@ template <> struct ReportMetadata<NumericCardReport> {
                           {"Approximate Median", "approximate_median"},
                           {"Count All", "count_all"},
                           {"Count Distinct", "count_distinct"},
-                          {"First Last", "first_last"},
                           {"Kurtosis", "kurtosis"},
                           {"Max", "max"},
                           {"Mean", "mean"},
                           {"Min", "min"},
-                          {"Min Max", "min_max"},
-                          {"Mode", "mode"},
                           {"Product", "product"},
                           {"Skew", "skew"},
                           {"StdDev", "stddev"},

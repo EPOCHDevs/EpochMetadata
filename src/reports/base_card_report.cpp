@@ -188,10 +188,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
       arrow::compute::CountOptions options = arrow::compute::CountOptions::Defaults();
       options.mode = arrow::compute::CountOptions::ALL;
       result = series.agg(epoch_frame::AxisType::Column, "count", true, options);
-    } else if (aggregation == "first_last" || aggregation == "min_max" || aggregation == "mode") {
-      // These functions return structs - handle them specially
-      result = series.agg(epoch_frame::AxisType::Column, aggregation);
-      // TODO: Struct handling - for now treat as scalar, but should extract struct fields
     } else {
       // Use generic agg method for other aggregations
       result = series.agg(epoch_frame::AxisType::Column, aggregation);
