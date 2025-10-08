@@ -799,6 +799,7 @@ private:
             return false;
         }
 
+        bool mismatch = false;
         for (int i = 0; i < a.data_size(); ++i) {
             const auto& aData = a.data(i);
             const auto& bData = b.data(i);
@@ -810,12 +811,31 @@ private:
             const double epsilon = 0.01;
             for (int j = 0; j < aData.values_size(); ++j) {
                 if (std::abs(aData.values(j) - bData.values(j)) >= epsilon) {
-                    std::cerr << "DEBUG compareBarCharts: value mismatch at series " << i << ", value " << j << " - a=" << aData.values(j) << ", b=" << bData.values(j) << std::endl;
-                    return false;
+                    if (!mismatch) {
+                        // Print all series on first mismatch
+                        std::cerr << "DEBUG compareBarCharts: value mismatch detected. Printing all series:" << std::endl;
+                        for (int s = 0; s < a.data_size(); ++s) {
+                            std::cerr << "  Series " << s << " ('" << a.data(s).name() << "') actual: [";
+                            for (int v = 0; v < a.data(s).values_size(); ++v) {
+                                if (v > 0) std::cerr << ", ";
+                                std::cerr << a.data(s).values(v);
+                            }
+                            std::cerr << "]" << std::endl;
+                        }
+                        for (int s = 0; s < b.data_size(); ++s) {
+                            std::cerr << "  Series " << s << " ('" << b.data(s).name() << "') expected: [";
+                            for (int v = 0; v < b.data(s).values_size(); ++v) {
+                                if (v > 0) std::cerr << ", ";
+                                std::cerr << b.data(s).values(v);
+                            }
+                            std::cerr << "]" << std::endl;
+                        }
+                        mismatch = true;
+                    }
                 }
             }
         }
-        return true;
+        return !mismatch;
     }
 
     bool compareLinesCharts(const epoch_proto::LinesDef& a, const epoch_proto::LinesDef& b) const {
@@ -848,10 +868,15 @@ private:
 
     bool compareHistogramCharts(const epoch_proto::HistogramDef& a, const epoch_proto::HistogramDef& b) const {
         if (!compareChartDef(a.chart_def(), b.chart_def())) {
+            std::cerr << "DEBUG compareHistogramCharts: ChartDef doesn't match" << std::endl;
             return false;
         }
         // For histograms, we just check bin count for now
-        if (a.bins_count() != b.bins_count()) return false;
+        if (a.bins_count() != b.bins_count()) {
+            std::cerr << "DEBUG compareHistogramCharts: bins_count mismatch - a=" << a.bins_count() << ", b=" << b.bins_count() << std::endl;
+            std::cerr << "  Actual histogram data: bins_count=" << a.bins_count() << ", data_size=" << a.data().values_size() << std::endl;
+            return false;
+        }
         return true;
     }
 
@@ -957,7 +982,7 @@ private:
         }
         if (a.has_data()) {
             if (!compareTableData(a.data(), b.data())) {
-                std::cerr << "DEBUG compareTables: Table data doesn't match" << std::endl;
+                std::cerr << "DEBUG compareTables: Table '" << a.title() << "' data doesn't match" << std::endl;
                 return false;
             }
         }
