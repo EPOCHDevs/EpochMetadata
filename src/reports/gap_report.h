@@ -27,13 +27,12 @@ struct GapTableData {
     size_t gap_up_filled = 0;
     size_t gap_down_filled = 0;
 
-    // Column indices for quick access
-    int gap_size_col = -1;
-    int gap_type_col = -1;
-    int gap_filled_col = -1;
-    int weekday_col = -1;
-    int fill_time_col = -1;
-    int performance_col = -1;
+    std::string gap_size_col;
+    std::string gap_type_col;
+    std::string gap_filled_col;
+    std::string weekday_col;
+    std::string fill_time_col;
+    std::string performance_col;
 };
 
 class GapReport : public IReporter {
@@ -56,6 +55,8 @@ public:
 
   std::pair<epoch_proto::Table, epoch_proto::Table> create_fill_rate_tables(
       const GapTableData &table) const;
+
+  epoch_proto::Table create_comprehensive_gap_table(const GapTableData &data) const;
 
   // New methods that work with table data
   GapTableData build_comprehensive_table_data(const epoch_frame::DataFrame &gaps) const;

@@ -80,10 +80,14 @@ namespace {
       builder.addChart(*chart);
     }
 
-    // 6. Time distribution pie chart - from table data
+    // 6. Fill rate tables
     auto [gapup, gap_down] = create_fill_rate_tables(comprehensive_table_data);
     builder.addTable(gapup);
     builder.addTable(gap_down);
+
+    // 7. Comprehensive gap table - the raw data table
+    auto gap_table = create_comprehensive_gap_table(comprehensive_table_data);
+    builder.addTable(gap_table);
 
     return builder;
   }
@@ -233,13 +237,13 @@ namespace {
     // Use DataFrame's table directly - no loops needed!
     data.arrow_table = daily_df.table();
 
-    // Set column indices for the essential columns
-    data.gap_size_col = 0;
-    data.gap_type_col = 1;
-    data.gap_filled_col = 2;
-    data.weekday_col = 3;
-    data.fill_time_col = 4;
-    data.performance_col = 5;
+    // Set column names for the essential columns
+    data.gap_size_col = "gap_size";
+    data.gap_type_col = "gap_type";
+    data.gap_filled_col = "gap_filled";
+    data.weekday_col = "weekday";
+    data.fill_time_col = "fill_time";
+    data.performance_col = "performance";
 
     return data;
   }
@@ -249,71 +253,53 @@ namespace {
   GapReport::compute_summary_cards(const GapTableData &table) const {
     std::vector<epoch_proto::CardDef> cards;
 
-    // Total gaps card
-    auto total_gaps_card = CardBuilder()
+    // Calculate percentages
+    double gap_up_pct = table.total_gaps > 0 ?
+        std::floor(table.gap_up_count * 100.0 / table.total_gaps) : 0;
+    double gap_down_pct = table.total_gaps > 0 ?
+        std::floor(table.gap_down_count * 100.0 / table.total_gaps) : 0;
+    double fill_rate = table.total_gaps > 0 ?
+        std::floor(table.filled_count * 100.0 / table.total_gaps) : 0;
+
+    // Create one card with group size 4 containing all 4 metrics
+    auto summary_card = CardBuilder()
         .setType(epoch_proto::WidgetCard)
         .setCategory("Reports")
-        .setGroupSize(1)
+        .setGroupSize(4)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Total Gaps")
                 .setValue(ScalarFactory::fromInteger(table.total_gaps))
                 .setType(epoch_proto::TypeInteger)
+                .setGroup(0)
                 .build()
         )
-        .build();
-    cards.push_back(std::move(total_gaps_card));
-
-    // Gap up percentage
-    double gap_up_pct = table.total_gaps > 0 ?
-        std::floor(table.gap_up_count * 100.0 / table.total_gaps) : 0;
-    auto gap_up_pct_card = CardBuilder()
-        .setType(epoch_proto::WidgetCard)
-        .setCategory("Reports")
-        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Gap Up %")
                 .setValue(ScalarFactory::fromPercentValue(gap_up_pct))
                 .setType(epoch_proto::TypePercent)
+                .setGroup(1)
                 .build()
         )
-        .build();
-    cards.push_back(std::move(gap_up_pct_card));
-
-    // Gap down percentage
-    double gap_down_pct = table.total_gaps > 0 ?
-        std::floor(table.gap_down_count * 100.0 / table.total_gaps) : 0;
-    auto gap_down_pct_card = CardBuilder()
-        .setType(epoch_proto::WidgetCard)
-        .setCategory("Reports")
-        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Gap Down %")
                 .setValue(ScalarFactory::fromPercentValue(gap_down_pct))
                 .setType(epoch_proto::TypePercent)
+                .setGroup(2)
                 .build()
         )
-        .build();
-    cards.push_back(std::move(gap_down_pct_card));
-
-    // Overall fill rate
-    double fill_rate = table.total_gaps > 0 ?
-        std::floor(table.filled_count * 100.0 / table.total_gaps) : 0;
-    auto fill_rate_card = CardBuilder()
-        .setType(epoch_proto::WidgetCard)
-        .setCategory("Reports")
-        .setGroupSize(1)
         .addCardData(
             CardDataBuilder()
                 .setTitle("Fill Rate")
                 .setValue(ScalarFactory::fromPercentValue(fill_rate))
                 .setType(epoch_proto::TypePercent)
+                .setGroup(3)
                 .build()
         )
         .build();
-    cards.push_back(std::move(fill_rate_card));
+    cards.push_back(std::move(summary_card));
 
     return cards;
   }
@@ -408,6 +394,80 @@ namespace {
     return {std::move(gap_up_table), std::move(gap_down_table)};
   }
 
+  epoch_proto::Table GapReport::create_comprehensive_gap_table(const GapTableData &data) const {
+    // Validate table exists
+    if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
+      SPDLOG_WARN("Empty or invalid arrow_table in create_comprehensive_gap_table");
+      // Return empty table with correct schema
+      TableBuilder builder;
+      builder.setTitle("Gap Analysis Details")
+          .setCategory("Reports")
+          .setType(epoch_proto::WidgetDataTable)
+          .addColumn("gap_size", "Gap Size %", epoch_proto::TypePercent)
+          .addColumn("gap_type", "Gap Type", epoch_proto::TypeString)
+          .addColumn("gap_filled", "Filled Status", epoch_proto::TypeString)
+          .addColumn("weekday", "Day of Week", epoch_proto::TypeString)
+          .addColumn("fill_time", "Fill Time", epoch_proto::TypeString)
+          .addColumn("performance", "Performance", epoch_proto::TypeString);
+      return builder.build();
+    }
+
+    // Use safe epoch_frame::Array wrappers for all columns with GetColumnByName
+    auto gap_size_array = epoch_frame::Array(data.arrow_table->GetColumnByName("gap_size"));
+    auto gap_type_array = epoch_frame::Array(data.arrow_table->GetColumnByName("gap_type"));
+    auto gap_filled_array = epoch_frame::Array(data.arrow_table->GetColumnByName("gap_filled"));
+    auto weekday_array = epoch_frame::Array(data.arrow_table->GetColumnByName("weekday"));
+    auto fill_time_array = epoch_frame::Array(data.arrow_table->GetColumnByName("fill_time"));
+    auto performance_array = epoch_frame::Array(data.arrow_table->GetColumnByName("performance"));
+
+    // Get typed views for efficient access
+    auto gap_size_view = gap_size_array.to_view<double>();
+    auto gap_type_view = gap_type_array.to_view<std::string>();
+    auto gap_filled_view = gap_filled_array.to_view<std::string>();
+    auto weekday_view = weekday_array.to_view<std::string>();
+    auto fill_time_view = fill_time_array.to_view<std::string>();
+    auto performance_view = performance_array.to_view<std::string>();
+
+    // Build the table
+    TableBuilder builder;
+    builder.setTitle("Gap Analysis Details")
+        .setCategory("Reports")
+        .setType(epoch_proto::WidgetDataTable)
+        .addColumn("gap_size", "Gap Size %", epoch_proto::TypePercent)
+        .addColumn("gap_type", "Gap Type", epoch_proto::TypeString)
+        .addColumn("gap_filled", "Filled Status", epoch_proto::TypeString)
+        .addColumn("weekday", "Day of Week", epoch_proto::TypeString)
+        .addColumn("fill_time", "Fill Time", epoch_proto::TypeString)
+        .addColumn("performance", "Performance", epoch_proto::TypeString);
+
+    // Add rows from the arrow table
+    for (int64_t i = 0; i < data.arrow_table->num_rows(); ++i) {
+      epoch_proto::TableRow row;
+
+      // Gap size as percentage
+      row.add_values()->set_decimal_value(gap_size_view->Value(i));
+
+      // Gap type
+      row.add_values()->set_string_value(gap_type_view->GetString(i));
+
+      // Filled status
+      row.add_values()->set_string_value(gap_filled_view->GetString(i));
+
+      // Weekday
+      row.add_values()->set_string_value(weekday_view->GetString(i));
+
+      // Fill time (may be empty for unfilled gaps)
+      row.add_values()->set_string_value(fill_time_view->GetString(i));
+
+      // Performance
+      row.add_values()->set_string_value(performance_view->GetString(i));
+
+      builder.addRow(row);
+    }
+
+    return builder.build();
+  }
+
   epoch_proto::Chart GapReport::create_stacked_fill_rate_chart(const GapTableData &data) const {
 
     // Prepare the data for stacked bars
@@ -443,15 +503,14 @@ namespace {
   
 
   std::optional<epoch_proto::Chart> GapReport::create_gap_distribution(const GapTableData &data) const {
-    // Validate table and column existence
-    if (!data.arrow_table || data.gap_size_col < 0 ||
-        data.gap_size_col >= data.arrow_table->num_columns()) {
-      SPDLOG_WARN("Invalid arrow_table or gap_size_col in create_gap_distribution");
+    // Validate table exists
+    if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
+      SPDLOG_WARN("Invalid or empty arrow_table in create_gap_distribution");
       return std::nullopt;
     }
 
     // Use safe epoch_frame::Array wrapper
-    epoch_frame::Array gap_size_array(data.arrow_table->column(data.gap_size_col));
+    epoch_frame::Array gap_size_array(data.arrow_table->GetColumnByName(data.gap_size_col));
 
     // Validate array has data
     if (gap_size_array->length() == 0) {
@@ -461,6 +520,13 @@ namespace {
 
     // Get bins count from option
     uint32_t bins = static_cast<uint32_t>(m_config.GetOptionValue("histogram_bins").GetInteger());
+
+    // Check if we have enough data points for the histogram
+    if (gap_size_array->length() < static_cast<int64_t>(bins)) {
+      SPDLOG_WARN("Insufficient data points ({}) for histogram bins ({})",
+                  gap_size_array->length(), bins);
+      return std::nullopt;
+    }
     // Create series from ChunkedArray
     const auto series = epoch_frame::Series(gap_size_array.as_chunked_array(), "gap_size");
 
@@ -474,25 +540,24 @@ namespace {
   }
 
   std::optional<epoch_proto::Chart> GapReport::create_gap_category_chart(const GapTableData &data) const {
-    // Validate table and columns
-    if (!data.arrow_table || data.gap_size_col < 0 || data.gap_filled_col < 0 ||
-        data.gap_size_col >= data.arrow_table->num_columns() ||
-        data.gap_filled_col >= data.arrow_table->num_columns()) {
-      SPDLOG_WARN("Invalid table or column indices in create_gap_category_chart");
+    // Validate table exists
+    if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
+      SPDLOG_WARN("Invalid or empty arrow_table in create_gap_category_chart");
       return std::nullopt;
     }
 
-    epoch_frame::Array gap_size_array(data.arrow_table->column(data.gap_size_col));
-    epoch_frame::Array gap_filled_array(data.arrow_table->column(data.gap_filled_col));
+    // Get arrays with proper typed views for efficient access
+    auto gap_size_view = epoch_frame::Array(data.arrow_table->GetColumnByName(data.gap_size_col)).to_view<double>();
+    auto gap_filled_view = epoch_frame::Array(data.arrow_table->GetColumnByName(data.gap_filled_col)).to_view<std::string>();
 
     // Validate arrays and check length compatibility
-    if (gap_size_array->length() != gap_filled_array->length()) {
+    if (gap_size_view->length() != gap_filled_view->length()) {
       SPDLOG_WARN("Array validation failed or length mismatch in create_gap_category_chart");
       return std::nullopt;
     }
 
     // Check for empty arrays
-    if (gap_size_array->length() == 0) {
+    if (gap_size_view->length() == 0) {
       SPDLOG_WARN("Empty arrays in create_gap_category_chart");
       return std::nullopt;
     }
@@ -500,10 +565,10 @@ namespace {
     // Count occurrences by gap category and fill status
     std::map<std::pair<std::string, std::string>, int64_t> counts;
 
-    for (int64_t i = 0; i < gap_size_array->length(); ++i) {
-      if (!gap_size_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-        double gap_size = gap_size_array[i].as_double();
-        std::string fill_status = gap_filled_array[i].value<std::string>().value();
+    for (int64_t i = 0; i < gap_size_view->length(); ++i) {
+      if ((*gap_size_view)[i] && (*gap_filled_view)[i]) {
+        double gap_size = (*gap_size_view)[i].value();
+        std::string fill_status((*gap_filled_view)[i].value());
 
         // Use helper function to determine gap category
         std::string category = getGapCategory(gap_size);
@@ -547,26 +612,24 @@ namespace {
   }
 
   std::optional<epoch_proto::Chart> GapReport::create_weekday_chart(const GapTableData &data) const {
-    // Validate table and columns
-    if (!data.arrow_table || data.weekday_col < 0 || data.gap_filled_col < 0 ||
-        data.weekday_col >= data.arrow_table->num_columns() ||
-        data.gap_filled_col >= data.arrow_table->num_columns()) {
-      SPDLOG_WARN("Invalid table or column indices in create_weekday_chart");
+    // Validate table exists
+    if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
+      SPDLOG_WARN("Invalid or empty arrow_table in create_weekday_chart");
       return std::nullopt;
     }
 
-    // Use safe epoch_frame::Array wrapper
-    epoch_frame::Array weekday_array(data.arrow_table->column(data.weekday_col));
-    epoch_frame::Array gap_filled_array(data.arrow_table->column(data.gap_filled_col));
+    // Get arrays with proper typed views for efficient access
+    auto weekday_view = epoch_frame::Array(data.arrow_table->GetColumnByName(data.weekday_col)).to_view<std::string>();
+    auto gap_filled_view = epoch_frame::Array(data.arrow_table->GetColumnByName(data.gap_filled_col)).to_view<std::string>();
 
     // Validate arrays and check length compatibility
-    if (weekday_array->length() != gap_filled_array->length()) {
+    if (weekday_view->length() != gap_filled_view->length()) {
       SPDLOG_WARN("Array validation failed or length mismatch in create_weekday_chart");
       return std::nullopt;
     }
 
     // Check for empty arrays
-    if (weekday_array->length() == 0) {
+    if (weekday_view->length() == 0) {
       SPDLOG_WARN("Empty arrays in create_weekday_chart");
       return std::nullopt;
     }
@@ -579,10 +642,10 @@ namespace {
     // Count occurrences by weekday and fill status
     std::map<std::pair<std::string, std::string>, int64_t> counts;
 
-    for (int64_t i = 0; i < weekday_array->length(); ++i) {
-      if (!weekday_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-        std::string weekday = weekday_array[i].value<std::string>().value();
-        std::string fill_status = gap_filled_array[i].value<std::string>().value();
+    for (int64_t i = 0; i < weekday_view->length(); ++i) {
+      if ((*weekday_view)[i] && (*gap_filled_view)[i]) {
+        std::string weekday((*weekday_view)[i].value());
+        std::string fill_status((*gap_filled_view)[i].value());
 
         counts[{weekday, fill_status}]++;
       }

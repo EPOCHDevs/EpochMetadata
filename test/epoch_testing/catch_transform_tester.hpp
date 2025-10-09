@@ -93,7 +93,7 @@ public:
                     // Convert to timestamp
                     if (std::holds_alternative<std::string>(value)) {
                         auto str = std::get<std::string>(value);
-                        auto dt = epoch_frame::DateTime::from_str(str, "%Y-%m-%dT%H:%M:%S");
+                        auto dt = epoch_frame::DateTime::from_str(str, "UTC", "%Y-%m-%dT%H:%M:%S");
                         int64_t ts = dt.m_nanoseconds.count();
                         columnArray.emplace_back(dt);
                     } else if (std::holds_alternative<double>(value)) {
@@ -103,6 +103,7 @@ public:
                     } else {
                         columnArray.push_back(epoch_frame::Scalar{});
                     }
+                    type = arrow::timestamp(arrow::TimeUnit::NANO, "UTC");
                 } else if (std::holds_alternative<double>(value)) {
                     type = arrow::float64();
                     columnArray.push_back(epoch_frame::Scalar(std::get<double>(value)));
