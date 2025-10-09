@@ -253,14 +253,16 @@ private:
       }
     }
 
-    std::shared_ptr<arrow::Array> array;
-    auto status = list_builder.Finish(&array);
+    // Build array and immediately wrap in ChunkedArray for safety
+    std::shared_ptr<arrow::Array> array_temp;
+    auto status = list_builder.Finish(&array_temp);
     if (!status.ok()) {
       throw std::runtime_error("Failed to finish list array: " +
                                status.ToString());
     }
 
-    return std::make_shared<arrow::ChunkedArray>(array);
+    // Immediately wrap in ChunkedArray for safe access
+    return std::make_shared<arrow::ChunkedArray>(array_temp);
   }
 };
 

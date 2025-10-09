@@ -106,13 +106,21 @@ private:
     auto mitigated_index_array =
         Array{factory::array::make_array(mitigated_index)}.where(
             fvg_is_not_null, Scalar{});
+
+    // Build ArrayVector safely - .value() extracts underlying shared_ptr
+    arrow::ArrayVector column_arrays;
+    column_arrays.reserve(4);
+    column_arrays.push_back(fvg.value());
+    column_arrays.push_back(top.value());
+    column_arrays.push_back(bottom.value());
+    column_arrays.push_back(mitigated_index_array.value());
+
     return AssertTableResultIsOk(arrow::Table::Make(
         arrow::schema({{GetOutputId("fvg"), arrow::int64()},
                        {GetOutputId("top"), arrow::float64()},
                        {GetOutputId("bottom"), arrow::float64()},
                        {GetOutputId("mitigated_index"), arrow::int64()}}),
-        arrow::ArrayVector{fvg.value(), top.value(), bottom.value(),
-                           mitigated_index_array.value()}));
+        column_arrays));
   }
 };
 } // namespace epoch_metadata::transform

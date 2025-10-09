@@ -20,11 +20,14 @@ template <typename T> struct ScalarDataFrameTransform : ITransform {
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
       if constexpr (std::is_same_v<T, std::nullopt_t>) {
-          auto arrowArray = arrow::MakeArrayOfNull(arrow::null(), bars.size()).MoveValueUnsafe();
-          return make_dataframe(bars.index(), {std::make_shared<arrow::ChunkedArray>(arrowArray)},
+          // Build null array and immediately wrap safely
+          auto arrowArray_temp = arrow::MakeArrayOfNull(arrow::null(), bars.size()).MoveValueUnsafe();
+          auto chunkedArray = std::make_shared<arrow::ChunkedArray>(arrowArray_temp);
+          return make_dataframe(bars.index(), {chunkedArray},
                                              {GetOutputId()});
       }
       else {
+          // Use factory which already returns ChunkedArray safely
           auto arrowArray = epoch_frame::factory::array::make_array(
     std::vector<T>(bars.size(), m_value));
           return epoch_frame::make_dataframe(bars.index(), {arrowArray},

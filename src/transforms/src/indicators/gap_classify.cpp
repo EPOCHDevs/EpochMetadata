@@ -189,28 +189,28 @@ GapClassify::TransformData(epoch_frame::DataFrame const &bars) const {
     // Handle case where n == 0 - no additional entries needed
   }
 
-  // Build the Arrow arrays
-  std::shared_ptr<arrow::Array> gap_filled_array;
-  std::shared_ptr<arrow::Array> gap_retrace_array;
-  std::shared_ptr<arrow::Array> gap_size_array;
-  std::shared_ptr<arrow::Array> psc_array;
-  std::shared_ptr<arrow::Array> psc_timestamp_array;
+  // Build the Arrow arrays and immediately wrap in ChunkedArray for safety
+  std::shared_ptr<arrow::Array> gap_filled_array_temp;
+  std::shared_ptr<arrow::Array> gap_retrace_array_temp;
+  std::shared_ptr<arrow::Array> gap_size_array_temp;
+  std::shared_ptr<arrow::Array> psc_array_temp;
+  std::shared_ptr<arrow::Array> psc_timestamp_array_temp;
 
-  (void)gap_filled_builder.Finish(&gap_filled_array);
-  (void)gap_retrace_builder.Finish(&gap_retrace_array);
-  (void)gap_size_builder.Finish(&gap_size_array);
-  (void)psc_builder.Finish(&psc_array);
-  (void)psc_timestamp_builder.Finish(&psc_timestamp_array);
+  (void)gap_filled_builder.Finish(&gap_filled_array_temp);
+  (void)gap_retrace_builder.Finish(&gap_retrace_array_temp);
+  (void)gap_size_builder.Finish(&gap_size_array_temp);
+  (void)psc_builder.Finish(&psc_array_temp);
+  (void)psc_timestamp_builder.Finish(&psc_timestamp_array_temp);
 
-  // Create chunked arrays
+  // Create chunked arrays immediately for safe access
   auto gap_filled_chunked =
-      std::make_shared<arrow::ChunkedArray>(gap_filled_array);
+      std::make_shared<arrow::ChunkedArray>(gap_filled_array_temp);
   auto gap_retrace_chunked =
-      std::make_shared<arrow::ChunkedArray>(gap_retrace_array);
-  auto gap_size_chunked = std::make_shared<arrow::ChunkedArray>(gap_size_array);
-  auto psc_chunked = std::make_shared<arrow::ChunkedArray>(psc_array);
+      std::make_shared<arrow::ChunkedArray>(gap_retrace_array_temp);
+  auto gap_size_chunked = std::make_shared<arrow::ChunkedArray>(gap_size_array_temp);
+  auto psc_chunked = std::make_shared<arrow::ChunkedArray>(psc_array_temp);
   auto psc_timestamp_chunked =
-      std::make_shared<arrow::ChunkedArray>(psc_timestamp_array);
+      std::make_shared<arrow::ChunkedArray>(psc_timestamp_array_temp);
 
   // Construct output dataframe
   auto df = epoch_frame::make_dataframe(

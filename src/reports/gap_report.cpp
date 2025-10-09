@@ -450,25 +450,19 @@ namespace {
       return std::nullopt;
     }
 
-    auto gap_size_chunked = data.arrow_table->column(data.gap_size_col);
-
-    // Validate chunk availability
-    if (gap_size_chunked->num_chunks() == 0) {
-      SPDLOG_WARN("No chunks available in gap_size column");
-      return std::nullopt;
-    }
-
-    auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(gap_size_chunked->chunk(0));
+    // Use safe epoch_frame::Array wrapper
+    epoch_frame::Array gap_size_array(data.arrow_table->column(data.gap_size_col));
 
     // Validate array has data
-    if (!gap_size_array || gap_size_array->length() == 0) {
+    if (gap_size_array->length() == 0) {
       SPDLOG_WARN("Empty gap_size array in create_gap_distribution");
       return std::nullopt;
     }
 
     // Get bins count from option
     uint32_t bins = static_cast<uint32_t>(m_config.GetOptionValue("histogram_bins").GetInteger());
-    const auto series = epoch_frame::Series(gap_size_array, "gap_size");
+    // Create series from ChunkedArray
+    const auto series = epoch_frame::Series(gap_size_array.as_chunked_array(), "gap_size");
 
     return HistogramChartBuilder()
         .setTitle("Gap Size Distribution")
@@ -488,20 +482,11 @@ namespace {
       return std::nullopt;
     }
 
-    auto gap_size_chunked = data.arrow_table->column(data.gap_size_col);
-    auto gap_filled_chunked = data.arrow_table->column(data.gap_filled_col);
-
-    // Validate chunks exist
-    if (gap_size_chunked->num_chunks() == 0 || gap_filled_chunked->num_chunks() == 0) {
-      SPDLOG_WARN("No chunks available in gap_size or gap_filled columns");
-      return std::nullopt;
-    }
-
-    auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(gap_size_chunked->chunk(0));
-    auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(gap_filled_chunked->chunk(0));
+    epoch_frame::Array gap_size_array(data.arrow_table->column(data.gap_size_col));
+    epoch_frame::Array gap_filled_array(data.arrow_table->column(data.gap_filled_col));
 
     // Validate arrays and check length compatibility
-    if (!gap_size_array || !gap_filled_array || gap_size_array->length() != gap_filled_array->length()) {
+    if (gap_size_array->length() != gap_filled_array->length()) {
       SPDLOG_WARN("Array validation failed or length mismatch in create_gap_category_chart");
       return std::nullopt;
     }
@@ -517,8 +502,8 @@ namespace {
 
     for (int64_t i = 0; i < gap_size_array->length(); ++i) {
       if (!gap_size_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-        double gap_size = gap_size_array->Value(i);
-        std::string fill_status = gap_filled_array->GetString(i);
+        double gap_size = gap_size_array[i].as_double();
+        std::string fill_status = gap_filled_array[i].value<std::string>().value();
 
         // Use helper function to determine gap category
         std::string category = getGapCategory(gap_size);
@@ -570,20 +555,12 @@ namespace {
       return std::nullopt;
     }
 
-    auto weekday_chunked = data.arrow_table->column(data.weekday_col);
-    auto gap_filled_chunked = data.arrow_table->column(data.gap_filled_col);
-
-    // Validate chunks exist
-    if (weekday_chunked->num_chunks() == 0 || gap_filled_chunked->num_chunks() == 0) {
-      SPDLOG_WARN("No chunks available in weekday or gap_filled columns");
-      return std::nullopt;
-    }
-
-    auto weekday_array = std::static_pointer_cast<arrow::StringArray>(weekday_chunked->chunk(0));
-    auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(gap_filled_chunked->chunk(0));
+    // Use safe epoch_frame::Array wrapper
+    epoch_frame::Array weekday_array(data.arrow_table->column(data.weekday_col));
+    epoch_frame::Array gap_filled_array(data.arrow_table->column(data.gap_filled_col));
 
     // Validate arrays and check length compatibility
-    if (!weekday_array || !gap_filled_array || weekday_array->length() != gap_filled_array->length()) {
+    if (weekday_array->length() != gap_filled_array->length()) {
       SPDLOG_WARN("Array validation failed or length mismatch in create_weekday_chart");
       return std::nullopt;
     }
@@ -604,8 +581,8 @@ namespace {
 
     for (int64_t i = 0; i < weekday_array->length(); ++i) {
       if (!weekday_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-        std::string weekday = weekday_array->GetString(i);
-        std::string fill_status = gap_filled_array->GetString(i);
+        std::string weekday = weekday_array[i].value<std::string>().value();
+        std::string fill_status = gap_filled_array[i].value<std::string>().value();
 
         counts[{weekday, fill_status}]++;
       }
