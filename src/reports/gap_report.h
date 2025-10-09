@@ -64,11 +64,11 @@ public:
 
   epoch_proto::Chart create_day_of_week_chart(const GapTableData &data) const;
 
-  epoch_proto::Chart create_gap_distribution(const GapTableData &data) const;
+  std::optional<epoch_proto::Chart> create_gap_distribution(const GapTableData &data) const;
 
-  epoch_proto::Chart create_gap_category_chart(const GapTableData &data) const;
+  std::optional<epoch_proto::Chart> create_gap_category_chart(const GapTableData &data) const;
 
-  epoch_proto::Chart create_weekday_chart(const GapTableData &data) const;
+  std::optional<epoch_proto::Chart> create_weekday_chart(const GapTableData &data) const;
 
 private:
   // Helper functions

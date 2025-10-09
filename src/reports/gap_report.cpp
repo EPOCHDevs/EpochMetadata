@@ -66,13 +66,19 @@ namespace {
     builder.addChart(create_stacked_fill_rate_chart(comprehensive_table_data));
 
     // 3. Gap category analysis - shows fill rates by gap size category
-    builder.addChart(create_gap_category_chart(comprehensive_table_data));
+    if (auto chart = create_gap_category_chart(comprehensive_table_data)) {
+      builder.addChart(*chart);
+    }
 
     // 4. Day of week analysis - shows fill rates by day of week
-    builder.addChart(create_weekday_chart(comprehensive_table_data));
+    if (auto chart = create_weekday_chart(comprehensive_table_data)) {
+      builder.addChart(*chart);
+    }
 
     // 5. Gap size distribution histogram - from table data
-    builder.addChart(create_gap_distribution(comprehensive_table_data));
+    if (auto chart = create_gap_distribution(comprehensive_table_data)) {
+      builder.addChart(*chart);
+    }
 
     // 6. Time distribution pie chart - from table data
     auto [gapup, gap_down] = create_fill_rate_tables(comprehensive_table_data);
@@ -436,9 +442,29 @@ namespace {
   }
   
 
-  epoch_proto::Chart GapReport::create_gap_distribution(const GapTableData &data) const {
-    auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(
-        data.arrow_table->column(data.gap_size_col)->chunk(0));
+  std::optional<epoch_proto::Chart> GapReport::create_gap_distribution(const GapTableData &data) const {
+    // Validate table and column existence
+    if (!data.arrow_table || data.gap_size_col < 0 ||
+        data.gap_size_col >= data.arrow_table->num_columns()) {
+      SPDLOG_WARN("Invalid arrow_table or gap_size_col in create_gap_distribution");
+      return std::nullopt;
+    }
+
+    auto gap_size_chunked = data.arrow_table->column(data.gap_size_col);
+
+    // Validate chunk availability
+    if (gap_size_chunked->num_chunks() == 0) {
+      SPDLOG_WARN("No chunks available in gap_size column");
+      return std::nullopt;
+    }
+
+    auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(gap_size_chunked->chunk(0));
+
+    // Validate array has data
+    if (!gap_size_array || gap_size_array->length() == 0) {
+      SPDLOG_WARN("Empty gap_size array in create_gap_distribution");
+      return std::nullopt;
+    }
 
     // Get bins count from option
     uint32_t bins = static_cast<uint32_t>(m_config.GetOptionValue("histogram_bins").GetInteger());
@@ -453,26 +479,51 @@ namespace {
         .build();
   }
 
-  epoch_proto::Chart GapReport::create_gap_category_chart(const GapTableData &data) const {
+  std::optional<epoch_proto::Chart> GapReport::create_gap_category_chart(const GapTableData &data) const {
+    // Validate table and columns
+    if (!data.arrow_table || data.gap_size_col < 0 || data.gap_filled_col < 0 ||
+        data.gap_size_col >= data.arrow_table->num_columns() ||
+        data.gap_filled_col >= data.arrow_table->num_columns()) {
+      SPDLOG_WARN("Invalid table or column indices in create_gap_category_chart");
+      return std::nullopt;
+    }
+
+    auto gap_size_chunked = data.arrow_table->column(data.gap_size_col);
+    auto gap_filled_chunked = data.arrow_table->column(data.gap_filled_col);
+
+    // Validate chunks exist
+    if (gap_size_chunked->num_chunks() == 0 || gap_filled_chunked->num_chunks() == 0) {
+      SPDLOG_WARN("No chunks available in gap_size or gap_filled columns");
+      return std::nullopt;
+    }
+
+    auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(gap_size_chunked->chunk(0));
+    auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(gap_filled_chunked->chunk(0));
+
+    // Validate arrays and check length compatibility
+    if (!gap_size_array || !gap_filled_array || gap_size_array->length() != gap_filled_array->length()) {
+      SPDLOG_WARN("Array validation failed or length mismatch in create_gap_category_chart");
+      return std::nullopt;
+    }
+
+    // Check for empty arrays
+    if (gap_size_array->length() == 0) {
+      SPDLOG_WARN("Empty arrays in create_gap_category_chart");
+      return std::nullopt;
+    }
+
     // Count occurrences by gap category and fill status
     std::map<std::pair<std::string, std::string>, int64_t> counts;
 
-    if (data.gap_size_col >= 0 && data.gap_filled_col >= 0) {
-      auto gap_size_array = std::static_pointer_cast<arrow::DoubleArray>(
-          data.arrow_table->column(data.gap_size_col)->chunk(0));
-      auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(
-          data.arrow_table->column(data.gap_filled_col)->chunk(0));
+    for (int64_t i = 0; i < gap_size_array->length(); ++i) {
+      if (!gap_size_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
+        double gap_size = gap_size_array->Value(i);
+        std::string fill_status = gap_filled_array->GetString(i);
 
-      for (int64_t i = 0; i < gap_size_array->length(); ++i) {
-        if (!gap_size_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-          double gap_size = gap_size_array->Value(i);
-          std::string fill_status = gap_filled_array->GetString(i);
+        // Use helper function to determine gap category
+        std::string category = getGapCategory(gap_size);
 
-          // Use helper function to determine gap category
-          std::string category = getGapCategory(gap_size);
-
-          counts[{category, fill_status}]++;
-        }
+        counts[{category, fill_status}]++;
       }
     }
 
@@ -510,7 +561,39 @@ namespace {
         .build();
   }
 
-  epoch_proto::Chart GapReport::create_weekday_chart(const GapTableData &data) const {
+  std::optional<epoch_proto::Chart> GapReport::create_weekday_chart(const GapTableData &data) const {
+    // Validate table and columns
+    if (!data.arrow_table || data.weekday_col < 0 || data.gap_filled_col < 0 ||
+        data.weekday_col >= data.arrow_table->num_columns() ||
+        data.gap_filled_col >= data.arrow_table->num_columns()) {
+      SPDLOG_WARN("Invalid table or column indices in create_weekday_chart");
+      return std::nullopt;
+    }
+
+    auto weekday_chunked = data.arrow_table->column(data.weekday_col);
+    auto gap_filled_chunked = data.arrow_table->column(data.gap_filled_col);
+
+    // Validate chunks exist
+    if (weekday_chunked->num_chunks() == 0 || gap_filled_chunked->num_chunks() == 0) {
+      SPDLOG_WARN("No chunks available in weekday or gap_filled columns");
+      return std::nullopt;
+    }
+
+    auto weekday_array = std::static_pointer_cast<arrow::StringArray>(weekday_chunked->chunk(0));
+    auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(gap_filled_chunked->chunk(0));
+
+    // Validate arrays and check length compatibility
+    if (!weekday_array || !gap_filled_array || weekday_array->length() != gap_filled_array->length()) {
+      SPDLOG_WARN("Array validation failed or length mismatch in create_weekday_chart");
+      return std::nullopt;
+    }
+
+    // Check for empty arrays
+    if (weekday_array->length() == 0) {
+      SPDLOG_WARN("Empty arrays in create_weekday_chart");
+      return std::nullopt;
+    }
+
     // Weekdays
     std::vector<std::string> weekdays = {
       "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
@@ -519,19 +602,12 @@ namespace {
     // Count occurrences by weekday and fill status
     std::map<std::pair<std::string, std::string>, int64_t> counts;
 
-    if (data.weekday_col >= 0 && data.gap_filled_col >= 0) {
-      auto weekday_array = std::static_pointer_cast<arrow::StringArray>(
-          data.arrow_table->column(data.weekday_col)->chunk(0));
-      auto gap_filled_array = std::static_pointer_cast<arrow::StringArray>(
-          data.arrow_table->column(data.gap_filled_col)->chunk(0));
+    for (int64_t i = 0; i < weekday_array->length(); ++i) {
+      if (!weekday_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
+        std::string weekday = weekday_array->GetString(i);
+        std::string fill_status = gap_filled_array->GetString(i);
 
-      for (int64_t i = 0; i < weekday_array->length(); ++i) {
-        if (!weekday_array->IsNull(i) && !gap_filled_array->IsNull(i)) {
-          std::string weekday = weekday_array->GetString(i);
-          std::string fill_status = gap_filled_array->GetString(i);
-
-          counts[{weekday, fill_status}]++;
-        }
+        counts[{weekday, fill_status}]++;
       }
     }
 
