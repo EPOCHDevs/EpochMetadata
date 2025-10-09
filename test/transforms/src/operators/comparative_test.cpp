@@ -846,3 +846,110 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
     }
   }
 }
+
+TEST_CASE("Type Casting in Equality Operators", "[equality][type_cast]") {
+  auto index = epoch_frame::factory::index::make_datetime_index(
+      {epoch_frame::DateTime{2020y, std::chrono::January, 1d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 2d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 3d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 4d}});
+
+  SECTION("Bool vs Double - Not Equal (neq)") {
+    // Create a DataFrame with boolean and double columns
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {Scalar{true}, Scalar{false}, Scalar{true},
+             Scalar{false}},                                      // bool_column
+            {1.0_scalar, 0.0_scalar, 1.0_scalar, 1.0_scalar}      // double_column
+        },
+        {arrow::field("bool_column", arrow::boolean()),
+         arrow::field("double_column", arrow::float64())});
+
+    TransformConfiguration config = vector_op(
+        "neq", 100, "bool_column", "double_column",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // true (cast to 1.0) != 1.0 => false
+    // false (cast to 0.0) != 0.0 => false
+    // true (cast to 1.0) != 1.0 => false
+    // false (cast to 0.0) != 1.0 => true
+    epoch_frame::DataFrame expected = make_dataframe<bool>(
+        input.index(), {{false, false, false, true}}, {"100#result"});
+
+    INFO("Bool vs Double (neq): Comparing output with expected values\n"
+         << output << "\n!=\n"
+         << expected);
+    REQUIRE(output.equals(expected));
+  }
+
+  SECTION("Bool vs Double - Equal (eq)") {
+    // Create a DataFrame with boolean and double columns
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {Scalar{true}, Scalar{false}, Scalar{true},
+             Scalar{false}},                                      // bool_column
+            {1.0_scalar, 0.0_scalar, 0.0_scalar, 0.0_scalar}      // double_column
+        },
+        {arrow::field("bool_column", arrow::boolean()),
+         arrow::field("double_column", arrow::float64())});
+
+    TransformConfiguration config = vector_op(
+        "eq", 101, "bool_column", "double_column",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // true (cast to 1.0) == 1.0 => true
+    // false (cast to 0.0) == 0.0 => true
+    // true (cast to 1.0) == 0.0 => false
+    // false (cast to 0.0) == 0.0 => true
+    epoch_frame::DataFrame expected = make_dataframe<bool>(
+        input.index(), {{true, true, false, true}}, {"101#result"});
+
+    INFO("Bool vs Double (eq): Comparing output with expected values\n"
+         << output << "\n!=\n"
+         << expected);
+    REQUIRE(output.equals(expected));
+  }
+
+  SECTION("Double vs Bool - Not Equal (neq) - reversed order") {
+    // Test with reversed input order to ensure casting works both ways
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {1.0_scalar, 0.0_scalar, 1.0_scalar, 1.0_scalar},     // double_column
+            {Scalar{true}, Scalar{false}, Scalar{true},
+             Scalar{false}}                                       // bool_column
+        },
+        {arrow::field("double_column", arrow::float64()),
+         arrow::field("bool_column", arrow::boolean())});
+
+    TransformConfiguration config = vector_op(
+        "neq", 102, "double_column", "bool_column",
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // 1.0 (cast to true) != true => false
+    // 0.0 (cast to false) != false => false
+    // 1.0 (cast to true) != true => false
+    // 1.0 (cast to true) != false => true
+    epoch_frame::DataFrame expected = make_dataframe<bool>(
+        input.index(), {{false, false, false, true}}, {"102#result"});
+
+    INFO("Double vs Bool (neq): Comparing output with expected values\n"
+         << output << "\n!=\n"
+         << expected);
+    REQUIRE(output.equals(expected));
+  }
+}

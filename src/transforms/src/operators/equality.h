@@ -5,6 +5,7 @@
 #pragma once
 #include "epoch_core/macros.h"
 #include "epoch_metadata/transforms/itransform.h"
+#include <arrow/compute/api.h>
 
 CREATE_ENUM(EqualityOperator, GreaterThan, GreaterThanOrEquals, LessThan,
             LessThanOrEquals, Equals, NotEquals);
@@ -20,6 +21,45 @@ struct EqualityTransform : ITransform {
   TransformData(epoch_frame::DataFrame const &bars) const override {
     epoch_frame::Series lhs = bars[GetInputId(epoch_metadata::ARG0)];
     epoch_frame::Series rhs = bars[GetInputId(epoch_metadata::ARG1)];
+
+    // For eq/neq operators, handle type mismatches by casting to a common type
+    if constexpr (sign == epoch_core::EqualityOperator::Equals ||
+                  sign == epoch_core::EqualityOperator::NotEquals) {
+      auto lhs_type = lhs.dtype();
+      auto rhs_type = rhs.dtype();
+
+      // If types differ, cast to a common comparable type
+      if (!lhs_type->Equals(rhs_type)) {
+        // Strategy: If either type is bool, cast both to bool
+        // Otherwise, cast both to double for numeric comparisons
+        std::shared_ptr<arrow::DataType> target_type;
+
+        if (lhs_type->id() == arrow::Type::BOOL ||
+            rhs_type->id() == arrow::Type::BOOL) {
+          target_type = arrow::boolean();
+        } else {
+          target_type = arrow::float64();
+        }
+
+        if (!lhs_type->Equals(target_type)) {
+          auto cast_result = arrow::compute::Cast(lhs.array(), target_type);
+          AssertFromStream(cast_result.ok(),
+                          "Failed to cast lhs from " << lhs_type->ToString()
+                          << " to " << target_type->ToString()
+                          << ": " << cast_result.status().ToString());
+          lhs = epoch_frame::Series(lhs.index(), cast_result.ValueOrDie().chunked_array());
+        }
+
+        if (!rhs_type->Equals(target_type)) {
+          auto cast_result = arrow::compute::Cast(rhs.array(), target_type);
+          AssertFromStream(cast_result.ok(),
+                          "Failed to cast rhs from " << rhs_type->ToString()
+                          << " to " << target_type->ToString()
+                          << ": " << cast_result.status().ToString());
+          rhs = epoch_frame::Series(rhs.index(), cast_result.ValueOrDie().chunked_array());
+        }
+      }
+    }
 
     if constexpr (sign == epoch_core::EqualityOperator::GreaterThanOrEquals) {
       lhs = lhs >= rhs;
