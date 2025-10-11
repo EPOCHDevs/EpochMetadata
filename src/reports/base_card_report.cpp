@@ -43,30 +43,19 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
     } else if (aggregation == "quantile") {
       // quantile requires QuantileOptions - handle generically for QuantileCardReport
       auto options = m_config.GetOptions();
-      std::cerr << "DEBUG: Processing quantile aggregation" << std::endl;
 
       // Get quantile value from options
       double quantileValue = 0.5;  // default median
       if (options.contains("quantile")) {
-        std::cerr << "DEBUG: Found quantile option" << std::endl;
         if (options["quantile"].IsType(epoch_core::MetaDataOptionType::Decimal)) {
           quantileValue = options["quantile"].GetDecimal();
-          std::cerr << "DEBUG: Parsed as Decimal: " << quantileValue << std::endl;
         } else if (options["quantile"].IsType(epoch_core::MetaDataOptionType::Integer)) {
           quantileValue = static_cast<double>(options["quantile"].GetInteger());
-          std::cerr << "DEBUG: Parsed as Integer: " << quantileValue << std::endl;
-        } else {
-          std::cerr << "DEBUG: Quantile option exists but wrong type" << std::endl;
         }
         // Clamp to valid range [0.0, 1.0]
         if (quantileValue < 0.0) quantileValue = 0.0;
         if (quantileValue > 1.0) quantileValue = 1.0;
-      } else {
-        std::cerr << "DEBUG: No quantile option found, using default: " << quantileValue << std::endl;
       }
-
-      std::cerr << "DEBUG: Final quantile value: " << quantileValue << std::endl;
-      std::cerr << "DEBUG: Series dtype: " << series.dtype()->ToString() << std::endl;
 
       // Create QuantileOptions with custom quantile value and interpolation
       arrow::compute::QuantileOptions quantileOptions;
@@ -78,7 +67,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
       // Handle interpolation if specified
       if (options.contains("interpolation") && options["interpolation"].IsType(epoch_core::MetaDataOptionType::String)) {
         std::string interpMethod = options["interpolation"].GetString();
-        std::cerr << "DEBUG: Using interpolation method: " << interpMethod << std::endl;
         if (interpMethod == "linear") {
           quantileOptions.interpolation = arrow::compute::QuantileOptions::LINEAR;
         } else if (interpMethod == "lower") {
@@ -93,13 +81,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
       }
 
       result = series.agg(epoch_frame::AxisType::Column, "quantile", true, quantileOptions);
-
-      // DEBUG: Print the result
-      if (!result.is_null()) {
-        std::cerr << "DEBUG: Quantile result available (non-null)" << std::endl;
-      } else {
-        std::cerr << "DEBUG: Quantile result: null" << std::endl;
-      }
     } else if (aggregation == "tdigest") {
       // tdigest requires TDigestOptions
       arrow::compute::TDigestOptions options = arrow::compute::TDigestOptions::Defaults();
@@ -109,16 +90,12 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
       auto options = m_config.GetOptions();
       std::shared_ptr<arrow::Scalar> arrowScalar;
 
-      std::cerr << "DEBUG: Processing index aggregation" << std::endl;
-
       if (options.contains("target_value")) {
         // Get the data type of the series to determine the appropriate scalar type
         auto seriesType = series.dtype();
-        std::cerr << "DEBUG INDEX: Series dtype: " << seriesType->ToString() << std::endl;
 
         if (options["target_value"].IsType(epoch_core::MetaDataOptionType::String)) {
           std::string valueStr = options["target_value"].GetString();
-          std::cerr << "DEBUG INDEX: target_value as string: '" << valueStr << "'" << std::endl;
 
           // Convert string to the appropriate type based on series data type
           if (seriesType->id() == arrow::Type::DOUBLE || seriesType->id() == arrow::Type::FLOAT) {
@@ -126,7 +103,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
             try {
               double doubleValue = std::stod(valueStr);
               arrowScalar = arrow::MakeScalar(doubleValue);
-              std::cerr << "DEBUG INDEX: Converted string to double: " << doubleValue << std::endl;
             } catch (const std::exception& e) {
               std::cerr << "Warning: Could not convert target_value '" << valueStr << "' to double, using 0.0" << std::endl;
               arrowScalar = arrow::MakeScalar(0.0);
@@ -136,7 +112,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
             try {
               int64_t intValue = std::stoll(valueStr);
               arrowScalar = arrow::MakeScalar(intValue);
-              std::cerr << "DEBUG INDEX: Converted string to integer: " << intValue << std::endl;
             } catch (const std::exception& e) {
               std::cerr << "Warning: Could not convert target_value '" << valueStr << "' to integer, using 0" << std::endl;
               arrowScalar = arrow::MakeScalar(static_cast<int64_t>(0));
@@ -144,24 +119,19 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
           } else {
             // Keep as string for string columns
             arrowScalar = arrow::MakeScalar(valueStr);
-            std::cerr << "DEBUG INDEX: Using string value: '" << valueStr << "'" << std::endl;
           }
         } else if (options["target_value"].IsType(epoch_core::MetaDataOptionType::Integer)) {
           int64_t intValue = options["target_value"].GetInteger();
-          std::cerr << "DEBUG INDEX: target_value as integer: " << intValue << std::endl;
 
           // Convert integer to match series type
           auto seriesType = series.dtype();
           if (seriesType->id() == arrow::Type::DOUBLE || seriesType->id() == arrow::Type::FLOAT) {
             arrowScalar = arrow::MakeScalar(static_cast<double>(intValue));
-            std::cerr << "DEBUG INDEX: Converting integer to double for series type: " << seriesType->ToString() << std::endl;
           } else {
             arrowScalar = arrow::MakeScalar(intValue);
-            std::cerr << "DEBUG INDEX: Using integer as-is for series type: " << seriesType->ToString() << std::endl;
           }
         } else if (options["target_value"].IsType(epoch_core::MetaDataOptionType::Decimal)) {
           double doubleValue = options["target_value"].GetDecimal();
-          std::cerr << "DEBUG INDEX: target_value as decimal: " << doubleValue << std::endl;
           arrowScalar = arrow::MakeScalar(doubleValue);
         }
       } else {
@@ -174,7 +144,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
         } else {
           arrowScalar = arrow::MakeScalar(std::string(""));
         }
-        std::cerr << "DEBUG INDEX: Using default target value based on series type" << std::endl;
       }
 
       arrow::compute::IndexOptions indexOptions(arrowScalar);

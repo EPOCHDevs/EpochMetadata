@@ -83,7 +83,6 @@ bool convert<AlgorithmNode>::decode(YAML::Node const &node,
   for (auto const &input : transform.inputs) {
     auto inputs = nodeInputs[input.id];
     if (!inputs) {
-      SPDLOG_DEBUG("Missing input: {}", input.id);
       continue;
     }
 

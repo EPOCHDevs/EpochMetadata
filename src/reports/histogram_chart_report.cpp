@@ -22,8 +22,6 @@ namespace epoch_metadata::reports {
     chartBuilder.fromDataFrame(normalizedDf, valuesColumn, m_bins);
 
     auto chart = chartBuilder.build();
-    std::cerr << "DEBUG HistogramReport: built chart with type_case=" << chart.chart_type_case()
-              << " (expected kHistogramDef=4)" << std::endl;
     m_dashboard.addChart(chart);
   }
 } // namespace epoch_metadata::reports

@@ -90,8 +90,6 @@ void RegisterStrategyMetadata(
 
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                   duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;
@@ -131,8 +129,6 @@ void RegisterStrategyMetadata(
 
     if (duplicateIdCount.contains(config.id)) {
       ++duplicateIdCount[config.id];
-      SPDLOG_DEBUG("Duplicate ID found: {}. Total duplicates: {}", config.id,
-                   duplicateIdCount[config.id]);
       config.id = config.id + "_" + std::to_string(duplicateIdCount[config.id]);
     } else {
       duplicateIdCount[config.id] = 0;
@@ -163,8 +159,6 @@ void RegisterStrategyMetadata(
     if (config.trade_signal->timeframe) {
       for (auto &node : data.nodes) {
         if (node.timeframe.has_value()) {
-          SPDLOG_DEBUG("Resetting all algorithm node({}) timeframe for {}",
-                       node.id, config.id);
           node.timeframe = std::nullopt;
         }
       }

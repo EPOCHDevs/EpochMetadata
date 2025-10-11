@@ -58,8 +58,6 @@ void BarChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
 
   // Add chart to dashboard
   auto chart = chartBuilder.build();
-  std::cerr << "DEBUG BarChartReport: built chart with type_case=" << chart.chart_type_case()
-            << " (expected kBarDef=3)" << std::endl;
   m_dashboard.addChart(chart);
 }
 
