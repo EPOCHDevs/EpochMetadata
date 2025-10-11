@@ -507,6 +507,7 @@ namespace {
         .addBarData(not_filled_data)
         .setStacked(true)
         .setStackType(epoch_proto::StackTypeNormal)
+        .setVertical(true)
         .build();
   }
   
@@ -617,6 +618,7 @@ namespace {
         .addBarData(not_filled_data)
         .setStacked(true)
         .setStackType(epoch_proto::StackTypeNormal)
+        .setVertical(true)
         .build();
   }
 
@@ -691,6 +693,7 @@ namespace {
         .addBarData(not_filled_data)
         .setStacked(true)
         .setStackType(epoch_proto::StackTypeNormal)
+        .setVertical(true)
         .build();
   }
 } // namespace epoch_metadata::reports

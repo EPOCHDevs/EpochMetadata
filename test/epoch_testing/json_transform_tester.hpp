@@ -590,7 +590,19 @@ public:
                                         }
 
                                         // Parse bars for bar charts
+                                        if (chart.contains("title") && chart["title"].holds<std::string>()) {
+                                            std::string title = chart["title"].get<std::string>();
+                                            std::cerr << "DEBUG JSON PARSE: Chart '" << title << "', has bars: " << chart.contains("bars") << std::endl;
+                                            if (title == "Gap Fill Analysis" && !chart.contains("bars")) {
+                                                std::cerr << "DEBUG: Chart keys: ";
+                                                for (auto& [key, val] : chart) {
+                                                    std::cerr << key << ", ";
+                                                }
+                                                std::cerr << std::endl;
+                                            }
+                                        }
                                         if (chart.contains("bars") && chart["bars"].holds<glz::json_t::array_t>()) {
+                                            std::cerr << "DEBUG JSON PARSE: Found bars array" << std::endl;
                                             std::vector<BarCategory> barsData;
                                             for (auto& barJson : chart["bars"].get<glz::json_t::array_t>()) {
                                                 if (barJson.holds<glz::json_t::object_t>()) {
@@ -611,17 +623,24 @@ public:
 
                                                     // Handle data array format (for multi-series charts)
                                                     if (bar.contains("data") && bar["data"].holds<glz::json_t::array_t>()) {
+                                                        std::cerr << "DEBUG JSON PARSE: Found data array for bar " << barData.name << std::endl;
                                                         for (auto& dataVal : bar["data"].get<glz::json_t::array_t>()) {
                                                             if (dataVal.holds<double>()) {
-                                                                barData.data.push_back(dataVal.get<double>());
+                                                                // All numbers come through as double in glaze
+                                                                double val = dataVal.get<double>();
+                                                                barData.data.push_back(val);
+                                                                std::cerr << "DEBUG JSON PARSE: Added value " << val << std::endl;
                                                             }
                                                         }
+                                                        std::cerr << "DEBUG JSON PARSE: Total values in data array: " << barData.data.size() << std::endl;
                                                     }
 
                                                     barsData.push_back(barData);
+                                                    std::cerr << "DEBUG JSON PARSE: Added bar " << barData.name << ", data size=" << barData.data.size() << std::endl;
                                                 }
                                             }
                                             tearChart.bars = barsData;
+                                            std::cerr << "DEBUG JSON PARSE: Set bars on tearChart, size=" << barsData.size() << std::endl;
                                         }
 
                                         // Parse vertical and stacked for bar charts
