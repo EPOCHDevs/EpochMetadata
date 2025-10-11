@@ -472,9 +472,24 @@ DataFrameTransformTester::TestCaseType convertJsonToTestCase(const json::TestCas
                         histogramDef->mutable_chart_def()->set_category(chart.category);
                         histogramDef->mutable_chart_def()->set_type(epoch_proto::WidgetHistogram);
 
-                        // Set bins count if available (histograms store raw data and bins_count, not individual bins)
+                        // Convert bins to expected format for comparison
+                        // The test comparator expects data as: [min1, max1, count1, min2, max2, count2, ...]
                         if (chart.bins.has_value()) {
                             histogramDef->set_bins_count(static_cast<uint32_t>(chart.bins->size()));
+
+                            // Populate the data field with bin information
+                            epoch_proto::Array* dataArray = histogramDef->mutable_data();
+                            for (const auto& bin : chart.bins.value()) {
+                                // add_values() returns a Scalar* that we need to populate
+                                auto* minScalar = dataArray->add_values();
+                                minScalar->set_decimal_value(bin.min);
+
+                                auto* maxScalar = dataArray->add_values();
+                                maxScalar->set_decimal_value(bin.max);
+
+                                auto* countScalar = dataArray->add_values();
+                                countScalar->set_integer_value(bin.count);
+                            }
                         }
                     }
                 }

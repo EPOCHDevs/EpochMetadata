@@ -4,6 +4,8 @@
 #include "epoch_dashboard/tearsheet/scalar_converter.h"
 #include <epoch_frame/dataframe.h>
 #include <regex>
+#include <set>
+#include <map>
 
 namespace epoch_metadata::reports {
 
@@ -12,18 +14,33 @@ void BarChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
   auto labelColumn = m_config.GetInput("label");
   auto valueColumn = m_config.GetInput("value");
 
-  // Group by label and aggregate values
+  // Group by label and aggregate values - preserve original order
   auto df = normalizedDf[{labelColumn, valueColumn}];
   auto grouped = df.group_by_agg(labelColumn)
                    .agg(epoch_core::BarChartAggWrapper::ToString(m_agg))
                    .to_series();
 
   // Build categories and data arrays from grouped series
+  // We need to preserve the original order of appearance, not sorted order
+  // Create a map to store aggregated values by label
+  std::map<std::string, epoch_proto::Scalar> value_map;
+  for (int64_t i = 0; i < static_cast<int64_t>(grouped.size()); ++i) {
+    value_map[grouped.index()->at(i).repr()] = epoch_tearsheet::ScalarFactory::create(grouped.iloc(i));
+  }
+
+  // Iterate through original dataframe to preserve order
   std::vector<std::string> categories;
   epoch_proto::Array data;
-  for (int64_t i = 0; i < static_cast<int64_t>(grouped.size()); ++i) {
-    categories.emplace_back(grouped.index()->at(i).repr());
-    *data.add_values() = epoch_tearsheet::ScalarFactory::create(grouped.iloc(i));
+  std::set<std::string> seen_labels;
+
+  auto label_series = df[labelColumn];
+  for (int64_t i = 0; i < static_cast<int64_t>(label_series.size()); ++i) {
+    std::string label = label_series.iloc(i).repr();
+    if (seen_labels.find(label) == seen_labels.end()) {
+      seen_labels.insert(label);
+      categories.push_back(label);
+      *data.add_values() = value_map[label];
+    }
   }
 
   // Build the bar chart using BarChartBuilder

@@ -217,25 +217,38 @@ namespace {
                                weekDay, fillTimeStr, performance);
     });
 
-    // Clean the data before analysis
-    daily_df = daily_df.loc(daily_df["gap_type"].is_valid());
+    // Clean the data before analysis - but only if we have data
+    if (daily_df.num_rows() > 0 && daily_df.num_cols() > 0) {
+      daily_df = daily_df.loc(daily_df["gap_type"].is_valid());
+    }
 
     // Calculate all aggregations with DataFrame operations - no loops needed!
     data.total_gaps = daily_df.num_rows();
 
-    // One-liner aggregations using DataFrame operations
-    auto gap_up_mask = daily_df["gap_type"] == epoch_frame::Scalar{"gap up"};
-    auto gap_down_mask = daily_df["gap_type"] == epoch_frame::Scalar{"gap down"};
-    auto filled_mask = daily_df["gap_filled"] == epoch_frame::Scalar{"filled"};
+    // Only calculate aggregations if we have data
+    if (data.total_gaps > 0) {
+      // One-liner aggregations using DataFrame operations
+      auto gap_up_mask = daily_df["gap_type"] == epoch_frame::Scalar{"gap up"};
+      auto gap_down_mask = daily_df["gap_type"] == epoch_frame::Scalar{"gap down"};
+      auto filled_mask = daily_df["gap_filled"] == epoch_frame::Scalar{"filled"};
 
-    data.gap_up_count = gap_up_mask.sum().value<size_t>().value();
-    data.gap_down_count = gap_down_mask.sum().value<size_t>().value();
-    data.filled_count = filled_mask.sum().value<size_t>().value();
-    data.gap_up_filled = (gap_up_mask && filled_mask).sum().value<size_t>().value();
-    data.gap_down_filled = (gap_down_mask && filled_mask).sum().value<size_t>().value();
+      data.gap_up_count = gap_up_mask.sum().value<size_t>().value();
+      data.gap_down_count = gap_down_mask.sum().value<size_t>().value();
+      data.filled_count = filled_mask.sum().value<size_t>().value();
+      data.gap_up_filled = (gap_up_mask && filled_mask).sum().value<size_t>().value();
+      data.gap_down_filled = (gap_down_mask && filled_mask).sum().value<size_t>().value();
 
-    // Use DataFrame's table directly - no loops needed!
-    data.arrow_table = daily_df.table();
+      // Use DataFrame's table directly - no loops needed!
+      data.arrow_table = daily_df.table();
+    } else {
+      // Create empty table with correct schema when no data
+      data.gap_up_count = 0;
+      data.gap_down_count = 0;
+      data.filled_count = 0;
+      data.gap_up_filled = 0;
+      data.gap_down_filled = 0;
+      data.arrow_table = nullptr;
+    }
 
     // Set column names for the essential columns
     data.gap_size_col = "gap_size";
@@ -315,21 +328,22 @@ namespace {
     auto gap_down_unfilled = gap_down_total - gap_down_filled;
 
     // Calculate percentages relative to total gaps
+    // Round to 2 decimal places for display
     auto total_gaps = table.total_gaps;
 
     double gap_up_total_pct = total_gaps > 0 ?
-      (static_cast<double>(gap_up_total) / total_gaps * 100) : 0;
+      std::round(static_cast<double>(gap_up_total) / total_gaps * 10000) / 100 : 0;
     double gap_up_filled_pct = gap_up_total > 0 ?
-      (static_cast<double>(gap_up_filled) / gap_up_total * 100) : 0;
+      std::round(static_cast<double>(gap_up_filled) / gap_up_total * 10000) / 100 : 0;
     double gap_up_unfilled_pct = gap_up_total > 0 ?
-      (static_cast<double>(gap_up_unfilled) / gap_up_total * 100) : 0;
+      std::round(static_cast<double>(gap_up_unfilled) / gap_up_total * 10000) / 100 : 0;
 
     double gap_down_total_pct = total_gaps > 0 ?
-      (static_cast<double>(gap_down_total) / total_gaps * 100) : 0;
+      std::round(static_cast<double>(gap_down_total) / total_gaps * 10000) / 100 : 0;
     double gap_down_filled_pct = gap_down_total > 0 ?
-      (static_cast<double>(gap_down_filled) / gap_down_total * 100) : 0;
+      std::round(static_cast<double>(gap_down_filled) / gap_down_total * 10000) / 100 : 0;
     double gap_down_unfilled_pct = gap_down_total > 0 ?
-      (static_cast<double>(gap_down_unfilled) / gap_down_total * 100) : 0;
+      std::round(static_cast<double>(gap_down_unfilled) / gap_down_total * 10000) / 100 : 0;
 
     // Build Gap Up table using TableBuilder only
     TableBuilder gap_up_builder;
@@ -344,19 +358,19 @@ namespace {
     epoch_proto::TableRow row1;
     row1.add_values()->set_string_value("gap up");
     row1.add_values()->set_integer_value(gap_up_total);
-    row1.add_values()->set_decimal_value(gap_up_total_pct);
+    row1.add_values()->set_percent_value(gap_up_total_pct);
     gap_up_builder.addRow(row1);
 
     epoch_proto::TableRow row2;
     row2.add_values()->set_string_value("gap up filled");
     row2.add_values()->set_integer_value(gap_up_filled);
-    row2.add_values()->set_decimal_value(gap_up_filled_pct);
+    row2.add_values()->set_percent_value(gap_up_filled_pct);
     gap_up_builder.addRow(row2);
 
     epoch_proto::TableRow row3;
     row3.add_values()->set_string_value("gap up not filled");
     row3.add_values()->set_integer_value(gap_up_unfilled);
-    row3.add_values()->set_decimal_value(gap_up_unfilled_pct);
+    row3.add_values()->set_percent_value(gap_up_unfilled_pct);
     gap_up_builder.addRow(row3);
 
     auto gap_up_table = gap_up_builder.build();
@@ -374,19 +388,19 @@ namespace {
     epoch_proto::TableRow row4;
     row4.add_values()->set_string_value("gap down");
     row4.add_values()->set_integer_value(gap_down_total);
-    row4.add_values()->set_decimal_value(gap_down_total_pct);
+    row4.add_values()->set_percent_value(gap_down_total_pct);
     gap_down_builder.addRow(row4);
 
     epoch_proto::TableRow row5;
     row5.add_values()->set_string_value("gap down filled");
     row5.add_values()->set_integer_value(gap_down_filled);
-    row5.add_values()->set_decimal_value(gap_down_filled_pct);
+    row5.add_values()->set_percent_value(gap_down_filled_pct);
     gap_down_builder.addRow(row5);
 
     epoch_proto::TableRow row6;
     row6.add_values()->set_string_value("gap down not filled");
     row6.add_values()->set_integer_value(gap_down_unfilled);
-    row6.add_values()->set_decimal_value(gap_down_unfilled_pct);
+    row6.add_values()->set_percent_value(gap_down_unfilled_pct);
     gap_down_builder.addRow(row6);
 
     auto gap_down_table = gap_down_builder.build();
@@ -395,21 +409,28 @@ namespace {
   }
 
   epoch_proto::Table GapReport::create_comprehensive_gap_table(const GapTableData &data) const {
-    // Validate table exists
+    // Build the table
+    TableBuilder builder;
+    builder.setTitle("Gap Analysis Details")
+        .setCategory("Reports")
+        .setType(epoch_proto::WidgetDataTable)
+        .addColumn("gap_size", "Gap Size %", epoch_proto::TypePercent)
+        .addColumn("gap_type", "Gap Type", epoch_proto::TypeString)
+        .addColumn("gap_filled", "Filled Status", epoch_proto::TypeString)
+        .addColumn("weekday", "Day of Week", epoch_proto::TypeString)
+        .addColumn("fill_time", "Fill Time", epoch_proto::TypeString)
+        .addColumn("performance", "Performance", epoch_proto::TypeString);
+
+    // Validate table exists - if empty, we still need to ensure data field is initialized
     if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
       SPDLOG_WARN("Empty or invalid arrow_table in create_comprehensive_gap_table");
-      // Return empty table with correct schema
-      TableBuilder builder;
-      builder.setTitle("Gap Analysis Details")
-          .setCategory("Reports")
-          .setType(epoch_proto::WidgetDataTable)
-          .addColumn("gap_size", "Gap Size %", epoch_proto::TypePercent)
-          .addColumn("gap_type", "Gap Type", epoch_proto::TypeString)
-          .addColumn("gap_filled", "Filled Status", epoch_proto::TypeString)
-          .addColumn("weekday", "Day of Week", epoch_proto::TypeString)
-          .addColumn("fill_time", "Fill Time", epoch_proto::TypeString)
-          .addColumn("performance", "Performance", epoch_proto::TypeString);
-      return builder.build();
+      // Build the table and ensure data field exists (even with 0 rows)
+      auto table = builder.build();
+      // Access mutable_data to ensure the field is initialized in the protobuf
+      // This is necessary for proper comparison in tests
+      auto* table_data = table.mutable_data();
+      (void)table_data; // Suppress unused variable warning
+      return table;
     }
 
     // Use safe epoch_frame::Array wrappers for all columns with GetColumnByName
@@ -428,24 +449,12 @@ namespace {
     auto fill_time_view = fill_time_array.to_view<std::string>();
     auto performance_view = performance_array.to_view<std::string>();
 
-    // Build the table
-    TableBuilder builder;
-    builder.setTitle("Gap Analysis Details")
-        .setCategory("Reports")
-        .setType(epoch_proto::WidgetDataTable)
-        .addColumn("gap_size", "Gap Size %", epoch_proto::TypePercent)
-        .addColumn("gap_type", "Gap Type", epoch_proto::TypeString)
-        .addColumn("gap_filled", "Filled Status", epoch_proto::TypeString)
-        .addColumn("weekday", "Day of Week", epoch_proto::TypeString)
-        .addColumn("fill_time", "Fill Time", epoch_proto::TypeString)
-        .addColumn("performance", "Performance", epoch_proto::TypeString);
-
     // Add rows from the arrow table
     for (int64_t i = 0; i < data.arrow_table->num_rows(); ++i) {
       epoch_proto::TableRow row;
 
-      // Gap size as percentage
-      row.add_values()->set_decimal_value(gap_size_view->Value(i));
+      // Gap size as percentage (column is TypePercent, so use percent_value)
+      row.add_values()->set_percent_value(gap_size_view->Value(i));
 
       // Gap type
       row.add_values()->set_string_value(gap_type_view->GetString(i));
@@ -540,7 +549,7 @@ namespace {
   }
 
   std::optional<epoch_proto::Chart> GapReport::create_gap_category_chart(const GapTableData &data) const {
-    // Validate table exists
+    // Validate table exists - return nullopt if no data (don't show empty charts)
     if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
       SPDLOG_WARN("Invalid or empty arrow_table in create_gap_category_chart");
       return std::nullopt;
@@ -612,7 +621,7 @@ namespace {
   }
 
   std::optional<epoch_proto::Chart> GapReport::create_weekday_chart(const GapTableData &data) const {
-    // Validate table exists
+    // Validate table exists - return nullopt if no data (don't show empty charts)
     if (!data.arrow_table || data.arrow_table->num_rows() == 0) {
       SPDLOG_WARN("Invalid or empty arrow_table in create_weekday_chart");
       return std::nullopt;

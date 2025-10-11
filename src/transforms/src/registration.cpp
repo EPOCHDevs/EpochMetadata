@@ -84,6 +84,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(ln10, Ln10Scalar);
   REGISTER_TRANSFORM(log2e, Log2EScalar);
   REGISTER_TRANSFORM(log10e, Log10EScalar);
+  REGISTER_TRANSFORM(null, NullScalar);
 
   // Vector Transforms
   REGISTER_TRANSFORM(gt, VectorGT);

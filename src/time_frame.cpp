@@ -16,63 +16,87 @@
 namespace epoch_metadata {
 SessionRegistry::SessionRegistry() {
   // Trading Sessions (in their local timezones)
-  // ICT/SMC Kill Zones (fixed in ET)
+  // FX-style business hours for regional sessions
   registry[epoch_core::SessionType::Sydney] =
-      SessionRange{Time{std::chrono::hours(8), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "Australia/Sydney"},
-                   Time{std::chrono::hours(17), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "Australia/Sydney"}};
-  registry[epoch_core::SessionType::Tokyo] = SessionRange{
-      Time{std::chrono::hours(9), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0), "Asia/Tokyo"},
-      Time{std::chrono::hours(18), std::chrono::minutes(0),
-           std::chrono::seconds(0), std::chrono::microseconds(0),
-           "Asia/Tokyo"}};
+      SessionRange{
+          Time{std::chrono::hours(8),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Australia/Sydney"},
+          Time{std::chrono::hours(17), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Australia/Sydney"}};
+
+  registry[epoch_core::SessionType::Tokyo] =
+      SessionRange{
+          Time{std::chrono::hours(9),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Asia/Tokyo"},
+          Time{std::chrono::hours(18), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Asia/Tokyo"}};
+
   registry[epoch_core::SessionType::London] =
-      SessionRange{Time{std::chrono::hours(8), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "Europe/London"},
-                   Time{std::chrono::hours(17), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "Europe/London"}};
+      SessionRange{
+          Time{std::chrono::hours(8),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Europe/London"},
+          Time{std::chrono::hours(17), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "Europe/London"}};
+
+  // New York = FX regional session (NOT equities RTH)
   registry[epoch_core::SessionType::NewYork] =
-      SessionRange{Time{std::chrono::hours(9), std::chrono::minutes(30),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"},
-                   Time{std::chrono::hours(16), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"}};
+      SessionRange{
+          Time{std::chrono::hours(8),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"},
+          Time{std::chrono::hours(17), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"}};
+
+  // --------------------------------------------------------------------
+  // ICT/SMC Kill Zones (fixed in ET; use America/New_York for DST handling)
+  // Asian Kill Zone: 19:00–23:00 ET
   registry[epoch_core::SessionType::AsianKillZone] =
-      SessionRange{Time{std::chrono::hours(19), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"},
-                   Time{std::chrono::hours(23), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"}};
+      SessionRange{
+          Time{std::chrono::hours(19), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"},
+          Time{std::chrono::hours(23), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"}};
+
+  // London Open Kill Zone: 02:00–05:00 ET
   registry[epoch_core::SessionType::LondonOpenKillZone] =
-      SessionRange{Time{std::chrono::hours(2), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"},
-                   Time{std::chrono::hours(5), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"}};
+      SessionRange{
+          Time{std::chrono::hours(2),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"},
+          Time{std::chrono::hours(5),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"}};
+
+  // New York Kill Zone: 07:00–10:00 ET
   registry[epoch_core::SessionType::NewYorkKillZone] =
-      SessionRange{Time{std::chrono::hours(7), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"},
-                   Time{std::chrono::hours(10), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"}};
+      SessionRange{
+          Time{std::chrono::hours(7),  std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"},
+          Time{std::chrono::hours(10), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"}};
+
+  // London Close Kill Zone: 10:00–12:00 ET
   registry[epoch_core::SessionType::LondonCloseKillZone] =
-      SessionRange{Time{std::chrono::hours(10), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"},
-                   Time{std::chrono::hours(12), std::chrono::minutes(0),
-                        std::chrono::seconds(0), std::chrono::microseconds(0),
-                        "America/New_York"}};
+      SessionRange{
+          Time{std::chrono::hours(10), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"},
+          Time{std::chrono::hours(12), std::chrono::minutes(0),
+               std::chrono::seconds(0), std::chrono::microseconds(0),
+               "America/New_York"}};
 }
+
 std::unordered_map<std::string, epoch_frame::DateOffsetHandlerPtr>
     TIMEFRAME_MAPPING{
         {std::string(tf_str::k1Min), epoch_frame::factory::offset::minutes(1)},

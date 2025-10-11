@@ -871,13 +871,145 @@ private:
             std::cerr << "DEBUG compareHistogramCharts: ChartDef doesn't match" << std::endl;
             return false;
         }
-        // For histograms, we just check bin count for now
+
+        // Check bins_count matches
         if (a.bins_count() != b.bins_count()) {
-            std::cerr << "DEBUG compareHistogramCharts: bins_count mismatch - a=" << a.bins_count() << ", b=" << b.bins_count() << std::endl;
-            std::cerr << "  Actual histogram data: bins_count=" << a.bins_count() << ", data_size=" << a.data().values_size() << std::endl;
+            std::cerr << "DEBUG compareHistogramCharts: bins_count mismatch - a=" << a.bins_count()
+                      << ", b=" << b.bins_count() << std::endl;
             return false;
         }
+
+        // If expected (b) has data, we need to validate the actual histogram data produces the same bins
+        if (b.has_data() && b.data().values_size() > 0) {
+            if (!a.has_data() || a.data().values_size() == 0) {
+                std::cerr << "DEBUG compareHistogramCharts: Expected has data but actual doesn't" << std::endl;
+                return false;
+            }
+
+            // Extract raw data values from actual histogram
+            std::vector<double> actual_values;
+            for (int i = 0; i < a.data().values_size(); ++i) {
+                const auto& scalar = a.data().values(i);
+                if (scalar.has_decimal_value()) {
+                    actual_values.push_back(scalar.decimal_value());
+                } else if (scalar.has_integer_value()) {
+                    actual_values.push_back(static_cast<double>(scalar.integer_value()));
+                }
+            }
+
+            // Extract expected bin structure from b.data()
+            // The expected data should be structured as: [min1, max1, count1, min2, max2, count2, ...]
+            std::vector<double> expected_values;
+            for (int i = 0; i < b.data().values_size(); ++i) {
+                const auto& scalar = b.data().values(i);
+                if (scalar.has_decimal_value()) {
+                    expected_values.push_back(scalar.decimal_value());
+                } else if (scalar.has_integer_value()) {
+                    expected_values.push_back(static_cast<double>(scalar.integer_value()));
+                }
+            }
+
+            // Validate expected data has correct structure (3 values per bin: min, max, count)
+            if (expected_values.size() != b.bins_count() * 3) {
+                std::cerr << "DEBUG compareHistogramCharts: Expected data size mismatch - got "
+                          << expected_values.size() << ", expected " << (b.bins_count() * 3)
+                          << " (bins_count * 3)" << std::endl;
+                return false;
+            }
+
+            // Create bins from actual data
+            auto actual_bins = createHistogramBins(actual_values, a.bins_count());
+
+            // Compare with expected bins
+            bool bins_match = true;
+            for (size_t i = 0; i < b.bins_count(); ++i) {
+                size_t expected_idx = i * 3;
+                double expected_min = expected_values[expected_idx];
+                double expected_max = expected_values[expected_idx + 1];
+                int64_t expected_count = static_cast<int64_t>(expected_values[expected_idx + 2]);
+
+                const auto& actual_bin = actual_bins[i];
+
+                // Use epsilon for floating point comparison
+                const double epsilon = 0.01;
+                if (std::abs(actual_bin.min - expected_min) >= epsilon) {
+                    std::cerr << "DEBUG compareHistogramCharts: Bin " << i << " min mismatch - actual="
+                              << actual_bin.min << ", expected=" << expected_min << std::endl;
+                    bins_match = false;
+                    break;
+                }
+                if (std::abs(actual_bin.max - expected_max) >= epsilon) {
+                    std::cerr << "DEBUG compareHistogramCharts: Bin " << i << " max mismatch - actual="
+                              << actual_bin.max << ", expected=" << actual_bin.max << std::endl;
+                    bins_match = false;
+                    break;
+                }
+                if (actual_bin.count != expected_count) {
+                    std::cerr << "DEBUG compareHistogramCharts: Bin " << i << " count mismatch - actual="
+                              << actual_bin.count << ", expected=" << expected_count << std::endl;
+                    bins_match = false;
+                    break;
+                }
+            }
+
+            // If bins don't match, print all actual bins
+            if (!bins_match) {
+                std::cerr << "DEBUG compareHistogramCharts: All actual bins:" << std::endl;
+                for (size_t i = 0; i < actual_bins.size(); ++i) {
+                    std::cerr << "  Bin " << i << ": min=" << actual_bins[i].min
+                              << ", max=" << actual_bins[i].max
+                              << ", count=" << actual_bins[i].count << std::endl;
+                }
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    // Helper struct for histogram bins
+    struct HistogramBin {
+        double min;
+        double max;
+        int64_t count;
+    };
+
+    // Helper function to create histogram bins from raw data
+    std::vector<HistogramBin> createHistogramBins(const std::vector<double>& values, uint32_t num_bins) const {
+        if (values.empty() || num_bins == 0) {
+            return {};
+        }
+
+        // Find min and max
+        double min_val = *std::min_element(values.begin(), values.end());
+        double max_val = *std::max_element(values.begin(), values.end());
+
+        // Calculate bin width
+        double range = max_val - min_val;
+        double bin_width = range / num_bins;
+
+        // Create bins
+        std::vector<HistogramBin> bins(num_bins);
+        for (uint32_t i = 0; i < num_bins; ++i) {
+            bins[i].min = min_val + i * bin_width;
+            bins[i].max = (i == num_bins - 1) ? max_val : (min_val + (i + 1) * bin_width);
+            bins[i].count = 0;
+        }
+
+        // Count values in each bin
+        for (double value : values) {
+            // Find which bin this value belongs to
+            int bin_idx = static_cast<int>((value - min_val) / bin_width);
+            // Handle edge case where value == max_val
+            if (bin_idx >= static_cast<int>(num_bins)) {
+                bin_idx = num_bins - 1;
+            }
+            if (bin_idx >= 0 && bin_idx < static_cast<int>(num_bins)) {
+                bins[bin_idx].count++;
+            }
+        }
+
+        return bins;
     }
 
     bool compareChartDef(const epoch_proto::ChartDef& a, const epoch_proto::ChartDef& b) const {

@@ -2,9 +2,13 @@
 
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/index.h>
+#include <epoch_frame/factory/index_factory.h>
+#include <epoch_frame/factory/series_factory.h>
 #include <epoch_dashboard/tearsheet/chart_types.h>
 #include <string>
 #include <unordered_map>
+#include <map>
+#include <set>
 #include <vector>
 #include <regex>
 
@@ -26,16 +30,43 @@ public:
   }
 
   // Group by column, sum values, and normalize as percentage
+  // Preserves the original order of appearance in the DataFrame
   static epoch_frame::Series normalizeSeriesAsPercentage(
       const epoch_frame::DataFrame& df,
       const std::string& groupColumn,
       const std::string& valueColumn) {
+    // First, aggregate using group_by (this will sort alphabetically)
     auto grouped = df[{groupColumn, valueColumn}]
                       .group_by_agg(groupColumn)
                       .sum()
                       .to_series();
     auto total = df[valueColumn].sum();
-    return (grouped / total) * epoch_frame::Scalar{100.0};
+    auto percentage_series = (grouped / total) * epoch_frame::Scalar{100.0};
+
+    // Create a map of label to percentage for quick lookup
+    std::map<std::string, double> label_to_percentage;
+    for (int64_t i = 0; i < static_cast<int64_t>(percentage_series.size()); ++i) {
+      label_to_percentage[percentage_series.index()->at(i).repr()] = percentage_series.iloc(i).as_double();
+    }
+
+    // Now iterate through original DataFrame to preserve order
+    std::vector<std::string> ordered_labels;
+    std::vector<double> ordered_values;
+    std::set<std::string> seen_labels;
+
+    auto label_series = df[groupColumn];
+    for (int64_t i = 0; i < static_cast<int64_t>(label_series.size()); ++i) {
+      std::string label = label_series.iloc(i).repr();
+      if (seen_labels.find(label) == seen_labels.end()) {
+        seen_labels.insert(label);
+        ordered_labels.push_back(label);
+        ordered_values.push_back(label_to_percentage[label]);
+      }
+    }
+
+    // Build a new Series with the original order
+    auto index = epoch_frame::factory::index::make_object_index(ordered_labels);
+    return epoch_frame::make_series(index, ordered_values);
   }
 
   // Sanitize column names by replacing # with _ for SQL compatibility
