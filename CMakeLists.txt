@@ -57,6 +57,8 @@ include(${PROJECT_SOURCE_DIR}/cmake/EpochDashboard.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Tulip.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/Graphviz.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/MPDecimal.cmake)
+# Tree-sitter setup via CPM
+include(${PROJECT_SOURCE_DIR}/cmake/TreeSitter.cmake)
 
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(DataFrame CONFIG REQUIRED)

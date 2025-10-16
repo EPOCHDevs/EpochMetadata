@@ -3,14 +3,16 @@
 #include <chrono>
 #include <epoch_frame/factory/date_offset_factory.h>
 #include <epoch_frame/relative_delta_options.h>
-#include <glaze/json/json_t.hpp>
+#include <glaze/json/generic.hpp>
 #include <yaml-cpp/yaml.h>
 
 using namespace epoch_metadata;
 
 // Helper function to create TimeFrame objects for testing
-TimeFrame CreateTimeFrame(epoch_core::EpochOffsetType type, int interval) {
-  switch (type) {
+TimeFrame CreateTimeFrame(epoch_core::EpochOffsetType type, int interval)
+{
+  switch (type)
+  {
   case epoch_core::EpochOffsetType::Day:
     return TimeFrame(epoch_frame::factory::offset::days(interval));
   case epoch_core::EpochOffsetType::Hour:
@@ -31,7 +33,8 @@ TimeFrame CreateTimeFrame(epoch_core::EpochOffsetType type, int interval) {
 }
 
 TEST_CASE("TimeFrame operator< - same type different intervals",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Test that smaller intervals are less than larger intervals for the same
   // type
   auto tf1Day = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
@@ -44,7 +47,8 @@ TEST_CASE("TimeFrame operator< - same type different intervals",
 }
 
 TEST_CASE("TimeFrame operator< - different types same interval",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Test type ordering: minute < hour < day < week < month < quarter < year
   auto minute1 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 1);
   auto hour1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
@@ -89,7 +93,8 @@ TEST_CASE("TimeFrame operator< - different types same interval",
 }
 
 TEST_CASE("TimeFrame operator< - mixed type and interval comparisons",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Test scenarios where type trumps interval size
   auto minute60 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 60);
   auto hour1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
@@ -112,7 +117,8 @@ TEST_CASE("TimeFrame operator< - mixed type and interval comparisons",
 }
 
 TEST_CASE("TimeFrame operator< - same type different intervals comprehensive",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Test multiple intervals for different types
 
   // Minutes
@@ -141,7 +147,8 @@ TEST_CASE("TimeFrame operator< - same type different intervals comprehensive",
 }
 
 TEST_CASE("TimeFrame operator< - edge cases with equal timeframes",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Test that identical timeframes are not less than each other
   auto tf1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto tf2 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
@@ -159,7 +166,8 @@ TEST_CASE("TimeFrame operator< - edge cases with equal timeframes",
 }
 
 TEST_CASE("TimeFrame operator< - comprehensive type ordering validation",
-          "[TimeFrame]") {
+          "[TimeFrame]")
+{
   // Create one of each type with the same interval to test type ordering
   std::vector<TimeFrame> timeframes = {
       CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 1),
@@ -171,15 +179,18 @@ TEST_CASE("TimeFrame operator< - comprehensive type ordering validation",
       CreateTimeFrame(epoch_core::EpochOffsetType::Year, 1)};
 
   // Verify that each timeframe is less than all timeframes that come after it
-  for (size_t i = 0; i < timeframes.size(); ++i) {
-    for (size_t j = i + 1; j < timeframes.size(); ++j) {
+  for (size_t i = 0; i < timeframes.size(); ++i)
+  {
+    for (size_t j = i + 1; j < timeframes.size(); ++j)
+    {
       REQUIRE(timeframes[i] < timeframes[j]);
       REQUIRE_FALSE(timeframes[j] < timeframes[i]);
     }
   }
 }
 
-TEST_CASE("TimeFrame operator< - practical trading timeframes", "[TimeFrame]") {
+TEST_CASE("TimeFrame operator< - practical trading timeframes", "[TimeFrame]")
+{
   // Test common trading timeframes
   auto minute1 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 1);
   auto minute5 = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 5);
@@ -200,7 +211,8 @@ TEST_CASE("TimeFrame operator< - practical trading timeframes", "[TimeFrame]") {
   REQUIRE(week1 < month1);
 }
 
-TEST_CASE("IsIntraday function - various offset types", "[IsIntraday]") {
+TEST_CASE("IsIntraday function - various offset types", "[IsIntraday]")
+{
   // Intraday types
   REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Hour));
   REQUIRE(IsIntraday(epoch_core::EpochOffsetType::Minute));
@@ -220,7 +232,8 @@ TEST_CASE("IsIntraday function - various offset types", "[IsIntraday]") {
   REQUIRE_FALSE(IsIntraday(epoch_core::EpochOffsetType::YearEnd));
 }
 
-TEST_CASE("TimeFrame::IsIntraDay method", "[TimeFrame][IsIntraDay]") {
+TEST_CASE("TimeFrame::IsIntraDay method", "[TimeFrame][IsIntraDay]")
+{
   // Intraday timeframes
   auto hourly = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
   auto minutely = CreateTimeFrame(epoch_core::EpochOffsetType::Minute, 5);
@@ -239,7 +252,8 @@ TEST_CASE("TimeFrame::IsIntraDay method", "[TimeFrame][IsIntraDay]") {
 }
 
 TEST_CASE("TimeFrame operator== - equality comparisons",
-          "[TimeFrame][operator==]") {
+          "[TimeFrame][operator==]")
+{
   // Same type and interval
   auto day1_a = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto day1_b = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
@@ -262,7 +276,8 @@ TEST_CASE("TimeFrame operator== - equality comparisons",
 }
 
 TEST_CASE("TimeFrame operator!= - inequality comparisons",
-          "[TimeFrame][operator!=]") {
+          "[TimeFrame][operator!=]")
+{
   // Same type and interval should be equal (not not-equal)
   auto day1_a = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto day1_b = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
@@ -284,7 +299,8 @@ TEST_CASE("TimeFrame operator!= - inequality comparisons",
   REQUIRE(minute5 != week2);
 }
 
-TEST_CASE("TimeFrame::Serialize method", "[TimeFrame][Serialize]") {
+TEST_CASE("TimeFrame::Serialize method", "[TimeFrame][Serialize]")
+{
   // Test serialization of various timeframes
   auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto hour4 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 4);
@@ -309,14 +325,15 @@ TEST_CASE("TimeFrame::Serialize method", "[TimeFrame][Serialize]") {
 }
 
 TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
-          "[CreateDateOffsetHandlerFromJSON]") {
+          "[CreateDateOffsetHandlerFromJSON]")
+{
   // Test null input
-  glz::json_t null_json;
+  glz::generic null_json;
   auto null_result = CreateDateOffsetHandlerFromJSON(null_json);
   REQUIRE(null_result == nullptr);
 
   // Test valid day offset
-  glz::json_t day_json;
+  glz::generic day_json;
   day_json["type"] = "day";
   day_json["interval"] = 1;
   auto day_result = CreateDateOffsetHandlerFromJSON(day_json);
@@ -325,7 +342,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(day_result->n() == 1);
 
   // Test valid hour offset
-  glz::json_t hour_json;
+  glz::generic hour_json;
   hour_json["type"] = "hour";
   hour_json["interval"] = 4;
   auto hour_result = CreateDateOffsetHandlerFromJSON(hour_json);
@@ -334,7 +351,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(hour_result->n() == 4);
 
   // Test valid minute offset
-  glz::json_t minute_json;
+  glz::generic minute_json;
   minute_json["type"] = "minute";
   minute_json["interval"] = 15;
   auto minute_result = CreateDateOffsetHandlerFromJSON(minute_json);
@@ -343,7 +360,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(minute_result->n() == 15);
 
   // Test valid week offset
-  glz::json_t week_json;
+  glz::generic week_json;
   week_json["type"] = "week";
   week_json["interval"] = 2;
   auto week_result = CreateDateOffsetHandlerFromJSON(week_json);
@@ -352,7 +369,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(week_result->n() == 2);
 
   // Test week-of-month direct configuration (Second Tuesday)
-  glz::json_t wom_json;
+  glz::generic wom_json;
   wom_json["type"] = "week";
   wom_json["interval"] = 1;
   wom_json["week_of_month"] = "Second";
@@ -361,7 +378,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(wom_result != nullptr);
 
   // Test valid month offset
-  glz::json_t month_json;
+  glz::generic month_json;
   month_json["type"] = "month";
   month_json["interval"] = 3;
   auto month_result = CreateDateOffsetHandlerFromJSON(month_json);
@@ -370,7 +387,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(month_result->n() == 3);
 
   // Test valid quarter offset
-  glz::json_t quarter_json;
+  glz::generic quarter_json;
   quarter_json["type"] = "quarter";
   quarter_json["interval"] = 1;
   auto quarter_result = CreateDateOffsetHandlerFromJSON(quarter_json);
@@ -379,7 +396,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
   REQUIRE(quarter_result->n() == 1);
 
   // Test valid year offset
-  glz::json_t year_json;
+  glz::generic year_json;
   year_json["type"] = "year";
   year_json["interval"] = 5;
   auto year_result = CreateDateOffsetHandlerFromJSON(year_json);
@@ -389,26 +406,28 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - various paths",
 }
 
 TEST_CASE("CreateDateOffsetHandlerFromJSON - exception paths",
-          "[CreateDateOffsetHandlerFromJSON][exception]") {
+          "[CreateDateOffsetHandlerFromJSON][exception]")
+{
   // Test invalid type
-  glz::json_t invalid_type_json;
+  glz::generic invalid_type_json;
   invalid_type_json["type"] = "invalid_type";
   invalid_type_json["interval"] = 1;
   REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(invalid_type_json));
 
   // Test missing type field
-  glz::json_t missing_type_json;
+  glz::generic missing_type_json;
   missing_type_json["interval"] = 1;
   REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(missing_type_json));
 
   // Test missing interval field
-  glz::json_t missing_interval_json;
+  glz::generic missing_interval_json;
   missing_interval_json["type"] = "day";
   REQUIRE_THROWS(CreateDateOffsetHandlerFromJSON(missing_interval_json));
 }
 
 TEST_CASE("CreateDateOffsetHandlerJSON function",
-          "[CreateDateOffsetHandlerJSON]") {
+          "[CreateDateOffsetHandlerJSON]")
+{
   // Test null pointer
   epoch_frame::DateOffsetHandlerPtr null_ptr = nullptr;
   auto null_json = CreateDateOffsetHandlerJSON(null_ptr);
@@ -436,7 +455,8 @@ TEST_CASE("CreateDateOffsetHandlerJSON function",
   REQUIRE(minute_json["interval"].as<int>() == 15);
 }
 
-TEST_CASE("JSON serialization round-trip", "[JSON][serialization]") {
+TEST_CASE("JSON serialization round-trip", "[JSON][serialization]")
+{
   // Test round-trip serialization: TimeFrame -> JSON -> TimeFrame
   auto original_day = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto original_hour = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 4);
@@ -449,9 +469,9 @@ TEST_CASE("JSON serialization round-trip", "[JSON][serialization]") {
   std::string minute_json = original_minute.Serialize();
 
   // Parse JSON back
-  glz::json_t day_parsed;
-  glz::json_t hour_parsed;
-  glz::json_t minute_parsed;
+  glz::generic day_parsed;
+  glz::generic hour_parsed;
+  glz::generic minute_parsed;
 
   REQUIRE_FALSE(glz::read_json(day_parsed, day_json));
   REQUIRE_FALSE(glz::read_json(hour_parsed, hour_json));
@@ -472,7 +492,8 @@ TEST_CASE("JSON serialization round-trip", "[JSON][serialization]") {
   REQUIRE(original_minute == reconstructed_minute);
 }
 
-TEST_CASE("YAML serialization", "[YAML][serialization]") {
+TEST_CASE("YAML serialization", "[YAML][serialization]")
+{
   // Test YAML serialization and deserialization
   YAML::Node day_node;
   day_node["type"] = "day";
@@ -515,7 +536,8 @@ TEST_CASE("YAML serialization", "[YAML][serialization]") {
 }
 
 TEST_CASE("CreateDateOffsetHandlerJSON - anchored types and extras",
-          "[CreateDateOffsetHandlerJSON][anchored]") {
+          "[CreateDateOffsetHandlerJSON][anchored]")
+{
   // Month start/end anchors
   auto m_start = epoch_frame::factory::offset::month_start(2);
   auto m_start_json = CreateDateOffsetHandlerJSON(m_start);
@@ -564,9 +586,10 @@ TEST_CASE("CreateDateOffsetHandlerJSON - anchored types and extras",
 }
 
 TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
-          "[CreateDateOffsetHandlerFromJSON][bday]") {
+          "[CreateDateOffsetHandlerFromJSON][bday]")
+{
   // Business day
-  glz::json_t bday_json;
+  glz::generic bday_json;
   bday_json["type"] = "bday";
   bday_json["interval"] = 4;
   bday_json["time_offset"]["minutes"] = 30;
@@ -576,7 +599,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
   REQUIRE(bday->n() == 4);
 
   // Session anchored via JSON (NewYork before close -30m)
-  glz::json_t session_json;
+  glz::generic session_json;
   session_json["type"] = "session";
   session_json["interval"] = 1;
   session_json["session"] = "NewYork";
@@ -587,9 +610,10 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - business days",
 }
 
 TEST_CASE("CreateDateOffsetHandlerFromJSON - anchored read",
-          "[CreateDateOffsetHandlerFromJSON][anchored]") {
+          "[CreateDateOffsetHandlerFromJSON][anchored]")
+{
   // Month start
-  glz::json_t month_start_json;
+  glz::generic month_start_json;
   month_start_json["type"] = "month";
   month_start_json["interval"] = 1;
   month_start_json["anchor"] = "Start";
@@ -599,7 +623,7 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - anchored read",
   REQUIRE(m_start_roundtrip["anchor"].as<std::string>() == "Start");
 
   // Year end with month
-  glz::json_t year_end_json;
+  glz::generic year_end_json;
   year_end_json["type"] = "year";
   year_end_json["interval"] = 3;
   year_end_json["anchor"] = "End";
@@ -612,7 +636,8 @@ TEST_CASE("CreateDateOffsetHandlerFromJSON - anchored read",
 }
 
 TEST_CASE("CreateTimeFrameFromYAML - basic and anchored",
-          "[CreateTimeFrameFromYAML]") {
+          "[CreateTimeFrameFromYAML]")
+{
   // Basic day
   YAML::Node day_node;
   day_node["type"] = "day";
@@ -658,7 +683,8 @@ TEST_CASE("CreateTimeFrameFromYAML - basic and anchored",
   REQUIRE(session_tf.GetOffset() != nullptr);
 }
 
-TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]") {
+TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]")
+{
   auto d1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto d1_dup = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto h1 = CreateTimeFrame(epoch_core::EpochOffsetType::Hour, 1);
@@ -673,7 +699,8 @@ TEST_CASE("TimeFrame hashing and set behavior", "[TimeFrame][hash]") {
   REQUIRE(set.find(h1) != set.end());
 }
 
-TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]") {
+TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]")
+{
   auto day1 = CreateTimeFrame(epoch_core::EpochOffsetType::Day, 1);
   auto bday1 = TimeFrame(epoch_frame::factory::offset::bday(1));
 
@@ -681,7 +708,8 @@ TEST_CASE("TimeFrame operator< - business day ordering", "[TimeFrame]") {
 }
 
 TEST_CASE("TIMEFRAME_MAPPING - YAML scalar shortcuts",
-          "[TimeFrame][YAML][Mapping]") {
+          "[TimeFrame][YAML][Mapping]")
+{
   // Simple minute mapping
   auto node_1min = YAML::Load("1Min");
   auto off_1min = node_1min.as<epoch_frame::DateOffsetHandlerPtr>();
@@ -717,28 +745,29 @@ TEST_CASE("TIMEFRAME_MAPPING - YAML scalar shortcuts",
 }
 
 TEST_CASE("TIMEFRAME_MAPPING - Glaze string shortcuts",
-          "[TimeFrame][JSON][Mapping]") {
+          "[TimeFrame][JSON][Mapping]")
+{
   // Prepare a JSON string token by parsing a JSON string literal
-  glz::json_t j_1min;
+  glz::generic j_1min;
   REQUIRE_FALSE(glz::read_json(j_1min, "\"1Min\""));
   auto off_1min = CreateDateOffsetHandlerFromJSON(j_1min);
   REQUIRE(off_1min != nullptr);
   REQUIRE(off_1min->type() == epoch_core::EpochOffsetType::Minute);
   REQUIRE(off_1min->n() == 1);
 
-  glz::json_t j_1h;
+  glz::generic j_1h;
   REQUIRE_FALSE(glz::read_json(j_1h, "\"1H\""));
   auto off_1h = CreateDateOffsetHandlerFromJSON(j_1h);
   REQUIRE(off_1h != nullptr);
   REQUIRE(off_1h->type() == epoch_core::EpochOffsetType::Hour);
   REQUIRE(off_1h->n() == 1);
 
-  glz::json_t j_wom;
+  glz::generic j_wom;
   REQUIRE_FALSE(glz::read_json(j_wom, "\"1W-MON-3rd\""));
   auto off_wom = CreateDateOffsetHandlerFromJSON(j_wom);
   REQUIRE(off_wom != nullptr);
 
-  glz::json_t j_me;
+  glz::generic j_me;
   REQUIRE_FALSE(glz::read_json(j_me, "\"1ME\""));
   auto off_me = CreateDateOffsetHandlerFromJSON(j_me);
   REQUIRE(off_me != nullptr);
