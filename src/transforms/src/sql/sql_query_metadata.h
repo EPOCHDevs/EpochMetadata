@@ -34,8 +34,8 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .strategyTypes = {"data-transformation", "filtering", "feature-engineering", "custom-logic"},
     .relatedTransforms = {"sql_query_2", "sql_query_3", "sql_query_4"},
     .assetRequirements = {"single-asset"},
-    .usageContext = "Powerful SQL interface for custom data transformations. Use for: complex filtering (WHERE clauses), calculated columns (SELECT expressions), aggregations (GROUP BY), joins between multiple inputs, and custom feature engineering. Entire result returned as single output. Must include timestamp in SELECT for timeseries continuity. Supports full DuckDB SQL syntax including window functions.",
-    .limitations = "Requires SQL knowledge. Query errors only caught at runtime. Column '#' characters sanitized to '_'. Must explicitly SELECT index column (timestamp) for proper timeseries merging. Performance depends on query complexity. Single output only - use sql_query_2/3/4 for multiple outputs. No validation of output data types."
+    .usageContext = "Powerful SQL interface for custom data transformations. IMPORTANT: Always use 'FROM input' (not 'FROM table'). Input columns are input0, input1, etc. Use for: complex filtering (WHERE clauses), calculated columns (SELECT expressions), aggregations (GROUP BY), joins between multiple inputs, and custom feature engineering. Entire result returned as single output. Must include timestamp in SELECT for timeseries continuity. Supports full DuckDB SQL syntax including window functions.",
+    .limitations = "Requires SQL knowledge. CRITICAL: Must use 'FROM input' - using 'FROM table' will fail. Query errors only caught at runtime. Column '#' characters sanitized to '_'. Must explicitly SELECT index column (timestamp) for proper timeseries merging. Performance depends on query complexity. Single output only - use sql_query_2/3/4 for multiple outputs. No validation of output data types."
   });
 
   // SQLQueryTransform2 - Two outputs
@@ -63,8 +63,8 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .strategyTypes = {"data-transformation", "feature-engineering", "signal-splitting", "custom-logic"},
     .relatedTransforms = {"sql_query_1", "sql_query_3", "sql_query_4"},
     .assetRequirements = {"single-asset"},
-    .usageContext = "SQL with 2 separate output ports for parallel processing. Query MUST use aliases: SELECT calc1 AS output0, calc2 AS output1, timestamp FROM input. Each output routes to different downstream nodes. Use for: splitting calculated features, separating signal components (e.g., trend + noise), or creating complementary indicators from same calculation.",
-    .limitations = "Must alias outputs as 'output0' and 'output1' exactly. Column count strictly enforced (output0, output1, index_column). Runtime errors if column names wrong. Both outputs share same index/timestamps. Cannot have different row counts per output. Use sql_query_1 if only need single combined result."
+    .usageContext = "SQL with 2 separate output ports for parallel processing. IMPORTANT: Use 'FROM input' (not 'FROM table'). Query MUST use aliases: SELECT calc1 AS output0, calc2 AS output1, timestamp FROM input. Each output routes to different downstream nodes. Use for: splitting calculated features, separating signal components (e.g., trend + noise), or creating complementary indicators from same calculation.",
+    .limitations = "CRITICAL: Must use 'FROM input'. Must alias outputs as 'output0' and 'output1' exactly. Column count strictly enforced (output0, output1, index_column). Runtime errors if column names wrong. Both outputs share same index/timestamps. Cannot have different row counts per output. Use sql_query_1 if only need single combined result."
   });
 
   // SQLQueryTransform3 - Three outputs
@@ -93,8 +93,8 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .strategyTypes = {"data-transformation", "feature-engineering", "multi-signal-generation", "custom-logic"},
     .relatedTransforms = {"sql_query_1", "sql_query_2", "sql_query_4"},
     .assetRequirements = {"single-asset"},
-    .usageContext = "SQL with 3 separate output ports. Query must alias: SELECT calc1 AS output0, calc2 AS output1, calc3 AS output2, timestamp FROM input. Use for: decomposing data into components (e.g., trend/cycle/noise), generating multiple related signals, or creating Bollinger-style bands (upper/middle/lower). Each output independently routable.",
-    .limitations = "Must alias outputs as 'output0', 'output1', 'output2' exactly. Strict column count (3 outputs + index). All outputs share same index/timestamps. Cannot have different row counts per output. More outputs = more complex query maintenance. Consider if sql_query_1 with downstream splits clearer."
+    .usageContext = "SQL with 3 separate output ports. IMPORTANT: Use 'FROM input' (not 'FROM table'). Query must alias: SELECT calc1 AS output0, calc2 AS output1, calc3 AS output2, timestamp FROM input. Use for: decomposing data into components (e.g., trend/cycle/noise), generating multiple related signals, or creating Bollinger-style bands (upper/middle/lower). Each output independently routable.",
+    .limitations = "CRITICAL: Must use 'FROM input'. Must alias outputs as 'output0', 'output1', 'output2' exactly. Strict column count (3 outputs + index). All outputs share same index/timestamps. Cannot have different row counts per output. More outputs = more complex query maintenance. Consider if sql_query_1 with downstream splits clearer."
   });
 
   // SQLQueryTransform4 - Four outputs
@@ -124,8 +124,8 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
     .strategyTypes = {"data-transformation", "feature-engineering", "ohlc-reconstruction", "multi-signal-generation"},
     .relatedTransforms = {"sql_query_1", "sql_query_2", "sql_query_3"},
     .assetRequirements = {"single-asset"},
-    .usageContext = "SQL with 4 output ports - maximum multi-output variant. Perfect for OHLC reconstruction or 4-component decomposition. Query must alias: SELECT val1 AS output0, val2 AS output1, val3 AS output2, val4 AS output3, timestamp FROM input. Use for: OHLC price streams, multi-factor models, quartile bands, or 4-regime signals. Each output independently routable to different logic branches.",
-    .limitations = "Must alias outputs as 'output0' through 'output3' exactly. Strict column count (4 outputs + index). All outputs share same index/timestamps - no independent row filtering per output. Most complex SQL query variant - high maintenance overhead. Consider if sql_query_1 with downstream processing more maintainable. Need 5+ outputs? Chain multiple SQL queries."
+    .usageContext = "SQL with 4 output ports - maximum multi-output variant. IMPORTANT: Use 'FROM input' (not 'FROM table'). Perfect for OHLC reconstruction or 4-component decomposition. Query must alias: SELECT val1 AS output0, val2 AS output1, val3 AS output2, val4 AS output3, timestamp FROM input. Use for: OHLC price streams, multi-factor models, quartile bands, or 4-regime signals. Each output independently routable to different logic branches.",
+    .limitations = "CRITICAL: Must use 'FROM input'. Must alias outputs as 'output0' through 'output3' exactly. Strict column count (4 outputs + index). All outputs share same index/timestamps - no independent row filtering per output. Most complex SQL query variant - high maintenance overhead. Consider if sql_query_1 with downstream processing more maintainable. Need 5+ outputs? Chain multiple SQL queries."
   });
 
   return metadataList;

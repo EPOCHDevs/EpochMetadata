@@ -1,0 +1,6 @@
+src = market_data_source(timeframe="1H")
+fast = ema(period=20)(src.c)
+slow = ema(period=50)(src.c)
+cross_up = crossover()(fast.result, slow.result)
+rsi14 = rsi(period=14)(src.c)
+trade_signal_executor()(enter_long=(cross_up.result and (rsi14.result < 70)))

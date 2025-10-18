@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bool_false_0",
+    "type": "bool_false",
+    "options": {},
+    "inputs": {}
+  },
+  {
+    "id": "number_0",
+    "type": "number",
+    "options": {
+      "value": 70
+    },
+    "inputs": {}
+  },
+  {
+    "id": "number_1",
+    "type": "number",
+    "options": {
+      "value": 30
+    },
+    "inputs": {}
+  },
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "1H"
+  },
+  {
+    "id": "rsi_node",
+    "type": "rsi",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "over",
+    "type": "gt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi_node#result"
+      ]
+    }
+  },
+  {
+    "id": "under",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_1#result"
+      ],
+      "SLOT0": [
+        "rsi_node#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_0",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "false": [
+        "bool_false_0#result"
+      ],
+      "true": [
+        "over#result"
+      ],
+      "condition": [
+        "under#result"
+      ]
+    }
+  },
+  {
+    "id": "node_7",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "ifexp_0#result"
+      ]
+    }
+  }
+]

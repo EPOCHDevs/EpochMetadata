@@ -16,14 +16,14 @@ namespace epoch_metadata::strategy
     std::optional<std::string> type{};
     std::optional<epoch_metadata::MetaDataArgDefinitionMapping> args{};
     std::optional<epoch_metadata::TimeFrame> timeframe{};
-    std::optional<UIData> data{};
+    std::optional<PythonCode> source{};
     glz::generic kwarg{};
 
     bool operator==(const GenericFunction &other) const
     {
       return (type == other.type) && (args == other.args) &&
              (timeframe == other.timeframe) &&
-             ((data && other.data) && (*data == *other.data)) &&
+             (source == other.source) &&
              (glz::write_json(kwarg) == glz::write_json(other.kwarg));
     }
   };

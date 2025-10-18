@@ -34,7 +34,7 @@ public:
 
     // Step 3: Execute SQL query with timestamp index
     // SQLQueryTransform is a timeseries transform - index is always added as 'timestamp'
-    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery, "table");
+    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery, "input");
 
     // Convert Arrow Table to DataFrame
     epoch_frame::DataFrame resultDf(resultTable);

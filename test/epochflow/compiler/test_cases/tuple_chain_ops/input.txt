@@ -1,0 +1,5 @@
+src = market_data_source(timeframe="1H")
+lower, mid, upper = bbands(period=20, std_dev=2)(src.c)
+width = bband_width()(lower, mid, upper)
+avg = (lower + upper) / number(value=2).result
+trade_signal_executor()(enter_long=(width.result < number(value=1.5).result))

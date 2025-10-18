@@ -1,0 +1,90 @@
+[
+  {
+    "id": "number_0",
+    "type": "number",
+    "options": {
+      "value": 30
+    },
+    "inputs": {}
+  },
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "1H"
+  },
+  {
+    "id": "rsi14",
+    "type": "rsi",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "sma20",
+    "type": "sma",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "cond2",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi14#result"
+      ]
+    }
+  },
+  {
+    "id": "cond",
+    "type": "gt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "sma20#result"
+      ],
+      "SLOT0": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "logical_and_0",
+    "type": "logical_and",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "cond#result"
+      ],
+      "SLOT1": [
+        "cond2#result"
+      ]
+    }
+  },
+  {
+    "id": "node_7",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "logical_and_0#result"
+      ]
+    }
+  }
+]

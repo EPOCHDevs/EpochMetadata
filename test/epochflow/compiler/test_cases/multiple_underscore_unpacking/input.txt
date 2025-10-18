@@ -1,0 +1,10 @@
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
+
+# Test underscore reuse - this should work!
+forward_1d, _ = sql_query_2(sql="SELECT 1 AS output0, 2 AS output1, timestamp FROM input")(rsi_val, src.c)
+forward_3d, _ = sql_query_2(sql="SELECT 3 AS output0, 4 AS output1, timestamp FROM input")(rsi_val, src.c)
+forward_5d, _ = sql_query_2(sql="SELECT 5 AS output0, 6 AS output1, timestamp FROM input")(rsi_val, src.c)
+
+# Use the kept variables
+condition = forward_1d > 0

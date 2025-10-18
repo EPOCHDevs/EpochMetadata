@@ -1,7 +1,7 @@
 //
 // JSON-based transform tester using glaze
 //
-#include <epoch_testing/genericransform_tester.hpp>
+#include <epoch_testing/json_transform_tester.hpp>
 #include <epoch_testing/catch_transform_tester.hpp>
 #include <epoch_testing/tearsheet_output.hpp>
 #include <epoch_testing/dataframe_tester.hpp>

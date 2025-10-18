@@ -15,9 +15,9 @@ namespace epoch_metadata::transforms {
  * Column References:
  * - Data columns: input0, input1, input2, ... (positional, based on SLOT order)
  * - Index column: timestamp (if add_index=true)
- * - Table name: table (always, not configurable)
+ * - Table name: input (always, not configurable)
  *
- * Example: "SELECT timestamp, input0 as price, input1 as volume FROM table WHERE input0 > 100"
+ * Example: "SELECT timestamp, input0 as price, input1 as volume FROM input WHERE input0 > 100"
  */
 inline const epoch_metadata::MetaDataOption SQL_OPTION{
     .id = "sql",
@@ -25,7 +25,7 @@ inline const epoch_metadata::MetaDataOption SQL_OPTION{
     .type = epoch_core::MetaDataOptionType::String,
     .defaultValue = std::nullopt,
     .isRequired = true,
-    .desc = "SQL query to execute. Reference columns as input0, input1, etc. 'timestamp' available if add_index=true. Always use 'FROM table'."
+    .desc = "SQL query to execute. Reference columns as input0, input1, etc. 'timestamp' available if add_index=true. Always use 'FROM input'."
 };
 
 /**
@@ -36,12 +36,12 @@ inline const epoch_metadata::MetaDataOption SQL_OPTION{
  * Column References:
  * - Data columns: input0, input1, input2, ... (positional, based on SLOT order)
  * - Index column: timestamp (ALWAYS available - index is always added)
- * - Table name: table (always, not configurable)
+ * - Table name: input (always, not configurable)
  * - Outputs: output0, output1, output2, output3 (for multi-output transforms)
  *
  * IMPORTANT: Must SELECT timestamp in output for timeseries continuity
  *
- * Example: "SELECT timestamp, input0 as output0, input0 - LAG(input0) OVER (ORDER BY timestamp) as output1 FROM table"
+ * Example: "SELECT timestamp, input0 as output0, input0 - LAG(input0) OVER (ORDER BY timestamp) as output1 FROM input"
  */
 inline const epoch_metadata::MetaDataOption TIMESERIES_SQL_OPTION{
     .id = "sql",
@@ -49,7 +49,7 @@ inline const epoch_metadata::MetaDataOption TIMESERIES_SQL_OPTION{
     .type = epoch_core::MetaDataOptionType::String,
     .defaultValue = std::nullopt,
     .isRequired = true,
-    .desc = "SQL query to execute on timeseries data. Reference columns as input0, input1, etc. 'timestamp' is ALWAYS available. Must SELECT timestamp in output. Always use 'FROM table'."
+    .desc = "SQL query to execute on timeseries data. Reference columns as input0, input1, etc. 'timestamp' is ALWAYS available. Must SELECT timestamp in output. Always use 'FROM input'."
 };
 
 /**

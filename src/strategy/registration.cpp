@@ -10,10 +10,8 @@
 #include "epoch_metadata/strategy/metadata.h"
 #include "epoch_metadata/strategy/registry.h"
 #include "epoch_metadata/strategy/strategy_config.h"
-#include "epoch_metadata/strategy/ui_graph.h"
 #include "epoch_metadata/transforms/registration.h"
-
-#include "epoch_metadata/strategy/validation.h"
+#include "epochflow/compiler/ast_compiler.h"
 #include <unordered_map>
 
 namespace epoch_metadata::strategy {
@@ -24,7 +22,7 @@ struct AIGeneratedAlgorithmMetaData {
   epoch_core::TradeSignalType algorithm_type;
   std::string prompt;
   std::string timestamp;
-  UIData blueprint;
+  PythonCode source;
   std::vector<std::string> tags;
 };
 
@@ -81,10 +79,10 @@ void RegisterStrategyMetadata(
   auto aiGenerated =
       LoadMetaDataT<AIGeneratedAlgorithmMetaData>(aiGeneratedAlgorithms);
   for (auto [i, config] : std::views::enumerate(aiGenerated)) {
-    auto converted = CreateAlgorithmMetaData(config.blueprint, true);
-    if (!converted) {
-      SPDLOG_ERROR("{}: Failed to convert trade signal: {}", config.name,
-                   FormatValidationIssues(converted.error()));
+    // Compile Python source using EpochFlow compiler
+    auto compilationResult = epoch_stratifyx::epochflow::compileAlgorithm(config.source);
+    if (compilationResult.empty()) {
+      SPDLOG_ERROR("{}: Failed to compile Python source - empty result", config.name);
       continue;
     }
 
@@ -95,9 +93,14 @@ void RegisterStrategyMetadata(
       duplicateIdCount[config.id] = 0;
     }
 
+    // Extract options from compiled result
+    MetaDataOptionList options;
+    // TODO: Extract exposed options from compiled AlgorithmNodes
+
+    // Determine if timeframe is required (check if any node has explicit timeframe)
     bool requiresTimeframe = true;
-    for (auto const &node : config.blueprint.nodes) {
-      if (node.timeframe) {
+    for (const auto &node : compilationResult) {
+      if (node.timeframe.has_value()) {
         requiresTimeframe = false;
         break;
       }
@@ -105,12 +108,12 @@ void RegisterStrategyMetadata(
 
     TradeSignalMetaData trade_signal_metadata{.id = config.id,
                                               .name = config.name,
-                                              .options = converted->options,
+                                              .options = options,
                                               .desc = config.description,
                                               .requiresTimeframe =
                                                   requiresTimeframe,
                                               .type = config.algorithm_type,
-                                              .data = config.blueprint,
+                                              .source = config.source,
                                               .tags = config.tags};
 
     trade_signal::Registry::GetInstance().Register(trade_signal_metadata);
@@ -154,16 +157,9 @@ void RegisterStrategyMetadata(
     StrategyTemplate strategy{.id = config.id,
                               .strategy = strategyConfig,
                               .category = config.category};
-    auto data = savedStrategy.data;
 
-    if (config.trade_signal->timeframe) {
-      for (auto &node : data.nodes) {
-        if (node.timeframe.has_value()) {
-          node.timeframe = std::nullopt;
-        }
-      }
-    }
-    strategy.strategy.trade_signal.data = data;
+    // Use the Python source from the saved strategy
+    strategy.strategy.trade_signal.source = savedStrategy.source;
     strategy_templates::Registry::GetInstance().Register(strategy);
   }
 }

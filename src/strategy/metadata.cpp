@@ -4,9 +4,6 @@
 #include "epoch_metadata/strategy/metadata.h"
 #include "doc_deserialization_helper.h"
 #include "epoch_metadata/metadata_options.h"
-#include "epoch_metadata/strategy/algorithm_validator.h"
-#include "epoch_metadata/strategy/ui_graph.h"
-#include "epoch_metadata/strategy/validation.h"
 #include "epoch_metadata/transforms/registry.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>

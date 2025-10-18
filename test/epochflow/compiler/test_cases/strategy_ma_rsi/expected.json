@@ -1,0 +1,102 @@
+[
+  {
+    "id": "number_0",
+    "type": "number",
+    "options": {
+      "value": 70
+    },
+    "inputs": {}
+  },
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "1H"
+  },
+  {
+    "id": "fast",
+    "type": "ema",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "rsi14",
+    "type": "rsi",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "slow",
+    "type": "ema",
+    "options": {
+      "period": 50
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "lt_0",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi14#result"
+      ]
+    }
+  },
+  {
+    "id": "cross_up",
+    "type": "crossover",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "fast#result"
+      ],
+      "SLOT1": [
+        "slow#result"
+      ]
+    }
+  },
+  {
+    "id": "logical_and_0",
+    "type": "logical_and",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "cross_up#result"
+      ],
+      "SLOT1": [
+        "lt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "node_8",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "logical_and_0#result"
+      ]
+    }
+  }
+]

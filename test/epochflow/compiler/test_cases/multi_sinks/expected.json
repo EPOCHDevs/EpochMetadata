@@ -1,0 +1,72 @@
+[
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "1H"
+  },
+  {
+    "id": "fast",
+    "type": "ema",
+    "options": {
+      "period": 10
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "slow",
+    "type": "ema",
+    "options": {
+      "period": 30
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "cross",
+    "type": "crossover",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "slow#result"
+      ],
+      "SLOT0": [
+        "fast#result"
+      ]
+    }
+  },
+  {
+    "id": "lt_0",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "slow#result"
+      ],
+      "SLOT0": [
+        "fast#result"
+      ]
+    }
+  },
+  {
+    "id": "node_5",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "cross#result"
+      ],
+      "enter_short": [
+        "lt_0#result"
+      ]
+    }
+  }
+]

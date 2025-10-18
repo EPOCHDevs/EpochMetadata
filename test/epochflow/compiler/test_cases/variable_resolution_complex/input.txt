@@ -1,0 +1,34 @@
+# BTC Consolidation Box Fade Strategy
+src = market_data_source(timeframe="15Min")
+
+# Define parameters
+lookback = 20
+threshold = 0.005
+breakout_pct = 0.5
+
+# Box boundaries
+upper_resistance = max(period=lookback)(src.h)
+lower_support = min(period=lookback)(src.l)
+box_range = upper_resistance - lower_support
+
+# Volatility filter
+price_stddev = stddev(period=lookback)(src.c)
+avg_price = sma(period=lookback)(src.c)
+vol_ratio = price_stddev / avg_price
+is_consolidating = vol_ratio < threshold
+
+# Entry signals
+long_entry = (src.c <= lower_support) and is_consolidating
+short_entry = (src.c >= upper_resistance) and is_consolidating
+
+# Exit signals
+long_exit = src.c > (upper_resistance + (box_range * breakout_pct))
+short_exit = src.c < (lower_support - (box_range * breakout_pct))
+
+# Trade execution
+trade_signal_executor()(
+    enter_long=long_entry,
+    enter_short=short_entry,
+    exit_long=long_exit,
+    exit_short=short_exit
+)

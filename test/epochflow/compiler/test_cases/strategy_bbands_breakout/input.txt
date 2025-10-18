@@ -1,0 +1,6 @@
+src = market_data_source(timeframe="1H")
+low, mid, up = bbands(period=20, std_dev=2)(src.c)
+width = bband_width()(low, mid, up)
+squeeze = width.result < 1.5
+breakout = src.c > up
+trade_signal_executor()(enter_long=(squeeze and breakout))

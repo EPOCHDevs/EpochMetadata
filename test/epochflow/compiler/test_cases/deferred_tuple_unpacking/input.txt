@@ -1,0 +1,11 @@
+src = market_data_source(timeframe="1D")
+
+# Store multi-output component result without unpacking
+bb_result = bbands(period=20, stddev=2)(src.c)
+
+# Unpack later
+upper, middle, lower = bb_result
+
+# Use unpacked values
+buy_signal = src.c < lower
+sell_signal = src.c > upper

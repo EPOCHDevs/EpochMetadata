@@ -11,13 +11,14 @@
 #include <google/protobuf/stubs/common.h>
 #include "absl/log/initialize.h"
 
-
-int main(int argc, char *argv[]) {
-    absl::InitializeLog();                    // optional, just to route logs
-    GOOGLE_PROTOBUF_VERIFY_VERSION;           // checks basic version compat
+int main(int argc, char *argv[])
+{
+  absl::InitializeLog();          // optional, just to route logs
+  GOOGLE_PROTOBUF_VERIFY_VERSION; // checks basic version compat
 
   auto arrowComputeStatus = arrow::compute::Initialize();
-  if (!arrowComputeStatus.ok()) {
+  if (!arrowComputeStatus.ok())
+  {
     std::stringstream errorMsg;
     errorMsg << "arrow compute initialized failed: " << arrowComputeStatus
              << std::endl;
@@ -31,17 +32,13 @@ int main(int argc, char *argv[]) {
 
   // Initialize transforms registry
   epoch_metadata::transform::InitializeTransforms(
-      epoch_metadata::DEFAULT_YAML_LOADER,
-      epoch_metadata::LoadAIGeneratedResources(
-          epoch_metadata::AI_GENERATED_ALGORITHMS_DIR),
-      epoch_metadata::LoadAIGeneratedResources(
-          epoch_metadata::AI_GENERATED_STRATEGIES_DIR));
+      epoch_metadata::DEFAULT_YAML_LOADER, {}, {});
 
   // your setup ...
   int result = Catch::Session().run(argc, argv);
 
   // your clean-up...
-    google::protobuf::ShutdownProtobufLibrary();
+  google::protobuf::ShutdownProtobufLibrary();
 
   return result;
 }

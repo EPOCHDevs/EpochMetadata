@@ -23,8 +23,8 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
     // Execute SQL query
     // If add_index=true, index is added as 'timestamp' column
     auto resultTable = m_addIndex
-        ? inputDf.reset_index("timestamp").query(m_sqlQuery, "table")
-        : inputDf.query(m_sqlQuery, "table");
+        ? inputDf.reset_index("timestamp").query(m_sqlQuery, "input")
+        : inputDf.query(m_sqlQuery, "input");
     epoch_frame::DataFrame resultDf(resultTable);
 
 

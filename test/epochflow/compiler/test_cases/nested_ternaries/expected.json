@@ -1,0 +1,158 @@
+[
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "1H"
+  },
+  {
+    "id": "rsi14",
+    "type": "rsi",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "fast",
+    "type": "ema",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "slow",
+    "type": "ema",
+    "options": {
+      "period": 50
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "cross",
+    "type": "crossover",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "slow#result"
+      ],
+      "SLOT0": [
+        "fast#result"
+      ]
+    }
+  },
+  {
+    "id": "node_6",
+    "type": "number",
+    "options": {
+      "value": 30
+    },
+    "inputs": {}
+  },
+  {
+    "id": "node_7",
+    "type": "number",
+    "options": {
+      "value": 1
+    },
+    "inputs": {}
+  },
+  {
+    "id": "node_9",
+    "type": "number",
+    "options": {
+      "value": 70
+    },
+    "inputs": {}
+  },
+  {
+    "id": "node_10",
+    "type": "number",
+    "options": {
+      "value": 0
+    },
+    "inputs": {}
+  },
+  {
+    "id": "lt_0",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "node_6#result"
+      ],
+      "SLOT0": [
+        "rsi14#result"
+      ]
+    }
+  },
+  {
+    "id": "gt_0",
+    "type": "gt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "node_9#result"
+      ],
+      "SLOT0": [
+        "rsi14#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_0",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "false": [
+        "cross#result"
+      ],
+      "true": [
+        "node_10#result"
+      ],
+      "condition": [
+        "gt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_1",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "false": [
+        "ifexp_0#result"
+      ],
+      "true": [
+        "node_7#result"
+      ],
+      "condition": [
+        "lt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "node_13",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "ifexp_1#result"
+      ]
+    }
+  }
+]

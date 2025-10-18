@@ -1,0 +1,269 @@
+[
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {},
+    "timeframe": "15Min"
+  },
+  {
+    "id": "number_0",
+    "type": "number",
+    "options": {
+      "value": 20
+    },
+    "inputs": {}
+  },
+  {
+    "id": "number_1",
+    "type": "number",
+    "options": {
+      "value": 0.005
+    },
+    "inputs": {}
+  },
+  {
+    "id": "number_2",
+    "type": "number",
+    "options": {
+      "value": 0.5
+    },
+    "inputs": {}
+  },
+  {
+    "id": "upper_resistance",
+    "type": "max",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#h"
+      ]
+    }
+  },
+  {
+    "id": "lower_support",
+    "type": "min",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#l"
+      ]
+    }
+  },
+  {
+    "id": "price_stddev",
+    "type": "stddev",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "avg_price",
+    "type": "sma",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "gte_0",
+    "type": "gte",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "src#c"
+      ],
+      "SLOT1": [
+        "upper_resistance#result"
+      ]
+    }
+  },
+  {
+    "id": "sub_0",
+    "type": "sub",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "upper_resistance#result"
+      ],
+      "SLOT1": [
+        "lower_support#result"
+      ]
+    }
+  },
+  {
+    "id": "lte_0",
+    "type": "lte",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "src#c"
+      ],
+      "SLOT1": [
+        "lower_support#result"
+      ]
+    }
+  },
+  {
+    "id": "div_0",
+    "type": "div",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "price_stddev#result"
+      ],
+      "SLOT1": [
+        "avg_price#result"
+      ]
+    }
+  },
+  {
+    "id": "mul_0",
+    "type": "mul",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "sub_0#result"
+      ],
+      "SLOT1": [
+        "number_2#result"
+      ]
+    }
+  },
+  {
+    "id": "mul_1",
+    "type": "mul",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "sub_0#result"
+      ],
+      "SLOT1": [
+        "number_2#result"
+      ]
+    }
+  },
+  {
+    "id": "lt_0",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "div_0#result"
+      ],
+      "SLOT1": [
+        "number_1#result"
+      ]
+    }
+  },
+  {
+    "id": "add_0",
+    "type": "add",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "upper_resistance#result"
+      ],
+      "SLOT1": [
+        "mul_0#result"
+      ]
+    }
+  },
+  {
+    "id": "sub_1",
+    "type": "sub",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "lower_support#result"
+      ],
+      "SLOT1": [
+        "mul_1#result"
+      ]
+    }
+  },
+  {
+    "id": "logical_and_0",
+    "type": "logical_and",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "lte_0#result"
+      ],
+      "SLOT1": [
+        "lt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "logical_and_1",
+    "type": "logical_and",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "gte_0#result"
+      ],
+      "SLOT1": [
+        "lt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "gt_0",
+    "type": "gt",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "src#c"
+      ],
+      "SLOT1": [
+        "add_0#result"
+      ]
+    }
+  },
+  {
+    "id": "lt_1",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "src#c"
+      ],
+      "SLOT1": [
+        "sub_1#result"
+      ]
+    }
+  },
+  {
+    "id": "node_21",
+    "type": "trade_signal_executor",
+    "options": {},
+    "inputs": {
+      "enter_long": [
+        "logical_and_0#result"
+      ],
+      "enter_short": [
+        "logical_and_1#result"
+      ],
+      "exit_long": [
+        "gt_0#result"
+      ],
+      "exit_short": [
+        "lt_1#result"
+      ]
+    }
+  }
+]

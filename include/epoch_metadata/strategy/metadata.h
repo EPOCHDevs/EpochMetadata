@@ -4,14 +4,17 @@
 
 #pragma once
 #include "../metadata_options.h"
+#include "../time_frame.h"
 #include "enums.h"
-#include "ui_data.h"
+#include "session_variant.h"
 #include <glaze/json/generic.hpp>
 #include <variant>
 
 // including here ensure all transforms have been serialized
 namespace epoch_metadata::strategy
 {
+  // Type alias for Python source code (EpochFlow)
+  using PythonCode = std::string;
 
   struct AlgorithmBaseMetaData
   {
@@ -59,7 +62,7 @@ namespace epoch_metadata::strategy
     bool isGroup{false};
     bool requiresTimeframe{true};
     epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
-    UIData data;
+    PythonCode source;
     std::vector<std::string> tags{};
   };
 
