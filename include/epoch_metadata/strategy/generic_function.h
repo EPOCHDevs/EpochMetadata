@@ -16,7 +16,7 @@ namespace epoch_metadata::strategy
     std::optional<std::string> type{};
     std::optional<epoch_metadata::MetaDataArgDefinitionMapping> args{};
     std::optional<epoch_metadata::TimeFrame> timeframe{};
-    std::optional<PythonCode> source{};
+    std::optional<PythonSource> source{};
     glz::generic kwarg{};
 
     bool operator==(const GenericFunction &other) const

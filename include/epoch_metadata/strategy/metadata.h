@@ -9,12 +9,45 @@
 #include "session_variant.h"
 #include <glaze/json/generic.hpp>
 #include <variant>
+#include <optional>
 
 // including here ensure all transforms have been serialized
 namespace epoch_metadata::strategy
 {
-  // Type alias for Python source code (EpochFlow)
-  using PythonCode = std::string;
+  // Forward declaration
+  struct AlgorithmNode;
+
+  // PythonSource - encapsulates EpochFlow source code with pre-compiled metadata
+  class PythonSource
+  {
+  private:
+    std::string source_;
+    std::vector<AlgorithmNode> compilationResult_;
+    bool isIntraday_{false};
+    std::optional<epoch_core::BaseDataTimeFrame> baseTimeframe_;
+
+  public:
+    // Default constructor
+    PythonSource() = default;
+
+    // Constructor that compiles source and extracts metadata
+    explicit PythonSource(std::string src);
+
+    // Const getters
+    const std::string& GetSource() const { return source_; }
+    const std::vector<AlgorithmNode>& GetCompilationResult() const { return compilationResult_; }
+    bool IsIntraday() const { return isIntraday_; }
+    const std::optional<epoch_core::BaseDataTimeFrame>& GetBaseTimeframe() const { return baseTimeframe_; }
+
+    // Equality operator for comparison
+    bool operator==(const PythonSource &other) const
+    {
+      return source_ == other.source_;
+    }
+
+    // Glaze serialization support - friend for custom serialization
+    friend struct glz::meta<PythonSource>;
+  };
 
   struct AlgorithmBaseMetaData
   {
@@ -62,7 +95,7 @@ namespace epoch_metadata::strategy
     bool isGroup{false};
     bool requiresTimeframe{true};
     epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
-    PythonCode source;
+    PythonSource source;
     std::vector<std::string> tags{};
   };
 
@@ -111,3 +144,30 @@ namespace YAML
   glz::generic encode(epoch_metadata::strategy::TradeSignalMetaData const &);
 
 } // namespace YAML
+
+// Glaze serialization for PythonSource
+namespace glz
+{
+  // Custom serialization for PythonSource - serialize/deserialize as string
+  template <>
+  struct to<JSON, epoch_metadata::strategy::PythonSource>
+  {
+    template <auto Opts>
+    static void op(const epoch_metadata::strategy::PythonSource &x, auto &&...args) noexcept
+    {
+      serialize<JSON>::op<Opts>(x.GetSource(), args...);
+    }
+  };
+
+  template <>
+  struct from<JSON, epoch_metadata::strategy::PythonSource>
+  {
+    template <auto Opts>
+    static void op(epoch_metadata::strategy::PythonSource &value, auto &&...args)
+    {
+      std::string source_code;
+      parse<JSON>::op<Opts>(source_code, args...);
+      value = epoch_metadata::strategy::PythonSource(source_code);
+    }
+  };
+} // namespace glz

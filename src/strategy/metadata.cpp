@@ -5,15 +5,75 @@
 #include "doc_deserialization_helper.h"
 #include "epoch_metadata/metadata_options.h"
 #include "epoch_metadata/transforms/registry.h"
+#include "epoch_metadata/transforms/metadata.h"
+#include "epochflow/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>
 #include <glaze/json/json_concepts.hpp>
 #include <glaze/json/generic.hpp>
 #include <glaze/json/write.hpp>
 #include <string>
+#include <unordered_set>
+#include <ranges>
+#include <algorithm>
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
+
+// Helper function to check if offset type is intraday
+static bool IsIntraday(epoch_core::EpochOffsetType type) {
+  return type == epoch_core::EpochOffsetType::Minute ||
+         type == epoch_core::EpochOffsetType::Second ||
+         type == epoch_core::EpochOffsetType::Millisecond;
+}
+
+// Helper function to determine base timeframe from compilation result
+static std::optional<epoch_core::BaseDataTimeFrame>
+GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode>& compilationResult)
+{
+  std::unordered_set<epoch_core::EpochOffsetType> types;
+  for (const auto &node : compilationResult) {
+    // Check if node type requires intraday data or has a session
+    if (epoch_metadata::transforms::kIntradayOnlyIds.contains(node.type) ||
+        node.session) {
+      types.emplace(epoch_core::EpochOffsetType::Minute);
+      continue;
+    }
+
+    // Check node's timeframe
+    if (!node.timeframe)
+      continue;
+
+    types.emplace(node.timeframe->GetOffset()->type());
+  }
+
+  if (types.empty()) {
+    return std::nullopt;
+  }
+
+  return std::ranges::any_of(types, IsIntraday) ? epoch_core::BaseDataTimeFrame::Minute
+                                                : epoch_core::BaseDataTimeFrame::EOD;
+}
+
+// PythonSource constructor implementation
+PythonSource::PythonSource(std::string src) : source_(std::move(src))
+{
+  if (source_.empty()) {
+    return;
+  }
+
+  // Compile Python source to get algorithm nodes
+  epoch_stratifyx::epochflow::AlgorithmAstCompiler compiler;
+  compilationResult_ = compiler.compile(source_);
+
+  // Determine base timeframe from compilation result
+  baseTimeframe_ = GetBaseTimeFrameFromCompilationResult(compilationResult_);
+
+  // Set isIntraday flag based on baseTimeframe
+  if (baseTimeframe_.has_value()) {
+    isIntraday_ = (baseTimeframe_.value() == epoch_core::BaseDataTimeFrame::Minute);
+  }
+}
 
 namespace YAML
 {

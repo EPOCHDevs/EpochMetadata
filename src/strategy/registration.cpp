@@ -22,7 +22,7 @@ struct AIGeneratedAlgorithmMetaData {
   epoch_core::TradeSignalType algorithm_type;
   std::string prompt;
   std::string timestamp;
-  PythonCode source;
+  PythonSource source;
   std::vector<std::string> tags;
 };
 
@@ -79,9 +79,8 @@ void RegisterStrategyMetadata(
   auto aiGenerated =
       LoadMetaDataT<AIGeneratedAlgorithmMetaData>(aiGeneratedAlgorithms);
   for (auto [i, config] : std::views::enumerate(aiGenerated)) {
-    // Compile Python source using EpochFlow compiler
-    auto compilationResult = epoch_stratifyx::epochflow::compileAlgorithm(config.source);
-    if (compilationResult.empty()) {
+    // PythonSource has already been compiled during deserialization
+    if (config.source.GetCompilationResult().empty()) {
       SPDLOG_ERROR("{}: Failed to compile Python source - empty result", config.name);
       continue;
     }
@@ -99,7 +98,7 @@ void RegisterStrategyMetadata(
 
     // Determine if timeframe is required (check if any node has explicit timeframe)
     bool requiresTimeframe = true;
-    for (const auto &node : compilationResult) {
+    for (const auto &node : config.source.GetCompilationResult()) {
       if (node.timeframe.has_value()) {
         requiresTimeframe = false;
         break;
@@ -158,7 +157,7 @@ void RegisterStrategyMetadata(
                               .strategy = strategyConfig,
                               .category = config.category};
 
-    // Use the Python source from the saved strategy
+    // Use the PythonSource from the saved strategy (already compiled)
     strategy.strategy.trade_signal.source = savedStrategy.source;
     strategy_templates::Registry::GetInstance().Register(strategy);
   }
