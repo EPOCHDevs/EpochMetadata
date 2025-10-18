@@ -8,7 +8,8 @@
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
 
-TEST_CASE("SessionVariant decode - success", "[SessionVariant]") {
+TEST_CASE("SessionVariant decode - success", "[SessionVariant]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string yaml_str = R"(
@@ -23,7 +24,8 @@ TEST_CASE("SessionVariant decode - success", "[SessionVariant]") {
   REQUIRE(session_range.end == TimeFromString("16:00"));
 }
 
-TEST_CASE("AlgorithmNode decode - success", "[AlgorithmNode]") {
+TEST_CASE("AlgorithmNode decode - success", "[AlgorithmNode]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Example of minimal YAML that references the "atr" transform
@@ -56,7 +58,8 @@ session: "NewYork"
           epoch_core::SessionType::NewYork);
 }
 
-TEST_CASE("AlgorithmNode decode ref - success", "[AlgorithmNode]") {
+TEST_CASE("AlgorithmNode decode ref - success", "[AlgorithmNode]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Example of minimal YAML that references the "atr" transform
@@ -85,7 +88,8 @@ inputs:
 }
 
 TEST_CASE("AlgorithmNode decode - missing required option throws",
-          "[AlgorithmNode]") {
+          "[AlgorithmNode]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Attempt to load an 'atr' transform node but omit the required 'period'
@@ -104,7 +108,8 @@ inputs:
 }
 
 TEST_CASE("AlgorithmNode decode - unknown transform type throws",
-          "[AlgorithmNode]") {
+          "[AlgorithmNode]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // 'nonexistent_transform' is not in the registry
@@ -120,7 +125,8 @@ options:
 }
 
 TEST_CASE("AlgorithmNode decode - unknown extra option throws",
-          "[AlgorithmNode]") {
+          "[AlgorithmNode]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // 'atr' is recognized, but let's pass an unknown field "foo"
@@ -143,7 +149,8 @@ options:
 // Now we test decoding some of the higher-level structs (AlgorithmMetaData,
 // TradeSignalMetaData, etc.)
 
-TEST_CASE("AlgorithmMetaData decode - success", "[AlgorithmMetaData]") {
+TEST_CASE("AlgorithmMetaData decode - success", "[AlgorithmMetaData]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string yaml_str = R"(
@@ -153,7 +160,6 @@ options:
   - { id: multiplier, name: "Multiplier", type: Decimal, default: 1 }
   - { id: floorPct,   name: "Floor",      type: Decimal, default: 0.9 }
 desc: "$QUANTPEDIA/introduction-to-cppi-constant-proportion-portfolio-insurance"
-isGroup: false
 requiresTimeframe: false
 )";
 
@@ -163,7 +169,6 @@ requiresTimeframe: false
 
   CHECK(amd.id == "cppi");
   CHECK(amd.name == "Constant Proportion Portfolio Insurance");
-  CHECK_FALSE(amd.isGroup);
   CHECK_FALSE(amd.requiresTimeframe);
 
   REQUIRE(amd.options.size() == 2);
@@ -179,7 +184,8 @@ requiresTimeframe: false
 // PythonSource Tests
 // ============================================================================
 
-TEST_CASE("PythonSource - empty source", "[PythonSource]") {
+TEST_CASE("PythonSource - empty source", "[PythonSource]")
+{
   PythonSource emptySource("");
 
   REQUIRE(emptySource.GetSource().empty());
@@ -188,13 +194,15 @@ TEST_CASE("PythonSource - empty source", "[PythonSource]") {
   REQUIRE_FALSE(emptySource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - EOD timeframe detection", "[PythonSource]") {
+TEST_CASE("PythonSource - EOD timeframe detection", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Simple algorithm using daily (EOD) data
   std::string source = R"(
-sma_fast = SMA(close, period=10, timeframe='1D')
-sma_slow = SMA(close, period=20, timeframe='1D')
+src = market_data_source(timeframe='1D')
+sma_fast = sma(src.c, period=10, timeframe='1D')
+sma_slow = sma(src.c, period=20, timeframe='1D')
 signal = sma_fast > sma_slow
 )";
 
@@ -206,13 +214,14 @@ signal = sma_fast > sma_slow
   REQUIRE_FALSE(pythonSource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - intraday timeframe detection", "[PythonSource]") {
+TEST_CASE("PythonSource - intraday timeframe detection", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Algorithm using minute (intraday) data
   std::string source = R"(
-vwap_1min = VWAP(timeframe='1min')
-signal = close > vwap_1min
+src = market_data_source(timeframe='1Min')
+signal = src.c > src.vw
 )";
 
   PythonSource pythonSource(source);
@@ -223,13 +232,15 @@ signal = close > vwap_1min
   REQUIRE(pythonSource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - session implies intraday", "[PythonSource]") {
+TEST_CASE("PythonSource - session implies intraday", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Algorithm with session (implies intraday)
   std::string source = R"(
-atr_ny = ATR(period=14, session='NewYork')
-signal = close > atr_ny
+src = market_data_source(timeframe='1D')
+atr_ny = atr(period=14, session='NewYork')
+signal = src.c > atr_ny
 )";
 
   PythonSource pythonSource(source);
@@ -240,13 +251,15 @@ signal = close > atr_ny
   REQUIRE(pythonSource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - no explicit timeframe", "[PythonSource]") {
+TEST_CASE("PythonSource - no explicit timeframe", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Algorithm without explicit timeframe
   std::string source = R"(
-sma = SMA(close, period=10)
-signal = close > sma
+src = market_data_source(timeframe='1D')
+sma = sma(src.c, period=10)
+signal = src.c > sma
 )";
 
   PythonSource pythonSource(source);
@@ -257,23 +270,27 @@ signal = close > sma
   REQUIRE_FALSE(pythonSource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - equality operator", "[PythonSource]") {
-  std::string source1 = "signal = close > SMA(close, 10)";
-  std::string source2 = "signal = close > SMA(close, 10)";
-  std::string source3 = "signal = close > SMA(close, 20)";
+TEST_CASE("PythonSource - equality operator", "[PythonSource]")
+{
+  auto src1 = "src = market_data_source(timeframe='1D')\n";
+  std::string source1 = "signal = src.c > sma(src.c, 10)";
+  std::string source2 = "signal = src.c > sma(src.c, 10)";
+  std::string source3 = "signal = src.c > sma(src.c, 20)";
 
-  PythonSource ps1(source1);
-  PythonSource ps2(source2);
-  PythonSource ps3(source3);
+  PythonSource ps1(src1 + source1);
+  PythonSource ps2(src1 + source2);
+  PythonSource ps3(src1 + source3);
 
-  REQUIRE(ps1 == ps2);  // Same source
-  REQUIRE_FALSE(ps1 == ps3);  // Different source
+  REQUIRE(ps1 == ps2);       // Same source
+  REQUIRE_FALSE(ps1 == ps3); // Different source
 }
 
-TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]") {
+TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
-  std::string source = R"(signal = close > SMA(close, period=10, timeframe='1D'))";
+  std::string source = R"(src = market_data_source(timeframe='1D')
+signal = src.c > sma(src.c, period=10))";
   PythonSource original(source);
 
   // Serialize PythonSource to JSON
@@ -288,31 +305,33 @@ TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]") {
   REQUIRE(json.value() == expectedJson.value());
 }
 
-TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]") {
+TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // JSON string containing EpochFlow source code
-  std::string jsonInput = R"("signal = close > SMA(close, period=20, timeframe='1D')")";
+  std::string jsonInput = "\"signal = close > sma(close, period=20, timeframe='1D')\"";
 
   // Deserialize from JSON
   PythonSource deserialized;
   auto parseResult = glz::read_json(deserialized, jsonInput);
 
-  REQUIRE_FALSE(parseResult);  // No error
-  REQUIRE(deserialized.GetSource() == "signal = close > SMA(close, period=20, timeframe='1D')");
+  REQUIRE_FALSE(parseResult); // No error
+  REQUIRE(deserialized.GetSource() == "signal = close > sma(close, period=20, timeframe='1D')");
   REQUIRE_FALSE(deserialized.GetCompilationResult().empty());
   REQUIRE(deserialized.GetBaseTimeframe().has_value());
   REQUIRE(deserialized.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
   REQUIRE_FALSE(deserialized.IsIntraday());
 }
 
-TEST_CASE("PythonSource - glaze round-trip serialization", "[PythonSource]") {
+TEST_CASE("PythonSource - glaze round-trip serialization", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
-vwap = VWAP(timeframe='5min')
-sma = SMA(close, period=10, timeframe='5min')
-signal = vwap > sma
+src = market_data_source(timeframe='5min')
+sma = sma(close, period=10, timeframe='5min')
+signal = src.vw > sma
 )";
   PythonSource original(source);
 
@@ -323,21 +342,22 @@ signal = vwap > sma
   // Read from JSON
   PythonSource deserialized;
   auto parseResult = glz::read_json(deserialized, json.value());
-  REQUIRE_FALSE(parseResult);  // No error
+  REQUIRE_FALSE(parseResult); // No error
 
   // Verify round-trip preserves all data
   REQUIRE(deserialized.GetSource() == original.GetSource());
   REQUIRE(deserialized.GetCompilationResult().size() == original.GetCompilationResult().size());
   REQUIRE(deserialized.GetBaseTimeframe() == original.GetBaseTimeframe());
   REQUIRE(deserialized.IsIntraday() == original.IsIntraday());
-  REQUIRE(deserialized == original);  // Test equality operator
+  REQUIRE(deserialized == original); // Test equality operator
 }
 
-TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonSource]") {
+TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // Create JSON with intraday source
-  std::string jsonInput = R"("atr = ATR(period=14, session='NewYork')")";
+  std::string jsonInput = "\"atr = atr(period=14, session='NewYork')\"";
 
   // Deserialize - should compile and detect intraday
   PythonSource pythonSource;
@@ -350,20 +370,21 @@ TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonS
   REQUIRE(pythonSource.IsIntraday());
 }
 
-TEST_CASE("PythonSource - compilation result is cached", "[PythonSource]") {
+TEST_CASE("PythonSource - compilation result is cached", "[PythonSource]")
+{
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
-sma = SMA(close, period=10, timeframe='1D')
+sma = sma(close, period=10, timeframe='1D')
 signal = close > sma
 )";
 
   PythonSource pythonSource(source);
 
   // Verify compilation happened once and result is accessible
-  const auto& result1 = pythonSource.GetCompilationResult();
-  const auto& result2 = pythonSource.GetCompilationResult();
+  const auto &result1 = pythonSource.GetCompilationResult();
+  const auto &result2 = pythonSource.GetCompilationResult();
 
   REQUIRE_FALSE(result1.empty());
-  REQUIRE(&result1 == &result2);  // Same reference (cached)
+  REQUIRE(&result1 == &result2); // Same reference (cached)
 }

@@ -6,6 +6,7 @@
 #include "epoch_metadata/metadata_options.h"
 #include "epoch_metadata/transforms/registry.h"
 #include "epoch_metadata/transforms/metadata.h"
+#include "epoch_metadata/transforms/registration.h"
 #include "epochflow/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>
@@ -19,24 +20,22 @@
 
 using namespace epoch_metadata;
 using namespace epoch_metadata::strategy;
-
-// Helper function to check if offset type is intraday
-static bool IsIntraday(epoch_core::EpochOffsetType type) {
-  return type == epoch_core::EpochOffsetType::Minute ||
-         type == epoch_core::EpochOffsetType::Second ||
-         type == epoch_core::EpochOffsetType::Millisecond;
-}
+using epoch_core::BaseDataTimeFrame;
+using epoch_core::EpochOffsetType;
 
 // Helper function to determine base timeframe from compilation result
-static std::optional<epoch_core::BaseDataTimeFrame>
-GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode>& compilationResult)
+static std::optional<BaseDataTimeFrame>
+GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilationResult)
 {
-  std::unordered_set<epoch_core::EpochOffsetType> types;
-  for (const auto &node : compilationResult) {
+  std::unordered_set<EpochOffsetType> types;
+
+  for (const auto &node : compilationResult)
+  {
     // Check if node type requires intraday data or has a session
     if (epoch_metadata::transforms::kIntradayOnlyIds.contains(node.type) ||
-        node.session) {
-      types.emplace(epoch_core::EpochOffsetType::Minute);
+        node.session)
+    {
+      types.emplace(EpochOffsetType::Minute);
       continue;
     }
 
@@ -47,18 +46,22 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode>& compilat
     types.emplace(node.timeframe->GetOffset()->type());
   }
 
-  if (types.empty()) {
+  if (types.empty())
+  {
     return std::nullopt;
   }
 
-  return std::ranges::any_of(types, IsIntraday) ? epoch_core::BaseDataTimeFrame::Minute
-                                                : epoch_core::BaseDataTimeFrame::EOD;
+  return std::ranges::any_of(types, [](EpochOffsetType t)
+                             { return epoch_metadata::IsIntraday(t); })
+             ? BaseDataTimeFrame::Minute
+             : BaseDataTimeFrame::EOD;
 }
 
 // PythonSource constructor implementation
 PythonSource::PythonSource(std::string src) : source_(std::move(src))
 {
-  if (source_.empty()) {
+  if (source_.empty())
+  {
     return;
   }
 
@@ -70,7 +73,8 @@ PythonSource::PythonSource(std::string src) : source_(std::move(src))
   baseTimeframe_ = GetBaseTimeFrameFromCompilationResult(compilationResult_);
 
   // Set isIntraday flag based on baseTimeframe
-  if (baseTimeframe_.has_value()) {
+  if (baseTimeframe_.has_value())
+  {
     isIntraday_ = (baseTimeframe_.value() == epoch_core::BaseDataTimeFrame::Minute);
   }
 }
@@ -209,7 +213,6 @@ namespace YAML
     metadata.options =
         node["options"].as<MetaDataOptionList>(MetaDataOptionList{});
     metadata.desc = MakeDescLink(node["desc"].as<std::string>(""));
-    metadata.isGroup = node["isGroup"].as<bool>(false);
     metadata.requiresTimeframe = node["requiresTimeframe"].as<bool>(true);
     metadata.tags =
         node["tags"].as<std::vector<std::string>>(std::vector<std::string>{});

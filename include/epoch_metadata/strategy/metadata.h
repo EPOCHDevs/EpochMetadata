@@ -34,10 +34,10 @@ namespace epoch_metadata::strategy
     explicit PythonSource(std::string src);
 
     // Const getters
-    const std::string& GetSource() const { return source_; }
-    const std::vector<AlgorithmNode>& GetCompilationResult() const { return compilationResult_; }
+    const std::string &GetSource() const { return source_; }
+    const std::vector<AlgorithmNode> &GetCompilationResult() const { return compilationResult_; }
     bool IsIntraday() const { return isIntraday_; }
-    const std::optional<epoch_core::BaseDataTimeFrame>& GetBaseTimeframe() const { return baseTimeframe_; }
+    const std::optional<epoch_core::BaseDataTimeFrame> &GetBaseTimeframe() const { return baseTimeframe_; }
 
     // Equality operator for comparison
     bool operator==(const PythonSource &other) const
@@ -64,7 +64,6 @@ namespace epoch_metadata::strategy
     std::string name;
     MetaDataOptionList options{};
     std::string desc{};
-    bool isGroup{false};
     bool requiresTimeframe{true};
     std::vector<std::string> tags{};
   };
@@ -92,9 +91,7 @@ namespace epoch_metadata::strategy
     std::string name;
     MetaDataOptionList options{};
     std::string desc{};
-    bool isGroup{false};
     bool requiresTimeframe{true};
-    epoch_core::TradeSignalType type{epoch_core::TradeSignalType::Null};
     PythonSource source;
     std::vector<std::string> tags{};
   };
