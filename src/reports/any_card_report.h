@@ -27,7 +27,7 @@ template <> struct ReportMetadata<AnyCardReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Any Type Cards Report",
       .options = {
@@ -75,8 +75,7 @@ template <> struct ReportMetadata<AnyCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "aggregation", "summary", "generic"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

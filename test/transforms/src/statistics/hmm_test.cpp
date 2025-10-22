@@ -22,7 +22,7 @@ using namespace epoch_metadata::transform;
 namespace {
 
 DataFrame read_hmm_input(const std::string &file) {
-  auto path = std::filesystem::current_path() / "hmm_test_data" / file;
+  auto path = std::filesystem::path(HMM_TEST_DATA_DIR) / file;
   auto df_res = epoch_frame::read_csv_file(path, epoch_frame::CSVReadOptions{});
   REQUIRE(df_res.ok());
   auto df = df_res.ValueOrDie();
@@ -120,7 +120,8 @@ TEST_CASE("HMMTransform with lookback window", "[hmm]") {
   // Build single-column input "x"
   auto df = base["x"].to_frame();
 
-  // hmm_2 with lookback_window=100 to ensure output rows=100
+  // hmm_2 with lookback_window=100
+  // NEW BEHAVIOR: Train on first 100 rows, predict on remaining 50 rows
   YAML::Node inputs_yaml;
   inputs_yaml[epoch_metadata::ARG].push_back("x");
   YAML::Node options_yaml;
@@ -137,7 +138,11 @@ TEST_CASE("HMMTransform with lookback window", "[hmm]") {
   REQUIRE(t != nullptr);
 
   auto out = t->TransformData(df);
-  REQUIRE(out.num_rows() == 100);
+  // With 150 total rows and lookback_window=100:
+  // - Train on rows 0-99 (100 rows)
+  // - Predict on rows 100-149 (50 rows)
+  // Output should be 50 rows (prediction window only)
+  REQUIRE(out.num_rows() == 50);
 }
 
 TEST_CASE("HMMTransform insufficient samples throws", "[hmm]") {

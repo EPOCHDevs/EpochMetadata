@@ -45,7 +45,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Quantile Cards Report",
       .options = {
@@ -104,8 +104,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "quantile", "percentile", "statistics"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

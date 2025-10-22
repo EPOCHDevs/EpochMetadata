@@ -18,8 +18,8 @@ TEST_CASE("SMC Test") {
   using namespace epoch_metadata;
   using namespace epoch_metadata::transform;
   constexpr auto test_instrument = "EURUSD";
-  auto path = std::format("{}/test_data/{}/{}_15M.csv",
-                          std::filesystem::current_path().string(),
+  auto path = std::format("{}/{}/{}_15M.csv",
+                          SMC_TEST_DATA_DIR,
                           test_instrument, test_instrument);
   auto df_result = read_csv_file(path, CSVReadOptions{});
   INFO(df_result.status().ToString());
@@ -53,8 +53,8 @@ TEST_CASE("SMC Test") {
   SECTION("Sessions") {
     auto file_name = "sessions";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -70,6 +70,21 @@ TEST_CASE("SMC Test") {
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<double>(end - start);
     std::cout << "Took: " << duration.count() << " s" << std::endl;
+
+    // Write actual output to CSV for baseline generation
+    auto output_path = std::format("{}/{}/sessions_actual_output.csv",
+                                   SMC_TEST_DATA_DIR,
+                                   test_instrument);
+    auto renamed_result = result.rename(
+        {{sessions_transform->GetOutputId("active"), "Active"},
+         {sessions_transform->GetOutputId("high"), "High"},
+         {sessions_transform->GetOutputId("low"), "Low"},
+         {sessions_transform->GetOutputId("opened"), "Opened"},
+         {sessions_transform->GetOutputId("closed"), "Closed"}});
+    auto status_is_ok = epoch_frame::write_csv_file(renamed_result.reset_index("t"), output_path).ok();
+    if (status_is_ok) {
+      std::cout << "Wrote actual output to: " << output_path << std::endl;
+    }
 
     expected =
         expected.assign("Active", expected["Active"].cast(arrow::boolean()))
@@ -95,12 +110,11 @@ TEST_CASE("SMC Test") {
 
   SECTION("Previous High Low") {
     std::string timeframe(GENERATE("1D", "4h", "W"));
-    auto dir = std::filesystem::current_path().string();
     SECTION(std::format("Timeframe: {}", timeframe)) {
       auto file_name = "previous_high_low";
       auto expected =
-          read_csv_file(std::format("{}/test_data/{}/{}_result_data_{}.csv",
-                                    dir, test_instrument, file_name, timeframe),
+          read_csv_file(std::format("{}/{}/{}_result_data_{}.csv",
+                                    SMC_TEST_DATA_DIR, test_instrument, file_name, timeframe),
                         {})
               .ValueOrDie();
 
@@ -140,7 +154,7 @@ TEST_CASE("SMC Test") {
       expected = expected.assign("BrokenLow",
                                  expected["BrokenLow"].cast(arrow::boolean()));
 
-      auto output_path = std::format("{}/test_data/{}/{}_{}_out.csv", dir,
+      auto output_path = std::format("{}/{}/{}_{}_out.csv", SMC_TEST_DATA_DIR,
                                      test_instrument, file_name, timeframe);
       auto status_is_ok =
           epoch_frame::write_csv_file(result.reset_index("t"), output_path)
@@ -165,8 +179,8 @@ TEST_CASE("SMC Test") {
   SECTION("Order Block") {
     auto file_name = "ob";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -214,8 +228,8 @@ TEST_CASE("SMC Test") {
     SECTION(std::format("Join Consecutive: {}", is_join_consecutive)) {
       auto file_name = is_join_consecutive ? "fvg_consecutive" : "fvg";
       auto expected =
-          read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                    std::filesystem::current_path().string(),
+          read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                    SMC_TEST_DATA_DIR,
                                     test_instrument, file_name),
                         {})
               .ValueOrDie();
@@ -253,8 +267,8 @@ TEST_CASE("SMC Test") {
   SECTION("Swing Highs Lows") {
     auto file_name = "swing_highs_lows";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -282,8 +296,8 @@ TEST_CASE("SMC Test") {
   SECTION("BOS CHoCH") {
     auto file_name = "bos_choch";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -330,8 +344,8 @@ TEST_CASE("SMC Test") {
   SECTION("Liquidity") {
     auto file_name = "liquidity";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -380,8 +394,8 @@ TEST_CASE("SMC Test") {
   SECTION("Retracements") {
     auto file_name = "retracements";
     auto expected =
-        read_csv_file(std::format("{}/test_data/{}/{}_result_data.csv",
-                                  std::filesystem::current_path().string(),
+        read_csv_file(std::format("{}/{}/{}_result_data.csv",
+                                  SMC_TEST_DATA_DIR,
                                   test_instrument, file_name),
                       {})
             .ValueOrDie();
@@ -429,6 +443,65 @@ TEST_CASE("SMC Test") {
           *result[column].contiguous_array().value()));
 
       CHECK(result[column].equals(expected_df[column]));
+    }
+  }
+
+  SECTION("Session Time Window") {
+    auto timeframe =
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+
+    // Test session start offset
+    auto config_start = session_time_window("session_time_window", "London", 15, "start", timeframe);
+    auto transformBase_start = MAKE_TRANSFORM(config_start);
+    auto stw_start = dynamic_cast<ITransform *>(transformBase_start.get());
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto result_start = stw_start->TransformData(df);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<double>(end - start);
+    std::cout << "Session Time Window (start) took: " << duration.count() << " s" << std::endl;
+
+    // Verify output exists and is boolean type
+    REQUIRE(result_start.num_rows() == df.num_rows());
+    auto in_window_col = result_start[stw_start->GetOutputId("in_window")];
+    REQUIRE(in_window_col.dtype()->id() == arrow::Type::BOOL);
+
+    // Count true values (should be at least 1 if we have 15M data covering session start)
+    auto true_count = in_window_col.cast(arrow::int64()).sum().value();
+    std::cout << "Session start window hits: " << true_count << std::endl;
+
+    // Test session end offset
+    auto config_end = session_time_window("session_time_window_end", "London", 30, "end", timeframe);
+    auto transformBase_end = MAKE_TRANSFORM(config_end);
+    auto stw_end = dynamic_cast<ITransform *>(transformBase_end.get());
+
+    auto result_end = stw_end->TransformData(df);
+    REQUIRE(result_end.num_rows() == df.num_rows());
+    auto in_window_end_col = result_end[stw_end->GetOutputId("in_window")];
+    REQUIRE(in_window_end_col.dtype()->id() == arrow::Type::BOOL);
+
+    auto true_count_end = in_window_end_col.cast(arrow::int64()).sum().value();
+    std::cout << "Session end window hits: " << true_count_end << std::endl;
+
+    // Write actual output to CSV for inspection
+    auto output_path_start = std::format("{}/{}/session_time_window_start_actual_output.csv",
+                                   SMC_TEST_DATA_DIR,
+                                   test_instrument);
+    auto renamed_result_start = result_start.rename(
+        {{stw_start->GetOutputId("in_window"), "InWindow"}});
+    auto status_ok = epoch_frame::write_csv_file(renamed_result_start.reset_index("t"), output_path_start).ok();
+    if (status_ok) {
+      std::cout << "Wrote session_time_window start output to: " << output_path_start << std::endl;
+    }
+
+    auto output_path_end = std::format("{}/{}/session_time_window_end_actual_output.csv",
+                                   SMC_TEST_DATA_DIR,
+                                   test_instrument);
+    auto renamed_result_end = result_end.rename(
+        {{stw_end->GetOutputId("in_window"), "InWindow"}});
+    status_ok = epoch_frame::write_csv_file(renamed_result_end.reset_index("t"), output_path_end).ok();
+    if (status_ok) {
+      std::cout << "Wrote session_time_window end output to: " << output_path_end << std::endl;
     }
   }
 }

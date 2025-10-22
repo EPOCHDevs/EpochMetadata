@@ -46,7 +46,7 @@ template <> struct ReportMetadata<BarChartReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Bar Chart Report",
       .options = {
@@ -101,8 +101,7 @@ template <> struct ReportMetadata<BarChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "bar", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

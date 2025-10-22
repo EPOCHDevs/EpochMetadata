@@ -19,9 +19,26 @@
 #include "price_actions/smc/previous_high_low.h"
 #include "price_actions/smc/retracements.h"
 #include "price_actions/smc/sessions.h"
+#include "price_actions/smc/session_time_window.h"
 #include "price_actions/smc/swing_highs_lows.h"
 #include "statistics/hmm.h"
+
+// Chart Formation Pattern Transforms
+#include "price_actions/infrastructure/flexible_pivot_detector.h"
+#include "price_actions/chart_formations/head_and_shoulders.h"
+#include "price_actions/chart_formations/inverse_head_and_shoulders.h"
+#include "price_actions/chart_formations/double_top_bottom.h"
+#include "price_actions/chart_formations/flag.h"
+#include "price_actions/chart_formations/triangles.h"
+#include "price_actions/chart_formations/pennant.h"
+#include "price_actions/chart_formations/consolidation_box.h"
 #include <epoch_metadata/strategy/registration.h>
+
+// Calendar Effects
+#include "calendar/calendar_effect.h"
+
+// Selector includes
+#include "selectors/card_selector.h"
 
 // SQL and Report includes
 #include "sql/sql_query_transform.h"
@@ -37,6 +54,7 @@
 #include "reports/pie_chart_report.h"
 #include "reports/nested_pie_chart_report.h"
 #include "reports/histogram_chart_report.h"
+// #include "reports/card_selector_report.h"  // Commented out - missing epoch_proto types
 
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
@@ -150,7 +168,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(price_diff_vol, PriceDiffVolatility);
   REGISTER_TRANSFORM(return_vol, ReturnVolatility);
 
-  // Price Action Transforms
+  // Price Action Transforms - SMC
   REGISTER_TRANSFORM(bos_choch, BosChoch);
   REGISTER_TRANSFORM(fair_value_gap, FairValueGap);
   REGISTER_TRANSFORM(liquidity, Liquidity);
@@ -158,7 +176,20 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(previous_high_low, PreviousHighLow);
   REGISTER_TRANSFORM(retracements, Retracements);
   REGISTER_TRANSFORM(sessions, DefaultSessions);
+  REGISTER_TRANSFORM(session_time_window, SessionTimeWindow);
   REGISTER_TRANSFORM(swing_highs_lows, SwingHighsLows);
+
+  // Price Action Transforms - Infrastructure
+  REGISTER_TRANSFORM(flexible_pivot_detector, FlexiblePivotDetector);
+
+  // Price Action Transforms - Chart Formations
+  REGISTER_TRANSFORM(head_and_shoulders, HeadAndShoulders);
+  REGISTER_TRANSFORM(inverse_head_and_shoulders, InverseHeadAndShoulders);
+  REGISTER_TRANSFORM(double_top_bottom, DoubleTopBottom);
+  REGISTER_TRANSFORM(flag, Flag);
+  REGISTER_TRANSFORM(triangles, Triangles);
+  REGISTER_TRANSFORM(pennant, Pennant);
+  REGISTER_TRANSFORM(consolidation_box, ConsolidationBox);
 
   // Aggregate Transforms
   REGISTER_TRANSFORM(agg_sum, SumAggregateTransform);
@@ -213,6 +244,17 @@ void InitializeTransforms(
   // Statistics Transforms
   REGISTER_TRANSFORM(hmm, HMMTransform);
 
+  // Calendar Effects Transforms
+  REGISTER_TRANSFORM(turn_of_month, TurnOfMonthEffect);
+  REGISTER_TRANSFORM(day_of_week, DayOfWeekEffect);
+  REGISTER_TRANSFORM(month_of_year, MonthOfYearEffect);
+  REGISTER_TRANSFORM(quarter, QuarterEffect);
+  REGISTER_TRANSFORM(holiday, HolidayEffect);
+  REGISTER_TRANSFORM(week_of_month, WeekOfMonthEffect);
+
+  // Register Selectors
+  selectors::RegisterSelector<selectors::CardSelectorTransform>();
+
   // SQL Query Transforms (1-4 outputs)
   REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
   REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
@@ -233,7 +275,9 @@ void InitializeTransforms(
   reports::RegisterReport<reports::NestedPieChartReport>();
   reports::RegisterReport<reports::HistogramChartReport>();
 
+  // Register Specialized Reports
   reports::RegisterReport<reports::GapReport>();
+  // reports::RegisterReport<reports::CardSelectorReport>();  // Commented out - missing epoch_proto types
 
 };
 } // namespace epoch_metadata::transform

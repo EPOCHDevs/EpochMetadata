@@ -6,6 +6,33 @@
 #include <filesystem>
 #include <functional>
 #include <yaml-cpp/yaml.h>
+#include <epoch_core/enum_wrapper.h>
+
+// Card selector enums (defined here to avoid circular dependencies)
+CREATE_ENUM(CardRenderType,
+            Text,       // Generic text/label
+            Number,     // Numeric value
+            Badge,      // Badge/pill element
+            Timestamp,  // Date/time display
+            Boolean,    // True/False indicator
+            Icon,       // Icon display
+            Navigator); // Chart navigation column (timestamp/index)
+
+CREATE_ENUM(CardSlot,
+            PrimaryBadge,   // Top-left badge
+            SecondaryBadge, // Top-right badge
+            Hero,           // Center large element
+            Subtitle,       // Below hero
+            Footer,         // Bottom
+            Details);       // "Show More" expandable section
+
+CREATE_ENUM(CardColor,
+            Default,  // Neutral/gray
+            Primary,  // Brand color
+            Info,     // Blue
+            Success,  // Green
+            Warning,  // Yellow/orange
+            Error);   // Red
 
 namespace epoch_metadata {
 constexpr auto ARG = "SLOT";

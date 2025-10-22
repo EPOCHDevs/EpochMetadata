@@ -583,4 +583,622 @@ std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData() {
            "Nodes for trade execution and order management"}};
 }
 
+TransformsMetaData MakeCalendarEffectMetaData(
+    const std::string &effect_type,
+    const std::string &custom_id = "",
+    const std::string &custom_name = "") {
+
+  TransformsMetaData metadata;
+
+  if (effect_type == "turn_of_month") {
+    metadata.id = custom_id.empty() ? "turn_of_month" : custom_id;
+    metadata.name = custom_name.empty() ? "Turn of Month" : custom_name;
+    metadata.desc = "Detects the turn-of-month calendar anomaly: marks the last N trading days of the month and the first M trading days of the next month. Research shows statistically significant positive returns during this window.";
+    metadata.usageContext = "Implement turn-of-month effect strategies. Research shows SPY returns highest during days -1 to +3 of each month. Use as entry timing filter or position sizing multiplier. Combine with other signals for confirmation.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "timing"};
+    metadata.tags = {"calendar", "seasonal", "month", "turn-of-month"};
+    metadata.options = {
+        MetaDataOption{.id = "days_before",
+                       .name = "Days Before Month End",
+                       .type = epoch_core::MetaDataOptionType::Integer,
+                       .defaultValue = MetaDataOptionDefinition(static_cast<double>(2)),
+                       .min = 0,
+                       .max = 15,
+                       .desc = "Number of trading days before month end to include",
+                       .tuningGuidance = "Research suggests 1-2 days before month end. More days may dilute effect."},
+        MetaDataOption{.id = "days_after",
+                       .name = "Days After Month Start",
+                       .type = epoch_core::MetaDataOptionType::Integer,
+                       .defaultValue = MetaDataOptionDefinition(static_cast<double>(3)),
+                       .min = 0,
+                       .max = 15,
+                       .desc = "Number of trading days after month start to include",
+                       .tuningGuidance = "Research suggests 3-4 days after month start. Test on your specific market."}
+    };
+  } else if (effect_type == "day_of_week") {
+    metadata.id = custom_id.empty() ? "day_of_week" : custom_id;
+    metadata.name = custom_name.empty() ? "Day of Week" : custom_name;
+    metadata.desc = "Detects specific weekdays for day-of-week calendar effects (Monday effect, Friday effect, etc.). Returns true on the specified weekday.";
+    metadata.usageContext = "Implement weekday-based strategies. Monday effect (historically negative), Friday effect (tendency for rallies), etc. Use as entry/exit timing or position sizing filter. Note: many classic effects have weakened over time.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "timing"};
+    metadata.tags = {"calendar", "day-of-week", "weekday", "seasonal"};
+    metadata.options = {
+        MetaDataOption{.id = "weekday",
+                       .name = "Weekday",
+                       .type = epoch_core::MetaDataOptionType::Select,
+                       .defaultValue = MetaDataOptionDefinition(std::string("Monday")),
+                       .selectOption = {{"Monday", "Monday"}, {"Tuesday", "Tuesday"}, {"Wednesday", "Wednesday"},
+                                       {"Thursday", "Thursday"}, {"Friday", "Friday"}},
+                       .desc = "The specific weekday to detect"}
+    };
+  } else if (effect_type == "month_of_year") {
+    metadata.id = custom_id.empty() ? "month_of_year" : custom_id;
+    metadata.name = custom_name.empty() ? "Month of Year" : custom_name;
+    metadata.desc = "Detects specific months for seasonal patterns (January effect, sell in May, etc.). Returns true during the specified month.";
+    metadata.usageContext = "Implement seasonal month effects. January effect (small caps), 'Sell in May and go away' (summer underperformance), Santa Claus rally (December). Use as regime filter or position sizing. Test on your specific market - many effects are weaker than historical data suggests.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "monthly-pattern"};
+    metadata.tags = {"calendar", "month", "seasonal", "january-effect"};
+    metadata.options = {
+        MetaDataOption{.id = "month",
+                       .name = "Month",
+                       .type = epoch_core::MetaDataOptionType::Select,
+                       .defaultValue = MetaDataOptionDefinition(std::string("January")),
+                       .selectOption = {{"January", "January"}, {"February", "February"}, {"March", "March"},
+                                       {"April", "April"}, {"May", "May"}, {"June", "June"},
+                                       {"July", "July"}, {"August", "August"}, {"September", "September"},
+                                       {"October", "October"}, {"November", "November"}, {"December", "December"}},
+                       .desc = "The specific month to detect"}
+    };
+  } else if (effect_type == "quarter") {
+    metadata.id = custom_id.empty() ? "quarter" : custom_id;
+    metadata.name = custom_name.empty() ? "Quarter" : custom_name;
+    metadata.desc = "Detects specific quarters for quarterly patterns (Q4 rally, Q1 effect, etc.). Returns true during the specified quarter.";
+    metadata.usageContext = "Implement quarterly seasonal patterns. Q4 historically strong (year-end rally), Q1 continuation. Useful for pension fund rebalancing effects, earnings seasonality. Combine with other factors for robustness.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "quarterly-pattern"};
+    metadata.tags = {"calendar", "quarter", "seasonal"};
+    metadata.options = {
+        MetaDataOption{.id = "quarter",
+                       .name = "Quarter",
+                       .type = epoch_core::MetaDataOptionType::Select,
+                       .defaultValue = MetaDataOptionDefinition(std::string("Q1")),
+                       .selectOption = {{"Q1", "Q1 (Jan-Mar)"}, {"Q2", "Q2 (Apr-Jun)"},
+                                       {"Q3", "Q3 (Jul-Sep)"}, {"Q4", "Q4 (Oct-Dec)"}},
+                       .desc = "The specific quarter to detect"}
+    };
+  } else if (effect_type == "holiday") {
+    metadata.id = custom_id.empty() ? "holiday" : custom_id;
+    metadata.name = custom_name.empty() ? "Holiday Effect" : custom_name;
+    metadata.desc = "Detects days before/after holidays. Pre-holiday and post-holiday effects show tendency for positive returns. Requires country-specific holiday calendar.";
+    metadata.usageContext = "Implement holiday effect strategies. Markets tend to rally before holidays (reduced volume, positive sentiment). Use for timing entries/exits around holidays. Effectiveness varies by market and holiday.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "holiday-effect"};
+    metadata.tags = {"calendar", "holiday", "seasonal"};
+    metadata.options = {
+        MetaDataOption{.id = "days_before",
+                       .name = "Days Before Holiday",
+                       .type = epoch_core::MetaDataOptionType::Integer,
+                       .defaultValue = MetaDataOptionDefinition(static_cast<double>(1)),
+                       .min = 0,
+                       .max = 5,
+                       .desc = "Number of trading days before holiday"},
+        MetaDataOption{.id = "days_after",
+                       .name = "Days After Holiday",
+                       .type = epoch_core::MetaDataOptionType::Integer,
+                       .defaultValue = MetaDataOptionDefinition(static_cast<double>(0)),
+                       .min = 0,
+                       .max = 5,
+                       .desc = "Number of trading days after holiday"},
+        MetaDataOption{.id = "country",
+                       .name = "Holiday Calendar",
+                       .type = epoch_core::MetaDataOptionType::Select,
+                       .defaultValue = MetaDataOptionDefinition(std::string("USFederalHolidayCalendar")),
+                       .selectOption = {{"USFederalHolidayCalendar", "US Federal Holidays"}},
+                       .desc = "Holiday calendar to use for detecting holidays"}
+    };
+  } else if (effect_type == "week_of_month") {
+    metadata.id = custom_id.empty() ? "week_of_month" : custom_id;
+    metadata.name = custom_name.empty() ? "Week of Month" : custom_name;
+    metadata.desc = "Detects specific weeks within a month (first week, last week, etc.). Returns true during the specified week of the month.";
+    metadata.usageContext = "Implement week-of-month patterns. First week can show momentum continuation from prior month. Last week may show turn-of-month effect buildup. Useful for intramonth timing strategies.";
+    metadata.strategyTypes = {"calendar-anomaly", "seasonal", "timing"};
+    metadata.tags = {"calendar", "week", "seasonal", "intramonth"};
+    metadata.options = {
+        MetaDataOption{.id = "week",
+                       .name = "Week of Month",
+                       .type = epoch_core::MetaDataOptionType::Select,
+                       .defaultValue = MetaDataOptionDefinition(std::string("First")),
+                       .selectOption = {{"First", "First Week"}, {"Second", "Second Week"},
+                                       {"Third", "Third Week"}, {"Fourth", "Fourth Week"},
+                                       {"Last", "Last Week"}},
+                       .desc = "Which week of the month to detect"}
+    };
+  }
+
+  // Common metadata for all calendar effects
+  metadata.category = epoch_core::TransformCategory::Statistical;
+  metadata.renderKind = epoch_core::TransformNodeRenderKind::Standard;
+  metadata.plotKind = epoch_core::TransformPlotKind::Null;
+  metadata.isCrossSectional = false;
+  metadata.requiresTimeFrame = true;
+  metadata.assetRequirements = {"single-asset"};
+  metadata.limitations = "Calendar effects have weakened over time as they became widely known. Backtest thoroughly and use recent data. Transaction costs may eliminate edge. Combine with other signals for robustness.";
+
+  // All calendar effects output boolean
+  metadata.inputs = {};  // No inputs - operates on index timestamps
+  metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
+
+  return metadata;
+}
+
+std::vector<TransformsMetaData> MakeCalendarEffectMetaData() {
+  std::vector<TransformsMetaData> metadataList;
+
+  // Generate metadata for each calendar effect type
+  metadataList.emplace_back(MakeCalendarEffectMetaData("turn_of_month"));
+  metadataList.emplace_back(MakeCalendarEffectMetaData("day_of_week"));
+  metadataList.emplace_back(MakeCalendarEffectMetaData("month_of_year"));
+  metadataList.emplace_back(MakeCalendarEffectMetaData("quarter"));
+  metadataList.emplace_back(MakeCalendarEffectMetaData("holiday"));
+  metadataList.emplace_back(MakeCalendarEffectMetaData("week_of_month"));
+
+  return metadataList;
+}
+
+std::vector<TransformsMetaData> MakeChartFormationMetaData() {
+  std::vector<TransformsMetaData> metadataList;
+
+  // FlexiblePivotDetector - Infrastructure for pivot detection
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "flexible_pivot_detector",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Pivot Point Detector",
+      .options = {
+          MetaDataOption{.id = "left_count",
+                         .name = "Left Lookback Bars",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(5)),
+                         .min = 1,
+                         .max = 50,
+                         .desc = "Number of bars to check before the pivot",
+                         .tuningGuidance = "Lower values (2-5) detect more pivots with more noise. Higher values (10-20) detect only significant pivots but may lag."},
+          MetaDataOption{.id = "right_count",
+                         .name = "Right Lookback Bars",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(5)),
+                         .min = 1,
+                         .max = 50,
+                         .desc = "Number of bars to check after the pivot",
+                         .tuningGuidance = "Symmetric with left_count detects centered pivots. Asymmetric allows early detection (smaller right_count) or confirmation (larger right_count)."}
+      },
+      .desc = "Detects pivot points (local highs and lows) in price data with configurable asymmetric lookback. Foundation for chart pattern detection.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Integer, "pivot_type", "Pivot Type (0=none, 1=low, 2=high, 3=both)"},
+          {epoch_core::IODataType::Number, "pivot_level", "Pivot Price Level"},
+          {epoch_core::IODataType::Integer, "pivot_index", "Pivot Bar Index"}
+      },
+      .tags = {"pivot", "swing-points", "pattern-detection", "price-action"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"pattern-detection", "support-resistance"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Foundation transform for detecting swing highs/lows. Use pivots to identify support/resistance or feed into pattern detectors (head-shoulders, triangles, etc.). Higher lookback = fewer, more significant pivots.",
+      .limitations = "Requires right_count bars to confirm pivot, causing detection lag. Choppy markets produce many false pivots. No volume or volatility weighting."});
+
+  // HeadAndShoulders - Bearish reversal pattern
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "head_and_shoulders",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Head and Shoulders",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(50)),
+                         .min = 20,
+                         .max = 200,
+                         .desc = "Number of bars to search for pattern formation",
+                         .tuningGuidance = "30-50 for intraday, 50-100 for daily charts. Longer lookback detects larger patterns but increases lag."},
+          MetaDataOption{.id = "head_ratio_before",
+                         .name = "Head Height Ratio (Before)",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1.0002),
+                         .min = 1.0001,
+                         .max = 1.1,
+                         .desc = "Minimum ratio of head to left shoulder height",
+                         .tuningGuidance = "1.0002 means head must be 0.02% higher than left shoulder. Higher values require more pronounced head."},
+          MetaDataOption{.id = "head_ratio_after",
+                         .name = "Head Height Ratio (After)",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1.0002),
+                         .min = 1.0001,
+                         .max = 1.1,
+                         .desc = "Minimum ratio of head to right shoulder height",
+                         .tuningGuidance = "1.0002 means head must be 0.02% higher than right shoulder. Higher values require more pronounced head."},
+          MetaDataOption{.id = "neckline_slope_max",
+                         .name = "Maximum Neckline Slope",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1e-4),
+                         .min = 1e-5,
+                         .max = 0.01,
+                         .desc = "Maximum allowed slope for neckline (nearly horizontal)",
+                         .tuningGuidance = "1e-4 requires nearly flat neckline. Increase for sloped necklines, decrease for strictly horizontal."}
+      },
+      .desc = "Detects bearish head-and-shoulders reversal pattern: left shoulder, higher head, right shoulder at similar level to left, with neckline support.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "pattern_detected", "Pattern Detected"},
+          {epoch_core::IODataType::Number, "neckline_level", "Neckline Support Level"},
+          {epoch_core::IODataType::Number, "target", "Breakout Target Price"}
+      },
+      .tags = {"reversal", "bearish", "head-and-shoulders", "chart-pattern", "topping-pattern"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"reversal-trading", "pattern-recognition", "top-detection"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Classic topping pattern signaling trend reversal. Wait for neckline break confirmation before entering short. Target = neckline - (head - neckline). Combine with volume analysis - volume should decrease at right shoulder.",
+      .limitations = "Subjective pattern - detection may differ from manual charting. Many false signals in choppy markets. Neckline break required for confirmation. Time to complete pattern can be long."});
+
+  // InverseHeadAndShoulders - Bullish reversal pattern
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "inverse_head_and_shoulders",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Inverse Head and Shoulders",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(50)),
+                         .min = 20,
+                         .max = 200,
+                         .desc = "Number of bars to search for pattern formation",
+                         .tuningGuidance = "30-50 for intraday, 50-100 for daily charts. Longer lookback detects larger patterns but increases lag."},
+          MetaDataOption{.id = "head_ratio_before",
+                         .name = "Head Depth Ratio (Before)",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1.0002),
+                         .min = 1.0001,
+                         .max = 1.1,
+                         .desc = "Minimum ratio of head to left shoulder depth (inverted pattern)",
+                         .tuningGuidance = "1.0002 means head must be 0.02% lower than left shoulder. Higher values require more pronounced head."},
+          MetaDataOption{.id = "head_ratio_after",
+                         .name = "Head Depth Ratio (After)",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1.0002),
+                         .min = 1.0001,
+                         .max = 1.1,
+                         .desc = "Minimum ratio of head to right shoulder depth (inverted pattern)",
+                         .tuningGuidance = "1.0002 means head must be 0.02% lower than right shoulder. Higher values require more pronounced head."},
+          MetaDataOption{.id = "neckline_slope_max",
+                         .name = "Maximum Neckline Slope",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(1e-4),
+                         .min = 1e-5,
+                         .max = 0.01,
+                         .desc = "Maximum allowed slope for neckline (nearly horizontal)",
+                         .tuningGuidance = "1e-4 requires nearly flat neckline. Increase for sloped necklines, decrease for strictly horizontal."}
+      },
+      .desc = "Detects bullish inverse head-and-shoulders reversal pattern: left shoulder low, lower head, right shoulder at similar level to left, with neckline resistance.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "pattern_detected", "Pattern Detected"},
+          {epoch_core::IODataType::Number, "neckline_level", "Neckline Resistance Level"},
+          {epoch_core::IODataType::Number, "target", "Breakout Target Price"}
+      },
+      .tags = {"reversal", "bullish", "inverse-head-and-shoulders", "chart-pattern", "bottoming-pattern"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"reversal-trading", "pattern-recognition", "bottom-detection"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Classic bottoming pattern signaling uptrend reversal. Wait for neckline breakout confirmation before entering long. Target = neckline + (neckline - head). Volume should increase on neckline breakout.",
+      .limitations = "Subjective pattern - detection may differ from manual charting. Many false signals in choppy markets. Neckline break required for confirmation. Pattern completion can take significant time."});
+
+  // DoubleTopBottom - Double top/bottom reversal patterns
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "double_top_bottom",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Double Top/Bottom",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(20)),
+                         .min = 10,
+                         .max = 100,
+                         .desc = "Number of bars to search for pattern",
+                         .tuningGuidance = "20-30 for shorter-term patterns, 50-100 for major reversal patterns."},
+          MetaDataOption{.id = "pattern_type",
+                         .name = "Pattern Type",
+                         .type = epoch_core::MetaDataOptionType::Select,
+                         .defaultValue = MetaDataOptionDefinition(std::string("both")),
+                         .selectOption = {{"tops", "Double Top Only"}, {"bottoms", "Double Bottom Only"}, {"both", "Both Patterns"}},
+                         .desc = "Which pattern type to detect"},
+          MetaDataOption{.id = "similarity_tolerance",
+                         .name = "Peak/Trough Similarity Tolerance",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.015),
+                         .min = 0.005,
+                         .max = 0.05,
+                         .desc = "Maximum price difference between peaks/troughs as ratio",
+                         .tuningGuidance = "0.01-0.015 for strict patterns. Higher values (0.02-0.03) allow more variation but increase false positives."}
+      },
+      .desc = "Detects double top (bearish) and double bottom (bullish) reversal patterns. Two peaks/troughs at similar levels with intervening trough/peak.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "pattern_detected", "Pattern Detected"},
+          {epoch_core::IODataType::Number, "breakout_level", "Breakout/Breakdown Level"},
+          {epoch_core::IODataType::Number, "target", "Price Target"}
+      },
+      .tags = {"reversal", "double-top", "double-bottom", "chart-pattern", "M-pattern", "W-pattern"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"reversal-trading", "pattern-recognition", "top-bottom-detection"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Double top = bearish M pattern at resistance. Double bottom = bullish W pattern at support. Target = breakout level +/- (peak - trough). Wait for breakout confirmation. Volume typically lighter on 2nd peak/trough.",
+      .limitations = "Requires similar peak/trough heights - tolerance parameter critical. False signals common without confirmation. Time between peaks/troughs varies widely. Pattern incomplete until breakout."});
+
+  // Flag - Bull/bear flag continuation patterns
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "flag",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Flag Pattern",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(30)),
+                         .min = 10,
+                         .max = 100,
+                         .desc = "Number of bars to search for consolidation",
+                         .tuningGuidance = "20-30 for typical flags. Longer periods may detect larger patterns but flag should be relatively brief."},
+          MetaDataOption{.id = "min_pivot_points",
+                         .name = "Minimum Pivot Points",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(4)),
+                         .min = 3,
+                         .max = 10,
+                         .desc = "Minimum pivots for each trendline",
+                         .tuningGuidance = "3-4 for early detection. 5-6 for higher confidence. More pivots = stricter pattern but slower detection."},
+          MetaDataOption{.id = "r_squared_min",
+                         .name = "Minimum R-Squared",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.7),
+                         .min = 0.5,
+                         .max = 0.99,
+                         .desc = "Minimum R-squared for trendline fit quality",
+                         .tuningGuidance = "0.7-0.8 balanced. Higher (0.85-0.9) for cleaner patterns but fewer detections. Lower (0.6-0.7) more detections but noisier."},
+          MetaDataOption{.id = "slope_parallel_tolerance",
+                         .name = "Parallel Tolerance",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.2),
+                         .min = 0.05,
+                         .max = 0.5,
+                         .desc = "Tolerance for parallel trendlines (0.2 = 20% difference)",
+                         .tuningGuidance = "0.15-0.25 typical. Stricter (0.1) requires very parallel lines. Looser (0.3-0.4) allows more channel variation."}
+      },
+      .desc = "Detects bull and bear flag continuation patterns. Bull flag: uptrend + downward-sloping consolidation. Bear flag: downtrend + upward-sloping consolidation.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "bull_flag", "Bull Flag Detected"},
+          {epoch_core::IODataType::Boolean, "bear_flag", "Bear Flag Detected"},
+          {epoch_core::IODataType::Number, "slmax", "Upper Trendline Slope"},
+          {epoch_core::IODataType::Number, "slmin", "Lower Trendline Slope"}
+      },
+      .tags = {"continuation", "flag", "bull-flag", "bear-flag", "chart-pattern", "consolidation"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"trend-continuation", "breakout-trading", "pattern-recognition"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Flags are brief consolidations within strong trends. Bull flag counter-trend consolidation in uptrend. Bear flag counter-trend bounce in downtrend. Target = flagpole height projected from breakout. Volume should contract during flag, expand on breakout.",
+      .limitations = "Requires preceding strong move (flagpole) which is not explicitly validated. Flag duration should be brief - long consolidations may be different pattern. Parallel trendlines requirement may miss valid but imperfect flags."});
+
+  // Triangles - Ascending/descending/symmetrical triangles
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "triangles",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Triangle Patterns",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(50)),
+                         .min = 20,
+                         .max = 200,
+                         .desc = "Number of bars to search for triangle formation",
+                         .tuningGuidance = "40-60 for typical triangles. Larger patterns need longer lookback (100+). Shorter lookback (20-30) for intraday."},
+          MetaDataOption{.id = "triangle_type",
+                         .name = "Triangle Type",
+                         .type = epoch_core::MetaDataOptionType::Select,
+                         .defaultValue = MetaDataOptionDefinition(std::string("all")),
+                         .selectOption = {{"ascending", "Ascending (Bullish)"}, {"descending", "Descending (Bearish)"}, {"symmetrical", "Symmetrical (Neutral)"}, {"all", "All Types"}},
+                         .desc = "Which triangle pattern type to detect"},
+          MetaDataOption{.id = "r_squared_min",
+                         .name = "Minimum R-Squared",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.8),
+                         .min = 0.5,
+                         .max = 0.99,
+                         .desc = "Minimum R-squared for trendline quality",
+                         .tuningGuidance = "0.75-0.85 typical for triangles (higher than flags due to longer formation). Lower values increase detections but reduce quality."}
+      },
+      .desc = "Detects triangle consolidation patterns. Ascending: flat resistance + rising support. Descending: falling resistance + flat support. Symmetrical: converging trendlines.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "pattern_detected", "Pattern Detected"},
+          {epoch_core::IODataType::Number, "upper_slope", "Upper Trendline Slope"},
+          {epoch_core::IODataType::Number, "lower_slope", "Lower Trendline Slope"},
+          {epoch_core::IODataType::String, "triangle_type", "Detected Triangle Type"}
+      },
+      .tags = {"consolidation", "triangle", "ascending-triangle", "descending-triangle", "symmetrical-triangle", "chart-pattern"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"breakout-trading", "consolidation-patterns", "pattern-recognition"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Triangles are consolidation patterns preceding breakouts. Ascending (bullish bias): flat top, rising lows. Descending (bearish bias): falling highs, flat bottom. Symmetrical (neutral): converging highs/lows. Trade breakout direction. Volume contracts during formation, expands on breakout.",
+      .limitations = "Direction uncertain until breakout (especially symmetrical). False breakouts common - wait for confirmation. Pattern can fail if price doesn't breakout before apex. Slope thresholds (0.0001) may need adjustment for different price scales."});
+
+  // Pennant - Short-term continuation pattern
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "pennant",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Pennant Pattern",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(20)),
+                         .min = 10,
+                         .max = 50,
+                         .desc = "Number of bars to search for pennant",
+                         .tuningGuidance = "15-25 typical. Pennants are brief consolidations. Longer lookback may confuse with triangles."},
+          MetaDataOption{.id = "min_pivot_points",
+                         .name = "Minimum Pivot Points",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(3)),
+                         .min = 2,
+                         .max = 6,
+                         .desc = "Minimum pivots for each trendline",
+                         .tuningGuidance = "3 minimum for pennant. 4 for higher confidence. Pennants form quickly so fewer pivots than triangles."},
+          MetaDataOption{.id = "r_squared_min",
+                         .name = "Minimum R-Squared",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.7),
+                         .min = 0.5,
+                         .max = 0.99,
+                         .desc = "Minimum R-squared for trendline quality",
+                         .tuningGuidance = "0.65-0.75 typical for pennants (slightly lower than triangles due to brief formation)."},
+          MetaDataOption{.id = "max_duration",
+                         .name = "Maximum Duration",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(15)),
+                         .min = 5,
+                         .max = 30,
+                         .desc = "Maximum bars for pennant formation",
+                         .tuningGuidance = "10-20 bars typical. Pennants are brief. Longer consolidations are likely triangles or flags."}
+      },
+      .desc = "Detects pennant continuation patterns - brief consolidations with converging trendlines following strong moves. Similar to symmetrical triangles but shorter duration.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "bull_pennant", "Bull Pennant Detected"},
+          {epoch_core::IODataType::Boolean, "bear_pennant", "Bear Pennant Detected"},
+          {epoch_core::IODataType::Number, "slmax", "Upper Trendline Slope"},
+          {epoch_core::IODataType::Number, "slmin", "Lower Trendline Slope"}
+      },
+      .tags = {"continuation", "pennant", "consolidation", "chart-pattern", "brief-consolidation"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"trend-continuation", "breakout-trading", "pattern-recognition"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Pennants are very brief consolidations in strong trends. Converging trendlines form symmetrical triangle shape. Breakout typically in direction of preceding trend (flagpole). Best traded near apex. Volume contracts during formation, expands on breakout.",
+      .limitations = "Current implementation assumes bullish for simplicity - proper version needs preceding trend analysis. Very brief formation makes detection challenging. Requires converging lines which may miss valid pennants. Max_duration parameter critical to distinguish from triangles."});
+
+  // SessionTimeWindow - Detect proximity to session boundaries
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "session_time_window",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Session Time Window",
+      .options = {
+          MetaDataOption{.id = "session_type",
+                         .name = "Session Type",
+                         .type = epoch_core::MetaDataOptionType::String,
+                         .defaultValue = MetaDataOptionDefinition(std::string("asian")),
+                         .desc = "Trading session name (e.g., asian, london, new_york)"},
+          MetaDataOption{.id = "minute_offset",
+                         .name = "Minute Offset",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(15)),
+                         .min = 0,
+                         .max = 360,
+                         .desc = "Minutes from session boundary"},
+          MetaDataOption{.id = "boundary_type",
+                         .name = "Boundary Type",
+                         .type = epoch_core::MetaDataOptionType::String,
+                         .defaultValue = MetaDataOptionDefinition(std::string("start")),
+                         .desc = "Session boundary: 'start' or 'end'"}
+      },
+      .desc = "Detects when bars occur exactly X minutes from session start or end. Useful for timing entries/exits around session boundaries.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "in_window", "In Time Window"}
+      },
+      .tags = {"session", "time", "timing", "smc", "session-boundary"},
+      .requiresTimeFrame = true,
+      .intradayOnly = true,
+      .strategyTypes = {"session-timing", "intraday-timing", "time-based-entry"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Filter trades to specific times relative to session boundaries. Use for opening range breakouts (e.g., 15 minutes from session start) or pre-close strategies (e.g., 30 minutes before session end). Combine with other signals for time-based entry/exit.",
+      .limitations = "Only detects exact timestamp matches - requires bars at precise offset. Session times may vary by market and daylight saving time. Intraday data required."});
+
+  // ConsolidationBox - Horizontal rectangle pattern (Bulkowski)
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "consolidation_box",
+      .category = epoch_core::TransformCategory::PriceAction,
+      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Consolidation Box",
+      .options = {
+          MetaDataOption{.id = "lookback",
+                         .name = "Lookback Period",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(40)),
+                         .min = 20,
+                         .max = 150,
+                         .desc = "Number of bars to search for consolidation box",
+                         .tuningGuidance = "30-50 for typical boxes on intraday. 60-100 for daily/longer timeframes. Consolidation should span multiple swings."},
+          MetaDataOption{.id = "min_pivot_points",
+                         .name = "Minimum Pivot Points",
+                         .type = epoch_core::MetaDataOptionType::Integer,
+                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(5)),
+                         .min = 4,
+                         .max = 12,
+                         .desc = "Minimum total touches across both boundaries (Bulkowski: 5 minimum)",
+                         .tuningGuidance = "5 per Bulkowski (3 on one line, 2 on other). Higher values (6-8) require more confirmation but reduce false positives."},
+          MetaDataOption{.id = "r_squared_min",
+                         .name = "Minimum R-Squared",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.75),
+                         .min = 0.6,
+                         .max = 0.95,
+                         .desc = "Minimum R-squared for horizontal line fit quality",
+                         .tuningGuidance = "0.75-0.85 typical. Lower values allow rougher boxes. Higher values require cleaner consolidation but may miss valid patterns."},
+          MetaDataOption{.id = "max_slope",
+                         .name = "Maximum Slope (Horizontal Threshold)",
+                         .type = epoch_core::MetaDataOptionType::Decimal,
+                         .defaultValue = MetaDataOptionDefinition(0.0001),
+                         .min = 0.00001,
+                         .max = 0.001,
+                         .desc = "Maximum allowed slope for boundaries (nearly horizontal)",
+                         .tuningGuidance = "0.0001 requires very flat boundaries. Increase for slightly sloped rectangles. Price scale dependent - adjust for Bitcoin vs stocks."}
+      },
+      .desc = "Detects horizontal consolidation boxes (rectangles) based on Bulkowski's criteria: parallel horizontal support/resistance with minimum 5 touches. Classic range-bound pattern preceding breakouts.",
+      .inputs = {},
+      .outputs = {
+          {epoch_core::IODataType::Boolean, "box_detected", "Box Pattern Detected"},
+          {epoch_core::IODataType::Number, "box_top", "Upper Boundary (Resistance)"},
+          {epoch_core::IODataType::Number, "box_bottom", "Lower Boundary (Support)"},
+          {epoch_core::IODataType::Number, "box_height", "Box Height"},
+          {epoch_core::IODataType::Integer, "touch_count", "Total Touches"},
+          {epoch_core::IODataType::Number, "upper_slope", "Upper Boundary Slope (should be ~0)"},
+          {epoch_core::IODataType::Number, "lower_slope", "Lower Boundary Slope (should be ~0)"},
+          {epoch_core::IODataType::Number, "target_up", "Upside Breakout Target"},
+          {epoch_core::IODataType::Number, "target_down", "Downside Breakdown Target"}
+      },
+      .tags = {"consolidation", "range", "rectangle", "horizontal", "chart-pattern", "bulkowski", "support-resistance"},
+      .requiresTimeFrame = true,
+      .strategyTypes = {"range-trading", "breakout-trading", "mean-reversion", "fade-strategy", "pattern-recognition"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Consolidation boxes are horizontal ranges with clear support/resistance. Trade strategies: (1) Fade edges - sell resistance, buy support with tight stops. (2) Breakout - enter on confirmed break above/below box with target = box_height. Volume typically declines during consolidation, spikes on breakout. Bulkowski stats: Rectangle Top breaks up 63%, Rectangle Bottom breaks down 63%.",
+      .limitations = "Requires clear horizontal boundaries - slope threshold critical. Box detection lags until pattern complete. Direction uncertainty until breakout. False breakouts common - use confirmation (volume, follow-through). Max_slope may need adjustment for different price scales/assets. Does not validate preceding trend like Bulkowski's manual analysis."});
+
+  return metadataList;
+}
+
 } // namespace epoch_metadata::transforms

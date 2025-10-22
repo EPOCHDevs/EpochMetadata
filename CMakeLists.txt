@@ -102,4 +102,5 @@ add_subdirectory(src)
 
 if (BUILD_TEST)
     add_subdirectory(test)
+    add_subdirectory(benchmark)
 endif()

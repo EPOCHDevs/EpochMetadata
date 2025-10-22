@@ -882,7 +882,7 @@ TEST_CASE("All Transform Tests - JSON Based", "[Transform][JSON]")
 
     // Find all JSON test files
     std::vector<std::string> jsonFiles;
-    std::filesystem::path testDir("transforms_test_cases");
+    std::filesystem::path testDir(TRANSFORMS_TEST_CASES_DIR);
 
     if (std::filesystem::exists(testDir))
     {

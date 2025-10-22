@@ -19,8 +19,8 @@ using namespace epoch_metadata::transform;
 
 TEST_CASE("DonchianChannel", "[hosseinmoein][donchian]") {
   auto C = epoch_metadata::EpochStratifyXConstants::instance();
-  auto path = std::format("{}/test_data/hmdf/IBM.csv",
-                          std::filesystem::current_path().string());
+  auto path = std::format("{}/hmdf/IBM.csv",
+                          SMC_TEST_DATA_DIR);
 
   hmdf::StdDataFrame<std::string> df;
   df.read(path.c_str(), hmdf::io_format::csv2);

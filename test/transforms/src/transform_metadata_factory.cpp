@@ -46,7 +46,17 @@ TEST_CASE("Transform Metadata Factory") {
     INFO("Diff:\n"
          << getTransformNames(metadataMap | std::views::keys,
                               transformMap | std::views::keys));
-    REQUIRE(metadataMap.size() == transformMap.size());
+
+    // Count transforms with outputs (excludes reporters and selectors which don't produce outputs)
+    auto non_reporter_count_metadata = std::ranges::count_if(metadataMap, [](const auto& pair) {
+      return !pair.second.outputs.empty();
+    });
+
+    auto non_reporter_count_transforms = std::ranges::count_if(transformMap, [&](const auto& pair) {
+      return !metadataMap.contains(pair.first) || !metadataMap.at(pair.first).outputs.empty();
+    });
+
+    REQUIRE(non_reporter_count_metadata == non_reporter_count_transforms);
   }
 
   std::vector<double> closePrices{6, 5, 6, 5, 6, 5, 6, 5,   6, 5, 6,
@@ -179,6 +189,12 @@ TEST_CASE("Transform Metadata Factory") {
                   .value_or(epoch_metadata::MetaDataOptionDefinition{
                       optionMetadata.selectOption[0].value})
                   .GetSelectOption();
+        } else if (optionMetadata.type ==
+                   epoch_core::MetaDataOptionType::String) {
+          config["options"][optionId] =
+              optionMetadata.defaultValue
+                  .value_or(epoch_metadata::MetaDataOptionDefinition{""})
+                  .GetString();
         }
       }
     }
@@ -189,6 +205,11 @@ TEST_CASE("Transform Metadata Factory") {
 
   for (auto const &[id, factory] : transformMap) {
     if (id == epoch_metadata::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
+      continue;
+    }
+
+    // Skip reporters and selectors - they don't produce column outputs
+    if (metadataMap.contains(id) && metadataMap.at(id).outputs.empty()) {
       continue;
     }
 

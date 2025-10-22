@@ -34,7 +34,7 @@ template <> struct ReportMetadata<HistogramChartReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Histogram Chart Report",
       .options = {
@@ -76,8 +76,7 @@ template <> struct ReportMetadata<HistogramChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "histogram", "distribution", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

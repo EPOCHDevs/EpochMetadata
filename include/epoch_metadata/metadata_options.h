@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <epoch_core/enum_wrapper.h>
 #include <epoch_frame/datetime.h>
+#include <epoch_metadata/constants.h>
+#include <epoch_metadata/glaze_custom_types.h>
 #include <glaze/glaze.hpp>
 #include <limits>
 #include <string_view>
@@ -35,10 +37,29 @@ namespace epoch_metadata
   using SequenceItem = std::variant<double, std::string>;
   using Sequence = std::vector<SequenceItem>;
 
+  // Card selector schema structures (forward declarations needed for variant)
+  struct CardColumnSchema {
+    std::string column_id;
+    epoch_core::CardSlot slot;
+    epoch_core::CardRenderType render_type;
+    std::unordered_map<epoch_core::CardColor, std::vector<std::string>> color_map;
+
+    bool operator==(const CardColumnSchema &) const = default;
+  };
+
+  struct CardSchemaList {
+    std::string title;
+    std::string select_key;  // Boolean column to filter rows (alternative to sql)
+    std::string sql;         // SQL query to filter/transform (alternative to select_key)
+    std::vector<CardColumnSchema> schemas;
+
+    bool operator==(const CardSchemaList &) const = default;
+  };
+
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaList>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -152,6 +173,11 @@ namespace epoch_metadata
     [[nodiscard]] auto GetBoolean() const { return GetValueByType<bool>(); }
 
     [[nodiscard]] epoch_frame::Time GetTime() const;
+
+    [[nodiscard]] CardSchemaList GetCardSchemaList() const
+    {
+      return GetValueByType<CardSchemaList>();
+    }
 
     std::string GetRef() const
     {
@@ -499,6 +525,30 @@ namespace glz
         auto refName = in["refName"].get<std::string>();
         value = epoch_metadata::MetaDataOptionDefinition{
             epoch_metadata::MetaDataArgRef{refName}};
+      }
+      else if (in.is_object() && in.contains("hour") && in.contains("minute"))
+      {
+        // Time object - manually construct from generic fields
+        epoch_frame::Time time;
+        time.hour = chrono_hour(static_cast<int>(in["hour"].get<double>()));
+        time.minute = chrono_minute(static_cast<int>(in["minute"].get<double>()));
+        time.second = in.contains("second") ? chrono_second(static_cast<int>(in["second"].get<double>())) : chrono_second(0);
+        time.microsecond = in.contains("microsecond") ? chrono_microsecond(static_cast<int>(in["microsecond"].get<double>())) : chrono_microsecond(0);
+        time.tz = in.contains("tz") ? in["tz"].get<std::string>() : "";
+        value = epoch_metadata::MetaDataOptionDefinition{
+            epoch_metadata::MetaDataOptionDefinition::T{time}};
+      }
+      else if (in.is_object() && in.contains("schemas"))
+      {
+        // CardSchemaList object - for now, dump to JSON and parse as string
+        // This will be handled by the fallback else case which passes the JSON string
+        auto dumped = in.dump();
+        if (!dumped.has_value())
+        {
+          throw std::runtime_error("Failed to dump CardSchemaList JSON: " +
+                                   glz::format_error(dumped.error()));
+        }
+        value = epoch_metadata::MetaDataOptionDefinition{dumped.value()};
       }
       else
       {

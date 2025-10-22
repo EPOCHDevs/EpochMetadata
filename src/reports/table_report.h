@@ -42,7 +42,7 @@ template <> struct ReportMetadata<TableReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Table Report",
       .options = {
@@ -64,8 +64,7 @@ template <> struct ReportMetadata<TableReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "table", "sql", "query"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

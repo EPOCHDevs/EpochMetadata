@@ -28,7 +28,7 @@ template <> struct ReportMetadata<NestedPieChartReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Nested Pie Chart Report",
       .options = {
@@ -54,8 +54,7 @@ template <> struct ReportMetadata<NestedPieChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "pie", "nested", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

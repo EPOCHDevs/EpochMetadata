@@ -629,6 +629,26 @@ timeframe: {}
                              id, session_name, timeframe.Serialize()))}};
 };
 
+// Session Time Window - Detects proximity to session boundaries
+inline auto session_time_window = [](std::string const &id,
+                                      std::string const &session_type,
+                                      int64_t minute_offset,
+                                      std::string const &boundary_type,
+                                      const epoch_metadata::TimeFrame &timeframe) {
+  return TransformConfiguration{TransformDefinition{
+      YAML::Load(std::format(R"(
+type: session_time_window
+id: {}
+options:
+  "session_type": {}
+  "minute_offset": {}
+  "boundary_type": {}
+timeframe: {}
+)",
+                             id, session_type, minute_offset, boundary_type,
+                             timeframe.Serialize()))}};
+};
+
 inline auto previous_high_low = [](std::string const &id, int64_t interval,
                                    std::string const &type,
                                    const epoch_metadata::TimeFrame &timeframe) {
@@ -1483,4 +1503,119 @@ inline auto hmm_single_cfg =
                      max_iterations, tolerance, compute_zscore,
                      min_training_samples, lookback_window);
     };
+
+// ========================================
+// Chart Formation configuration helpers
+// ========================================
+
+// Triangles - Detects ascending, descending, and symmetrical triangle patterns
+inline auto triangles_cfg =
+    [](std::string const &id, int64_t lookback,
+       std::string const &triangle_type, double r_squared_min,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "triangles";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["triangle_type"] = triangle_type;
+      config["options"]["r_squared_min"] = r_squared_min;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Flag - Detects bull and bear flag patterns
+inline auto flag_cfg =
+    [](std::string const &id, int64_t lookback, int64_t min_pivot_points,
+       double r_squared_min, double slope_parallel_tolerance,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "flag";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["min_pivot_points"] = min_pivot_points;
+      config["options"]["r_squared_min"] = r_squared_min;
+      config["options"]["slope_parallel_tolerance"] = slope_parallel_tolerance;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Pennant - Detects brief consolidation patterns
+inline auto pennant_cfg =
+    [](std::string const &id, int64_t lookback, int64_t min_pivot_points,
+       double r_squared_min, int64_t max_duration,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "pennant";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["min_pivot_points"] = min_pivot_points;
+      config["options"]["r_squared_min"] = r_squared_min;
+      config["options"]["max_duration"] = max_duration;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Head and Shoulders - Detects bearish reversal pattern
+inline auto head_and_shoulders_cfg =
+    [](std::string const &id, int64_t lookback, double head_ratio_before,
+       double head_ratio_after, double neckline_slope_max,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "head_and_shoulders";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["head_ratio_before"] = head_ratio_before;
+      config["options"]["head_ratio_after"] = head_ratio_after;
+      config["options"]["neckline_slope_max"] = neckline_slope_max;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Inverse Head and Shoulders - Detects bullish reversal pattern
+inline auto inverse_head_and_shoulders_cfg =
+    [](std::string const &id, int64_t lookback, double head_ratio_before,
+       double head_ratio_after, double neckline_slope_max,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "inverse_head_and_shoulders";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["head_ratio_before"] = head_ratio_before;
+      config["options"]["head_ratio_after"] = head_ratio_after;
+      config["options"]["neckline_slope_max"] = neckline_slope_max;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Double Top/Bottom - Detects M/W reversal patterns
+inline auto double_top_bottom_cfg =
+    [](std::string const &id, int64_t lookback,
+       std::string const &pattern_type, double similarity_tolerance,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "double_top_bottom";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["pattern_type"] = pattern_type;
+      config["options"]["similarity_tolerance"] = similarity_tolerance;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// ConsolidationBox - Detects horizontal consolidation boxes
+inline auto consolidation_box_cfg =
+    [](std::string const &id, int64_t lookback, int64_t min_pivot_points,
+       double r_squared_min, double max_slope,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "consolidation_box";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["lookback"] = lookback;
+      config["options"]["min_pivot_points"] = min_pivot_points;
+      config["options"]["r_squared_min"] = r_squared_min;
+      config["options"]["max_slope"] = max_slope;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
 } // namespace epoch_metadata::transform

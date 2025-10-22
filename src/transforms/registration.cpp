@@ -23,6 +23,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeTradeSignalExecutor());
   metaDataList.emplace_back(MakeScalarMetaData());
   metaDataList.emplace_back(MakeLagMetaData());
+  metaDataList.emplace_back(MakeChartFormationMetaData());
   metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());
   // Aggregation nodes are loaded from the transforms.yaml file
 

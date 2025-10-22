@@ -1,14 +1,24 @@
 [
   {
-    "id": "src",
-    "type": "market_data_source",
+    "type": "crossover",
+    "id": "cross",
     "options": {},
-    "inputs": {},
-    "timeframe": "1H"
+    "inputs": {
+      "SLOT1": [
+        "slow#result"
+      ],
+      "SLOT0": [
+        "fast#result"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
   },
   {
-    "id": "fast",
     "type": "ema",
+    "id": "fast",
     "options": {
       "period": 10
     },
@@ -16,36 +26,15 @@
       "SLOT": [
         "src#c"
       ]
-    }
-  },
-  {
-    "id": "slow",
-    "type": "ema",
-    "options": {
-      "period": 30
     },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "cross",
-    "type": "crossover",
-    "options": {},
-    "inputs": {
-      "SLOT1": [
-        "slow#result"
-      ],
-      "SLOT0": [
-        "fast#result"
-      ]
-    }
-  },
-  {
-    "id": "lt_0",
     "type": "lt",
+    "id": "lt_0",
     "options": {},
     "inputs": {
       "SLOT1": [
@@ -54,11 +43,15 @@
       "SLOT0": [
         "fast#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "node_5",
     "type": "trade_signal_executor",
+    "id": "node_0",
     "options": {},
     "inputs": {
       "enter_long": [
@@ -67,6 +60,36 @@
       "enter_short": [
         "lt_0#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "ema",
+    "id": "slow",
+    "options": {
+      "period": 30
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "market_data_source",
+    "id": "src",
+    "options": {},
+    "inputs": {},
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   }
 ]

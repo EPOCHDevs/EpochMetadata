@@ -30,6 +30,11 @@ void MetaDataOptionDefinition::AssertType(
     break;
   }
   case epoch_core::MetaDataOptionType::Time: {
+    // Support both epoch_frame::Time and string
+    if (std::holds_alternative<epoch_frame::Time>(m_optionsVariant)) {
+      // If it's already a Time object, it's valid
+      break;
+    }
     AssertType<std::string>();
     auto const &val = GetValueByType<std::string>();
     auto count_colon =
@@ -99,7 +104,8 @@ bool MetaDataOptionDefinition::IsType(
   case epoch_core::MetaDataOptionType::Select:
     return std::holds_alternative<std::string>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Time:
-    return std::holds_alternative<std::string>(m_optionsVariant);
+    return std::holds_alternative<std::string>(m_optionsVariant) ||
+           std::holds_alternative<epoch_frame::Time>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::NumericList:
   case epoch_core::MetaDataOptionType::StringList:
     return std::holds_alternative<Sequence>(m_optionsVariant);
@@ -151,8 +157,13 @@ epoch_frame::Time TimeFromString(std::string const &val) {
 }
 
 epoch_frame::Time MetaDataOptionDefinition::GetTime() const {
+  // Support both epoch_frame::Time directly and string conversion for backward compatibility
+  if (std::holds_alternative<epoch_frame::Time>(m_optionsVariant)) {
+    return GetValueByType<epoch_frame::Time>();
+  }
+
   AssertFromStream(std::holds_alternative<std::string>(m_optionsVariant),
-                   "GetTime expects a string Time option");
+                   "GetTime expects either an epoch_frame::Time or a string Time option");
   const auto &val = GetValueByType<std::string>();
   return TimeFromString(val);
 }
@@ -172,6 +183,25 @@ size_t MetaDataOptionDefinition::GetHash() const {
                 },
                 item);
             seed ^= h + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+          }
+          return seed;
+        } else if constexpr (std::same_as<K, epoch_frame::Time>) {
+          // Hash Time by hashing its string representation
+          size_t seed = 0;
+          seed ^= std::hash<int>{}(arg.hour.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<int>{}(arg.minute.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<int>{}(arg.second.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<int>{}(arg.microsecond.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<std::string>{}(arg.tz) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          return seed;
+        } else if constexpr (std::same_as<K, CardSchemaList>) {
+          // Hash CardSchemaList by hashing its fields
+          size_t seed = 0;
+          seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<std::string>{}(arg.select_key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<std::string>{}(arg.sql) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          for (const auto &schema : arg.schemas) {
+            seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           }
           return seed;
         } else {
@@ -209,6 +239,12 @@ std::string MetaDataOptionDefinition::ToString() const {
           return out;
         } else if constexpr (std::same_as<K, bool>) {
           return arg ? std::string("true") : std::string("false");
+        } else if constexpr (std::same_as<K, epoch_frame::Time>) {
+          // Use the built-in repr() method for simple string representation
+          return arg.repr();
+        } else if constexpr (std::same_as<K, CardSchemaList>) {
+          // Use glaze to pretty print the full CardSchemaList structure
+          return glz::write_json(arg).value_or("{}");
         } else {
           return std::to_string(arg);
         }

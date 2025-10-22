@@ -160,6 +160,137 @@ namespace epoch_metadata
             type == epoch_core::EpochOffsetType::Nano);
   }
 
+  // Helper: Parse pandas-style offset string (e.g., "5Min", "W-FRI", "1ME")
+  // Returns nullptr if the string is not a valid pandas offset pattern
+  static epoch_frame::DateOffsetHandlerPtr ParsePandasOffset(const std::string& offset_str)
+  {
+    if (offset_str.empty())
+    {
+      return nullptr;
+    }
+
+    // Helper: case-insensitive string comparison
+    auto iequals = [](const std::string& a, const std::string& b) {
+      if (a.size() != b.size()) return false;
+      for (size_t i = 0; i < a.size(); ++i)
+      {
+        if (std::tolower(a[i]) != std::tolower(b[i])) return false;
+      }
+      return true;
+    };
+
+    // Extract number prefix (default to 1 if not present)
+    size_t pos = 0;
+    int number = 0;
+    bool has_number = false;
+
+    while (pos < offset_str.size() && std::isdigit(offset_str[pos]))
+    {
+      number = number * 10 + (offset_str[pos] - '0');
+      has_number = true;
+      ++pos;
+    }
+
+    if (!has_number)
+    {
+      number = 1;
+    }
+
+    if (pos >= offset_str.size())
+    {
+      return nullptr; // No unit after number
+    }
+
+    // Extract unit and optional anchor
+    std::string rest = offset_str.substr(pos);
+    std::string unit;
+    std::string anchor;
+
+    // Split on '-' for anchored offsets (e.g., "W-FRI", "1W-MON")
+    size_t dash_pos = rest.find('-');
+    if (dash_pos != std::string::npos)
+    {
+      unit = rest.substr(0, dash_pos);
+      anchor = rest.substr(dash_pos + 1);
+    }
+    else
+    {
+      unit = rest;
+    }
+
+    // Map unit to DateOffsetHandler (case-insensitive)
+    // Minutes: "Min", "min", "MIN", "T"
+    if (iequals(unit, "Min") || iequals(unit, "T"))
+    {
+      return epoch_frame::factory::offset::minutes(number);
+    }
+    // Hours: "H", "h"
+    else if (iequals(unit, "H"))
+    {
+      return epoch_frame::factory::offset::hours(number);
+    }
+    // Days: "D", "d"
+    else if (iequals(unit, "D"))
+    {
+      return epoch_frame::factory::offset::days(number);
+    }
+    // Weeks: "W", "w" (with optional anchor)
+    else if (iequals(unit, "W"))
+    {
+      std::optional<epoch_core::EpochDayOfWeek> weekday = std::nullopt;
+
+      if (!anchor.empty())
+      {
+        // Map anchor string to day of week (case-insensitive)
+        if (iequals(anchor, "MON")) weekday = epoch_core::EpochDayOfWeek::Monday;
+        else if (iequals(anchor, "TUE")) weekday = epoch_core::EpochDayOfWeek::Tuesday;
+        else if (iequals(anchor, "WED")) weekday = epoch_core::EpochDayOfWeek::Wednesday;
+        else if (iequals(anchor, "THU")) weekday = epoch_core::EpochDayOfWeek::Thursday;
+        else if (iequals(anchor, "FRI")) weekday = epoch_core::EpochDayOfWeek::Friday;
+        else if (iequals(anchor, "SAT")) weekday = epoch_core::EpochDayOfWeek::Saturday;
+        else if (iequals(anchor, "SUN")) weekday = epoch_core::EpochDayOfWeek::Sunday;
+        else
+        {
+          return nullptr; // Invalid anchor
+        }
+      }
+
+      return epoch_frame::factory::offset::weeks(number, weekday);
+    }
+    // Month End: "ME", "me", "M" (pandas uses ME for month-end)
+    else if (iequals(unit, "ME") || iequals(unit, "M"))
+    {
+      return epoch_frame::factory::offset::month_end(number);
+    }
+    // Month Start: "MS", "ms"
+    else if (iequals(unit, "MS"))
+    {
+      return epoch_frame::factory::offset::month_start(number);
+    }
+    // Quarter End: "QE", "qe", "Q"
+    else if (iequals(unit, "QE") || iequals(unit, "Q"))
+    {
+      return epoch_frame::factory::offset::quarter_end(number);
+    }
+    // Quarter Start: "QS", "qs"
+    else if (iequals(unit, "QS"))
+    {
+      return epoch_frame::factory::offset::quarter_start(number);
+    }
+    // Year End: "YE", "ye", "Y", "A" (pandas uses A for annual)
+    else if (iequals(unit, "YE") || iequals(unit, "Y") || iequals(unit, "A"))
+    {
+      return epoch_frame::factory::offset::year_end(number);
+    }
+    // Year Start: "YS", "ys", "AS" (pandas AS for annual start)
+    else if (iequals(unit, "YS") || iequals(unit, "AS"))
+    {
+      return epoch_frame::factory::offset::year_start(number);
+    }
+
+    return nullptr; // Unrecognized unit
+  }
+
   TimeFrame::TimeFrame(epoch_frame::DateOffsetHandlerPtr offset)
       : m_offset(std::move(offset))
   {
@@ -170,9 +301,17 @@ namespace epoch_metadata
   TimeFrame::TimeFrame(std::string mapping_key)
       : m_created_from_string(true), m_mapping_key(std::move(mapping_key))
   {
-    AssertFromStream(TIMEFRAME_MAPPING.contains(m_mapping_key),
+    // Fast path: check hardcoded mapping first
+    if (TIMEFRAME_MAPPING.contains(m_mapping_key))
+    {
+      m_offset = TIMEFRAME_MAPPING.at(m_mapping_key);
+      return;
+    }
+
+    // Slow path: try pandas-style offset parsing
+    m_offset = ParsePandasOffset(m_mapping_key);
+    AssertFromStream(m_offset != nullptr,
                      "Invalid timeframe: " + m_mapping_key);
-    m_offset = TIMEFRAME_MAPPING.at(m_mapping_key);
   }
 
   bool TimeFrame::IsIntraDay() const { return IsIntraday(m_offset->type()); }
@@ -312,7 +451,12 @@ namespace epoch_metadata
       return epoch_frame::factory::offset::minutes(option.interval);
     case epoch_core::StratifyxTimeFrameType::week:
     {
-      return epoch_frame::factory::offset::weeks(option.interval, option.weekday);
+      // Convert Null enum value to std::nullopt
+      std::optional<epoch_core::EpochDayOfWeek> weekday =
+          (option.weekday == epoch_core::EpochDayOfWeek::Null)
+              ? std::nullopt
+              : std::optional<epoch_core::EpochDayOfWeek>{option.weekday};
+      return epoch_frame::factory::offset::weeks(option.interval, weekday);
     }
     case epoch_core::StratifyxTimeFrameType::week_of_month:
     {
@@ -433,9 +577,16 @@ namespace epoch_metadata
       if (buffer.is_string())
       {
         auto str = buffer.get_string();
-        AssertFromStream(TIMEFRAME_MAPPING.contains(str),
-                         "Invalid timeframe: " + str);
-        return TIMEFRAME_MAPPING.at(str);
+        // Build TimeFrame from string - constructor handles validation & pandas parsing
+        try
+        {
+          return TimeFrame(str).GetOffset();
+        }
+        catch (const std::exception &e)
+        {
+          // Re-throw with proper format
+          AssertFromStream(false, e.what());
+        }
       }
       option = buffer.template as<DateOffsetOption>();
     }
@@ -444,9 +595,16 @@ namespace epoch_metadata
       if (buffer.IsScalar())
       {
         auto str = buffer.template as<std::string>();
-        AssertFromStream(TIMEFRAME_MAPPING.contains(str),
-                         "Invalid timeframe: " + str);
-        return TIMEFRAME_MAPPING.at(str);
+        // Build TimeFrame from string - constructor handles validation & pandas parsing
+        try
+        {
+          return TimeFrame(str).GetOffset();
+        }
+        catch (const std::exception &e)
+        {
+          // Re-throw with proper format
+          AssertFromStream(false, e.what());
+        }
       }
 
       option = buffer.template as<DateOffsetOption>();
@@ -480,9 +638,16 @@ namespace epoch_metadata
     if (buffer.is_string())
     {
       auto str = buffer.as<std::string>();
-      AssertFromStream(TIMEFRAME_MAPPING.contains(str),
-                       "Invalid timeframe: " + str);
-      return TIMEFRAME_MAPPING.at(str);
+      // Build TimeFrame from string - constructor handles validation & pandas parsing
+      try
+      {
+        return TimeFrame(str).GetOffset();
+      }
+      catch (const std::exception &e)
+      {
+        // Re-throw with proper format
+        AssertFromStream(false, e.what());
+      }
     }
 
     // Manually parse JSON into DateOffsetOption to avoid requiring glaze meta
@@ -526,8 +691,12 @@ namespace epoch_metadata
       const auto &weekday_node = buffer[std::string(tf_str::kWeekday)];
       if (!weekday_node.is_null())
       {
-        option.weekday = epoch_core::EpochDayOfWeekWrapper::FromString(
-            weekday_node.as<std::string>());
+        auto weekday_str = weekday_node.as<std::string>();
+        // Skip if the string is "Null" - treat it same as JSON null
+        if (weekday_str != "Null")
+        {
+          option.weekday = epoch_core::EpochDayOfWeekWrapper::FromString(weekday_str);
+        }
       }
     }
 
@@ -643,7 +812,7 @@ namespace epoch_metadata
       if (auto week_handler = dynamic_cast<epoch_frame::WeekHandler *>(x.get()))
       {
         auto weekday = week_handler->get_weekday();
-        if (weekday)
+        if (weekday && weekday.value() != epoch_core::EpochDayOfWeek::Null)
         {
           result[std::string(tf_str::kWeekday)] =
               epoch_core::EpochDayOfWeekWrapper::ToString(weekday.value());

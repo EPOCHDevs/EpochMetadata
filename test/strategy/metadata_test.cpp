@@ -201,9 +201,9 @@ TEST_CASE("PythonSource - EOD timeframe detection", "[PythonSource]")
   // Simple algorithm using daily (EOD) data
   std::string source = R"(
 src = market_data_source(timeframe='1D')
-sma_fast = sma(src.c, period=10, timeframe='1D')
-sma_slow = sma(src.c, period=20, timeframe='1D')
-signal = sma_fast > sma_slow
+sma_fast = sma(period=10, timeframe='1D')(src.c)
+sma_slow = sma(period=20, timeframe='1D')(src.c)
+signal = gt()(sma_fast.result, sma_slow.result)
 )";
 
   PythonSource pythonSource(source);
@@ -221,7 +221,7 @@ TEST_CASE("PythonSource - intraday timeframe detection", "[PythonSource]")
   // Algorithm using minute (intraday) data
   std::string source = R"(
 src = market_data_source(timeframe='1Min')
-signal = src.c > src.vw
+gt_result = gt()(src.c, src.vw)
 )";
 
   PythonSource pythonSource(source);
@@ -239,8 +239,8 @@ TEST_CASE("PythonSource - session implies intraday", "[PythonSource]")
   // Algorithm with session (implies intraday)
   std::string source = R"(
 src = market_data_source(timeframe='1D')
-atr_ny = atr(period=14, session='NewYork')
-signal = src.c > atr_ny
+atr_ny = atr(period=14, session='NewYork')(src.c)
+gt_result = gt()(src.c, atr_ny.result)
 )";
 
   PythonSource pythonSource(source);
@@ -255,27 +255,28 @@ TEST_CASE("PythonSource - no explicit timeframe", "[PythonSource]")
 {
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
-  // Algorithm without explicit timeframe
+  // Algorithm without explicit timeframe (inherits from source)
   std::string source = R"(
 src = market_data_source(timeframe='1D')
-sma = sma(src.c, period=10)
-signal = src.c > sma
+sma_val = sma(period=10, timeframe='1D')(src.c)
+signal = gt()(src.c, sma_val.result)
 )";
 
   PythonSource pythonSource(source);
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
-  // No explicit timeframe should result in nullopt
-  REQUIRE_FALSE(pythonSource.GetBaseTimeframe().has_value());
+  // Should have EOD timeframe from source
+  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
+  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
   REQUIRE_FALSE(pythonSource.IsIntraday());
 }
 
 TEST_CASE("PythonSource - equality operator", "[PythonSource]")
 {
   auto src1 = "src = market_data_source(timeframe='1D')\n";
-  std::string source1 = "signal = src.c > sma(src.c, 10)";
-  std::string source2 = "signal = src.c > sma(src.c, 10)";
-  std::string source3 = "signal = src.c > sma(src.c, 20)";
+  std::string source1 = "sma_val = sma(period=10, timeframe='1D')(src.c)";
+  std::string source2 = "sma_val = sma(period=10, timeframe='1D')(src.c)";
+  std::string source3 = "sma_val = sma(period=20, timeframe='1D')(src.c)";
 
   PythonSource ps1(src1 + source1);
   PythonSource ps2(src1 + source2);
@@ -290,7 +291,7 @@ TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]")
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string source = R"(src = market_data_source(timeframe='1D')
-signal = src.c > sma(src.c, period=10))";
+sma_val = sma(period=10, timeframe='1D')(src.c))";
   PythonSource original(source);
 
   // Serialize PythonSource to JSON
@@ -310,14 +311,14 @@ TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   // JSON string containing EpochFlow source code
-  std::string jsonInput = "\"signal = close > sma(close, period=20, timeframe='1D')\"";
+  std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\"";
 
   // Deserialize from JSON
   PythonSource deserialized;
   auto parseResult = glz::read_json(deserialized, jsonInput);
 
   REQUIRE_FALSE(parseResult); // No error
-  REQUIRE(deserialized.GetSource() == "signal = close > sma(close, period=20, timeframe='1D')");
+  REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)");
   REQUIRE_FALSE(deserialized.GetCompilationResult().empty());
   REQUIRE(deserialized.GetBaseTimeframe().has_value());
   REQUIRE(deserialized.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
@@ -329,9 +330,9 @@ TEST_CASE("PythonSource - glaze round-trip serialization", "[PythonSource]")
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
-src = market_data_source(timeframe='5min')
-sma = sma(close, period=10, timeframe='5min')
-signal = src.vw > sma
+src = market_data_source(timeframe='5Min')
+sma_val = sma(period=10, timeframe='5Min')(src.c)
+gt_result = gt()(src.vw, sma_val.result)
 )";
   PythonSource original(source);
 
@@ -375,8 +376,9 @@ TEST_CASE("PythonSource - compilation result is cached", "[PythonSource]")
   transforms::RegisterTransformMetadata(epoch_metadata::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
-sma = sma(close, period=10, timeframe='1D')
-signal = close > sma
+src = market_data_source(timeframe='1D')
+sma_val = sma(period=10, timeframe='1D')(src.c)
+signal = gt()(src.c, sma_val.result)
 )";
 
   PythonSource pythonSource(source);

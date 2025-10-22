@@ -774,3 +774,329 @@ TEST_CASE("TIMEFRAME_MAPPING - Glaze string shortcuts",
   REQUIRE(off_me->type() == epoch_core::EpochOffsetType::MonthEnd);
   REQUIRE(off_me->n() == 1);
 }
+// ============================================================================
+// Pandas Offset Parser Tests - Full Coverage
+// ============================================================================
+
+TEST_CASE("TimeFrame pandas parser - Minutes variations", "[TimeFrame][Pandas]")
+{
+  // Standard notation
+  REQUIRE_NOTHROW(TimeFrame("1Min"));
+  REQUIRE_NOTHROW(TimeFrame("5Min"));
+  REQUIRE_NOTHROW(TimeFrame("15Min"));
+  
+  // Case-insensitive
+  REQUIRE_NOTHROW(TimeFrame("5min"));
+  REQUIRE_NOTHROW(TimeFrame("5MIN"));
+  REQUIRE_NOTHROW(TimeFrame("5MiN"));
+  
+  // "T" notation (pandas alias for minutes)
+  REQUIRE_NOTHROW(TimeFrame("1T"));
+  REQUIRE_NOTHROW(TimeFrame("5T"));
+  REQUIRE_NOTHROW(TimeFrame("15t"));
+  
+  // Without number prefix (defaults to 1)
+  REQUIRE_NOTHROW(TimeFrame("Min"));
+  REQUIRE_NOTHROW(TimeFrame("T"));
+  
+  auto min5 = TimeFrame("5Min");
+  REQUIRE(min5.GetOffset()->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(min5.GetOffset()->n() == 5);
+}
+
+TEST_CASE("TimeFrame pandas parser - Hours variations", "[TimeFrame][Pandas]")
+{
+  // Standard notation
+  REQUIRE_NOTHROW(TimeFrame("1H"));
+  REQUIRE_NOTHROW(TimeFrame("4H"));
+  REQUIRE_NOTHROW(TimeFrame("24H"));
+  
+  // Case-insensitive
+  REQUIRE_NOTHROW(TimeFrame("4h"));
+  REQUIRE_NOTHROW(TimeFrame("4H"));
+  
+  // Without number prefix
+  REQUIRE_NOTHROW(TimeFrame("H"));
+  REQUIRE_NOTHROW(TimeFrame("h"));
+  
+  auto hour4 = TimeFrame("4H");
+  REQUIRE(hour4.GetOffset()->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(hour4.GetOffset()->n() == 4);
+}
+
+TEST_CASE("TimeFrame pandas parser - Days variations", "[TimeFrame][Pandas]")
+{
+  // Standard notation
+  REQUIRE_NOTHROW(TimeFrame("1D"));
+  REQUIRE_NOTHROW(TimeFrame("7D"));
+  REQUIRE_NOTHROW(TimeFrame("30D"));
+  
+  // Case-insensitive
+  REQUIRE_NOTHROW(TimeFrame("7d"));
+  REQUIRE_NOTHROW(TimeFrame("7D"));
+  
+  // Without number prefix
+  REQUIRE_NOTHROW(TimeFrame("D"));
+  REQUIRE_NOTHROW(TimeFrame("d"));
+  
+  auto day7 = TimeFrame("7D");
+  REQUIRE(day7.GetOffset()->type() == epoch_core::EpochOffsetType::Day);
+  REQUIRE(day7.GetOffset()->n() == 7);
+}
+
+TEST_CASE("TimeFrame pandas parser - Weeks with anchors", "[TimeFrame][Pandas]")
+{
+  // Standard week without anchor
+  REQUIRE_NOTHROW(TimeFrame("1W"));
+  REQUIRE_NOTHROW(TimeFrame("W"));
+  REQUIRE_NOTHROW(TimeFrame("2w"));
+  
+  // Week with day anchors (pandas style)
+  REQUIRE_NOTHROW(TimeFrame("W-MON"));
+  REQUIRE_NOTHROW(TimeFrame("W-TUE"));
+  REQUIRE_NOTHROW(TimeFrame("W-WED"));
+  REQUIRE_NOTHROW(TimeFrame("W-THU"));
+  REQUIRE_NOTHROW(TimeFrame("W-FRI"));
+  REQUIRE_NOTHROW(TimeFrame("W-SAT"));
+  REQUIRE_NOTHROW(TimeFrame("W-SUN"));
+  
+  // With number prefix
+  REQUIRE_NOTHROW(TimeFrame("1W-FRI"));
+  REQUIRE_NOTHROW(TimeFrame("2W-MON"));
+  
+  // Case-insensitive anchors
+  REQUIRE_NOTHROW(TimeFrame("W-fri"));
+  REQUIRE_NOTHROW(TimeFrame("W-FRI"));
+  REQUIRE_NOTHROW(TimeFrame("W-Fri"));
+  REQUIRE_NOTHROW(TimeFrame("w-mon"));
+  
+  auto weekFri = TimeFrame("W-FRI");
+  REQUIRE(weekFri.GetOffset()->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(weekFri.GetOffset()->n() == 1);
+  
+  auto week2Mon = TimeFrame("2W-MON");
+  REQUIRE(week2Mon.GetOffset()->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(week2Mon.GetOffset()->n() == 2);
+}
+
+TEST_CASE("TimeFrame pandas parser - Months variations", "[TimeFrame][Pandas]")
+{
+  // Month end: "ME", "M"
+  REQUIRE_NOTHROW(TimeFrame("1ME"));
+  REQUIRE_NOTHROW(TimeFrame("ME"));
+  REQUIRE_NOTHROW(TimeFrame("1M"));
+  REQUIRE_NOTHROW(TimeFrame("M"));
+  REQUIRE_NOTHROW(TimeFrame("3me"));
+  REQUIRE_NOTHROW(TimeFrame("3ME"));
+  
+  // Month start: "MS"
+  REQUIRE_NOTHROW(TimeFrame("1MS"));
+  REQUIRE_NOTHROW(TimeFrame("MS"));
+  REQUIRE_NOTHROW(TimeFrame("3ms"));
+  REQUIRE_NOTHROW(TimeFrame("3MS"));
+  
+  auto monthEnd = TimeFrame("3ME");
+  REQUIRE(monthEnd.GetOffset()->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(monthEnd.GetOffset()->n() == 3);
+  
+  auto monthStart = TimeFrame("2MS");
+  REQUIRE(monthStart.GetOffset()->type() == epoch_core::EpochOffsetType::MonthStart);
+  REQUIRE(monthStart.GetOffset()->n() == 2);
+}
+
+TEST_CASE("TimeFrame pandas parser - Quarters variations", "[TimeFrame][Pandas]")
+{
+  // Quarter end: "QE", "Q"
+  REQUIRE_NOTHROW(TimeFrame("1QE"));
+  REQUIRE_NOTHROW(TimeFrame("QE"));
+  REQUIRE_NOTHROW(TimeFrame("1Q"));
+  REQUIRE_NOTHROW(TimeFrame("Q"));
+  REQUIRE_NOTHROW(TimeFrame("2qe"));
+  REQUIRE_NOTHROW(TimeFrame("2QE"));
+  
+  // Quarter start: "QS"
+  REQUIRE_NOTHROW(TimeFrame("1QS"));
+  REQUIRE_NOTHROW(TimeFrame("QS"));
+  REQUIRE_NOTHROW(TimeFrame("2qs"));
+  REQUIRE_NOTHROW(TimeFrame("2QS"));
+  
+  auto quarterEnd = TimeFrame("2QE");
+  REQUIRE(quarterEnd.GetOffset()->type() == epoch_core::EpochOffsetType::QuarterEnd);
+  REQUIRE(quarterEnd.GetOffset()->n() == 2);
+  
+  auto quarterStart = TimeFrame("QS");
+  REQUIRE(quarterStart.GetOffset()->type() == epoch_core::EpochOffsetType::QuarterStart);
+  REQUIRE(quarterStart.GetOffset()->n() == 1);
+}
+
+TEST_CASE("TimeFrame pandas parser - Years variations", "[TimeFrame][Pandas]")
+{
+  // Year end: "YE", "Y", "A" (annual)
+  REQUIRE_NOTHROW(TimeFrame("1YE"));
+  REQUIRE_NOTHROW(TimeFrame("YE"));
+  REQUIRE_NOTHROW(TimeFrame("1Y"));
+  REQUIRE_NOTHROW(TimeFrame("Y"));
+  REQUIRE_NOTHROW(TimeFrame("1A"));
+  REQUIRE_NOTHROW(TimeFrame("A"));
+  REQUIRE_NOTHROW(TimeFrame("5ye"));
+  REQUIRE_NOTHROW(TimeFrame("5YE"));
+  
+  // Year start: "YS", "AS" (annual start)
+  REQUIRE_NOTHROW(TimeFrame("1YS"));
+  REQUIRE_NOTHROW(TimeFrame("YS"));
+  REQUIRE_NOTHROW(TimeFrame("1AS"));
+  REQUIRE_NOTHROW(TimeFrame("AS"));
+  REQUIRE_NOTHROW(TimeFrame("3ys"));
+  REQUIRE_NOTHROW(TimeFrame("3YS"));
+  
+  auto yearEnd = TimeFrame("5YE");
+  REQUIRE(yearEnd.GetOffset()->type() == epoch_core::EpochOffsetType::YearEnd);
+  REQUIRE(yearEnd.GetOffset()->n() == 5);
+  
+  auto yearStart = TimeFrame("2YS");
+  REQUIRE(yearStart.GetOffset()->type() == epoch_core::EpochOffsetType::YearStart);
+  REQUIRE(yearStart.GetOffset()->n() == 2);
+}
+
+TEST_CASE("TimeFrame pandas parser - Invalid formats throw", "[TimeFrame][Pandas][exception]")
+{
+  // Empty string
+  REQUIRE_THROWS(TimeFrame(""));
+  
+  // Number only (no unit)
+  REQUIRE_THROWS(TimeFrame("5"));
+  REQUIRE_THROWS(TimeFrame("123"));
+  
+  // Unknown unit
+  REQUIRE_THROWS(TimeFrame("5X"));
+  REQUIRE_THROWS(TimeFrame("1FOO"));
+  REQUIRE_THROWS(TimeFrame("2BAR"));
+  
+  // Invalid anchor
+  REQUIRE_THROWS(TimeFrame("W-XXX"));
+  REQUIRE_THROWS(TimeFrame("1W-INVALID"));
+  
+  // Multiple dashes
+  REQUIRE_THROWS(TimeFrame("W-MON-EXTRA"));
+  
+  // Special characters
+  REQUIRE_THROWS(TimeFrame("5@Min"));
+  REQUIRE_THROWS(TimeFrame("#5Min"));
+}
+
+TEST_CASE("TimeFrame pandas parser - Mixed case and whitespace", "[TimeFrame][Pandas]")
+{
+  // Mixed case units (full unit must match case-insensitively)
+  REQUIRE_NOTHROW(TimeFrame("5MiN")); // "Min" matches case-insensitively
+  REQUIRE_THROWS(TimeFrame("1hOuR")); // "hOuR" is not valid - only "H" is recognized
+
+  // Note: Whitespace is NOT supported by the parser
+  REQUIRE_THROWS(TimeFrame("5 Min"));
+  REQUIRE_THROWS(TimeFrame("1 H"));
+  REQUIRE_THROWS(TimeFrame(" 5Min"));
+  REQUIRE_THROWS(TimeFrame("5Min "));
+}
+
+TEST_CASE("TimeFrame pandas parser - Large numbers", "[TimeFrame][Pandas]")
+{
+  // Large valid numbers
+  REQUIRE_NOTHROW(TimeFrame("100Min"));
+  REQUIRE_NOTHROW(TimeFrame("500H"));
+  REQUIRE_NOTHROW(TimeFrame("1000D"));
+  REQUIRE_NOTHROW(TimeFrame("365D"));
+  
+  auto min100 = TimeFrame("100Min");
+  REQUIRE(min100.GetOffset()->n() == 100);
+  
+  auto day365 = TimeFrame("365D");
+  REQUIRE(day365.GetOffset()->n() == 365);
+}
+
+TEST_CASE("TimeFrame pandas parser - Hardcoded mapping still works", "[TimeFrame][Pandas]")
+{
+  // These should use the fast path (hardcoded TIMEFRAME_MAPPING)
+  REQUIRE_NOTHROW(TimeFrame("1Min"));
+  REQUIRE_NOTHROW(TimeFrame("5Min"));
+  REQUIRE_NOTHROW(TimeFrame("15Min"));
+  REQUIRE_NOTHROW(TimeFrame("1H"));
+  REQUIRE_NOTHROW(TimeFrame("1D"));
+  REQUIRE_NOTHROW(TimeFrame("1W-FRI"));
+  REQUIRE_NOTHROW(TimeFrame("1ME"));
+  REQUIRE_NOTHROW(TimeFrame("1QE"));
+  REQUIRE_NOTHROW(TimeFrame("1YE"));
+  
+  auto min1 = TimeFrame("1Min");
+  REQUIRE(min1.GetOffset()->type() == epoch_core::EpochOffsetType::Minute);
+  REQUIRE(min1.GetOffset()->n() == 1);
+}
+
+TEST_CASE("TimeFrame pandas parser - JSON serialization roundtrip", "[TimeFrame][Pandas][JSON]")
+{
+  // Test that pandas-parsed timeframes serialize as strings and can be deserialized
+  auto weekFri = TimeFrame("W-FRI");
+  auto hour5 = TimeFrame("5H");
+  auto monthEnd3 = TimeFrame("3ME");
+
+  // Serialize to string (returns original pandas notation)
+  std::string week_str = weekFri.Serialize();
+  std::string hour_str = hour5.Serialize();
+  std::string month_str = monthEnd3.Serialize();
+
+  REQUIRE(week_str == "W-FRI");
+  REQUIRE(hour_str == "5H");
+  REQUIRE(month_str == "3ME");
+
+  // These strings can be used to create TimeFrames via JSON (as string values)
+  glz::generic week_json, hour_json, month_json;
+  week_json = week_str;  // Assign string directly to generic
+  hour_json = hour_str;
+  month_json = month_str;
+
+  auto week_offset = CreateDateOffsetHandlerFromJSON(week_json);
+  auto hour_offset = CreateDateOffsetHandlerFromJSON(hour_json);
+  auto month_offset = CreateDateOffsetHandlerFromJSON(month_json);
+
+  REQUIRE(week_offset->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(hour_offset->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(hour_offset->n() == 5);
+  REQUIRE(month_offset->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(month_offset->n() == 3);
+}
+
+TEST_CASE("TimeFrame pandas parser - YAML deserialization", "[TimeFrame][Pandas][YAML]")
+{
+  // Test YAML parsing with pandas-style strings
+  auto node_wfri = YAML::Load("W-FRI");
+  auto node_5h = YAML::Load("5H");
+  auto node_3me = YAML::Load("3ME");
+  
+  REQUIRE_NOTHROW(node_wfri.as<epoch_frame::DateOffsetHandlerPtr>());
+  REQUIRE_NOTHROW(node_5h.as<epoch_frame::DateOffsetHandlerPtr>());
+  REQUIRE_NOTHROW(node_3me.as<epoch_frame::DateOffsetHandlerPtr>());
+  
+  auto off_wfri = node_wfri.as<epoch_frame::DateOffsetHandlerPtr>();
+  auto off_5h = node_5h.as<epoch_frame::DateOffsetHandlerPtr>();
+  auto off_3me = node_3me.as<epoch_frame::DateOffsetHandlerPtr>();
+  
+  REQUIRE(off_wfri->type() == epoch_core::EpochOffsetType::Week);
+  REQUIRE(off_wfri->n() == 1);
+  
+  REQUIRE(off_5h->type() == epoch_core::EpochOffsetType::Hour);
+  REQUIRE(off_5h->n() == 5);
+  
+  REQUIRE(off_3me->type() == epoch_core::EpochOffsetType::MonthEnd);
+  REQUIRE(off_3me->n() == 3);
+}
+
+TEST_CASE("TimeFrame pandas parser - String constructor source tracking", "[TimeFrame][Pandas]")
+{
+  // Verify that TimeFrame created from string preserves original string
+  auto tf = TimeFrame("W-FRI");
+  
+  REQUIRE(tf.WasCreatedFromString());
+  REQUIRE(tf.SourceString() == "W-FRI");
+  
+  // Verify Serialize() returns original string for string-created TimeFrames
+  REQUIRE(tf.Serialize() == "W-FRI");
+}
+

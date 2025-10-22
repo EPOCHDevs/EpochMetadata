@@ -21,8 +21,8 @@ TEST_CASE("IndicatorsTest", "[indicators]") {
   using namespace epoch_metadata::transform;
 
   auto C = epoch_metadata::EpochStratifyXConstants::instance();
-  auto path = std::format("{}/test_data/hmdf/IBM.csv",
-                          std::filesystem::current_path().string());
+  auto path = std::format("{}/hmdf/IBM.csv",
+                          SMC_TEST_DATA_DIR);
 
   StdDataFrame<std::string> df;
   df.read(path.c_str(), io_format::csv2);

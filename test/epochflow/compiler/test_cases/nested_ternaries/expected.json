@@ -1,50 +1,7 @@
 [
   {
-    "id": "src",
-    "type": "market_data_source",
-    "options": {},
-    "inputs": {},
-    "timeframe": "1H"
-  },
-  {
-    "id": "rsi14",
-    "type": "rsi",
-    "options": {
-      "period": 14
-    },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
-    }
-  },
-  {
-    "id": "fast",
-    "type": "ema",
-    "options": {
-      "period": 20
-    },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
-    }
-  },
-  {
-    "id": "slow",
-    "type": "ema",
-    "options": {
-      "period": 50
-    },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
-    }
-  },
-  {
-    "id": "cross",
     "type": "crossover",
+    "id": "cross",
     "options": {},
     "inputs": {
       "SLOT1": [
@@ -53,106 +10,192 @@
       "SLOT0": [
         "fast#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "node_6",
-    "type": "number",
+    "type": "ema",
+    "id": "fast",
     "options": {
-      "value": 30
+      "period": 20
     },
-    "inputs": {}
-  },
-  {
-    "id": "node_7",
-    "type": "number",
-    "options": {
-      "value": 1
-    },
-    "inputs": {}
-  },
-  {
-    "id": "node_9",
-    "type": "number",
-    "options": {
-      "value": 70
-    },
-    "inputs": {}
-  },
-  {
-    "id": "node_10",
-    "type": "number",
-    "options": {
-      "value": 0
-    },
-    "inputs": {}
-  },
-  {
-    "id": "lt_0",
-    "type": "lt",
-    "options": {},
     "inputs": {
-      "SLOT1": [
-        "node_6#result"
-      ],
-      "SLOT0": [
-        "rsi14#result"
+      "SLOT": [
+        "src#c"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "gt_0",
     "type": "gt",
+    "id": "gt_0",
     "options": {},
     "inputs": {
       "SLOT1": [
-        "node_9#result"
+        "number_2#result"
       ],
       "SLOT0": [
         "rsi14#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "ifexp_0",
     "type": "boolean_select",
+    "id": "ifexp_0",
     "options": {},
     "inputs": {
       "false": [
         "cross#result"
       ],
       "true": [
-        "node_10#result"
+        "number_3#result"
       ],
       "condition": [
         "gt_0#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "ifexp_1",
     "type": "boolean_select",
+    "id": "ifexp_1",
     "options": {},
     "inputs": {
       "false": [
         "ifexp_0#result"
       ],
       "true": [
-        "node_7#result"
+        "number_1#result"
       ],
       "condition": [
         "lt_0#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "node_13",
+    "type": "lt",
+    "id": "lt_0",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi14#result"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
     "type": "trade_signal_executor",
+    "id": "node_0",
     "options": {},
     "inputs": {
       "enter_long": [
         "ifexp_1#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "number",
+    "id": "number_0",
+    "options": {
+      "value": 30
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "number",
+    "id": "number_1",
+    "options": {
+      "value": 1
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "number",
+    "id": "number_2",
+    "options": {
+      "value": 70
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "number",
+    "id": "number_3",
+    "options": {
+      "value": 0
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "rsi",
+    "id": "rsi14",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "ema",
+    "id": "slow",
+    "options": {
+      "period": 50
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "market_data_source",
+    "id": "src",
+    "options": {},
+    "inputs": {},
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   }
 ]

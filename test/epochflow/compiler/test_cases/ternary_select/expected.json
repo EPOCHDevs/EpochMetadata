@@ -1,74 +1,14 @@
 [
   {
-    "id": "bool_false_0",
     "type": "bool_false",
-    "options": {},
-    "inputs": {}
-  },
-  {
-    "id": "number_0",
-    "type": "number",
-    "options": {
-      "value": 70
-    },
-    "inputs": {}
-  },
-  {
-    "id": "number_1",
-    "type": "number",
-    "options": {
-      "value": 30
-    },
-    "inputs": {}
-  },
-  {
-    "id": "src",
-    "type": "market_data_source",
+    "id": "bool_false_0",
     "options": {},
     "inputs": {},
-    "timeframe": "1H"
+    "timeframe": null
   },
   {
-    "id": "rsi_node",
-    "type": "rsi",
-    "options": {
-      "period": 14
-    },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
-    }
-  },
-  {
-    "id": "over",
-    "type": "gt",
-    "options": {},
-    "inputs": {
-      "SLOT1": [
-        "number_0#result"
-      ],
-      "SLOT0": [
-        "rsi_node#result"
-      ]
-    }
-  },
-  {
-    "id": "under",
-    "type": "lt",
-    "options": {},
-    "inputs": {
-      "SLOT1": [
-        "number_1#result"
-      ],
-      "SLOT0": [
-        "rsi_node#result"
-      ]
-    }
-  },
-  {
-    "id": "ifexp_0",
     "type": "boolean_select",
+    "id": "ifexp_0",
     "options": {},
     "inputs": {
       "false": [
@@ -80,16 +20,102 @@
       "condition": [
         "under#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   },
   {
-    "id": "node_7",
     "type": "trade_signal_executor",
+    "id": "node_0",
     "options": {},
     "inputs": {
       "enter_long": [
         "ifexp_0#result"
       ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "number",
+    "id": "number_0",
+    "options": {
+      "value": 70
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "number",
+    "id": "number_1",
+    "options": {
+      "value": 30
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "gt",
+    "id": "over",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi_node#result"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "rsi",
+    "id": "rsi_node",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "market_data_source",
+    "id": "src",
+    "options": {},
+    "inputs": {},
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
+    }
+  },
+  {
+    "type": "lt",
+    "id": "under",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_1#result"
+      ],
+      "SLOT0": [
+        "rsi_node#result"
+      ]
+    },
+    "timeframe": {
+      "interval": 1,
+      "type": "hour"
     }
   }
 ]

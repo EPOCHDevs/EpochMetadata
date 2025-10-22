@@ -28,7 +28,7 @@ namespace epoch_metadata::reports {
     static epoch_metadata::transforms::TransformsMetaData Get() {
       return {
         .id = kReportId,
-        .category = epoch_core::TransformCategory::Executor,
+        .category = epoch_core::TransformCategory::Reporter,
         .renderKind = epoch_core::TransformNodeRenderKind::Output,
         .name = "Pie Chart Report",
         .options = {
@@ -53,8 +53,7 @@ namespace epoch_metadata::reports {
         .atLeastOneInputRequired = true,
         .tags = {"report", "chart", "pie", "donut", "visualization"},
         .requiresTimeFrame = false,
-        .allowNullInputs = false,
-        .isReporter = true
+        .allowNullInputs = false
       };
     }
   };

@@ -90,7 +90,7 @@ template <> struct ReportMetadata<GapReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
    return {
     .id = kReportId,
-    .category = epoch_core::TransformCategory::Executor,
+    .category = epoch_core::TransformCategory::Reporter,
     .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "Gap Analysis Report",
     .options = {{.id = "fill_time_pivot_hour",
@@ -129,8 +129,7 @@ template <> struct ReportMetadata<GapReport> {
     .requiredDataSources =
         {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()},
     .intradayOnly=true,
-.allowNullInputs=true,
-    .isReporter = true};
+.allowNullInputs=true};
   }
 
   // Helper to create a TransformConfiguration from a gap classifier config

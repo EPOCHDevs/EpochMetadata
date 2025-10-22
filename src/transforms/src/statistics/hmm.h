@@ -98,29 +98,44 @@ public:
       throw std::runtime_error("Insufficient training samples for HMM");
     }
 
-    // Apply lookback window if specified
-    arma::mat training_data = X;
+    // Split into training and prediction sets
+    arma::mat training_data;
+    arma::mat prediction_data;
+    epoch_frame::IndexPtr prediction_index;
+
     if (m_lookback_window > 0 && X.n_rows > m_lookback_window) {
-      // Use only the last m_lookback_window rows for training
-      size_t start_idx = X.n_rows - m_lookback_window;
-      training_data = X.rows(start_idx, X.n_rows - 1);
+      // Train on first m_lookback_window bars
+      training_data = X.rows(0, m_lookback_window - 1);
+
+      // Predict on remaining bars (bars after training window)
+      prediction_data = X.rows(m_lookback_window, X.n_rows - 1);
+
+      // Index for prediction window
+      prediction_index = bars.index()->iloc(
+          {static_cast<int64_t>(m_lookback_window),
+           static_cast<int64_t>(X.n_rows)});
+    } else {
+      // If no lookback specified, use all data for both training and prediction
+      // (Research mode - acceptable look-ahead for exploratory analysis)
+      training_data = X;
+      prediction_data = X;
+      prediction_index = bars.index();
     }
 
-    // Preprocess data
-    training_data = PreprocessData(training_data);
+    // Compute preprocessing parameters from training data
+    auto preprocess_params = ComputePreprocessParams(training_data);
 
-    // Train HMM model
+    // Apply preprocessing to training data
+    training_data = ApplyPreprocessParams(training_data, preprocess_params);
+
+    // Train HMM model on preprocessed training data
     auto hmm = TrainHMM(training_data);
 
-    // Generate predictions on the training data
-    // Adjust the index if we used a lookback window
-    auto output_index = bars.index();
-    if (m_lookback_window > 0 && X.n_rows > m_lookback_window) {
-      size_t start_idx = X.n_rows - m_lookback_window;
-      output_index = bars.index()->iloc(
-          {static_cast<int64_t>(start_idx), static_cast<int64_t>(X.n_rows)});
-    }
-    return GenerateOutputs(output_index, hmm, training_data);
+    // Apply SAME preprocessing parameters to prediction data
+    prediction_data = ApplyPreprocessParams(prediction_data, preprocess_params);
+
+    // Generate predictions on prediction data (not training data)
+    return GenerateOutputs(prediction_index, hmm, prediction_data);
   }
 
   // Note: GetOutputMetaData() is handled in separate metadata repo
@@ -140,16 +155,41 @@ private:
   size_t m_min_training_samples{100};
   size_t m_lookback_window{0}; // 0 = use all available data
 
-  arma::mat PreprocessData(arma::mat X) const {
-    // Z-score normalization
-    if (m_compute_zscore) {
-      X.each_col([&](arma::vec &col) {
-        double mean = arma::mean(col);
-        double std = arma::stddev(col);
-        if (std > 1e-10) {
-          col = (col - mean) / std;
-        }
-      });
+  // Preprocessing parameters structure
+  struct PreprocessParams {
+    std::vector<double> means;
+    std::vector<double> stds;
+  };
+
+  // Compute preprocessing parameters from training data
+  PreprocessParams ComputePreprocessParams(const arma::mat &X) const {
+    PreprocessParams params;
+    if (!m_compute_zscore) {
+      return params; // Return empty params if not using zscore
+    }
+
+    params.means.resize(X.n_cols);
+    params.stds.resize(X.n_cols);
+
+    for (size_t i = 0; i < X.n_cols; ++i) {
+      params.means[i] = arma::mean(X.col(i));
+      params.stds[i] = arma::stddev(X.col(i));
+    }
+
+    return params;
+  }
+
+  // Apply preprocessing parameters to data
+  arma::mat ApplyPreprocessParams(arma::mat X,
+                                  const PreprocessParams &params) const {
+    if (!m_compute_zscore) {
+      return X; // Return unchanged if not using zscore
+    }
+
+    for (size_t i = 0; i < X.n_cols; ++i) {
+      if (params.stds[i] > 1e-10) {
+        X.col(i) = (X.col(i) - params.means[i]) / params.stds[i];
+      }
     }
 
     return X;

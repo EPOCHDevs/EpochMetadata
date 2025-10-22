@@ -48,7 +48,7 @@ template <> struct ReportMetadata<IndexCardReport> {
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
-      .category = epoch_core::TransformCategory::Executor,
+      .category = epoch_core::TransformCategory::Reporter,
       .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Index Cards Report",
       .options = {
@@ -92,8 +92,7 @@ template <> struct ReportMetadata<IndexCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "index", "search", "position"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
-      .isReporter = true
+      .allowNullInputs = false
     };
   }
 };

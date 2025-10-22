@@ -20,7 +20,9 @@ CREATE_ENUM(TransformCategory,
             Statistical, // z-score, regression, percentiles
             Factor,      // cross-sectional ranks & spreads
             Utility,     // switches, selectors, helpers
-            Executor);   // trade / order sink nodes
+            Reporter,    // report / visualization sink nodes
+            Executor,    // trade / order sink nodes
+            Selector);   // interactive UI selectors
 
 // How the block looks in the blueprint
 CREATE_ENUM(TransformNodeRenderKind,
@@ -75,6 +77,12 @@ CREATE_ENUM(
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any, List,
             Struct);
 
+// Note: CardRenderType, CardSlot, CardColor enums are defined in constants.h
+// Note: Use TransformCategory to distinguish between transform types:
+//   - Regular transforms: Aggregate, Math, Trend, Momentum, etc.
+//   - Reports: category = Executor
+//   - Selectors: category = Selector
+
 namespace epoch_metadata::transforms {
 constexpr auto MARKET_DATA_SOURCE_ID = "market_data_source";
 constexpr auto TRADE_SIGNAL_EXECUTOR_ID = "trade_signal_executor";
@@ -113,7 +121,6 @@ struct TransformsMetaData {
   std::vector<std::string> requiredDataSources{};
   bool intradayOnly{false};
   bool allowNullInputs{false};
-  bool isReporter{false};
 
   // Enhanced metadata for RAG/LLM strategy construction
   std::vector<std::string> strategyTypes{};  // e.g., "mean-reversion", "breakout", "trend-following"
@@ -257,6 +264,7 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor();
 std::vector<TransformsMetaData> MakeTulipIndicators();
 std::vector<TransformsMetaData> MakeTulipCandles();
 std::vector<TransformsMetaData> MakeLagMetaData();
+std::vector<TransformsMetaData> MakeChartFormationMetaData();
 } // namespace epoch_metadata::transforms
 
 namespace YAML {

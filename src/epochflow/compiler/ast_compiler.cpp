@@ -2209,7 +2209,11 @@ namespace epoch_stratifyx::epochflow
             for (size_t i = 0; i < names.size(); ++i)
             {
                 std::string handle = outputs[i].id;
-                var_to_binding_[names[i]] = synthetic_id + "." + handle;
+                // Don't bind underscore variables - they're throwaway
+                if (names[i] != "_")
+                {
+                    var_to_binding_[names[i]] = synthetic_id + "." + handle;
+                }
             }
 
             return;
@@ -2359,7 +2363,15 @@ namespace epoch_stratifyx::epochflow
                 return;
             }
 
-            if (args.size() > input_ids.size())
+            // Check if last input allows multiple connections (variadic inputs)
+            bool last_input_allows_multi = false;
+            if (!inputs.empty())
+            {
+                last_input_allows_multi = inputs.back().allowMultipleConnections;
+            }
+
+            // Validate positional args count (allow multiple args if last input is variadic)
+            if (args.size() > input_ids.size() && !last_input_allows_multi)
             {
                 throwError("Too many positional inputs for '" + target_node_id + "'");
             }
@@ -2367,7 +2379,8 @@ namespace epoch_stratifyx::epochflow
             for (size_t i = 0; i < args.size(); ++i)
             {
                 const auto &handle = args[i];
-                std::string dst_handle = input_ids[i];
+                // For variadic inputs, all extra args go to the last input slot
+                std::string dst_handle = (i < input_ids.size()) ? input_ids[i] : input_ids.back();
 
                 // Type checking: get source and target types
                 DataType source_type = getNodeOutputType(handle.node_id, handle.handle);
