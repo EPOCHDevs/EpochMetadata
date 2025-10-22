@@ -24,7 +24,10 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeScalarMetaData());
   metaDataList.emplace_back(MakeLagMetaData());
   metaDataList.emplace_back(MakeChartFormationMetaData());
+  metaDataList.emplace_back(MakeCalendarEffectMetaData());
   metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());
+  metaDataList.emplace_back(epoch_metadata::transform::MakePolygonDataSources());
+  metaDataList.emplace_back(epoch_metadata::transform::MakeFREDDataSource());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

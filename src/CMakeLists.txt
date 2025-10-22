@@ -2,7 +2,6 @@ target_sources(epoch_metadata PRIVATE bar_attribute.cpp metadata_options.cpp tim
 
 #add_subdirectory(dlb)
 add_subdirectory(reports)
-add_subdirectory(selectors)
 add_subdirectory(strategy)
 #add_subdirectory(ml_kit)
 add_subdirectory(transforms)

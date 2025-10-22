@@ -81,9 +81,20 @@ TEST_CASE("SMC Test") {
          {sessions_transform->GetOutputId("low"), "Low"},
          {sessions_transform->GetOutputId("opened"), "Opened"},
          {sessions_transform->GetOutputId("closed"), "Closed"}});
-    auto status_is_ok = epoch_frame::write_csv_file(renamed_result.reset_index("t"), output_path).ok();
+    auto status_is_ok = epoch_frame::write_csv_file(renamed_result.reset_index(), output_path).ok();
     if (status_is_ok) {
       std::cout << "Wrote actual output to: " << output_path << std::endl;
+    }
+
+    // Drop the "index" column from CSV if it exists, we only need the data columns
+    if (expected.contains("index")) {
+      expected = expected.drop("index");
+    }
+
+    // Set "t" (timestamp) column as the index if it exists
+    if (expected.contains("t")) {
+      auto timestamp_index = std::make_shared<DateTimeIndex>(expected["t"].contiguous_array().value());
+      expected = expected.drop("t").set_index(timestamp_index);
     }
 
     expected =
@@ -157,7 +168,7 @@ TEST_CASE("SMC Test") {
       auto output_path = std::format("{}/{}/{}_{}_out.csv", SMC_TEST_DATA_DIR,
                                      test_instrument, file_name, timeframe);
       auto status_is_ok =
-          epoch_frame::write_csv_file(result.reset_index("t"), output_path)
+          epoch_frame::write_csv_file(result.reset_index(), output_path)
               .ok();
       REQUIRE(status_is_ok);
 
@@ -489,7 +500,7 @@ TEST_CASE("SMC Test") {
                                    test_instrument);
     auto renamed_result_start = result_start.rename(
         {{stw_start->GetOutputId("in_window"), "InWindow"}});
-    auto status_ok = epoch_frame::write_csv_file(renamed_result_start.reset_index("t"), output_path_start).ok();
+    auto status_ok = epoch_frame::write_csv_file(renamed_result_start.reset_index(), output_path_start).ok();
     if (status_ok) {
       std::cout << "Wrote session_time_window start output to: " << output_path_start << std::endl;
     }
@@ -499,7 +510,7 @@ TEST_CASE("SMC Test") {
                                    test_instrument);
     auto renamed_result_end = result_end.rename(
         {{stw_end->GetOutputId("in_window"), "InWindow"}});
-    status_ok = epoch_frame::write_csv_file(renamed_result_end.reset_index("t"), output_path_end).ok();
+    status_ok = epoch_frame::write_csv_file(renamed_result_end.reset_index(), output_path_end).ok();
     if (status_ok) {
       std::cout << "Wrote session_time_window end output to: " << output_path_end << std::endl;
     }

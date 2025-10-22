@@ -123,8 +123,7 @@ public:
 
   // Execute SQL query with column name sanitization
   static epoch_frame::DataFrame ExecuteSQLWithSanitization(const epoch_frame::DataFrame& df,
-                                                           const std::string& sqlQuery,
-                                                           const std::string& tableName) {
+                                                           const std::string& sqlQuery) {
     // Store original column names before sanitization
     auto originalTable = df.table();
     auto originalSchema = originalTable->schema();
@@ -137,7 +136,7 @@ public:
     epoch_frame::DataFrame sanitizedDf = SanitizeColumnNames(df);
 
     // Execute SQL query
-    auto resultTable = sanitizedDf.query(sqlQuery, tableName);
+    auto resultTable = sanitizedDf.query(sqlQuery);
     epoch_frame::DataFrame resultDf(resultTable);
 
     // Build map for restoration

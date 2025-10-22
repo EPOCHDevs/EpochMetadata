@@ -34,7 +34,7 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, input3 as market_data_c, input4 as market_data_v, input5 as market_data_vw FROM input",
+        "sql": "SELECT timestamp, SLOT3 as market_data_c, SLOT4 as market_data_v, SLOT5 as market_data_vw FROM self",
         "output_id": "ohlcv_result",
         "inputs": "{SLOT: [market_data#o, market_data#h, market_data#l, market_data#c, market_data#v, market_data#vw]}",
         "timeframe": "1Min"
@@ -75,7 +75,7 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, input3 as feed_c, input4 as feed_v, input1 - input2 as range FROM input WHERE input4 >= 120000",
+        "sql": "SELECT timestamp, SLOT3 as feed_c, SLOT4 as feed_v, SLOT1 - SLOT2 as range FROM self WHERE SLOT4 >= 120000",
         "output_id": "high_volume_bars",
         "inputs": "{SLOT: [feed#o, feed#h, feed#l, feed#c, feed#v]}",
         "timeframe": "1Min"
@@ -115,7 +115,7 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, input0 as price_feed_c, input1 as price_feed_v, ROUND(SUM(input0 * input1) OVER (ORDER BY timestamp) / SUM(input1) OVER (ORDER BY timestamp), 2) as vwap, SUM(input1) OVER (ORDER BY timestamp) as cumulative_volume FROM input",
+        "sql": "SELECT timestamp, SLOT0 as price_feed_c, SLOT1 as price_feed_v, ROUND(SUM(SLOT0 * SLOT1) OVER (ORDER BY timestamp) / SUM(SLOT1) OVER (ORDER BY timestamp), 2) as vwap, SUM(SLOT1) OVER (ORDER BY timestamp) as cumulative_volume FROM self",
         "output_id": "vwap_calc",
         "inputs": "{SLOT: [price_feed#c, price_feed#v, price_feed#vw]}",
         "timeframe": "1Min"
@@ -156,7 +156,7 @@
       },
       "options": {
         "transform_name": "sql_query_1",
-        "sql": "SELECT timestamp, input0 as ticker_c, ROUND(AVG(input0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as sma_3, COALESCE(input0 - LAG(input0, 1) OVER (ORDER BY timestamp), 0) as momentum, input1 / 100000.0 as volume_ratio FROM input",
+        "sql": "SELECT timestamp, SLOT0 as ticker_c, ROUND(AVG(SLOT0) OVER (ORDER BY timestamp ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) as sma_3, COALESCE(SLOT0 - LAG(SLOT0, 1) OVER (ORDER BY timestamp), 0) as momentum, SLOT1 / 100000.0 as volume_ratio FROM self",
         "output_id": "ma_momentum",
         "inputs": "{SLOT: [ticker#c, ticker#v]}",
         "timeframe": "1Min"

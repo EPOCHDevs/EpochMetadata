@@ -26,15 +26,16 @@ public:
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(const epoch_frame::DataFrame &df) const override {
-    // Step 1: Build input rename mapping (input0, input1, input2, ...)
+    // Step 1: Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
     auto inputRenameMap = this->BuildVARGInputRenameMapping();
 
-    // Step 2: Rename data columns to input0, input1, input2, ...
+    // Step 2: Rename data columns to SLOT0, SLOT1, SLOT2, ...
     epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
 
     // Step 3: Execute SQL query with timestamp index
     // SQLQueryTransform is a timeseries transform - index is always added as 'timestamp'
-    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery, "input");
+    // DuckDB registers the DataFrame as 'self' by default
+    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery);
 
     // Convert Arrow Table to DataFrame
     epoch_frame::DataFrame resultDf(resultTable);
@@ -54,18 +55,19 @@ public:
       // The SQL query defines the exact columns that should be in the output
       return resultDf.set_index("timestamp");
     } else {
-      // For multiple outputs, validate and extract specific columns
+      // For multiple outputs, validate and extract RESULT0, RESULT1, etc. columns
       std::unordered_map<std::string, std::string> outputMap;
       std::vector<transforms::IOMetaData> outputMetaData = GetOutputMetaData();
       std::vector<std::string> outputColumns;
 
-      for (auto const& io : outputMetaData) {
-        // Validate that each expected output column exists
-        if (availableColumns.find(io.id) == availableColumns.end()) {
-          throw std::runtime_error("SQL query result missing required column: " + io.id);
+      for (auto const& [i, io] : std::views::enumerate(outputMetaData)) {
+        std::string resultCol = "RESULT" + std::to_string(i);
+        // Validate that each expected RESULT column exists
+        if (availableColumns.find(resultCol) == availableColumns.end()) {
+          throw std::runtime_error("SQL query result missing required column: " + resultCol);
         }
-        outputMap[io.id] = GetOutputId(io.id);
-        outputColumns.emplace_back(io.id);
+        outputMap[resultCol] = GetOutputId(io.id);
+        outputColumns.emplace_back(resultCol);
       }
 
       // Include timestamp in the column selection

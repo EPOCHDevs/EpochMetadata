@@ -1618,4 +1618,36 @@ inline auto consolidation_box_cfg =
       return TransformConfiguration{TransformDefinition{config}};
     };
 
+// =========================
+// Card Selector configuration helpers
+// =========================
+
+// Card Selector with Filter - Uses boolean column to filter rows
+inline auto card_selector_filter_cfg =
+    [](std::string const &id, std::string const &card_schema_json,
+       const std::vector<std::string> &inputs,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "card_selector_filter";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["card_schema"] = card_schema_json;
+      config["inputs"]["SLOT"] = inputs;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
+// Card Selector with SQL - Uses SQL query to filter rows
+inline auto card_selector_sql_cfg =
+    [](std::string const &id, std::string const &card_schema_json,
+       const std::vector<std::string> &inputs,
+       const epoch_metadata::TimeFrame &timeframe) {
+      YAML::Node config;
+      config["type"] = "card_selector_sql";
+      config["id"] = id;
+      config["timeframe"] = YAML::Load(timeframe.Serialize());
+      config["options"]["card_schema"] = card_schema_json;
+      config["inputs"]["SLOT"] = inputs;
+      return TransformConfiguration{TransformDefinition{config}};
+    };
+
 } // namespace epoch_metadata::transform

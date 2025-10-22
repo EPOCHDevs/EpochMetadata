@@ -70,8 +70,10 @@ private:
     const auto high_arr = bars[C.HIGH()].contiguous_array();
     const auto low_arr = bars[C.LOW()].contiguous_array();
 
+    auto barsIndexUTC = bars.index()->tz_localize("UTC");
+
     auto [active, opened, closed] =
-        sessions_utils::BuildActiveMaskUTC(bars.index(), m_time_range);
+        sessions_utils::BuildActiveMaskUTC(barsIndexUTC, m_time_range);
     std::vector<double> high(bars.size());
     std::vector<double> low(bars.size());
 

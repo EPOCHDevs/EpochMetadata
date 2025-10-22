@@ -21,7 +21,7 @@
 #include <yaml-cpp/yaml.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList, Time, String);
+            StringList, Time, String, CardSchema);
 
 namespace epoch_metadata
 {
@@ -37,7 +37,7 @@ namespace epoch_metadata
   using SequenceItem = std::variant<double, std::string>;
   using Sequence = std::vector<SequenceItem>;
 
-  // Card selector schema structures (forward declarations needed for variant)
+  // Card selector schema structures
   struct CardColumnSchema {
     std::string column_id;
     epoch_core::CardSlot slot;
@@ -45,21 +45,82 @@ namespace epoch_metadata
     std::unordered_map<epoch_core::CardColor, std::vector<std::string>> color_map;
 
     bool operator==(const CardColumnSchema &) const = default;
+
+    struct glaze_json_schema {
+      glz::schema column_id{
+        .description = "ID of the DataFrame column to display in this card slot",
+        .minLength = 1
+      };
+      glz::schema slot{
+        .description = "Card slot position where this column will be rendered",
+        .enumeration = std::vector<std::string_view>{"PrimaryBadge", "SecondaryBadge", "Hero", "Subtitle", "Footer", "Details"}
+      };
+      glz::schema render_type{
+        .description = "How to render this column's value",
+        .enumeration = std::vector<std::string_view>{"Text", "Number", "Badge", "Timestamp", "Boolean", "Icon", "Navigator"}
+      };
+      glz::schema color_map{
+        .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default"
+      };
+    };
   };
 
-  struct CardSchemaList {
+  // Card selector schema using boolean column filter
+  struct CardSchemaFilter {
     std::string title;
-    std::string select_key;  // Boolean column to filter rows (alternative to sql)
-    std::string sql;         // SQL query to filter/transform (alternative to select_key)
+    std::string select_key;  // Boolean column to filter rows
     std::vector<CardColumnSchema> schemas;
 
-    bool operator==(const CardSchemaList &) const = default;
+    bool operator==(const CardSchemaFilter &) const = default;
+
+    struct glaze_json_schema {
+      glz::schema title{
+        .description = "Title displayed above the card selector widget",
+        .minLength = 1
+      };
+      glz::schema select_key{
+        .description = "Name of boolean DataFrame column used to filter rows (only rows where this column is true will be shown as cards)",
+        .minLength = 1
+      };
+      glz::schema schemas{
+        .description = "Array of column definitions specifying how each DataFrame column should be rendered in the cards",
+        .minItems = 1
+      };
+    };
   };
+
+  // Card selector schema using SQL query
+  struct CardSchemaSQL {
+    std::string title;
+    std::string sql;  // SQL query to filter/transform
+    std::vector<CardColumnSchema> schemas;
+
+    bool operator==(const CardSchemaSQL &) const = default;
+
+    struct glaze_json_schema {
+      glz::schema title{
+        .description = "Title displayed above the card selector widget",
+        .minLength = 1
+      };
+      glz::schema sql{
+        .description = "SQL query to filter/transform data (MUST use 'FROM self'). Input columns are automatically renamed to SLOT0, SLOT1, SLOT2, etc. based on connection order",
+        .minLength = 1,
+        .pattern = ".*FROM\\s+self.*"
+      };
+      glz::schema schemas{
+        .description = "Array of column definitions specifying how each DataFrame column should be rendered in the cards",
+        .minItems = 1
+      };
+    };
+  };
+
+  // Legacy type alias for backwards compatibility - kept for existing code
+  using CardSchemaList = CardSchemaFilter;
 
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaList>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaFilter, CardSchemaSQL>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -174,9 +235,14 @@ namespace epoch_metadata
 
     [[nodiscard]] epoch_frame::Time GetTime() const;
 
-    [[nodiscard]] CardSchemaList GetCardSchemaList() const
+    [[nodiscard]] CardSchemaFilter GetCardSchemaList() const
     {
-      return GetValueByType<CardSchemaList>();
+      return GetValueByType<CardSchemaFilter>();
+    }
+
+    [[nodiscard]] CardSchemaSQL GetCardSchemaSQL() const
+    {
+      return GetValueByType<CardSchemaSQL>();
     }
 
     std::string GetRef() const

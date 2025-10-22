@@ -16,7 +16,7 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
   }
 
   try {
-    // Build input rename mapping (input0, input1, input2, ...)
+    // Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
     auto inputRenameMap = BuildVARGInputRenameMapping();
     epoch_frame::DataFrame inputDf = normalizedDf.rename(inputRenameMap);
 
@@ -26,7 +26,7 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
     if (m_addIndex) {
       inputDf = inputDf.reset_index("timestamp");
     }
-    auto resultTable = inputDf.query(m_sqlQuery, "input");
+    auto resultTable = inputDf.query(m_sqlQuery);
     epoch_frame::DataFrame resultDf(resultTable);
 
 

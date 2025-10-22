@@ -8,6 +8,16 @@
 #include <yaml-cpp/yaml.h>
 #include <epoch_core/enum_wrapper.h>
 
+// Data source enums (defined here to avoid circular dependencies)
+CREATE_ENUM(PolygonDataType,
+            BalanceSheet,     // Balance sheet fundamental data
+            IncomeStatement,  // Income statement fundamental data
+            CashFlow,         // Cash flow statement fundamental data
+            FinancialRatios,  // Financial ratios and metrics
+            Quotes,           // Quote (NBBO) data
+            Trades,           // Trade tick data
+            Aggregates);      // Aggregate bars (OHLCV)
+
 // Card selector enums (defined here to avoid circular dependencies)
 CREATE_ENUM(CardRenderType,
             Text,       // Generic text/label

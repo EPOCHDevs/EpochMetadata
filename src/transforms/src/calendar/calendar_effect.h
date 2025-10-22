@@ -49,7 +49,6 @@ namespace epoch_metadata::transform
         int64_t m_days_after{0};       // For turn-of-month, holiday effects
         int64_t m_target_value{0};     // For day-of-week (0-6), month (1-12), quarter (1-4)
         std::string m_country{"US"};   // For holiday calendar
-        bool m_output_binary{true};    // true=boolean mask, false=numeric multiplier
 
         // Helper methods for each effect type
         epoch_frame::Series ApplyTurnOfMonth(const epoch_frame::DataFrame& bars) const;

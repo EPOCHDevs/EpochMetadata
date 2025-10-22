@@ -89,14 +89,6 @@ namespace epoch_metadata::transform
             auto week_str = config.GetOptionValue("week").GetSelectOption();
             m_target_value = WeekStringToInt(week_str);
         }
-
-        // Check if output_mode option exists
-        try {
-            auto output_mode_opt = config.GetOptionValue("output_mode");
-            m_output_binary = (output_mode_opt.GetSelectOption() == "boolean");
-        } catch (...) {
-            // output_mode option not provided, use default
-        }
     }
 
     template <epoch_core::CalendarEffectType effect_type>
@@ -182,16 +174,6 @@ namespace epoch_metadata::transform
             }
         }
 
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
-
         return mask;
     }
 
@@ -213,16 +195,6 @@ namespace epoch_metadata::transform
         // Create mask for target weekday
         auto mask = (dow_series == Scalar(MakeScalar(static_cast<int64_t>(m_target_value))));
 
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
-
         return mask;
     }
 
@@ -240,16 +212,6 @@ namespace epoch_metadata::transform
         // Create mask for target month
         auto mask = (month_series == Scalar(MakeScalar(static_cast<int64_t>(m_target_value))));
 
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
-
         return mask;
     }
 
@@ -266,16 +228,6 @@ namespace epoch_metadata::transform
 
         // Create mask for target quarter
         auto mask = (quarter_series == Scalar(MakeScalar(static_cast<int64_t>(m_target_value))));
-
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
 
         return mask;
     }
@@ -349,16 +301,6 @@ namespace epoch_metadata::transform
 
         auto mask = Series(bars.index(), factory::array::make_array(mask_data));
 
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
-
         return mask;
     }
 
@@ -378,16 +320,6 @@ namespace epoch_metadata::transform
 
         // Create mask for target week
         auto mask = (week_of_month == Scalar(MakeScalar(static_cast<int64_t>(m_target_value))));
-
-        // Convert to numeric if requested
-        if (!m_output_binary)
-        {
-            auto cast_result = arrow::compute::Cast(mask.array(), arrow::float64());
-            if (!cast_result.ok()) {
-                throw std::runtime_error("Failed to cast mask to float64: " + cast_result.status().ToString());
-            }
-            return Series(mask.index(), cast_result.ValueOrDie().chunked_array());
-        }
 
         return mask;
     }

@@ -134,13 +134,13 @@ protected:
   }
 
   // Build column rename mapping for input-based SQL queries
-  // Maps input column names to input0, input1, input2, etc. based on order
+  // Maps input column names to SLOT0, SLOT1, SLOT2, etc. based on order
   std::unordered_map<std::string, std::string> BuildVARGInputRenameMapping() const {
     std::unordered_map<std::string, std::string> renameMap;
     auto slot = m_config.GetInputs();
     AssertFromStream(slot.size() == 1, "Expected a VARG");
     for (auto const &[i, column] : std::views::enumerate(slot.begin()->second)) {
-      renameMap[column] = "input" + std::to_string(i);
+      renameMap[column] = "SLOT" + std::to_string(i);
     }
 
     return renameMap;

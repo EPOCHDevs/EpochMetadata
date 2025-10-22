@@ -88,6 +88,13 @@ void MetaDataOptionDefinition::AssertType(
   case epoch_core::MetaDataOptionType::String:
     AssertType<std::string>();
     break;
+  case epoch_core::MetaDataOptionType::CardSchema:
+    // CardSchema can be either CardSchemaFilter or CardSchemaSQL
+    if (!std::holds_alternative<CardSchemaFilter>(m_optionsVariant) &&
+        !std::holds_alternative<CardSchemaSQL>(m_optionsVariant)) {
+      throw std::runtime_error("Expected CardSchemaFilter or CardSchemaSQL type");
+    }
+    break;
   case epoch_core::MetaDataOptionType::Null:
     throw std::runtime_error("Null value not allowed.");
   }
@@ -111,6 +118,9 @@ bool MetaDataOptionDefinition::IsType(
     return std::holds_alternative<Sequence>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::String:
     return std::holds_alternative<std::string>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::CardSchema:
+    return std::holds_alternative<CardSchemaFilter>(m_optionsVariant) ||
+           std::holds_alternative<CardSchemaSQL>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
     return false;
   }
@@ -194,11 +204,19 @@ size_t MetaDataOptionDefinition::GetHash() const {
           seed ^= std::hash<int>{}(arg.microsecond.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           seed ^= std::hash<std::string>{}(arg.tz) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           return seed;
-        } else if constexpr (std::same_as<K, CardSchemaList>) {
-          // Hash CardSchemaList by hashing its fields
+        } else if constexpr (std::same_as<K, CardSchemaFilter>) {
+          // Hash CardSchemaFilter by hashing its fields
           size_t seed = 0;
           seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           seed ^= std::hash<std::string>{}(arg.select_key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          for (const auto &schema : arg.schemas) {
+            seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          }
+          return seed;
+        } else if constexpr (std::same_as<K, CardSchemaSQL>) {
+          // Hash CardSchemaSQL by hashing its fields
+          size_t seed = 0;
+          seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           seed ^= std::hash<std::string>{}(arg.sql) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           for (const auto &schema : arg.schemas) {
             seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -242,8 +260,11 @@ std::string MetaDataOptionDefinition::ToString() const {
         } else if constexpr (std::same_as<K, epoch_frame::Time>) {
           // Use the built-in repr() method for simple string representation
           return arg.repr();
-        } else if constexpr (std::same_as<K, CardSchemaList>) {
-          // Use glaze to pretty print the full CardSchemaList structure
+        } else if constexpr (std::same_as<K, CardSchemaFilter>) {
+          // Use glaze to pretty print the full CardSchemaFilter structure
+          return glz::write_json(arg).value_or("{}");
+        } else if constexpr (std::same_as<K, CardSchemaSQL>) {
+          // Use glaze to pretty print the full CardSchemaSQL structure
           return glz::write_json(arg).value_or("{}");
         } else {
           return std::to_string(arg);
@@ -311,6 +332,8 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
     return MetaDataOptionDefinition{node.as<std::string>()};
   }
   case epoch_core::MetaDataOptionType::String:
+    return MetaDataOptionDefinition{node.as<std::string>()};
+  case epoch_core::MetaDataOptionType::CardSchema:
     return MetaDataOptionDefinition{node.as<std::string>()};
   case epoch_core::MetaDataOptionType::Null:
     break;

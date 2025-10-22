@@ -265,7 +265,15 @@ std::vector<TransformsMetaData> MakeTulipIndicators();
 std::vector<TransformsMetaData> MakeTulipCandles();
 std::vector<TransformsMetaData> MakeLagMetaData();
 std::vector<TransformsMetaData> MakeChartFormationMetaData();
+std::vector<TransformsMetaData> MakeCalendarEffectMetaData();
 } // namespace epoch_metadata::transforms
+
+// Forward declarations for data source metadata factories
+// Actual implementations are in header-only files under src/transforms/src/data_sources/
+namespace epoch_metadata::transform {
+std::vector<epoch_metadata::transforms::TransformsMetaData> MakePolygonDataSources();
+std::vector<epoch_metadata::transforms::TransformsMetaData> MakeFREDDataSource();
+} // namespace epoch_metadata::transform
 
 namespace YAML {
 template <> struct convert<epoch_metadata::transforms::IOMetaData> {

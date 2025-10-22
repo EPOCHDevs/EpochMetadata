@@ -37,8 +37,13 @@
 // Calendar Effects
 #include "calendar/calendar_effect.h"
 
+// Data Source includes
+#include "data_sources/polygon_data_source.h"
+#include "data_sources/polygon_metadata.h"
+#include "data_sources/fred_metadata.h"
+
 // Selector includes
-#include "selectors/card_selector.h"
+#include "../../../include/epoch_metadata/selectors/card_selector.h"
 
 // SQL and Report includes
 #include "sql/sql_query_transform.h"
@@ -80,6 +85,15 @@ void InitializeTransforms(
     std::function<YAML::Node(std::string const &)> const &loader,
     std::vector<std::string> const &algorithmBuffers,
     std::vector<std::string> const &strategyBuffers) {
+  // Bring Polygon transform type aliases into scope
+  using PolygonBalanceSheetTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::BalanceSheet>;
+  using PolygonIncomeStatementTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::IncomeStatement>;
+  using PolygonCashFlowTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::CashFlow>;
+  using PolygonFinancialRatiosTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::FinancialRatios>;
+  using PolygonQuotesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Quotes>;
+  using PolygonTradesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Trades>;
+  using PolygonAggregatesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Aggregates>;
+
   epoch_metadata::strategy::RegisterStrategyMetadata(loader, algorithmBuffers,
                                                      strategyBuffers);
 
@@ -252,8 +266,26 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(holiday, HolidayEffect);
   REGISTER_TRANSFORM(week_of_month, WeekOfMonthEffect);
 
+  // Fundamental & Market Data Source Transforms
+  REGISTER_TRANSFORM(balance_sheet, PolygonBalanceSheetTransform);
+  REGISTER_TRANSFORM(income_statement, PolygonIncomeStatementTransform);
+  REGISTER_TRANSFORM(cash_flow, PolygonCashFlowTransform);
+  REGISTER_TRANSFORM(financial_ratios, PolygonFinancialRatiosTransform);
+  REGISTER_TRANSFORM(quotes, PolygonQuotesTransform);
+  REGISTER_TRANSFORM(trades, PolygonTradesTransform);
+  REGISTER_TRANSFORM(aggregates, PolygonAggregatesTransform);
+
+  // Economic Data Source Transforms
+  REGISTER_TRANSFORM(economic_indicator, DataSourceTransform);
+
   // Register Selectors
-  selectors::RegisterSelector<selectors::CardSelectorTransform>();
+  REGISTER_TRANSFORM(card_selector_filter, selectors::CardSelectorFromFilter);
+  transforms::ITransformRegistry::GetInstance().Register(
+    selectors::SelectorMetadata<selectors::CardSelectorFromFilter>::Get());
+
+  REGISTER_TRANSFORM(card_selector_sql, selectors::CardSelectorFromSQL);
+  transforms::ITransformRegistry::GetInstance().Register(
+    selectors::SelectorMetadata<selectors::CardSelectorFromSQL>::Get());
 
   // SQL Query Transforms (1-4 outputs)
   REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
