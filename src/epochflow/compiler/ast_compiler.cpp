@@ -46,18 +46,6 @@ namespace epoch_stratifyx::epochflow
         // Resolve timeframes for all nodes using TimeframeResolver utility
         resolveTimeframes(std::nullopt); // Pass nullopt as base timeframe for now
 
-        // TODO: Validate executor count (should have exactly 1 in strict mode)
-        // Commented out for now as it breaks test cases that don't have executors
-        // This validation should be enabled for production algorithms only
-        // if (executor_count_ == 0)
-        // {
-        //     throwError("No TradeSignalExecutor found in algorithm. Add a trade_signal_executor node to execute trading decisions.");
-        // }
-        // else if (executor_count_ > 1)
-        // {
-        //     throwError(std::format("Found {} TradeSignalExecutors, expected exactly 1. Remove extra trade_signal_executor nodes - only one is allowed.", executor_count_));
-        // }
-
         // Return results - move semantics for zero-copy
         return std::move(algorithms_);
     }

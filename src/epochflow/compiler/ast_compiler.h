@@ -47,6 +47,8 @@ namespace epoch_stratifyx::epochflow
         // Direct AST compilation (for testing)
         CompilationResult compileAST(ModulePtr module);
 
+        size_t getExecutorCount() const { return executor_count_; }
+
     private:
         // Compilation state - optimal for single-pass
         std::unordered_map<std::string, std::string> var_to_binding_;                            // variable -> "node.handle" or "component_name"
