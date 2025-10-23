@@ -25,6 +25,7 @@ namespace epoch_metadata::strategy
     std::vector<AlgorithmNode> compilationResult_;
     bool isIntraday_{false};
     std::optional<epoch_core::BaseDataTimeFrame> baseTimeframe_;
+    size_t m_executor_count{};
 
   public:
     // Default constructor
@@ -44,6 +45,8 @@ namespace epoch_metadata::strategy
     {
       return source_ == other.source_;
     }
+
+    size_t getExecutorCount() const { return m_executor_count; }
 
     // Glaze serialization support - friend for custom serialization
     friend struct glz::meta<PythonSource>;

@@ -68,6 +68,7 @@ PythonSource::PythonSource(std::string src) : source_(std::move(src))
   // Compile Python source to get algorithm nodes
   epoch_stratifyx::epochflow::AlgorithmAstCompiler compiler;
   compilationResult_ = compiler.compile(source_);
+  m_executor_count = compiler.getExecutorCount();
 
   // Determine base timeframe from compilation result
   baseTimeframe_ = GetBaseTimeFrameFromCompilationResult(compilationResult_);
