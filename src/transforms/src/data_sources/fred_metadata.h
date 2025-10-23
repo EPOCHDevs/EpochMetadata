@@ -63,29 +63,6 @@ MakeFREDDataSource() {
                               {"VIX", "VIX Volatility Index (CBOE)"},
                           },
                       .desc = "Select the economic indicator series to load"},
-                  MetaDataOption{
-                      .id = "from_date",
-                      .name = "From Date",
-                      .type = epoch_core::MetaDataOptionType::String,
-                      .defaultValue = MetaDataOptionDefinition(std::string("")),
-                      .desc =
-                          "Start date for observations (YYYY-MM-DD format)"},
-                  MetaDataOption{
-                      .id = "to_date",
-                      .name = "To Date",
-                      .type = epoch_core::MetaDataOptionType::String,
-                      .defaultValue = MetaDataOptionDefinition(std::string("")),
-                      .desc = "End date for observations (YYYY-MM-DD format)"},
-                  MetaDataOption{
-                      .id = "published_from",
-                      .name = "Published From (ALFRED)",
-                      .type = epoch_core::MetaDataOptionType::String,
-                      .defaultValue = MetaDataOptionDefinition(std::string("")),
-                      .desc =
-                          "Optional: Point-in-time filter for backtesting. "
-                          "Get data as it existed on this date (YYYY-MM-DD). "
-                          "Use ALFRED realtime period to avoid look-ahead bias "
-                          "from data revisions."},
               },
           .isCrossSectional = false,
           .desc =
@@ -96,37 +73,36 @@ MakeFREDDataSource() {
           .inputs = {},
           .outputs =
               {
-                  {epoch_core::IODataType::String, "date", "Observation Date",
-                   true},
+                  {epoch_core::IODataType::String, "observation_date",
+                   "Economic Period", true},
                   {epoch_core::IODataType::Decimal, "value", "Indicator Value",
                    true},
-                  {epoch_core::IODataType::String, "published_at",
-                   "Published At (ALFRED)", true},
               },
           .atLeastOneInputRequired = false,
           .tags = {"fred", "macro", "economic-indicators", "inflation",
                    "interest-rates", "gdp", "employment"},
-          .requiresTimeFrame = false,
+          .requiresTimeFrame = true,
+          .requiredDataSources = {"c"},
           .strategyTypes = {"macro-analysis", "regime-detection",
                             "economic-calendar", "risk-on-risk-off"},
           .assetRequirements = {},
           .usageContext =
               "Access Federal Reserve economic data for macro-driven "
-              "strategies. Use for economic cycle identification (expansion/"
-              "recession), monetary policy regime detection (tightening/"
-              "easing), and risk-on/risk-off switching. Combine inflation + "
-              "rates for monetary policy stance, unemployment + GDP for cycle "
-              "phase, VIX for market stress. Non-ticker-based - same data "
-              "applies to all assets in strategy.",
+              "strategies. Date range auto-derived from connected market data. "
+              "Returns publication events (non-null only on release dates) - "
+              "strategy decides how to use (compare, trigger, lag, etc.). "
+              "Use for economic cycle identification, monetary policy regime "
+              "detection, and risk-on/risk-off switching. Combine inflation + "
+              "rates for policy stance, unemployment + GDP for cycle phase. "
+              "Requires connection to market data source.",
           .limitations =
-              "Data publication frequency varies by indicator: daily (rates/"
-              "VIX), weekly (claims), monthly (CPI/employment/retail), "
-              "quarterly (GDP). Significant lag between period end and "
-              "publication (weeks to months). FRED data is US-centric. "
-              "CRITICAL: Use 'published_from' (ALFRED) for realistic "
-              "backtesting to get data as it existed historically - avoids "
-              "look-ahead bias from revisions. Requires external FRED data "
-              "loader.",
+              "Publication frequency varies: daily (rates/VIX), weekly (claims), "
+              "monthly (CPI/employment), quarterly (GDP). Significant lag between "
+              "period end and publication (weeks to months). Values appear ONLY "
+              "on publication dates (not forward-filled). FRED data is US-centric. "
+              "External loader must implement ALFRED point-in-time filtering to "
+              "avoid look-ahead bias from data revisions. Requires external FRED "
+              "data loader with API key.",
       });
 
   return metadataList;

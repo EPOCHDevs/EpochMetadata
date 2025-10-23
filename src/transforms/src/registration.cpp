@@ -41,6 +41,7 @@
 #include "data_sources/polygon_data_source.h"
 #include "data_sources/polygon_metadata.h"
 #include "data_sources/fred_metadata.h"
+#include "data_sources/fred_transform.h"
 
 // Selector includes
 #include "../../../include/epoch_metadata/selectors/card_selector.h"
@@ -276,7 +277,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(aggregates, PolygonAggregatesTransform);
 
   // Economic Data Source Transforms
-  REGISTER_TRANSFORM(economic_indicator, DataSourceTransform);
+  REGISTER_TRANSFORM(economic_indicator, FREDTransform);
 
   // Register Selectors
   REGISTER_TRANSFORM(card_selector_filter, selectors::CardSelectorFromFilter);
