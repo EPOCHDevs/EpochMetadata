@@ -18,7 +18,7 @@ TEST_CASE("Transform MetaData Total Count is Correct", "[.]") {
   using namespace epoch_metadata::transforms;
 
   auto metadata = ITransformRegistry::GetInstance().GetMetaData();
-  REQUIRE(metadata.size() == 231);
+  REQUIRE(metadata.size() == 277);
 
   if constexpr (kWriteToCsv) {
 

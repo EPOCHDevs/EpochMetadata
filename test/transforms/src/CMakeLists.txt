@@ -5,6 +5,7 @@ transforms_test.cpp trade_executor_test.cpp)
 
 add_subdirectory(cummulative)
 add_subdirectory(cross_sectional)
+add_subdirectory(data_sources)
 add_subdirectory(futures)
 add_subdirectory(hosseinmoein)
 add_subdirectory(operators)

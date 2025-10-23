@@ -5,6 +5,8 @@
 #include "../doc_deserialization_helper.h"
 #include "epoch_metadata/transforms/registry.h"
 #include "src/sql/sql_query_metadata.h"
+#include "src/data_sources/polygon_metadata.h"
+#include "src/data_sources/fred_metadata.h"
 
 namespace epoch_metadata::transforms {
 void RegisterStrategyMetaData(const std::string &name,

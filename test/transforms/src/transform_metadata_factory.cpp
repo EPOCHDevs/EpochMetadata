@@ -262,6 +262,16 @@ TEST_CASE("Transform Metadata Factory") {
       continue;
     }
 
+    // Skip external data source transforms - they require external API data that can't be auto-generated
+    const std::unordered_set<std::string> externalDataSources = {
+      "economic_indicator",  // FRED API
+      "balance_sheet", "income_statement", "cash_flow", "financial_ratios",  // Polygon Fundamentals
+      "quotes", "trades", "aggregates"  // Polygon Market Data
+    };
+    if (externalDataSources.contains(id)) {
+      continue;
+    }
+
     INFO("Transform: " << id);
     REQUIRE(metadataMap.contains(id));
 

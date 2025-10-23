@@ -59,15 +59,7 @@ public:
 
   // Public getter for the generated TearSheet
   epoch_proto::TearSheet GetTearSheet() const final {
-    auto tearsheet = m_dashboard.build();
-    std::cerr << "DEBUG IReporter::GetTearSheet: tearsheet has "
-              << (tearsheet.has_charts() ? tearsheet.charts().charts_size() : 0)
-              << " charts" << std::endl;
-    if (tearsheet.has_charts() && tearsheet.charts().charts_size() > 0) {
-      std::cerr << "DEBUG IReporter::GetTearSheet: first chart type_case="
-                << tearsheet.charts().charts(0).chart_type_case() << std::endl;
-    }
-    return tearsheet;
+    return m_dashboard.build();
   }
 
 

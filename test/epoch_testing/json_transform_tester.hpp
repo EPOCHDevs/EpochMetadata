@@ -760,23 +760,8 @@ namespace epoch
                                                     }
 
                                                     // Parse bars for bar charts
-                                                    if (chart.contains("title") && chart["title"].holds<std::string>())
-                                                    {
-                                                        std::string title = chart["title"].get<std::string>();
-                                                        std::cerr << "DEBUG JSON PARSE: Chart '" << title << "', has bars: " << chart.contains("bars") << std::endl;
-                                                        if (title == "Gap Fill Analysis" && !chart.contains("bars"))
-                                                        {
-                                                            std::cerr << "DEBUG: Chart keys: ";
-                                                            for (auto &[key, val] : chart)
-                                                            {
-                                                                std::cerr << key << ", ";
-                                                            }
-                                                            std::cerr << std::endl;
-                                                        }
-                                                    }
                                                     if (chart.contains("bars") && chart["bars"].holds<glz::generic::array_t>())
                                                     {
-                                                        std::cerr << "DEBUG JSON PARSE: Found bars array" << std::endl;
                                                         std::vector<BarCategory> barsData;
                                                         for (auto &barJson : chart["bars"].get<glz::generic::array_t>())
                                                         {
@@ -803,7 +788,6 @@ namespace epoch
                                                                 // Handle data array format (for multi-series charts)
                                                                 if (bar.contains("data") && bar["data"].holds<glz::generic::array_t>())
                                                                 {
-                                                                    std::cerr << "DEBUG JSON PARSE: Found data array for bar " << barData.name << std::endl;
                                                                     for (auto &dataVal : bar["data"].get<glz::generic::array_t>())
                                                                     {
                                                                         if (dataVal.holds<double>())
@@ -811,18 +795,14 @@ namespace epoch
                                                                             // All numbers come through as double in glaze
                                                                             double val = dataVal.get<double>();
                                                                             barData.data.push_back(val);
-                                                                            std::cerr << "DEBUG JSON PARSE: Added value " << val << std::endl;
                                                                         }
                                                                     }
-                                                                    std::cerr << "DEBUG JSON PARSE: Total values in data array: " << barData.data.size() << std::endl;
                                                                 }
 
                                                                 barsData.push_back(barData);
-                                                                std::cerr << "DEBUG JSON PARSE: Added bar " << barData.name << ", data size=" << barData.data.size() << std::endl;
                                                             }
                                                         }
                                                         tearChart.bars = barsData;
-                                                        std::cerr << "DEBUG JSON PARSE: Set bars on tearChart, size=" << barsData.size() << std::endl;
                                                     }
 
                                                     // Parse vertical and stacked for bar charts
@@ -832,7 +812,6 @@ namespace epoch
                                                         if (vertVal.holds<bool>())
                                                         {
                                                             tearChart.vertical = vertVal.get<bool>();
-                                                            std::cout << "DEBUG JSON PARSE: Setting vertical=" << vertVal.get<bool>() << std::endl;
                                                         }
                                                     }
                                                     if (chart.contains("stacked"))
@@ -841,7 +820,6 @@ namespace epoch
                                                         if (stackedVal.holds<bool>())
                                                         {
                                                             tearChart.stacked = stackedVal.get<bool>();
-                                                            std::cout << "DEBUG JSON PARSE: Setting stacked=" << stackedVal.get<bool>() << std::endl;
                                                         }
                                                     }
 

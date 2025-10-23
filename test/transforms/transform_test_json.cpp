@@ -497,7 +497,6 @@ namespace
                         else if (chart.type == "WidgetBarChart")
                         {
                             // Bar chart conversion
-                            std::cerr << "DEBUG PROTO CONVERT: Converting BarChart '" << chart.title << "', chart.bars.has_value()=" << chart.bars.has_value() << std::endl;
                             epoch_proto::BarDef *barDef = protoChart->mutable_bar_def();
                             barDef->mutable_chart_def()->set_title(chart.title);
                             barDef->mutable_chart_def()->set_category(chart.category);
@@ -505,12 +504,10 @@ namespace
 
                             if (chart.vertical.has_value())
                             {
-                                std::cerr << "DEBUG PROTO CONVERT: Setting vertical=" << chart.vertical.value() << std::endl;
                                 barDef->set_vertical(chart.vertical.value());
                             }
                             if (chart.stacked.has_value())
                             {
-                                std::cerr << "DEBUG PROTO CONVERT: Setting stacked=" << chart.stacked.value() << std::endl;
                                 barDef->set_stacked(chart.stacked.value());
                             }
 
@@ -520,43 +517,30 @@ namespace
 
                                 // Check if this is multi-series format (bars have data arrays)
                                 bool isMultiSeries = !bars.empty() && !bars[0].data.empty();
-                                std::cerr << "DEBUG PROTO CONVERT: bars.size()=" << bars.size() << ", isMultiSeries=" << isMultiSeries;
-                                if (!bars.empty())
-                                {
-                                    std::cerr << ", bars[0].data.size()=" << bars[0].data.size();
-                                }
-                                std::cerr << std::endl;
 
                                 if (isMultiSeries)
                                 {
                                     // Multi-series format: each bar is a series with name and data array
-                                    std::cerr << "DEBUG PROTO CONVERT: Multi-series path, bars.size()=" << bars.size() << std::endl;
                                     for (const auto &bar : bars)
                                     {
                                         epoch_proto::BarData *barData = barDef->add_data();
                                         barData->set_name(bar.name);
-                                        std::cerr << "DEBUG PROTO CONVERT: Processing bar " << bar.name << ", data.size()=" << bar.data.size() << std::endl;
 
                                         for (const auto &val : bar.data)
                                         {
                                             if (std::holds_alternative<double>(val))
                                             {
                                                 barData->add_values(std::get<double>(val));
-                                                std::cerr << "DEBUG PROTO CONVERT: Added double " << std::get<double>(val) << std::endl;
                                             }
                                             else if (std::holds_alternative<int64_t>(val))
                                             {
                                                 barData->add_values(static_cast<double>(std::get<int64_t>(val)));
-                                                std::cerr << "DEBUG PROTO CONVERT: Added int64 " << std::get<int64_t>(val) << std::endl;
                                             }
                                             else
                                             {
-                                                std::cerr << "DEBUG PROTO CONVERT: Value holds neither double nor int64_t" << std::endl;
                                             }
                                         }
-                                        std::cerr << "DEBUG PROTO CONVERT: Final values_size()=" << barData->values_size() << std::endl;
                                     }
-                                    std::cerr << "DEBUG PROTO CONVERT: BarDef now has " << barDef->data_size() << " series" << std::endl;
                                 }
                                 else
                                 {
@@ -668,21 +652,17 @@ namespace
                 }
 
                 // Debug: Check chart data before move
-                std::cerr << "DEBUG BEFORE MOVE: tearsheet has " << tearsheet->protoTearsheet.charts().charts_size() << " charts" << std::endl;
                 if (tearsheet->protoTearsheet.has_charts() && tearsheet->protoTearsheet.charts().charts_size() > 0)
                 {
                     const auto &firstChart = tearsheet->protoTearsheet.charts().charts(0);
                     if (firstChart.has_bar_def())
                     {
-                        std::cerr << "DEBUG BEFORE MOVE: First bar chart '" << firstChart.bar_def().chart_def().title() << "' has " << firstChart.bar_def().data_size() << " series" << std::endl;
                     }
                     else if (firstChart.has_histogram_def())
                     {
-                        std::cerr << "DEBUG BEFORE MOVE: First chart is histogram" << std::endl;
                     }
                     else
                     {
-                        std::cerr << "DEBUG BEFORE MOVE: First chart is other type" << std::endl;
                     }
                 }
 
