@@ -6,9 +6,9 @@
 
 namespace epoch_metadata::transform {
 
-// Template class for Polygon data sources
-// Each specialization handles a specific Polygon data type with static output metadata
-template <epoch_core::PolygonDataType DataType>
+// Polygon data source transform
+// Handles all Polygon data types (balance_sheet, income_statement, cash_flow, etc.)
+// The specific data type is determined by the transform ID in the configuration
 class PolygonDataSourceTransform final : public ITransform {
 public:
   explicit PolygonDataSourceTransform(const TransformConfiguration &config)
@@ -31,20 +31,13 @@ private:
   std::unordered_map<std::string, std::string> m_replacements;
 };
 
-// Type aliases for each Polygon data source specialization
-using PolygonBalanceSheetTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::BalanceSheet>;
-using PolygonIncomeStatementTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::IncomeStatement>;
-using PolygonCashFlowTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::CashFlow>;
-using PolygonFinancialRatiosTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::FinancialRatios>;
-using PolygonQuotesTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::Quotes>;
-using PolygonTradesTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::Trades>;
-using PolygonAggregatesTransform =
-    PolygonDataSourceTransform<epoch_core::PolygonDataType::Aggregates>;
+// Type aliases for each Polygon data source (for backward compatibility and clarity)
+using PolygonBalanceSheetTransform = PolygonDataSourceTransform;
+using PolygonIncomeStatementTransform = PolygonDataSourceTransform;
+using PolygonCashFlowTransform = PolygonDataSourceTransform;
+using PolygonFinancialRatiosTransform = PolygonDataSourceTransform;
+using PolygonQuotesTransform = PolygonDataSourceTransform;
+using PolygonTradesTransform = PolygonDataSourceTransform;
+using PolygonAggregatesTransform = PolygonDataSourceTransform;
 
 } // namespace epoch_metadata::transform

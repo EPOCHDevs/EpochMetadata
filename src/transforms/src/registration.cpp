@@ -86,15 +86,6 @@ void InitializeTransforms(
     std::function<YAML::Node(std::string const &)> const &loader,
     std::vector<std::string> const &algorithmBuffers,
     std::vector<std::string> const &strategyBuffers) {
-  // Bring Polygon transform type aliases into scope
-  using PolygonBalanceSheetTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::BalanceSheet>;
-  using PolygonIncomeStatementTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::IncomeStatement>;
-  using PolygonCashFlowTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::CashFlow>;
-  using PolygonFinancialRatiosTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::FinancialRatios>;
-  using PolygonQuotesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Quotes>;
-  using PolygonTradesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Trades>;
-  using PolygonAggregatesTransform = PolygonDataSourceTransform<epoch_core::PolygonDataType::Aggregates>;
-
   epoch_metadata::strategy::RegisterStrategyMetadata(loader, algorithmBuffers,
                                                      strategyBuffers);
 

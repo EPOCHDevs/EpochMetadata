@@ -2,6 +2,7 @@
 // Created by adesola on 5/23/25.
 //
 #include "epoch_frame/array.h"
+#include "epoch_metadata/constants.h"
 #include "epoch_metadata/strategy/registration.h"
 #include "epoch_metadata/transforms/config_helper.h"
 #include "epoch_metadata/transforms/itransform.h"
@@ -263,12 +264,7 @@ TEST_CASE("Transform Metadata Factory") {
     }
 
     // Skip external data source transforms - they require external API data that can't be auto-generated
-    const std::unordered_set<std::string> externalDataSources = {
-      "economic_indicator",  // FRED API
-      "balance_sheet", "income_statement", "cash_flow", "financial_ratios",  // Polygon Fundamentals
-      "quotes", "trades", "aggregates"  // Polygon Market Data
-    };
-    if (externalDataSources.contains(id)) {
+    if (polygon::ALL_POLYGON_TRANSFORMS.contains(id) || id == "economic_indicator") {
       continue;
     }
 
