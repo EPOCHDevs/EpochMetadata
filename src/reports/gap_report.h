@@ -42,6 +42,7 @@ public:
 
 protected:
     int64_t m_pivotHour;
+    mutable std::optional<epoch_metadata::transform::SelectorData> m_selectorData;
   // Implementation of IReporter's virtual methods
   void
   generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
@@ -57,6 +58,9 @@ public:
       const GapTableData &table) const;
 
   epoch_proto::Table create_comprehensive_gap_table(const GapTableData &data) const;
+
+  // Override GetSelectorData to return gap events as cards
+  epoch_metadata::transform::SelectorData GetSelectorData() const override;
 
   // New methods that work with table data
   GapTableData build_comprehensive_table_data(const epoch_frame::DataFrame &gaps) const;

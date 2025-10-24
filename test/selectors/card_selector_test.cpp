@@ -16,7 +16,7 @@
 #include "epoch_metadata/transforms/registry.h"
 
 using namespace epoch_metadata;
-using namespace epoch_metadata::selectors;
+using namespace epoch_metadata::transform;
 using namespace epoch_frame;
 using Catch::Approx;
 

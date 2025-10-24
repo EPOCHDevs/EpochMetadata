@@ -271,13 +271,13 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(economic_indicator, FREDTransform);
 
   // Register Selectors
-  REGISTER_TRANSFORM(card_selector_filter, selectors::CardSelectorFromFilter);
+  REGISTER_TRANSFORM(card_selector_filter, CardSelectorFromFilter);
   transforms::ITransformRegistry::GetInstance().Register(
-    selectors::SelectorMetadata<selectors::CardSelectorFromFilter>::Get());
+    SelectorMetadata<CardSelectorFromFilter>::Get());
 
-  REGISTER_TRANSFORM(card_selector_sql, selectors::CardSelectorFromSQL);
+  REGISTER_TRANSFORM(card_selector_sql, CardSelectorFromSQL);
   transforms::ITransformRegistry::GetInstance().Register(
-    selectors::SelectorMetadata<selectors::CardSelectorFromSQL>::Get());
+    SelectorMetadata<CardSelectorFromSQL>::Get());
 
   // SQL Query Transforms (1-4 outputs)
   REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);

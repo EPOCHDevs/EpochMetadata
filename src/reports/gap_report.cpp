@@ -258,6 +258,73 @@ namespace {
     data.fill_time_col = "fill_time";
     data.performance_col = "performance";
 
+    // Build SelectorData for card selector
+    std::vector<epoch_metadata::CardColumnSchema> card_schemas;
+
+    // Primary badge: gap_type (gap up/down)
+    card_schemas.push_back({
+      .column_id = "gap_type",
+      .slot = epoch_core::CardSlot::PrimaryBadge,
+      .render_type = epoch_core::CardRenderType::Badge,
+      .color_map = {
+        {epoch_core::CardColor::Success, {"gap up"}},
+        {epoch_core::CardColor::Error, {"gap down"}}
+      }
+    });
+
+    // Secondary badge: gap_filled status
+    card_schemas.push_back({
+      .column_id = "gap_filled",
+      .slot = epoch_core::CardSlot::SecondaryBadge,
+      .render_type = epoch_core::CardRenderType::Badge,
+      .color_map = {
+        {epoch_core::CardColor::Success, {"filled"}},
+        {epoch_core::CardColor::Warning, {"not filled"}}
+      }
+    });
+
+    // Hero: gap_size (main focus)
+    card_schemas.push_back({
+      .column_id = "gap_size",
+      .slot = epoch_core::CardSlot::Hero,
+      .render_type = epoch_core::CardRenderType::Number,
+      .color_map = {}
+    });
+
+    // Subtitle: weekday
+    card_schemas.push_back({
+      .column_id = "weekday",
+      .slot = epoch_core::CardSlot::Subtitle,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {}
+    });
+
+    // Footer: performance (green/red indicator)
+    card_schemas.push_back({
+      .column_id = "performance",
+      .slot = epoch_core::CardSlot::Footer,
+      .render_type = epoch_core::CardRenderType::Badge,
+      .color_map = {
+        {epoch_core::CardColor::Success, {"green"}},
+        {epoch_core::CardColor::Error, {"red"}}
+      }
+    });
+
+    // Details: fill_time (only relevant for filled gaps)
+    card_schemas.push_back({
+      .column_id = "fill_time",
+      .slot = epoch_core::CardSlot::Details,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {}
+    });
+
+    // Store selector data in member variable
+    m_selectorData = epoch_metadata::transform::SelectorData(
+      "Gap Events",
+      card_schemas,
+      daily_df
+    );
+
     return data;
   }
 
@@ -696,4 +763,12 @@ namespace {
         .setVertical(true)
         .build();
   }
+
+  epoch_metadata::transform::SelectorData GapReport::GetSelectorData() const {
+    if (!m_selectorData.has_value()) {
+      throw std::runtime_error("SelectorData not available. Ensure TransformData has been called to build the comprehensive table data.");
+    }
+    return m_selectorData.value();
+  }
+
 } // namespace epoch_metadata::reports
