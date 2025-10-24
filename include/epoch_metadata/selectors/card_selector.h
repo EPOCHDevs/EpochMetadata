@@ -8,70 +8,87 @@
 
 namespace epoch_metadata::selectors {
 
+// Forward declaration for SelectorData
+struct SelectorData {
+  std::string title;
+  std::vector<epoch_metadata::CardColumnSchema> schemas;
+  epoch_frame::DataFrame data;
+
+  SelectorData() = default;
+  SelectorData(std::string title_,
+               std::vector<epoch_metadata::CardColumnSchema> schemas_,
+               epoch_frame::DataFrame data_)
+      : title(std::move(title_)),
+        schemas(std::move(schemas_)),
+        data(std::move(data_)) {}
+};
+
 // Forward declare SelectorMetadata template
 template <typename T> struct SelectorMetadata;
 
-// Card Selector using boolean column filter - returns filtered DataFrame
-class CardSelectorFromFilter : public epoch_metadata::transform::ITransform {
+// Unified Card Selector - templated on schema type
+template <typename SchemaType>
+class CardSelector : public epoch_metadata::transform::ITransform {
 public:
-  explicit CardSelectorFromFilter(epoch_metadata::transform::TransformConfiguration config)
+  explicit CardSelector(epoch_metadata::transform::TransformConfiguration config)
       : ITransform(std::move(config)),
         m_schema([this]() {
-          // Parse JSON string into CardSchemaFilter
+          // Parse JSON string into SchemaType
           std::string jsonStr = std::get<std::string>(m_config.GetOptionValue("card_schema").GetVariant());
-          CardSchemaFilter schema;
+          SchemaType schema;
           auto error = glz::read_json(schema, jsonStr);
           if (error) {
-            throw std::runtime_error("Failed to parse CardSchemaFilter JSON: " + glz::format_error(error, jsonStr));
+            throw std::runtime_error("Failed to parse schema JSON: " + glz::format_error(error, jsonStr));
           }
           return schema;
         }()) {
   }
 
   epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
-    // Filter by boolean column specified in select_key
-    return df.loc(df[m_schema.select_key]);
+    epoch_frame::DataFrame result;
+
+    if constexpr (std::is_same_v<SchemaType, CardSchemaFilter>) {
+      // Filter by boolean column specified in select_key
+      result = df.loc(df[m_schema.select_key]);
+    } else if constexpr (std::is_same_v<SchemaType, CardSchemaSQL>) {
+      // Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
+      auto inputRenameMap = this->BuildVARGInputRenameMapping();
+
+      // Rename data columns to SLOT0, SLOT1, SLOT2, ...
+      epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
+
+      // Apply SQL filtering - DuckDB registers the DataFrame as 'self' by default
+      result = epoch_frame::DataFrame(inputDf.query(m_schema.sql));
+    }
+
+    // Collect selector data
+    m_data = SelectorData(
+      m_schema.title,
+      m_schema.columns,
+      result
+    );
+
+    return result;
   }
 
-  CardSchemaFilter GetSchema() const { return m_schema; }
+  SchemaType GetSchema() const { return m_schema; }
+
+  SelectorData GetSelectorData() const {
+    try {
+      return m_data.value();
+    } catch (std::exception &e) {
+      throw std::runtime_error("Failed to get SelectorData: " + std::string(e.what()));
+    }
+  }
 
 private:
-  const CardSchemaFilter m_schema;
+  const SchemaType m_schema;
+  mutable std::optional<SelectorData> m_data;
 };
 
-// Card Selector using SQL query - returns filtered DataFrame
-class CardSelectorFromSQL : public epoch_metadata::transform::ITransform {
-public:
-  explicit CardSelectorFromSQL(epoch_metadata::transform::TransformConfiguration config)
-      : ITransform(std::move(config)),
-        m_schema([this]() {
-          // Parse JSON string into CardSchemaSQL
-          std::string jsonStr = std::get<std::string>(m_config.GetOptionValue("card_schema").GetVariant());
-          CardSchemaSQL schema;
-          auto error = glz::read_json(schema, jsonStr);
-          if (error) {
-            throw std::runtime_error("Failed to parse CardSchemaSQL JSON: " + glz::format_error(error, jsonStr));
-          }
-          return schema;
-        }()) {
-  }
-
-  epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
-    // Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
-    auto inputRenameMap = this->BuildVARGInputRenameMapping();
-
-    // Rename data columns to SLOT0, SLOT1, SLOT2, ...
-    epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
-
-    // Apply SQL filtering - DuckDB registers the DataFrame as 'self' by default
-    return epoch_frame::DataFrame(inputDf.query(m_schema.sql));
-  }
-
-  CardSchemaSQL GetSchema() const { return m_schema; }
-
-private:
-  const CardSchemaSQL m_schema;
-};
+// Type aliases for convenience
+using CardSelectorFromFilter = CardSelector<CardSchemaFilter>;
+using CardSelectorFromSQL = CardSelector<CardSchemaSQL>;
 
 // Metadata specialization for CardSelectorFromFilter
 template <> struct SelectorMetadata<CardSelectorFromFilter> {

@@ -10,6 +10,4 @@ target_sources(epoch_metadata PRIVATE
         bar_chart_report.cpp
         pie_chart_report.cpp
         nested_pie_chart_report.cpp
-        histogram_chart_report.cpp
-#        card_selector_report.cpp  # Commented out - missing epoch_proto types
-)
+        histogram_chart_report.cpp)
