@@ -33,6 +33,8 @@ public:
     return df.loc(df[m_schema.select_key]);
   }
 
+  CardSchemaFilter GetSchema() const { return m_schema; }
+
 private:
   const CardSchemaFilter m_schema;
 };
@@ -64,6 +66,8 @@ public:
     // Apply SQL filtering - DuckDB registers the DataFrame as 'self' by default
     return epoch_frame::DataFrame(inputDf.query(m_schema.sql));
   }
+
+  CardSchemaSQL GetSchema() const { return m_schema; }
 
 private:
   const CardSchemaSQL m_schema;
