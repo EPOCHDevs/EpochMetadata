@@ -10,6 +10,21 @@
 
 namespace epoch_metadata::transform {
 
+  // Forward declaration for SelectorData
+  struct SelectorData {
+    std::string title;
+    std::vector<epoch_metadata::CardColumnSchema> schemas;
+    epoch_frame::DataFrame data;
+
+    SelectorData() = default;
+    SelectorData(std::string title_,
+                 std::vector<epoch_metadata::CardColumnSchema> schemas_,
+                 epoch_frame::DataFrame data_)
+        : title(std::move(title_)),
+          schemas(std::move(schemas_)),
+          data(std::move(data_)) {}
+  };
+
 struct ITransformBase {
 
   virtual std::string GetId() const = 0;
@@ -42,6 +57,7 @@ struct ITransformBase {
   TransformData(const epoch_frame::DataFrame &) const = 0;
 
   virtual  epoch_proto::TearSheet GetTearSheet() const = 0;
+  virtual  SelectorData GetSelectorData() const = 0;
 
   virtual ~ITransformBase() = default;
 };
@@ -116,6 +132,10 @@ public:
 
   epoch_proto::TearSheet GetTearSheet() const override {
     return epoch_proto::TearSheet::default_instance();
+  }
+
+  SelectorData GetSelectorData() const override {
+    return {};
   }
 
   ~ITransform() override = default;

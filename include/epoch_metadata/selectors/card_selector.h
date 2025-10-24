@@ -6,22 +6,7 @@
 #include <epoch_frame/dataframe.h>
 #include <glaze/glaze.hpp>
 
-namespace epoch_metadata::selectors {
-
-// Forward declaration for SelectorData
-struct SelectorData {
-  std::string title;
-  std::vector<epoch_metadata::CardColumnSchema> schemas;
-  epoch_frame::DataFrame data;
-
-  SelectorData() = default;
-  SelectorData(std::string title_,
-               std::vector<epoch_metadata::CardColumnSchema> schemas_,
-               epoch_frame::DataFrame data_)
-      : title(std::move(title_)),
-        schemas(std::move(schemas_)),
-        data(std::move(data_)) {}
-};
+namespace epoch_metadata::transform {
 
 // Forward declare SelectorMetadata template
 template <typename T> struct SelectorMetadata;
@@ -73,7 +58,7 @@ public:
 
   SchemaType GetSchema() const { return m_schema; }
 
-  SelectorData GetSelectorData() const {
+  SelectorData GetSelectorData() const override{
     try {
       return m_data.value();
     } catch (std::exception &e) {
