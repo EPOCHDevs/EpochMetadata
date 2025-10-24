@@ -64,7 +64,7 @@ public:
     // Collect selector data
     m_data = SelectorData(
       m_schema.title,
-      m_schema.columns,
+      m_schema.schemas,
       result
     );
 
