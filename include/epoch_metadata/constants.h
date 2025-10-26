@@ -18,7 +18,6 @@ CREATE_ENUM(CardRenderType,
             Percent,     // Percentage value
             Monetary,    // Currency/money value
             Duration,    // Duration in nanoseconds
-            DayDuration, // Duration in days
             Badge,       // Badge/pill element
             Timestamp,   // Date/time display
             Boolean);    // True/False indicator
