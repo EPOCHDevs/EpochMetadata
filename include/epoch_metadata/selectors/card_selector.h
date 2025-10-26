@@ -46,11 +46,21 @@ public:
       result = epoch_frame::DataFrame(inputDf.query(m_schema.sql));
     }
 
+    // Find the pivot_index - first schema with Timestamp render type
+    std::optional<size_t> pivot_idx;
+    for (size_t i = 0; i < m_schema.schemas.size(); ++i) {
+      if (m_schema.schemas[i].render_type == epoch_core::CardRenderType::Timestamp) {
+        pivot_idx = i;
+        break;
+      }
+    }
+
     // Collect selector data
     m_data = SelectorData(
       m_schema.title,
       m_schema.schemas,
-      result
+      result,
+      pivot_idx
     );
 
     return result;
