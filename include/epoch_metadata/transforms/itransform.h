@@ -13,16 +13,19 @@ namespace epoch_metadata::transform {
   // Forward declaration for SelectorData
   struct SelectorData {
     std::string title;
+    epoch_core::CardIcon icon;
     std::vector<epoch_metadata::CardColumnSchema> schemas;
     epoch_frame::DataFrame data;
     std::optional<size_t> pivot_index;  // Index in schemas array pointing to Timestamp column for chart navigation
 
-    SelectorData() = default;
+    SelectorData() : icon(epoch_core::CardIcon::Info) {}
     SelectorData(std::string title_,
                  std::vector<epoch_metadata::CardColumnSchema> schemas_,
                  epoch_frame::DataFrame data_,
-                 std::optional<size_t> pivot_index_ = std::nullopt)
+                 std::optional<size_t> pivot_index_ = std::nullopt,
+                 epoch_core::CardIcon icon_ = epoch_core::CardIcon::Info)
         : title(std::move(title_)),
+          icon(icon_),
           schemas(std::move(schemas_)),
           data(std::move(data_)),
           pivot_index(pivot_index_) {}

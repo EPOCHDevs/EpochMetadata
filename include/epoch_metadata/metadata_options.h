@@ -68,6 +68,7 @@ namespace epoch_metadata
   // Card selector schema using boolean column filter
   struct CardSchemaFilter {
     std::string title;
+    epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
     std::string select_key;  // Boolean column to filter rows
     std::vector<CardColumnSchema> schemas;
 
@@ -77,6 +78,10 @@ namespace epoch_metadata
       glz::schema title{
         .description = "Title displayed above the card selector widget",
         .minLength = 1
+      };
+      glz::schema icon{
+        .description = "Icon displayed in collapsed sidebar view to identify card type",
+        .enumeration = std::vector<std::string_view>{"Chart", "Gap", "Signal", "Trade", "Position", "Alert", "TrendUp", "TrendDown", "Calendar", "Dollar", "Candle", "Info"}
       };
       glz::schema select_key{
         .description = "Name of boolean DataFrame column used to filter rows (only rows where this column is true will be shown as cards)",
@@ -92,6 +97,7 @@ namespace epoch_metadata
   // Card selector schema using SQL query
   struct CardSchemaSQL {
     std::string title;
+    epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
     std::string sql;  // SQL query to filter/transform
     std::vector<CardColumnSchema> schemas;
 
@@ -101,6 +107,10 @@ namespace epoch_metadata
       glz::schema title{
         .description = "Title displayed above the card selector widget",
         .minLength = 1
+      };
+      glz::schema icon{
+        .description = "Icon displayed in collapsed sidebar view to identify card type",
+        .enumeration = std::vector<std::string_view>{"Chart", "Gap", "Signal", "Trade", "Position", "Alert", "TrendUp", "TrendDown", "Calendar", "Dollar", "Candle", "Info"}
       };
       glz::schema sql{
         .description = "SQL query to filter/transform data (MUST use 'FROM self'). Input columns are automatically renamed to SLOT0, SLOT1, SLOT2, etc. based on connection order",

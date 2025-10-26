@@ -60,7 +60,8 @@ public:
       m_schema.title,
       m_schema.schemas,
       result,
-      pivot_idx
+      pivot_idx,
+      m_schema.icon
     ));
 
     return result;

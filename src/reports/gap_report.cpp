@@ -340,7 +340,8 @@ namespace {
       "Gap Events",
       card_schemas,
       daily_df,
-      pivot_idx
+      pivot_idx,
+      epoch_core::CardIcon::Gap
     ));
 
     return data;

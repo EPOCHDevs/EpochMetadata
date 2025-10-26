@@ -38,6 +38,20 @@ CREATE_ENUM(CardColor,
             Warning,  // Yellow/orange
             Error);   // Red
 
+CREATE_ENUM(CardIcon,
+            Chart,        // General analysis/charts (Lucide: BarChart3)
+            Gap,          // Gap events (Lucide: Split)
+            Signal,       // Trading signals (Lucide: Zap)
+            Trade,        // Trade executions (Lucide: ArrowLeftRight)
+            Position,     // Open positions (Lucide: Layers)
+            Alert,        // Alerts/notifications (Lucide: Bell)
+            TrendUp,      // Bullish events (Lucide: TrendingUp)
+            TrendDown,    // Bearish events (Lucide: TrendingDown)
+            Calendar,     // Time-based events (Lucide: Calendar)
+            Dollar,       // P&L/financial (Lucide: DollarSign)
+            Candle,       // Price action (Lucide: CandlestickChart)
+            Info);        // General information (Lucide: Info)
+
 namespace epoch_metadata {
 constexpr auto ARG = "SLOT";
 constexpr auto ARG0 = "SLOT0";
