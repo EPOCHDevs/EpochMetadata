@@ -14,11 +14,12 @@
 CREATE_ENUM(CardRenderType,
             Text,       // Generic text/label
             Number,     // Numeric value
+            Percent,    // Percentage value
+            Monetary,   // Currency/money value
             Badge,      // Badge/pill element
             Timestamp,  // Date/time display
             Boolean,    // True/False indicator
-            Icon,       // Icon display
-            Navigator); // Chart navigation column (timestamp/index)
+            Icon);      // Icon display
 
 CREATE_ENUM(CardSlot,
             PrimaryBadge,   // Top-left badge

@@ -55,30 +55,21 @@ public:
       }
     }
 
-    // Collect selector data
-    m_data = SelectorData(
+    // Collect selector data and store in base class
+    this->SetSelectorData(SelectorData(
       m_schema.title,
       m_schema.schemas,
       result,
       pivot_idx
-    );
+    ));
 
     return result;
   }
 
   SchemaType GetSchema() const { return m_schema; }
 
-  SelectorData GetSelectorData() const override{
-    try {
-      return m_data.value();
-    } catch (std::exception &e) {
-      throw std::runtime_error("Failed to get SelectorData: " + std::string(e.what()));
-    }
-  }
-
 private:
   const SchemaType m_schema;
-  mutable std::optional<SelectorData> m_data;
 };
 
 // Type aliases for convenience

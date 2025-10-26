@@ -138,7 +138,10 @@ public:
   }
 
   SelectorData GetSelectorData() const override {
-    return {};
+    if (!m_selectorData.has_value()) {
+      return {};  // Return empty SelectorData if not set
+    }
+    return m_selectorData.value();
   }
 
   ~ITransform() override = default;
@@ -146,6 +149,12 @@ public:
 
 protected:
   TransformConfiguration m_config;
+  mutable std::optional<SelectorData> m_selectorData;
+
+  // Protected setter for derived classes to populate selector data
+  void SetSelectorData(SelectorData data) const {
+    m_selectorData = std::move(data);
+  }
 
   static auto GetValidSeries(epoch_frame::Series const &input) {
     const auto output = input.loc(input.is_valid());

@@ -335,13 +335,13 @@ namespace {
     // The pivot_index points to the timestamp schema (last element in the array)
     size_t pivot_idx = card_schemas.size() - 1;
 
-    // Store selector data in member variable
-    m_selectorData = epoch_metadata::transform::SelectorData(
+    // Store selector data in base class
+    this->SetSelectorData(epoch_metadata::transform::SelectorData(
       "Gap Events",
       card_schemas,
       daily_df,
       pivot_idx
-    );
+    ));
 
     return data;
   }
@@ -782,11 +782,5 @@ namespace {
         .build();
   }
 
-  epoch_metadata::transform::SelectorData GapReport::GetSelectorData() const {
-    if (!m_selectorData.has_value()) {
-      throw std::runtime_error("SelectorData not available. Ensure TransformData has been called to build the comprehensive table data.");
-    }
-    return m_selectorData.value();
-  }
 
 } // namespace epoch_metadata::reports

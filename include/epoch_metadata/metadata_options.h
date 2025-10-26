@@ -57,7 +57,7 @@ namespace epoch_metadata
       };
       glz::schema render_type{
         .description = "How to render this column's value",
-        .enumeration = std::vector<std::string_view>{"Text", "Number", "Badge", "Timestamp", "Boolean", "Icon", "Navigator"}
+        .enumeration = std::vector<std::string_view>{"Text", "Number", "Percent", "Monetary", "Badge", "Timestamp", "Boolean", "Icon"}
       };
       glz::schema color_map{
         .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default"
