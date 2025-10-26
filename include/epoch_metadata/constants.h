@@ -12,14 +12,16 @@
 
 // Card selector enums (defined here to avoid circular dependencies)
 CREATE_ENUM(CardRenderType,
-            Text,       // Generic text/label
-            Number,     // Numeric value
-            Percent,    // Percentage value
-            Monetary,   // Currency/money value
-            Badge,      // Badge/pill element
-            Timestamp,  // Date/time display
-            Boolean,    // True/False indicator
-            Icon);      // Icon display
+            Text,        // Generic text/label
+            Integer,     // Integer numeric value
+            Decimal,     // Decimal/floating point numeric value
+            Percent,     // Percentage value
+            Monetary,    // Currency/money value
+            Duration,    // Duration in nanoseconds
+            DayDuration, // Duration in days
+            Badge,       // Badge/pill element
+            Timestamp,   // Date/time display
+            Boolean);    // True/False indicator
 
 CREATE_ENUM(CardSlot,
             PrimaryBadge,   // Top-left badge

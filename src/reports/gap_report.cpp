@@ -293,7 +293,7 @@ namespace {
     card_schemas.push_back({
       .column_id = "gap_size",
       .slot = epoch_core::CardSlot::Hero,
-      .render_type = epoch_core::CardRenderType::Number,
+      .render_type = epoch_core::CardRenderType::Decimal,
       .color_map = {}
     });
 

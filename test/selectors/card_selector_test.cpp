@@ -166,11 +166,10 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
       "select_key": "filter_col",
       "schemas": [
         {"column_id": "col1", "slot": "PrimaryBadge", "render_type": "Text", "color_map": {}},
-        {"column_id": "col2", "slot": "SecondaryBadge", "render_type": "Number", "color_map": {}},
+        {"column_id": "col2", "slot": "SecondaryBadge", "render_type": "Decimal", "color_map": {}},
         {"column_id": "col3", "slot": "Hero", "render_type": "Badge", "color_map": {}},
         {"column_id": "col4", "slot": "Subtitle", "render_type": "Timestamp", "color_map": {}},
-        {"column_id": "col5", "slot": "Footer", "render_type": "Boolean", "color_map": {}},
-        {"column_id": "col6", "slot": "Details", "render_type": "Icon", "color_map": {}}
+        {"column_id": "col5", "slot": "Footer", "render_type": "Boolean", "color_map": {}}
       ]
     })";
 
@@ -178,13 +177,12 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
     auto error = glz::read_json(schema, schemaJson);
 
     REQUIRE(!error);
-    REQUIRE(schema.schemas.size() == 6);
+    REQUIRE(schema.schemas.size() == 5);
     REQUIRE(schema.schemas[0].render_type == epoch_core::CardRenderType::Text);
-    REQUIRE(schema.schemas[1].render_type == epoch_core::CardRenderType::Number);
+    REQUIRE(schema.schemas[1].render_type == epoch_core::CardRenderType::Decimal);
     REQUIRE(schema.schemas[2].render_type == epoch_core::CardRenderType::Badge);
     REQUIRE(schema.schemas[3].render_type == epoch_core::CardRenderType::Timestamp);
     REQUIRE(schema.schemas[4].render_type == epoch_core::CardRenderType::Boolean);
-    REQUIRE(schema.schemas[5].render_type == epoch_core::CardRenderType::Icon);
   }
 }
 
@@ -239,14 +237,14 @@ TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_select
     CardColumnSchema schema1{
       .column_id = "col1",
       .slot = epoch_core::CardSlot::Hero,
-      .render_type = epoch_core::CardRenderType::Number,
+      .render_type = epoch_core::CardRenderType::Decimal,
       .color_map = {}
     };
 
     CardColumnSchema schema2{
       .column_id = "col1",
       .slot = epoch_core::CardSlot::Hero,
-      .render_type = epoch_core::CardRenderType::Number,
+      .render_type = epoch_core::CardRenderType::Decimal,
       .color_map = {}
     };
 
