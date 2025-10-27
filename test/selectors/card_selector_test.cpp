@@ -258,8 +258,8 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
     REQUIRE(is_signal_col.iloc(2).as_bool() == true);  // original row 3
 
     // Verify timestamps (index values in nanoseconds)
-    REQUIRE(result["index"].iloc(0).timestamp().value == 1609459200000000000LL);  // original row 0
-    REQUIRE(result["index"].iloc(1).timestamp().value == 1609545600000000000LL);  // original row 1
-    REQUIRE(result["index"].iloc(2).timestamp().value == 1609718400000000000LL);  // original row 3
+    REQUIRE(result["pivot"].iloc(0).timestamp().value == 1609459200000000000LL);  // original row 0
+    REQUIRE(result["pivot"].iloc(1).timestamp().value == 1609545600000000000LL);  // original row 1
+    REQUIRE(result["pivot"].iloc(2).timestamp().value == 1609718400000000000LL);  // original row 3
   }
 }

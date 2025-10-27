@@ -20,7 +20,7 @@ public:
     epoch_frame::DataFrame result = df.loc(df[m_schema.select_key]);
 
     // Collect selector data and store in base class
-    result = result.reset_index("index");
+    result = result.reset_index("pivot");
     this->SetSelectorData(SelectorData(
       m_schema.title,
       m_schema.schemas,
@@ -40,7 +40,7 @@ private:
 
     // Automatically add index column as timestamp for chart navigation
     schema.schemas.emplace_back(CardColumnSchema{
-    .column_id = "index",
+    .column_id = "pivot",
     .slot = epoch_core::CardSlot::Subtitle,
     .render_type = epoch_core::CardRenderType::Timestamp,
     .color_map = {}
