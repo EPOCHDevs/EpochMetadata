@@ -17,8 +17,7 @@ class CardSelector : public epoch_metadata::transform::ITransform {
 public:
   explicit CardSelector(epoch_metadata::transform::TransformConfiguration config)
       : ITransform(std::move(config)),
-        m_schema(GetSchemaFromConfig(config)) {
-  }
+        m_schema(GetSchemaFromConfig(config)) {}
 
   epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
     epoch_frame::DataFrame result;
@@ -37,21 +36,13 @@ public:
       result = epoch_frame::DataFrame(inputDf.query(m_schema.sql.GetSql()));
     }
 
-    // Find the pivot_index - first schema with Timestamp render type
-    std::optional<size_t> pivot_idx;
-    for (size_t i = 0; i < m_schema.schemas.size(); ++i) {
-      if (m_schema.schemas[i].render_type == epoch_core::CardRenderType::Timestamp) {
-        pivot_idx = i;
-        break;
-      }
-    }
-
     // Collect selector data and store in base class
+    result = result.reset_index("index");
     this->SetSelectorData(SelectorData(
       m_schema.title,
       m_schema.schemas,
       result,
-      pivot_idx,
+      m_schema.schemas.size()-1,
       m_schema.icon
     ));
 
@@ -62,16 +53,26 @@ public:
 
 private:
   static SchemaType GetSchemaFromConfig(const epoch_metadata::transform::TransformConfiguration& config) {
+    SchemaType schema;
     if constexpr (std::is_same_v<SchemaType, CardSchemaFilter>) {
-      return config.GetOptionValue("card_schema").GetCardSchemaList();
+      schema = config.GetOptionValue("card_schema").GetCardSchemaList();
     } else if constexpr (std::is_same_v<SchemaType, CardSchemaSQL>) {
-      return config.GetOptionValue("card_schema").GetCardSchemaSQL();
+      schema = config.GetOptionValue("card_schema").GetCardSchemaSQL();
     } else {
       static_assert(std::is_same_v<SchemaType, CardSchemaFilter> ||
                     std::is_same_v<SchemaType, CardSchemaSQL>,
                     "SchemaType must be either CardSchemaFilter or CardSchemaSQL");
     }
+
+    schema.schemas.emplace_back(CardColumnSchema{
+    .column_id = "index",
+    .slot = epoch_core::CardSlot::Subtitle,
+    .render_type = epoch_core::CardRenderType::Timestamp,
+    .color_map = {}
+    });
+    return schema;
   }
+
 
   const SchemaType m_schema;
 };

@@ -324,7 +324,7 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
     // Verify filtered DataFrame (only rows where is_signal is true)
     // Original has 4 rows, 3 have is_signal = true
     REQUIRE(result.num_rows() == 3);
-    REQUIRE(result.num_cols() == 3);  // All columns preserved
+    REQUIRE(result.num_cols() == 4);  // All columns preserved
   }
 }
 
