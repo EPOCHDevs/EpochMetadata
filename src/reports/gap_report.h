@@ -122,7 +122,7 @@ template <> struct ReportMetadata<GapReport> {
                {epoch_core::IODataType::Decimal, "gap_retrace", "Gap Retrace"},
                {epoch_core::IODataType::Decimal, "gap_size", "Gap Size"},
                {epoch_core::IODataType::Decimal, "psc", "Prior Session Close"},
-               {epoch_core::IODataType::Integer, "psc_timestamp", "PSC Timestamp"}},
+               {epoch_core::IODataType::Timestamp, "psc_timestamp", "PSC Timestamp"}},
     .outputs = {},
     .tags = {"gap_classify"},
  .requiresTimeFrame = true,

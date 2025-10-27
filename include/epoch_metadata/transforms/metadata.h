@@ -74,7 +74,7 @@ CREATE_ENUM(
     vortex,             // Vortex Indicator
     trade_signal);      // Trade Signal Executor
 
-CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Any, List,
+CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any, List,
             Struct);
 
 // Note: CardRenderType, CardSlot, CardColor enums are defined in constants.h

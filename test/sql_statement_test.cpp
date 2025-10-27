@@ -239,7 +239,9 @@ TEST_CASE("SqlStatement - Glaze JSON serialization", "[SqlStatement]") {
     std::string invalidJson = R"("SELECT * FROM wrong_table")";
     SqlStatement stmt;
     // Deserialization will throw because validation happens in SetSql
-    REQUIRE_THROWS_AS(glz::read_json(stmt, invalidJson), std::runtime_error);
+    REQUIRE_NOTHROW(glz::read_json(stmt, invalidJson));
+    REQUIRE_THROWS_AS(stmt.Validate(), std::runtime_error);
+
   }
 }
 

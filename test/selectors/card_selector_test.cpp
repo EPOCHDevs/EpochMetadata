@@ -115,6 +115,7 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
     std::string schemaJson = R"({
       "title": "Trade Signals",
       "select_key": "is_signal",
+      "icon": "Info",
       "schemas": [
         {
           "column_id": "direction",
@@ -128,7 +129,7 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
         {
           "column_id": "profit_pct",
           "slot": "Hero",
-          "render_type": "Number",
+          "render_type": "Decimal",
           "color_map": {}
         },
         {
@@ -143,7 +144,9 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
     CardSchemaFilter schema;
     auto error = glz::read_json(schema, schemaJson);
 
-    REQUIRE(!error);
+    if (error) {
+      FAIL(glz::format_error(error, schemaJson));
+    }
     REQUIRE(schema.title == "Trade Signals");
     REQUIRE(schema.select_key == "is_signal");
     REQUIRE(schema.schemas.size() == 3);
@@ -217,14 +220,16 @@ TEST_CASE("CardSchemaSQL - JSON Parsing", "[selectors][card_selector]") {
       "sql": "SELECT * FROM self WHERE SLOT0 = 'BUY' AND SLOT1 > 10 ORDER BY SLOT1 DESC",
       "schemas": [
         {"column_id": "direction", "slot": "PrimaryBadge", "render_type": "Badge", "color_map": {}},
-        {"column_id": "profit_pct", "slot": "Hero", "render_type": "Number", "color_map": {}}
+        {"column_id": "profit_pct", "slot": "Hero", "render_type": "Decimal", "color_map": {}}
       ]
     })";
 
     CardSchemaSQL schema;
     auto error = glz::read_json(schema, schemaJson);
 
-    REQUIRE(!error);
+    if(error) {
+      FAIL(glz::format_error(error, schemaJson));
+    }
     REQUIRE(schema.sql.GetSql().find("FROM self") != std::string::npos);
     REQUIRE(schema.sql.GetSql().find("WHERE") != std::string::npos);
     REQUIRE(schema.sql.GetSql().find("ORDER BY") != std::string::npos);

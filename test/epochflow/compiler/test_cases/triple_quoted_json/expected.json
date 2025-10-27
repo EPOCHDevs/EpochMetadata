@@ -1,9 +1,152 @@
 [
   {
-    "type": "rsi",
-    "id": "result",
+    "type": "gt",
+    "id": "gt_0",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "short_ma#result"
+      ],
+      "SLOT1": [
+        "long_ma#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "gt",
+    "id": "gt_1",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "long_ma#result"
+      ],
+      "SLOT1": [
+        "short_ma#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "boolean_select",
+    "id": "ifexp_0",
+    "options": {},
+    "inputs": {
+      "condition": [
+        "gt_1#result"
+      ],
+      "true": [
+        "text_1#result"
+      ],
+      "false": [
+        "null_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "boolean_select",
+    "id": "ifexp_1",
+    "options": {},
+    "inputs": {
+      "condition": [
+        "gt_0#result"
+      ],
+      "true": [
+        "text_0#result"
+      ],
+      "false": [
+        "ifexp_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "ema",
+    "id": "long_ma",
     "options": {
-      "period": 14
+      "period": 100
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "logical_or",
+    "id": "logical_or_0",
+    "options": {},
+    "inputs": {
+      "SLOT0": [
+        "gt_0#result"
+      ],
+      "SLOT1": [
+        "gt_1#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "card_selector_filter",
+    "id": "node_0",
+    "options": {
+      "card_schema": {
+        "title": "MA Crossover",
+        "icon": "Signal",
+        "select_key": "new_signal#result",
+        "schemas": [
+          {
+            "column_id": "color#result",
+            "slot": "Hero",
+            "render_type": "Badge",
+            "color_map": {
+              "Success": [
+                "BULLISH"
+              ],
+              "Error": [
+                "BEARISH"
+              ]
+            }
+          },
+          {
+            "column_id": "long_ma#result",
+            "slot": "Subtitle",
+            "render_type": "Decimal",
+            "color_map": {}
+          },
+          {
+            "column_id": "short_ma#result",
+            "slot": "Subtitle",
+            "render_type": "Decimal",
+            "color_map": {}
+          }
+        ]
+      }
+    },
+    "inputs": {
+      "SLOT": [
+        "logical_or_0#result",
+        "ifexp_1#result",
+        "long_ma#result",
+        "short_ma#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "null",
+    "id": "null_0",
+    "options": {},
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "ema",
+    "id": "short_ma",
+    "options": {
+      "period": 15
     },
     "inputs": {
       "SLOT": [
@@ -16,6 +159,24 @@
     "type": "market_data_source",
     "id": "src",
     "options": {},
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_0",
+    "options": {
+      "value": "BULLISH"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_1",
+    "options": {
+      "value": "BEARISH"
+    },
     "inputs": {},
     "timeframe": null
   }

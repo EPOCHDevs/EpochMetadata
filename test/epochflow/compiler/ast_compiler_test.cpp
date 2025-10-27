@@ -143,6 +143,8 @@ TEST_CASE("EpochFlow Compiler: Test Cases", "[epochflow_compiler]")
                     FAIL("Failed to parse expected.json: " << glz::format_error(expected_result.error(), expected_json));
                 }
 
+                CAPTURE(test_case.name);
+
                 AlgorithmAstCompiler compiler;
                 CompilationResult actual_result;
 

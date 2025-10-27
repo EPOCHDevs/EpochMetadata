@@ -96,7 +96,7 @@ namespace {
     GapTableData data;
 
     auto make_gap_dataframe = [](const epoch_frame::Date& dateIndex,
-                                 int64_t pscTimestamp,
+                                 epoch_frame::Scalar pscTimestamp,
                                  double gapSize,
                                  const std::string& gapType, const std::string& gapFilled,
                                  const std::string& weekDay, const std::string& fillTime,
@@ -104,7 +104,7 @@ namespace {
       auto index  = epoch_frame::factory::index::make_datetime_index(std::vector{epoch_frame::DateTime{dateIndex}});
 
       // Create Arrow arrays from single values
-      auto timestamp_array = epoch_frame::factory::array::make_array(std::vector<int64_t>{pscTimestamp});
+      auto timestamp_array = epoch_frame::factory::array::make_array(std::vector<epoch_frame::DateTime>{pscTimestamp.to_datetime()});
       auto gap_size_array = epoch_frame::factory::array::make_array(std::vector<double>{gapSize});
       auto gap_type_array = epoch_frame::factory::array::make_array(std::vector<std::string>{gapType});
       auto gap_filled_array = epoch_frame::factory::array::make_array(std::vector<std::string>{gapFilled});
@@ -188,7 +188,7 @@ namespace {
       auto pscVal = in["psc"].iloc(0).as_double();
 
       // Extract psc_timestamp (timestamp of prior session close)
-      auto pscTimestamp = in["psc_timestamp"].iloc(0).as_int64();
+      auto pscTimestamp = in["psc_timestamp"].iloc(0);
 
       // Calculate derived fields
       auto weekDay = epoch_core::EpochDayOfWeekWrapper::ToString(static_cast<epoch_core::EpochDayOfWeek>(index.weekday()));
