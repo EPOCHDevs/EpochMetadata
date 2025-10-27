@@ -121,6 +121,12 @@ struct Tuple : Expr {
     std::vector<std::unique_ptr<Expr>> elts;
 };
 
+// Dictionary expression
+struct Dict : Expr {
+    std::vector<std::unique_ptr<Expr>> keys;
+    std::vector<std::unique_ptr<Expr>> values;
+};
+
 // Subscript (for lag operator: src.c[1])
 struct Subscript : Expr {
     std::unique_ptr<Expr> value;

@@ -376,6 +376,93 @@ namespace epoch_stratifyx::epochflow
 
                 obj[key] = arr;
             }
+            else if (auto* dict = dynamic_cast<const Dict*>(value_expr.get()))
+            {
+                // Handle dictionary literal (e.g., color_map={Success: ["active"], Error: ["inactive"]})
+                glz::generic dict_obj;
+
+                // Process each key-value pair
+                for (size_t i = 0; i < dict->keys.size(); ++i)
+                {
+                    const auto& key_expr = dict->keys[i];
+                    const auto& value_expr = dict->values[i];
+
+                    // Extract key (usually a Name or Constant)
+                    std::string dict_key;
+                    if (auto* key_name = dynamic_cast<const Name*>(key_expr.get()))
+                    {
+                        dict_key = key_name->id;
+                    }
+                    else if (auto* key_const = dynamic_cast<const Constant*>(key_expr.get()))
+                    {
+                        if (auto* s = std::get_if<std::string>(&key_const->value))
+                        {
+                            dict_key = *s;
+                        }
+                        else
+                        {
+                            ThrowError("Dictionary keys must be strings or identifiers", call.lineno, call.col_offset);
+                        }
+                    }
+                    else
+                    {
+                        ThrowError("Dictionary keys must be strings or identifiers", call.lineno, call.col_offset);
+                    }
+
+                    // Extract value (can be various types)
+                    if (auto* val_const = dynamic_cast<const Constant*>(value_expr.get()))
+                    {
+                        // Constant value
+                        std::visit([&](auto&& value) {
+                            using T = std::decay_t<decltype(value)>;
+                            if constexpr (std::is_same_v<T, int>) {
+                                dict_obj[dict_key] = static_cast<double>(value);
+                            } else if constexpr (std::is_same_v<T, double>) {
+                                dict_obj[dict_key] = value;
+                            } else if constexpr (std::is_same_v<T, bool>) {
+                                dict_obj[dict_key] = value;
+                            } else if constexpr (std::is_same_v<T, std::string>) {
+                                dict_obj[dict_key] = value;
+                            }
+                        }, val_const->value);
+                    }
+                    else if (auto* val_list = dynamic_cast<const List*>(value_expr.get()))
+                    {
+                        // List value (e.g., color_map={Success: ["active", "enabled"]})
+                        std::vector<glz::generic> list_vals;
+                        for (const auto& list_elem : val_list->elts)
+                        {
+                            if (auto* elem_const = dynamic_cast<const Constant*>(list_elem.get()))
+                            {
+                                std::visit([&](auto&& value) {
+                                    using T = std::decay_t<decltype(value)>;
+                                    glz::generic elem_gen;
+                                    if constexpr (std::is_same_v<T, int>) {
+                                        elem_gen = static_cast<double>(value);
+                                    } else if constexpr (std::is_same_v<T, double>) {
+                                        elem_gen = value;
+                                    } else if constexpr (std::is_same_v<T, std::string>) {
+                                        elem_gen = value;
+                                    }
+                                    list_vals.push_back(elem_gen);
+                                }, elem_const->value);
+                            }
+                            else if (auto* elem_name = dynamic_cast<const Name*>(list_elem.get()))
+                            {
+                                list_vals.push_back(glz::generic{elem_name->id});
+                            }
+                        }
+                        dict_obj[dict_key] = list_vals;
+                    }
+                    else if (auto* val_name = dynamic_cast<const Name*>(value_expr.get()))
+                    {
+                        // Name value (treat as string)
+                        dict_obj[dict_key] = val_name->id;
+                    }
+                }
+
+                obj[key] = dict_obj;
+            }
             else
             {
                 ThrowError("Unsupported expression type in constructor", call.lineno, call.col_offset);

@@ -169,6 +169,8 @@ ExprPtr PythonParser::parseExpression(const ts::Node& node, std::string_view sou
         return parseTuple(node, source);
     } else if (type == "list") {
         return parseList(node, source);
+    } else if (type == "dictionary") {
+        return parseDict(node, source);
     } else if (type == "parenthesized_expression") {
         // Unwrap parentheses
         ts::Node child = node.getChild(1);  // Skip opening paren
@@ -519,6 +521,34 @@ ExprPtr PythonParser::parseList(const ts::Node& node, std::string_view source) {
     }
 
     return list;
+}
+
+ExprPtr PythonParser::parseDict(const ts::Node& node, std::string_view source) {
+    auto dict = std::make_unique<Dict>();
+
+    uint32_t childCount = node.getNumChildren();
+    for (uint32_t i = 0; i < childCount; ++i) {
+        ts::Node child = node.getChild(i);
+        std::string childType{child.getType()};
+
+        if (childType == "{" || childType == "}" || childType == ",") {
+            continue;  // Skip delimiters
+        }
+
+        // Each child should be a "pair" node with key and value
+        if (childType == "pair") {
+            if (child.getNumChildren() >= 3) {
+                // pair structure: key : value
+                ts::Node keyNode = child.getChild(0);
+                ts::Node valueNode = child.getChild(2);  // Skip the ':' at index 1
+
+                dict->keys.push_back(parseExpression(keyNode, source));
+                dict->values.push_back(parseExpression(valueNode, source));
+            }
+        }
+    }
+
+    return dict;
 }
 
 } // namespace epoch_stratifyx::epochflow

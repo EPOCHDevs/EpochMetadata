@@ -4,6 +4,51 @@ This document provides complete type definitions and usage examples for custom t
 
 ---
 
+## ✅ Features
+
+### Dictionary Literals Fully Supported
+
+**Status**: ✅ The AST parser now fully supports Python dictionary literal expressions `{key: value}`.
+
+**Usage**: You can use inline dictionaries in constructor parameters like `color_map`:
+
+```python
+# ✅ Dictionary literals now work!
+CardColumnSchema(
+    column_id="status",
+    slot=Hero,
+    render_type=Text,
+    color_map={Success: ["active"], Error: ["inactive"]}
+)
+
+# ✅ Nested structures supported
+CardSchemaFilter(
+    title="Status Cards",
+    icon=Signal,
+    select_key="is_active",
+    schemas=[
+        CardColumnSchema(
+            column_id="status",
+            slot=Hero,
+            render_type=Text,
+            color_map={
+                Success: ["ACTIVE", "RUNNING"],
+                Error: ["INACTIVE", "STOPPED"],
+                Warning: ["PENDING"]
+            }
+        )
+    ]
+)
+```
+
+**What's Supported**:
+- Dictionary literals with identifier keys: `{Success: [...], Error: [...]}`
+- Dictionary literals with string keys: `{"key1": "value", "key2": 123}`
+- Nested lists as values: `{Success: ["val1", "val2"]}`
+- Mixed value types: strings, numbers, lists, identifiers
+
+---
+
 ## Table of Contents
 
 1. [Time Constructor](#time-constructor)

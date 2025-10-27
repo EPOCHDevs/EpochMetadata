@@ -62,6 +62,7 @@ private:
     ExprPtr parseSubscript(const ts::Node& node, std::string_view source);
     ExprPtr parseTuple(const ts::Node& node, std::string_view source);
     ExprPtr parseList(const ts::Node& node, std::string_view source);
+    ExprPtr parseDict(const ts::Node& node, std::string_view source);
 
     StmtPtr parseAssignment(const ts::Node& node, std::string_view source);
     StmtPtr parseExprStmt(const ts::Node& node, std::string_view source);
