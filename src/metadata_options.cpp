@@ -395,18 +395,14 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
   case epoch_core::MetaDataOptionType::String:
     return MetaDataOptionDefinition{node.as<std::string>()};
   case epoch_core::MetaDataOptionType::CardSchema: {
-    // CardSchema can come as either:
-    // 1. A YAML Map (from EpochFlow DSL object construction) - convert to JSON
-    // 2. A scalar string containing JSON (from test helpers) - pass through
-    std::string jsonStr;
+    // CardSchema only comes from EpochFlow DSL as a YAML Map - convert to JSON
+    // Config helpers now use TransformDefinitionData and bypass YAML entirely
     if (node.IsMap()) {
-      jsonStr = YamlNodeToJsonString(node);
+      std::string jsonStr = YamlNodeToJsonString(node);
+      return MetaDataOptionDefinition{jsonStr};
     } else {
-      jsonStr = node.as<std::string>();
+      throw std::runtime_error("CardSchema must be a Map/Object, not a scalar");
     }
-    // The glaze deserializer (in metadata_options.h) will parse this JSON string
-    // and detect the type (CardSchemaFilter vs CardSchemaSQL) automatically
-    return MetaDataOptionDefinition{jsonStr};
   }
   case epoch_core::MetaDataOptionType::SqlStatement: {
     // SqlStatement can be a scalar string or a map with "sql" key

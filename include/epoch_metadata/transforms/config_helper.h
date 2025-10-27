@@ -1629,35 +1629,35 @@ inline auto consolidation_box_cfg =
 // =========================
 
 // Card Selector with Filter - Uses boolean column to filter rows
-// Accepts CardSchemaFilter object directly
+// Accepts CardSchemaFilter object directly - NO YAML!
 inline auto card_selector_filter_cfg =
     [](std::string const &id, epoch_metadata::CardSchemaFilter const &card_schema,
        const std::vector<std::string> &inputs,
        const epoch_metadata::TimeFrame &timeframe) {
-      YAML::Node config;
-      config["type"] = "card_selector_filter";
-      config["id"] = id;
-      config["timeframe"] = YAML::Load(timeframe.Serialize());
-      // Serialize CardSchemaFilter object to JSON and store directly
-      config["options"]["card_schema"] = glz::write_json(card_schema).value_or("{}");
-      config["inputs"]["SLOT"] = inputs;
-      return TransformConfiguration{TransformDefinition{config}};
+      TransformDefinitionData data{
+        .type = "card_selector_filter",
+        .id = id,
+        .options = {{"card_schema", epoch_metadata::MetaDataOptionDefinition{epoch_metadata::MetaDataOptionDefinition::T{card_schema}}}},
+        .timeframe = timeframe,
+        .inputs = {{"SLOT", inputs}}
+      };
+      return TransformConfiguration{TransformDefinition{std::move(data)}};
     };
 
 // Card Selector with SQL - Uses SQL query to filter rows
-// Accepts CardSchemaSQL object directly
+// Accepts CardSchemaSQL object directly - NO YAML!
 inline auto card_selector_sql_cfg =
     [](std::string const &id, epoch_metadata::CardSchemaSQL const &card_schema,
        const std::vector<std::string> &inputs,
        const epoch_metadata::TimeFrame &timeframe) {
-      YAML::Node config;
-      config["type"] = "card_selector_sql";
-      config["id"] = id;
-      config["timeframe"] = YAML::Load(timeframe.Serialize());
-      // Serialize CardSchemaSQL object to JSON and store directly
-      config["options"]["card_schema"] = glz::write_json(card_schema).value_or("{}");
-      config["inputs"]["SLOT"] = inputs;
-      return TransformConfiguration{TransformDefinition{config}};
+      TransformDefinitionData data{
+        .type = "card_selector_sql",
+        .id = id,
+        .options = {{"card_schema", epoch_metadata::MetaDataOptionDefinition{epoch_metadata::MetaDataOptionDefinition::T{card_schema}}}},
+        .timeframe = timeframe,
+        .inputs = {{"SLOT", inputs}}
+      };
+      return TransformConfiguration{TransformDefinition{std::move(data)}};
     };
 
 } // namespace epoch_metadata::transform
