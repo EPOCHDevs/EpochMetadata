@@ -93,7 +93,10 @@ namespace epoch_stratifyx::epochflow
 
         bool isConstructorCall(const Expr &expr);
         ConstructorParseResult parseConstructorAndFeeds(const Call &call);
-        epoch_metadata::MetaDataOptionDefinition::T parseLiteralOrPrimitive(const Expr &expr);
+        epoch_metadata::MetaDataOptionDefinition::T parseLiteralOrPrimitive(
+            const Expr &expr,
+            const epoch_metadata::MetaDataOption &metaOption,
+            const epoch_metadata::transforms::TransformsMetaData &comp_meta);
         void handleConstructorAssignment(const Expr &target, const Expr &value, const Assign &assign);
         void handleNonConstructorAssignment(const Expr &target, const Expr &value, const Assign &assign);
 
@@ -116,6 +119,15 @@ namespace epoch_stratifyx::epochflow
             const epoch_metadata::transforms::TransformsMetaData &comp_meta,
             std::unordered_map<std::string, epoch_metadata::MetaDataOptionDefinition::T> &kwargs,
             const Call &call);
+
+        // Parse option value based on metadata type
+        epoch_metadata::MetaDataOptionDefinition::T parseOptionByMetadata(
+            const epoch_metadata::MetaDataOptionDefinition::T &rawValue,
+            const epoch_metadata::MetaDataOption &metaOption,
+            const std::string &optionId,
+            const std::string &nodeId,
+            const Call &call,
+            const epoch_metadata::transforms::TransformsMetaData &comp_meta);
 
         // Special parameter handling (following Python's SRP pattern)
         void canonicalizeTimeframe(std::unordered_map<std::string, epoch_metadata::MetaDataOptionDefinition::T> &params);

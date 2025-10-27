@@ -13,6 +13,7 @@
 namespace epoch_stratifyx::epochflow
 {
 
+
     CompilationResult AlgorithmAstCompiler::compile(const std::string &source)
     {
         // Parse Python source to AST
@@ -1122,6 +1123,260 @@ namespace epoch_stratifyx::epochflow
         }
     }
 
+    epoch_metadata::MetaDataOptionDefinition::T AlgorithmAstCompiler::parseOptionByMetadata(
+        const epoch_metadata::MetaDataOptionDefinition::T &rawValue,
+        const epoch_metadata::MetaDataOption &metaOption,
+        const std::string &optionId,
+        const std::string &nodeId,
+        const Call &call,
+        const epoch_metadata::transforms::TransformsMetaData &comp_meta)
+    {
+        using MetaType = epoch_core::MetaDataOptionType;
+
+        // Handle each metadata type
+        switch (metaOption.type)
+        {
+        case MetaType::Integer:
+        case MetaType::Decimal:
+        {
+            // Expect a numeric value
+            if (!std::holds_alternative<double>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects type {} but got non-numeric value",
+                                optionId, nodeId,
+                                epoch_core::MetaDataOptionTypeWrapper::ToString(metaOption.type)),
+                    call.lineno, call.col_offset);
+            }
+
+            double numericValue = std::get<double>(rawValue);
+
+            // Clamp to min/max bounds
+            double clampedValue = std::max(metaOption.min, std::min(metaOption.max, numericValue));
+
+            return clampedValue;
+        }
+
+        case MetaType::Boolean:
+        {
+            // Expect a boolean value
+            if (!std::holds_alternative<bool>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects Boolean but got non-boolean value",
+                                optionId, nodeId),
+                    call.lineno, call.col_offset);
+            }
+            return rawValue;
+        }
+
+        case MetaType::String:
+        case MetaType::Select:
+        {
+            // Expect a string value
+            if (!std::holds_alternative<std::string>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects String but got non-string value",
+                                optionId, nodeId),
+                    call.lineno, call.col_offset);
+            }
+
+            // For Select type, validate against allowed options
+            if (metaOption.type == MetaType::Select && !metaOption.selectOption.empty())
+            {
+                const std::string &strValue = std::get<std::string>(rawValue);
+                bool isValid = false;
+                for (const auto &option : metaOption.selectOption)
+                {
+                    if (option.value == strValue)
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+
+                if (!isValid)
+                {
+                    std::string validOptions;
+                    for (size_t i = 0; i < metaOption.selectOption.size(); ++i)
+                    {
+                        validOptions += metaOption.selectOption[i].value;
+                        if (i < metaOption.selectOption.size() - 1)
+                            validOptions += ", ";
+                    }
+
+                    throwError(
+                        std::format("Option '{}' of node '{}' has invalid value '{}'. Valid options: {}",
+                                    optionId, nodeId, strValue, validOptions),
+                        call.lineno, call.col_offset);
+                }
+            }
+
+            return rawValue;
+        }
+
+        case MetaType::CardSchema:
+        {
+            // Expect a JSON string to parse into CardSchemaFilter or CardSchemaSQL
+            if (!std::holds_alternative<std::string>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects CardSchema (JSON string) but got non-string value",
+                                optionId, nodeId),
+                    call.lineno, call.col_offset);
+            }
+
+            const std::string &json_str = std::get<std::string>(rawValue);
+
+            // Try parsing as CardSchemaFilter first (uses select_key)
+            auto filter_result = glz::read_json<epoch_metadata::CardSchemaFilter>(json_str);
+            if (filter_result)
+            {
+                return epoch_metadata::MetaDataOptionDefinition::T{filter_result.value()};
+            }
+
+            // Try parsing as CardSchemaSQL (uses sql)
+            auto sql_result = glz::read_json<epoch_metadata::CardSchemaSQL>(json_str);
+            if (sql_result)
+            {
+                auto cardSchemaSQL = sql_result.value();
+
+                // Validate SqlStatement with correct numOutputs
+                int numOutputs = static_cast<int>(comp_meta.outputs.size());
+                try
+                {
+                    cardSchemaSQL.sql.Validate(numOutputs);
+                }
+                catch (const std::exception &e)
+                {
+                    throwError(
+                        std::format("Invalid SQL in CardSchema for option '{}' of node '{}': {}",
+                                    optionId, nodeId, e.what()),
+                        call.lineno, call.col_offset);
+                }
+
+                return epoch_metadata::MetaDataOptionDefinition::T{cardSchemaSQL};
+            }
+
+            // Both CardSchemaFilter and CardSchemaSQL failed
+            throwError(
+                std::format("Invalid CardSchema JSON for option '{}' of node '{}'. "
+                            "CardSchema must contain either 'select_key' (for filter mode) or 'sql' (for SQL mode).",
+                            optionId, nodeId),
+                call.lineno, call.col_offset);
+        }
+
+        case MetaType::SqlStatement:
+        {
+            // Expect a string (SQL query) that will be validated by SqlStatement constructor
+            if (!std::holds_alternative<std::string>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects SqlStatement (string) but got non-string value",
+                                optionId, nodeId),
+                    call.lineno, call.col_offset);
+            }
+
+            const std::string &sql_str = std::get<std::string>(rawValue);
+
+            try
+            {
+                // Construct SqlStatement and validate with numOutputs
+                epoch_metadata::SqlStatement sqlStmt{sql_str};
+                int numOutputs = static_cast<int>(comp_meta.outputs.size());
+                sqlStmt.Validate(numOutputs);
+                return epoch_metadata::MetaDataOptionDefinition::T{sqlStmt};
+            }
+            catch (const std::exception &e)
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}': {}", optionId, nodeId, e.what()),
+                    call.lineno, call.col_offset);
+            }
+        }
+
+        case MetaType::Time:
+        {
+            // Expect a string that can be parsed into Time
+            if (std::holds_alternative<std::string>(rawValue))
+            {
+                // Parse string into Time object
+                const std::string &timeStr = std::get<std::string>(rawValue);
+                try
+                {
+                    epoch_frame::Time time = epoch_metadata::TimeFromString(timeStr);
+                    return epoch_metadata::MetaDataOptionDefinition::T{time};
+                }
+                catch (const std::exception &e)
+                {
+                    throwError(
+                        std::format("Option '{}' of node '{}' has invalid Time format: {}. Error: {}",
+                                    optionId, nodeId, timeStr, e.what()),
+                        call.lineno, call.col_offset);
+                }
+            }
+            else if (std::holds_alternative<epoch_frame::Time>(rawValue))
+            {
+                // Already a Time object
+                return rawValue;
+            }
+            else
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects Time (string) but got invalid type",
+                                optionId, nodeId),
+                    call.lineno, call.col_offset);
+            }
+        }
+
+        case MetaType::NumericList:
+        case MetaType::StringList:
+        {
+            // Expect a Sequence
+            if (!std::holds_alternative<epoch_metadata::Sequence>(rawValue))
+            {
+                throwError(
+                    std::format("Option '{}' of node '{}' expects {} but got non-list value",
+                                optionId, nodeId,
+                                epoch_core::MetaDataOptionTypeWrapper::ToString(metaOption.type)),
+                    call.lineno, call.col_offset);
+            }
+
+            const auto &sequence = std::get<epoch_metadata::Sequence>(rawValue);
+
+            // Validate sequence elements match expected type
+            for (const auto &item : sequence)
+            {
+                if (metaOption.type == MetaType::NumericList && !std::holds_alternative<double>(item))
+                {
+                    throwError(
+                        std::format("Option '{}' of node '{}' expects NumericList but contains non-numeric values",
+                                    optionId, nodeId),
+                        call.lineno, call.col_offset);
+                }
+                else if (metaOption.type == MetaType::StringList && !std::holds_alternative<std::string>(item))
+                {
+                    throwError(
+                        std::format("Option '{}' of node '{}' expects StringList but contains non-string values",
+                                    optionId, nodeId),
+                        call.lineno, call.col_offset);
+                }
+            }
+
+            return rawValue;
+        }
+
+        default:
+            throwError(
+                std::format("Unsupported metadata option type: {}",
+                            epoch_core::MetaDataOptionTypeWrapper::ToString(metaOption.type)),
+                call.lineno, call.col_offset);
+        }
+
+        return rawValue; // Unreachable, but keeps compiler happy
+    }
+
     void AlgorithmAstCompiler::validateAndApplyOptions(
         const std::string &node_id,
         const epoch_metadata::transforms::TransformsMetaData &comp_meta,
@@ -1159,7 +1414,7 @@ namespace epoch_stratifyx::epochflow
             }
         }
 
-        // 3. Validate option types and clamp numeric values
+        // 3. Parse and validate all kwargs based on metadata types
         for (auto &[optionId, optionValue] : kwargs)
         {
             // Skip special parameters (timeframe and session) - they're handled separately
@@ -1184,41 +1439,9 @@ namespace epoch_stratifyx::epochflow
             }
 
             const auto &metaOption = *metaOptionIt;
-            epoch_metadata::MetaDataOptionDefinition optionDef(optionValue);
 
-            // Type validation
-            if (!optionDef.IsType(metaOption.type))
-            {
-                std::string example = metaOption.defaultValue
-                                          ? metaOption.defaultValue->ToString()
-                                          : "valid_value";
-
-                throwError(
-                    std::format("Option '{}' has invalid type for node '{}'. "
-                                "Expected type: {} but got: {}. "
-                                "Change option '{}' value to type {}. Example: {}",
-                                optionId, node_id,
-                                epoch_core::MetaDataOptionTypeWrapper::ToString(metaOption.type),
-                                optionDef.ToString(),
-                                optionId,
-                                epoch_core::MetaDataOptionTypeWrapper::ToString(metaOption.type),
-                                example),
-                    call.lineno, call.col_offset);
-            }
-
-            // Clamp numeric values
-            if (metaOption.type == epoch_core::MetaDataOptionType::Integer ||
-                metaOption.type == epoch_core::MetaDataOptionType::Decimal)
-            {
-                double numericValue = optionDef.GetNumericValue();
-                double clampedValue = std::max(metaOption.min, std::min(metaOption.max, numericValue));
-
-                if (clampedValue != numericValue)
-                {
-                    // Update the value directly (silently clamp like Python validator)
-                    optionValue = epoch_metadata::MetaDataOptionDefinition(clampedValue).GetVariant();
-                }
-            }
+            // Parse value based on metadata type
+            optionValue = parseOptionByMetadata(optionValue, metaOption, optionId, node_id, call, comp_meta);
         }
 
         // kwargs now contains validated, clamped values with defaults applied
@@ -1924,13 +2147,69 @@ namespace epoch_stratifyx::epochflow
         std::string ctor_name = nameNode->id;
         std::reverse(calls.begin(), calls.end());
 
+        // Get component metadata for option parsing
+        const auto &registry = epoch_metadata::transforms::ITransformRegistry::GetInstance();
+        const auto &all_metadata = registry.GetMetaData();
+        if (!all_metadata.contains(ctor_name))
+        {
+            throwError("Unknown component '" + ctor_name + "'", call.lineno, call.col_offset);
+        }
+        const auto &comp_meta = all_metadata.at(ctor_name);
+
+        // Build metadata lookup map for O(1) lookups
+        std::unordered_map<std::string, epoch_metadata::MetaDataOption> option_metadata;
+        for (const auto &opt : comp_meta.options)
+        {
+            option_metadata[opt.id] = opt;
+        }
+
         ConstructorParseResult result;
         result.ctor_name = ctor_name;
 
         // Parse constructor kwargs from first call
         for (const auto &[key, valueExpr] : calls[0]->keywords)
         {
-            result.ctor_kwargs[key] = parseLiteralOrPrimitive(*valueExpr);
+            // Skip special parameters (timeframe and session) - validated separately
+            if (key == "timeframe" || key == "session")
+            {
+                // Extract raw string value (validated later by canonicalizeTimeframe/Session)
+                if (auto *constant = dynamic_cast<const Constant *>(valueExpr.get()))
+                {
+                    if (std::holds_alternative<std::string>(constant->value))
+                    {
+                        result.ctor_kwargs[key] = std::get<std::string>(constant->value);
+                    }
+                    else
+                    {
+                        throwError(
+                            std::format("Parameter '{}' must be a string", key),
+                            calls[0]->lineno, calls[0]->col_offset);
+                    }
+                }
+                else if (auto *name = dynamic_cast<const Name *>(valueExpr.get()))
+                {
+                    // Bare identifier like sessions(session=London)
+                    result.ctor_kwargs[key] = name->id;
+                }
+                else
+                {
+                    throwError(
+                        std::format("Parameter '{}' must be a string literal", key),
+                        calls[0]->lineno, calls[0]->col_offset);
+                }
+                continue;
+            }
+
+            // Look up metadata for this option (throw error if not found - invalid option)
+            auto it = option_metadata.find(key);
+            if (it == option_metadata.end())
+            {
+                throwError(
+                    std::format("Unknown option '{}' for component '{}'", key, ctor_name),
+                    calls[0]->lineno, calls[0]->col_offset);
+            }
+
+            result.ctor_kwargs[key] = parseLiteralOrPrimitive(*valueExpr, it->second, comp_meta);
         }
 
         // Handle shorthand syntax: component(inputs) instead of component()(inputs)
@@ -1940,15 +2219,6 @@ namespace epoch_stratifyx::epochflow
 
         if (!calls[0]->args.empty())
         {
-            // Check if component has options (use singleton registry)
-            const auto &registry = epoch_metadata::transforms::ITransformRegistry::GetInstance();
-            const auto &all_metadata = registry.GetMetaData();
-            if (!all_metadata.contains(ctor_name))
-            {
-                throwError("Unknown component '" + ctor_name + "'");
-            }
-
-            const auto &comp_meta = all_metadata.at(ctor_name);
             bool has_options = !comp_meta.options.empty();
 
             if (!has_options && calls.size() == 1)
@@ -1988,11 +2258,17 @@ namespace epoch_stratifyx::epochflow
         return result;
     }
 
-    epoch_metadata::MetaDataOptionDefinition::T AlgorithmAstCompiler::parseLiteralOrPrimitive(const Expr &expr)
+    epoch_metadata::MetaDataOptionDefinition::T AlgorithmAstCompiler::parseLiteralOrPrimitive(
+        const Expr &expr,
+        const epoch_metadata::MetaDataOption &metaOption,
+        const epoch_metadata::transforms::TransformsMetaData &comp_meta)
     {
+        // Extract raw value from AST expression
+        epoch_metadata::MetaDataOptionDefinition::T rawValue;
+
         if (auto *constant = dynamic_cast<const Constant *>(&expr))
         {
-            return std::visit([](auto &&value) -> epoch_metadata::MetaDataOptionDefinition::T
+            rawValue = std::visit([](auto &&value) -> epoch_metadata::MetaDataOptionDefinition::T
                               {
             using T = std::decay_t<decltype(value)>;
             if constexpr (std::is_same_v<T, int>) {
@@ -2008,8 +2284,7 @@ namespace epoch_stratifyx::epochflow
             }
             throw std::runtime_error("Unsupported constant type"); }, constant->value);
         }
-
-        if (auto *name = dynamic_cast<const Name *>(&expr))
+        else if (auto *name = dynamic_cast<const Name *>(&expr))
         {
             // Check if this name is bound to a constant value
             auto it = var_to_binding_.find(name->id);
@@ -2025,25 +2300,52 @@ namespace epoch_stratifyx::epochflow
                     {
                         if (algo.options.contains("value"))
                         {
-                            return algo.options.at("value").GetVariant();
+                            rawValue = algo.options.at("value").GetVariant();
+                        }
+                        else
+                        {
+                            throwError("Number node missing value option");
                         }
                     }
                     else if (algo.type == "bool_true")
                     {
-                        return true;
+                        rawValue = true;
                     }
                     else if (algo.type == "bool_false")
                     {
-                        return false;
+                        rawValue = false;
+                    }
+                    else
+                    {
+                        throwError("Only literal values supported for options");
                     }
                 }
+                else
+                {
+                    throwError("Only literal values supported for options");
+                }
             }
-            // Fallback: accept bare identifiers as strings (e.g., sessions(session=London))
-            return name->id;
+            else
+            {
+                // Fallback: accept bare identifiers as strings (e.g., sessions(session=London))
+                rawValue = name->id;
+            }
+        }
+        else
+        {
+            throwError("Only literal keyword values supported");
         }
 
-        throwError("Only literal keyword values supported");
-        return std::string{""};  // Return empty string as fallback
+        // Delegate to parseOptionByMetadata for type-aware parsing
+        // Note: We don't have access to the original Call node here, but parseOptionByMetadata
+        // will use the Call passed from parseConstructorAndFeeds which has the correct location
+        // So we create a dummy call for now - the real error locations come from the caller
+        auto dummyFunc = std::make_unique<Name>("dummy");
+        Call dummyCall{std::move(dummyFunc)};
+        dummyCall.lineno = 0;
+        dummyCall.col_offset = 0;
+
+        return parseOptionByMetadata(rawValue, metaOption, metaOption.id, comp_meta.id, dummyCall, comp_meta);
     }
 
     void AlgorithmAstCompiler::handleConstructorAssignment(const Expr &target, const Expr &value, const Assign &assign)

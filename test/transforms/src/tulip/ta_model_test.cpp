@@ -129,6 +129,38 @@ TEST_CASE("Tulip Indicator Transforms") {
         REQUIRE(result.equals(expected));
       }
     }
+
+    SECTION("Crossunder Test - Detects crossing below") {
+      // Crossunder should detect when x crosses BELOW y
+      // Using the same input data, crossunder(x, y) should be the opposite of crossover(x, y)
+      TransformConfiguration config = crossunder(
+          "0", "x", "y",
+          epoch_metadata::EpochStratifyXConstants::instance()
+              .DAILY_FREQUENCY);
+
+      auto transformBase = MAKE_TRANSFORM(config);
+      auto model = dynamic_cast<ITransform *>(transformBase.get());
+
+      // With the input data:
+      // x: [81.59, 81.06, 82.87, 83.00]
+      // y: [81.85, 81.20, 81.55, 82.91]
+      // At index 2: x crosses BELOW y (82.87 > 81.55 => no cross under)
+      // At index 3: x crosses ABOVE y (83.00 > 82.91 => no cross under)
+      // So crossunder should be all false for this data since x never crosses below y
+      auto outputIndex = epoch_frame::factory::index::make_datetime_index(
+          {epoch_frame::DateTime{2020y, std::chrono::January, 2d},
+           epoch_frame::DateTime{2020y, std::chrono::January, 3d},
+           epoch_frame::DateTime{2020y, std::chrono::January, 4d}});
+
+      epoch_frame::DataFrame expected = make_dataframe<bool>(
+          outputIndex, {{false, false, false}}, {config.GetOutputId()});
+
+      auto result = model->TransformData(input);
+      INFO("Comparing crossunder output with expected values\n"
+           << result << "\n!=\n"
+           << expected);
+      REQUIRE(result.equals(expected));
+    }
   }
 
   SECTION("MACD Indicator Test") {

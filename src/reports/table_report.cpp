@@ -10,7 +10,7 @@
 namespace epoch_metadata::reports {
 
 void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
-  if (m_sqlQuery.empty()) {
+  if (m_sqlStatement.GetSql().empty()) {
     std::cerr << "Warning: TableReport requires 'sql' option" << std::endl;
     return;
   }
@@ -26,7 +26,7 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
     if (m_addIndex) {
       inputDf = inputDf.reset_index("timestamp");
     }
-    auto resultTable = inputDf.query(m_sqlQuery);
+    auto resultTable = inputDf.query(m_sqlStatement.GetSql());
     epoch_frame::DataFrame resultDf(resultTable);
 
 
@@ -49,12 +49,13 @@ void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) 
   }
 }
 
-std::string TableReport::GetSQLQuery() const {
+SqlStatement TableReport::GetSQLStatement() const {
   auto options = m_config.GetOptions();
-  if (options.contains("sql") && options["sql"].IsType(epoch_core::MetaDataOptionType::String)) {
-    return options["sql"].GetString();
+  if (options.contains("sql") && options["sql"].IsType(epoch_core::MetaDataOptionType::SqlStatement)) {
+    return options["sql"].GetSqlStatement();
   }
-  return "";
+  // Return empty SqlStatement if not found (will fail validation but allows construction)
+  return SqlStatement{"SELECT * FROM self"};
 }
 
 bool TableReport::GetAddIndex() const {

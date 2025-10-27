@@ -193,8 +193,22 @@ ExprPtr PythonParser::parseConstant(const ts::Node& node, std::string_view sourc
     } else if (type == "float") {
         return std::make_unique<Constant>(std::stod(text));
     } else if (type == "string") {
-        // Remove quotes
-        std::string str = text.substr(1, text.length() - 2);
+        // Remove quotes (handle both single/double and triple-quoted strings)
+        std::string str = text;
+
+        // Check for triple quotes (""" or ''')
+        if (str.length() >= 6 &&
+            ((str.substr(0, 3) == "\"\"\"" && str.substr(str.length() - 3) == "\"\"\"") ||
+             (str.substr(0, 3) == "'''" && str.substr(str.length() - 3) == "'''"))) {
+            str = str.substr(3, str.length() - 6);
+        }
+        // Check for single quotes (" or ')
+        else if (str.length() >= 2 &&
+                 ((str.front() == '"' && str.back() == '"') ||
+                  (str.front() == '\'' && str.back() == '\''))) {
+            str = str.substr(1, str.length() - 2);
+        }
+
         return std::make_unique<Constant>(str);
     } else if (type == "true") {
         return std::make_unique<Constant>(true);

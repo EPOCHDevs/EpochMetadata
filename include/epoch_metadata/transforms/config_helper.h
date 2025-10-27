@@ -318,6 +318,12 @@ inline auto crossover = [](std::string const &id, std::string const &input1,
   return double_operand_op("cross", "over", id, input1, input2, timeframe);
 };
 
+inline auto crossunder = [](std::string const &id, std::string const &input1,
+                            std::string const &input2,
+                            epoch_metadata::TimeFrame const &timeframe) {
+  return double_operand_op("cross", "under", id, input1, input2, timeframe);
+};
+
 inline auto cs_momentum = [](int64_t id, std::string const &input,
                              epoch_metadata::TimeFrame const &timeframe) {
   return TransformConfiguration{TransformDefinition{

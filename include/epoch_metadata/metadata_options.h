@@ -19,9 +19,10 @@
 #include <variant>
 #include <vector>
 #include <yaml-cpp/yaml.h>
+#include <epoch_metadata/sql_statement.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList, Time, String, CardSchema);
+            StringList, Time, String, CardSchema, SqlStatement);
 
 namespace epoch_metadata
 {
@@ -98,7 +99,7 @@ namespace epoch_metadata
   struct CardSchemaSQL {
     std::string title;
     epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
-    std::string sql;  // SQL query to filter/transform
+    SqlStatement sql;  // SQL query to filter/transform
     std::vector<CardColumnSchema> schemas;
 
     bool operator==(const CardSchemaSQL &) const = default;
@@ -130,7 +131,7 @@ namespace epoch_metadata
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaFilter, CardSchemaSQL>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaFilter, CardSchemaSQL, SqlStatement>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -253,6 +254,11 @@ namespace epoch_metadata
     [[nodiscard]] CardSchemaSQL GetCardSchemaSQL() const
     {
       return GetValueByType<CardSchemaSQL>();
+    }
+
+    [[nodiscard]] SqlStatement GetSqlStatement() const
+    {
+      return GetValueByType<SqlStatement>();
     }
 
     std::string GetRef() const
@@ -575,6 +581,25 @@ namespace glz
   {
     using T = epoch_metadata::MetaDataArgRef;
     static constexpr auto value = object("refName", &T::refName);
+  };
+
+  // SqlStatement serialization - serialize/deserialize as plain string
+  template <>
+  struct meta<epoch_metadata::SqlStatement>
+  {
+    static constexpr auto read =
+        [](epoch_metadata::SqlStatement &value, const std::string &in)
+    {
+      value = epoch_metadata::SqlStatement{in};
+    };
+
+    static constexpr auto write =
+        [](const epoch_metadata::SqlStatement &x) -> std::string
+    {
+      return x.GetSql();
+    };
+
+    static constexpr auto value = glz::custom<read, write>;
   };
 
   template <>

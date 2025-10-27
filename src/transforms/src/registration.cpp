@@ -216,6 +216,10 @@ void InitializeTransforms(
     }
   }
 
+  // Register custom Tulip-based indicators that are not native to Tulip
+  // crossunder is implemented as crossover with swapped inputs
+  transform::Register<TulipModelImpl<true>>("crossunder");
+
   for (auto const &metaData :
        std::span(tc_candles, tc_candles + tc_candle_count())) {
     transform::Register<TulipModelImpl<false>>(metaData.name);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "epoch_metadata/transforms/itransform.h"
+#include "epoch_metadata/sql_statement.h"
 #include <epoch_frame/dataframe.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -20,7 +21,7 @@ class SQLQueryTransform : public ITransform {
 public:
   explicit SQLQueryTransform(const TransformConfiguration &config)
       : ITransform(config),
-  m_sqlQuery(m_config.GetOptionValue("sql").GetString())
+  m_sqlStatement(CreateSqlStatement(config))
   {
   }
 
@@ -35,7 +36,7 @@ public:
     // Step 3: Execute SQL query with timestamp index
     // SQLQueryTransform is a timeseries transform - index is always added as 'timestamp'
     // DuckDB registers the DataFrame as 'self' by default
-    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlQuery);
+    auto resultTable = inputDf.reset_index("timestamp").query(m_sqlStatement.GetSql());
 
     // Convert Arrow Table to DataFrame
     epoch_frame::DataFrame resultDf(resultTable);
@@ -79,7 +80,23 @@ public:
   }
 
 private:
-  std::string m_sqlQuery;
+  SqlStatement m_sqlStatement;
+
+  /**
+   * @brief Create SqlStatement with required output columns for multi-output transforms
+   */
+  static SqlStatement CreateSqlStatement(const TransformConfiguration &config)
+  {
+    std::string sql = config.GetOptionValue("sql").GetSqlStatement().GetSql();
+
+    // For multi-output transforms, specify number of expected outputs
+    // This validates RESULT0, RESULT1, ..., RESULT(N-1) exist
+    if constexpr (NumOutputs > 1) {
+      return SqlStatement{sql, static_cast<int>(NumOutputs)};
+    }
+
+    return SqlStatement{sql};
+  }
 };
 
 // Type aliases for 1-4 output variants

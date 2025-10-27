@@ -43,7 +43,7 @@ public:
       epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
 
       // Apply SQL filtering - DuckDB registers the DataFrame as 'self' by default
-      result = epoch_frame::DataFrame(inputDf.query(m_schema.sql));
+      result = epoch_frame::DataFrame(inputDf.query(m_schema.sql.GetSql()));
     }
 
     // Find the pivot_index - first schema with Timestamp render type

@@ -83,6 +83,14 @@ MakeTulipIndicatorMetaData() {
       .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::flag};
 
+  indicatorMetaData["crossunder"] = IndicatorMetaData{
+      .tags = {"math", "crossunder", "signal", "trend"},
+      .desc = "Crossunder. Returns 1 when the first input "
+              "crosses below the second input.",
+      .category = epoch_core::TransformCategory::Math,
+      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
+      .plotKind = epoch_core::TransformPlotKind::flag};
+
   indicatorMetaData["decay"] = IndicatorMetaData{
       .tags = {"math", "decay", "linear"},
       .desc = "Linear Decay. Applies linear decay to each element in the input "
@@ -959,7 +967,7 @@ inline std::vector<IOMetaData> MakeTulipOutputs(auto const &outputs) {
   if (outputs.size() == 1) {
     std::string output{outputs[0]};
     ioMetaDataList.emplace_back(
-        IOMetaData{.type = (output == "crossany" || output == "crossover")
+        IOMetaData{.type = (output == "crossany" || output == "crossover" || output == "crossunder")
                                ? epoch_core::IODataType::Boolean
                                : epoch_core::IODataType::Decimal,
                    .id = "result",
@@ -1036,6 +1044,35 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             .usageContext = metadata.usageContext,
             .limitations = metadata.limitations};
       });
+
+  // Add custom indicators that are not native to Tulip library
+  // crossunder - implemented as crossover with swapped inputs
+  auto crossunderMetadata = epoch_core::lookupDefault(
+      indicatorMetaData, "crossunder", IndicatorMetaData{});
+  allIndicators.push_back(TransformsMetaData{
+      .id = "crossunder",
+      .category = crossunderMetadata.category,
+      .renderKind = crossunderMetadata.renderKind,
+      .plotKind = crossunderMetadata.plotKind,
+      .name = "Vector Crossunder",
+      .options = {},
+      .isCrossSectional = false,
+      .desc = crossunderMetadata.desc,
+      .inputs = {IOMetaDataConstants::DECIMAL_INPUT0_METADATA,
+                 IOMetaDataConstants::DECIMAL_INPUT1_METADATA},
+      .outputs = {IOMetaData{.type = epoch_core::IODataType::Boolean,
+                             .id = "result",
+                             .name = "",
+                             .allowMultipleConnections = true}},
+      .tags = crossunderMetadata.tags,
+      .requiresTimeFrame = false,
+      .requiredDataSources = {},
+      .strategyTypes = crossunderMetadata.strategyTypes,
+      .relatedTransforms = crossunderMetadata.relatedTransforms,
+      .assetRequirements = crossunderMetadata.assetRequirements,
+      .usageContext = crossunderMetadata.usageContext,
+      .limitations = crossunderMetadata.limitations});
+
   return allIndicators;
 }
 } // namespace epoch_metadata::transforms

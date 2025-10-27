@@ -16,9 +16,14 @@ TulipModelImpl<IsIndicator>::TulipModelImpl(
     : ITransform(config) {
   auto C = EpochStratifyXConstants::instance();
   if constexpr (IsIndicator) {
-    m_info = ti_find_indicator(config.GetTransformName().c_str());
+    // Handle crossunder as crossover with swapped inputs
+    std::string transformName = config.GetTransformName();
+    if (transformName == "crossunder") {
+      transformName = "crossover";
+    }
+    m_info = ti_find_indicator(transformName.c_str());
     AssertFromFormat(m_info != nullptr, "TIError: indicator fn `{}` not found",
-                     config.GetTransformName());
+                     transformName);
     static std::unordered_map<std::string, std::string> keyMapping = {
         {"close", C.CLOSE()},
         {"high", C.HIGH()},
@@ -88,6 +93,11 @@ epoch_frame::DataFrame TulipModelImpl<IsIndicator>::TransformData(
   auto inputKeys = m_required_bar_inputs;
   for (auto const &key : GetInputIds()) {
     inputKeys.push_back(key);
+  }
+
+  // Swap inputs for crossunder to implement it as crossover with reversed inputs
+  if (GetName() == "crossunder" && inputKeys.size() >= 2) {
+    std::swap(inputKeys[inputKeys.size() - 2], inputKeys[inputKeys.size() - 1]);
   }
 
   const int64_t length = bars.num_rows();

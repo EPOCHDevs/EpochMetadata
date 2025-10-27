@@ -2,6 +2,7 @@
 
 #include <epoch_metadata/reports/ireport.h>
 #include <epoch_metadata/transforms/sql_options.h>
+#include <epoch_metadata/sql_statement.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/scalar.h>
 #include <arrow/api.h>
@@ -12,7 +13,7 @@ class TableReport : public IReporter {
 public:
   explicit TableReport(epoch_metadata::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlQuery(GetSQLQuery()),
+        m_sqlStatement(GetSQLStatement()),
         m_tableTitle(GetTableTitle()),
         m_addIndex(GetAddIndex()) {
   }
@@ -23,12 +24,12 @@ protected:
 
 private:
   // Cached configuration values
-  const std::string m_sqlQuery;
+  const SqlStatement m_sqlStatement;
   const std::string m_tableTitle;
   const bool m_addIndex;
 
   // Configuration getters
-  std::string GetSQLQuery() const;
+  SqlStatement GetSQLStatement() const;
   bool GetAddIndex() const;
   std::string GetTableTitle() const;
 

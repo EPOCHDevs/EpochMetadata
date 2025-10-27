@@ -207,7 +207,7 @@ TEST_CASE("CardSchemaSQL - JSON Parsing", "[selectors][card_selector]") {
 
     REQUIRE(!error);
     REQUIRE(schema.title == "Filtered Signals");
-    REQUIRE(schema.sql == "SELECT * FROM self WHERE SLOT1 > 0");
+    REQUIRE(schema.sql.GetSql() == "SELECT * FROM self WHERE SLOT1 > 0");
     REQUIRE(schema.schemas.size() == 1);
   }
 
@@ -225,9 +225,9 @@ TEST_CASE("CardSchemaSQL - JSON Parsing", "[selectors][card_selector]") {
     auto error = glz::read_json(schema, schemaJson);
 
     REQUIRE(!error);
-    REQUIRE(schema.sql.find("FROM self") != std::string::npos);
-    REQUIRE(schema.sql.find("WHERE") != std::string::npos);
-    REQUIRE(schema.sql.find("ORDER BY") != std::string::npos);
+    REQUIRE(schema.sql.GetSql().find("FROM self") != std::string::npos);
+    REQUIRE(schema.sql.GetSql().find("WHERE") != std::string::npos);
+    REQUIRE(schema.sql.GetSql().find("ORDER BY") != std::string::npos);
   }
 }
 
@@ -270,13 +270,13 @@ TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_select
   SECTION("CardSchemaSQL equality") {
     CardSchemaSQL schema1{
       .title = "Test SQL",
-      .sql = "SELECT * FROM self WHERE SLOT0 > 0",
+      .sql = SqlStatement("SELECT * FROM self WHERE SLOT0 > 0"),
       .schemas = {}
     };
 
     CardSchemaSQL schema2{
       .title = "Test SQL",
-      .sql = "SELECT * FROM self WHERE SLOT0 > 0",
+      .sql = SqlStatement("SELECT * FROM self WHERE SLOT0 > 0"),
       .schemas = {}
     };
 
@@ -337,7 +337,7 @@ TEST_CASE("CardSelectorFromSQL - Transform Functionality", "[selectors][card_sel
     // Create CardSchemaSQL configuration
     CardSchemaSQL schema{
       .title = "Profitable Trades",
-      .sql = "SELECT * FROM self WHERE SLOT1 > 0",
+      .sql = SqlStatement("SELECT * FROM self WHERE SLOT1 > 0"),
       .schemas = {
         CardColumnSchema{
           .column_id = "direction",
@@ -378,7 +378,7 @@ TEST_CASE("CardSelectorFromSQL - Transform Functionality", "[selectors][card_sel
     // Create CardSchemaSQL with ORDER BY
     CardSchemaSQL schema{
       .title = "Sorted Results",
-      .sql = "SELECT * FROM self ORDER BY SLOT1 DESC",
+      .sql = SqlStatement("SELECT * FROM self ORDER BY SLOT1 DESC"),
       .schemas = {}
     };
 

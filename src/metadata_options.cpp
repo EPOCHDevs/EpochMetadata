@@ -95,6 +95,9 @@ void MetaDataOptionDefinition::AssertType(
       throw std::runtime_error("Expected CardSchemaFilter or CardSchemaSQL type");
     }
     break;
+  case epoch_core::MetaDataOptionType::SqlStatement:
+    AssertType<SqlStatement>();
+    break;
   case epoch_core::MetaDataOptionType::Null:
     throw std::runtime_error("Null value not allowed.");
   }
@@ -121,6 +124,8 @@ bool MetaDataOptionDefinition::IsType(
   case epoch_core::MetaDataOptionType::CardSchema:
     return std::holds_alternative<CardSchemaFilter>(m_optionsVariant) ||
            std::holds_alternative<CardSchemaSQL>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::SqlStatement:
+    return std::holds_alternative<SqlStatement>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
     return false;
   }
@@ -217,11 +222,14 @@ size_t MetaDataOptionDefinition::GetHash() const {
           // Hash CardSchemaSQL by hashing its fields
           size_t seed = 0;
           seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-          seed ^= std::hash<std::string>{}(arg.sql) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<std::string>{}(arg.sql.GetSql()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           for (const auto &schema : arg.schemas) {
             seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           }
           return seed;
+        } else if constexpr (std::same_as<K, SqlStatement>) {
+          // Hash SqlStatement by hashing its SQL string
+          return std::hash<std::string>{}(arg.GetSql());
         } else {
           return std::hash<K>{}(arg);
         }
@@ -266,6 +274,9 @@ std::string MetaDataOptionDefinition::ToString() const {
         } else if constexpr (std::same_as<K, CardSchemaSQL>) {
           // Use glaze to pretty print the full CardSchemaSQL structure
           return glz::write_json(arg).value_or("{}");
+        } else if constexpr (std::same_as<K, SqlStatement>) {
+          // Return the SQL string
+          return arg.GetSql();
         } else {
           return std::to_string(arg);
         }
@@ -335,6 +346,9 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
     return MetaDataOptionDefinition{node.as<std::string>()};
   case epoch_core::MetaDataOptionType::CardSchema:
     return MetaDataOptionDefinition{node.as<std::string>()};
+  case epoch_core::MetaDataOptionType::SqlStatement:
+    // SqlStatement is validated on construction
+    return MetaDataOptionDefinition{MetaDataOptionDefinition::T{SqlStatement{node.as<std::string>()}}};
   case epoch_core::MetaDataOptionType::Null:
     break;
   }
