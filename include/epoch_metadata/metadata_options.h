@@ -44,6 +44,7 @@ namespace epoch_metadata
     epoch_core::CardSlot slot;
     epoch_core::CardRenderType render_type;
     std::unordered_map<epoch_core::CardColor, std::vector<std::string>> color_map;
+    std::optional<std::string> label;  // Optional display label - if set, UI shows this instead of column_id
 
     bool operator==(const CardColumnSchema &) const = default;
 
@@ -62,6 +63,9 @@ namespace epoch_metadata
       };
       glz::schema color_map{
         .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default"
+      };
+      glz::schema label{
+        .description = "Optional display label shown to users. If not set, UI uses column_id. Pattern: only show labels for Details slot (better visual style)"
       };
     };
   };

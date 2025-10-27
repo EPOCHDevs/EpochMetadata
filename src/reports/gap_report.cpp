@@ -275,7 +275,8 @@ namespace {
       .color_map = {
         {epoch_core::CardColor::Success, {"gap up"}},
         {epoch_core::CardColor::Error, {"gap down"}}
-      }
+      },
+      .label = std::nullopt
     });
 
     // Secondary badge: gap_filled status
@@ -286,7 +287,8 @@ namespace {
       .color_map = {
         {epoch_core::CardColor::Success, {"filled"}},
         {epoch_core::CardColor::Warning, {"not filled"}}
-      }
+      },
+      .label = std::nullopt
     });
 
     // Hero: gap_size (main focus)
@@ -294,7 +296,8 @@ namespace {
       .column_id = "gap_size",
       .slot = epoch_core::CardSlot::Hero,
       .render_type = epoch_core::CardRenderType::Decimal,
-      .color_map = {}
+      .color_map = {},
+      .label = std::nullopt
     });
 
     // Subtitle: weekday
@@ -302,7 +305,8 @@ namespace {
       .column_id = "weekday",
       .slot = epoch_core::CardSlot::Subtitle,
       .render_type = epoch_core::CardRenderType::Text,
-      .color_map = {}
+      .color_map = {},
+      .label = std::nullopt
     });
 
     // Footer: performance (green/red indicator)
@@ -313,7 +317,8 @@ namespace {
       .color_map = {
         {epoch_core::CardColor::Success, {"green"}},
         {epoch_core::CardColor::Error, {"red"}}
-      }
+      },
+      .label = std::nullopt
     });
 
     // Details: fill_time (only relevant for filled gaps)
@@ -321,7 +326,8 @@ namespace {
       .column_id = "fill_time",
       .slot = epoch_core::CardSlot::Details,
       .render_type = epoch_core::CardRenderType::Text,
-      .color_map = {}
+      .color_map = {},
+      .label = "Fill Time"
     });
 
     // Navigator: timestamp column for candlestick chart navigation
@@ -329,7 +335,8 @@ namespace {
       .column_id = "psc_timestamp",
       .slot = epoch_core::CardSlot::Details,
       .render_type = epoch_core::CardRenderType::Timestamp,
-      .color_map = {}
+      .color_map = {},
+      .label = "Prior Session Close"
     });
 
     // The pivot_index points to the timestamp schema (last element in the array)

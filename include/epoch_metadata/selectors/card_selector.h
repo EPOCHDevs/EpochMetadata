@@ -43,7 +43,8 @@ private:
     .column_id = "pivot",
     .slot = epoch_core::CardSlot::Subtitle,
     .render_type = epoch_core::CardRenderType::Timestamp,
-    .color_map = {}
+    .color_map = {},
+    .label = std::nullopt
     });
     return schema;
   }

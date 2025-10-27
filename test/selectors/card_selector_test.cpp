@@ -156,6 +156,41 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
     REQUIRE(schema.schemas[3].render_type == epoch_core::CardRenderType::Timestamp);
     REQUIRE(schema.schemas[4].render_type == epoch_core::CardRenderType::Boolean);
   }
+
+  SECTION("Parse schema with optional label field") {
+    std::string schemaJson = R"({
+      "title": "Schema with Labels",
+      "select_key": "filter_col",
+      "schemas": [
+        {"column_id": "col1", "slot": "Hero", "render_type": "Decimal", "color_map": {}},
+        {"column_id": "fill_time", "slot": "Details", "render_type": "Text", "color_map": {}, "label": "Fill Time"},
+        {"column_id": "psc_timestamp", "slot": "Details", "render_type": "Timestamp", "color_map": {}, "label": "Prior Session Close"}
+      ]
+    })";
+
+    CardSchemaFilter schema;
+    auto error = glz::read_json(schema, schemaJson);
+
+    if (error) {
+      FAIL(glz::format_error(error, schemaJson));
+    }
+
+    REQUIRE(schema.schemas.size() == 3);
+
+    // First schema has no label
+    REQUIRE(schema.schemas[0].column_id == "col1");
+    REQUIRE(!schema.schemas[0].label.has_value());
+
+    // Second schema has label
+    REQUIRE(schema.schemas[1].column_id == "fill_time");
+    REQUIRE(schema.schemas[1].label.has_value());
+    REQUIRE(schema.schemas[1].label.value() == "Fill Time");
+
+    // Third schema has label
+    REQUIRE(schema.schemas[2].column_id == "psc_timestamp");
+    REQUIRE(schema.schemas[2].label.has_value());
+    REQUIRE(schema.schemas[2].label.value() == "Prior Session Close");
+  }
 }
 
 TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_selector]") {
@@ -176,6 +211,46 @@ TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_select
     };
 
     REQUIRE(schema1 == schema2);
+  }
+
+  SECTION("CardColumnSchema equality with labels") {
+    CardColumnSchema schema1{
+      .column_id = "col1",
+      .slot = epoch_core::CardSlot::Details,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {},
+      .label = "Display Label"
+    };
+
+    CardColumnSchema schema2{
+      .column_id = "col1",
+      .slot = epoch_core::CardSlot::Details,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {},
+      .label = "Display Label"
+    };
+
+    REQUIRE(schema1 == schema2);
+  }
+
+  SECTION("CardColumnSchema inequality with different labels") {
+    CardColumnSchema schema1{
+      .column_id = "col1",
+      .slot = epoch_core::CardSlot::Details,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {},
+      .label = "Label 1"
+    };
+
+    CardColumnSchema schema2{
+      .column_id = "col1",
+      .slot = epoch_core::CardSlot::Details,
+      .render_type = epoch_core::CardRenderType::Text,
+      .color_map = {},
+      .label = "Label 2"
+    };
+
+    REQUIRE(schema1 != schema2);
   }
 
   SECTION("CardSchemaFilter equality") {
@@ -211,7 +286,8 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
           .column_id = "direction",
           .slot = epoch_core::CardSlot::PrimaryBadge,
           .render_type = epoch_core::CardRenderType::Badge,
-          .color_map = {}
+          .color_map = {},
+          .label = std::nullopt
         }
       }
     };
