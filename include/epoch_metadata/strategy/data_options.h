@@ -11,12 +11,12 @@
 namespace epoch_metadata::strategy {
 
 inline std::filesystem::path GetDefaultCacheDir() {
-  // Check for CACHE_DIR (new standard env var)
-  auto standardCacheDir = getenv("CACHE_DIR");
-  if (standardCacheDir) {
-    return std::filesystem::path{standardCacheDir};
+  // Check for EPOCH_DATA_CACHE_DIR (explicit data cache env var)
+  auto dataCacheDir = getenv("EPOCH_DATA_CACHE_DIR");
+  if (dataCacheDir) {
+    return std::filesystem::path{dataCacheDir};
   }
-  SPDLOG_WARN("CACHE_DIR not set in environment");
+  SPDLOG_WARN("EPOCH_DATA_CACHE_DIR not set in environment, using default 'cache/data'");
   return std::filesystem::path{"cache/data"};
 }
 

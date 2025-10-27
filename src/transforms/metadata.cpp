@@ -78,6 +78,7 @@ TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
                  {epoch_core::IODataType::Any, "true", "True Value"},
                  {epoch_core::IODataType::Any, "false", "False Value"}},
       .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
+      .allowNullInputs = true,
       .strategyTypes = {"conditional-logic"},
       .assetRequirements = {"single-asset"},
       .usageContext = "Conditional routing for strategy logic. Route different values based on conditions like time-of-day filters, regime detection, or risk states. Common use: switch between aggressive/conservative position sizing based on volatility regime.",
@@ -120,6 +121,8 @@ TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
   // Output
   metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
 
+  metadata.allowNullInputs = true;
+
   return metadata;
 }
 
@@ -153,6 +156,8 @@ TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
 
   // Output: "selected"
   metadata.outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA};
+
+  metadata.allowNullInputs = true;
 
   return metadata;
 }
@@ -190,6 +195,8 @@ TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
 
   // Output
   metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
+
+  metadata.allowNullInputs = true;
 
   return metadata;
 }
@@ -289,6 +296,8 @@ TransformsMetaData MakeValueCompareMetaData(
   metadata.inputs = {IOMetaDataConstants::DECIMAL_INPUT_METADATA};
   metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
 
+  metadata.allowNullInputs = true;
+
   return metadata;
 }
 
@@ -363,6 +372,7 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
       .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
       .tags = {"math", "lag", "delay", "shift", "temporal"},
       .requiresTimeFrame = false,
+      .allowNullInputs = true,
       .strategyTypes = {"feature-engineering", "temporal-comparison"},
       .assetRequirements = {"single-asset"},
       .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",
