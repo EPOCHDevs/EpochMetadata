@@ -14,7 +14,6 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
   metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
     .id = "sql_query_1",
     .category = epoch_core::TransformCategory::Utility,
-    .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (1 Output)",
     .options = {
       epoch_metadata::transforms::TIMESERIES_SQL_OPTION
@@ -42,7 +41,6 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
   metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
     .id = "sql_query_2",
     .category = epoch_core::TransformCategory::Utility,
-    .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (2 Outputs)",
     .options = {
       epoch_metadata::transforms::TIMESERIES_SQL_OPTION
@@ -71,7 +69,6 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
   metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
     .id = "sql_query_3",
     .category = epoch_core::TransformCategory::Utility,
-    .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (3 Outputs)",
     .options = {
       epoch_metadata::transforms::TIMESERIES_SQL_OPTION
@@ -101,7 +98,6 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
   metadataList.emplace_back(epoch_metadata::transforms::TransformsMetaData{
     .id = "sql_query_4",
     .category = epoch_core::TransformCategory::Utility,
-    .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "SQL Query (4 Outputs)",
     .options = {
       epoch_metadata::transforms::TIMESERIES_SQL_OPTION

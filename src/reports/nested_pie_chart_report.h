@@ -29,7 +29,6 @@ template <> struct ReportMetadata<NestedPieChartReport> {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Nested Pie Chart Report",
       .options = {
         {.id = "title",

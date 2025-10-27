@@ -44,7 +44,6 @@ template <> struct ReportMetadata<TableReport> {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Table Report",
       .options = {
         epoch_metadata::transforms::SQL_OPTION,

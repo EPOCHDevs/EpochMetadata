@@ -29,7 +29,6 @@ namespace epoch_metadata::reports {
       return {
         .id = kReportId,
         .category = epoch_core::TransformCategory::Reporter,
-        .renderKind = epoch_core::TransformNodeRenderKind::Output,
         .name = "Pie Chart Report",
         .options = {
           {.id = "title",

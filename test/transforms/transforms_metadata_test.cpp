@@ -22,7 +22,6 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
   transforms::TransformsMetaData testTransformsMetaData{
       .id = "test_id",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::h_line,
       .name = "test_name",
       .options{sampleArg},
@@ -44,7 +43,7 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
   REQUIRE(
       glz::write_json(testTransformsMetaData).value() ==
       std::format(
-          R"({{"id":"test_id","category":"Trend","renderKind":"Simple","plotKind":"h_line","name":"test_name","options":[{}],"isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":false,"requiredDataSources":["c"],"intradayOnly":false,"allowNullInputs":false,"strategyTypes":[],"relatedTransforms":[],"assetRequirements":[],"usageContext":"","limitations":""}})",
+          R"({{"id":"test_id","category":"Trend","plotKind":"h_line","name":"test_name","options":[{}],"isCrossSectional":true,"desc":"Test description","inputs":{},"outputs":{},"atLeastOneInputRequired":{},"tags":[],"requiresTimeFrame":false,"requiredDataSources":["c"],"intradayOnly":false,"allowNullInputs":false,"strategyTypes":[],"relatedTransforms":[],"assetRequirements":[],"usageContext":"","limitations":""}})",
           sampleArgStr, inputsStr, outputsStr,
           testTransformsMetaData.atLeastOneInputRequired));
 }

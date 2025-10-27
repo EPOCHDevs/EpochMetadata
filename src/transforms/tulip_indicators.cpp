@@ -12,8 +12,6 @@ struct IndicatorMetaData {
   std::vector<std::string> tags;
   std::string desc;
   epoch_core::TransformCategory category{epoch_core::TransformCategory::Math};
-  epoch_core::TransformNodeRenderKind renderKind{
-      epoch_core::TransformNodeRenderKind::Simple};
   epoch_core::TransformPlotKind plotKind{epoch_core::TransformPlotKind::Null};
 
   // Enhanced metadata for RAG/LLM
@@ -72,7 +70,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Crossany. Returns 1 when the first input "
               "crosses the second input in any direction.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::flag};
 
   indicatorMetaData["crossover"] = IndicatorMetaData{
@@ -80,7 +77,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Crossover. Returns 1 when the first input "
               "crosses above the second input.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::flag};
 
   indicatorMetaData["crossunder"] = IndicatorMetaData{
@@ -88,7 +84,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Crossunder. Returns 1 when the first input "
               "crosses below the second input.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::flag};
 
   indicatorMetaData["decay"] = IndicatorMetaData{
@@ -96,7 +91,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Linear Decay. Applies linear decay to each element in the input "
               "over the specified period.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["div"] = IndicatorMetaData{
@@ -109,7 +103,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Exponential Decay. Applies exponential decay to each element in "
               "the input over the specified period.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["exp"] = IndicatorMetaData{
@@ -117,7 +110,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Vector Exponential. Calculates e raised to the power of each "
               "element in the input.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::Null};
 
   indicatorMetaData["floor"] = IndicatorMetaData{
@@ -139,7 +131,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Maximum In Period. Finds the maximum value in the specified "
               "period for each element position.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["md"] = IndicatorMetaData{
@@ -147,7 +138,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Mean Deviation Over Period. Calculates the "
               "mean deviation over the specified period.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["min"] = IndicatorMetaData{
@@ -155,7 +145,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Minimum In Period. Finds the minimum value in the specified "
               "period for each element position.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["mul"] = IndicatorMetaData{
@@ -188,7 +177,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Standard Deviation Over Period. Calculates the standard "
               "deviation over the specified period.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["stderr"] = IndicatorMetaData{
@@ -196,7 +184,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Standard Error Over Period. Calculates the standard error over "
               "the specified period.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["sub"] = IndicatorMetaData{
@@ -209,7 +196,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Sum Over Period. Calculates the sum over the "
               "specified period for each element position.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null};
 
   indicatorMetaData["tan"] = IndicatorMetaData{
@@ -242,7 +228,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Variance Over Period. Calculates the variance over the "
               "specified period.",
       .category = epoch_core::TransformCategory::Math,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   // Technical indicators
@@ -252,7 +237,6 @@ MakeTulipIndicatorMetaData() {
           "Accumulation/Distribution Line. Volume-based indicator designed to "
           "measure cumulative flow of money into and out of a security.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["adosc"] = IndicatorMetaData{
@@ -260,7 +244,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Accumulation/Distribution Oscillator. Indicates momentum in the "
               "Accumulation/Distribution Line using two moving averages.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["adx"] = IndicatorMetaData{
@@ -268,7 +251,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Average Directional Movement Index. Measures the strength of a "
               "trend, regardless of its direction.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line,
       .strategyTypes = {"trend-strength", "regime-detection", "trend-following"},
       .relatedTransforms = {"adxr", "di", "dm", "dx"},
@@ -282,7 +264,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Average Directional Movement Rating. Smoothed version of ADX, "
               "provides trend direction information.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["ao"] = IndicatorMetaData{
@@ -290,7 +271,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Awesome Oscillator. Measures market momentum by comparing a "
               "5-period and 34-period simple moving average.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::ao};
 
   indicatorMetaData["apo"] = IndicatorMetaData{
@@ -298,7 +278,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Absolute Price Oscillator. Shows the difference between two "
               "exponential moving averages as an absolute value.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["aroon"] = IndicatorMetaData{
@@ -306,7 +285,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Aroon. Measures the time between highs and lows over a time "
               "period, identifying trends and corrections.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::aroon,
       .strategyTypes = {"trend-identification", "trend-strength", "trend-beginning-detection"},
       .relatedTransforms = {"aroonosc", "adx", "dx"},
@@ -320,7 +298,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Aroon Oscillator. Subtracts Aroon Down from Aroon Up, measuring "
               "the strength of a prevailing trend.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["atr"] = IndicatorMetaData{
@@ -328,7 +305,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Average True Range. Measures market volatility by calculating "
               "the average range between price points.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line,
       .strategyTypes = {"risk-management", "position-sizing", "stop-loss-placement", "volatility-targeting"},
       .relatedTransforms = {"tr", "natr", "bbands", "return_vol"},
@@ -342,7 +318,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Average Price. Calculates the average of "
               "open, high, low, and close prices.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["bbands"] = IndicatorMetaData{
@@ -350,7 +325,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Bollinger Bands. Volatility bands placed above and below a "
               "moving average, adapting to market conditions.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::bbands,
       .strategyTypes = {"mean-reversion", "breakout", "bollinger-squeeze", "volatility-expansion"},
       .relatedTransforms = {"bband_percent", "bband_width", "atr", "keltner_channels"},
@@ -364,7 +338,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Balance of Power. Measures buying and selling pressure by "
               "comparing closing price to trading range.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["cci"] = IndicatorMetaData{
@@ -372,7 +345,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Commodity Channel Index. Identifies cyclical turns in price and "
               "measures variations from the statistical mean.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::cci,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "trend-following", "breakout"},
       .relatedTransforms = {"rsi", "stoch", "willr", "mfi"},
@@ -386,7 +358,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Chande Momentum Oscillator. Momentum oscillator calculating "
               "relative momentum of positive and negative price movements.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["cvi"] = IndicatorMetaData{
@@ -394,7 +365,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Chaikins Volatility. Measures volatility by tracking the "
               "difference between high and low prices over a period.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dema"] = IndicatorMetaData{
@@ -402,7 +372,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Double Exponential Moving Average. Moving average that reduces "
               "lag with a double smoothing mechanism.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "low-lag-trend", "fast-moving-average"},
       .relatedTransforms = {"ema", "tema", "hma", "zlema"},
@@ -416,7 +385,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Directional Indicator. Components of ADX that measure positive "
               "and negative price movement strength.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dm"] = IndicatorMetaData{
@@ -424,7 +392,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Directional Movement. Identifies whether prices are trending by "
               "comparing consecutive highs and lows.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dpo"] = IndicatorMetaData{
@@ -432,7 +399,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Detrended Price Oscillator. Eliminates long-term trends to "
               "focus on short to medium-term cycles.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["dx"] = IndicatorMetaData{
@@ -440,7 +406,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Directional Movement Index. Measures trending strength by "
               "comparing +DI and -DI indicators.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["ema"] = IndicatorMetaData{
@@ -448,7 +413,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Exponential Moving Average. Moving average that gives more "
               "weight to recent prices, reducing lag.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "moving-average-crossover", "dynamic-support-resistance"},
       .relatedTransforms = {"sma", "dema", "tema", "hma", "kama"},
@@ -462,7 +426,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Ease of Movement. Relates price change to volume, identifying "
               "whether price changes are easy or difficult.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["fisher"] = IndicatorMetaData{
@@ -470,7 +433,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Fisher Transform. Converts prices to a Gaussian normal "
               "distribution to identify extreme price movements.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::fisher};
 
   indicatorMetaData["fosc"] = IndicatorMetaData{
@@ -478,7 +440,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Forecast Oscillator. Compares price to linear regression "
               "forecast value, indicating when price deviates from trend.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::fosc};
 
   indicatorMetaData["hma"] = IndicatorMetaData{
@@ -486,7 +447,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Hull Moving Average. Moving average designed to reduce lag and "
               "improve smoothness by using weighted averages.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "low-lag-trend", "smooth-responsive"},
       .relatedTransforms = {"ema", "wma", "dema", "tema"},
@@ -500,7 +460,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Kaufman Adaptive Moving Average. Adjusts sensitivity "
               "automatically based on market volatility.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["kvo"] = IndicatorMetaData{
@@ -508,7 +467,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Klinger Volume Oscillator. Compares volume to price trends to "
               "identify reversals and divergence.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["linreg"] = IndicatorMetaData{
@@ -516,7 +474,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Linear Regression. Plots a best-fit line through price data, "
               "showing overall direction of price movement.",
       .category = epoch_core::TransformCategory::Statistical,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["linregintercept"] = IndicatorMetaData{
@@ -525,7 +482,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Linear Regression Intercept. Calculates the y-intercept values "
               "for linear regression analysis.",
       .category = epoch_core::TransformCategory::Statistical,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["linregslope"] = IndicatorMetaData{
@@ -534,7 +490,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Linear Regression Slope. Measures the rate of change in linear "
               "regression values, indicating trend strength.",
       .category = epoch_core::TransformCategory::Statistical,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["macd"] = IndicatorMetaData{
@@ -542,7 +497,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Moving Average Convergence/Divergence. Trend-following momentum "
               "indicator showing relationship between two moving averages.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::macd,
       .strategyTypes = {"trend-following", "momentum", "divergence-trading", "crossover"},
       .relatedTransforms = {"ema", "ppo", "apo", "trix"},
@@ -556,7 +510,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Market Facilitation Index. Measures market readiness to move "
               "prices with minimal volume.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::column};
 
   indicatorMetaData["mass"] = IndicatorMetaData{
@@ -564,7 +517,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Mass Index. Identifies potential reversals by examining "
               "high-low range expansion and contraction.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["medprice"] = IndicatorMetaData{
@@ -572,7 +524,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Median Price. Simple average of the high and "
               "low prices for each period.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["mfi"] = IndicatorMetaData{
@@ -580,7 +531,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Money Flow Index. Volume-weighted RSI that measures buying and "
               "selling pressure based on price and volume.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::rsi,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "volume-confirmation", "divergence-trading"},
       .relatedTransforms = {"rsi", "obv", "ad", "stoch"},
@@ -594,7 +544,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Momentum. Measures rate of change in prices by comparing "
               "current price to a previous price.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["msw"] = IndicatorMetaData{
@@ -602,7 +551,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Mesa Sine Wave. Identifies market cycles "
               "using sine waves derived from price data.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["natr"] = IndicatorMetaData{
@@ -611,7 +559,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Normalized Average True Range. ATR expressed as a percentage of "
               "closing price, allowing comparison across securities.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["nvi"] = IndicatorMetaData{
@@ -619,7 +566,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Negative Volume Index. Shows price movements on days when "
               "volume decreases, highlighting smart money activity.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["obv"] = IndicatorMetaData{
@@ -627,7 +573,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "On Balance Volume. Running total of volume that adds when price "
               "rises and subtracts when price falls.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line,
       .strategyTypes = {"trend-confirmation", "divergence-trading", "volume-analysis", "accumulation-distribution"},
       .relatedTransforms = {"ad", "vwap", "vosc", "pvi", "nvi"},
@@ -641,7 +586,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Percentage Price Oscillator. Shows relationship between two "
               "moving averages as a percentage, similar to MACD.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["psar"] = IndicatorMetaData{
@@ -649,7 +593,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Parabolic SAR. Identifies potential reversals in price "
               "movement, providing entry and exit signals.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::psar};
 
   indicatorMetaData["pvi"] = IndicatorMetaData{
@@ -657,7 +600,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Positive Volume Index. Shows price movements on days when "
               "volume increases, highlighting public participation.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["qstick"] = IndicatorMetaData{
@@ -665,7 +607,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Qstick. Measures the ratio of black to white candlesticks, "
               "indicating buying and selling pressure.",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::qstick};
 
   indicatorMetaData["roc"] = IndicatorMetaData{
@@ -673,7 +614,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Rate of Change. Measures percentage change between current "
               "price and price n periods ago.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["rocr"] = IndicatorMetaData{
@@ -681,7 +621,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Rate of Change Ratio. Calculates the ratio of current price to "
               "price n periods ago, measuring momentum.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["rsi"] = IndicatorMetaData{
@@ -691,7 +630,6 @@ MakeTulipIndicatorMetaData() {
               "and change of price movements, indicating overbought/oversold "
               "conditions.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::rsi,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "divergence-trading", "momentum"},
       .relatedTransforms = {"stochrsi", "mfi", "willr", "cci"},
@@ -704,7 +642,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Simple Moving Average. Unweighted mean of previous n data "
               "points, smoothing price data to identify trends.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "moving-average-crossover", "support-resistance"},
       .relatedTransforms = {"ema", "wma", "dema", "tema", "hma"},
@@ -719,7 +656,6 @@ MakeTulipIndicatorMetaData() {
           "Stochastic Oscillator. Compares closing price to price range over a "
           "period, indicating momentum and overbought/oversold conditions.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::stoch,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum", "divergence-trading"},
       .relatedTransforms = {"stochrsi", "rsi", "willr", "mfi"},
@@ -733,7 +669,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Stochastic RSI. Applies stochastic formula to RSI values, "
               "creating a more sensitive oscillator.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::rsi,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum", "fast-oscillator"},
       .relatedTransforms = {"rsi", "stoch", "willr"},
@@ -747,7 +682,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Triple Exponential Moving Average. Moving average designed to "
               "smooth price fluctuations and reduce lag.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "ultra-low-lag", "scalping", "fast-moving-average"},
       .relatedTransforms = {"dema", "ema", "hma", "zlema"},
@@ -761,7 +695,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "True Range. Measures market volatility by comparing current "
               "price range to previous close.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["trima"] = IndicatorMetaData{
@@ -769,7 +702,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Triangular Moving Average. Weighted moving average that places "
               "more weight on middle portion of calculation period.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["trix"] = IndicatorMetaData{
@@ -777,7 +709,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Trix. Triple exponentially smoothed moving average oscillator, "
               "showing percentage rate of change.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["tsf"] = IndicatorMetaData{
@@ -785,7 +716,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Time Series Forecast. Linear regression projection that extends "
               "the regression line to predict future values.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["typprice"] = IndicatorMetaData{
@@ -793,7 +723,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Typical Price. Average of high, low, and close prices for each "
               "period, representing a balanced price.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["ultosc"] = IndicatorMetaData{
@@ -801,7 +730,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Ultimate Oscillator. Multi-timeframe momentum oscillator that "
               "uses weighted average of three oscillators.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vhf"] = IndicatorMetaData{
@@ -810,7 +738,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Vertical Horizontal Filter. Identifies trending and ranging "
               "markets by measuring price direction versus volatility.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vidya"] = IndicatorMetaData{
@@ -818,7 +745,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Variable Index Dynamic Average. Adapts to volatility by "
               "modifying the smoothing constant used in calculations.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["volatility"] = IndicatorMetaData{
@@ -826,7 +752,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Annualized Historical Volatility. Measures price dispersion "
               "around the mean, expressed as an annualized percentage.",
       .category = epoch_core::TransformCategory::Volatility,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vosc"] = IndicatorMetaData{
@@ -834,7 +759,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Volume Oscillator. Shows difference between two volume moving "
               "averages as percentage, indicating volume trends.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["vwma"] = IndicatorMetaData{
@@ -843,7 +767,6 @@ MakeTulipIndicatorMetaData() {
           "Volume Weighted Moving Average. Moving average that weights price "
           "by volume, giving more importance to high-volume price moves.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "volume-confirmation", "institutional-flow"},
       .relatedTransforms = {"sma", "ema", "vwap", "obv"},
@@ -858,7 +781,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Williams Accumulation/Distribution. Measures buying/selling "
               "pressure by comparing closing price to midpoint of range.",
       .category = epoch_core::TransformCategory::Volume,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::panel_line};
 
   indicatorMetaData["wcprice"] = IndicatorMetaData{
@@ -866,7 +788,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Weighted Close Price. Average of OHLC prices with extra weight "
               "given to close: (H+L+C+C)/4.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["wilders"] = IndicatorMetaData{
@@ -874,7 +795,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Wilders Smoothing. Specialized moving average using a 1/n "
               "smoothing factor, commonly used in RSI calculations.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   indicatorMetaData["willr"] = IndicatorMetaData{
@@ -882,7 +802,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Williams %R. Momentum oscillator that indicates "
               "overbought/oversold conditions relative to high-low range.",
       .category = epoch_core::TransformCategory::Momentum,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::rsi,
       .strategyTypes = {"mean-reversion", "overbought-oversold", "momentum"},
       .relatedTransforms = {"stoch", "rsi", "cci"},
@@ -896,7 +815,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Weighted Moving Average. Moving average that assigns more "
               "weight to recent data and less to older data.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .strategyTypes = {"trend-following", "weighted-trend"},
       .relatedTransforms = {"sma", "ema", "hma", "vwma"},
@@ -910,7 +828,6 @@ MakeTulipIndicatorMetaData() {
       .desc = "Zero-Lag Exponential Moving Average. EMA variant that removes "
               "lag by using linear extrapolation.",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line};
 
   return indicatorMetaData;
@@ -1026,7 +943,6 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
         return TransformsMetaData{
             .id = tiIndicatorInfo.name,
             .category = metadata.category,
-            .renderKind = metadata.renderKind,
             .plotKind = metadata.plotKind,
             .name = tiIndicatorInfo.full_name,
             .options = epoch_core::ranges::to<std::vector>(
@@ -1052,7 +968,6 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
   allIndicators.push_back(TransformsMetaData{
       .id = "crossunder",
       .category = crossunderMetadata.category,
-      .renderKind = crossunderMetadata.renderKind,
       .plotKind = crossunderMetadata.plotKind,
       .name = "Vector Crossunder",
       .options = {},

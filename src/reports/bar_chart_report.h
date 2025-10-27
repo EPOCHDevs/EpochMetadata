@@ -47,7 +47,6 @@ template <> struct ReportMetadata<BarChartReport> {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Bar Chart Report",
       .options = {
         {.id = "agg",

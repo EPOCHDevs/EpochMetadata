@@ -361,7 +361,6 @@ std::vector<TransformsMetaData> MakeTulipCandles() {
     allCandles[i] = TransformsMetaData{
         .id = c.name,
         .category = epoch_core::TransformCategory::PriceAction,
-        .renderKind = epoch_core::TransformNodeRenderKind::Standard,
         .plotKind = epoch_core::TransformPlotKind::flag,
         .name = c.full_name,
         .options = MakeCandleOptions(),

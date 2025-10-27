@@ -49,7 +49,6 @@ template <> struct ReportMetadata<IndexCardReport> {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Index Cards Report",
       .options = {
         {.id = "target_value",

@@ -15,7 +15,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "balance_sheet",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Balance Sheet",
           .options = {},
@@ -83,7 +82,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "income_statement",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Income Statement",
           .options = {},
@@ -159,7 +157,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "cash_flow",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Cash Flow",
           .options = {},
@@ -235,7 +232,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "financial_ratios",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Financial Ratios",
           .options = {},
@@ -308,7 +304,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "quotes",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Quotes",
           .options = {},
@@ -351,7 +346,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "trades",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Trades",
           .options = {},
@@ -396,7 +390,6 @@ MakePolygonDataSources() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "aggregates",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Aggregates",
           .options = {},

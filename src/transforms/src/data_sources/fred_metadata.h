@@ -15,7 +15,6 @@ MakeFREDDataSource() {
       epoch_metadata::transforms::TransformsMetaData{
           .id = "economic_indicator",
           .category = epoch_core::TransformCategory::DataSource,
-          .renderKind = epoch_core::TransformNodeRenderKind::Input,
           .plotKind = epoch_core::TransformPlotKind::Null,
           .name = "Economic Indicator",
           .options =

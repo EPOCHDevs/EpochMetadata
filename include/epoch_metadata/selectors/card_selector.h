@@ -85,7 +85,6 @@ template <> struct SelectorMetadata<CardSelectorFromFilter> {
     return {
       .id = kSelectorId,
       .category = epoch_core::TransformCategory::Selector,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Card Selector (Filter)",
       .options = {
         {.id = "card_schema",
@@ -121,7 +120,6 @@ template <> struct SelectorMetadata<CardSelectorFromSQL> {
     return {
       .id = kSelectorId,
       .category = epoch_core::TransformCategory::Selector,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Card Selector (SQL)",
       .options = {
         {.id = "card_schema",

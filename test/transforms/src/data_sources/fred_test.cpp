@@ -34,7 +34,6 @@ TEST_CASE("FRED Metadata is correctly registered", "[fred][metadata]") {
       REQUIRE(metadata.id == "economic_indicator");
       REQUIRE(metadata.name == "Economic Indicator");
       REQUIRE(metadata.category == epoch_core::TransformCategory::DataSource);
-      REQUIRE(metadata.renderKind == epoch_core::TransformNodeRenderKind::Input);
       REQUIRE(metadata.plotKind == epoch_core::TransformPlotKind::Null);
       REQUIRE(metadata.isCrossSectional == false);
       REQUIRE(metadata.atLeastOneInputRequired == false);

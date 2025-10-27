@@ -34,8 +34,6 @@ void TransformsMetaData::decode(const YAML::Node &element) {
   name = element["name"].as<std::string>();
   category = epoch_core::TransformCategoryWrapper::FromString(
       element["category"].as<std::string>());
-  renderKind = epoch_core::TransformNodeRenderKindWrapper::FromString(
-      element["renderKind"].as<std::string>());
   plotKind = epoch_core::TransformPlotKindWrapper::FromString(
       element["plotKind"].as<std::string>("Null"));
   inputs =
@@ -69,7 +67,6 @@ TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
   return {
       .id = id,
       .category = epoch_core::TransformCategory::ControlFlow,
-      .renderKind = epoch_core::TransformNodeRenderKind::Simple,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = name,
       .options = {},
@@ -94,7 +91,6 @@ TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
   metadata.id = id;
   metadata.name = name;
 
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::Operator;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
 
   metadata.isCrossSectional = false;
@@ -136,7 +132,6 @@ TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
 
   // TODO:
   // https://linear.app/epoch-inc/issue/STR-160/update-switch-to-dynamicselect
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::Standard;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.desc = "Selects one of " + std::to_string(N) +
@@ -176,7 +171,6 @@ TransformsMetaData MakeLogicalTransformMetaData(std::string const &name) {
   metadata.name = name;
   metadata.options = {}; // Add any specific options if needed
   metadata.category = epoch_core::TransformCategory::Math;
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::Operator;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.desc = name + " boolean operator for combining conditions.";
@@ -273,7 +267,6 @@ TransformsMetaData MakeValueCompareMetaData(
   metadata.id = id;
   metadata.name = name;
   metadata.category = epoch_core::TransformCategory::Math;
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::Standard;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.desc = desc;
@@ -353,7 +346,6 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "lag",
       .category = epoch_core::TransformCategory::Trend,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::line,
       .name = "Lag",
       .options = {
@@ -385,7 +377,6 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "number",
       .category = epoch_core::TransformCategory::Scalar,
-      .renderKind = epoch_core::TransformNodeRenderKind::NumberInput,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Number",
       .options =
@@ -406,7 +397,6 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
     metadataList.emplace_back(TransformsMetaData{
     .id = "text",
     .category = epoch_core::TransformCategory::Scalar,
-    .renderKind = epoch_core::TransformNodeRenderKind::Input,
     .plotKind = epoch_core::TransformPlotKind::Null,
     .name = "Text",
     .options =
@@ -428,7 +418,6 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
     metadataList.emplace_back(TransformsMetaData{
         .id = std::format("bool_{}", boolConstant),
         .category = epoch_core::TransformCategory::Scalar,
-        .renderKind = epoch_core::TransformNodeRenderKind::Label,
         .plotKind = epoch_core::TransformPlotKind::Null,
         .name = std::format("Boolean {}", boolConstant),
         .options = {},
@@ -461,7 +450,6 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
     metadataList.emplace_back(TransformsMetaData{
         .id = id,
         .category = epoch_core::TransformCategory::Scalar,
-        .renderKind = epoch_core::TransformNodeRenderKind::Label,
         .plotKind = epoch_core::TransformPlotKind::Null,
         .name = name,
         .options = {},
@@ -482,7 +470,6 @@ std::vector<TransformsMetaData> MakeDataSource() {
   result.emplace_back(TransformsMetaData{
       .id = MARKET_DATA_SOURCE_ID,
       .category = epoch_core::TransformCategory::DataSource,
-      .renderKind = epoch_core::TransformNodeRenderKind::Input,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Market Data Source",
       .options = {},
@@ -534,7 +521,6 @@ std::vector<TransformsMetaData> MakeTradeSignalExecutor() {
   return {TransformsMetaData{
       .id = TRADE_SIGNAL_EXECUTOR_ID,
       .category = epoch_core::TransformCategory::Executor,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .plotKind = epoch_core::TransformPlotKind::trade_signal,
       .name = "Trade Signal Executor",
       .options = {},
@@ -715,7 +701,6 @@ TransformsMetaData MakeCalendarEffectMetaData(
 
   // Common metadata for all calendar effects
   metadata.category = epoch_core::TransformCategory::Statistical;
-  metadata.renderKind = epoch_core::TransformNodeRenderKind::Standard;
   metadata.plotKind = epoch_core::TransformPlotKind::Null;
   metadata.isCrossSectional = false;
   metadata.requiresTimeFrame = true;
@@ -750,7 +735,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "flexible_pivot_detector",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Pivot Point Detector",
       .options = {
@@ -790,7 +774,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "head_and_shoulders",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Head and Shoulders",
       .options = {
@@ -846,7 +829,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "inverse_head_and_shoulders",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Inverse Head and Shoulders",
       .options = {
@@ -901,7 +883,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "double_top_bottom",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Double Top/Bottom",
       .options = {
@@ -947,7 +928,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "flag",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Flag Pattern",
       .options = {
@@ -1004,7 +984,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "triangles",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Triangle Patterns",
       .options = {
@@ -1051,7 +1030,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "pennant",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Pennant Pattern",
       .options = {
@@ -1108,7 +1086,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "session_time_window",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Session Time Window",
       .options = {
@@ -1148,7 +1125,6 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "consolidation_box",
       .category = epoch_core::TransformCategory::PriceAction,
-      .renderKind = epoch_core::TransformNodeRenderKind::Standard,
       .plotKind = epoch_core::TransformPlotKind::Null,
       .name = "Consolidation Box",
       .options = {

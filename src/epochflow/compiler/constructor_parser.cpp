@@ -166,7 +166,43 @@ namespace epoch_stratifyx::epochflow
         // Extract raw value from AST expression
         epoch_metadata::MetaDataOptionDefinition::T raw_value;
 
-        if (auto* constant = dynamic_cast<const Constant*>(&expr))
+        // Handle custom type constructor calls
+        if (auto* call = dynamic_cast<const Call*>(&expr))
+        {
+            // Extract constructor name
+            auto* func_name = dynamic_cast<const Name*>(call->func.get());
+            if (!func_name)
+            {
+                ThrowError("Only direct constructor calls supported for custom types", call->lineno, call->col_offset);
+            }
+
+            const std::string& ctor_name = func_name->id;
+
+            // Dispatch to appropriate constructor parser based on name
+            if (ctor_name == "Time")
+            {
+                return epoch_metadata::MetaDataOptionDefinition::T{ParseTimeConstructor(*call)};
+            }
+            else if (ctor_name == "CardSchemaFilter")
+            {
+                return epoch_metadata::MetaDataOptionDefinition::T{ParseCardSchemaFilterConstructor(*call)};
+            }
+            else if (ctor_name == "CardSchemaSQL")
+            {
+                return epoch_metadata::MetaDataOptionDefinition::T{ParseCardSchemaSQLConstructor(*call)};
+            }
+            else if (ctor_name == "SqlStatement")
+            {
+                return epoch_metadata::MetaDataOptionDefinition::T{ParseSqlStatementConstructor(*call)};
+            }
+            // Note: SessionRange and TimeFrame are handled as special parameters
+            // in SpecialParameterHandler, not as regular options
+            else
+            {
+                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, CardSchemaFilter, CardSchemaSQL, SqlStatement", call->lineno, call->col_offset);
+            }
+        }
+        else if (auto* constant = dynamic_cast<const Constant*>(&expr))
         {
             raw_value = std::visit([](auto&& value) -> epoch_metadata::MetaDataOptionDefinition::T
             {
@@ -246,6 +282,182 @@ namespace epoch_stratifyx::epochflow
 
         OptionValidator validator(context_);
         return validator.ParseOptionByMetadata(raw_value, meta_option, meta_option.id, comp_meta.id, dummy_call, comp_meta);
+    }
+
+    glz::generic ConstructorParser::CallKwargsToGeneric(const Call& call)
+    {
+        // Convert Call kwargs to glz::generic object
+        glz::generic obj;
+
+        for (const auto& [key, value_expr] : call.keywords)
+        {
+            // Handle different expression types
+            if (auto* constant = dynamic_cast<const Constant*>(value_expr.get()))
+            {
+                // Convert Constant to generic
+                std::visit([&](auto&& value) {
+                    using T = std::decay_t<decltype(value)>;
+                    if constexpr (std::is_same_v<T, int>) {
+                        obj[key] = static_cast<double>(value);
+                    } else if constexpr (std::is_same_v<T, double>) {
+                        obj[key] = value;
+                    } else if constexpr (std::is_same_v<T, bool>) {
+                        obj[key] = value;
+                    } else if constexpr (std::is_same_v<T, std::string>) {
+                        obj[key] = value;
+                    } else if constexpr (std::is_same_v<T, std::monostate>) {
+                        obj[key] = nullptr;
+                    }
+                }, constant->value);
+            }
+            else if (auto* name = dynamic_cast<const Name*>(value_expr.get()))
+            {
+                // Bare identifier - treat as string (e.g., icon=Signal)
+                obj[key] = name->id;
+            }
+            else if (auto* nested_call = dynamic_cast<const Call*>(value_expr.get()))
+            {
+                // Nested constructor call (e.g., sql=SqlStatement(...))
+                auto* func_name = dynamic_cast<const Name*>(nested_call->func.get());
+                if (!func_name)
+                {
+                    ThrowError("Nested constructor must be a direct call", call.lineno, call.col_offset);
+                }
+
+                const std::string& ctor_name = func_name->id;
+
+                // Recursively convert nested constructor to generic
+                if (ctor_name == "SqlStatement")
+                {
+                    // SqlStatement is special - just extract the SQL string
+                    auto nested_obj = CallKwargsToGeneric(*nested_call);
+                    if (nested_obj.contains("sql"))
+                    {
+                        obj[key] = nested_obj["sql"].get<std::string>();
+                    }
+                }
+                else if (ctor_name == "CardColumnSchema")
+                {
+                    obj[key] = CallKwargsToGeneric(*nested_call);
+                }
+                else
+                {
+                    ThrowError("Unsupported nested constructor: " + ctor_name, call.lineno, call.col_offset);
+                }
+            }
+            else if (auto* list = dynamic_cast<const List*>(value_expr.get()))
+            {
+                // Handle list of constructors (e.g., schemas=[CardColumnSchema(...), ...])
+                std::vector<glz::generic> arr;
+
+                for (const auto& elem : list->elts)
+                {
+                    if (auto* elem_call = dynamic_cast<const Call*>(elem.get()))
+                    {
+                        arr.push_back(CallKwargsToGeneric(*elem_call));
+                    }
+                    else if (auto* elem_const = dynamic_cast<const Constant*>(elem.get()))
+                    {
+                        // Handle constant list elements
+                        std::visit([&](auto&& value) {
+                            using T = std::decay_t<decltype(value)>;
+                            glz::generic elem_gen;
+                            if constexpr (std::is_same_v<T, int>) {
+                                elem_gen = static_cast<double>(value);
+                            } else if constexpr (std::is_same_v<T, double>) {
+                                elem_gen = value;
+                            } else if constexpr (std::is_same_v<T, std::string>) {
+                                elem_gen = value;
+                            }
+                            arr.push_back(elem_gen);
+                        }, elem_const->value);
+                    }
+                }
+
+                obj[key] = arr;
+            }
+            else
+            {
+                ThrowError("Unsupported expression type in constructor", call.lineno, call.col_offset);
+            }
+        }
+
+        return obj;
+    }
+
+    epoch_frame::Time ConstructorParser::ParseTimeConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_frame::Time time{};
+        auto error = glz::read<glz::opts{}>(time, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse Time constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return time;
+    }
+
+    epoch_metadata::CardColumnSchema ConstructorParser::ParseCardColumnSchemaConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_metadata::CardColumnSchema schema{};
+        auto error = glz::read<glz::opts{}>(schema, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse CardColumnSchema constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return schema;
+    }
+
+    epoch_metadata::CardSchemaFilter ConstructorParser::ParseCardSchemaFilterConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_metadata::CardSchemaFilter filter{};
+        auto error = glz::read<glz::opts{}>(filter, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse CardSchemaFilter constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return filter;
+    }
+
+    epoch_metadata::CardSchemaSQL ConstructorParser::ParseCardSchemaSQLConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_metadata::CardSchemaSQL schema_sql{};
+        auto error = glz::read<glz::opts{}>(schema_sql, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse CardSchemaSQL constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return schema_sql;
+    }
+
+    epoch_metadata::SqlStatement ConstructorParser::ParseSqlStatementConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_metadata::SqlStatement stmt{};
+        auto error = glz::read<glz::opts{}>(stmt, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse SqlStatement constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return stmt;
     }
 
     void ConstructorParser::ThrowError(const std::string& msg, int line, int col)

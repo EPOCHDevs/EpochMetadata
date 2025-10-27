@@ -46,7 +46,7 @@ TEST_CASE("Transform MetaData Total Count is Correct", "[.]") {
 
     for (auto const &transform : metadata | std::views::values) {
       csvStream << transform.id << ";" << transform.category << ";"
-                << transform.renderKind << ";" << transform.plotKind << ";"
+                << transform.plotKind << ";"
                 << transform.name << ";" << transform.desc << ";"
                 << pretty_ids(transform.options) << ";"
                 << pretty_ids(transform.inputs) << ";"

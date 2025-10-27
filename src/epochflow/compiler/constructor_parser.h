@@ -53,6 +53,18 @@ namespace epoch_stratifyx::epochflow
 
         // Error reporting helper
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);
+
+        // Custom type constructor parsers
+        // These correspond to types in MetaDataOptionDefinition::T variant
+        epoch_frame::Time ParseTimeConstructor(const Call& call);
+        epoch_metadata::CardSchemaFilter ParseCardSchemaFilterConstructor(const Call& call);
+        epoch_metadata::CardSchemaSQL ParseCardSchemaSQLConstructor(const Call& call);
+        epoch_metadata::SqlStatement ParseSqlStatementConstructor(const Call& call);
+        epoch_metadata::CardColumnSchema ParseCardColumnSchemaConstructor(const Call& call);
+        // Note: SessionRange and TimeFrame are handled as special parameters, not regular options
+
+        // Helper to convert Call kwargs to glz::generic for deserialization
+        glz::generic CallKwargsToGeneric(const Call& call);
     };
 
 } // namespace epoch_stratifyx::epochflow

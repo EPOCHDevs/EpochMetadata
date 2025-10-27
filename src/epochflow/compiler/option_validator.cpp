@@ -284,8 +284,13 @@ namespace epoch_stratifyx::epochflow
 
         case MetaType::Time:
         {
+            // If already a Time object (from constructor), return it
+            if (std::holds_alternative<epoch_frame::Time>(raw_value))
+            {
+                return raw_value;
+            }
             // Expect a string that can be parsed into Time
-            if (std::holds_alternative<std::string>(raw_value))
+            else if (std::holds_alternative<std::string>(raw_value))
             {
                 // Parse string into Time object
                 const std::string& time_str = std::get<std::string>(raw_value);
@@ -302,15 +307,10 @@ namespace epoch_stratifyx::epochflow
                         call.lineno, call.col_offset);
                 }
             }
-            else if (std::holds_alternative<epoch_frame::Time>(raw_value))
-            {
-                // Already a Time object
-                return raw_value;
-            }
             else
             {
                 ThrowError(
-                    std::format("Option '{}' of node '{}' expects Time (string) but got invalid type",
+                    std::format("Option '{}' of node '{}' expects Time (constructor or string) but got invalid type",
                                 option_id, node_id),
                     call.lineno, call.col_offset);
             }

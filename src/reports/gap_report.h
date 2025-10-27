@@ -91,7 +91,6 @@ template <> struct ReportMetadata<GapReport> {
    return {
     .id = kReportId,
     .category = epoch_core::TransformCategory::Reporter,
-    .renderKind = epoch_core::TransformNodeRenderKind::Standard,
     .name = "Gap Analysis Report",
     .options = {{.id = "fill_time_pivot_hour",
           .name = "Fill Time Pivot Hour",

@@ -52,7 +52,6 @@ TEST_CASE("CardSelectorTransform - Basic Functionality", "[selectors][card_selec
     REQUIRE(metadata.id == "card_selector_filter");
     REQUIRE(metadata.name == "Card Selector (Filter)");
     REQUIRE(metadata.category == epoch_core::TransformCategory::Selector);
-    REQUIRE(metadata.renderKind == epoch_core::TransformNodeRenderKind::Output);
     REQUIRE(metadata.atLeastOneInputRequired == true);
     REQUIRE(metadata.outputs.empty());  // Selectors don't output to graph
   }
@@ -67,7 +66,6 @@ TEST_CASE("CardSelectorTransform - Basic Functionality", "[selectors][card_selec
     REQUIRE(metadata.id == "card_selector_sql");
     REQUIRE(metadata.name == "Card Selector (SQL)");
     REQUIRE(metadata.category == epoch_core::TransformCategory::Selector);
-    REQUIRE(metadata.renderKind == epoch_core::TransformNodeRenderKind::Output);
     REQUIRE(metadata.atLeastOneInputRequired == true);
     REQUIRE(metadata.outputs.empty());  // Selectors don't output to graph
   }

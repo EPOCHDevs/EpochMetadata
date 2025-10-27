@@ -46,7 +46,6 @@ template <> struct ReportMetadata<QuantileCardReport> {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
-      .renderKind = epoch_core::TransformNodeRenderKind::Output,
       .name = "Quantile Cards Report",
       .options = {
         {.id = "quantile",
