@@ -8,33 +8,16 @@
 
 namespace epoch_metadata::transform {
 
-// Forward declare SelectorMetadata template
-template <typename T> struct SelectorMetadata;
-
-// Unified Card Selector - templated on schema type
-template <typename SchemaType>
-class CardSelector : public epoch_metadata::transform::ITransform {
+// Card Selector - filters DataFrame by boolean column and displays as interactive cards
+class CardSelectorFromFilter : public epoch_metadata::transform::ITransform {
 public:
-  explicit CardSelector(epoch_metadata::transform::TransformConfiguration config)
+  explicit CardSelectorFromFilter(epoch_metadata::transform::TransformConfiguration config)
       : ITransform(std::move(config)),
         m_schema(GetSchemaFromConfig(config)) {}
 
   epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
-    epoch_frame::DataFrame result;
-
-    if constexpr (std::is_same_v<SchemaType, CardSchemaFilter>) {
-      // Filter by boolean column specified in select_key
-      result = df.loc(df[m_schema.select_key]);
-    } else if constexpr (std::is_same_v<SchemaType, CardSchemaSQL>) {
-      // Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
-      auto inputRenameMap = this->BuildVARGInputRenameMapping();
-
-      // Rename data columns to SLOT0, SLOT1, SLOT2, ...
-      epoch_frame::DataFrame inputDf = df.rename(inputRenameMap);
-
-      // Apply SQL filtering - DuckDB registers the DataFrame as 'self' by default
-      result = epoch_frame::DataFrame(inputDf.query(m_schema.sql.GetSql()));
-    }
+    // Filter by boolean column specified in select_key
+    epoch_frame::DataFrame result = df.loc(df[m_schema.select_key]);
 
     // Collect selector data and store in base class
     result = result.reset_index("index");
@@ -49,21 +32,13 @@ public:
     return result;
   }
 
-  SchemaType GetSchema() const { return m_schema; }
+  CardSchemaFilter GetSchema() const { return m_schema; }
 
 private:
-  static SchemaType GetSchemaFromConfig(const epoch_metadata::transform::TransformConfiguration& config) {
-    SchemaType schema;
-    if constexpr (std::is_same_v<SchemaType, CardSchemaFilter>) {
-      schema = config.GetOptionValue("card_schema").GetCardSchemaList();
-    } else if constexpr (std::is_same_v<SchemaType, CardSchemaSQL>) {
-      schema = config.GetOptionValue("card_schema").GetCardSchemaSQL();
-    } else {
-      static_assert(std::is_same_v<SchemaType, CardSchemaFilter> ||
-                    std::is_same_v<SchemaType, CardSchemaSQL>,
-                    "SchemaType must be either CardSchemaFilter or CardSchemaSQL");
-    }
+  static CardSchemaFilter GetSchemaFromConfig(const epoch_metadata::transform::TransformConfiguration& config) {
+    CardSchemaFilter schema = config.GetOptionValue("card_schema").GetCardSchemaList();
 
+    // Automatically add index column as timestamp for chart navigation
     schema.schemas.emplace_back(CardColumnSchema{
     .column_id = "index",
     .slot = epoch_core::CardSlot::Subtitle,
@@ -73,34 +48,30 @@ private:
     return schema;
   }
 
-
-  const SchemaType m_schema;
+  const CardSchemaFilter m_schema;
 };
 
-// Type aliases for convenience
-using CardSelectorFromFilter = CardSelector<CardSchemaFilter>;
-using CardSelectorFromSQL = CardSelector<CardSchemaSQL>;
-
-// Metadata specialization for CardSelectorFromFilter
-template <> struct SelectorMetadata<CardSelectorFromFilter> {
+// Metadata for CardSelectorFromFilter
+struct SelectorMetadata {
   constexpr static const char *kSelectorId = "card_selector_filter";
 
   static epoch_metadata::transforms::TransformsMetaData Get() {
     return {
       .id = kSelectorId,
       .category = epoch_core::TransformCategory::Selector,
-      .name = "Card Selector (Filter)",
+      .name = "Card Selector",
       .options = {
         {.id = "card_schema",
          .name = "Card Schema",
          .type = epoch_core::MetaDataOptionType::CardSchema,
          .isRequired = true,
-         .desc = std::string("Card layout configuration using boolean column filter. The 'select_key' field specifies a boolean column name to filter rows (only rows where the column is true are shown as cards). JSON Schema:\n") + glz::write_json_schema<CardSchemaFilter>().value_or("{}")}
+         .desc = std::string("Card layout configuration using boolean column filter. The 'select_key' field specifies a boolean column name to filter rows (only rows where the column is true are shown as cards). For SQL filtering, use a SQL Transform node first, then pipe output to this selector. JSON Schema:\n") + glz::write_json_schema<CardSchemaFilter>().value_or("{}")}
       },
       .isCrossSectional = false,
       .desc = "Generate an interactive card selector where each row is a clickable card, filtered by a boolean column. "
               "Click a card to navigate to that timestamp on the candlestick chart. "
-              "Accepts multiple input columns via SLOT connection.",
+              "Accepts multiple input columns via SLOT connection. "
+              "For SQL-based filtering, use a SQL Transform node before this selector.",
       .inputs = {
         {.type = epoch_core::IODataType::Any,
          .id = "SLOT",
@@ -116,39 +87,4 @@ template <> struct SelectorMetadata<CardSelectorFromFilter> {
   }
 };
 
-// Metadata specialization for CardSelectorFromSQL
-template <> struct SelectorMetadata<CardSelectorFromSQL> {
-  constexpr static const char *kSelectorId = "card_selector_sql";
-
-  static epoch_metadata::transforms::TransformsMetaData Get() {
-    return {
-      .id = kSelectorId,
-      .category = epoch_core::TransformCategory::Selector,
-      .name = "Card Selector (SQL)",
-      .options = {
-        {.id = "card_schema",
-         .name = "Card Schema",
-         .type = epoch_core::MetaDataOptionType::CardSchema,
-         .isRequired = true,
-         .desc = std::string("Card layout configuration using SQL query filter. The 'sql' field contains the query (MUST use 'FROM self'). Input columns are renamed to SLOT0, SLOT1, SLOT2, etc. JSON Schema:\n") + glz::write_json_schema<CardSchemaSQL>().value_or("{}")}
-      },
-      .isCrossSectional = false,
-      .desc = "Generate an interactive card selector where each row is a clickable card, filtered by a SQL query. "
-              "Click a card to navigate to that timestamp on the candlestick chart. "
-              "SQL queries use 'FROM self' and input columns are named SLOT0, SLOT1, etc.",
-      .inputs = {
-        {.type = epoch_core::IODataType::Any,
-         .id = "SLOT",
-         .name = "Columns",
-         .allowMultipleConnections = true}
-      },
-      .outputs = {},  // Selector outputs via GetSelectorData()
-      .atLeastOneInputRequired = true,
-      .tags = {"selector", "interactive", "cards", "navigation", "timepoint", "sql"},
-      .requiresTimeFrame = false,
-      .allowNullInputs = false
-    };
-  }
-};
-
-} // namespace epoch_metadata::selectors
+} // namespace epoch_metadata::transform

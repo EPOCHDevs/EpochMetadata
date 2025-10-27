@@ -23,10 +23,11 @@ using Catch::Approx;
 // Helper to create a sample DataFrame for testing
 DataFrame CreateTestDataFrame() {
   // Create a simple DataFrame with columns for testing
-  std::vector<int64_t> timestamps = {1609459200000, 1609545600000, 1609632000000, 1609718400000};
+  // Timestamps in nanoseconds (original milliseconds * 1,000,000)
+  std::vector<int64_t> timestamps = {1609459200000000000LL, 1609545600000000000LL, 1609632000000000000LL, 1609718400000000000LL};
 
   // Create index from timestamps
-  auto index = factory::index::make_index(factory::array::make_array(timestamps)->chunk(0), std::nullopt, "index");
+  auto index = factory::index::make_datetime_index(timestamps, "index","UTC");
 
   // Create columns
   std::vector<arrow::ChunkedArrayPtr> columns = {
@@ -50,25 +51,12 @@ TEST_CASE("CardSelectorTransform - Basic Functionality", "[selectors][card_selec
     auto metadata = metadataMap.at("card_selector_filter");
 
     REQUIRE(metadata.id == "card_selector_filter");
-    REQUIRE(metadata.name == "Card Selector (Filter)");
+    REQUIRE(metadata.name == "Card Selector");
     REQUIRE(metadata.category == epoch_core::TransformCategory::Selector);
     REQUIRE(metadata.atLeastOneInputRequired == true);
     REQUIRE(metadata.outputs.empty());  // Selectors don't output to graph
   }
 
-  SECTION("Card selector SQL metadata is correctly registered") {
-    auto& registry = transforms::ITransformRegistry::GetInstance();
-    auto metadataMap = registry.GetMetaData();
-
-    REQUIRE(metadataMap.contains("card_selector_sql"));
-    auto metadata = metadataMap.at("card_selector_sql");
-
-    REQUIRE(metadata.id == "card_selector_sql");
-    REQUIRE(metadata.name == "Card Selector (SQL)");
-    REQUIRE(metadata.category == epoch_core::TransformCategory::Selector);
-    REQUIRE(metadata.atLeastOneInputRequired == true);
-    REQUIRE(metadata.outputs.empty());  // Selectors don't output to graph
-  }
 
   SECTION("Card selector filter has required card_schema option") {
     auto& registry = transforms::ITransformRegistry::GetInstance();
@@ -88,23 +76,6 @@ TEST_CASE("CardSelectorTransform - Basic Functionality", "[selectors][card_selec
     REQUIRE(hasCardSchemaOption);
   }
 
-  SECTION("Card selector SQL has required card_schema option") {
-    auto& registry = transforms::ITransformRegistry::GetInstance();
-    auto metadataMap = registry.GetMetaData();
-
-    REQUIRE(metadataMap.contains("card_selector_sql"));
-    auto metadata = metadataMap.at("card_selector_sql");
-
-    bool hasCardSchemaOption = false;
-    for (const auto& option : metadata.options) {
-      if (option.id == "card_schema") {
-        hasCardSchemaOption = true;
-        REQUIRE(option.isRequired == true);
-        REQUIRE(option.type == epoch_core::MetaDataOptionType::CardSchema);
-      }
-    }
-    REQUIRE(hasCardSchemaOption);
-  }
 }
 
 TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
@@ -187,53 +158,6 @@ TEST_CASE("CardSchemaFilter - JSON Parsing", "[selectors][card_selector]") {
   }
 }
 
-TEST_CASE("CardSchemaSQL - JSON Parsing", "[selectors][card_selector]") {
-
-  SECTION("Parse schema with SQL query") {
-    std::string schemaJson = R"({
-      "title": "Filtered Signals",
-      "sql": "SELECT * FROM self WHERE SLOT1 > 0",
-      "schemas": [
-        {
-          "column_id": "direction",
-          "slot": "PrimaryBadge",
-          "render_type": "Text",
-          "color_map": {}
-        }
-      ]
-    })";
-
-    CardSchemaSQL schema;
-    auto error = glz::read_json(schema, schemaJson);
-
-    REQUIRE(!error);
-    REQUIRE(schema.title == "Filtered Signals");
-    REQUIRE(schema.sql.GetSql() == "SELECT * FROM self WHERE SLOT1 > 0");
-    REQUIRE(schema.schemas.size() == 1);
-  }
-
-  SECTION("Parse SQL schema with complex query") {
-    std::string schemaJson = R"({
-      "title": "Complex Filter",
-      "sql": "SELECT * FROM self WHERE SLOT0 = 'BUY' AND SLOT1 > 10 ORDER BY SLOT1 DESC",
-      "schemas": [
-        {"column_id": "direction", "slot": "PrimaryBadge", "render_type": "Badge", "color_map": {}},
-        {"column_id": "profit_pct", "slot": "Hero", "render_type": "Decimal", "color_map": {}}
-      ]
-    })";
-
-    CardSchemaSQL schema;
-    auto error = glz::read_json(schema, schemaJson);
-
-    if(error) {
-      FAIL(glz::format_error(error, schemaJson));
-    }
-    REQUIRE(schema.sql.GetSql().find("FROM self") != std::string::npos);
-    REQUIRE(schema.sql.GetSql().find("WHERE") != std::string::npos);
-    REQUIRE(schema.sql.GetSql().find("ORDER BY") != std::string::npos);
-  }
-}
-
 TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_selector]") {
 
   SECTION("CardColumnSchema equality") {
@@ -270,21 +194,6 @@ TEST_CASE("CardColumnSchema - Equality and Comparison", "[selectors][card_select
     REQUIRE(list1 == list2);
   }
 
-  SECTION("CardSchemaSQL equality") {
-    CardSchemaSQL schema1{
-      .title = "Test SQL",
-      .sql = SqlStatement("SELECT * FROM self WHERE SLOT0 > 0"),
-      .schemas = {}
-    };
-
-    CardSchemaSQL schema2{
-      .title = "Test SQL",
-      .sql = SqlStatement("SELECT * FROM self WHERE SLOT0 > 0"),
-      .schemas = {}
-    };
-
-    REQUIRE(schema1 == schema2);
-  }
 }
 
 TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_selector]") {
@@ -322,79 +231,35 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
     auto result = selector.TransformData(df);
 
     // Verify filtered DataFrame (only rows where is_signal is true)
-    // Original has 4 rows, 3 have is_signal = true
+    // Original has 4 rows: [true, true, false, true]
+    // Filtered should have 3 rows (indices 0, 1, 3)
     REQUIRE(result.num_rows() == 3);
-    REQUIRE(result.num_cols() == 4);  // All columns preserved
-  }
-}
+    REQUIRE(result.num_cols() == 4);  // direction, profit_pct, is_signal, index
 
-TEST_CASE("CardSelectorFromSQL - Transform Functionality", "[selectors][card_selector]") {
+    // Verify column names are preserved
+    REQUIRE(result.contains("direction"));
+    REQUIRE(result.contains("profit_pct"));
+    REQUIRE(result.contains("is_signal"));
 
-  SECTION("SQL selector returns filtered DataFrame") {
-    // Create test DataFrame
-    auto df = CreateTestDataFrame();
+    // Verify data content - should have rows 0, 1, and 3 from original
+    auto direction_col = result["direction"];
+    REQUIRE(direction_col.iloc(0).repr() == "BUY");   // original row 0
+    REQUIRE(direction_col.iloc(1).repr() == "SELL");  // original row 1
+    REQUIRE(direction_col.iloc(2).repr() == "SELL");  // original row 3
 
-    // Create CardSchemaSQL configuration
-    CardSchemaSQL schema{
-      .title = "Profitable Trades",
-      .sql = SqlStatement("SELECT * FROM self WHERE SLOT1 > 0"),
-      .schemas = {
-        CardColumnSchema{
-          .column_id = "direction",
-          .slot = epoch_core::CardSlot::PrimaryBadge,
-          .render_type = epoch_core::CardRenderType::Badge,
-          .color_map = {}
-        }
-      }
-    };
+    auto profit_col = result["profit_pct"];
+    REQUIRE(profit_col.iloc(0).as_double() == Approx(10.5));   // original row 0
+    REQUIRE(profit_col.iloc(1).as_double() == Approx(-5.2));   // original row 1
+    REQUIRE(profit_col.iloc(2).as_double() == Approx(-8.1));   // original row 3
 
-    // Create transform config using helper function - pass object directly
-    auto transformConfig = epoch_metadata::transform::card_selector_sql_cfg(
-      "test_selector_sql",
-      schema,
-      {"direction", "profit_pct", "is_signal"},
-      epoch_metadata::TimeFrame(epoch_frame::factory::offset::days(1))
-    );
+    auto is_signal_col = result["is_signal"];
+    REQUIRE(is_signal_col.iloc(0).as_bool() == true);  // original row 0
+    REQUIRE(is_signal_col.iloc(1).as_bool() == true);  // original row 1
+    REQUIRE(is_signal_col.iloc(2).as_bool() == true);  // original row 3
 
-    // Create selector
-    CardSelectorFromSQL selector(transformConfig);
-
-    // Execute transform - should return filtered DataFrame
-    // SLOT1 corresponds to profit_pct, filter for > 0 (rows with 10.5 and 15.3)
-    auto result = selector.TransformData(df);
-
-    // Verify filtered DataFrame
-    REQUIRE(result.num_rows() == 2);  // Only 2 rows with profit > 0
-    REQUIRE(result.num_cols() == 3);  // Columns renamed to SLOT0, SLOT1, SLOT2
-  }
-
-  SECTION("SQL selector with ORDER BY clause") {
-    // Create test DataFrame
-    auto df = CreateTestDataFrame();
-
-    // Create CardSchemaSQL with ORDER BY
-    CardSchemaSQL schema{
-      .title = "Sorted Results",
-      .sql = SqlStatement("SELECT * FROM self ORDER BY SLOT1 DESC"),
-      .schemas = {}
-    };
-
-    // Create transform config using helper function - pass object directly
-    auto transformConfig = epoch_metadata::transform::card_selector_sql_cfg(
-      "test_selector_ordered",
-      schema,
-      {"direction", "profit_pct", "is_signal"},
-      epoch_metadata::TimeFrame(epoch_frame::factory::offset::days(1))
-    );
-
-    // Create selector
-    CardSelectorFromSQL selector(transformConfig);
-
-    // Execute transform
-    auto result = selector.TransformData(df);
-
-    // Verify all rows returned (no filtering, just ordering)
-    REQUIRE(result.num_rows() == 4);
-    REQUIRE(result.num_cols() == 3);
+    // Verify timestamps (index values in nanoseconds)
+    REQUIRE(result["index"].iloc(0).timestamp().value == 1609459200000000000LL);  // original row 0
+    REQUIRE(result["index"].iloc(1).timestamp().value == 1609545600000000000LL);  // original row 1
+    REQUIRE(result["index"].iloc(2).timestamp().value == 1609718400000000000LL);  // original row 3
   }
 }

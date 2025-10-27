@@ -277,11 +277,7 @@ void InitializeTransforms(
   // Register Selectors
   REGISTER_TRANSFORM(card_selector_filter, CardSelectorFromFilter);
   transforms::ITransformRegistry::GetInstance().Register(
-    SelectorMetadata<CardSelectorFromFilter>::Get());
-
-  REGISTER_TRANSFORM(card_selector_sql, CardSelectorFromSQL);
-  transforms::ITransformRegistry::GetInstance().Register(
-    SelectorMetadata<CardSelectorFromSQL>::Get());
+    SelectorMetadata::Get());
 
   // SQL Query Transforms (1-4 outputs)
   REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
