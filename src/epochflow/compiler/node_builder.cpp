@@ -73,6 +73,8 @@ namespace epoch_stratifyx::epochflow
             for (const auto& [args, kwargs] : parse_result.feed_steps)
             {
                 WireInputs(node_id, parse_result.ctor_name, args, kwargs);
+                // Resolve SLOT references in options after wiring inputs
+                ResolveSlotReferencesInOptions(node_id, args);
             }
 
             return;
@@ -146,6 +148,8 @@ namespace epoch_stratifyx::epochflow
             for (const auto& [args, kwargs] : parse_result.feed_steps)
             {
                 WireInputs(synthetic_id, parse_result.ctor_name, args, kwargs);
+                // Resolve SLOT references in options after wiring inputs
+                ResolveSlotReferencesInOptions(synthetic_id, args);
             }
 
             // Extract output handles and bind to tuple variables
@@ -251,6 +255,8 @@ namespace epoch_stratifyx::epochflow
         for (const auto& [args, kwargs] : parse_result.feed_steps)
         {
             WireInputs(synthetic_id, parse_result.ctor_name, args, kwargs);
+            // Resolve SLOT references in options after wiring inputs
+            ResolveSlotReferencesInOptions(synthetic_id, args);
         }
     }
 
@@ -449,6 +455,160 @@ namespace epoch_stratifyx::epochflow
     std::string NodeBuilder::JoinId(const std::string& node_id, const std::string& handle)
     {
         return node_id + "#" + handle;
+    }
+
+    void NodeBuilder::ResolveSlotReferencesInOptions(
+        const std::string& target_node_id,
+        const std::vector<ValueHandle>& args)
+    {
+        // Find the target node
+        auto it = context_.node_lookup.find(target_node_id);
+        if (it == context_.node_lookup.end())
+        {
+            return; // Node not found, nothing to resolve
+        }
+
+        auto& algo = context_.algorithms[it->second];
+
+        // Helper lambda to recursively resolve SLOT references in a value
+        std::function<void(epoch_metadata::MetaDataOptionDefinition::T&)> resolve_value;
+        resolve_value = [&](epoch_metadata::MetaDataOptionDefinition::T& value) {
+            // Handle string values
+            if (auto* str_ptr = std::get_if<std::string>(&value))
+            {
+                std::string& str = *str_ptr;
+                // Check if this is a SLOT reference (SLOT0, SLOT1, SLOT2, etc.)
+                if (str.rfind("SLOT", 0) == 0) // starts_with("SLOT")
+                {
+                    // Extract slot index from SLOT0, SLOT1, etc.
+                    std::string slot_suffix = str.substr(4); // after "SLOT"
+                    size_t slot_idx = 0;
+                    if (!slot_suffix.empty())
+                    {
+                        try {
+                            slot_idx = std::stoull(slot_suffix);
+                        } catch (...) {
+                            // Not a valid slot reference, skip
+                            return;
+                        }
+                    }
+
+                    // Check if slot index is valid
+                    if (slot_idx >= args.size())
+                    {
+                        ThrowError("SLOT" + slot_suffix + " reference out of range (only " +
+                                   std::to_string(args.size()) + " arguments provided)");
+                    }
+
+                    // Resolve to node_id#handle
+                    const auto& arg_handle = args[slot_idx];
+                    str = JoinId(arg_handle.node_id, arg_handle.handle);
+                }
+            }
+            // Handle CardSchemaFilter
+            else if (auto* filter_ptr = std::get_if<epoch_metadata::CardSchemaFilter>(&value))
+            {
+                auto& filter = *filter_ptr;
+
+                // Resolve select_key
+                if (filter.select_key.rfind("SLOT", 0) == 0)
+                {
+                    std::string slot_suffix = filter.select_key.substr(4);
+                    size_t slot_idx = 0;
+                    if (!slot_suffix.empty())
+                    {
+                        try {
+                            slot_idx = std::stoull(slot_suffix);
+                        } catch (...) {
+                            // Not a valid slot reference, skip
+                            return;
+                        }
+                    }
+
+                    if (slot_idx >= args.size())
+                    {
+                        ThrowError("SLOT" + slot_suffix + " reference in select_key out of range");
+                    }
+
+                    const auto& arg_handle = args[slot_idx];
+                    filter.select_key = JoinId(arg_handle.node_id, arg_handle.handle);
+                }
+
+                // Resolve column_id in schemas
+                for (auto& schema : filter.schemas)
+                {
+                    if (schema.column_id.rfind("SLOT", 0) == 0)
+                    {
+                        std::string slot_suffix = schema.column_id.substr(4);
+                        size_t slot_idx = 0;
+                        if (!slot_suffix.empty())
+                        {
+                            try {
+                                slot_idx = std::stoull(slot_suffix);
+                            } catch (...) {
+                                // Not a valid slot reference, skip
+                                continue;
+                            }
+                        }
+
+                        if (slot_idx >= args.size())
+                        {
+                            ThrowError("SLOT" + slot_suffix + " reference in column_id out of range");
+                        }
+
+                        const auto& arg_handle = args[slot_idx];
+                        schema.column_id = JoinId(arg_handle.node_id, arg_handle.handle);
+                    }
+                }
+            }
+            // Handle CardSchemaSQL
+            else if (auto* sql_ptr = std::get_if<epoch_metadata::CardSchemaSQL>(&value))
+            {
+                auto& sql_schema = *sql_ptr;
+
+                // Note: We don't resolve SLOT in sql.sql string itself, as that uses
+                // SLOT0, SLOT1 to reference input columns (not feed arguments)
+                // Only resolve in schemas column_id fields
+
+                // Resolve column_id in schemas
+                for (auto& schema : sql_schema.schemas)
+                {
+                    if (schema.column_id.rfind("SLOT", 0) == 0)
+                    {
+                        std::string slot_suffix = schema.column_id.substr(4);
+                        size_t slot_idx = 0;
+                        if (!slot_suffix.empty())
+                        {
+                            try {
+                                slot_idx = std::stoull(slot_suffix);
+                            } catch (...) {
+                                // Not a valid slot reference, skip
+                                continue;
+                            }
+                        }
+
+                        if (slot_idx >= args.size())
+                        {
+                            ThrowError("SLOT" + slot_suffix + " reference in column_id out of range");
+                        }
+
+                        const auto& arg_handle = args[slot_idx];
+                        schema.column_id = JoinId(arg_handle.node_id, arg_handle.handle);
+                    }
+                }
+            }
+        };
+
+        // Iterate through all options and resolve SLOT references
+        for (auto& [option_name, option_def] : algo.options)
+        {
+            // Get the variant value from MetaDataOptionDefinition
+            auto variant_value = option_def.GetVariant();
+            // Resolve SLOT references in the variant
+            resolve_value(variant_value);
+            // Store back the modified variant (reconstruct MetaDataOptionDefinition)
+            option_def = epoch_metadata::MetaDataOptionDefinition{variant_value};
+        }
     }
 
     void NodeBuilder::ThrowError(const std::string& msg, int line, int col)

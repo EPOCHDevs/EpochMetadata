@@ -67,6 +67,11 @@ namespace epoch_stratifyx::epochflow
         // Helper to create "node_id#handle" format
         std::string JoinId(const std::string& node_id, const std::string& handle);
 
+        // Helper to resolve SLOT references in node options
+        void ResolveSlotReferencesInOptions(
+            const std::string& target_node_id,
+            const std::vector<ValueHandle>& args);
+
         // Error reporting helper
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);
     };
