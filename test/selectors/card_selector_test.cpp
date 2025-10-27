@@ -307,13 +307,10 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
       }
     };
 
-    // Serialize schema to JSON
-    std::string schemaJson = glz::write_json(schema).value_or("{}");
-
-    // Create transform config using helper function
+    // Create transform config using helper function - pass object directly
     auto transformConfig = epoch_metadata::transform::card_selector_filter_cfg(
       "test_selector",
-      schemaJson,
+      schema,
       {"direction", "profit_pct", "is_signal"},
       epoch_metadata::TimeFrame(epoch_frame::factory::offset::days(1))
     );
@@ -351,13 +348,10 @@ TEST_CASE("CardSelectorFromSQL - Transform Functionality", "[selectors][card_sel
       }
     };
 
-    // Serialize schema to JSON
-    std::string schemaJson = glz::write_json(schema).value_or("{}");
-
-    // Create transform config using helper function
+    // Create transform config using helper function - pass object directly
     auto transformConfig = epoch_metadata::transform::card_selector_sql_cfg(
       "test_selector_sql",
-      schemaJson,
+      schema,
       {"direction", "profit_pct", "is_signal"},
       epoch_metadata::TimeFrame(epoch_frame::factory::offset::days(1))
     );
@@ -385,13 +379,10 @@ TEST_CASE("CardSelectorFromSQL - Transform Functionality", "[selectors][card_sel
       .schemas = {}
     };
 
-    // Serialize schema to JSON
-    std::string schemaJson = glz::write_json(schema).value_or("{}");
-
-    // Create transform config using helper function
+    // Create transform config using helper function - pass object directly
     auto transformConfig = epoch_metadata::transform::card_selector_sql_cfg(
       "test_selector_ordered",
-      schemaJson,
+      schema,
       {"direction", "profit_pct", "is_signal"},
       epoch_metadata::TimeFrame(epoch_frame::factory::offset::days(1))
     );

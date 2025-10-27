@@ -17,16 +17,7 @@ class CardSelector : public epoch_metadata::transform::ITransform {
 public:
   explicit CardSelector(epoch_metadata::transform::TransformConfiguration config)
       : ITransform(std::move(config)),
-        m_schema([this]() {
-          // Parse JSON string into SchemaType
-          std::string jsonStr = std::get<std::string>(m_config.GetOptionValue("card_schema").GetVariant());
-          SchemaType schema;
-          auto error = glz::read_json(schema, jsonStr);
-          if (error) {
-            throw std::runtime_error("Failed to parse schema JSON: " + glz::format_error(error, jsonStr));
-          }
-          return schema;
-        }()) {
+        m_schema(GetSchemaFromConfig(config)) {
   }
 
   epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
@@ -70,6 +61,18 @@ public:
   SchemaType GetSchema() const { return m_schema; }
 
 private:
+  static SchemaType GetSchemaFromConfig(const epoch_metadata::transform::TransformConfiguration& config) {
+    if constexpr (std::is_same_v<SchemaType, CardSchemaFilter>) {
+      return config.GetOptionValue("card_schema").GetCardSchemaList();
+    } else if constexpr (std::is_same_v<SchemaType, CardSchemaSQL>) {
+      return config.GetOptionValue("card_schema").GetCardSchemaSQL();
+    } else {
+      static_assert(std::is_same_v<SchemaType, CardSchemaFilter> ||
+                    std::is_same_v<SchemaType, CardSchemaSQL>,
+                    "SchemaType must be either CardSchemaFilter or CardSchemaSQL");
+    }
+  }
+
   const SchemaType m_schema;
 };
 

@@ -6,8 +6,54 @@
 #include "doc_deserialization_helper.h"
 #include <epoch_core/ranges_to.h>
 #include <unordered_set>
+#include <sstream>
 
 namespace epoch_metadata {
+
+// Helper function to convert YAML node to JSON string
+static std::string YamlNodeToJsonString(const YAML::Node& node) {
+  std::ostringstream json;
+
+  if (node.IsNull()) {
+    json << "null";
+  } else if (node.IsScalar()) {
+    std::string val = node.as<std::string>();
+    // Check if it's a boolean or null literal
+    if (val == "true" || val == "false" || val == "null") {
+      json << val;
+    } else {
+      // Try to parse as number
+      char* endptr = nullptr;
+      std::strtod(val.c_str(), &endptr);
+      if (endptr != val.c_str() && *endptr == '\0') {
+        // Valid number
+        json << val;
+      } else {
+        // It's a string (or enum), quote it
+        json << "\"" << val << "\"";
+      }
+    }
+  } else if (node.IsSequence()) {
+    json << "[";
+    for (size_t i = 0; i < node.size(); ++i) {
+      if (i > 0) json << ",";
+      json << YamlNodeToJsonString(node[i]);
+    }
+    json << "]";
+  } else if (node.IsMap()) {
+    json << "{";
+    bool first = true;
+    for (auto it = node.begin(); it != node.end(); ++it) {
+      if (!first) json << ",";
+      first = false;
+      json << "\"" << it->first.as<std::string>() << "\":";
+      json << YamlNodeToJsonString(it->second);
+    }
+    json << "}";
+  }
+
+  return json.str();
+}
 using SequenceItem = std::variant<double, std::string>;
 using Sequence = std::vector<SequenceItem>;
 void MetaDataOptionDefinition::AssertType(
@@ -313,9 +359,13 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
           return MetaDataOptionDefinition{};
       }
     }
-    AssertFromStream(node.IsScalar(), "invalid transform option type: "
-                                          << node << ", expected a scalar for "
-                                          << arg.id << ".");
+    // CardSchema and SqlStatement can be Maps/Objects, others must be Scalars
+    if (arg.type != epoch_core::MetaDataOptionType::CardSchema &&
+        arg.type != epoch_core::MetaDataOptionType::SqlStatement) {
+      AssertFromStream(node.IsScalar(), "invalid transform option type: "
+                                            << node << ", expected a scalar for "
+                                            << arg.id << ".");
+    }
   }
   switch (arg.type) {
   case epoch_core::MetaDataOptionType::Integer:
@@ -344,11 +394,30 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
   }
   case epoch_core::MetaDataOptionType::String:
     return MetaDataOptionDefinition{node.as<std::string>()};
-  case epoch_core::MetaDataOptionType::CardSchema:
-    return MetaDataOptionDefinition{node.as<std::string>()};
-  case epoch_core::MetaDataOptionType::SqlStatement:
-    // SqlStatement is validated on construction
-    return MetaDataOptionDefinition{MetaDataOptionDefinition::T{SqlStatement{node.as<std::string>()}}};
+  case epoch_core::MetaDataOptionType::CardSchema: {
+    // CardSchema can come as either:
+    // 1. A YAML Map (from EpochFlow DSL object construction) - convert to JSON
+    // 2. A scalar string containing JSON (from test helpers) - pass through
+    std::string jsonStr;
+    if (node.IsMap()) {
+      jsonStr = YamlNodeToJsonString(node);
+    } else {
+      jsonStr = node.as<std::string>();
+    }
+    // The glaze deserializer (in metadata_options.h) will parse this JSON string
+    // and detect the type (CardSchemaFilter vs CardSchemaSQL) automatically
+    return MetaDataOptionDefinition{jsonStr};
+  }
+  case epoch_core::MetaDataOptionType::SqlStatement: {
+    // SqlStatement can be a scalar string or a map with "sql" key
+    if (node.IsScalar()) {
+      return MetaDataOptionDefinition{MetaDataOptionDefinition::T{SqlStatement{node.as<std::string>()}}};
+    } else if (node.IsMap() && node["sql"]) {
+      return MetaDataOptionDefinition{MetaDataOptionDefinition::T{SqlStatement{node["sql"].as<std::string>()}}};
+    } else {
+      throw std::runtime_error("SqlStatement must be a scalar string or a map with 'sql' key");
+    }
+  }
   case epoch_core::MetaDataOptionType::Null:
     break;
   }

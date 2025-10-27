@@ -11,7 +11,7 @@ namespace epoch_metadata::transform {
 template <typename T> struct ScalarDataFrameTransform : ITransform {
   explicit ScalarDataFrameTransform(const TransformConfiguration &config)
       : ITransform(config),
-        m_value(std::get<T>(m_config.GetOptionValue("value").GetVariant())) {}
+        m_value(GetValueFromConfig(config)) {}
 
   explicit ScalarDataFrameTransform(const TransformConfiguration &config,
                                     T constant)
@@ -36,6 +36,21 @@ template <typename T> struct ScalarDataFrameTransform : ITransform {
   }
 
 private:
+  static T GetValueFromConfig(const TransformConfiguration &config) {
+    if constexpr (std::is_same_v<T, double>) {
+      return config.GetOptionValue("value").GetDecimal();
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      return config.GetOptionValue("value").GetString();
+    } else if constexpr (std::is_same_v<T, bool>) {
+      return config.GetOptionValue("value").GetBoolean();
+    } else {
+      static_assert(std::is_same_v<T, double> ||
+                    std::is_same_v<T, std::string> ||
+                    std::is_same_v<T, bool>,
+                    "ScalarDataFrameTransform only supports double, string, and bool types");
+    }
+  }
+
   T m_value;
 };
 

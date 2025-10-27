@@ -641,15 +641,37 @@ namespace glz
       }
       else if (in.is_object() && in.contains("schemas"))
       {
-        // CardSchemaList object - for now, dump to JSON and parse as string
-        // This will be handled by the fallback else case which passes the JSON string
-        auto dumped = in.dump();
-        if (!dumped.has_value())
+        // CardSchema object - parse into proper type based on presence of select_key vs sql
+        if (in.contains("select_key"))
         {
-          throw std::runtime_error("Failed to dump CardSchemaList JSON: " +
-                                   glz::format_error(dumped.error()));
+          // CardSchemaFilter
+          epoch_metadata::CardSchemaFilter schema;
+          auto error = glz::read_json(schema, in.dump().value_or("{}"));
+          if (error)
+          {
+            throw std::runtime_error("Failed to parse CardSchemaFilter JSON: " +
+                                     glz::format_error(error));
+          }
+          value = epoch_metadata::MetaDataOptionDefinition{
+              epoch_metadata::MetaDataOptionDefinition::T{std::move(schema)}};
         }
-        value = epoch_metadata::MetaDataOptionDefinition{dumped.value()};
+        else if (in.contains("sql"))
+        {
+          // CardSchemaSQL
+          epoch_metadata::CardSchemaSQL schema;
+          auto error = glz::read_json(schema, in.dump().value_or("{}"));
+          if (error)
+          {
+            throw std::runtime_error("Failed to parse CardSchemaSQL JSON: " +
+                                     glz::format_error(error));
+          }
+          value = epoch_metadata::MetaDataOptionDefinition{
+              epoch_metadata::MetaDataOptionDefinition::T{std::move(schema)}};
+        }
+        else
+        {
+          throw std::runtime_error("CardSchema object must contain either 'select_key' or 'sql' field");
+        }
       }
       else
       {

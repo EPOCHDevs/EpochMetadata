@@ -104,8 +104,8 @@ public:
       : ITransform(config) {
     // Get thresholds for ratio comparison
     m_threshold_high =
-        config.GetOptionValue("threshold_high").GetNumericValue();
-    m_threshold_low = config.GetOptionValue("threshold_low").GetNumericValue();
+        config.GetOptionValue("threshold_high").GetDecimal();
+    m_threshold_low = config.GetOptionValue("threshold_low").GetDecimal();
     AssertFromStream(m_threshold_high > m_threshold_low,
                      "Threshold high must be greater than threshold low");
   }
