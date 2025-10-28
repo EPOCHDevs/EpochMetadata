@@ -168,15 +168,7 @@ namespace epoch_stratifyx::epochflow
                 {
                     // Check if this sessions node matches
                     bool session_matches = false;
-                    if (node.options.contains("session"))
-                    {
-                        const auto& opt_val = node.options.at("session").GetVariant();
-                        if (std::holds_alternative<std::string>(opt_val))
-                        {
-                            session_matches = (std::get<std::string>(opt_val) == session_val);
-                        }
-                    }
-                    else if (node.options.contains("session_type"))
+                    if (node.options.contains("session_type"))
                     {
                         const auto& opt_val = node.options.at("session_type").GetVariant();
                         if (std::holds_alternative<std::string>(opt_val))
@@ -212,7 +204,7 @@ namespace epoch_stratifyx::epochflow
                 epoch_metadata::strategy::AlgorithmNode sessions_algo;
                 sessions_algo.id = synthetic_id;
                 sessions_algo.type = "sessions";
-                sessions_algo.options["session"] = epoch_metadata::MetaDataOptionDefinition{session_val};
+                sessions_algo.options["session_type"] = epoch_metadata::MetaDataOptionDefinition{session_val};
                 if (timeframe_str.has_value())
                 {
                     sessions_algo.timeframe = epoch_metadata::TimeFrame(*timeframe_str);
