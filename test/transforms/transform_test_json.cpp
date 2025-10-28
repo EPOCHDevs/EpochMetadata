@@ -4,6 +4,7 @@
 #include <epoch_testing/json_transform_tester.hpp>
 #include <epoch_testing/catch_transform_tester.hpp>
 #include <epoch_testing/tearsheet_output.hpp>
+#include <epoch_testing/selector_output.hpp>
 #include <epoch_testing/dataframe_tester.hpp>
 #include <epoch_metadata/transforms/itransform.h>
 #include <epoch_metadata/transforms/transform_registry.h>
@@ -789,6 +790,79 @@ namespace
 
                             actualOutput = std::make_unique<TearsheetOutput>();
                             actualOutput->protoTearsheet = protoTearsheet;
+
+                            // Check if we need to validate selector_data
+                            if (auto tearsheetExpect = std::get_if<json::TearsheetExpect>(&jsonTest.expect.value()))
+                            {
+                                if (tearsheetExpect->selector_data.has_value())
+                                {
+                                    INFO("Validating selector_data");
+
+                                    // Get actual selector data
+                                    auto actualSelectorData = transformPtr->GetSelectorData();
+
+                                    // Create expected selector output
+                                    auto expectedSelector = std::make_unique<SelectorOutput>();
+                                    const auto& selectorExpect = tearsheetExpect->selector_data.value();
+
+                                    // Map icon string to enum
+                                    epoch_core::CardIcon expectedIcon = epoch_core::CardIcon::Info; // default
+                                    if (selectorExpect.icon == "Gap") {
+                                        expectedIcon = epoch_core::CardIcon::Gap;
+                                    }
+                                    // Add other icon mappings as needed
+
+                                    // Build expected DataFrame if data is provided
+                                    epoch_frame::DataFrame expectedDf;
+                                    if (selectorExpect.data.has_value()) {
+                                        // Convert DataFrameExpect columns to Table format for tableToDataFrame
+                                        Table expectedTable;
+                                        std::vector<std::string> timestampColumns;
+                                        for (const auto& [colName, colData] : selectorExpect.data.value().columns) {
+                                            Column column;  // Column is std::vector<std::optional<Value>>
+                                            // Check if this is a timestamp column (ends with _timestamp or is named timestamp)
+                                            bool isTimestamp = colName.find("timestamp") != std::string::npos;
+                                            if (isTimestamp) {
+                                                timestampColumns.push_back(colName);
+                                            }
+
+                                            for (const auto& val : colData) {
+                                                if (std::holds_alternative<double>(val)) {
+                                                    column.push_back(std::optional<Value>{std::get<double>(val)});
+                                                } else if (std::holds_alternative<int64_t>(val)) {
+                                                    column.push_back(std::optional<Value>{static_cast<double>(std::get<int64_t>(val))});
+                                                } else if (std::holds_alternative<bool>(val)) {
+                                                    column.push_back(std::optional<Value>{std::get<bool>(val)});
+                                                } else if (std::holds_alternative<std::string>(val)) {
+                                                    column.push_back(std::optional<Value>{std::get<std::string>(val)});
+                                                } else {
+                                                    column.push_back(std::nullopt);
+                                                }
+                                            }
+                                            expectedTable[colName] = column;
+                                        }
+                                        expectedDf = CatchTransformTester::tableToDataFrame(expectedTable, timestampColumns, "");
+                                    }
+
+                                    expectedSelector->selectorData = epoch_metadata::transform::SelectorData(
+                                        selectorExpect.title,
+                                        std::vector<epoch_metadata::CardColumnSchema>{}, // empty for basic validation
+                                        expectedDf,
+                                        std::nullopt,
+                                        expectedIcon
+                                    );
+                                    // Override schema count for comparison
+                                    expectedSelector->selectorData.schemas.resize(selectorExpect.schema_count);
+
+                                    // Create actual selector output
+                                    auto actualSelectorOutput = std::make_unique<SelectorOutput>();
+                                    actualSelectorOutput->selectorData = actualSelectorData;
+
+                                    INFO("Expected Selector:\n" << expectedSelector->toString());
+                                    INFO("Actual Selector:\n" << actualSelectorOutput->toString());
+                                    REQUIRE(actualSelectorOutput->equals(*expectedSelector));
+                                }
+                            }
                         }
                         catch (const std::exception &e)
                         {

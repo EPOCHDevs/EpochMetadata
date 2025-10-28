@@ -142,6 +142,22 @@ namespace epoch
                 std::optional<std::vector<HistogramBin>> bins;
             };
 
+            // Expected dataframe output (forward declared for SelectorDataExpect)
+            struct DataFrameExpect
+            {
+                std::string type = "dataframe";
+                std::map<std::string, ColumnData> columns;
+            };
+
+            // Selector data for card navigation
+            struct SelectorDataExpect
+            {
+                std::string title;
+                std::string icon;
+                int64_t schema_count = 0;
+                std::optional<DataFrameExpect> data;
+            };
+
             // Expected tearsheet output
             struct TearsheetExpect
             {
@@ -149,13 +165,7 @@ namespace epoch
                 std::optional<CardsList> cards;
                 std::vector<TearsheetTable> tables;
                 std::vector<TearsheetChart> charts;
-            };
-
-            // Expected dataframe output
-            struct DataFrameExpect
-            {
-                std::string type = "dataframe";
-                std::map<std::string, ColumnData> columns;
+                std::optional<SelectorDataExpect> selector_data;
             };
 
             // Test case structure
@@ -868,6 +878,78 @@ namespace epoch
                                                     tearsheet.charts.push_back(tearChart);
                                                 }
                                             }
+                                        }
+
+                                        // Parse selector_data
+                                        if (expectJson.contains("selector_data") && expectJson["selector_data"].holds<glz::generic::object_t>())
+                                        {
+                                            auto &selectorJson = expectJson["selector_data"].get<glz::generic::object_t>();
+                                            SelectorDataExpect selectorData;
+
+                                            if (selectorJson.contains("title") && selectorJson["title"].holds<std::string>())
+                                            {
+                                                selectorData.title = selectorJson["title"].get<std::string>();
+                                            }
+
+                                            if (selectorJson.contains("icon") && selectorJson["icon"].holds<std::string>())
+                                            {
+                                                selectorData.icon = selectorJson["icon"].get<std::string>();
+                                            }
+
+                                            if (selectorJson.contains("schema_count") && selectorJson["schema_count"].holds<double>())
+                                            {
+                                                selectorData.schema_count = static_cast<int64_t>(selectorJson["schema_count"].get<double>());
+                                            }
+
+                                            // Parse selector DataFrame data (columns)
+                                            if (selectorJson.contains("data") && selectorJson["data"].holds<glz::generic::object_t>())
+                                            {
+                                                auto &dataJson = selectorJson["data"].get<glz::generic::object_t>();
+                                                DataFrameExpect dfExpect;
+                                                dfExpect.type = "dataframe";
+
+                                                if (dataJson.contains("columns") && dataJson["columns"].holds<glz::generic::object_t>())
+                                                {
+                                                    for (auto &[colName, colData] : dataJson["columns"].get<glz::generic::object_t>())
+                                                    {
+                                                        if (colData.holds<glz::generic::array_t>())
+                                                        {
+                                                            ColumnData column;
+                                                            for (auto &v : colData.get<glz::generic::array_t>())
+                                                            {
+                                                                if (v.holds<double>())
+                                                                {
+                                                                    double val = v.get<double>();
+                                                                    if (std::floor(val) == val && std::abs(val) < 1e15)
+                                                                    {
+                                                                        column.push_back(static_cast<int64_t>(val));
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        column.push_back(val);
+                                                                    }
+                                                                }
+                                                                else if (v.holds<std::string>())
+                                                                {
+                                                                    column.push_back(v.get<std::string>());
+                                                                }
+                                                                else if (v.holds<bool>())
+                                                                {
+                                                                    column.push_back(v.get<bool>());
+                                                                }
+                                                                else
+                                                                {
+                                                                    column.push_back(std::nullptr_t{});
+                                                                }
+                                                            }
+                                                            dfExpect.columns[colName] = column;
+                                                        }
+                                                    }
+                                                }
+                                                selectorData.data = dfExpect;
+                                            }
+
+                                            tearsheet.selector_data = selectorData;
                                         }
 
                                         tc.expect = tearsheet;
