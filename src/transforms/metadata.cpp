@@ -1103,7 +1103,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
                          .name = "Session Type",
                          .type = epoch_core::MetaDataOptionType::Select,
                          .defaultValue = MetaDataOptionDefinition(std::string("London")),
-                         .selectOption = {{"Sydney", "Sydney Session"}, {"Tokyo", "Tokyo Session"}, {"London", "London Session"}, {"NewYork", "New York Session"}, {"AsianKillZone", "Asian Kill Zone"}, {"LondonOpenKillZone", "London Open Kill Zone"}, {"NewYorkKillZone", "New York Kill Zone"}, {"LondonCloseKillZone", "London Close Kill Zone"}},
+                         .selectOption = MetaDataOptionConstants::SESSION_TYPE_OPTIONS,
                          .desc = "Trading session or kill zone to track"},
           MetaDataOption{.id = "minute_offset",
                          .name = "Minute Offset",

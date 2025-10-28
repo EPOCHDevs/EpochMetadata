@@ -246,6 +246,21 @@ struct IOMetaDataConstants {
       {"STRUCT_RESULT", STRUCT_OUTPUT_METADATA}};
 };
 
+// Shared constants for MetaDataOption select options
+struct MetaDataOptionConstants {
+  // SessionType select options matching epoch_core::SessionType enum
+  inline static std::vector<epoch_metadata::SelectOption> SESSION_TYPE_OPTIONS = {
+      {"Sydney", "Sydney"},
+      {"Tokyo", "Tokyo"},
+      {"London", "London"},
+      {"NewYork", "NewYork"},
+      {"AsianKillZone", "AsianKillZone"},
+      {"LondonOpenKillZone", "LondonOpenKillZone"},
+      {"NewYorkKillZone", "NewYorkKillZone"},
+      {"LondonCloseKillZone", "LondonCloseKillZone"}
+  };
+};
+
 std::vector<TransformsMetaData> MakeComparativeMetaData();
 std::vector<TransformsMetaData> MakeScalarMetaData();
 std::vector<TransformsMetaData> MakeDataSource();
