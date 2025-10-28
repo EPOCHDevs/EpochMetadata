@@ -96,7 +96,6 @@ namespace {
     GapTableData data;
 
     auto make_gap_dataframe = [](const epoch_frame::Date& dateIndex,
-                                 epoch_frame::Scalar pscTimestamp,
                                  double gapSize,
                                  const std::string& gapType, const std::string& gapFilled,
                                  const std::string& weekDay, const std::string& fillTime,
@@ -104,7 +103,6 @@ namespace {
       auto index  = epoch_frame::factory::index::make_datetime_index(std::vector{epoch_frame::DateTime{dateIndex}});
 
       // Create Arrow arrays from single values
-      auto timestamp_array = epoch_frame::factory::array::make_array(std::vector<epoch_frame::DateTime>{pscTimestamp.to_datetime()});
       auto gap_size_array = epoch_frame::factory::array::make_array(std::vector<double>{gapSize});
       auto gap_type_array = epoch_frame::factory::array::make_array(std::vector<std::string>{gapType});
       auto gap_filled_array = epoch_frame::factory::array::make_array(std::vector<std::string>{gapFilled});
@@ -113,12 +111,12 @@ namespace {
       auto performance_array = epoch_frame::factory::array::make_array(std::vector<std::string>{performance});
 
       std::vector<std::shared_ptr<arrow::ChunkedArray>> columnData = {
-        timestamp_array, gap_size_array, gap_type_array, gap_filled_array,
+        gap_size_array, gap_type_array, gap_filled_array,
         weekday_array, fill_time_array, performance_array
       };
 
       std::vector<std::string> columnNames = {
-        "psc_timestamp", "gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"
+        "gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"
       };
 
       return epoch_frame::make_dataframe(index, columnData, columnNames);
@@ -129,7 +127,6 @@ namespace {
       auto emptyIndex = epoch_frame::factory::index::make_datetime_index(std::vector<epoch_frame::DateTime>{});
 
       // Create empty Arrow arrays with correct types
-      auto empty_timestamp_array = epoch_frame::factory::array::make_array(std::vector<int64_t>{});
       auto empty_gap_size_array = epoch_frame::factory::array::make_array(std::vector<double>{});
       auto empty_gap_type_array = epoch_frame::factory::array::make_array(std::vector<std::string>{});
       auto empty_gap_filled_array = epoch_frame::factory::array::make_array(std::vector<std::string>{});
@@ -138,12 +135,12 @@ namespace {
       auto empty_performance_array = epoch_frame::factory::array::make_array(std::vector<std::string>{});
 
       std::vector<std::shared_ptr<arrow::ChunkedArray>> emptyColumnData = {
-        empty_timestamp_array, empty_gap_size_array, empty_gap_type_array, empty_gap_filled_array,
+        empty_gap_size_array, empty_gap_type_array, empty_gap_filled_array,
         empty_weekday_array, empty_fill_time_array, empty_performance_array
       };
 
       return epoch_frame::make_dataframe(emptyIndex, emptyColumnData,
-        std::vector<std::string>{"psc_timestamp", "gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"});
+        std::vector<std::string>{"gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"});
     };
 
     // Group by daily normalized index to get one record per day
@@ -187,9 +184,6 @@ namespace {
       auto closeVal = in[closeLiteral].iloc(0).as_double();
       auto pscVal = in["psc"].iloc(0).as_double();
 
-      // Extract psc_timestamp (timestamp of prior session close)
-      auto pscTimestamp = in["psc_timestamp"].iloc(0);
-
       // Calculate derived fields
       auto weekDay = epoch_core::EpochDayOfWeekWrapper::ToString(static_cast<epoch_core::EpochDayOfWeek>(index.weekday()));
       auto gapSizeVal = gapSize.as_double();
@@ -217,7 +211,7 @@ namespace {
 
       // Create single-element datetime index for the day
 
-      return make_gap_dataframe(index, pscTimestamp, gapSizePct,
+      return make_gap_dataframe(index, gapSizePct,
                                isGapUp ? "gap up" : "gap down",
                                hasGapFilled ? "filled" : "not filled",
                                weekDay, fillTimeStr, performance);
@@ -303,7 +297,7 @@ namespace {
     // Subtitle: weekday
     card_schemas.push_back({
       .column_id = "weekday",
-      .slot = epoch_core::CardSlot::Subtitle,
+      .slot = epoch_core::CardSlot::Details,
       .render_type = epoch_core::CardRenderType::Text,
       .color_map = {},
       .label = std::nullopt
@@ -330,23 +324,25 @@ namespace {
       .label = "Fill Time"
     });
 
-    // Navigator: timestamp column for candlestick chart navigation
+    // Navigator: pivot_index column for candlestick chart navigation
+    // This will be populated from the daily_df index via reset_index
     card_schemas.push_back({
-      .column_id = "psc_timestamp",
-      .slot = epoch_core::CardSlot::Details,
+      .column_id = "pivot_index",
+      .slot = epoch_core::CardSlot::Subtitle,
       .render_type = epoch_core::CardRenderType::Timestamp,
       .color_map = {},
-      .label = "Prior Session Close"
+      .label = "Date"
     });
 
     // The pivot_index points to the timestamp schema (last element in the array)
     size_t pivot_idx = card_schemas.size() - 1;
 
     // Store selector data in base class
+    // reset_index("pivot_index") converts the datetime index to a column named "pivot_index"
     this->SetSelectorData(epoch_metadata::transform::SelectorData(
       "Gap Events",
       card_schemas,
-      daily_df,
+      daily_df.reset_index("pivot_index"),
       pivot_idx,
       epoch_core::CardIcon::Gap
     ));
