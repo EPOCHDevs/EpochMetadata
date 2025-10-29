@@ -6,9 +6,127 @@
 #include "ast_compiler.h"
 #include "../parser/python_parser.h"
 #include <stdexcept>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
 
 namespace epoch_stratifyx::epochflow
 {
+    // Helper function to extract node_id from "node_id#handle" reference
+    static std::string extractNodeId(const std::string& ref)
+    {
+        auto hash_pos = ref.find('#');
+        if (hash_pos != std::string::npos)
+        {
+            return ref.substr(0, hash_pos);
+        }
+        return ref;
+    }
+
+    // Topological sort using Kahn's algorithm (BFS-based)
+    // Returns nodes in dependency order: dependencies before dependents
+    static std::vector<epoch_metadata::strategy::AlgorithmNode> TopologicalSort(
+        std::vector<epoch_metadata::strategy::AlgorithmNode> nodes)
+    {
+        using AlgorithmNode = epoch_metadata::strategy::AlgorithmNode;
+
+        // Build node index: node_id -> position in input vector
+        std::unordered_map<std::string, size_t> node_index;
+        for (size_t i = 0; i < nodes.size(); ++i)
+        {
+            node_index[nodes[i].id] = i;
+        }
+
+        // Build dependency graph
+        std::unordered_map<std::string, int> in_degree;  // node_id -> count of dependencies
+        std::unordered_map<std::string, std::vector<std::string>> dependents;  // node_id -> nodes that depend on it
+
+        // Initialize in-degree to 0 for all nodes
+        for (const auto& node : nodes)
+        {
+            in_degree[node.id] = 0;
+        }
+
+        // Calculate in-degrees and build adjacency list
+        for (const auto& node : nodes)
+        {
+            const std::string& node_id = node.id;
+
+            // Process all inputs to find dependencies
+            for (const auto& [input_name, refs] : node.inputs)
+            {
+                for (const auto& ref : refs)
+                {
+                    std::string dep_id = extractNodeId(ref);
+
+                    // Only count dependency if it's an internal node (not external like "src")
+                    if (node_index.find(dep_id) != node_index.end())
+                    {
+                        in_degree[node_id]++;
+                        dependents[dep_id].push_back(node_id);
+                    }
+                }
+            }
+        }
+
+        // Kahn's algorithm: start with nodes that have no dependencies
+        std::queue<std::string> queue;
+        for (const auto& [node_id, degree] : in_degree)
+        {
+            if (degree == 0)
+            {
+                queue.push(node_id);
+            }
+        }
+
+        // Process nodes in topological order
+        std::vector<AlgorithmNode> sorted_nodes;
+        sorted_nodes.reserve(nodes.size());
+
+        while (!queue.empty())
+        {
+            std::string node_id = queue.front();
+            queue.pop();
+
+            // Add this node to sorted output
+            sorted_nodes.push_back(std::move(nodes[node_index[node_id]]));
+
+            // Decrease in-degree for all dependents
+            for (const std::string& dependent_id : dependents[node_id])
+            {
+                in_degree[dependent_id]--;
+                if (in_degree[dependent_id] == 0)
+                {
+                    queue.push(dependent_id);
+                }
+            }
+        }
+
+        // Check for cycles
+        if (sorted_nodes.size() != nodes.size())
+        {
+            // Collect nodes that are part of the cycle
+            std::vector<std::string> remaining_nodes;
+            for (const auto& [node_id, degree] : in_degree)
+            {
+                if (degree > 0)
+                {
+                    remaining_nodes.push_back(node_id);
+                }
+            }
+
+            std::string error_msg = "Circular dependency detected in algorithm graph! Remaining nodes: ";
+            for (size_t i = 0; i < remaining_nodes.size(); ++i)
+            {
+                if (i > 0) error_msg += ", ";
+                error_msg += remaining_nodes[i];
+            }
+            throw std::runtime_error(error_msg);
+        }
+
+        return sorted_nodes;
+    }
 
     AlgorithmAstCompiler::AlgorithmAstCompiler()
     {
@@ -80,7 +198,7 @@ namespace epoch_stratifyx::epochflow
         // This enables constant variables in subscripts: src.v[lookback_period]
         module = constant_folder_->PreprocessModule(std::move(module));
 
-        // Visit the module - builds algorithms in topological order (Python guarantees this)
+        // Visit the module - builds algorithms in AST order (source code order)
         ast_visitor_->VisitModule(*module);
 
         // Verify session dependencies and auto-create missing sessions nodes
@@ -88,6 +206,17 @@ namespace epoch_stratifyx::epochflow
 
         // Resolve timeframes for all nodes using TimeframeResolver utility
         resolveTimeframes(std::nullopt); // Pass nullopt as base timeframe for now
+
+        // Sort algorithms in topological order: dependencies before dependents
+        // This ensures handles are registered before they're referenced
+        context_.algorithms = TopologicalSort(std::move(context_.algorithms));
+
+        // Update node_lookup indices after reordering
+        context_.node_lookup.clear();
+        for (size_t i = 0; i < context_.algorithms.size(); ++i)
+        {
+            context_.node_lookup[context_.algorithms[i].id] = i;
+        }
 
         // Return results - move semantics for zero-copy
         return std::move(context_.algorithms);

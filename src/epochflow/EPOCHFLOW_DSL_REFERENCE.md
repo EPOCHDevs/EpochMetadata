@@ -14,6 +14,7 @@ Last Updated: 2025-10-29
 3. [Language Syntax](#3-language-syntax)
 4. [Expressions and Operators](#4-expressions-and-operators)
 5. [Transform System](#5-transform-system)
+   - 5.4 Mathematical Functions
 6. [TimeFrame System](#6-timeframe-system)
 7. [Session System](#7-session-system)
 8. [Type System](#8-type-system)
@@ -32,6 +33,7 @@ EpochFlow is a Python-like domain-specific language for algorithmic trading stra
 
 - **Market data access**: OHLCV data, economic indicators
 - **Technical indicators**: 200+ built-in transforms (moving averages, oscillators, etc.)
+- **Mathematical functions**: Standard Python math functions (sin, cos, log, sqrt, etc.)
 - **Trading signals**: Buy/sell condition generation for backtesting
 - **Research tools**: Gap analysis, session detection, custom reports
 - **Multi-timeframe**: Combine daily, hourly, and intraday data
@@ -159,22 +161,22 @@ lag = src.c[2]
 #### Expression Context (NOT ALLOWED)
 ```python
 # ❌ ERROR: Multi-output transform in expression
-bb = bband(period=20, stddev=2)(src.c)
+bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # ERROR: ambiguous_multi_output
 
 # ✅ SOLUTION: Access specific output handle
-bb = bband(period=20, stddev=2)(src.c)
-signal = bb.upper > 100
+bb = bbands(period=20, stddev=2)(src.c)
+signal = bb.bbands_upper > 100
 ```
 
 #### Tuple Unpacking Count Mismatch (NOT ALLOWED)
 ```python
 # ❌ ERROR: Output count must match
-lower, upper = bband(period=20, stddev=2)(src.c)  # ERROR: 3 outputs, 2 variables
+lower, upper = bbands(period=20, stddev=2)(src.c)  # ERROR: 3 outputs, 2 variables
 
 # ✅ SOLUTION: Match count or discard with _
-lower, middle, upper = bband(period=20, stddev=2)(src.c)
-lower, _, upper = bband(period=20, stddev=2)(src.c)  # Discard middle
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+lower, _, upper = bbands(period=20, stddev=2)(src.c)  # Discard middle
 ```
 
 ### 2.4 Required Components
@@ -262,14 +264,14 @@ trade_signal_executor()(enter_long=buy_signal)
 Multi-output transforms require tuple unpacking:
 
 ```python
-# Multi-output: bband returns (upper, middle, lower)
-upper, middle, lower = bband(period=20, stddev=2)(src.c)
+# Multi-output: bbands returns (lower, middle, upper)
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 # MACD returns (macd, signal)
 macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
 
 # Discard unwanted outputs with _
-lower, _, upper = bband(period=20, stddev=2)(src.c)  # Discard middle
+lower, _, upper = bbands(period=20, stddev=2)(src.c)  # Discard middle
 _, signal_line = macd(fast=12, slow=26, signal=9)(src.c)  # Discard macd line
 ```
 
@@ -530,10 +532,10 @@ high = src.h       # High price
 volume = src.v     # Volume
 
 # Indicator outputs
-bb = bband(period=20, stddev=2)(src.c)
-upper_band = bb.upper
-middle_band = bb.middle
-lower_band = bb.lower
+bb = bbands(period=20, stddev=2)(src.c)
+upper_band = bb.bbands_upper
+middle_band = bb.bbands_middle
+lower_band = bb.bbands_lower
 
 # Chained attribute access
 smoothed = ema(period=10)(src.c).result  # Call then access
@@ -544,7 +546,7 @@ smoothed = ema(period=10)(src.c).result  # Call then access
 From **highest** to **lowest** priority:
 
 1. **Subscript**: `x[1]`
-2. **Attribute access**: `src.c`, `bb.upper`
+2. **Attribute access**: `src.c`, `bb.bbands_upper`
 3. **Function calls**: `ema(period=20)(src.c)`
 4. **Exponentiation**: `x ** 2`
 5. **Unary negation/not**: `-x`, `not x`
@@ -602,7 +604,7 @@ cross = crossover(fast, slow)
 ema_20 = ema(period=20)(src.c)
 
 # Single input, multiple options
-bb = bband(period=20, stddev=2)(src.c)
+bb = bbands(period=20, stddev=2)(src.c)
 
 # Multiple inputs, no options
 cross_up = crossover(fast_ma, slow_ma)
@@ -627,30 +629,91 @@ signal = ema_val.result > 100
 ```
 
 #### Multiple Outputs
+
+**⚠️ CRITICAL: Transform outputs are NOT Python objects with arbitrary methods. They are special result handles with predefined attribute names. You CANNOT call these attributes as functions.**
+
 ```python
-# Must use tuple unpacking
-lower, middle, upper = bband(period=20, stddev=2)(src.c)
+# ✅ CORRECT: Tuple unpacking (recommended)
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
-# Or access via handles
-bb = bband(period=20, stddev=2)(src.c)
-upper_band = bb.upper
-middle_band = bb.middle
-lower_band = bb.lower
+# ✅ CORRECT: Attribute access (no parentheses)
+bb = bbands(period=20, stddev=2)(src.c)
+upper_band = bb.bbands_upper
+middle_band = bb.bbands_middle
+lower_band = bb.bbands_lower
 
-# Discard unwanted outputs
-lower, _, upper = bband(period=20, stddev=2)(src.c)
+# ❌ WRONG: Cannot call attributes as functions
+bb_upper = bbands(period=20, stddev=2).bbands_upper(src.c)  # ERROR!
+
+# ✅ CORRECT: Discard unwanted outputs
+lower, _, upper = bbands(period=20, stddev=2)(src.c)
 ```
 
-### 5.4 Common Output Handles
+**The only valid syntax patterns are:**
+1. **Tuple unpacking**: `lower, middle, upper = bbands(...)(input)`
+2. **Attribute access**: `bb = bbands(...)(input); upper = bb.bbands_upper`
 
-| Transform | Output Handles |
-|-----------|----------------|
-| `market_data_source` | `o`, `h`, `l`, `c`, `v`, `vw`, `n` |
-| `ema`, `sma`, `rsi` | `result` |
-| `bband` | `upper`, `middle`, `lower` |
-| `macd` | `macd`, `signal`, `histogram` |
-| `sessions` | `active`, `high`, `low`, `opened`, `closed` |
-| `gap_classify` | `gap_filled`, `gap_retrace`, `gap_size`, `psc`, `psc_timestamp` |
+**Note:** For the exact output handle names of any transform, refer to the transforms catalog at `/home/adesola/EpochLab/EpochAI/common/data_utils/catalogs/transforms_catalog.xml`.
+
+### 5.4 Mathematical Functions
+
+EpochFlow provides standard Python mathematical functions as transforms. These work like any other single-output transform:
+
+**Trigonometric Functions:**
+```python
+# Basic trig (no options, shorthand syntax)
+sine_val = sin(angle)
+cosine_val = cos(angle)
+tangent_val = tan(angle)
+
+# Inverse trig
+arc_sine = asin(value)
+arc_cosine = acos(value)
+arc_tangent = atan(value)
+arc_tangent2 = atan2(y, x)  # Two-argument arctangent
+```
+
+**Exponential and Logarithmic:**
+```python
+# Exponential
+exponential = exp(value)
+
+# Logarithms
+natural_log = log(value)      # Natural logarithm (ln)
+log_base_10 = log10(value)    # Base-10 logarithm
+```
+
+**Rounding and Absolute Value:**
+```python
+# Rounding
+rounded_up = ceil(value)      # Round up to nearest integer
+rounded_down = floor(value)   # Round down to nearest integer
+
+# Absolute value
+absolute = abs(value)
+
+# Square root
+square_root = sqrt(value)
+```
+
+**Practical Examples:**
+```python
+src = market_data_source()
+
+# Normalize angle for cyclical indicators
+normalized_angle = atan2(src.c - src.o, src.h - src.l)
+
+# Calculate volatility with logarithmic returns
+log_return = log(src.c / src.c[1])
+
+# Distance calculation
+distance = sqrt(dx ** 2 + dy ** 2)
+
+# Round position sizes
+position_size = floor(capital / src.c)
+```
+
+**Note:** These mathematical functions are **not included** in the transforms catalog XML because they are Python built-ins. They are always available and work identically to other single-output transforms.
 
 ### 5.5 Chaining Transforms
 
@@ -1624,24 +1687,37 @@ ema_val = ema(period=20)(src.c)
 #### "ambiguous_multi_output"
 ```python
 # ❌ ERROR: Multi-output in expression
-bb = bband(period=20, stddev=2)(src.c)
+bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # ERROR: Which output?
 
 # ✅ FIX: Access specific handle
-bb = bband(period=20, stddev=2)(src.c)
-signal = bb.upper > 100
+bb = bbands(period=20, stddev=2)(src.c)
+signal = bb.bbands_upper > 100
+```
+
+#### "Right-hand side must be a constructor call"
+```python
+# ❌ ERROR: Calling an attribute as a function
+bb_upper = bbands(period=20, stddev=2).bbands_upper(src.c)  # WRONG!
+
+# ✅ FIX: Use tuple unpacking (recommended)
+bb_lower, bb_middle, bb_upper = bbands(period=20, stddev=2)(src.c)
+
+# ✅ FIX: Or attribute access (no call)
+bb = bbands(period=20, stddev=2)(src.c)
+bb_upper = bb.bbands_upper  # Access attribute, don't call it
 ```
 
 #### "Tuple unpacking count mismatch"
 ```python
 # ❌ ERROR: 3 outputs, 2 variables
-lower, upper = bband(period=20, stddev=2)(src.c)
+lower, upper = bbands(period=20, stddev=2)(src.c)
 
 # ✅ FIX: Match count
-lower, middle, upper = bband(period=20, stddev=2)(src.c)
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 # Or discard
-lower, _, upper = bband(period=20, stddev=2)(src.c)
+lower, _, upper = bbands(period=20, stddev=2)(src.c)
 ```
 
 ### 11.6 Executor Errors
@@ -1701,7 +1777,8 @@ Before generating code, verify:
 - [ ] **No control flow**: No `if`/`for`/`while`/`def`/`class`
 - [ ] **No chained comparisons**: Break `a < b < c` into separate checks
 - [ ] **Lag indices**: Non-zero integers only (`[1]`, `[5]`, `[-1]`, NOT `[0]`, `[1.5]`)
-- [ ] **Multi-output unpacking**: Count matches (`lower, middle, upper = bband(...)`)
+- [ ] **Multi-output unpacking**: Count matches (`lower, middle, upper = bbands(...)`)
+- [ ] **No calling attributes**: Use `bb.bbands_upper`, NOT `bb.bbands_upper(src.c)`
 - [ ] **Transform options**: All required options provided, correct types
 - [ ] **Executor required**: Trading strategies have exactly one `trade_signal_executor()`
 - [ ] **Valid timeframes**: Use supported timeframe strings (Section 6)
@@ -1717,7 +1794,8 @@ Before generating code, verify:
 | `a < b < c` | Chained comparison | `(a < b) and (b < c)` |
 | `src.c[0]` | Zero lag | `src.c` |
 | `src.c[1.5]` | Float lag | `src.c[2]` |
-| `lower, upper = bband(...)` | Tuple count | `lower, _, upper = bband(...)` |
+| `lower, upper = bbands(...)` | Tuple count | `lower, _, upper = bbands(...)` |
+| `bb.bbands_upper(src.c)` | Calling attribute | `bb = bbands(...)(src.c); upper = bb.bbands_upper` |
 | `timeframe="1Day"` | Invalid timeframe | `timeframe="1D"` |
 | `ema()(src.c)` | Missing option | `ema(period=20)(src.c)` |
 | No executor | Missing executor | Add `trade_signal_executor()` |
@@ -1744,9 +1822,16 @@ entry = trend and volume and momentum
 label = "BUY" if oversold else ("SELL" if overbought else "HOLD")
 ```
 
-#### Multi-Output Unpacking
+#### Multi-Output Unpacking (Bollinger Bands)
 ```python
-lower, middle, upper = bband(period=20, stddev=2)(src.c)
+# Recommended: Tuple unpacking
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+
+# Alternative: Attribute access
+bb = bbands(period=20, stddev=2)(src.c)
+upper = bb.bbands_upper
+middle = bb.bbands_middle
+lower = bb.bbands_lower
 ```
 
 #### Forward Return
@@ -1764,6 +1849,21 @@ london_ema = ema(period=20, session="London")(src.c)
 ```python
 daily_trend = ema(period=50, timeframe="1D")(src.c)
 uptrend = src.c > daily_trend
+```
+
+#### Mathematical Functions
+```python
+# Logarithmic returns
+log_return = log(src.c / src.c[1])
+
+# Normalize angles
+angle = atan2(y_component, x_component)
+
+# Distance/magnitude
+distance = sqrt(dx ** 2 + dy ** 2)
+
+# Round values
+rounded = floor(position_size)
 ```
 
 ### 12.4 Critical Rules
