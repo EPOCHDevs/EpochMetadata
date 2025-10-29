@@ -109,15 +109,20 @@ void SqlStatement::ValidateOutputColumns(duckdb::PreparedStatement &preparedStmt
 
     if (m_numOutputs > 0)
     {
-      // Validate specific RESULT0, RESULT1, ..., RESULT(N-1) columns
-      if (resultColumns.size() != static_cast<size_t>(m_numOutputs))
+      // For timeseries SQL transforms, we expect m_numOutputs RESULT columns + 1 timestamp column
+      // Total expected columns = m_numOutputs + 1
+      size_t expectedColumnCount = static_cast<size_t>(m_numOutputs) + 1;
+
+      if (resultColumns.size() != expectedColumnCount)
       {
         throw std::runtime_error(
-            "SQL query expected " + std::to_string(m_numOutputs) +
-            " output columns but got " + std::to_string(resultColumns.size()) +
+            "SQL query expected " + std::to_string(expectedColumnCount) +
+            " columns (" + std::to_string(m_numOutputs) + " RESULT columns + 1 timestamp column) but got " +
+            std::to_string(resultColumns.size()) +
             ". Available columns: " + JoinColumns(resultColumns));
       }
 
+      // Validate that all RESULT0, RESULT1, ..., RESULT(N-1) columns exist
       for (int i = 0; i < m_numOutputs; ++i)
       {
         std::string expectedCol = "RESULT" + std::to_string(i);
@@ -128,6 +133,15 @@ void SqlStatement::ValidateOutputColumns(duckdb::PreparedStatement &preparedStmt
               "SQL query result missing required column: " + expectedCol +
               ". Available columns: " + JoinColumns(resultColumns));
         }
+      }
+
+      // Validate that timestamp column exists
+      auto timestampIt = std::find(resultColumns.begin(), resultColumns.end(), "timestamp");
+      if (timestampIt == resultColumns.end())
+      {
+        throw std::runtime_error(
+            "SQL query result missing required 'timestamp' column for timeseries index. "
+            "Available columns: " + JoinColumns(resultColumns));
       }
     }
     else
