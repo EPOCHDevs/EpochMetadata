@@ -17,6 +17,7 @@
 #include "node_builder.h"
 #include "ast_visitor.h"
 #include "timeframe_resolver.h"
+#include "constant_folder.h"
 #include "../parser/ast_nodes.h"
 #include <epoch_metadata/strategy/metadata.h>
 #include <epoch_metadata/time_frame.h>
@@ -57,6 +58,7 @@ namespace epoch_stratifyx::epochflow
         std::unique_ptr<NodeBuilder> node_builder_;
         std::unique_ptr<AstVisitor> ast_visitor_;
         std::unique_ptr<TimeframeResolver> timeframe_resolver_;
+        std::unique_ptr<ConstantFolder> constant_folder_;
 
         // Initialization helper
         void initializeComponents();

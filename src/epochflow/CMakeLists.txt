@@ -14,6 +14,7 @@ target_sources(epoch_metadata PRIVATE
     compiler/node_builder.cpp
     compiler/ast_visitor.cpp
     compiler/ast_compiler.cpp
+    compiler/constant_folder.cpp
 )
 
 # Link tree-sitter and Python grammar

@@ -48,6 +48,9 @@ namespace epoch_stratifyx::epochflow
             *node_builder_,
             *expr_compiler_,
             *constructor_parser_);
+
+        // Initialize constant folder for preprocessing
+        constant_folder_ = std::make_unique<ConstantFolder>(context_);
     }
 
     CompilationResult AlgorithmAstCompiler::compile(const std::string& source)
@@ -72,6 +75,10 @@ namespace epoch_stratifyx::epochflow
 
         // Reserve capacity to prevent reallocations (typical algorithm has 50-500 nodes)
         context_.algorithms.reserve(500);
+
+        // Preprocess module to fold constants (like C++ template metaprogramming)
+        // This enables constant variables in subscripts: src.v[lookback_period]
+        module = constant_folder_->PreprocessModule(std::move(module));
 
         // Visit the module - builds algorithms in topological order (Python guarantees this)
         ast_visitor_->VisitModule(*module);
