@@ -17,15 +17,13 @@ namespace
 
     ValidationConnection() : db(nullptr), con(db)
     {
-      // Create a dummy "self" table with SLOT columns
+      // Create a dummy "self" table with timestamp and SLOT columns
       // Use enough SLOT columns to accommodate most use cases (SLOT0-SLOT99)
-      // We'll create a table with 100 SLOT columns of type DOUBLE
-      std::string createTableSQL = "CREATE TABLE self (";
+      // We'll create a table with 100 SLOT columns of type DOUBLE plus timestamp
+      std::string createTableSQL = "CREATE TABLE self (timestamp TIMESTAMP";
       for (int i = 0; i < 100; ++i)
       {
-        if (i > 0)
-          createTableSQL += ", ";
-        createTableSQL += "SLOT" + std::to_string(i) + " DOUBLE";
+        createTableSQL += ", SLOT" + std::to_string(i) + " DOUBLE";
       }
       createTableSQL += ")";
 
