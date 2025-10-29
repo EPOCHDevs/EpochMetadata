@@ -146,9 +146,15 @@ void SqlStatement::ValidateOutputColumns(duckdb::PreparedStatement &preparedStmt
     }
     else
     {
-      // Validate all columns have RESULT prefix
+      // Validate all columns have RESULT prefix (timestamp is allowed as a special case)
       for (const auto &col : resultColumns)
       {
+        // Allow timestamp column as an optional special case
+        if (col == "timestamp")
+        {
+          continue;
+        }
+
         if (col.find("RESULT") != 0)
         {
           throw std::runtime_error(

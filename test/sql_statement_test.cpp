@@ -134,6 +134,55 @@ TEST_CASE("SqlStatement - RESULT column validation", "[SqlStatement]") {
   }
 }
 
+TEST_CASE("SqlStatement - Timestamp column validation", "[SqlStatement]") {
+  SECTION("Single-output query with timestamp column only") {
+    // timestamp is allowed as an optional column for single-output queries
+    REQUIRE_NOTHROW(SqlStatement("SELECT timestamp FROM self"));
+  }
+
+  SECTION("Single-output query with timestamp and RESULT columns") {
+    // timestamp can be combined with RESULT columns
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, timestamp FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT timestamp, SLOT0 as RESULT0 FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, timestamp FROM self"));
+  }
+
+  SECTION("Single-output query with only RESULT columns (no timestamp)") {
+    // timestamp is optional for single-output queries
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0 FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self"));
+  }
+
+  SECTION("Single-output query with invalid columns is still rejected") {
+    // timestamp exception doesn't allow other invalid column names
+    SqlStatement stmt1("SELECT invalid_col FROM self");
+    REQUIRE_THROWS_AS(stmt1.Validate(), std::runtime_error);
+
+    SqlStatement stmt2("SELECT SLOT0 as output, timestamp FROM self");
+    REQUIRE_THROWS_AS(stmt2.Validate(), std::runtime_error);
+  }
+
+  SECTION("Multi-output queries require timestamp") {
+    // Multi-output queries (numOutputs > 0) require timestamp column
+    REQUIRE_NOTHROW(SqlStatement(
+        "SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, timestamp FROM self", 2));
+
+    // Missing timestamp should fail for multi-output queries
+    SqlStatement stmt("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self", 2);
+    REQUIRE_THROWS_AS(stmt.Validate(), std::runtime_error);
+  }
+
+  SECTION("Timestamp column in expressions") {
+    // timestamp can be used in WHERE clause
+    REQUIRE_NOTHROW(SqlStatement(
+        "SELECT SLOT0 as RESULT0, timestamp FROM self WHERE timestamp > '2020-01-01'"));
+
+    // timestamp can be used in ORDER BY
+    REQUIRE_NOTHROW(SqlStatement(
+        "SELECT SLOT0 as RESULT0, timestamp FROM self ORDER BY timestamp"));
+  }
+}
+
 TEST_CASE("SqlStatement - Complex queries", "[SqlStatement]") {
   SECTION("Queries with aggregations") {
     REQUIRE_NOTHROW(SqlStatement("SELECT SUM(SLOT0) as RESULT0 FROM self"));
