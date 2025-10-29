@@ -109,18 +109,8 @@ void SqlStatement::ValidateOutputColumns(duckdb::PreparedStatement &preparedStmt
 
     if (m_numOutputs > 0)
     {
-      // For timeseries SQL transforms, we expect m_numOutputs RESULT columns + 1 timestamp column
-      // Total expected columns = m_numOutputs + 1
-      size_t expectedColumnCount = static_cast<size_t>(m_numOutputs) + 1;
-
-      if (resultColumns.size() != expectedColumnCount)
-      {
-        throw std::runtime_error(
-            "SQL query expected " + std::to_string(expectedColumnCount) +
-            " columns (" + std::to_string(m_numOutputs) + " RESULT columns + 1 timestamp column) but got " +
-            std::to_string(resultColumns.size()) +
-            ". Available columns: " + JoinColumns(resultColumns));
-      }
+      // For multi-output queries, validate that required RESULT columns and timestamp exist
+      // Additional columns are allowed
 
       // Validate that all RESULT0, RESULT1, ..., RESULT(N-1) columns exist
       for (int i = 0; i < m_numOutputs; ++i)
@@ -146,22 +136,8 @@ void SqlStatement::ValidateOutputColumns(duckdb::PreparedStatement &preparedStmt
     }
     else
     {
-      // Validate all columns have RESULT prefix (timestamp is allowed as a special case)
-      for (const auto &col : resultColumns)
-      {
-        // Allow timestamp column as an optional special case
-        if (col == "timestamp")
-        {
-          continue;
-        }
-
-        if (col.find("RESULT") != 0)
-        {
-          throw std::runtime_error(
-              "SQL query output column '" + col +
-              "' does not follow RESULT naming convention. All output columns must start with 'RESULT'.");
-        }
-      }
+      // For single-output queries (numOutputs == 0), allow any column names
+      // No validation needed - SQL can return any columns including timestamp
     }
   }
   catch (const duckdb::Exception &e)

@@ -91,11 +91,10 @@ TEST_CASE("SqlStatement - RESULT column validation", "[SqlStatement]") {
   }
 
   SECTION("Output columns without RESULT prefix - no numOutputs specified") {
-    // When numOutputs=0, columns without RESULT prefix should fail
-    SqlStatement stmt1("SELECT SLOT0 as output FROM self");
-    REQUIRE_THROWS_AS(stmt1.Validate(), std::runtime_error);
-    SqlStatement stmt2("SELECT SLOT0 as col1 FROM self");
-    REQUIRE_THROWS_AS(stmt2.Validate(), std::runtime_error);
+    // When numOutputs=0, any column names are allowed
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as output FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as col1 FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as Quality_Score FROM self"));
   }
 
   SECTION("Specific number of outputs - validates RESULT0 to RESULTN-1") {
@@ -103,14 +102,13 @@ TEST_CASE("SqlStatement - RESULT column validation", "[SqlStatement]") {
     REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self", 2));
   }
 
-  SECTION("Wrong number of outputs is rejected") {
-    // Expects 2 outputs but query returns 1
-    SqlStatement stmt1("SELECT SLOT0 as RESULT0 FROM self", 2);
+  SECTION("Missing required RESULT columns is rejected") {
+    // Expects RESULT0 and RESULT1 but only provides RESULT0 (missing RESULT1)
+    SqlStatement stmt1("SELECT SLOT0 as RESULT0, timestamp FROM self", 2);
     REQUIRE_THROWS_AS(stmt1.Validate(), std::runtime_error);
 
-    // Expects 2 outputs but query returns 3
-    SqlStatement stmt2("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, SLOT2 as RESULT2 FROM self", 2);
-    REQUIRE_THROWS_AS(stmt2.Validate(), std::runtime_error);
+    // Additional columns beyond required RESULT columns are allowed
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, SLOT2 as RESULT2, timestamp FROM self", 2));
   }
 
   SECTION("Missing required RESULT column") {
@@ -153,23 +151,29 @@ TEST_CASE("SqlStatement - Timestamp column validation", "[SqlStatement]") {
     REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self"));
   }
 
-  SECTION("Single-output query with invalid columns is still rejected") {
-    // timestamp exception doesn't allow other invalid column names
-    SqlStatement stmt1("SELECT invalid_col FROM self");
-    REQUIRE_THROWS_AS(stmt1.Validate(), std::runtime_error);
-
-    SqlStatement stmt2("SELECT SLOT0 as output, timestamp FROM self");
-    REQUIRE_THROWS_AS(stmt2.Validate(), std::runtime_error);
+  SECTION("Single-output query allows any column names") {
+    // Any column names are allowed for single-output queries
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as Quality_Score FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as output, timestamp FROM self"));
+    REQUIRE_NOTHROW(SqlStatement("SELECT SLOT0 as col1, SLOT1 as col2, timestamp FROM self"));
   }
 
-  SECTION("Multi-output queries require timestamp") {
-    // Multi-output queries (numOutputs > 0) require timestamp column
+  SECTION("Multi-output queries require timestamp and RESULT columns") {
+    // Multi-output queries (numOutputs > 0) require timestamp column and RESULT0...RESULTN-1
     REQUIRE_NOTHROW(SqlStatement(
         "SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, timestamp FROM self", 2));
 
+    // Additional columns beyond required ones are allowed
+    REQUIRE_NOTHROW(SqlStatement(
+        "SELECT SLOT0 as RESULT0, SLOT1 as RESULT1, SLOT2 as Quality_Score, timestamp FROM self", 2));
+
     // Missing timestamp should fail for multi-output queries
-    SqlStatement stmt("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self", 2);
-    REQUIRE_THROWS_AS(stmt.Validate(), std::runtime_error);
+    SqlStatement stmt1("SELECT SLOT0 as RESULT0, SLOT1 as RESULT1 FROM self", 2);
+    REQUIRE_THROWS_AS(stmt1.Validate(), std::runtime_error);
+
+    // Missing RESULT1 should fail
+    SqlStatement stmt2("SELECT SLOT0 as RESULT0, timestamp FROM self", 2);
+    REQUIRE_THROWS_AS(stmt2.Validate(), std::runtime_error);
   }
 
   SECTION("Timestamp column in expressions") {
