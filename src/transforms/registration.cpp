@@ -7,6 +7,7 @@
 #include "src/sql/sql_query_metadata.h"
 #include "src/data_sources/polygon_metadata.h"
 #include "src/data_sources/fred_metadata.h"
+#include "src/indicators/forward_returns.h"
 
 namespace epoch_metadata::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -25,6 +26,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeTradeSignalExecutor());
   metaDataList.emplace_back(MakeScalarMetaData());
   metaDataList.emplace_back(MakeLagMetaData());
+  metaDataList.emplace_back(epoch_metadata::transform::MakeForwardReturnsMetaData());
   metaDataList.emplace_back(MakeChartFormationMetaData());
   metaDataList.emplace_back(MakeCalendarEffectMetaData());
   metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());

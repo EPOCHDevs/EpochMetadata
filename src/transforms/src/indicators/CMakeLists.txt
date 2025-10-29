@@ -1,1 +1,1 @@
-target_sources(epoch_metadata PRIVATE moving_average.cpp gap_classify.cpp lag.cpp)
+target_sources(epoch_metadata PRIVATE moving_average.cpp gap_classify.cpp lag.cpp forward_returns.cpp)

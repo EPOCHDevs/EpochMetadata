@@ -69,6 +69,7 @@
 #include "hosseinmoein/hosseinmoein.h"
 
 #include "indicators/bband_variant.h"
+#include "indicators/forward_returns.h"
 #include "indicators/gap_classify.h"
 #include "indicators/lag.h"
 #include "indicators/moving_average.h"
@@ -168,6 +169,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(bband_width, BollingerBandsWidth);
 
   REGISTER_TRANSFORM(gap_classify, GapClassify);
+  REGISTER_TRANSFORM(forward_returns, ForwardReturns);
   REGISTER_TRANSFORM(lag, Lag);
   REGISTER_TRANSFORM(ma, MovingAverage);
 

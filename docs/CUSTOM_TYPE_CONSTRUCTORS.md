@@ -589,11 +589,11 @@ class SqlStatement {
 # Basic SQL statement
 SqlStatement(sql="SELECT * FROM self WHERE value > 100")
 
-# Multi-output SQL (must alias outputs as output0, output1, etc.)
+# Multi-output SQL (must alias outputs as RESULT0, RESULT1, etc.)
 SqlStatement(sql="""
     SELECT
-        high - low AS output0,
-        (high + low) / 2 AS output1,
+        high - low AS RESULT0,
+        (high + low) / 2 AS RESULT1,
         timestamp
     FROM self
 """)
@@ -615,37 +615,37 @@ card_schema = CardSchemaSQL(
 ### SQL Query Rules
 
 #### For `sql_query_1` (1 Output)
-- MUST SELECT exactly: `output0` and `timestamp`
+- MUST SELECT exactly: `RESULT0` and `timestamp`
 - MUST use `FROM input`
 - Input columns named: `input0`, `input1`, `input2`, etc.
 
 ```python
 sql_query_1(sql=SqlStatement(sql="""
     SELECT
-        input0 * input1 AS output0,
+        input0 * input1 AS RESULT0,
         timestamp
     FROM input
 """))
 ```
 
 #### For `sql_query_2` (2 Outputs)
-- MUST SELECT exactly: `output0`, `output1`, and `timestamp`
+- MUST SELECT exactly: `RESULT0`, `RESULT1`, and `timestamp`
 
 ```python
 sql_query_2(sql=SqlStatement(sql="""
     SELECT
-        high - low AS output0,
-        (high + low) / 2 AS output1,
+        high - low AS RESULT0,
+        (high + low) / 2 AS RESULT1,
         timestamp
     FROM input
 """))
 ```
 
 #### For `sql_query_3` (3 Outputs)
-- MUST SELECT exactly: `output0`, `output1`, `output2`, and `timestamp`
+- MUST SELECT exactly: `RESULT0`, `RESULT1`, `RESULT2`, and `timestamp`
 
 #### For `sql_query_4` (4 Outputs)
-- MUST SELECT exactly: `output0`, `output1`, `output2`, `output3`, and `timestamp`
+- MUST SELECT exactly: `RESULT0`, `RESULT1`, `RESULT2`, `RESULT3`, and `timestamp`
 
 #### For `CardSchemaSQL`
 - MUST use `FROM self` (not `FROM input`)
@@ -676,23 +676,23 @@ CardSchemaSQL(
     ],
     "contextRules": {
       "sql_query_1": {
-        "template": "SELECT <expr> AS output0, timestamp FROM input",
-        "required": ["output0", "timestamp"],
+        "template": "SELECT <expr> AS RESULT0, timestamp FROM input",
+        "required": ["RESULT0", "timestamp"],
         "from": "input"
       },
       "sql_query_2": {
-        "template": "SELECT <expr1> AS output0, <expr2> AS output1, timestamp FROM input",
-        "required": ["output0", "output1", "timestamp"],
+        "template": "SELECT <expr1> AS RESULT0, <expr2> AS RESULT1, timestamp FROM input",
+        "required": ["RESULT0", "RESULT1", "timestamp"],
         "from": "input"
       },
       "sql_query_3": {
-        "template": "SELECT ... AS output0, ... AS output1, ... AS output2, timestamp FROM input",
-        "required": ["output0", "output1", "output2", "timestamp"],
+        "template": "SELECT ... AS RESULT0, ... AS RESULT1, ... AS RESULT2, timestamp FROM input",
+        "required": ["RESULT0", "RESULT1", "RESULT2", "timestamp"],
         "from": "input"
       },
       "sql_query_4": {
-        "template": "SELECT ... AS output0, ... AS output1, ... AS output2, ... AS output3, timestamp FROM input",
-        "required": ["output0", "output1", "output2", "output3", "timestamp"],
+        "template": "SELECT ... AS RESULT0, ... AS RESULT1, ... AS RESULT2, ... AS RESULT3, timestamp FROM input",
+        "required": ["RESULT0", "RESULT1", "RESULT2", "RESULT3", "timestamp"],
         "from": "input"
       },
       "CardSchemaSQL": {
@@ -807,18 +807,18 @@ src = market_data_source()
 metrics = sql_query_3(
     sql=SqlStatement(sql="""
         SELECT
-            input0 - input1 AS output0,           -- high - low (range)
-            (input0 + input1) / 2 AS output1,      -- (high + low) / 2 (midpoint)
-            input0 - input2 AS output2,            -- high - close (upper wick)
+            input0 - input1 AS RESULT0,           -- high - low (range)
+            (input0 + input1) / 2 AS RESULT1,      -- (high + low) / 2 (midpoint)
+            input0 - input2 AS RESULT2,            -- high - close (upper wick)
             timestamp
         FROM input
     """)
 )(src.h, src.l, src.c)
 
 # Access outputs
-range_val = metrics.output0
-midpoint = metrics.output1
-upper_wick = metrics.output2
+range_val = metrics.RESULT0
+midpoint = metrics.RESULT1
+upper_wick = metrics.RESULT2
 ```
 
 ---
@@ -946,7 +946,7 @@ When generating code, ensure:
    - Input columns referenced as `SLOT0`, `SLOT1`, etc.
    - SQL is syntactically valid DuckDB SQL
 5. **SqlStatement**:
-   - For `sql_query_N`: use `FROM input`, outputs named `output0`...`outputN-1`
+   - For `sql_query_N`: use `FROM input`, outputs named `RESULT0`...`RESULTN-1`
    - For `CardSchemaSQL`: use `FROM self`, columns named `SLOT0`, `SLOT1`, etc.
 
 ---
@@ -989,11 +989,11 @@ CardSchemaSQL(..., sql="SELECT * FROM input", ...)  # Wrong table name
 CardSchemaSQL(..., sql="SELECT * FROM self", ...)
 
 
-# ❌ Error: "Must alias outputs as output0"
+# ❌ Error: "Must alias outputs as RESULT0"
 sql_query_1(sql="SELECT value FROM input")  # Missing output alias
 
 # ✅ Correct
-sql_query_1(sql="SELECT value AS output0, timestamp FROM input")
+sql_query_1(sql="SELECT value AS RESULT0, timestamp FROM input")
 ```
 
 ---

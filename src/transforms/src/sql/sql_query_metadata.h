@@ -24,7 +24,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
             "Result will be indexed by the specified index_column_name for timeseries merging.",
     .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-        {epoch_core::IODataType::Any, "output0", "Output 0", true}
+        {epoch_core::IODataType::Any, "RESULT0", "Output 0", true}
     },
     .atLeastOneInputRequired = true,
     .tags = {"sql", "query", "transform", "timeseries", "single-output"},
@@ -51,8 +51,8 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
             "Each output port carries its respective result column with the index.",
     .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output 1", true}
+      {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
+      {epoch_core::IODataType::Any, "RESULT1", "Output 1", true}
     },
     .atLeastOneInputRequired = true,
     .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
@@ -79,9 +79,9 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
             "Each output port carries its own data series with the index.",
     .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output 1", true},
-      {epoch_core::IODataType::Any, "output2", "Output 2", true}
+      {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
+      {epoch_core::IODataType::Any, "RESULT1", "Output 1", true},
+      {epoch_core::IODataType::Any, "RESULT2", "Output 2", true}
     },
     .atLeastOneInputRequired = true,
     .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
@@ -108,10 +108,10 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeSQLQueryM
             "Each output port is a separate data stream for connecting to different downstream nodes.",
     .inputs = {{epoch_core::IODataType::Any, epoch_metadata::ARG, "", true}},
     .outputs = {
-      {epoch_core::IODataType::Any, "output0", "Output 0", true},
-      {epoch_core::IODataType::Any, "output1", "Output 1", true},
-      {epoch_core::IODataType::Any, "output2", "Output 2", true},
-      {epoch_core::IODataType::Any, "output3", "Output 3", true}
+      {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
+      {epoch_core::IODataType::Any, "RESULT1", "Output 1", true},
+      {epoch_core::IODataType::Any, "RESULT2", "Output 2", true},
+      {epoch_core::IODataType::Any, "RESULT3", "Output 3", true}
     },
     .atLeastOneInputRequired = true,
     .tags = {"sql", "query", "transform", "timeseries", "multi-output"},
