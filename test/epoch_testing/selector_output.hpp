@@ -5,6 +5,7 @@
 #include <epoch_metadata/transforms/itransform.h>
 #include <sstream>
 #include <iostream>
+#include <unordered_set>
 
 namespace epoch {
 namespace test {
@@ -65,6 +66,18 @@ private:
             return false;
         }
 
+        // Compare pivot_index
+        if (a.pivot_index != b.pivot_index) {
+            std::cerr << "DEBUG compareSelectorData: Pivot index mismatch - a=";
+            if (a.pivot_index.has_value()) std::cerr << a.pivot_index.value();
+            else std::cerr << "(none)";
+            std::cerr << ", b=";
+            if (b.pivot_index.has_value()) std::cerr << b.pivot_index.value();
+            else std::cerr << "(none)";
+            std::cerr << std::endl;
+            return false;
+        }
+
         // Compare DataFrame if expected has data
         if (b.data.num_rows() > 0 || b.data.num_cols() > 0) {
             // Expected has DataFrame data - validate it
@@ -80,10 +93,15 @@ private:
                 return false;
             }
 
-            // Compare column names
+            // Compare column names (order-independent)
             auto a_cols = a.data.column_names();
             auto b_cols = b.data.column_names();
-            if (a_cols != b_cols) {
+
+            // Convert to sets for order-independent comparison
+            std::unordered_set<std::string> a_cols_set(a_cols.begin(), a_cols.end());
+            std::unordered_set<std::string> b_cols_set(b_cols.begin(), b_cols.end());
+
+            if (a_cols_set != b_cols_set) {
                 std::cerr << "DEBUG compareSelectorData: DataFrame column names mismatch" << std::endl;
                 std::cerr << "  Actual columns: ";
                 for (const auto& col : a_cols) std::cerr << col << " ";

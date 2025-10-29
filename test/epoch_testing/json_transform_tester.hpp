@@ -156,6 +156,7 @@ namespace epoch
                 std::string title;
                 std::string icon;
                 int64_t schema_count = 0;
+                std::optional<int64_t> pivot_index;
                 std::optional<DataFrameExpect> data;
             };
 
@@ -902,6 +903,11 @@ namespace epoch
                                                 selectorData.schema_count = static_cast<int64_t>(selectorJson["schema_count"].get<double>());
                                             }
 
+                                            if (selectorJson.contains("pivot_index") && selectorJson["pivot_index"].holds<double>())
+                                            {
+                                                selectorData.pivot_index = static_cast<int64_t>(selectorJson["pivot_index"].get<double>());
+                                            }
+
                                             // Parse selector DataFrame data (columns)
                                             if (selectorJson.contains("data") && selectorJson["data"].holds<glz::generic::object_t>())
                                             {
@@ -947,6 +953,21 @@ namespace epoch
                                                         }
                                                     }
                                                 }
+
+                                                // Parse timestamp_columns if provided
+                                                if (dataJson.contains("timestamp_columns") && dataJson["timestamp_columns"].holds<glz::generic::array_t>())
+                                                {
+                                                    std::vector<std::string> timestampCols;
+                                                    for (auto &colName : dataJson["timestamp_columns"].get<glz::generic::array_t>())
+                                                    {
+                                                        if (colName.holds<std::string>())
+                                                        {
+                                                            timestampCols.push_back(colName.get<std::string>());
+                                                        }
+                                                    }
+                                                    dfExpect.timestamp_columns = timestampCols;
+                                                }
+
                                                 selectorData.data = dfExpect;
                                             }
 

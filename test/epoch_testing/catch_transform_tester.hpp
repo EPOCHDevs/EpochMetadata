@@ -90,12 +90,14 @@ public:
                 auto value = value_opt.value();
 
                 if (isTimestampCol) {
-                    // Convert to timestamp
+                    // Convert to timestamp (timezone-naive)
                     if (std::holds_alternative<std::string>(value)) {
                         auto str = std::get<std::string>(value);
+                        // Parse as UTC but create timezone-naive timestamp
                         auto dt = epoch_frame::DateTime::from_str(str, "UTC", "%Y-%m-%dT%H:%M:%S");
                         int64_t ts = dt.m_nanoseconds.count();
-                        columnArray.emplace_back(dt);
+                        // Create timezone-naive DateTime from nanoseconds
+                        columnArray.emplace_back(epoch_frame::DateTime(ts));
                     } else if (std::holds_alternative<double>(value)) {
                         // Already in nanoseconds
                         int64_t ts = static_cast<int64_t>(std::get<double>(value));
@@ -103,7 +105,7 @@ public:
                     } else {
                         columnArray.push_back(epoch_frame::Scalar{});
                     }
-                    type = arrow::timestamp(arrow::TimeUnit::NANO, "UTC");
+                    type = arrow::timestamp(arrow::TimeUnit::NANO);
                 } else if (std::holds_alternative<double>(value)) {
                     type = arrow::float64();
                     columnArray.push_back(epoch_frame::Scalar(std::get<double>(value)));

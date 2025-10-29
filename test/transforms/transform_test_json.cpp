@@ -854,7 +854,7 @@ namespace
                                         selectorExpect.title,
                                         std::vector<epoch_metadata::CardColumnSchema>{}, // empty for basic validation
                                         expectedDf,
-                                        std::nullopt,
+                                        selectorExpect.pivot_index,
                                         expectedIcon
                                     );
                                     // Override schema count for comparison
