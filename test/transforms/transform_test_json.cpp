@@ -820,8 +820,14 @@ namespace
                                         std::vector<std::string> timestampColumns;
                                         for (const auto& [colName, colData] : selectorExpect.data.value().columns) {
                                             Column column;  // Column is std::vector<std::optional<Value>>
-                                            // Check if this is a timestamp column (ends with _timestamp or is named timestamp)
-                                            bool isTimestamp = colName.find("timestamp") != std::string::npos;
+                                            // Check explicit timestamp_columns array first, then fallback to name heuristic
+                                            bool isTimestamp = false;
+                                            if (selectorExpect.data.value().timestamp_columns.has_value()) {
+                                                auto& explicitTimestampCols = selectorExpect.data.value().timestamp_columns.value();
+                                                isTimestamp = std::find(explicitTimestampCols.begin(), explicitTimestampCols.end(), colName) != explicitTimestampCols.end();
+                                            } else {
+                                                isTimestamp = colName.find("timestamp") != std::string::npos;
+                                            }
                                             if (isTimestamp) {
                                                 timestampColumns.push_back(colName);
                                             }

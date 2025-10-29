@@ -192,7 +192,7 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
     try {
       scalarValue = epoch_tearsheet::ScalarFactory::create(result);
     } catch (const std::exception& e) {
-      std::cerr << "Error: Failed to convert scalar to protobuf: " << e.what() << std::endl;
+      SPDLOG_DEBUG("Error: Failed to convert scalar to protobuf: {}", e.what());
       // Try to handle integer case manually if ScalarFactory fails
       // For now, just return to avoid crash
       return;

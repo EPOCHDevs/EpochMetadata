@@ -111,12 +111,12 @@ namespace {
       auto performance_array = epoch_frame::factory::array::make_array(std::vector<std::string>{performance});
 
       std::vector<std::shared_ptr<arrow::ChunkedArray>> columnData = {
-        gap_size_array, gap_type_array, gap_filled_array,
-        weekday_array, fill_time_array, performance_array
+        fill_time_array, gap_filled_array, gap_size_array,
+        gap_type_array, performance_array, weekday_array
       };
 
       std::vector<std::string> columnNames = {
-        "gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"
+        "fill_time", "gap_filled", "gap_size", "gap_type", "performance", "weekday"
       };
 
       return epoch_frame::make_dataframe(index, columnData, columnNames);
@@ -135,12 +135,12 @@ namespace {
       auto empty_performance_array = epoch_frame::factory::array::make_array(std::vector<std::string>{});
 
       std::vector<std::shared_ptr<arrow::ChunkedArray>> emptyColumnData = {
-        empty_gap_size_array, empty_gap_type_array, empty_gap_filled_array,
-        empty_weekday_array, empty_fill_time_array, empty_performance_array
+        empty_fill_time_array, empty_gap_filled_array, empty_gap_size_array,
+        empty_gap_type_array, empty_performance_array, empty_weekday_array
       };
 
       return epoch_frame::make_dataframe(emptyIndex, emptyColumnData,
-        std::vector<std::string>{"gap_size", "gap_type", "gap_filled", "weekday", "fill_time", "performance"});
+        std::vector<std::string>{"fill_time", "gap_filled", "gap_size", "gap_type", "performance", "weekday"});
     };
 
     // Group by daily normalized index to get one record per day

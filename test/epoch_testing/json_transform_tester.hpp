@@ -147,6 +147,7 @@ namespace epoch
             {
                 std::string type = "dataframe";
                 std::map<std::string, ColumnData> columns;
+                std::optional<std::vector<std::string>> timestamp_columns;
             };
 
             // Selector data for card navigation
