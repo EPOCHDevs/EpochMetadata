@@ -1,0 +1,263 @@
+{
+  "tests": [
+    {
+      "title": "Bar Gap Report - Intraday Trading Halt Gaps",
+      "input": {
+        "timestamp": [
+          "2024-01-15T10:00:00",
+          "2024-01-15T10:01:00",
+          "2024-01-15T10:02:00",
+          "2024-01-15T10:03:00",
+          "2024-01-15T10:04:00",
+          "2024-01-15T10:05:00",
+          "2024-01-15T14:30:00",
+          "2024-01-15T14:31:00",
+          "2024-01-15T14:32:00"
+        ],
+        "c": [
+          100.0,
+          100.5,
+          100.8,
+          101.2,
+          101.5,
+          101.8,
+          104.5,
+          104.2,
+          103.8
+        ],
+        "gap_filled": [
+          null,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "gap_retrace": [
+          null,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.15,
+          0.26
+        ],
+        "gap_size": [
+          null,
+          0.5,
+          0.3,
+          0.4,
+          0.3,
+          0.29,
+          2.65,
+          -0.29,
+          -0.38
+        ],
+        "psc": [
+          null,
+          100.0,
+          100.5,
+          100.8,
+          101.2,
+          101.5,
+          101.8,
+          104.5,
+          104.2
+        ],
+        "psc_timestamp": [
+          null,
+          "2024-01-15T10:00:00",
+          "2024-01-15T10:01:00",
+          "2024-01-15T10:02:00",
+          "2024-01-15T10:03:00",
+          "2024-01-15T10:04:00",
+          "2024-01-15T10:05:00",
+          "2024-01-15T14:30:00",
+          "2024-01-15T14:31:00"
+        ]
+      },
+      "expect": {
+        "type": "report"
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "bar_gap_report",
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "fill_time_pivot_hour": 13,
+        "histogram_bins": 5,
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp",
+        "psc_timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "Bar Gap Report - FX Pip Gaps",
+      "input": {
+        "timestamp": [
+          "2024-01-15T08:00:00",
+          "2024-01-15T08:01:00",
+          "2024-01-15T08:02:00",
+          "2024-01-15T08:03:00",
+          "2024-01-15T08:04:00",
+          "2024-01-15T08:05:00"
+        ],
+        "c": [
+          1.0500,
+          1.0504,
+          1.0508,
+          1.0512,
+          1.0510,
+          1.0506
+        ],
+        "gap_filled": [
+          null,
+          true,
+          false,
+          true,
+          false,
+          true
+        ],
+        "gap_retrace": [
+          null,
+          1.0,
+          0.0,
+          0.75,
+          0.0,
+          1.0
+        ],
+        "gap_size": [
+          null,
+          0.038,
+          0.038,
+          0.037,
+          -0.019,
+          -0.038
+        ],
+        "psc": [
+          null,
+          1.0500,
+          1.0504,
+          1.0508,
+          1.0512,
+          1.0510
+        ],
+        "psc_timestamp": [
+          null,
+          "2024-01-15T08:00:00",
+          "2024-01-15T08:01:00",
+          "2024-01-15T08:02:00",
+          "2024-01-15T08:03:00",
+          "2024-01-15T08:04:00"
+        ]
+      },
+      "expect": {
+        "type": "report"
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "fx_gap_report",
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "fill_time_pivot_hour": 12,
+        "histogram_bins": 4,
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp",
+        "psc_timestamp"
+      ],
+      "index_column": "timestamp"
+    },
+    {
+      "title": "Bar Gap Report - Mixed Gap Types (Up and Down)",
+      "input": {
+        "timestamp": [
+          "2024-01-15T09:30:00",
+          "2024-01-15T09:31:00",
+          "2024-01-15T09:32:00",
+          "2024-01-15T09:33:00",
+          "2024-01-15T09:34:00",
+          "2024-01-15T09:35:00",
+          "2024-01-15T09:36:00"
+        ],
+        "c": [
+          100.0,
+          102.5,
+          102.8,
+          100.2,
+          100.5,
+          103.0,
+          102.5
+        ],
+        "gap_filled": [
+          null,
+          false,
+          false,
+          true,
+          false,
+          false,
+          true
+        ],
+        "gap_retrace": [
+          null,
+          0.0,
+          0.12,
+          1.0,
+          0.0,
+          0.0,
+          0.20
+        ],
+        "gap_size": [
+          null,
+          2.5,
+          0.29,
+          -2.54,
+          0.30,
+          2.48,
+          -0.49
+        ],
+        "psc": [
+          null,
+          100.0,
+          102.5,
+          102.8,
+          100.2,
+          100.5,
+          103.0
+        ],
+        "psc_timestamp": [
+          null,
+          "2024-01-15T09:30:00",
+          "2024-01-15T09:31:00",
+          "2024-01-15T09:32:00",
+          "2024-01-15T09:33:00",
+          "2024-01-15T09:34:00",
+          "2024-01-15T09:35:00"
+        ]
+      },
+      "expect": {
+        "type": "report"
+      },
+      "options": {
+        "transform_name": "gap_report",
+        "output_id": "mixed_gap_report",
+        "inputs": "{gap_filled: gap_filled, gap_retrace: gap_retrace, gap_size: gap_size, psc: psc, psc_timestamp: psc_timestamp}",
+        "fill_time_pivot_hour": 13,
+        "histogram_bins": 6,
+        "timeframe": "1Min"
+      },
+      "timestamp_columns": [
+        "timestamp",
+        "psc_timestamp"
+      ],
+      "index_column": "timestamp"
+    }
+  ]
+}
