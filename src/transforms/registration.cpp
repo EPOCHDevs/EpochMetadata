@@ -6,6 +6,7 @@
 #include "epoch_metadata/transforms/registry.h"
 #include "src/sql/sql_query_metadata.h"
 #include "src/data_sources/polygon_metadata.h"
+#include "src/data_sources/polygon_indices_metadata.h"
 #include "src/data_sources/fred_metadata.h"
 #include "src/indicators/forward_returns.h"
 
@@ -31,6 +32,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeCalendarEffectMetaData());
   metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());
   metaDataList.emplace_back(epoch_metadata::transform::MakePolygonDataSources());
+  metaDataList.emplace_back(epoch_metadata::transform::MakePolygonIndicesDataSources());
   metaDataList.emplace_back(epoch_metadata::transform::MakeFREDDataSource());
   // Aggregation nodes are loaded from the transforms.yaml file
 

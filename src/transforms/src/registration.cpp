@@ -40,6 +40,7 @@
 // Data Source includes
 #include "data_sources/polygon_data_source.h"
 #include "data_sources/polygon_metadata.h"
+#include "data_sources/polygon_indices_metadata.h"
 #include "data_sources/fred_metadata.h"
 #include "data_sources/fred_transform.h"
 
@@ -276,6 +277,8 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(quotes, PolygonQuotesTransform);
   REGISTER_TRANSFORM(trades, PolygonTradesTransform);
   REGISTER_TRANSFORM(aggregates, PolygonAggregatesTransform);
+  REGISTER_TRANSFORM(common_indices, PolygonCommonIndicesTransform);
+  REGISTER_TRANSFORM(indices, PolygonIndicesTransform);
 
   // Economic Data Source Transforms
   REGISTER_TRANSFORM(economic_indicator, FREDTransform);

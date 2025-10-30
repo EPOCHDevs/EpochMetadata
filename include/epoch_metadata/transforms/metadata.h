@@ -276,6 +276,7 @@ std::vector<TransformsMetaData> MakeCalendarEffectMetaData();
 // Actual implementations are in header-only files under src/transforms/src/data_sources/
 namespace epoch_metadata::transform {
 std::vector<epoch_metadata::transforms::TransformsMetaData> MakePolygonDataSources();
+std::vector<epoch_metadata::transforms::TransformsMetaData> MakePolygonIndicesDataSources();
 std::vector<epoch_metadata::transforms::TransformsMetaData> MakeFREDDataSource();
 } // namespace epoch_metadata::transform
 
