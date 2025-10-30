@@ -58,9 +58,10 @@ sell = crossover(slow, fast)
 trade_signal_executor()(enter_long=buy, enter_short=sell)
 ```
 
-**Research Example:**
+**Research Example (Overnight Gap Analysis):**
 ```python
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+# Detect overnight gaps and analyze fill behavior
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
     gaps.gap_filled, gaps.gap_retrace, gaps.gap_size,
     gaps.psc, gaps.psc_timestamp
@@ -613,7 +614,7 @@ cross_up = crossover(fast_ma, slow_ma)
 src = market_data_source()
 
 # No inputs, options
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 ```
 
 ### 5.3 Transform Outputs
@@ -941,7 +942,7 @@ london_ema = ema(period=20, session="London")(src.c)
 ny_rsi = rsi(period=14, session="NewYork")(src.c)
 
 # Gap detection for Asian session only
-asian_gaps = gap_classify(fill_percent=100, session="AsianKillZone")()
+asian_gaps = session_gap(fill_percent=100, session="AsianKillZone")()
 ```
 
 **Use Cases:**
@@ -1292,33 +1293,49 @@ breakout = src.c > london.high
 
 ### 9.5 Gap Analysis
 
-#### gap_classify()
+EpochFlow provides two gap detection transforms for different use cases:
 
-**Purpose:** Detect and classify overnight price gaps
+#### session_gap()
+
+**Purpose:** Detect and classify **session-to-session price gaps** (overnight gaps)
+
+**What it detects:** Gaps that occur at **day boundaries** (midnight UTC) when comparing the current day's opening price to the prior day's closing price. Only detects gaps when crossing into a new trading day.
 
 **Usage:**
 ```python
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 ```
 
 **Options:**
-- `fill_percent`: Percentage of gap that must be retraced (0-1000, default 100 = 100%)
-- `timeframe`: Resolution for gap detection (e.g., `"1Min"`, `"5Min"`)
+- `fill_percent`: Percentage of gap that must be retraced to consider it "filled" (0-1000, default 100 = 100%)
+- `timeframe`: Resolution for tracking gap fills throughout the day (e.g., `"1Min"`, `"5Min"`, `"15Min"`)
 
 **Outputs:**
-- `gap_filled`: Boolean - True if gap was filled
-- `gap_retrace`: Decimal - Fraction of gap retraced (0.0 to 1.0)
+- `gap_filled`: Boolean - True if gap was filled during the trading session
+- `gap_retrace`: Decimal - Fraction of gap retraced (0.0 to 1.0+)
 - `gap_size`: Decimal - Gap size as percentage (positive = gap up, negative = gap down)
 - `psc`: Decimal - Prior session close price
 - `psc_timestamp`: Timestamp - Prior session close timestamp
 
+**How it works:**
+1. Gap detection happens at market open when a new day begins (day boundary crossing)
+2. Transform compares opening price to prior day's close to identify gap
+3. Throughout the trading session, monitors intraday bars to track if gap fills
+4. `gap_size` is only populated on the first bar of the day; `gap_filled` and `gap_retrace` update throughout the session
+
+**Use cases:**
+- Overnight gap fade strategies
+- Morning gap analysis
+- Multi-day gap tracking
+- Best for stocks/indices with defined overnight periods
+
 **Example:**
 ```python
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
-# Gap fade strategy
-gap_up = gaps.gap_size > 0.5     # Gap up > 0.5%
-gap_down = gaps.gap_size < -0.5  # Gap down > 0.5%
+# Overnight gap fade strategy
+gap_up = gaps.gap_size > 0.5     # Gap up > 0.5% at market open
+gap_down = gaps.gap_size < -0.5  # Gap down > 0.5% at market open
 filled = gaps.gap_filled
 
 # Fade: Sell gap ups that fill, buy gap downs that fill
@@ -1328,11 +1345,118 @@ enter_long = gap_down and filled
 trade_signal_executor()(enter_long=enter_long, enter_short=enter_short)
 ```
 
+---
+
+#### bar_gap()
+
+**Purpose:** Detect **bar-to-bar price gaps** (any consecutive bars, including intraday)
+
+**What it detects:** Gaps between ANY consecutive bars, regardless of day boundaries. Compares current bar's open to previous bar's close. Ideal for intraday gap detection: trading halts, liquidity gaps, FX pip gaps.
+
+**Usage:**
+```python
+gaps = bar_gap(fill_percent=100, min_gap_size=0.04, timeframe="1Min")()
+```
+
+**Options:**
+- `fill_percent`: Percentage of gap that must be retraced to consider it "filled" (0-1000, default 100 = 100%)
+- `min_gap_size`: Minimum gap size (as percentage) to detect (default 0.0)
+  - Example: `0.04` for 4-pip gaps on EUR/USD (0.0004 / 1.0 * 100 ≈ 0.04%)
+  - Example: `2.0` for 2% gaps (stock halts)
+- `timeframe`: Bar resolution (e.g., `"1Min"`, `"5Min"`)
+
+**Outputs:**
+- `gap_filled`: Boolean - True if gap was filled in current bar (immediate fill only)
+- `gap_retrace`: Decimal - Fraction of gap retraced in current bar (0.0 to 1.0+)
+- `gap_size`: Decimal - Gap size as percentage (positive = gap up, negative = gap down)
+- `psc`: Decimal - Previous bar's close price
+- `psc_timestamp`: Timestamp - Previous bar's timestamp
+
+**How it works:**
+1. Every bar: compares current open to previous close (no day boundary check)
+2. If gap exceeds `min_gap_size` threshold, records gap
+3. Checks if gap fills within current bar only (no multi-bar tracking)
+4. Each bar is evaluated independently
+
+**Key differences from session_gap:**
+- ✅ Detects gaps between ANY consecutive bars
+- ✅ No day boundary requirement
+- ✅ Has `min_gap_size` filter to reduce noise
+- ❌ No multi-bar state tracking
+- ❌ Cannot track "when during session" gap filled
+- ❌ Only immediate fills (same bar)
+
+**Use cases:**
+
+**1. FX 4-Pip Intraday Gaps:**
+```python
+# Detect 4-pip gaps on EUR/USD (0.0004 / 1.0 * 100 = 0.04%)
+gaps = bar_gap(min_gap_size=0.04, timeframe="1Min")()
+
+has_gap = gaps.gap_size != None  # Gap detected this bar
+gap_direction = gaps.gap_size > 0  # True = gap up, False = gap down
+
+# Calculate average daily return on gap days
+daily_return = (src.c - src.o) / src.o * 100
+# Use sql_query to aggregate
+```
+
+**2. Stock Trading Halt Gaps:**
+```python
+# Detect large gaps from trading halts (2%+)
+gaps = bar_gap(min_gap_size=2.0, timeframe="5Min")()
+
+# Volume confirmation
+avg_volume = sma(period=20)(src.v)
+high_volume = src.v > (avg_volume * 2.0)
+
+# Likely halt resumption
+halt_gap = (gaps.gap_size != None) and high_volume
+```
+
+**3. Multi-Timeframe Gap Detection:**
+```python
+# Detect gaps on 15-min bars
+gaps_15m = bar_gap(min_gap_size=0.1, timeframe="15Min")()
+
+# Use on 1-min strategy (values repeat across 15-min period)
+trade_on_gap = (gaps_15m.gap_size != None) and (src.c > src.c[1])
+```
+
+**Example: Complete 4-Pip FX Gap Analysis:**
+```python
+src = market_data_source()
+
+# Detect 4-pip gaps
+gaps = bar_gap(min_gap_size=0.04, fill_percent=100, timeframe="1Min")()
+
+# Filter to gap bars only
+has_gap = gaps.gap_size != None
+
+# Calculate returns
+bar_return = (src.c - src.o) / src.o * 100
+
+# Aggregate average return on gap bars
+avg_gap_return = sql_query(
+    sql="SELECT AVG(SLOT0) AS RESULT0, MAX(timestamp) AS timestamp FROM self WHERE SLOT1 = true"
+)(bar_return, has_gap)
+
+# Display result
+numeric_cards_report(
+    title="Avg Return on 4+ Pip Gap Bars (%)",
+    category="Gap Analysis"
+)(avg_gap_return)
+```
+
+
+
 ### 9.6 Reporting
 
 #### gap_report()
 
-**Purpose:** Generate gap analysis report with fill statistics
+**Purpose:** Generate comprehensive **overnight gap analysis report** with fill statistics and visualizations
+
+**What it analyzes:** Overnight gap patterns from session-to-session (day boundaries). Designed to work with outputs from `session_gap` transform. Analyzes gap fill behavior, timing patterns, and statistical distributions.
 
 **Usage:**
 ```python
@@ -1343,19 +1467,38 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 
 **Options:**
 - `fill_time_pivot_hour`: Hour to split fill time analysis (0-23, default 13)
+  - Example: 13 means "before 1:00 PM" vs "after 1:00 PM"
+  - Used to categorize early session fills vs late session fills
 - `histogram_bins`: Number of bins for gap size distribution (3-50, default 10)
+  - Controls granularity of gap size distribution histogram
 
 **Inputs (required, in order):**
-1. `gap_filled`: Gap filled indicator
-2. `gap_retrace`: Gap retrace fraction
-3. `gap_size`: Gap size percentage
-4. `psc`: Prior session close
-5. `psc_timestamp`: Prior session close timestamp
+1. `gap_filled`: Gap filled indicator from session_gap
+2. `gap_retrace`: Gap retrace fraction from session_gap
+3. `gap_size`: Gap size percentage from session_gap
+4. `psc`: Prior session close from session_gap
+5. `psc_timestamp`: Prior session close timestamp from session_gap
+
+**Generated visualizations:**
+- Summary cards: Total gaps, fill rates, up/down gap counts
+- Fill rate tables: Fill statistics by gap direction
+- Day-of-week charts: Gap frequency by weekday
+- Fill time distribution: When during the session gaps fill
+- Gap size histogram: Distribution of gap magnitudes
+- Early vs late fill analysis: Using pivot hour threshold
+
+**Important notes:**
+- Requires intraday bars (1min-1hr) for accurate fill timing analysis
+- Best used with data from stocks/indices with defined trading sessions
+- Report analyzes overnight gaps only (session-to-session gaps)
 
 **Example:**
 ```python
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+# Overnight gap analysis workflow
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
+# Generate comprehensive report
+# Pivot hour at 12 = analyze fills before/after noon
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
     gaps.gap_filled,
     gaps.gap_retrace,
@@ -1461,20 +1604,22 @@ trade_signal_executor()(
 )
 ```
 
-### 10.5 Gap Fade Strategy
+### 10.5 Overnight Gap Fade Strategy
 
-**Strategy:** Fade overnight gaps when they fill.
+**Strategy:** Fade overnight gaps when they fill during the trading session.
 
 ```python
 src = market_data_source()
-gaps = gap_classify(fill_percent=100, timeframe="1Min")()
+# Detect overnight gaps at day boundaries
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
-# Significant gaps (> 0.5%)
-gap_up = gaps.gap_size > 0.5
-gap_down = gaps.gap_size < -0.5
-filled = gaps.gap_filled
+# Significant overnight gaps (> 0.5% at market open)
+gap_up = gaps.gap_size > 0.5      # Gap up at open
+gap_down = gaps.gap_size < -0.5   # Gap down at open
+filled = gaps.gap_filled          # Gap filled during session
 
-# Fade: Sell gap ups, buy gap downs
+# Fade strategy: Sell gap ups that fill, buy gap downs that fill
+# Theory: Gap fill indicates mean reversion
 entry_short = gap_up and filled
 entry_long = gap_down and filled
 

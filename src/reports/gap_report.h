@@ -91,7 +91,7 @@ template <> struct ReportMetadata<GapReport> {
    return {
     .id = kReportId,
     .category = epoch_core::TransformCategory::Reporter,
-    .name = "Gap Analysis Report",
+    .name = "Overnight Gap Analysis Report",
     .options = {{.id = "fill_time_pivot_hour",
           .name = "Fill Time Pivot Hour",
           .type = epoch_core::MetaDataOptionType::Integer,
@@ -109,24 +109,30 @@ template <> struct ReportMetadata<GapReport> {
           .max = 50,
           .desc = "Number of bins to use for the gap size distribution histogram. Controls the granularity of the size distribution visualization."}},
     .isCrossSectional = false,
-    .desc = "Comprehensive gap analysis report that examines price gaps "
-            "between trading sessions. Analyzes opening price gaps relative "
-            "to prior session close, tracking gap direction (up/down), "
-            "size distribution, fill rates, and performance patterns. "
-            "Generates visualizations including fill rate charts, streak "
-            "analysis, time-of-day distributions, and trend analysis to "
-            "identify gap trading opportunities and patterns across different "
-            "market conditions and timeframes.",
+    .desc = "Comprehensive overnight gap analysis report that examines price gaps "
+            "between trading sessions (day boundaries). Analyzes gaps that occur when "
+            "the opening price differs from the prior session's closing price. "
+            "Designed to work with outputs from session_gap transform. "
+            "Tracks gap direction (up/down), size distribution, fill rates during the "
+            "trading session, and intraday fill timing patterns. "
+            "Generates visualizations including fill rate charts by time of day, "
+            "day-of-week patterns, gap size distributions, and fill time analysis "
+            "(early vs late session fills based on pivot hour). "
+            "Best used with intraday data (1min-1hr bars) to capture precise fill "
+            "timing throughout the session. Identifies gap trading opportunities "
+            "and overnight gap behavior patterns across different market conditions.",
     .inputs = {{epoch_core::IODataType::Boolean, "gap_filled", "Gap Filled"},
                {epoch_core::IODataType::Decimal, "gap_retrace", "Gap Retrace"},
                {epoch_core::IODataType::Decimal, "gap_size", "Gap Size"},
                {epoch_core::IODataType::Decimal, "psc", "Prior Session Close"},
                {epoch_core::IODataType::Timestamp, "psc_timestamp", "PSC Timestamp"}},
     .outputs = {},
-    .tags = {"gap_classify"},
+    .tags = {"session_gap", "overnight", "session-gap"},
  .requiresTimeFrame = true,
     .requiredDataSources =
         {epoch_metadata::EpochStratifyXConstants::instance().CLOSE()},
+    // intradayOnly=true because the report needs intraday bars to analyze
+    // fill timing patterns throughout the trading session (early vs late fills)
     .intradayOnly=true,
 .allowNullInputs=true};
   }

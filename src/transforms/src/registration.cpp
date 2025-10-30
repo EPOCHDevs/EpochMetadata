@@ -70,7 +70,8 @@
 
 #include "indicators/bband_variant.h"
 #include "indicators/forward_returns.h"
-#include "indicators/gap_classify.h"
+#include "indicators/session_gap.h"
+#include "indicators/bar_gap.h"
 #include "indicators/lag.h"
 #include "indicators/moving_average.h"
 #include "operators/equality.h"
@@ -168,7 +169,10 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(bband_percent, BollingerBandsPercent);
   REGISTER_TRANSFORM(bband_width, BollingerBandsWidth);
 
-  REGISTER_TRANSFORM(gap_classify, GapClassify);
+  // Gap detection transforms
+  REGISTER_TRANSFORM(session_gap, SessionGap);
+  REGISTER_TRANSFORM(bar_gap, BarGap);
+
   REGISTER_TRANSFORM(forward_returns, ForwardReturns);
   REGISTER_TRANSFORM(lag, Lag);
   REGISTER_TRANSFORM(ma, MovingAverage);

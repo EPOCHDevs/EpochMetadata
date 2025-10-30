@@ -1307,14 +1307,14 @@ hmm:
 
 # ======== GAP CLASSIFICATION ======== #
 
-gap_classify:
-  name: Gap Classify
-  desc: "Detects overnight gaps between previous close and current open at day boundaries, flags up/down gaps, whether they were filled intraday, and the fraction of fill (0-1)."
-  usageContext: "Track gap FILL BEHAVIOR for gap fade/fill strategies. gap_filled indicates if gap closed completely, gap_retrace shows partial fill percentage, gap_size shows gap magnitude. Use for strategies that fade large gaps expecting mean reversion, or avoid entering after gaps that don't fill (showing strong momentum)."
-  strategyTypes: ["gap-fade", "mean-reversion", "gap-analysis"]
-  relatedTransforms: ["price_diff_vol", "return_vol"]
+session_gap:
+  name: Overnight Gap Classify
+  desc: "Detects OVERNIGHT price gaps that occur between trading sessions by comparing the current day's opening price to the prior day's closing price. Only detects gaps at day boundaries (midnight UTC) - NOT intraday bar-to-bar gaps. Tracks whether gaps are filled during the trading session and calculates the fill percentage (0-1). Gap detection happens at market open; fill tracking continues throughout the day on intraday bars."
+  usageContext: "Analyzes overnight gap behavior for gap-fade and mean-reversion strategies. Gap is detected when a new trading day begins (day boundary crossing), then the transform monitors subsequent intraday bars to determine if price retraces back to prior session close. Use gap_filled for binary fill signals, gap_retrace for partial fill analysis (0.0-1.0+), gap_size for gap magnitude as percentage (positive=gap up, negative=gap down). Works best on stocks/indices with defined overnight periods. NOT suitable for detecting mid-session gaps from trading halts or liquidity events."
+  strategyTypes: ["gap-fade", "mean-reversion", "gap-analysis", "session-open"]
+  relatedTransforms: ["price_diff_vol", "return_vol", "sessions"]
   assetRequirements: ["single-asset"]
-  limitations: "Requires intraday bars to detect fills. Best on stocks/indices with regular trading hours. 24/7 markets (crypto/forex) have less meaningful 'gaps' due to continuous trading. Gap size output provides both size and fill behavior in one transform."
+  limitations: "CRITICAL: Only detects gaps at day boundaries (00:00 UTC) when comparing current open to prior day's close - does NOT detect intraday bar-to-bar gaps. Requires intraday bars (1min-1hr timeframe) for fill timing analysis throughout the trading session. Gap detection itself works on any timeframe, but fill tracking needs intraday granularity. Best on stocks/indices with regular trading hours and clear overnight periods. 24/7 markets (crypto/forex) have less meaningful overnight gaps due to continuous trading. For true intraday gap detection (halts, liquidity gaps), a different transform would be needed."
   options:
    - id: fill_percent
      name: Fill Percentage
@@ -1332,7 +1332,45 @@ gap_classify:
     - { type: Decimal, id: "psc", name: "Prior Session Close" }
     - { type: Integer, id: "psc_timestamp", name: "PSC Timestamp" }
 
-  tags: ["indicator", "gap", "overnight", "fill", "price-action", "gap-fade", "mean-reversion"]
+  tags: ["indicator", "gap", "overnight", "session-gap", "fill", "price-action", "gap-fade", "mean-reversion", "day-boundary"]
+  category: PriceAction
+  plotKind: gap
+  requiredDataSources: ["o", "h", "l", "c"]
+
+bar_gap:
+  name: Bar Gap Classify
+  desc: "Detects price gaps between ANY consecutive bars (no day boundary requirement). Compares current bar's open to previous bar's close to identify bar-to-bar price jumps. Suitable for intraday gap detection: trading halts, liquidity gaps, FX pip gaps, or any timeframe gaps. Each bar is evaluated independently with immediate fill detection only (no multi-bar state tracking). Use min_gap_size option to filter noise and focus on significant gaps."
+  usageContext: "Detect intraday gaps from trading halts, news events, liquidity jumps, or small pip-based gaps in FX markets. Unlike session_gap which only detects overnight gaps, bar_gap detects gaps between ANY consecutive bars regardless of day boundaries. Ideal for: (1) FX 4-pip gap analysis (set min_gap_size=0.04%), (2) Stock halt gap detection (set min_gap_size=2.0%), (3) Multi-timeframe gap analysis on higher resolution bars. Gap size output shows percentage change; use gap_filled for immediate fill detection within the same bar."
+  strategyTypes: ["intraday-gap", "halt-trading", "pip-gap", "bar-to-bar", "liquidity-gap"]
+  relatedTransforms: ["session_gap", "price_diff_vol", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "No multi-bar state tracking - each bar evaluated independently. Cannot track 'when during session' a gap filled (only immediate fills). No cumulative fill tracking across multiple bars. Works on any timeframe but most useful for intraday bars. For overnight gap analysis with session-wide fill tracking, use session_gap instead."
+  options:
+   - id: fill_percent
+     name: Fill Percentage
+     type: Integer
+     default: 100
+     min: 0
+     max: 1000
+     step_size: 1
+     desc: "Minimum percentage of gap that must be retraced to consider it 'filled'"
+     tuningGuidance: "100% = full fill required (conservative). 50% = half-fill sufficient (more signals). Use lower values (50-75%) for partial fade strategies, 100% for pure gap fill plays."
+   - id: min_gap_size
+     name: Minimum Gap Size
+     type: Decimal
+     default: 0.0
+     min: 0.0
+     max: 100.0
+     desc: "Minimum gap size (as percentage) required to detect a gap. Use to filter noise."
+     tuningGuidance: "0.0 = detect all gaps (noisy). For FX 4-pip gaps on EUR/USD: 0.04% (0.0004/1.0*100). For stock halts: 2-5%. Higher values reduce false positives but may miss smaller gaps."
+  outputs:
+    - { type: Boolean, id: "gap_filled", name: "Gap Filled" }
+    - { type: Decimal, id: "gap_retrace", name: "Gap Retrace Fraction" }
+    - { type: Decimal, id: "gap_size", name: "Gap Size %" }
+    - { type: Decimal, id: "psc", name: "Previous Close" }
+    - { type: Integer, id: "psc_timestamp", name: "Previous Timestamp" }
+
+  tags: ["indicator", "gap", "intraday", "bar-to-bar", "consecutive", "halt", "pip-gap", "liquidity-gap", "price-action"]
   category: PriceAction
   plotKind: gap
   requiredDataSources: ["o", "h", "l", "c"]
