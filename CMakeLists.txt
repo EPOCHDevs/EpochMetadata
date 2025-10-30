@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27 FATAL_ERROR) # 3.26 For now until XGBOOST Removes FindCUDA
+cmake_minimum_required(VERSION 3.26 FATAL_ERROR) # 3.26 For now until XGBOOST Removes FindCUDA
 
 # Add option for shared vs static libraries (default to shared for development)
 set(GIT_TOKEN "" CACHE STRING "Default GIT TOKEN")
