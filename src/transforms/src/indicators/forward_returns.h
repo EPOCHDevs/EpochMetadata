@@ -47,7 +47,7 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakeForwardRe
               .name = "Return Type",
               .type = epoch_core::MetaDataOptionType::Select,
               .defaultValue = MetaDataOptionDefinition(std::string("simple")),
-              .selectOption = {{"simple", "Simple"}, {"log", "Log"}},
+              .selectOption = {{"Simple", "simple"}, {"Log", "log"}},
               .desc = "Type of return calculation",
               .tuningGuidance = "Simple returns: (future_price - price) / price. Log returns: log(future_price / price). Log returns are more symmetric and better for ML models. Simple returns are more intuitive for interpretation."
           }

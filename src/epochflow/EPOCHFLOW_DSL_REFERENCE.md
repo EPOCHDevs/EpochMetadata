@@ -105,7 +105,31 @@ if price > 100:
 
 # ✅ SOLUTION: Use ternary expressions
 signal = True if price > 100 else False
+# Better: Keep as boolean comparison
+signal = price > 100
 ```
+
+**🤖 CRITICAL FOR AI AGENTS:**
+When you need conditional logic, **ALWAYS use ternary expressions**, NOT `sql_query` transforms!
+
+```python
+# ❌ WRONG - Over-engineered (AI agents often do this by mistake!)
+result = sql_query(
+    sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END as signal FROM input"
+)(src)
+
+# ✅ CORRECT - Simple ternary
+signal = 1 if src.c > 100 else 0
+
+# ✅ EVEN BETTER - Direct boolean
+signal = src.c > 100
+```
+
+**When to use each:**
+- **Ternary**: Simple value selection based on condition (`x if cond else y`)
+- **Logical operators**: Boolean combinations (`and`, `or`, `not`)
+- **sql_query**: Only for complex SQL operations that cannot be expressed otherwise
+- **Other transforms**: Actual calculations (EMA, RSI, etc.)
 
 #### Loops (NOT ALLOWED)
 ```python
@@ -439,23 +463,71 @@ not_bearish = not is_bearish
 
 ### 4.4 Ternary Conditional
 
+**⚠️ IMPORTANT FOR AI AGENTS:** Use ternary expressions for simple conditional logic. Do NOT create `sql_query` transforms or other complex transforms for basic if-else logic!
+
 ```python
 # Syntax
 result = value_if_true if condition else value_if_false
 
-# Examples
+# Basic Examples
 direction = "UP" if bullish else "DOWN"
 size = 100 if high_confidence else 50
 label = "BUY" if oversold else ("SELL" if overbought else "HOLD")
 
-# Can be nested
+# Numeric Conditionals
+adjusted_price = src.c * 1.1 if is_adjusted else src.c
+capped_value = 100 if rsi_val > 100 else rsi_val
+min_volume = src.v if src.v > 1000 else 1000
+
+# Boolean Result (prefer direct comparison when possible)
+is_valid = True if src.c > 0 else False  # Works but verbose
+is_valid = src.c > 0  # Better - direct comparison
+
+# Can be nested for multi-level conditions
 level = (
     "STRONG_BUY" if rsi_val < 20 else (
     "BUY" if rsi_val < 30 else (
     "NEUTRAL" if rsi_val < 70 else (
     "SELL" if rsi_val < 80 else "STRONG_SELL"
     ))))
+
+# Complex nested example with multiple conditions
+signal_strength = (
+    3 if (volume_spike and price_breakout and trend_aligned) else (
+    2 if (volume_spike and price_breakout) else (
+    1 if volume_spike else 0
+    )))
 ```
+
+**❌ ANTI-PATTERN - Don't Do This:**
+```python
+# ❌ WRONG: Don't use sql_query for simple if-else
+result = sql_query(
+    sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END as signal FROM input"
+)(src)
+
+# ✅ CORRECT: Use ternary
+signal = 1 if src.c > 100 else 0
+# Even better - keep as boolean:
+signal = src.c > 100
+```
+
+**❌ ANTI-PATTERN - Don't Create Transforms for Simple Logic:**
+```python
+# ❌ WRONG: Over-engineering
+threshold_checker = sql_query(
+    sql="SELECT CASE WHEN value > 50 THEN 'HIGH' ELSE 'LOW' END FROM input"
+)(some_value)
+
+# ✅ CORRECT: Simple ternary
+label = "HIGH" if some_value > 50 else "LOW"
+```
+
+**When to Use Ternary vs Other Approaches:**
+- **Use Ternary**: Simple conditional value selection, numeric adjustments, label assignment
+- **Use Logical Operators**: Combining multiple boolean conditions (`and`, `or`, `not`)
+- **Use Transforms**: Complex calculations that ternary cannot express (moving averages, indicators, etc.)
+- **DON'T Use sql_query**: For simple conditionals that ternary can handle
 
 ### 4.5 Lag Operator (Time Series Indexing)
 
@@ -1702,6 +1774,7 @@ Before generating code, verify:
 
 - [ ] **No reassignment**: Each variable assigned exactly once
 - [ ] **No control flow**: No `if`/`for`/`while`/`def`/`class`
+- [ ] **Use ternary for simple conditionals**: NOT `sql_query` for basic if-else logic
 - [ ] **No chained comparisons**: Break `a < b < c` into separate checks
 - [ ] **Lag indices**: Non-zero integers only (`[1]`, `[5]`, `[-1]`, NOT `[0]`, `[1.5]`)
 - [ ] **Multi-output unpacking**: Count matches (`lower, middle, upper = bbands(...)`)
@@ -1718,6 +1791,7 @@ Before generating code, verify:
 |---------|-------|-----|
 | `price = src.c; price = src.o` | Reassignment | Use `close_price`, `open_price` |
 | `if cond: x = 1` | Control flow | Use `x = 1 if cond else 0` |
+| `sql_query(sql="CASE WHEN...")` | Over-engineering | Use ternary: `x = 1 if cond else 0` |
 | `a < b < c` | Chained comparison | `(a < b) and (b < c)` |
 | `src.c[0]` | Zero lag | `src.c` |
 | `src.c[1.5]` | Float lag | `src.c[2]` |
@@ -1744,9 +1818,30 @@ momentum = src.c > src.c[10]
 entry = trend and volume and momentum
 ```
 
-#### Ternary Selector
+#### Ternary Expressions (PREFERRED over sql_query)
 ```python
+# Simple conditional value selection
 label = "BUY" if oversold else ("SELL" if overbought else "HOLD")
+
+# Numeric conditionals
+adjusted = src.c * 1.1 if needs_adjustment else src.c
+capped = 100 if value > 100 else (0 if value < 0 else value)
+
+# Signal strength (prefer ternary over sql_query!)
+strength = 3 if strong_signal else (2 if medium_signal else 1)
+
+# Volume threshold with fallback
+min_vol = src.v if src.v > 1000 else 1000
+
+# Price adjustment based on condition
+entry_price = src.c * 0.99 if buy_limit else src.c
+
+# ❌ DON'T DO THIS:
+# result = sql_query(sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END")(src)
+# ✅ DO THIS INSTEAD:
+signal = 1 if src.c > 100 else 0
+# Or even better (keep as boolean):
+signal = src.c > 100
 ```
 
 #### Multi-Output Unpacking (Bollinger Bands)

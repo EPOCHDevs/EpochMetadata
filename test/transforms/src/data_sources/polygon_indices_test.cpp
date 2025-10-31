@@ -40,13 +40,32 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
   auto& commonIndices = metadataList[0];
 
   SECTION("Has index SelectOption parameter") {
-    REQUIRE(commonIndices.options.size() == 1);
+    REQUIRE(commonIndices.options.size() == 2);
     auto& indexOption = commonIndices.options[0];
 
     REQUIRE(indexOption.id == "index");
     REQUIRE(indexOption.name == "Index");
     REQUIRE(indexOption.type == epoch_core::MetaDataOptionType::Select);
     REQUIRE(indexOption.desc == "Select the market index");
+  }
+
+  SECTION("Has data_type SelectOption parameter") {
+    auto& dataTypeOption = commonIndices.options[1];
+
+    REQUIRE(dataTypeOption.id == "data_type");
+    REQUIRE(dataTypeOption.name == "Data Type");
+    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(dataTypeOption.selectOption.size() == 2);
+
+    // Verify EOD and Intraday options (using value field which holds the enum value)
+    auto hasOption = [&](const std::string& optionValue) {
+      return std::any_of(dataTypeOption.selectOption.begin(),
+                         dataTypeOption.selectOption.end(),
+                         [&optionValue](const auto& option) { return option.value == optionValue; });
+    };
+
+    REQUIRE(hasOption("eod"));
+    REQUIRE(hasOption("intraday"));
   }
 
   SECTION("SelectOption contains common indices") {
@@ -59,9 +78,9 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
     bool hasVIX = false;
 
     for (const auto& opt : indexOption.selectOption) {
-      if (opt.name == "SPX" && opt.value == "S&P 500") hasSPX = true;
-      if (opt.name == "DJI" && opt.value == "Dow Jones Industrial Average") hasDJI = true;
-      if (opt.name == "VIX" && opt.value == "CBOE Volatility Index") hasVIX = true;
+      if (opt.name == "S&P 500" && opt.value == "SPX") hasSPX = true;
+      if (opt.name == "Dow Jones Industrial Average" && opt.value == "DJI") hasDJI = true;
+      if (opt.name == "CBOE Volatility Index" && opt.value == "VIX") hasVIX = true;
     }
 
     REQUIRE(hasSPX);
@@ -70,26 +89,25 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
   }
 
   SECTION("Has correct output fields") {
-    REQUIRE(commonIndices.outputs.size() == 8);
+    REQUIRE(commonIndices.outputs.size() == 4);
 
-    // Verify required outputs
-    REQUIRE(commonIndices.outputs[0].id == "open");
+    // Verify OHLC outputs
+    REQUIRE(commonIndices.outputs[0].id == "o");
+    REQUIRE(commonIndices.outputs[0].name == "Open");
     REQUIRE(commonIndices.outputs[0].type == epoch_core::IODataType::Decimal);
     REQUIRE(commonIndices.outputs[0].allowMultipleConnections == true);
 
-    REQUIRE(commonIndices.outputs[1].id == "high");
-    REQUIRE(commonIndices.outputs[2].id == "low");
-    REQUIRE(commonIndices.outputs[3].id == "close");
+    REQUIRE(commonIndices.outputs[1].id == "h");
+    REQUIRE(commonIndices.outputs[1].name == "High");
+    REQUIRE(commonIndices.outputs[1].type == epoch_core::IODataType::Decimal);
 
-    REQUIRE(commonIndices.outputs[4].id == "volume");
-    REQUIRE(commonIndices.outputs[4].allowMultipleConnections == false);
+    REQUIRE(commonIndices.outputs[2].id == "l");
+    REQUIRE(commonIndices.outputs[2].name == "Low");
+    REQUIRE(commonIndices.outputs[2].type == epoch_core::IODataType::Decimal);
 
-    REQUIRE(commonIndices.outputs[5].id == "vw");
-    REQUIRE(commonIndices.outputs[6].id == "n");
-    REQUIRE(commonIndices.outputs[6].type == epoch_core::IODataType::Integer);
-
-    REQUIRE(commonIndices.outputs[7].id == "timestamp");
-    REQUIRE(commonIndices.outputs[7].type == epoch_core::IODataType::Integer);
+    REQUIRE(commonIndices.outputs[3].id == "c");
+    REQUIRE(commonIndices.outputs[3].name == "Close");
+    REQUIRE(commonIndices.outputs[3].type == epoch_core::IODataType::Decimal);
   }
 
   SECTION("Has no input fields") {
@@ -107,9 +125,9 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
     REQUIRE(!commonIndices.usageContext.empty());
     REQUIRE(!commonIndices.limitations.empty());
 
-    // Verify API endpoint mentioned in description
-    REQUIRE(commonIndices.desc.find("Polygon.io") != std::string::npos);
-    REQUIRE(commonIndices.desc.find("/v2/aggs/ticker/{ticker}/range") != std::string::npos);
+    // Verify description is domain-focused (not implementation details)
+    REQUIRE(commonIndices.desc.find("Historical price data") != std::string::npos);
+    REQUIRE(commonIndices.desc.find("open, high, low, and close") != std::string::npos);
   }
 }
 
@@ -118,7 +136,7 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
   auto& indices = metadataList[1];
 
   SECTION("Has ticker String parameter") {
-    REQUIRE(indices.options.size() == 1);
+    REQUIRE(indices.options.size() == 2);
     auto& tickerOption = indices.options[0];
 
     REQUIRE(tickerOption.id == "ticker");
@@ -127,16 +145,45 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(tickerOption.desc == "Index ticker symbol (e.g., SPX, DJI, NDX)");
   }
 
+  SECTION("Has data_type SelectOption parameter") {
+    auto& dataTypeOption = indices.options[1];
+
+    REQUIRE(dataTypeOption.id == "data_type");
+    REQUIRE(dataTypeOption.name == "Data Type");
+    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(dataTypeOption.selectOption.size() == 2);
+
+    // Verify EOD and Intraday options (using value field which holds the enum value)
+    auto hasOption = [&](const std::string& optionValue) {
+      return std::any_of(dataTypeOption.selectOption.begin(),
+                         dataTypeOption.selectOption.end(),
+                         [&optionValue](const auto& option) { return option.value == optionValue; });
+    };
+
+    REQUIRE(hasOption("eod"));
+    REQUIRE(hasOption("intraday"));
+  }
+
   SECTION("Has same output fields as common_indices") {
-    REQUIRE(indices.outputs.size() == 8);
-    REQUIRE(indices.outputs[0].id == "open");
-    REQUIRE(indices.outputs[1].id == "high");
-    REQUIRE(indices.outputs[2].id == "low");
-    REQUIRE(indices.outputs[3].id == "close");
-    REQUIRE(indices.outputs[4].id == "volume");
-    REQUIRE(indices.outputs[5].id == "vw");
-    REQUIRE(indices.outputs[6].id == "n");
-    REQUIRE(indices.outputs[7].id == "timestamp");
+    REQUIRE(indices.outputs.size() == 4);
+
+    // Verify OHLC outputs
+    REQUIRE(indices.outputs[0].id == "o");
+    REQUIRE(indices.outputs[0].name == "Open");
+    REQUIRE(indices.outputs[0].type == epoch_core::IODataType::Decimal);
+    REQUIRE(indices.outputs[0].allowMultipleConnections == true);
+
+    REQUIRE(indices.outputs[1].id == "h");
+    REQUIRE(indices.outputs[1].name == "High");
+    REQUIRE(indices.outputs[1].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(indices.outputs[2].id == "l");
+    REQUIRE(indices.outputs[2].name == "Low");
+    REQUIRE(indices.outputs[2].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(indices.outputs[3].id == "c");
+    REQUIRE(indices.outputs[3].name == "Close");
+    REQUIRE(indices.outputs[3].type == epoch_core::IODataType::Decimal);
   }
 
   SECTION("Has no input fields") {
@@ -153,7 +200,8 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(!indices.usageContext.empty());
     REQUIRE(!indices.limitations.empty());
 
-    REQUIRE(indices.desc.find("dynamic ticker symbol") != std::string::npos);
-    REQUIRE(indices.limitations.find("Polygon.io subscription") != std::string::npos);
+    // Verify description is domain-focused
+    REQUIRE(indices.desc.find("Historical price data") != std::string::npos);
+    REQUIRE(indices.desc.find("ticker symbol") != std::string::npos);
   }
 }

@@ -63,10 +63,10 @@ TEST_CASE("FRED Metadata is correctly registered", "[fred][metadata]") {
       // Verify some key economic indicators are present
       auto& selectOptions = categoryOption.selectOption;
 
-      // selectOption is a vector of SelectOption structs (name, value)
-      auto hasOption = [&selectOptions](const std::string& optionName) {
+      // selectOption is a vector of SelectOption structs (name=display, value=enum)
+      auto hasOption = [&selectOptions](const std::string& optionValue) {
         return std::any_of(selectOptions.begin(), selectOptions.end(),
-                          [&optionName](const auto& option) { return option.name == optionName; });
+                          [&optionValue](const auto& option) { return option.value == optionValue; });
       };
 
       REQUIRE(hasOption("CPI"));

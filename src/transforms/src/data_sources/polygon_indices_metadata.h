@@ -23,34 +23,40 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakePolygonIn
                   .defaultValue = MetaDataOptionDefinition(std::string("SPX")),
                   .selectOption =
                       {
-                          {"SPX", "S&P 500"},
-                          {"DJI", "Dow Jones Industrial Average"},
-                          {"NDX", "NASDAQ 100"},
-                          {"RUT", "Russell 2000"},
-                          {"VIX", "CBOE Volatility Index"},
-                          {"NYA", "NYSE Composite"},
-                          {"XAU", "Philadelphia Gold and Silver Index"},
-                          {"RUI", "Russell 1000"},
-                          {"RUA", "Russell 3000"},
-                          {"FTSE", "FTSE 100"},
+                          {"S&P 500", "SPX"},
+                          {"Dow Jones Industrial Average", "DJI"},
+                          {"NASDAQ 100", "NDX"},
+                          {"Russell 2000", "RUT"},
+                          {"CBOE Volatility Index", "VIX"},
+                          {"NYSE Composite", "NYA"},
+                          {"Philadelphia Gold and Silver Index", "XAU"},
+                          {"Russell 1000", "RUI"},
+                          {"Russell 3000", "RUA"},
+                          {"FTSE 100", "FTSE"},
                       },
                   .desc = "Select the market index"},
+              MetaDataOption{
+                  .id = "data_type",
+                  .name = "Data Type",
+                  .type = epoch_core::MetaDataOptionType::Select,
+                  .defaultValue = MetaDataOptionDefinition(std::string("eod")),
+                  .selectOption =
+                      {
+                          {"End of Day (Daily)", "eod"},
+                          {"Intraday (1-minute bars)", "intraday"},
+                      },
+                  .desc = "Select whether to fetch end-of-day (daily) or intraday (1-minute) data"},
           },
       .desc =
-          "Load aggregate bars (OHLC) for popular market indices from Polygon.io. "
-          "External loader extracts date range from input DataFrame and fetches data via "
-          "/v2/aggs/ticker/{ticker}/range endpoint.",
+          "Historical price data for major market indices including S&P 500, Dow Jones, NASDAQ, Russell indices, and VIX. "
+          "Provides open, high, low, and close prices for the selected index.",
       .inputs = {},
       .outputs =
           {
-              {epoch_core::IODataType::Decimal, "open", "Open", true},
-              {epoch_core::IODataType::Decimal, "high", "High", true},
-              {epoch_core::IODataType::Decimal, "low", "Low", true},
-              {epoch_core::IODataType::Decimal, "close", "Close", true},
-              {epoch_core::IODataType::Decimal, "volume", "Volume", false},
-              {epoch_core::IODataType::Decimal, "vw", "Volume Weighted Average Price", false},
-              {epoch_core::IODataType::Integer, "n", "Number of Transactions", false},
-              {epoch_core::IODataType::Integer, "timestamp", "Timestamp", true},
+              {epoch_core::IODataType::Decimal, "o", "Open", true},
+              {epoch_core::IODataType::Decimal, "h", "High", true},
+              {epoch_core::IODataType::Decimal, "l", "Low", true},
+              {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
       .requiresTimeFrame = false,
       .requiredDataSources = {"c"},
@@ -78,22 +84,28 @@ inline std::vector<epoch_metadata::transforms::TransformsMetaData> MakePolygonIn
                   .type = epoch_core::MetaDataOptionType::String,
                   .defaultValue = MetaDataOptionDefinition(std::string("SPX")),
                   .desc = "Index ticker symbol (e.g., SPX, DJI, NDX)"},
+              MetaDataOption{
+                  .id = "data_type",
+                  .name = "Data Type",
+                  .type = epoch_core::MetaDataOptionType::Select,
+                  .defaultValue = MetaDataOptionDefinition(std::string("eod")),
+                  .selectOption =
+                      {
+                          {"End of Day (Daily)", "eod"},
+                          {"Intraday (1-minute bars)", "intraday"},
+                      },
+                  .desc = "Select whether to fetch end-of-day (daily) or intraday (1-minute) data"},
           },
       .desc =
-          "Load aggregate bars (OHLC) for any market index from Polygon.io using a dynamic ticker symbol. "
-          "External loader extracts date range from input DataFrame and fetches data via "
-          "/v2/aggs/ticker/{ticker}/range endpoint.",
+          "Historical price data for any market index by ticker symbol. "
+          "Provides open, high, low, and close prices for the specified index ticker.",
       .inputs = {},
       .outputs =
           {
-              {epoch_core::IODataType::Decimal, "open", "Open", true},
-              {epoch_core::IODataType::Decimal, "high", "High", true},
-              {epoch_core::IODataType::Decimal, "low", "Low", true},
-              {epoch_core::IODataType::Decimal, "close", "Close", true},
-              {epoch_core::IODataType::Decimal, "volume", "Volume", false},
-              {epoch_core::IODataType::Decimal, "vw", "Volume Weighted Average Price", false},
-              {epoch_core::IODataType::Integer, "n", "Number of Transactions", false},
-              {epoch_core::IODataType::Integer, "timestamp", "Timestamp", true},
+              {epoch_core::IODataType::Decimal, "o", "Open", true},
+              {epoch_core::IODataType::Decimal, "h", "High", true},
+              {epoch_core::IODataType::Decimal, "l", "Low", true},
+              {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
       .requiresTimeFrame = false,
       .requiredDataSources = {"c"},

@@ -68,6 +68,8 @@ constexpr auto FINANCIAL_RATIOS = "financial_ratios";
 constexpr auto QUOTES = "quotes";
 constexpr auto TRADES = "trades";
 constexpr auto AGGREGATES = "aggregates";
+constexpr auto COMMON_INDICES = "common_indices";
+constexpr auto INDICES = "indices";
 
 // Set of all Polygon transform IDs for easy contains checks
 inline const std::unordered_set<std::string> ALL_POLYGON_TRANSFORMS = {
@@ -77,7 +79,9 @@ inline const std::unordered_set<std::string> ALL_POLYGON_TRANSFORMS = {
     FINANCIAL_RATIOS,
     QUOTES,
     TRADES,
-    AGGREGATES
+    AGGREGATES,
+    COMMON_INDICES,
+    INDICES
 };
 } // namespace polygon
 

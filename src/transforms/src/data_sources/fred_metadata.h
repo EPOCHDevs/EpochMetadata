@@ -28,38 +28,38 @@ MakeFREDDataSource() {
                       .selectOption =
                           {
                               // Inflation Indicators
-                              {"CPI", "Consumer Price Index (CPI-U)"},
-                              {"CoreCPI", "Core CPI (ex Food & Energy)"},
-                              {"PCE",
-                               "Personal Consumption Expenditures Price Index"},
-                              {"CorePCE", "Core PCE (Fed's Preferred Measure)"},
+                              {"Consumer Price Index (CPI-U)", "CPI"},
+                              {"Core CPI (ex Food & Energy)", "CoreCPI"},
+                              {"Personal Consumption Expenditures Price Index",
+                               "PCE"},
+                              {"Core PCE (Fed's Preferred Measure)", "CorePCE"},
 
                               // Interest Rates & Monetary Policy
-                              {"FedFunds", "Federal Funds Effective Rate"},
-                              {"Treasury3M", "3-Month Treasury Bill Rate"},
-                              {"Treasury2Y", "2-Year Treasury Rate"},
-                              {"Treasury5Y", "5-Year Treasury Rate"},
-                              {"Treasury10Y", "10-Year Treasury Rate"},
-                              {"Treasury30Y", "30-Year Treasury Rate"},
+                              {"Federal Funds Effective Rate", "FedFunds"},
+                              {"3-Month Treasury Bill Rate", "Treasury3M"},
+                              {"2-Year Treasury Rate", "Treasury2Y"},
+                              {"5-Year Treasury Rate", "Treasury5Y"},
+                              {"10-Year Treasury Rate", "Treasury10Y"},
+                              {"30-Year Treasury Rate", "Treasury30Y"},
 
                               // Employment & Labor Market
-                              {"Unemployment", "Unemployment Rate"},
-                              {"NonfarmPayrolls", "Nonfarm Payrolls"},
-                              {"InitialClaims", "Initial Jobless Claims (Weekly)"},
+                              {"Unemployment Rate", "Unemployment"},
+                              {"Nonfarm Payrolls", "NonfarmPayrolls"},
+                              {"Initial Jobless Claims (Weekly)", "InitialClaims"},
 
                               // Economic Growth & Production
-                              {"GDP", "Real Gross Domestic Product"},
-                              {"IndustrialProduction",
-                               "Industrial Production Index"},
-                              {"RetailSales", "Retail Sales"},
-                              {"HousingStarts", "Housing Starts"},
+                              {"Real Gross Domestic Product", "GDP"},
+                              {"Industrial Production Index",
+                               "IndustrialProduction"},
+                              {"Retail Sales", "RetailSales"},
+                              {"Housing Starts", "HousingStarts"},
 
                               // Market Sentiment & Money Supply
-                              {"ConsumerSentiment",
-                               "Consumer Sentiment (University of Michigan)"},
-                              {"M2", "M2 Money Supply"},
-                              {"SP500", "S&P 500 Index"},
-                              {"VIX", "VIX Volatility Index (CBOE)"},
+                              {"Consumer Sentiment (University of Michigan)",
+                               "ConsumerSentiment"},
+                              {"M2 Money Supply", "M2"},
+                              {"S&P 500 Index", "SP500"},
+                              {"VIX Volatility Index (CBOE)", "VIX"},
                           },
                       .desc = "Select the economic indicator series to load"},
               },

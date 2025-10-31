@@ -1114,9 +1114,13 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
                          .desc = "Minutes from session boundary"},
           MetaDataOption{.id = "boundary_type",
                          .name = "Boundary Type",
-                         .type = epoch_core::MetaDataOptionType::String,
+                         .type = epoch_core::MetaDataOptionType::Select,
                          .defaultValue = MetaDataOptionDefinition(std::string("start")),
-                         .desc = "Session boundary: 'start' or 'end'"}
+                         .selectOption = {
+                             {"Session Start", "start"},
+                             {"Session End", "end"}
+                         },
+                         .desc = "Session boundary: start or end"}
       },
       .desc = "Detects when bars occur exactly X minutes from session start or end. Useful for timing entries/exits around session boundaries.",
       .inputs = {},
