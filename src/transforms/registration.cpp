@@ -8,6 +8,7 @@
 #include "src/data_sources/polygon_metadata.h"
 #include "src/data_sources/polygon_indices_metadata.h"
 #include "src/data_sources/fred_metadata.h"
+#include "src/data_sources/sec_metadata.h"
 #include "src/indicators/forward_returns.h"
 
 namespace epoch_metadata::transforms {
@@ -34,6 +35,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(epoch_metadata::transform::MakePolygonDataSources());
   metaDataList.emplace_back(epoch_metadata::transform::MakePolygonIndicesDataSources());
   metaDataList.emplace_back(epoch_metadata::transform::MakeFREDDataSource());
+  metaDataList.emplace_back(epoch_metadata::transform::MakeSECDataSources());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

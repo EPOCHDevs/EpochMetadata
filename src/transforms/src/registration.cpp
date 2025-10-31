@@ -45,7 +45,7 @@
 #include "data_sources/fred_transform.h"
 
 // Selector includes
-#include "../../../include/epoch_metadata/selectors/card_selector.h"
+#include "epoch_metadata/selectors/card_selector.h"
 
 // SQL and Report includes
 #include "sql/sql_query_transform.h"

@@ -110,13 +110,13 @@ signal = price > 100
 ```
 
 **🤖 CRITICAL FOR AI AGENTS:**
-When you need conditional logic, **ALWAYS use ternary expressions**, NOT `sql_query` transforms!
+When you need conditional logic, **ALWAYS use ternary expressions FIRST**, NOT `sql_query*` transforms!
 
 ```python
 # ❌ WRONG - Over-engineered (AI agents often do this by mistake!)
-result = sql_query(
-    sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END as signal FROM input"
-)(src)
+result = sql_query_1(
+    sql="SELECT timestamp, CASE WHEN SLOT0 > 100 THEN 1 ELSE 0 END as RESULT0 FROM self"
+)(src.c).RESULT0
 
 # ✅ CORRECT - Simple ternary
 signal = 1 if src.c > 100 else 0
@@ -125,11 +125,17 @@ signal = 1 if src.c > 100 else 0
 signal = src.c > 100
 ```
 
-**When to use each:**
-- **Ternary**: Simple value selection based on condition (`x if cond else y`)
-- **Logical operators**: Boolean combinations (`and`, `or`, `not`)
-- **sql_query**: Only for complex SQL operations that cannot be expressed otherwise
-- **Other transforms**: Actual calculations (EMA, RSI, etc.)
+**When to use each approach:**
+1. **Ternary expressions**: Simple conditional value selection (`x if cond else y`)
+2. **Logical operators**: Boolean combinations (`and`, `or`, `not`)
+3. **Built-in transforms**: Use library transforms FIRST (e.g., `stddev()`, `corr()`, `regr_slope()`) - they come with free charting capabilities
+4. **sql_query_N**: **LAST RESORT ONLY** - for complex SQL operations that cannot be expressed otherwise (window functions, complex aggregations, etc.)
+
+**⚠️ SQL Query Usage Guidelines:**
+- Prefer built-in transforms over `sql_query*` whenever possible
+- Built-in transforms have better performance and visualization support
+- Use `sql_query*` only when you need DuckDB-specific SQL features not available as transforms
+- Examples of valid SQL use: complex window functions, CTEs, advanced aggregations
 
 #### Loops (NOT ALLOWED)
 ```python
@@ -502,9 +508,9 @@ signal_strength = (
 **❌ ANTI-PATTERN - Don't Do This:**
 ```python
 # ❌ WRONG: Don't use sql_query for simple if-else
-result = sql_query(
-    sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END as signal FROM input"
-)(src)
+result = sql_query_1(
+    sql="SELECT timestamp, CASE WHEN SLOT0 > 100 THEN 1 ELSE 0 END as RESULT0 FROM self"
+)(src.c).RESULT0
 
 # ✅ CORRECT: Use ternary
 signal = 1 if src.c > 100 else 0
@@ -515,9 +521,9 @@ signal = src.c > 100
 **❌ ANTI-PATTERN - Don't Create Transforms for Simple Logic:**
 ```python
 # ❌ WRONG: Over-engineering
-threshold_checker = sql_query(
-    sql="SELECT CASE WHEN value > 50 THEN 'HIGH' ELSE 'LOW' END FROM input"
-)(some_value)
+threshold_checker = sql_query_1(
+    sql="SELECT timestamp, CASE WHEN SLOT0 > 50 THEN 'HIGH' ELSE 'LOW' END as RESULT0 FROM self"
+)(some_value).RESULT0
 
 # ✅ CORRECT: Simple ternary
 label = "HIGH" if some_value > 50 else "LOW"
@@ -1384,6 +1390,147 @@ entry = bullish_signal and is_london
 breakout = src.c > london.high
 ```
 
+### 9.5 SQL Query Transforms (LAST RESORT)
+
+**⚠️ CRITICAL:** SQL query transforms should be your **LAST RESORT**. Always prefer:
+1. Built-in transforms (they have better charting, performance, and readability)
+2. Ternary expressions for conditional logic
+3. Logical operators for boolean combinations
+
+Only use SQL when you need DuckDB-specific features not available as transforms.
+
+#### sql_query_1() - Single Output
+
+**Purpose:** Execute arbitrary SQL on timeseries data (single output)
+
+**Options:**
+- `sql`: SQL query string (MUST use `FROM self`, inputs are `SLOT0, SLOT1, SLOT2...`)
+
+**Inputs:** Variadic (any number of inputs)
+
+**Outputs:**
+- `RESULT0`: Query result (entire result as single DataFrame)
+
+**CRITICAL SQL Rules:**
+1. **Table name MUST be `FROM self`** (not `FROM input` or anything else)
+2. **Input columns are `SLOT0, SLOT1, SLOT2, ...SLOTN`** (corresponding to input order)
+3. **NEVER cast timestamps to DATE** - DuckDB doesn't support `CAST(timestamp AS DATE)` for `TIMESTAMP WITH TIME ZONE`
+4. Use `DATE_TRUNC('day', timestamp)` for day-level grouping instead of casting
+5. For date filtering: `timestamp >= '2024-01-01' AND timestamp < '2024-01-02'` (not DATE casts)
+
+**When to Use:**
+- Complex window functions not available as transforms
+- CTEs (Common Table Expressions) for multi-step calculations
+- Advanced aggregations (REGR_*, CORR, COVAR)
+- SQL-specific functions unavailable as transforms
+
+**Example (Correlation Analysis):**
+```python
+src = market_data_source()
+crypto_vol = sma(period=20)(src.v)
+tech_dd = src.c - src.c[1]
+
+# ❌ ANTI-PATTERN: Using SQL for simple operations
+# stats = sql_query_1(
+#     sql="SELECT timestamp, AVG(SLOT0) as RESULT0 FROM self GROUP BY timestamp"
+# )(crypto_vol).RESULT0
+
+# ✅ CORRECT: Use built-in transforms for simple operations
+crypto_vol_avg = sma(period=252)(crypto_vol)
+
+# ✅ VALID SQL USE: Complex aggregation not available as transform (single output)
+beta = sql_query_1(
+    sql="""
+    SELECT
+        timestamp,
+        REGR_SLOPE(SLOT1, SLOT0) as RESULT0
+    FROM self
+    """
+)(crypto_vol, tech_dd).RESULT0
+
+# ✅ VALID SQL USE: Multiple correlation metrics (multi-output)
+concurrent_corr, lag1_corr, beta = sql_query_3(
+    sql="""
+    SELECT
+        timestamp,
+        CORR(SLOT0, SLOT1) as RESULT0,
+        CORR(LAG(SLOT0, 1) OVER (ORDER BY timestamp), SLOT1) as RESULT1,
+        REGR_SLOPE(SLOT1, SLOT0) as RESULT2
+    FROM self
+    """
+)(crypto_vol, tech_dd)
+```
+
+**Timestamp Handling:**
+```python
+# ❌ WRONG - Don't cast to DATE
+bad_query = sql_query_1(
+    sql="SELECT timestamp, CAST(timestamp AS DATE) as RESULT0 FROM self"  # ERROR!
+)(src.c).RESULT0
+
+# ✅ CORRECT - Use DATE_TRUNC for day grouping
+day_grouped = sql_query_1(
+    sql="SELECT timestamp, DATE_TRUNC('day', timestamp) as day, AVG(SLOT0) as RESULT0 FROM self GROUP BY timestamp, day"
+)(src.c).RESULT0
+
+# ✅ CORRECT - Direct timestamp comparison for filtering
+filtered = sql_query_1(
+    sql="""
+    SELECT timestamp, SLOT0 as RESULT0 FROM self
+    WHERE timestamp >= '2024-01-01' AND timestamp < '2024-02-01'
+    """
+)(src.c).RESULT0
+```
+
+#### sql_query_2(), sql_query_3(), sql_query_4() - Multi-Output
+
+**Purpose:** Execute SQL with multiple separate output ports
+
+**Options:**
+- `sql`: SQL query (MUST select `RESULT0, RESULT1, ...RESULTN` with exact names)
+
+**Inputs:** Variadic
+
+**Outputs:**
+- sql_query_2: `RESULT0`, `RESULT1`
+- sql_query_3: `RESULT0`, `RESULT1`, `RESULT2`
+- sql_query_4: `RESULT0`, `RESULT1`, `RESULT2`, `RESULT3`
+
+**CRITICAL:** Query MUST alias outputs exactly as `RESULT0, RESULT1, ...` or validation fails.
+
+**Example:**
+```python
+# Decompose signal into trend/noise components
+trend, noise = sql_query_2(
+    sql="""
+    SELECT
+        timestamp,
+        AVG(SLOT0) OVER (ORDER BY timestamp ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as RESULT0,
+        SLOT0 - AVG(SLOT0) OVER (ORDER BY timestamp ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as RESULT1
+    FROM self
+    """
+)(src.c)
+```
+
+**When NOT to Use SQL:**
+```python
+# ❌ ANTI-PATTERN: Simple conditional
+signal = sql_query_1(
+    sql="SELECT timestamp, CASE WHEN SLOT0 > 100 THEN 1 ELSE 0 END as RESULT0 FROM self"
+)(src.c).RESULT0
+
+# ✅ CORRECT: Ternary expression
+signal = 1 if src.c > 100 else 0
+
+# ❌ ANTI-PATTERN: Built-in transform exists
+vol_stddev = sql_query_1(
+    sql="SELECT timestamp, STDDEV(SLOT0) as RESULT0 FROM self"
+)(src.v).RESULT0
+
+# ✅ CORRECT: Use built-in stddev transform (has free charting!)
+vol_stddev = stddev(period=20)(src.v)
+```
+
 ---
 
 ## 10. Complete Examples
@@ -1837,7 +1984,7 @@ min_vol = src.v if src.v > 1000 else 1000
 entry_price = src.c * 0.99 if buy_limit else src.c
 
 # ❌ DON'T DO THIS:
-# result = sql_query(sql="SELECT CASE WHEN c > 100 THEN 1 ELSE 0 END")(src)
+# result = sql_query_1(sql="SELECT timestamp, CASE WHEN SLOT0 > 100 THEN 1 ELSE 0 END as RESULT0 FROM self")(src.c).RESULT0
 # ✅ DO THIS INSTEAD:
 signal = 1 if src.c > 100 else 0
 # Or even better (keep as boolean):
