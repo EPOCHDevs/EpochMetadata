@@ -287,7 +287,7 @@ Interactive analysis interface for gap reports, tables, and charts (separate fro
 Real-time metrics display organized in card groups (numeric, boolean, quantile)
 
 **Compiler**
-Program that translates EpochFlow DSL to executable format
+Program that translates Flow script to executable format
 
 **Handle**
 Named output of a transform: `c` (close), `bbands_upper`, etc.
@@ -343,7 +343,6 @@ Profitability: net income / shareholder equity
 **ATR** - Average True Range
 **BOS** - Break of Structure
 **CHOCH** - Change of Character
-**DSL** - Domain-Specific Language
 **EMA** - Exponential Moving Average
 **EPS** - Earnings Per Share
 **EWM** - Exponentially Weighted Moving

@@ -1,6 +1,6 @@
 # Language Fundamentals
 
-Complete syntax reference for the EpochFlow scripting language.
+Complete syntax reference for Flow script.
 
 ---
 

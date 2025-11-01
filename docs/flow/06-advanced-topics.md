@@ -176,7 +176,7 @@ rsi_overbought = rsi(period=14)(src.c) > 80
 exit = profit_target_hit or stop_loss_hit or trend_reversal or rsi_overbought
 ```
 
-**Note:** `entry_price` tracking requires external state management (not directly supported in DSL).
+**Note:** `entry_price` tracking requires external state management (not directly supported in Flow script).
 
 **Workaround:** Use percentage-based conditions relative to current price
 
