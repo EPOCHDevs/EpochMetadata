@@ -10,7 +10,7 @@
 #include "runtime/orchestrator.h"
 #include <runtime/transform_manager/transform_manager.h>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 void FlowSourceTestRunAllTests(const FlowSourceTestRunner::Config& config) {
     auto testCases = FlowSourceTestRunner::DiscoverTestCases(config);
@@ -96,13 +96,13 @@ void FlowSourceTestRunner::RunTestCase(const TestCase& testCase, bool updateMode
     REQUIRE(!assets.empty());
 
     // 4. Determine base timeframe
-    std::optional<epochflow::TimeFrame> baseTimeframe;
+    std::optional<epoch_script::TimeFrame> baseTimeframe;
     if (!testCase.config.timeframes.empty()) {
-        baseTimeframe = epochflow::TimeFrame{testCase.config.timeframes[0]};
+        baseTimeframe = epoch_script::TimeFrame{testCase.config.timeframes[0]};
     } else {
         // Use first timeframe from input data
         if (!inputData.empty()) {
-            baseTimeframe = epochflow::TimeFrame{inputData.begin()->first};
+            baseTimeframe = epoch_script::TimeFrame{inputData.begin()->first};
         }
     }
 
@@ -122,7 +122,7 @@ void FlowSourceTestRunner::RunTestCase(const TestCase& testCase, bool updateMode
     }
 }
 
-epochflow::strategy::PythonSource
+epoch_script::strategy::PythonSource
 FlowSourceTestRunner::LoadSource(const std::filesystem::path& sourceFile) {
     std::ifstream file(sourceFile);
     if (!file.is_open()) {
@@ -134,11 +134,11 @@ FlowSourceTestRunner::LoadSource(const std::filesystem::path& sourceFile) {
     std::string sourceCode = buffer.str();
 
     // Compile source
-    return epochflow::strategy::PythonSource(sourceCode);
+    return epoch_script::strategy::PythonSource(sourceCode);
 }
 
 std::vector<std::string> FlowSourceTestRunner::DetectRequiredAssets(
-    const epochflow::strategy::PythonSource& source,
+    const epoch_script::strategy::PythonSource& source,
     const std::filesystem::path& inputDir) {
 
     // Load all assets from input directory
@@ -209,7 +209,7 @@ static epoch_frame::DataFrame NormalizeTypesForComparison(const epoch_frame::Dat
 }
 
 bool FlowSourceTestRunner::IsCrossSectional(
-    const epochflow::strategy::PythonSource& source) {
+    const epoch_script::strategy::PythonSource& source) {
 
     auto algorithms = source.GetCompilationResult();
 
@@ -234,10 +234,10 @@ bool FlowSourceTestRunner::IsCrossSectional(
 }
 
 FlowSourceTestRunner::TestOutputs FlowSourceTestRunner::ExecuteTest(
-    const epochflow::strategy::PythonSource& source,
+    const epoch_script::strategy::PythonSource& source,
     const TimeFrameAssetDataFrameMap& inputData,
     const std::vector<std::string>& assets,
-    const std::optional<epochflow::TimeFrame>& baseTimeframe) {
+    const std::optional<epoch_script::TimeFrame>& baseTimeframe) {
 
     // Build TransformManager from compiled source
     epoch_flow::runtime::TransformManagerOptions options{
@@ -429,4 +429,4 @@ void FlowSourceTestRunner::SaveConfig(
     }
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

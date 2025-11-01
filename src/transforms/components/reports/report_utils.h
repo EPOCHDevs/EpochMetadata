@@ -12,7 +12,7 @@
 #include <vector>
 #include <regex>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 // Shared utility functions for all report types
 class ReportUtils {
@@ -167,4 +167,4 @@ public:
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

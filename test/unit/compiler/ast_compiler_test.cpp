@@ -1,5 +1,5 @@
 //
-// EpochFlow AST Compiler Test Suite
+// EpochScript AST Compiler Test Suite
 //
 // Tests Python algorithm compilation to AlgorithmNode list using JSON expected outputs
 //
@@ -11,7 +11,7 @@
 #include <algorithm>
 #include "transforms/compiler/ast_compiler.h"
 
-using namespace epochflow;
+using namespace epoch_script;
 namespace fs = std::filesystem;
 
 // Test case structure
@@ -83,7 +83,7 @@ std::string ReadFile(const std::string &path)
 }
 
 // Parameterized test cases
-TEST_CASE("EpochFlow Compiler: Test Cases", "[epochflow_compiler]")
+TEST_CASE("EpochScript Compiler: Test Cases", "[epoch_script_compiler]")
 {
     auto test_cases = LoadTestCases();
 
@@ -223,7 +223,7 @@ TEST_CASE("EpochFlow Compiler: Test Cases", "[epochflow_compiler]")
 }
 
 // Manual test for basic functionality without test files
-TEST_CASE("EpochFlow Compiler: Manual Basic Test", "[epochflow_compiler]")
+TEST_CASE("EpochScript Compiler: Manual Basic Test", "[epoch_script_compiler]")
 {
     const std::string source = R"(
 x = 5.0
@@ -256,12 +256,12 @@ x = 5.0
 #include "transforms/compiler/timeframe_resolver.h"
 #include "epoch_frame/factory/date_offset_factory.h"
 
-using epochflow::TimeframeResolver;
+using epoch_script::TimeframeResolver;
 
 TEST_CASE("TimeframeResolver: Resolves from base timeframe", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
 
     auto result = resolver.ResolveTimeframe("test_node", {}, baseTimeframe);
 
@@ -272,8 +272,8 @@ TEST_CASE("TimeframeResolver: Resolves from base timeframe", "[timeframe_resolut
 TEST_CASE("TimeframeResolver: Resolves from input timeframes", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
-    auto inputTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(5));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto inputTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(5));
 
     // Set up input node with timeframe
     resolver.nodeTimeframes["input1"] = inputTimeframe;
@@ -287,9 +287,9 @@ TEST_CASE("TimeframeResolver: Resolves from input timeframes", "[timeframe_resol
 TEST_CASE("TimeframeResolver: Uses lowest resolution from multiple inputs", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
-    auto timeframe1Min = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
-    auto timeframe5Min = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(5));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto timeframe1Min = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto timeframe5Min = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(5));
 
     // Set up input nodes with different timeframes
     resolver.nodeTimeframes["input1"] = timeframe5Min; // Lower resolution (higher timeframe value)
@@ -305,8 +305,8 @@ TEST_CASE("TimeframeResolver: Uses lowest resolution from multiple inputs", "[ti
 TEST_CASE("TimeframeResolver: Caching works correctly", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(15));
-    auto inputTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(5));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(15));
+    auto inputTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(5));
 
     // Pre-populate cache
     resolver.nodeTimeframes["input1"] = inputTimeframe;
@@ -321,7 +321,7 @@ TEST_CASE("TimeframeResolver: Caching works correctly", "[timeframe_resolution]"
     REQUIRE(resolver.nodeTimeframes["test_node"] == result1);
 
     // Second call should return cached value (even with different base timeframe)
-    auto differentBase = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(30));
+    auto differentBase = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(30));
     auto result2 = resolver.ResolveTimeframe("test_node", {"input1#result"}, differentBase);
     REQUIRE(result2.has_value());
     REQUIRE(result2.value().ToString() == result1.value().ToString());
@@ -330,10 +330,10 @@ TEST_CASE("TimeframeResolver: Caching works correctly", "[timeframe_resolution]"
 TEST_CASE("TimeframeResolver: ResolveNodeTimeframe uses explicit node timeframe", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
-    auto nodeTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(5));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto nodeTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(5));
 
-    epochflow::strategy::AlgorithmNode node;
+    epoch_script::strategy::AlgorithmNode node;
     node.id = "test_node";
     node.timeframe = nodeTimeframe;
 
@@ -347,9 +347,9 @@ TEST_CASE("TimeframeResolver: ResolveNodeTimeframe uses explicit node timeframe"
 TEST_CASE("TimeframeResolver: ResolveNodeTimeframe falls back to base timeframe", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
 
-    epochflow::strategy::AlgorithmNode node;
+    epoch_script::strategy::AlgorithmNode node;
     node.id = "test_node";
     // node.timeframe is not set
     // node has no inputs
@@ -363,13 +363,13 @@ TEST_CASE("TimeframeResolver: ResolveNodeTimeframe falls back to base timeframe"
 TEST_CASE("TimeframeResolver: ResolveNodeTimeframe resolves from inputs", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(1));
-    auto inputTimeframe = epochflow::TimeFrame(epoch_frame::factory::offset::minutes(15));
+    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
+    auto inputTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(15));
 
     // Pre-populate cache with input node timeframe
     resolver.nodeTimeframes["input_node"] = inputTimeframe;
 
-    epochflow::strategy::AlgorithmNode node;
+    epoch_script::strategy::AlgorithmNode node;
     node.id = "test_node";
     // node.timeframe is not set - should resolve from inputs
     node.inputs["SLOT0"] = {"input_node#result"};

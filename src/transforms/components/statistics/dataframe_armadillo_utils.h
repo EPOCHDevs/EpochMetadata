@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace epochflow::transform::utils {
+namespace epoch_script::transform::utils {
 
 /**
  * @brief Converts specified columns from an epoch_frame::DataFrame to an
@@ -138,4 +138,4 @@ inline arma::mat MatFromDataFrameAllNumeric(const epoch_frame::DataFrame &df) {
   return MatFromDataFrame(df, numeric_columns);
 }
 
-} // namespace epochflow::transform::utils
+} // namespace epoch_script::transform::utils

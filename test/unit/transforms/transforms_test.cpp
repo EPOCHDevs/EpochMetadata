@@ -1,27 +1,27 @@
 
-#include "epochflow/strategy/registration.h"
+#include "epoch_script/strategy/registration.h"
 #include <catch.hpp>
-#include <epochflow/core/constants.h>
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/registration.h>
-#include <epochflow/transforms/core/transform_definition.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/registration.h>
+#include <epoch_script/transforms/core/transform_definition.h>
 #include <unordered_map>
 
-using namespace epochflow;
+using namespace epoch_script;
 using Catch::Approx;
 
 TEST_CASE("Transform Definition") {
 
   SECTION("TransformDefinition Constructor and Basic Methods") {
     // Create metadata to avoid registry lookup
-    epochflow::transforms::TransformsMetaData metadata;
+    epoch_script::transforms::TransformsMetaData metadata;
     metadata.id = "example_type";
 
     TransformDefinitionData data{
         .type = "example_type",
         .id = "1234",
         .options = {},
-        .timeframe = epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY,
+        .timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY,
         .inputs = {{"input1", {"value1"}}},
         .metaData = metadata};
 
@@ -37,26 +37,26 @@ TEST_CASE("Transform Definition") {
 
     SECTION("SetOption updates options correctly") {
       transform.SetOption("key1",
-                          epochflow::MetaDataOptionDefinition{3.14});
-      REQUIRE(epochflow::MetaDataOptionDefinition{
+                          epoch_script::MetaDataOptionDefinition{3.14});
+      REQUIRE(epoch_script::MetaDataOptionDefinition{
                   transform.GetOptions().at("key1")}
                   .GetDecimal() == Approx(3.14));
 
       transform.SetOption("key2",
-                          epochflow::MetaDataOptionDefinition{42.0});
-      REQUIRE(epochflow::MetaDataOptionDefinition{
+                          epoch_script::MetaDataOptionDefinition{42.0});
+      REQUIRE(epoch_script::MetaDataOptionDefinition{
                   transform.GetOptions().at("key2")}
                   .GetInteger() == Approx(42));
     }
 
     SECTION("SetPeriod and SetPeriods") {
       transform.SetPeriod(10);
-      REQUIRE(epochflow::MetaDataOptionDefinition{
+      REQUIRE(epoch_script::MetaDataOptionDefinition{
                   transform.GetOptions().at("period")}
                   .GetInteger() == Approx(10));
 
       transform.SetPeriods(20);
-      REQUIRE(epochflow::MetaDataOptionDefinition{
+      REQUIRE(epoch_script::MetaDataOptionDefinition{
                   transform.GetOptions().at("periods")}
                   .GetInteger() == Approx(20));
     }
@@ -84,7 +84,7 @@ TEST_CASE("Transform Definition") {
 
     SECTION("GetOptionAsDouble with and without fallback") {
       transform.SetOption("double_key",
-                          epochflow::MetaDataOptionDefinition{7.5});
+                          epoch_script::MetaDataOptionDefinition{7.5});
       REQUIRE(transform.GetOptionAsDouble("double_key") == Approx(7.5));
       REQUIRE(transform.GetOptionAsDouble("missing_key", 1.5) == Approx(1.5));
     }

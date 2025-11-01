@@ -1,12 +1,12 @@
 #pragma once
 
-#include "transforms/runtime/transform_manager/itransform_manager.h"
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/runtime/transform_manager/itransform_manager.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
 #include <memory>
 #include <vector>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Simple mock transform manager for testing
@@ -26,7 +26,7 @@ namespace epoch_flow::runtime::test {
  * auto orchestrator = DataFlowRuntimeOrchestrator(assets, std::move(manager));
  * @endcode
  */
-class MockTransformManager : public epoch_flow::runtime::ITransformManager {
+class MockTransformManager : public epoch_script::runtime::ITransformManager {
 public:
     MockTransformManager() = default;
 
@@ -34,7 +34,7 @@ public:
      * @brief Add a transform to the manager
      * @param transform Transform instance to add
      */
-    void AddTransform(std::unique_ptr<epochflow::transform::ITransformBase> transform) {
+    void AddTransform(std::unique_ptr<epoch_script::transform::ITransformBase> transform) {
         std::cerr << "DEBUG MockTransformManager: AddTransform called (before: " << m_transforms.size() << " transforms)\n";
         // Just store transform instance - orchestrator will query it via interface methods
         m_transforms.push_back(std::move(transform));
@@ -42,22 +42,22 @@ public:
     }
 
     // ITransformManager interface implementation
-    [[nodiscard]] const epochflow::transform::TransformConfiguration*
+    [[nodiscard]] const epoch_script::transform::TransformConfiguration*
     GetExecutor() const override {
         throw std::runtime_error("GetExecutor() not used in tests - orchestrator uses interface methods");
     }
 
-    [[nodiscard]] const std::vector<epoch_flow::runtime::TransformConfigurationPtr>*
+    [[nodiscard]] const std::vector<epoch_script::runtime::TransformConfigurationPtr>*
     GetTransforms() const override {
         throw std::runtime_error("GetTransforms() not used in tests - orchestrator uses interface methods");
     }
 
-    [[nodiscard]] const epochflow::transform::TransformConfiguration*
-    GetTransformConfigurationById(const std::string& name) const override {
+    [[nodiscard]] const epoch_script::transform::TransformConfiguration*
+    GetTransformConfigurationById(const std::string&) const override {
         throw std::runtime_error("GetTransformConfigurationById() not used in tests - orchestrator uses interface methods");
     }
 
-    [[nodiscard]] std::vector<std::unique_ptr<epochflow::transform::ITransformBase>>
+    [[nodiscard]] std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>>
     BuildTransforms() const override {
         std::cerr << "DEBUG MockTransformManager: BuildTransforms() called with " << m_transforms.size() << " transforms\n";
         auto result = std::move(m_transforms);
@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    mutable std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> m_transforms;
+    mutable std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> m_transforms;
 };
 
 /**
@@ -76,7 +76,7 @@ private:
  * @return Ready-to-use mock transform manager
  */
 inline std::unique_ptr<MockTransformManager> CreateMockTransformManager(
-    std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms) {
+    std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms) {
     auto manager = std::make_unique<MockTransformManager>();
     for (auto& transform : transforms) {
         manager->AddTransform(std::move(transform));
@@ -84,4 +84,4 @@ inline std::unique_ptr<MockTransformManager> CreateMockTransformManager(
     return manager;
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

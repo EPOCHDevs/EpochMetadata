@@ -7,7 +7,7 @@
 
 #include "special_node_validator.h"
 
-namespace epochflow
+namespace epoch_script
 {
     class ConditionalSelectValidator : public ISpecialNodeValidator {
     public:
@@ -15,4 +15,4 @@ namespace epochflow
         std::string GetName() const override { return "ConditionalSelectValidator"; }
     };
 
-} // namespace epochflow
+} // namespace epoch_script

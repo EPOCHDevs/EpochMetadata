@@ -28,10 +28,10 @@
 #include <trompeloeil.hpp>
 #include <atomic>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][graph][topologies]") {
     const auto dailyTF = TestTimeFrames::Daily();
@@ -68,7 +68,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .LR_SIDE_EFFECT(eOrder = ++executionOrder)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -114,7 +114,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .LR_SIDE_EFFECT(dOrder = ++executionOrder)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -150,7 +150,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
         REQUIRE_CALL(*mockD, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
         REQUIRE_CALL(*mockE, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -212,7 +212,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .LR_SIDE_EFFECT(hOrder = ++executionOrder)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -262,7 +262,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .TIMES(2)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(regular1));
         transforms.push_back(std::move(cs));
         transforms.push_back(std::move(regular2));
@@ -298,7 +298,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .TIMES(2)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs1));
         transforms.push_back(std::move(reg1));
         transforms.push_back(std::move(cs2));
@@ -327,7 +327,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
         REQUIRE_CALL(*reg2, TransformData(trompeloeil::_)).TIMES(2).RETURN(epoch_frame::DataFrame());
         REQUIRE_CALL(*reg3, TransformData(trompeloeil::_)).TIMES(2).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs));
         transforms.push_back(std::move(reg1));
         transforms.push_back(std::move(reg2));
@@ -383,7 +383,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Graph Topologies", "[.][orchestrator][g
             .LR_SIDE_EFFECT(signalOrder = ++executionOrder)
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(data));
         transforms.push_back(std::move(roc));
         transforms.push_back(std::move(cs_mom));

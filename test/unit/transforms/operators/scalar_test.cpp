@@ -1,13 +1,13 @@
 //
 // Created by adesola on 1/26/25.
 //
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/scalar.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
@@ -15,8 +15,8 @@
 #include <numbers>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
@@ -44,7 +44,7 @@ id: {}
 timeframe: {}
 )",
           transformType, transformId,
-          epochflow::EpochStratifyXConstants::instance()
+          epoch_script::EpochStratifyXConstants::instance()
               .DAILY_FREQUENCY.Serialize()))}};
 
   auto transformBase = MAKE_TRANSFORM(config);
@@ -76,7 +76,7 @@ options:
   value: 5.0
 timeframe: {}
 )",
-          epochflow::EpochStratifyXConstants::instance()
+          epoch_script::EpochStratifyXConstants::instance()
               .DAILY_FREQUENCY.Serialize()))}};
 
   auto transformBase = MAKE_TRANSFORM(config);
@@ -119,7 +119,7 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
   auto input = createTestDataFrame();
   auto index = input.index();
   const auto &timeframe =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   // Test helper functions for different types of scalar constants
   SECTION("numeric constant") {

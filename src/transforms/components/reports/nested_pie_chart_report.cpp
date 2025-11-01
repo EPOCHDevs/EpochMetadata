@@ -6,7 +6,7 @@
 #include <sstream>
 #include <unordered_map>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 void NestedPieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   try {
@@ -42,4 +42,4 @@ void NestedPieChartReport::generateTearsheet(const epoch_frame::DataFrame &norma
   }
 }
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

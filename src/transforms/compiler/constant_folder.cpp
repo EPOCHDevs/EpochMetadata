@@ -1,7 +1,7 @@
 #include "constant_folder.h"
 #include <cmath>
 
-namespace epochflow {
+namespace epoch_script {
 
 ConstantFolder::ConstantFolder(CompilationContext& context)
     : context_(context)
@@ -595,4 +595,4 @@ std::optional<bool> ConstantFolder::ToBool(const Constant::Value& value)
     return std::nullopt;
 }
 
-} // namespace epochflow
+} // namespace epoch_script

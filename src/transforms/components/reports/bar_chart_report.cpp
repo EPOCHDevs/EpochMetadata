@@ -7,7 +7,7 @@
 #include <set>
 #include <map>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 void BarChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   // Get column names from input mapping
@@ -65,4 +65,4 @@ void BarChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
 
 
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

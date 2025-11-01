@@ -3,12 +3,12 @@
 //
 
 #include "common.h"
-#include <epochflow/core/sql_statement.h>
-#include <epochflow/core/metadata_options.h>  // For glaze serialization
+#include <epoch_script/core/sql_statement.h>
+#include <epoch_script/core/metadata_options.h>  // For glaze serialization
 #include <catch2/catch_all.hpp>
 #include <glaze/glaze.hpp>
 
-using namespace epochflow;
+using namespace epoch_script;
 
 TEST_CASE("SqlStatement - Basic validation", "[SqlStatement]") {
   SECTION("Valid single-output query") {

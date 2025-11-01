@@ -1,11 +1,11 @@
 //
 // Created by Claude Code
-// EpochFlow Special Node Validator Registry Implementation
+// EpochScript Special Node Validator Registry Implementation
 //
 
 #include "special_node_validator.h"
 
-namespace epochflow
+namespace epoch_script
 {
     SpecialNodeValidatorRegistry& SpecialNodeValidatorRegistry::Instance() {
         static SpecialNodeValidatorRegistry instance;
@@ -36,4 +36,4 @@ namespace epochflow
         }
     }
 
-} // namespace epochflow
+} // namespace epoch_script

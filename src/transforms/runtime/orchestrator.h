@@ -3,14 +3,14 @@
 //
 
 #pragma once
-#include <epochflow/transforms/runtime/iorchestrator.h>
+#include <epoch_script/transforms/runtime/iorchestrator.h>
 #include "execution/execution_node.h"
 #include "execution/execution_context.h"
-#include "transform_manager/itransform_manager.h"
-#include <epochflow/transforms/core/registry.h>
+#include <epoch_script/transforms/runtime/transform_manager/itransform_manager.h>
+#include <epoch_script/transforms/core/registry.h>
 #include <tbb/flow_graph.h>
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
     // TODO: Provide Stream Interface to Live trading
     class DataFlowRuntimeOrchestrator final : public IDataFlowOrchestrator {
 
@@ -28,7 +28,7 @@ namespace epoch_flow::runtime {
             IIntermediateStoragePtr cacheManager = nullptr, ILoggerPtr logger = nullptr);
 
         void
-        RegisterTransform(std::unique_ptr<epochflow::transform::ITransformBase> transform);
+        RegisterTransform(std::unique_ptr<epoch_script::transform::ITransformBase> transform);
 
         /**
          * @brief Execute the flow graph.
@@ -51,7 +51,7 @@ namespace epoch_flow::runtime {
         std::unordered_map<std::string, TransformExecutionNode *> m_outputHandleToNode;
         std::vector<TransformNodePtr> m_independentNodes;
         std::vector<TransformNodePtr> m_dependentNodes;
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>>
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>>
             m_transforms;
         std::vector<std::function<void(execution_context_t)>> m_executionFunctions; // temporary
         ExecutionContext m_executionContext;
@@ -65,20 +65,20 @@ namespace epoch_flow::runtime {
         mutable std::mutex m_selectorCacheMutex;
 
         std::function<void(execution_context_t)> CreateExecutionFunction(
-            const epochflow::transform::ITransformBase &transform);
+            const epoch_script::transform::ITransformBase &transform);
 
         TransformNodePtr
-        CreateTransformNode(epochflow::transform::ITransformBase& transform);
+        CreateTransformNode(epoch_script::transform::ITransformBase& transform);
 
         std::vector<DataFlowRuntimeOrchestrator::TransformExecutionNode *>
-        ResolveInputDependencies(const epochflow::strategy::InputMapping &inputs) const;
+        ResolveInputDependencies(const epoch_script::strategy::InputMapping &inputs) const;
 
         // Helper to cache reports from reporter transforms
-        void CacheReportFromTransform(const epochflow::transform::ITransformBase& transform) const;
+        void CacheReportFromTransform(const epoch_script::transform::ITransformBase& transform) const;
 
         // Helper to cache selectors from selector transforms
-        void CacheSelectorFromTransform(const epochflow::transform::ITransformBase& transform) const;
+        void CacheSelectorFromTransform(const epoch_script::transform::ITransformBase& transform) const;
     };
 
     using DataFlowOrchestratorPtr = std::unique_ptr<DataFlowRuntimeOrchestrator>;
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

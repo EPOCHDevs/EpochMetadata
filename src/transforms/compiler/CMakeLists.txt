@@ -1,11 +1,11 @@
-# EpochFlow - Python Algorithm Compiler for StratifyX
+# EpochScript - Python Algorithm Compiler for StratifyX
 # Compiles Python-like algorithm syntax to nodes/edges graphs
 
 # Link tree-sitter and Python grammar
-target_link_libraries(epochflow PUBLIC cpp-tree-sitter tree-sitter-python)
+target_link_libraries(epoch_script PUBLIC cpp-tree-sitter tree-sitter-python)
 
 # Add source files from this directory
-target_sources(epochflow PRIVATE
+target_sources(epoch_script PRIVATE
     ast_compiler.cpp
     ast_visitor.cpp
     constant_folder.cpp

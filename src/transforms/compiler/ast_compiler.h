@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow AST Compiler - Refactored Facade
+// EpochScript AST Compiler - Refactored Facade
 //
 // Compiles Python AST directly into AlgorithmNode structures.
 // Coordinates specialized compiler components using facade pattern.
@@ -19,13 +19,13 @@
 #include "timeframe_resolver.h"
 #include "constant_folder.h"
 #include "parser/ast_nodes.h"
-#include <epochflow/strategy/metadata.h>
-#include <epochflow/core/time_frame.h>
+#include <epoch_script/strategy/metadata.h>
+#include <epoch_script/core/time_frame.h>
 #include <vector>
 #include <optional>
 #include <memory>
 
-namespace epochflow
+namespace epoch_script
 {
 
     // Compilation result: topologically sorted algorithms (includes executor)
@@ -71,4 +71,4 @@ namespace epochflow
     // Convenience function (mirrors Python's compile_algorithm)
     CompilationResult compileAlgorithm(const std::string& source);
 
-} // namespace epochflow
+} // namespace epoch_script

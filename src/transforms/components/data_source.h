@@ -3,11 +3,11 @@
 //
 
 #pragma once
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <unordered_set>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 class DataSourceTransform final : public ITransform {
 public:
   explicit DataSourceTransform(const TransformConfiguration &config)
@@ -25,8 +25,8 @@ public:
 private:
   std::unordered_map<std::string, std::string> m_replacements;
   inline static const std::unordered_set<std::string> m_allowedInputIds{
-      epochflow::BarsConstants::instance().all.begin(),
-      epochflow::BarsConstants::instance().all.end()};
+      epoch_script::BarsConstants::instance().all.begin(),
+      epoch_script::BarsConstants::instance().all.end()};
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

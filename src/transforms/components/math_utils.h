@@ -8,7 +8,7 @@
 #include "valarray"
 #include "vector"
 
-namespace epochflow::math {
+namespace epoch_script::math {
 
 inline std::vector<double> minus(const std::vector<double> &a,
                                  const std::vector<double> &b) {
@@ -96,12 +96,12 @@ std::vector<bool> boolrelextrema(std::span<T> const &data,
 
 template <class T>
 std::vector<size_t> argrelmin(std::span<T> const &data, int order = 1) {
-  return nonzero(boolrelextrema(data, epochflow::math::less, order));
+  return nonzero(boolrelextrema(data, epoch_script::math::less, order));
 }
 
 template <class T>
 std::vector<size_t> argrelmax(std::span<T> const &data, int order = 1) {
-  return nonzero(boolrelextrema(data, epochflow::math::greater, order));
+  return nonzero(boolrelextrema(data, epoch_script::math::greater, order));
 }
 
 template <template <class T, class... Args> class Container, class T,
@@ -123,4 +123,4 @@ double stddev(Container<T, Args...> const &data, double mu) {
   return std::sqrt(var);
 }
 
-} // namespace epochflow::math
+} // namespace epoch_script::math

@@ -1,8 +1,8 @@
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include <arrow/compute/api.h>
 #include <arrow/compute/api_vector.h>
 #include <arrow/type_fwd.h>
@@ -40,8 +40,8 @@ size_t count_non_empty_strings(const epoch_frame::DataFrame& df, const std::stri
 
 TEST_CASE("Chart Formations Test") {
   using namespace epoch_frame;
-  using namespace epochflow;
-  using namespace epochflow::transform;
+  using namespace epoch_script;
+  using namespace epoch_script::transform;
 
   constexpr auto test_instrument = "EURUSD";
   auto path = std::format("{}/{}/{}_4H.csv", SMC_TEST_DATA_DIR, test_instrument,
@@ -57,7 +57,7 @@ TEST_CASE("Chart Formations Test") {
   df = df.set_index(std::make_shared<DateTimeIndex>(index.value()));
 
   // Rename columns to standard OHLC names
-  auto const &C = epochflow::EpochStratifyXConstants::instance();
+  auto const &C = epoch_script::EpochStratifyXConstants::instance();
   std::unordered_map<std::string, std::string> replacements{
       {"Open", C.OPEN()},
       {"High", C.HIGH()},
@@ -67,7 +67,7 @@ TEST_CASE("Chart Formations Test") {
   df = df.rename(replacements);
   df = df.assign(C.VOLUME(), df[C.VOLUME()].cast(arrow::float64()));
 
-  auto timeframe = epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+  auto timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("Ascending Triangle") {
     // Python test: iloc[7200:7400], expects 1 detection

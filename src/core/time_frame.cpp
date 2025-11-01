@@ -2,7 +2,7 @@
 // Created by adesola on 1/4/25.
 //
 
-#include <epochflow/core/time_frame.h>
+#include <epoch_script/core/time_frame.h>
 #include <epoch_core/error_type.h>
 
 #include "date_time/date_offsets.h"
@@ -13,7 +13,7 @@
 #include <utility>
 #include <variant>
 
-namespace epochflow
+namespace epoch_script
 {
   SessionRegistry::SessionRegistry()
   {
@@ -853,24 +853,24 @@ namespace epochflow
     return result;
   }
 
-} // namespace epochflow
+} // namespace epoch_script
 
 // YAML helper surface for a concise timeframe mapping
-namespace epochflow
+namespace epoch_script
 {
   TimeFrame CreateTimeFrameFromYAML(YAML::Node const &node)
   {
     auto offset = CreateDateOffsetHandler(node);
     return TimeFrame(offset);
   }
-} // namespace epochflow
+} // namespace epoch_script
 
 namespace YAML
 {
   bool convert<epoch_frame::DateOffsetHandlerPtr>::decode(
       const Node &node, epoch_frame::DateOffsetHandlerPtr &rhs)
   {
-    rhs = epochflow::CreateDateOffsetHandler(node);
+    rhs = epoch_script::CreateDateOffsetHandler(node);
     return true;
   }
 
@@ -878,49 +878,49 @@ namespace YAML
                                          DateOffsetOption &rhs)
   {
     rhs.type = epoch_core::StratifyxTimeFrameTypeWrapper::FromString(
-        node[std::string(epochflow::tf_str::kType)].as<std::string>());
+        node[std::string(epoch_script::tf_str::kType)].as<std::string>());
     rhs.interval =
-        node[std::string(epochflow::tf_str::kInterval)].as<uint32_t>(1);
+        node[std::string(epoch_script::tf_str::kInterval)].as<uint32_t>(1);
     rhs.anchor = epoch_core::AnchoredTimeFrameTypeWrapper::FromString(
-        node[std::string(epochflow::tf_str::kAnchor)].as<std::string>(
-            std::string(epochflow::tf_str::kAnchorStart)));
+        node[std::string(epoch_script::tf_str::kAnchor)].as<std::string>(
+            std::string(epoch_script::tf_str::kAnchorStart)));
     rhs.week_of_month = epoch_core::WeekOfMonthWrapper::FromString(
-        node[std::string(epochflow::tf_str::kWeekOfMonth)].as<std::string>(
-            std::string(epochflow::tf_str::kNull)));
+        node[std::string(epoch_script::tf_str::kWeekOfMonth)].as<std::string>(
+            std::string(epoch_script::tf_str::kNull)));
     rhs.weekday = epoch_core::EpochDayOfWeekWrapper::FromString(
-        node[std::string(epochflow::tf_str::kWeekday)].as<std::string>(
-            std::string(epochflow::tf_str::kNull)));
+        node[std::string(epoch_script::tf_str::kWeekday)].as<std::string>(
+            std::string(epoch_script::tf_str::kNull)));
     rhs.month = epoch_core::StratifyxMonthWrapper::FromString(
-        node[std::string(epochflow::tf_str::kMonth)].as<std::string>(
-            std::string(epochflow::tf_str::kNull)));
-    if (node[std::string(epochflow::tf_str::kTimeOffset)])
+        node[std::string(epoch_script::tf_str::kMonth)].as<std::string>(
+            std::string(epoch_script::tf_str::kNull)));
+    if (node[std::string(epoch_script::tf_str::kTimeOffset)])
     {
       const auto &to_node =
-          node[std::string(epochflow::tf_str::kTimeOffset)];
+          node[std::string(epoch_script::tf_str::kTimeOffset)];
       epoch_frame::TimeDelta::Components c{};
-      c.days = to_node[std::string(epochflow::tf_str::kDays)].as<double>(0);
+      c.days = to_node[std::string(epoch_script::tf_str::kDays)].as<double>(0);
       c.hours =
-          to_node[std::string(epochflow::tf_str::kHours)].as<double>(0);
+          to_node[std::string(epoch_script::tf_str::kHours)].as<double>(0);
       c.minutes =
-          to_node[std::string(epochflow::tf_str::kMinutes)].as<double>(0);
+          to_node[std::string(epoch_script::tf_str::kMinutes)].as<double>(0);
       c.seconds =
-          to_node[std::string(epochflow::tf_str::kSeconds)].as<double>(0);
+          to_node[std::string(epoch_script::tf_str::kSeconds)].as<double>(0);
       c.milliseconds =
-          to_node[std::string(epochflow::tf_str::kMilliseconds)].as<double>(
+          to_node[std::string(epoch_script::tf_str::kMilliseconds)].as<double>(
               0);
       c.microseconds =
-          to_node[std::string(epochflow::tf_str::kMicroseconds)].as<double>(
+          to_node[std::string(epoch_script::tf_str::kMicroseconds)].as<double>(
               0);
       c.weeks =
-          to_node[std::string(epochflow::tf_str::kWeeks)].as<double>(0);
+          to_node[std::string(epoch_script::tf_str::kWeeks)].as<double>(0);
       rhs.time_offset = epoch_frame::TimeDelta{c};
     }
     rhs.session = epoch_core::SessionTypeWrapper::FromString(
-        node[std::string(epochflow::tf_str::kSession)].as<std::string>(
-            std::string(epochflow::tf_str::kNull)));
+        node[std::string(epoch_script::tf_str::kSession)].as<std::string>(
+            std::string(epoch_script::tf_str::kNull)));
     rhs.session_anchor = epoch_core::SessionAnchorTypeWrapper::FromString(
-        node[std::string(epochflow::tf_str::kSessionAnchor)].as<std::string>(
-            std::string(epochflow::tf_str::kNull)));
+        node[std::string(epoch_script::tf_str::kSessionAnchor)].as<std::string>(
+            std::string(epoch_script::tf_str::kNull)));
     return true;
   }
 } // namespace YAML

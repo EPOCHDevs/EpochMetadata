@@ -1,8 +1,8 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_definition.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_definition.h>
 #include <epoch_protos/tearsheet.pb.h>
 #include <trompeloeil.hpp>
 #include <yaml-cpp/yaml.h>
@@ -12,7 +12,7 @@
 #include <optional>
 #include <unordered_map>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 // Forward declare - we'll use a wrapper approach instead of inheritance
 // to avoid object slicing issues with return-by-value
@@ -46,7 +46,7 @@ namespace epoch_flow::runtime::test {
  *     .IN_SEQUENCE(seq);
  * @endcode
  */
-class MockTransform : public epochflow::transform::ITransformBase {
+class MockTransform : public epoch_script::transform::ITransformBase {
 public:
     explicit MockTransform() = default;
     ~MockTransform() override = default;
@@ -54,16 +54,16 @@ public:
     // Mock only methods that need verification (TransformData, GetTearSheet, GetSelectorData)
     MAKE_CONST_MOCK1(TransformData, epoch_frame::DataFrame(const epoch_frame::DataFrame&), override);
     MAKE_CONST_MOCK0(GetTearSheet, epoch_proto::TearSheet(), override);
-    MAKE_CONST_MOCK0(GetSelectorData, epochflow::transform::SelectorData(), override);
+    MAKE_CONST_MOCK0(GetSelectorData, epoch_script::transform::SelectorData(), override);
 
     // Note: GetConfiguration is stubbed below, not mocked, to avoid complexity
 
     // Use STUBS for simple data accessors - no Trompeloeil complexity, no lifetime issues
     [[nodiscard]] std::string GetId() const override { return m_id; }
     [[nodiscard]] std::string GetName() const override { return m_name; }
-    [[nodiscard]] epochflow::TimeFrame GetTimeframe() const override { return *m_timeframe; }
+    [[nodiscard]] epoch_script::TimeFrame GetTimeframe() const override { return *m_timeframe; }
     [[nodiscard]] std::vector<std::string> GetInputIds() const override { return m_inputIds; }
-    [[nodiscard]] std::vector<epochflow::transforms::IOMetaData> GetOutputMetaData() const override {
+    [[nodiscard]] std::vector<epoch_script::transforms::IOMetaData> GetOutputMetaData() const override {
         return m_outputMetadata;
     }
 
@@ -84,13 +84,13 @@ public:
     }
 
     // Unused methods - throw if called
-    [[nodiscard]] epochflow::MetaDataOptionDefinition GetOption(std::string const&) const override {
+    [[nodiscard]] epoch_script::MetaDataOptionDefinition GetOption(std::string const&) const override {
         throw std::runtime_error("GetOption() not implemented in MockTransform stub");
     }
-    [[nodiscard]] epochflow::MetaDataOptionList GetOptionsMetaData() const override {
+    [[nodiscard]] epoch_script::MetaDataOptionList GetOptionsMetaData() const override {
         return {};  // Return empty list
     }
-    [[nodiscard]] epochflow::transform::TransformConfiguration GetConfiguration() const override {
+    [[nodiscard]] epoch_script::transform::TransformConfiguration GetConfiguration() const override {
         // Lazy initialization of configuration
         if (!m_cachedConfig) {
             // Generate valid YAML based on inputs
@@ -140,8 +140,8 @@ public:
                     m_id
                 );
             }
-            m_cachedConfig = std::make_unique<epochflow::transform::TransformConfiguration>(
-                epochflow::TransformDefinition{YAML::Load(yamlStr)}
+            m_cachedConfig = std::make_unique<epoch_script::transform::TransformConfiguration>(
+                epoch_script::TransformDefinition{YAML::Load(yamlStr)}
             );
         }
         return *m_cachedConfig;
@@ -153,13 +153,13 @@ public:
     // Stub data storage - populated by helper functions
     std::string m_id;
     std::string m_name = "MockTransform";
-    std::optional<epochflow::TimeFrame> m_timeframe;  // Optional since TimeFrame has no default ctor
+    std::optional<epoch_script::TimeFrame> m_timeframe;  // Optional since TimeFrame has no default ctor
     std::vector<std::string> m_inputIds;
     std::vector<std::string> m_outputIds;
-    std::vector<epochflow::transforms::IOMetaData> m_outputMetadata;
+    std::vector<epoch_script::transforms::IOMetaData> m_outputMetadata;
     bool m_isCrossSectional = false;  // Controls execution path selection
     bool m_isSelector = false;  // Controls whether this is a selector transform
-    mutable std::unique_ptr<epochflow::transform::TransformConfiguration> m_cachedConfig;  // Lazy-initialized config
+    mutable std::unique_ptr<epoch_script::transform::TransformConfiguration> m_cachedConfig;  // Lazy-initialized config
 };
 
 /**
@@ -180,7 +180,7 @@ public:
  */
 inline std::unique_ptr<MockTransform> CreateSimpleMockTransform(
     const std::string& id,
-    const epochflow::TimeFrame& timeframe,
+    const epoch_script::TimeFrame& timeframe,
     const std::vector<std::string>& inputIds = {},
     const std::vector<std::string>& outputIds = {"result"},
     bool isCrossSectional = false,
@@ -221,7 +221,7 @@ inline std::unique_ptr<MockTransform> CreateSimpleMockTransform(
  */
 inline std::unique_ptr<MockTransform> CreateFullyMockedTransform(
     const std::string& id,
-    const epochflow::TimeFrame& timeframe,
+    const epoch_script::TimeFrame& timeframe,
     const std::vector<std::string>& inputIds = {},
     const std::vector<std::string>& outputIds = {"result"},
     bool isCrossSectional = false,
@@ -246,4 +246,4 @@ inline std::unique_ptr<MockTransform> CreateFullyMockedTransform(
     return mock;
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

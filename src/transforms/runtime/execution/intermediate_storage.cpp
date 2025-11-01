@@ -2,7 +2,7 @@
 #include "common/asserts.h"
 #include "epoch_frame/common.h"
 #include "epoch_frame/factory/dataframe_factory.h"
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include "storage_types.h"
 #include <algorithm>
 #include <arrow/table.h>
@@ -11,10 +11,10 @@
 #include <ranges>
 #include <vector>
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
 epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
     const AssetID &asset_id,
-    const epochflow::transform::ITransformBase &transformer) const {
+    const epoch_script::transform::ITransformBase &transformer) const {
   const auto targetTimeframe = transformer.GetTimeframe().ToString();
   const auto dataSources = transformer.GetConfiguration()
                                .GetTransformDefinition()
@@ -83,7 +83,7 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
 
 void IntermediateResultStorage::InitializeBaseData(
     TimeFrameAssetDataFrameMap data, const std::unordered_set<AssetID> &allowed_asset_ids) {
-  // Store base data with empty transformepochflow::ID
+  // Store base data with empty transformepoch_script::ID
   // Acquire exclusive locks for initialization
   std::unique_lock baseDataLock(m_baseDataMutex);
   std::unique_lock cacheLock(m_cacheMutex);
@@ -112,7 +112,7 @@ void IntermediateResultStorage::InitializeBaseData(
 }
 
 void IntermediateResultStorage::RegisterTransform(
-    const epochflow::transform::ITransformBase &transform) {
+    const epoch_script::transform::ITransformBase &transform) {
   std::unique_lock lock(m_transformMapMutex);
 
   // Register each output of this transform
@@ -204,7 +204,7 @@ GetArrowTypeFromIODataType(epoch_core::IODataType dataType) {
 
 void IntermediateResultStorage::StoreTransformOutput(
     const AssetID &asset_id,
-    const epochflow::transform::ITransformBase &transformer,
+    const epoch_script::transform::ITransformBase &transformer,
     const epoch_frame::DataFrame &data) {
   const auto timeframe = transformer.GetTimeframe().ToString();
 
@@ -231,4 +231,4 @@ void IntermediateResultStorage::StoreTransformOutput(
         index, outputId);
   }
 }
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

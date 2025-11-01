@@ -2,9 +2,9 @@
 //
 // Created by dewe on 9/19/23.
 //
-#include <epochflow/transforms/transform_configuration.h>
+#include <epoch_script/transforms/transform_configuration.h>
 
-using epochflow::transform::TransformConfiguration;
+using epoch_script::transform::TransformConfiguration;
 
 #define MAKE_GETTER_IMPL(Name, fieldName, Type)                                \
   inline Type Get##Name(const strategy::Context &ctx,                          \

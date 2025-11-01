@@ -4,13 +4,13 @@
 
 #pragma once
 #include "../common_utils.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
 using namespace epoch_frame;
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 class HurstExponent final : public ITransform {
 public:
   explicit HurstExponent(const TransformConfiguration &config)
@@ -80,4 +80,4 @@ private:
   int64_t m_window;
   hmdf::HurstExponentVisitor<double>::RangeVec m_lagGrid;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

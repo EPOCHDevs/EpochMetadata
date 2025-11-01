@@ -12,7 +12,7 @@
 #include "../type_checker.h"
 #include <stdexcept>
 
-namespace epochflow
+namespace epoch_script
 {
     void ConditionalSelectValidator::ValidateInputs(const ValidationContext& ctx) const {
         // Validate at least 2 inputs (1 condition + 1 value minimum)
@@ -45,4 +45,4 @@ namespace epochflow
     // Auto-register this validator
     REGISTER_SPECIAL_VALIDATOR("conditional_select", ConditionalSelectValidator)
 
-} // namespace epochflow
+} // namespace epoch_script

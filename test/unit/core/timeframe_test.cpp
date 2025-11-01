@@ -1,4 +1,4 @@
-#include <epochflow/core/time_frame.h>
+#include <epoch_script/core/time_frame.h>
 #include <catch2/catch_all.hpp>
 #include <chrono>
 #include <epoch_frame/factory/date_offset_factory.h>
@@ -6,7 +6,7 @@
 #include <glaze/json/generic.hpp>
 #include <yaml-cpp/yaml.h>
 
-using namespace epochflow;
+using namespace epoch_script;
 
 // Helper function to create TimeFrame objects for testing
 TimeFrame CreateTimeFrame(epoch_core::EpochOffsetType type, int interval)

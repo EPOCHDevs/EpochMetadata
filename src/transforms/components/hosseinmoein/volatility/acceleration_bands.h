@@ -4,13 +4,13 @@
 
 #pragma once
 #include "../common_utils.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
 using namespace epoch_frame;
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 class AccelerationBands : public ITransform {
 public:
   explicit AccelerationBands(const TransformConfiguration &config)
@@ -37,4 +37,4 @@ public:
 private:
   mutable hmdf::aband_v<double, int64_t> m_visitor;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

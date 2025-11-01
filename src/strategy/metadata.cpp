@@ -1,13 +1,13 @@
 //
 // Created by dewe on 9/10/24.
 //
-#include <epochflow/strategy/metadata.h>
+#include <epoch_script/strategy/metadata.h>
 #include "../core/doc_deserialization_helper.h"
-#include <epochflow/core/metadata_options.h>
-#include <epochflow/transforms/core/registry.h>
-#include <epochflow/transforms/core/metadata.h>
-#include <epochflow/transforms/core/registration.h>
-#include <epochflow/strategy/registration.h>
+#include <epoch_script/core/metadata_options.h>
+#include <epoch_script/transforms/core/registry.h>
+#include <epoch_script/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/registration.h>
+#include <epoch_script/strategy/registration.h>
 #include "transforms/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>
@@ -19,8 +19,8 @@
 #include <ranges>
 #include <algorithm>
 
-using namespace epochflow;
-using namespace epochflow::strategy;
+using namespace epoch_script;
+using namespace epoch_script::strategy;
 using epoch_core::BaseDataTimeFrame;
 using epoch_core::EpochOffsetType;
 
@@ -33,7 +33,7 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
   for (const auto &node : compilationResult)
   {
     // Check if node type requires intraday data or has a session
-    if (epochflow::transforms::kIntradayOnlyIds.contains(node.type) ||
+    if (epoch_script::transforms::kIntradayOnlyIds.contains(node.type) ||
         node.session)
     {
       types.emplace(EpochOffsetType::Minute);
@@ -53,7 +53,7 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
   }
 
   return std::ranges::any_of(types, [](EpochOffsetType t)
-                             { return epochflow::IsIntraday(t); })
+                             { return epoch_script::IsIntraday(t); })
              ? BaseDataTimeFrame::Minute
              : BaseDataTimeFrame::EOD;
 }
@@ -67,7 +67,7 @@ PythonSource::PythonSource(std::string src) : source_(std::move(src))
   }
 
   // Compile Python source to get algorithm nodes
-  epochflow::AlgorithmAstCompiler compiler;
+  epoch_script::AlgorithmAstCompiler compiler;
   compilationResult_ = compiler.compile(source_);
   m_executor_count = compiler.getExecutorCount();
 
@@ -95,8 +95,8 @@ namespace YAML
     {
       auto start = node["start"].as<std::string>();
       auto end = node["end"].as<std::string>();
-      metadata = epoch_frame::SessionRange{epochflow::TimeFromString(start),
-                                           epochflow::TimeFromString(end)};
+      metadata = epoch_frame::SessionRange{epoch_script::TimeFromString(start),
+                                           epoch_script::TimeFromString(end)};
     }
     else
     {

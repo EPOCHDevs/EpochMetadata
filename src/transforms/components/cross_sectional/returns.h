@@ -2,11 +2,11 @@
 //
 // Created by dewe on 4/14/23.
 //
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
-#include <epochflow/core/constants.h>
+#include <epoch_script/core/constants.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 /**
  * @brief Cross-sectional returns operation
  *
@@ -36,4 +36,4 @@ struct CrossSectionalMomentumOperation final : ITransform {
     return csReturns.to_frame(GetOutputId());
   }
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

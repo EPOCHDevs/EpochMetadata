@@ -1,6 +1,6 @@
 # Glossary
 
-Technical terms and definitions used in EpochFlow documentation.
+Technical terms and definitions used in Epoch script documentation.
 
 ---
 
@@ -287,7 +287,7 @@ Interactive analysis interface for gap reports, tables, and charts (separate fro
 Real-time metrics display organized in card groups (numeric, boolean, quantile)
 
 **Compiler**
-Program that translates Flow script to executable format
+Program that translates Epoch script to executable format
 
 **Handle**
 Named output of a transform: `c` (close), `bbands_upper`, etc.

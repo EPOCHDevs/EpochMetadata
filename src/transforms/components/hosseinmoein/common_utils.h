@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/index.h>
 #include <epoch_frame/series.h>
 #include <span>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 template <typename T = double> class SeriesSpan {
 
 public:
@@ -35,33 +35,33 @@ private:
 struct HighSpan : SeriesSpan<> {
   explicit HighSpan(epoch_frame::DataFrame const &df)
       : SeriesSpan(df,
-                   epochflow::EpochStratifyXConstants::instance().HIGH()) {
+                   epoch_script::EpochStratifyXConstants::instance().HIGH()) {
   }
 };
 
 struct LowSpan : SeriesSpan<> {
   explicit LowSpan(epoch_frame::DataFrame const &df)
       : SeriesSpan(df,
-                   epochflow::EpochStratifyXConstants::instance().LOW()) {}
+                   epoch_script::EpochStratifyXConstants::instance().LOW()) {}
 };
 
 struct CloseSpan : SeriesSpan<> {
   explicit CloseSpan(epoch_frame::DataFrame const &df)
       : SeriesSpan(
-            df, epochflow::EpochStratifyXConstants::instance().CLOSE()) {}
+            df, epoch_script::EpochStratifyXConstants::instance().CLOSE()) {}
 };
 
 struct OpenSpan : SeriesSpan<> {
   explicit OpenSpan(epoch_frame::DataFrame const &df)
       : SeriesSpan(df,
-                   epochflow::EpochStratifyXConstants::instance().OPEN()) {
+                   epoch_script::EpochStratifyXConstants::instance().OPEN()) {
   }
 };
 
 struct VolumeSpan : SeriesSpan<> {
   explicit VolumeSpan(epoch_frame::DataFrame const &df)
       : SeriesSpan(
-            df, epochflow::EpochStratifyXConstants::instance().VOLUME()) {}
+            df, epoch_script::EpochStratifyXConstants::instance().VOLUME()) {}
 };
 
 class IndexSpan {
@@ -152,4 +152,4 @@ public:
 private:
   mutable Visitor m_visitor;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

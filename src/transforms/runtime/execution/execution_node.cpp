@@ -10,13 +10,13 @@
 #include <epoch_frame/common.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/index.h>
-#include <epochflow/core/time_frame.h>
-#include <epochflow/transforms/core/sessions_utils.h>
+#include <epoch_script/core/time_frame.h>
+#include <epoch_script/transforms/core/sessions_utils.h>
 #include <unordered_map>
 #include <vector>
 
 // TODO: Watch out for throwing excePtion in these functions -> causes deadlock
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
 // Best-effort intraday detection from timeframe string (e.g., 1Min, 5Min, 1H)
 static inline bool IsIntradayString(std::string const &tf) {
   if (tf.size() < 2)
@@ -32,11 +32,11 @@ static inline bool IsIntradayString(std::string const &tf) {
 static inline epoch_frame::DataFrame
 SliceBySession(epoch_frame::DataFrame const &df,
                epoch_frame::SessionRange const &range) {
-  return epochflow::transform::sessions_utils::SliceBySessionUTC(df,
+  return epoch_script::transform::sessions_utils::SliceBySessionUTC(df,
                                                                       range);
 }
 void ApplyDefaultTransform(
-    const epochflow::transform::ITransformBase &transformer,
+    const epoch_script::transform::ITransformBase &transformer,
     ExecutionContext &msg) {
   auto timeframe = transformer.GetTimeframe().ToString();
   auto name = transformer.GetName() + " " + transformer.GetId();
@@ -127,7 +127,7 @@ void ApplyDefaultTransform(
 }
 
 void ApplyCrossSectionTransform(
-    const epochflow::transform::ITransformBase &transformer,
+    const epoch_script::transform::ITransformBase &transformer,
     ExecutionContext &msg) {
   // Build input list across all symbols in timeframe
   auto timeframe = transformer.GetTimeframe().ToString();
@@ -254,4 +254,4 @@ void ApplyCrossSectionTransform(
     msg.logger->log(exception);
   }
 }
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

@@ -2,8 +2,8 @@
 
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/scalar.h"
-#include <epochflow/transforms/core/bar_resampler.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/bar_resampler.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <cstdint>
 #include <epoch_frame/factory/dataframe_factory.h>
@@ -15,7 +15,7 @@
 #include <numeric>
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 /**
  * PreviousHighLow - identifies the previous high or low within a given
  * interval.
@@ -36,7 +36,7 @@ private:
 
   arrow::TablePtr BuildTable(epoch_frame::DataFrame const &input) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     // Column shortcuts
     const auto N = input.num_rows();
@@ -107,4 +107,4 @@ private:
          factory::array::make_array(broken_low)});
   }
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

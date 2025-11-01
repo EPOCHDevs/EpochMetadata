@@ -3,9 +3,9 @@
 // Created by assistant on 9/1/24.
 //
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Outputs exposed:
 //   - gap_filled: Boolean - whether gap was filled during the trading session
@@ -26,7 +26,7 @@ public:
                 config
                     .GetOptionValue(
                         "fill_percent",
-                        epochflow::MetaDataOptionDefinition{100.0})
+                        epoch_script::MetaDataOptionDefinition{100.0})
                     .GetInteger()) /
             100.0) {}
 
@@ -37,4 +37,4 @@ private:
   double m_fillPercent;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

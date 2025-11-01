@@ -1,8 +1,8 @@
-# EpochFlow Runtime - Transform Orchestrator and Execution Engine
+# EpochScript Runtime - Transform Orchestrator and Execution Engine
 # Manages dataflow graph execution using TBB
 
-# Add runtime sources to parent target (epochflow)
-target_sources(epochflow PRIVATE
+# Add runtime sources to parent target (epoch_script)
+target_sources(epoch_script PRIVATE
     orchestrator.cpp
     execution/execution_node.cpp
     execution/intermediate_storage.cpp
@@ -10,6 +10,6 @@ target_sources(epochflow PRIVATE
 )
 
 # Runtime needs access to execution headers
-target_include_directories(epochflow PUBLIC
+target_include_directories(epoch_script PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )

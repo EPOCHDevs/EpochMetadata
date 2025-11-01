@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Z-Score using hmdf::ZScoreVisitor over a rolling window
 class ZScore final : public ITransform {
@@ -33,4 +33,4 @@ private:
   int64_t m_window;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

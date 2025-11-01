@@ -3,9 +3,9 @@
 // Created by assistant on 10/30/25.
 //
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Outputs exposed (same as session_gap for compatibility):
 //   - gap_filled: Boolean - whether gap fills in current bar
@@ -33,7 +33,7 @@ public:
                 config
                     .GetOptionValue(
                         "fill_percent",
-                        epochflow::MetaDataOptionDefinition{100.0})
+                        epoch_script::MetaDataOptionDefinition{100.0})
                     .GetInteger()) /
             100.0),
         m_minGapSize(
@@ -41,7 +41,7 @@ public:
                 config
                     .GetOptionValue(
                         "min_gap_size",
-                        epochflow::MetaDataOptionDefinition{0.0})
+                        epoch_script::MetaDataOptionDefinition{0.0})
                     .GetDecimal())) {}
 
   [[nodiscard]] epoch_frame::DataFrame
@@ -52,4 +52,4 @@ private:
   double m_minGapSize;  // Minimum gap size (percentage) to detect
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -20,11 +20,11 @@ CREATE_ENUM(NumericArrowAggregateFunction,
   variance             // variance
 );
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class NumericCardReport : public BaseCardReport {
 public:
-  explicit NumericCardReport(epochflow::transform::TransformConfiguration config)
+  explicit NumericCardReport(epoch_script::transform::TransformConfiguration config)
       : BaseCardReport(std::move(config)) {}
 
 protected:
@@ -35,7 +35,7 @@ protected:
 template <> struct ReportMetadata<NumericCardReport> {
   constexpr static const char *kReportId = "numeric_cards_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -44,7 +44,7 @@ template <> struct ReportMetadata<NumericCardReport> {
         {.id = "agg",
          .name = "Aggregation",
          .type = epoch_core::MetaDataOptionType::Select,
-         .defaultValue = epochflow::MetaDataOptionDefinition{"mean"},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{"mean"},
          .isRequired = false,
          .selectOption = {
                           {"Approximate Median", "approximate_median"},
@@ -101,4 +101,4 @@ template <> struct ReportMetadata<NumericCardReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

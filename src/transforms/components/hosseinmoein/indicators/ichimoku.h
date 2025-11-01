@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Ichimoku Cloud components with configurable periods
 // tenkan = (rolling_max(high, p_tenkan) + rolling_min(low, p_tenkan))/2
@@ -28,7 +28,7 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const override {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     const epoch_frame::Series high = df[C.HIGH()];
     const epoch_frame::Series low = df[C.LOW()];
@@ -71,4 +71,4 @@ private:
   int64_t m_senkou_b;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

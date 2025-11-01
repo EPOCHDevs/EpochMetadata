@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Type Checker
+// EpochScript Type Checker
 //
 // Handles type checking and type casting for node connections.
 // Manages data type compatibility and automatic type conversions.
@@ -13,7 +13,7 @@
 #include <optional>
 #include <string>
 
-namespace epochflow
+namespace epoch_script
 {
 
     class TypeChecker
@@ -50,4 +50,4 @@ namespace epochflow
         std::string JoinId(const std::string& node_id, const std::string& handle);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

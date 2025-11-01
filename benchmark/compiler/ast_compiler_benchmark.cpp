@@ -1,5 +1,5 @@
 //
-// EpochFlow AST Compiler Benchmark
+// EpochScript AST Compiler Benchmark
 // Benchmarks for compilation performance across different script complexities
 //
 
@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <fstream>
 
-using namespace epochflow;
+using namespace epoch_script;
 using namespace epoch_benchmark;
 
 // Helper to load script from benchmark/scripts directory

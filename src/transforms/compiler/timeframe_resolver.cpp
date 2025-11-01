@@ -1,12 +1,12 @@
 //
 // Created by Claude Code
-// EpochFlow Timeframe Resolution Utility Implementation
+// EpochScript Timeframe Resolution Utility Implementation
 //
 
 #include "timeframe_resolver.h"
 #include <algorithm>
 
-namespace epochflow
+namespace epoch_script
 {
 
     std::vector<std::string> TimeframeResolver::extractInputNodeIds(const std::vector<std::string> &inputIds)
@@ -32,10 +32,10 @@ namespace epochflow
         return nodeIds;
     }
 
-    std::optional<epochflow::TimeFrame> TimeframeResolver::ResolveTimeframe(
+    std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveTimeframe(
         const std::string &nodeId,
         const std::vector<std::string> &inputIds,
-        const std::optional<epochflow::TimeFrame> &baseTimeframe)
+        const std::optional<epoch_script::TimeFrame> &baseTimeframe)
     {
         // Check cache first
         if (nodeTimeframes.contains(nodeId))
@@ -43,12 +43,12 @@ namespace epochflow
             return nodeTimeframes[nodeId];
         }
 
-        std::optional<epochflow::TimeFrame> resolvedTimeframe;
+        std::optional<epoch_script::TimeFrame> resolvedTimeframe;
 
         // If we have inputs, resolve from them
         if (!inputIds.empty())
         {
-            std::vector<epochflow::TimeFrame> inputTimeframes;
+            std::vector<epoch_script::TimeFrame> inputTimeframes;
             inputTimeframes.reserve(inputIds.size());
 
             // Extract node IDs from "node_id#handle" format
@@ -83,9 +83,9 @@ namespace epochflow
         return resolvedTimeframe;
     }
 
-    std::optional<epochflow::TimeFrame> TimeframeResolver::ResolveNodeTimeframe(
-        const epochflow::strategy::AlgorithmNode &node,
-        const std::optional<epochflow::TimeFrame> &baseTimeframe)
+    std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveNodeTimeframe(
+        const epoch_script::strategy::AlgorithmNode &node,
+        const std::optional<epoch_script::TimeFrame> &baseTimeframe)
     {
         // If node has explicit timeframe, use it and cache it
         if (node.timeframe)
@@ -105,4 +105,4 @@ namespace epochflow
         return ResolveTimeframe(node.id, inputIds, baseTimeframe);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

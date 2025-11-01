@@ -4,11 +4,11 @@
 
 #pragma once
 #include "epoch_frame/factory/dataframe_factory.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 CREATE_ENUM(LogicalOperator, _or, _and, _not, _xor, _and_not);
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 template <epoch_core::LogicalOperator sign>
 class LogicalTransform : public ITransform {
@@ -19,8 +19,8 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
     using namespace epoch_frame;
-    Series lhs = bars[GetInputId(epochflow::ARG0)];
-    Series rhs = bars[GetInputId(epochflow::ARG1)];
+    Series lhs = bars[GetInputId(epoch_script::ARG0)];
+    Series rhs = bars[GetInputId(epoch_script::ARG1)];
 
     std::string function = epoch_core::LogicalOperatorWrapper::ToString(sign);
     return make_dataframe(
@@ -45,4 +45,4 @@ using LogicalOR = LogicalTransform<epoch_core::LogicalOperator::_or>;
 using LogicalAND = LogicalTransform<epoch_core::LogicalOperator::_and>;
 using LogicalXOR = LogicalTransform<epoch_core::LogicalOperator::_xor>;
 using LogicalAND_NOT = LogicalTransform<epoch_core::LogicalOperator::_and_not>;
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

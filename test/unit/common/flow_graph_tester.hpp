@@ -57,14 +57,14 @@ struct FlowGraphTestCase {
     std::vector<std::string> assets;
     std::vector<std::string> timeframes;
     TimeFrameAssetDataFrameMap inputData;
-    epochflow::transform::TransformConfigurationList configuration;
+    epoch_script::transform::TransformConfigurationList configuration;
     std::unique_ptr<IOutputType> expect;
 };
 
 // Helper functions for data loading
 TimeFrameAssetDataFrameMap loadDataFromYAML(const YAML::Node& node);
 std::vector<std::string> loadAssetsFromYAML(const YAML::Node& node);
-epochflow::transform::TransformConfigurationList loadConfigurationFromYAML(const YAML::Node& node);
+epoch_script::transform::TransformConfigurationList loadConfigurationFromYAML(const YAML::Node& node);
 epoch_frame::DataFrame loadDataFrameFromYAML(const YAML::Node& node);
 std::vector<FlowGraphTestCase> loadFlowGraphTestsFromYAML(const std::string& filePath);
 
@@ -93,7 +93,7 @@ public:
         const Config& config,
         std::function<std::pair<TimeFrameAssetDataFrameMap, AssetReportMap>(
             const std::vector<std::string>&,
-            const epochflow::transform::TransformConfigurationList&,
+            const epoch_script::transform::TransformConfigurationList&,
             const TimeFrameAssetDataFrameMap&)> flowGraphAdapter) {
 
         // Find all test files (only YAML files, skip datasets folder)
@@ -182,7 +182,7 @@ private:
         const std::string& testFile,
         std::function<std::pair<TimeFrameAssetDataFrameMap, AssetReportMap>(
             const std::vector<std::string>&,
-            const epochflow::transform::TransformConfigurationList&,
+            const epoch_script::transform::TransformConfigurationList&,
             const TimeFrameAssetDataFrameMap&)> flowGraphAdapter) {
 
         // Extract a clean name for the section
@@ -244,7 +244,7 @@ private:
      */
     static std::pair<TimeFrameAssetDataFrameMap, AssetReportMap> runFlowGraphWithConfig(
         const std::vector<std::string>& assets,
-        const epochflow::transform::TransformConfigurationList& configuration,
+        const epoch_script::transform::TransformConfigurationList& configuration,
         const TimeFrameAssetDataFrameMap& inputData) {
 
         // Build transforms from configurations

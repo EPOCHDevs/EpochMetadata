@@ -1,12 +1,12 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/factory/table_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 /**
  *  A fair value gap is when the previous high is lower than the next low if the
  current candle is bullish. Or when the previous low is higher than the next
@@ -29,7 +29,7 @@ private:
 
   arrow::TablePtr Call(epoch_frame::DataFrame const &bars) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
     const Scalar null{nan};
 
@@ -123,4 +123,4 @@ private:
         column_arrays));
   }
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

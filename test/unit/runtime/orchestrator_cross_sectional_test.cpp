@@ -27,10 +27,10 @@
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 namespace {
     using namespace epoch_frame::factory::index;
@@ -77,7 +77,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .WITH(!_1.empty())  // Verify input is not empty
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(regular_mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft}, CreateMockTransformManager(std::move(transforms)));
@@ -121,7 +121,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .TIMES(2)
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(data));
         transforms.push_back(std::move(roc));
         transforms.push_back(std::move(cs_mom));
@@ -159,7 +159,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .TIMES(1)
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs_mom));
         transforms.push_back(std::move(regular));
         transforms.push_back(std::move(top_k));
@@ -184,7 +184,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .TIMES(1)
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs_mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft}, CreateMockTransformManager(std::move(transforms)));
@@ -210,7 +210,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .TIMES(1)
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs_mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft, googl}, CreateMockTransformManager(std::move(transforms)));
@@ -243,7 +243,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
             .TIMES(1)  // Still only called ONCE despite 5 assets
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(cs_mock));
 
         DataFlowRuntimeOrchestrator orch(assets, CreateMockTransformManager(std::move(transforms)));
@@ -278,11 +278,11 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Cross-Sectional Execution", "[.][orches
         ALLOW_CALL(*regular_transform, TransformData(trompeloeil::_))
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms1;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms1;
         transforms1.push_back(std::move(cs_transform));
         REQUIRE_NOTHROW(DataFlowRuntimeOrchestrator({aapl}, CreateMockTransformManager(std::move(transforms1))));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms2;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms2;
         transforms2.push_back(std::move(regular_transform));
         REQUIRE_NOTHROW(DataFlowRuntimeOrchestrator({aapl}, CreateMockTransformManager(std::move(transforms2))));
     }

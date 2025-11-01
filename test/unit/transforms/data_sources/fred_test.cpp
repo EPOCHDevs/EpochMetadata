@@ -2,20 +2,20 @@
 // Created by Claude Code for FRED Transform Testing
 //
 
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/registry.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/registry.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/data_sources/fred_transform.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 

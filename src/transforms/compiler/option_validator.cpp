@@ -1,17 +1,17 @@
 //
 // Created by Claude Code
-// EpochFlow Option Validator Implementation
+// EpochScript Option Validator Implementation
 //
 
 #include "option_validator.h"
 #include <epoch_core/enum_wrapper.h>
-#include <epochflow/core/metadata_options.h>
-#include <epochflow/core/sql_statement.h>
+#include <epoch_script/core/metadata_options.h>
+#include <epoch_script/core/sql_statement.h>
 #include <glaze/glaze.hpp>
 #include <algorithm>
 #include <format>
 
-namespace epochflow
+namespace epoch_script
 {
 
     // Helper function to trim leading/trailing whitespace from a string
@@ -27,8 +27,8 @@ namespace epochflow
 
     void OptionValidator::ValidateAndApplyOptions(
         const std::string& node_id,
-        const epochflow::transforms::TransformsMetaData& comp_meta,
-        std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& kwargs,
+        const epoch_script::transforms::TransformsMetaData& comp_meta,
+        std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& kwargs,
         const Call& call)
     {
         // 1. Apply default options for missing required parameters
@@ -94,13 +94,13 @@ namespace epochflow
         // kwargs now contains validated, clamped values with defaults applied
     }
 
-    epochflow::MetaDataOptionDefinition::T OptionValidator::ParseOptionByMetadata(
-        const epochflow::MetaDataOptionDefinition::T& raw_value,
-        const epochflow::MetaDataOption& meta_option,
+    epoch_script::MetaDataOptionDefinition::T OptionValidator::ParseOptionByMetadata(
+        const epoch_script::MetaDataOptionDefinition::T& raw_value,
+        const epoch_script::MetaDataOption& meta_option,
         const std::string& option_id,
         const std::string& node_id,
         const Call& call,
-        const epochflow::transforms::TransformsMetaData& comp_meta)
+        const epoch_script::transforms::TransformsMetaData& comp_meta)
     {
         using MetaType = epoch_core::MetaDataOptionType;
 
@@ -190,8 +190,8 @@ namespace epochflow
         case MetaType::CardSchema:
         {
             // If already parsed as CardSchemaFilter or CardSchemaSQL, return as-is (already validated)
-            if (std::holds_alternative<epochflow::CardSchemaFilter>(raw_value) ||
-                std::holds_alternative<epochflow::CardSchemaSQL>(raw_value))
+            if (std::holds_alternative<epoch_script::CardSchemaFilter>(raw_value) ||
+                std::holds_alternative<epoch_script::CardSchemaSQL>(raw_value))
             {
                 return raw_value;
             }
@@ -210,14 +210,14 @@ namespace epochflow
             std::string trimmed_json = TrimWhitespace(json_str);
 
             // Try parsing as CardSchemaFilter first (uses select_key)
-            auto filter_result = glz::read_json<epochflow::CardSchemaFilter>(trimmed_json);
+            auto filter_result = glz::read_json<epoch_script::CardSchemaFilter>(trimmed_json);
             if (filter_result)
             {
-                return epochflow::MetaDataOptionDefinition::T{filter_result.value()};
+                return epoch_script::MetaDataOptionDefinition::T{filter_result.value()};
             }
 
             // Try parsing as CardSchemaSQL (uses sql)
-            auto sql_result = glz::read_json<epochflow::CardSchemaSQL>(trimmed_json);
+            auto sql_result = glz::read_json<epoch_script::CardSchemaSQL>(trimmed_json);
             if (sql_result)
             {
                 auto card_schema_sql = sql_result.value();
@@ -236,7 +236,7 @@ namespace epochflow
                         call.lineno, call.col_offset);
                 }
 
-                return epochflow::MetaDataOptionDefinition::T{card_schema_sql};
+                return epoch_script::MetaDataOptionDefinition::T{card_schema_sql};
             }
 
             // Both CardSchemaFilter and CardSchemaSQL failed
@@ -250,7 +250,7 @@ namespace epochflow
         case MetaType::SqlStatement:
         {
             // If already parsed as SqlStatement, return as-is (already validated)
-            if (std::holds_alternative<epochflow::SqlStatement>(raw_value))
+            if (std::holds_alternative<epoch_script::SqlStatement>(raw_value))
             {
                 return raw_value;
             }
@@ -269,10 +269,10 @@ namespace epochflow
             try
             {
                 // Construct SqlStatement and validate with numOutputs
-                epochflow::SqlStatement sql_stmt{sql_str};
+                epoch_script::SqlStatement sql_stmt{sql_str};
                 int num_outputs = static_cast<int>(comp_meta.outputs.size());
                 sql_stmt.Validate(num_outputs);
-                return epochflow::MetaDataOptionDefinition::T{sql_stmt};
+                return epoch_script::MetaDataOptionDefinition::T{sql_stmt};
             }
             catch (const std::exception& e)
             {
@@ -296,8 +296,8 @@ namespace epochflow
                 const std::string& time_str = std::get<std::string>(raw_value);
                 try
                 {
-                    epoch_frame::Time time = epochflow::TimeFromString(time_str);
-                    return epochflow::MetaDataOptionDefinition::T{time};
+                    epoch_frame::Time time = epoch_script::TimeFromString(time_str);
+                    return epoch_script::MetaDataOptionDefinition::T{time};
                 }
                 catch (const std::exception& e)
                 {
@@ -320,7 +320,7 @@ namespace epochflow
         case MetaType::StringList:
         {
             // Expect a Sequence
-            if (!std::holds_alternative<epochflow::Sequence>(raw_value))
+            if (!std::holds_alternative<epoch_script::Sequence>(raw_value))
             {
                 ThrowError(
                     std::format("Option '{}' of node '{}' expects {} but got non-list value",
@@ -329,7 +329,7 @@ namespace epochflow
                     call.lineno, call.col_offset);
             }
 
-            const auto& sequence = std::get<epochflow::Sequence>(raw_value);
+            const auto& sequence = std::get<epoch_script::Sequence>(raw_value);
 
             // Validate sequence elements match expected type
             for (const auto& item : sequence)
@@ -375,4 +375,4 @@ namespace epochflow
         throw std::runtime_error(full_msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

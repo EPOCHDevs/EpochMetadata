@@ -1,14 +1,14 @@
 #pragma once
 
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <epoch_frame/dataframe.h>
 #include <arrow/api.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class HistogramChartReport : public IReporter {
 public:
-  explicit HistogramChartReport(epochflow::transform::TransformConfiguration config)
+  explicit HistogramChartReport(epoch_script::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
         m_chartTitle(m_config.GetOptionValue("title").GetString()),
         m_bins(static_cast<uint32_t>(m_config.GetOptionValue("bins").GetInteger())),
@@ -31,7 +31,7 @@ private:
 template <> struct ReportMetadata<HistogramChartReport> {
   constexpr static const char *kReportId = "histogram_chart_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -45,7 +45,7 @@ template <> struct ReportMetadata<HistogramChartReport> {
         {.id = "bins",
          .name = "Number of Bins",
          .type = epoch_core::MetaDataOptionType::Integer,
-         .defaultValue = epochflow::MetaDataOptionDefinition{30.0},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{30.0},
          .isRequired = false,
          .min = 1,
          .max = 100,
@@ -80,4 +80,4 @@ template <> struct ReportMetadata<HistogramChartReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

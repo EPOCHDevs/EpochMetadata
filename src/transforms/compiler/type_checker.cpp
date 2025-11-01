@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Type Checker Implementation
+// EpochScript Type Checker Implementation
 //
 
 #include "type_checker.h"
@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-namespace epochflow
+namespace epoch_script
 {
 
     DataType TypeChecker::GetNodeOutputType(const std::string& node_id, const std::string& handle)
@@ -160,7 +160,7 @@ namespace epochflow
             // boolean_select(condition, true_value, false_value)
             std::string cast_node_id = UniqueNodeId("bool_to_num_cast");
 
-            epochflow::strategy::AlgorithmNode cast_algo;
+            epoch_script::strategy::AlgorithmNode cast_algo;
             cast_algo.id = cast_node_id;
             cast_algo.type = "boolean_select";
 
@@ -189,7 +189,7 @@ namespace epochflow
             // Use neq (not equal) to convert number to boolean (num != 0)
             std::string cast_node_id = UniqueNodeId("num_to_bool_cast");
 
-            epochflow::strategy::AlgorithmNode cast_algo;
+            epoch_script::strategy::AlgorithmNode cast_algo;
             cast_algo.id = cast_node_id;
             cast_algo.type = "neq";
 
@@ -246,10 +246,10 @@ namespace epochflow
     {
         std::string node_id = UniqueNodeId("number");
 
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "number";
-        algo.options["value"] = epochflow::MetaDataOptionDefinition{value};
+        algo.options["value"] = epoch_script::MetaDataOptionDefinition{value};
 
         context_.algorithms.push_back(std::move(algo));
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
@@ -280,4 +280,4 @@ namespace epochflow
         return node_id + "#" + handle;
     }
 
-} // namespace epochflow
+} // namespace epoch_script

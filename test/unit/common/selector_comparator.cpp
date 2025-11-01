@@ -7,7 +7,7 @@
 
 #include "epoch_frame/serialization.h"
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 std::string SelectorComparator::ToJson(const SelectorData& selector, bool prettyPrint) {
     glz::generic json;
@@ -181,4 +181,4 @@ std::string SelectorComparator::GenerateDiff(const std::string& expectedJson,
     return diffStream.str();
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

@@ -4,22 +4,22 @@
 #include <vector>
 #include <shared_mutex>
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
     class IntermediateResultStorage : public IIntermediateStorage {
     public:
         epoch_frame::DataFrame
         GatherInputs(const AssetID &asset_id,
-                     const epochflow::transform::ITransformBase &transformer) const override;
+                     const epoch_script::transform::ITransformBase &transformer) const override;
 
         void InitializeBaseData(TimeFrameAssetDataFrameMap data, const std::unordered_set<AssetID> &allowed_asset_ids) override;
 
         // Additional method to convert cache back to DataFrame format
         TimeFrameAssetDataFrameMap BuildFinalOutput() override;
 
-        void RegisterTransform(const epochflow::transform::ITransformBase &transform) override;
+        void RegisterTransform(const epoch_script::transform::ITransformBase &transform) override;
 
         void StoreTransformOutput(const AssetID &asset_id,
-                                  const epochflow::transform::ITransformBase &transformer,
+                                  const epoch_script::transform::ITransformBase &transformer,
                                   const epoch_frame::DataFrame &data) override;
 
         std::vector<AssetID> GetAssetIDs() const final {
@@ -31,7 +31,7 @@ namespace epoch_flow::runtime {
         TimeFrameCache m_cache;
         TimeFrameAssetDataFrameMap m_baseData;
         // Map from output ID to transform pointer for metadata queries
-        std::unordered_map<std::string, const epochflow::transform::ITransformBase*> m_ioIdToTransform;
+        std::unordered_map<std::string, const epoch_script::transform::ITransformBase*> m_ioIdToTransform;
         std::vector<AssetID> m_asset_ids;
 
         // Thread-safety: Separate mutexes for different data structures to minimize contention
@@ -40,4 +40,4 @@ namespace epoch_flow::runtime {
         mutable std::shared_mutex m_transformMapMutex; // Protects m_ioIdToTransform
         mutable std::shared_mutex m_assetIDsMutex;     // Protects m_asset_ids
     };
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

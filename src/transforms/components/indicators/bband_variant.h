@@ -2,10 +2,10 @@
 //
 // Created by dewe on 4/14/23.
 //
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/core/bar_attribute.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/core/bar_attribute.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 struct BollingerBandsPercent : ITransform {
   explicit BollingerBandsPercent(const TransformConfiguration &config)
       : ITransform(config) {}
@@ -14,7 +14,7 @@ struct BollingerBandsPercent : ITransform {
   TransformData(epoch_frame::DataFrame const &bars) const final {
     const auto lower = bars[GetInputId("bbands_lower")];
     const auto upper = bars[GetInputId("bbands_upper")];
-    return ((bars[epochflow::EpochStratifyXConstants::instance().CLOSE()] -
+    return ((bars[epoch_script::EpochStratifyXConstants::instance().CLOSE()] -
              lower) /
             (upper - lower))
         .to_frame(GetOutputId());
@@ -33,4 +33,4 @@ struct BollingerBandsWidth : ITransform {
     return ((upper - lower) / middle).to_frame(GetOutputId());
   }
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

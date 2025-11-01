@@ -6,9 +6,9 @@
 #include <arrow/builder.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/index.h>
-#include <epochflow/core/bar_attribute.h>
+#include <epoch_script/core/bar_attribute.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 epoch_frame::DataFrame
 BarGap::TransformData(epoch_frame::DataFrame const &bars) const {
@@ -170,4 +170,4 @@ BarGap::TransformData(epoch_frame::DataFrame const &bars) const {
   return df;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -1,10 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/registry.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/registry.h>
 #include "transforms/components/data_sources/sec_metadata.h"
 
-using namespace epochflow::transforms;
-using namespace epochflow::transform;
+using namespace epoch_script::transforms;
+using namespace epoch_script::transform;
 
 TEST_CASE("SEC Data Sources Metadata Registration", "[sec]") {
   SECTION("MakeSECDataSources returns two nodes") {

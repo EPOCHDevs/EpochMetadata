@@ -1,16 +1,16 @@
 #include "../../common.h"
-#include "epochflow/strategy/metadata.h" // Your metadata declarations
+#include "epoch_script/strategy/metadata.h" // Your metadata declarations
 #include <catch2/catch_all.hpp>
-#include <epochflow/transforms/core/registration.h>
+#include <epoch_script/transforms/core/registration.h>
 #include <yaml-cpp/yaml.h>
 
 // For convenience:
-using namespace epochflow;
-using namespace epochflow::strategy;
+using namespace epoch_script;
+using namespace epoch_script::strategy;
 
 TEST_CASE("SessionVariant decode - success", "[SessionVariant]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   std::string yaml_str = R"(
   session: { start: "09:00", end: "16:00" }
@@ -26,7 +26,7 @@ TEST_CASE("SessionVariant decode - success", "[SessionVariant]")
 
 TEST_CASE("AlgorithmNode decode - success", "[AlgorithmNode]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Example of minimal YAML that references the "atr" transform
   // (already registered above).
@@ -60,7 +60,7 @@ session: "NewYork"
 
 TEST_CASE("AlgorithmNode decode ref - success", "[AlgorithmNode]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Example of minimal YAML that references the "atr" transform
   // (already registered above).
@@ -90,7 +90,7 @@ inputs:
 TEST_CASE("AlgorithmNode decode - missing required option throws",
           "[AlgorithmNode]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Attempt to load an 'atr' transform node but omit the required 'period'
   // option:
@@ -110,7 +110,7 @@ inputs:
 TEST_CASE("AlgorithmNode decode - unknown transform type throws",
           "[AlgorithmNode]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // 'nonexistent_transform' is not in the registry
   std::string yaml_str = R"(
@@ -127,7 +127,7 @@ options:
 TEST_CASE("AlgorithmNode decode - unknown extra option throws",
           "[AlgorithmNode]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // 'atr' is recognized, but let's pass an unknown field "foo"
   std::string yaml_str = R"(
@@ -151,7 +151,7 @@ options:
 
 TEST_CASE("AlgorithmMetaData decode - success", "[AlgorithmMetaData]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   std::string yaml_str = R"(
 id: cppi
@@ -196,7 +196,7 @@ TEST_CASE("PythonSource - empty source", "[PythonSource]")
 
 TEST_CASE("PythonSource - EOD timeframe detection", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Simple algorithm using daily (EOD) data
   std::string source = R"(
@@ -216,7 +216,7 @@ signal = gt()(sma_fast.result, sma_slow.result)
 
 TEST_CASE("PythonSource - intraday timeframe detection", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Algorithm using minute (intraday) data
   std::string source = R"(
@@ -234,7 +234,7 @@ gt_result = gt()(src.c, src.vw)
 
 TEST_CASE("PythonSource - session implies intraday", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Algorithm with session (implies intraday)
   std::string source = R"(
@@ -253,7 +253,7 @@ gt_result = gt()(src.c, atr_ny.result)
 
 TEST_CASE("PythonSource - no explicit timeframe", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Algorithm without explicit timeframe (inherits from source)
   std::string source = R"(
@@ -288,7 +288,7 @@ TEST_CASE("PythonSource - equality operator", "[PythonSource]")
 
 TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   std::string source = R"(src = market_data_source(timeframe='1D')
 sma_val = sma(period=10, timeframe='1D')(src.c))";
@@ -308,9 +308,9 @@ sma_val = sma(period=10, timeframe='1D')(src.c))";
 
 TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
-  // JSON string containing EpochFlow source code
+  // JSON string containing EpochScript source code
   std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\"";
 
   // Deserialize from JSON
@@ -327,7 +327,7 @@ TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
 
 TEST_CASE("PythonSource - glaze round-trip serialization", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
 src = market_data_source(timeframe='5Min')
@@ -355,7 +355,7 @@ gt_result = gt()(src.vw, sma_val.result)
 
 TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Create JSON with intraday source
   std::string jsonInput = "\"atr = atr(period=14, session='NewYork')\"";
@@ -373,7 +373,7 @@ TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonS
 
 TEST_CASE("PythonSource - compilation result is cached", "[PythonSource]")
 {
-  transforms::RegisterTransformMetadata(epochflow::DEFAULT_YAML_LOADER);
+  transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   std::string source = R"(
 src = market_data_source(timeframe='1D')

@@ -1,18 +1,18 @@
 #pragma once
 
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include "polygon_data_source.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Factory function to create metadata for all Polygon data source transforms
-inline std::vector<epochflow::transforms::TransformsMetaData>
+inline std::vector<epoch_script::transforms::TransformsMetaData>
 MakePolygonDataSources() {
-  std::vector<epochflow::transforms::TransformsMetaData> metadataList;
+  std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
   // 1. Balance Sheet Data
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "balance_sheet",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -79,7 +79,7 @@ MakePolygonDataSources() {
 
   // 2. Income Statement Data
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "income_statement",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -154,7 +154,7 @@ MakePolygonDataSources() {
 
   // 3. Cash Flow Statement Data
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "cash_flow",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -229,7 +229,7 @@ MakePolygonDataSources() {
 
   // 4. Financial Ratios Data
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "financial_ratios",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -301,7 +301,7 @@ MakePolygonDataSources() {
 
   // 5. Quote Data (NBBO)
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "quotes",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -343,7 +343,7 @@ MakePolygonDataSources() {
 
   // 6. Trade Tick Data
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "trades",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -387,7 +387,7 @@ MakePolygonDataSources() {
 
   // 7. OHLCV Aggregate Bars
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "aggregates",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -435,4 +435,4 @@ MakePolygonDataSources() {
   return metadataList;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <regex>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
   void HistogramChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
     auto valuesColumn = m_config.GetInput("value");
 
@@ -24,4 +24,4 @@ namespace epochflow::reports {
     auto chart = chartBuilder.build();
     m_dashboard.addChart(chart);
   }
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

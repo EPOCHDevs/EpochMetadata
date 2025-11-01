@@ -1,10 +1,10 @@
 //
 // Created by dewe on 1/10/23.
 //
-#include <epochflow/core/bar_attribute.h>
+#include <epoch_script/core/bar_attribute.h>
 #include <epoch_core/common_utils.h>
 
-namespace epochflow {
+namespace epoch_script {
 BarAttribute::Type BarAttribute::getType(std::string const &x) {
   m_attribute = x;
   return static_cast<Type>(epoch_core::lookup(
@@ -64,4 +64,4 @@ BarAttribute::initattribute_map_reverse() {
   return map;
 }
 
-} // namespace epochflow
+} // namespace epoch_script

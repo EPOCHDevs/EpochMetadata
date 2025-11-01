@@ -1,6 +1,6 @@
 #include "numeric_card_report.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 std::string NumericCardReport::GetAggregation() const {
   auto options = m_config.GetOptions();
@@ -10,4 +10,4 @@ std::string NumericCardReport::GetAggregation() const {
   return "mean";  // Default for numeric
 }
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

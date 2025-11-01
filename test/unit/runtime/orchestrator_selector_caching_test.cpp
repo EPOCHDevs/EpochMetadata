@@ -22,23 +22,23 @@
 #include <trompeloeil.hpp>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/core/metadata_options.h>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 namespace {
     using namespace epoch_frame::factory::index;
 
     // Helper to create CardColumnSchema for testing
-    epochflow::CardColumnSchema CreateCardColumnSchema(
+    epoch_script::CardColumnSchema CreateCardColumnSchema(
         const std::string& columnId,
         epoch_core::CardSlot slot = epoch_core::CardSlot::Hero,
         epoch_core::CardRenderType renderType = epoch_core::CardRenderType::Decimal) {
 
-        epochflow::CardColumnSchema schema;
+        epoch_script::CardColumnSchema schema;
         schema.column_id = columnId;
         schema.slot = slot;
         schema.render_type = renderType;
@@ -46,12 +46,12 @@ namespace {
     }
 
     // Helper to create SelectorData with specific content
-    epochflow::transform::SelectorData CreateSelectorData(
+    epoch_script::transform::SelectorData CreateSelectorData(
         const std::string& title,
         int schemaCount,
         int dataRows = 3) {
 
-        epochflow::transform::SelectorData data;
+        epoch_script::transform::SelectorData data;
         data.title = title;
 
         // Create schemas
@@ -69,8 +69,8 @@ namespace {
     }
 
     // Helper to create empty SelectorData (for testing empty handling)
-    epochflow::transform::SelectorData CreateEmptySelectorData() {
-        return epochflow::transform::SelectorData{};
+    epoch_script::transform::SelectorData CreateEmptySelectorData() {
+        return epoch_script::transform::SelectorData{};
     }
 
     // Helper to create test DataFrame with multiple columns
@@ -110,7 +110,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*mock, GetSelectorData())
             .RETURN(emptySelector);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -129,7 +129,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         // Line 316-319 in dataflow_orchestrator.cpp
         auto mock = CreateSimpleMockTransform("selector", dailyTF, {}, {"result"}, false, true);
 
-        epochflow::transform::SelectorData invalidSelector;
+        epoch_script::transform::SelectorData invalidSelector;
         invalidSelector.title = "Valid Title";
         invalidSelector.schemas = {};  // Empty schemas
         REQUIRE(invalidSelector.schemas.empty());
@@ -140,7 +140,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*mock, GetSelectorData())
             .RETURN(invalidSelector);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -169,7 +169,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*mock, GetSelectorData())
             .RETURN(selectorData);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -204,7 +204,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
             .TIMES(AT_LEAST(1))
             .RETURN(selectorData);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft, googl}, CreateMockTransformManager(std::move(transforms)));
@@ -249,7 +249,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*selector2, GetSelectorData())
             .RETURN(selectorData2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(selector1));
         transforms.push_back(std::move(selector2));
 
@@ -274,7 +274,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         // Verify that schema details are preserved correctly
         auto mock = CreateSimpleMockTransform("selector", dailyTF, {}, {"result"}, false, true);
 
-        epochflow::transform::SelectorData selectorData;
+        epoch_script::transform::SelectorData selectorData;
         selectorData.title = "Schema Test";
         selectorData.schemas.push_back(CreateCardColumnSchema("price", epoch_core::CardSlot::Hero, epoch_core::CardRenderType::Decimal));
         selectorData.schemas.push_back(CreateCardColumnSchema("signal", epoch_core::CardSlot::PrimaryBadge, epoch_core::CardRenderType::Badge));
@@ -285,7 +285,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*mock, GetSelectorData())
             .RETURN(selectorData);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -315,7 +315,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
 
         // No GetSelectorData call expected
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -351,7 +351,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*final_transform, TransformData(trompeloeil::_))
             .RETURN(CreateTestDataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(data));
         transforms.push_back(std::move(filter));
         transforms.push_back(std::move(selector));
@@ -388,7 +388,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
             .TIMES(AT_LEAST(1))
             .RETURN(selectorData);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch(assets, CreateMockTransformManager(std::move(transforms)));
@@ -423,7 +423,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Selector Caching", "[.][orchestrator][s
         REQUIRE_CALL(*mock, GetSelectorData())
             .RETURN(selectorData);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));

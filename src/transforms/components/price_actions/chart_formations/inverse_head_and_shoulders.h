@@ -2,10 +2,10 @@
 
 #include "../infrastructure/flexible_pivot_detector.h"
 #include "../infrastructure/pattern_validator.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 /**
  * InverseHeadAndShoulders - Detects bullish reversal pattern
@@ -41,7 +41,7 @@ public:
   arrow::TablePtr Call(epoch_frame::DataFrame const &bars) const {
     using namespace epoch_frame;
     using namespace pattern_utils;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
     const size_t N = bars.num_rows();
@@ -191,5 +191,5 @@ private:
   double m_neckline_slope_max;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform
 

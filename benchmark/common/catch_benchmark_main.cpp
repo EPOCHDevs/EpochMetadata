@@ -3,12 +3,12 @@
 // Custom main for Catch2 benchmarks with EpochMetadata initialization
 //
 #include "epoch_frame/serialization.h"
-#include "epochflow/strategy/registration.h"
-#include "../../include/epochflow/transforms/core/config_helper.h"
-#include "../../include/epochflow/transforms/core/transform_registry.h"
-#include "../../include/epochflow/transforms/core/registry.h"
+#include "epoch_script/strategy/registration.h"
+#include "../../include/epoch_script/transforms/core/config_helper.h"
+#include "../../include/epoch_script/transforms/core/transform_registry.h"
+#include "../../include/epoch_script/transforms/core/registry.h"
 #include <catch2/catch_session.hpp>
-#include <../../include/epochflow/transforms/core/registration.h>
+#include <../../include/epoch_script/transforms/core/registration.h>
 #include <epoch_frame/factory/calendar_factory.h>
 
 #include <filesystem>
@@ -30,14 +30,14 @@ int main(const int argc, const char **argv)
   {
     return YAML::LoadFile(std::filesystem::path{METADATA_FILES_DIR} / _path);
   };
-  epochflow::transform::InitializeTransforms(DEFAULT_YAML_LOADER, {}, {});
+  epoch_script::transform::InitializeTransforms(DEFAULT_YAML_LOADER, {}, {});
 
   // Initialize calendar factory
   epoch_frame::calendar::CalendarFactory::instance().Init();
 
   // Export transform registry as JSON for reference
-  auto metadata = epochflow::transforms::ITransformRegistry::GetInstance().GetMetaData();
-  std::vector<epochflow::transforms::TransformsMetaData> transforms;
+  auto metadata = epoch_script::transforms::ITransformRegistry::GetInstance().GetMetaData();
+  std::vector<epoch_script::transforms::TransformsMetaData> transforms;
   for (const auto &[_, v] : metadata)
   {
     transforms.push_back(v);

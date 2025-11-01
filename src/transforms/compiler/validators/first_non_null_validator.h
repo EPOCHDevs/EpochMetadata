@@ -7,7 +7,7 @@
 
 #include "special_node_validator.h"
 
-namespace epochflow
+namespace epoch_script
 {
     class FirstNonNullValidator : public ISpecialNodeValidator {
     public:
@@ -15,4 +15,4 @@ namespace epochflow
         std::string GetName() const override { return "FirstNonNullValidator"; }
     };
 
-} // namespace epochflow
+} // namespace epoch_script

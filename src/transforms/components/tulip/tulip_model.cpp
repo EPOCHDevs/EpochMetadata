@@ -6,10 +6,10 @@
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/metadata.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 template <bool IsIndicator>
 TulipModelImpl<IsIndicator>::TulipModelImpl(
     const TransformConfiguration &config)
@@ -179,4 +179,4 @@ epoch_frame::DataFrame TulipModelImpl<IsIndicator>::TransformData(
 template class TulipModelImpl<true>;
 template class TulipModelImpl<false>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

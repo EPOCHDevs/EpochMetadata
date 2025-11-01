@@ -6,9 +6,9 @@
 #include <epoch_core/common_utils.h>
 #include <filesystem>
 #include <yaml-cpp/yaml.h>
-#include <epochflow/core/constants.h>
+#include <epoch_script/core/constants.h>
 
-namespace epochflow {
+namespace epoch_script {
 
   template <class T, class B = T>
 std::vector<T> LoadFromYAMLNode(YAML::Node const &node) {
@@ -73,4 +73,4 @@ inline std::string MakeDescLink(std::string const &arg) {
   return epoch_core::lookup(DESC_PLACEHOLDER_CONVERTER_MAP,
                             placeholder)(arg.substr(split + 1));
 }
-} // namespace epochflow
+} // namespace epoch_script

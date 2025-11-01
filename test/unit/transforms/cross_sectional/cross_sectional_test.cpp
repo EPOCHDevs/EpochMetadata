@@ -2,12 +2,12 @@
 // Created by adesola on 12/3/24.
 //
 #include "epoch_frame/array.h"
-#include <epochflow/core/bar_attribute.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/cross_sectional/rank.h"
 #include "transforms/components/cross_sectional/returns.h"
 #include <catch2/catch_test_macros.hpp>
@@ -15,8 +15,8 @@
 #include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
@@ -40,7 +40,7 @@ TEST_CASE("Cross-sectional Transforms") {
     // Define metadata
     TransformConfiguration config = cs_momentum(
         19, "returns",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transform = MAKE_TRANSFORM(config);
@@ -74,7 +74,7 @@ TEST_CASE("Cross-sectional Transforms") {
          epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
 
     const auto daily_tf =
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
     const std::string scores_input = "scores";
 
     SECTION("Regular case with multiple assets") {

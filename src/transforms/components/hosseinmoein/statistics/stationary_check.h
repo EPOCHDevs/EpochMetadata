@@ -5,13 +5,13 @@
 #pragma once
 
 #include "../common_utils.h"
-#include <epochflow/transforms/itransform.h>
+#include <epoch_script/transforms/itransform.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
 CREATE_ENUM(KpssType, Level, Trend);
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Stationary check using hmdf::StationaryCheckVisitor over a rolling window
 class ADFStationaryCheck final : public ITransform {
@@ -93,4 +93,4 @@ private:
   }
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

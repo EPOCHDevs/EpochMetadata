@@ -1,13 +1,13 @@
 #pragma once
 
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <epoch_frame/dataframe.h>
 #include <arrow/api.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
   class PieChartReport : public IReporter {
   public:
-    explicit PieChartReport(epochflow::transform::TransformConfiguration config)
+    explicit PieChartReport(epoch_script::transform::TransformConfiguration config)
         : IReporter(std::move(config), true),
           m_chartTitle(m_config.GetOptionValue("title").GetString()),
           m_category(m_config.GetOptionValue("category").GetString()){
@@ -25,7 +25,7 @@ namespace epochflow::reports {
   template <> struct ReportMetadata<PieChartReport> {
     constexpr static const char *kReportId = "pie_chart_report";
 
-    static epochflow::transforms::TransformsMetaData Get() {
+    static epoch_script::transforms::TransformsMetaData Get() {
       return {
         .id = kReportId,
         .category = epoch_core::TransformCategory::Reporter,
@@ -56,4 +56,4 @@ namespace epochflow::reports {
       };
     }
   };
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

@@ -1,12 +1,12 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include <epochflow/core/bar_attribute.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/tulip/tulip_model.h" // TulipIndicatorModel
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
@@ -14,8 +14,8 @@
 #include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
@@ -24,7 +24,7 @@ TEST_CASE("Tulip Indicator Transforms") {
     // E.g. an SMA with period=4 on column "x"
     TransformConfiguration config = sma(
         0, "x", 4,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Use registry to create the transform
     auto transformBase = MAKE_TRANSFORM(config);
@@ -103,7 +103,7 @@ TEST_CASE("Tulip Indicator Transforms") {
         // Build transform config: cross + op => crossany or crossover
         TransformConfiguration config = double_operand_op(
             "cross", op, 0, "x", "y",
-            epochflow::EpochStratifyXConstants::instance()
+            epoch_script::EpochStratifyXConstants::instance()
                 .DAILY_FREQUENCY);
 
         // Use registry to create the transform
@@ -135,7 +135,7 @@ TEST_CASE("Tulip Indicator Transforms") {
       // Using the same input data, crossunder(x, y) should be the opposite of crossover(x, y)
       TransformConfiguration config = crossunder(
           "0", "x", "y",
-          epochflow::EpochStratifyXConstants::instance()
+          epoch_script::EpochStratifyXConstants::instance()
               .DAILY_FREQUENCY);
 
       auto transformBase = MAKE_TRANSFORM(config);
@@ -194,7 +194,7 @@ options:
                                        42, 43, 44, 45, 46, 47};
     epoch_frame::DataFrame input = make_dataframe<double>(
         index, {closeValues},
-        {epochflow::EpochStratifyXConstants::instance().CLOSE()});
+        {epoch_script::EpochStratifyXConstants::instance().CLOSE()});
 
     // For demonstration, we won't calculate real MACD values manually.
     // Just check that the result has 3 columns matching the Tulip naming.
@@ -237,7 +237,7 @@ options:
                                        42, 43, 44, 45, 46, 47};
     epoch_frame::DataFrame input = make_dataframe<double>(
         index, {closeValues},
-        {epochflow::EpochStratifyXConstants::instance().CLOSE()});
+        {epoch_script::EpochStratifyXConstants::instance().CLOSE()});
 
     auto output = model->TransformData(input);
 
@@ -249,7 +249,7 @@ options:
   }
 
   SECTION("CandleStick Test") {
-    auto &C = epochflow::EpochStratifyXConstants::instance();
+    auto &C = epoch_script::EpochStratifyXConstants::instance();
     // Example config building for "macd" with periods 12,26,9
     // If your usage is different, adjust accordingly
     TransformConfiguration config{TransformDefinition{YAML::Load(R"(

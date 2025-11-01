@@ -5,15 +5,15 @@
 
 #include "common.h"
 #include "epoch_frame/aliases.h"
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/core/metadata_options.h>
 
-using epochflow::Sequence;
-using epochflow::SequenceItem;
+using epoch_script::Sequence;
+using epoch_script::SequenceItem;
 #include <catch2/catch_all.hpp>
 #include <glaze/glaze.hpp>
 #include <yaml-cpp/yaml.h>
 
-using namespace epochflow;
+using namespace epoch_script;
 
 TEST_CASE("MetaDataOptionDefinition - JSON read/write with glaze",
           "[MetaDataOptionDefinition]") {

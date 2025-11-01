@@ -1,1 +1,1 @@
-target_sources(epochflow PRIVATE sessions_utils.cpp)
+target_sources(epoch_script PRIVATE sessions_utils.cpp)

@@ -17,7 +17,7 @@ Interactive charts, cards, events, and dashboards for strategy development.
 
 ## Overview
 
-EpochFlow provides automatic visualization for every aspect of your strategy. The visualization system serves as a **real-time feedback loop** during development:
+Epoch script provides automatic visualization for every aspect of your strategy. The visualization system serves as a **real-time feedback loop** during development:
 
 **Four Pillars:**
 1. **Auto-Plotting**: Every indicator automatically appears on charts

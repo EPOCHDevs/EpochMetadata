@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Node Builder Implementation
+// EpochScript Node Builder Implementation
 //
 
 #include "node_builder.h"
@@ -8,7 +8,7 @@
 #include <epoch_core/enum_wrapper.h>
 #include <algorithm>
 
-namespace epochflow
+namespace epoch_script
 {
 
     void NodeBuilder::HandleConstructorAssignment(const Expr& target, const Expr& value, const Assign& assign)
@@ -43,7 +43,7 @@ namespace epochflow
             option_validator_.ValidateAndApplyOptions(node_id, comp_meta, params, dynamic_cast<const Call&>(value));
 
             // Create AlgorithmNode
-            epochflow::strategy::AlgorithmNode algo;
+            epoch_script::strategy::AlgorithmNode algo;
             algo.id = node_id;
             algo.type = parse_result.ctor_name;
 
@@ -52,7 +52,7 @@ namespace epochflow
             {
                 if (key != "timeframe" && key != "session")
                 {
-                    algo.options[key] = epochflow::MetaDataOptionDefinition{val};
+                    algo.options[key] = epoch_script::MetaDataOptionDefinition{val};
                 }
             }
 
@@ -118,7 +118,7 @@ namespace epochflow
             option_validator_.ValidateAndApplyOptions(synthetic_id, comp_meta, params, dynamic_cast<const Call&>(value));
 
             // Create AlgorithmNode
-            epochflow::strategy::AlgorithmNode algo;
+            epoch_script::strategy::AlgorithmNode algo;
             algo.id = synthetic_id;
             algo.type = parse_result.ctor_name;
 
@@ -127,7 +127,7 @@ namespace epochflow
             {
                 if (key != "timeframe" && key != "session")
                 {
-                    algo.options[key] = epochflow::MetaDataOptionDefinition{val};
+                    algo.options[key] = epoch_script::MetaDataOptionDefinition{val};
                 }
             }
 
@@ -226,7 +226,7 @@ namespace epochflow
         option_validator_.ValidateAndApplyOptions(synthetic_id, comp_meta, params, call);
 
         // Create AlgorithmNode
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = synthetic_id;
         algo.type = parse_result.ctor_name;
 
@@ -235,7 +235,7 @@ namespace epochflow
         {
             if (key != "timeframe" && key != "session")
             {
-                algo.options[key] = epochflow::MetaDataOptionDefinition{val};
+                algo.options[key] = epoch_script::MetaDataOptionDefinition{val};
             }
         }
 
@@ -309,7 +309,7 @@ namespace epochflow
         }
 
         // Helper lambda to find the target node by ID
-        auto find_target_node = [this](const std::string& node_id) -> epochflow::strategy::AlgorithmNode* {
+        auto find_target_node = [this](const std::string& node_id) -> epoch_script::strategy::AlgorithmNode* {
             for (auto& algo : context_.algorithms)
             {
                 if (algo.id == node_id)
@@ -486,8 +486,8 @@ namespace epochflow
         auto& algo = context_.algorithms[it->second];
 
         // Helper lambda to recursively resolve SLOT references in a value
-        std::function<void(epochflow::MetaDataOptionDefinition::T&)> resolve_value;
-        resolve_value = [&](epochflow::MetaDataOptionDefinition::T& value) {
+        std::function<void(epoch_script::MetaDataOptionDefinition::T&)> resolve_value;
+        resolve_value = [&](epoch_script::MetaDataOptionDefinition::T& value) {
             // Handle string values
             if (auto* str_ptr = std::get_if<std::string>(&value))
             {
@@ -521,7 +521,7 @@ namespace epochflow
                 }
             }
             // Handle CardSchemaFilter
-            else if (auto* filter_ptr = std::get_if<epochflow::CardSchemaFilter>(&value))
+            else if (auto* filter_ptr = std::get_if<epoch_script::CardSchemaFilter>(&value))
             {
                 auto& filter = *filter_ptr;
 
@@ -577,7 +577,7 @@ namespace epochflow
                 }
             }
             // Handle CardSchemaSQL
-            else if (auto* sql_ptr = std::get_if<epochflow::CardSchemaSQL>(&value))
+            else if (auto* sql_ptr = std::get_if<epoch_script::CardSchemaSQL>(&value))
             {
                 auto& sql_schema = *sql_ptr;
 
@@ -622,7 +622,7 @@ namespace epochflow
             // Resolve SLOT references in the variant
             resolve_value(variant_value);
             // Store back the modified variant (reconstruct MetaDataOptionDefinition)
-            option_def = epochflow::MetaDataOptionDefinition{variant_value};
+            option_def = epoch_script::MetaDataOptionDefinition{variant_value};
         }
     }
 
@@ -638,4 +638,4 @@ namespace epochflow
         throw std::runtime_error(full_msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

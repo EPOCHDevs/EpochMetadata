@@ -1,6 +1,6 @@
 # Research Workflows
 
-Market research and analysis using EpochFlow (non-trading scripts).
+Market research and analysis using Epoch script (non-trading scripts).
 
 ---
 

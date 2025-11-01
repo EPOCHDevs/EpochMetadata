@@ -1,10 +1,10 @@
 #pragma once
 
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/dataframe.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Polygon data source transform
 // Handles all Polygon data types (balance_sheet, income_statement, cash_flow, etc.)
@@ -42,4 +42,4 @@ using PolygonAggregatesTransform = PolygonDataSourceTransform;
 using PolygonCommonIndicesTransform = PolygonDataSourceTransform;
 using PolygonIndicesTransform = PolygonDataSourceTransform;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

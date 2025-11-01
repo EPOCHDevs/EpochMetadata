@@ -1,20 +1,20 @@
 //
 // Created by adesola on 9/26/24.
 //
-#include <epochflow/core/time_frame.h>
-#include <epochflow/transforms/core/registry.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/time_frame.h>
+#include <epoch_script/transforms/core/registry.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include <unordered_map>
 #include <utility>
 #include <yaml-cpp/node/node.h>
 
-using namespace epochflow::strategy;
-using namespace epochflow;
+using namespace epoch_script::strategy;
+using namespace epoch_script;
 
 namespace YAML {
-template <> struct convert<std::optional<epochflow::TimeFrame>> {
+template <> struct convert<std::optional<epoch_script::TimeFrame>> {
   static bool decode(Node const &node,
-                     std::optional<epochflow::TimeFrame> &timeframe) {
+                     std::optional<epoch_script::TimeFrame> &timeframe) {
     if (!node.IsDefined()) {
       timeframe = std::nullopt;
       return true;
@@ -28,18 +28,18 @@ template <> struct convert<std::optional<epochflow::TimeFrame>> {
 };
 } // namespace YAML
 
-namespace epochflow {
+namespace epoch_script {
 
 TransformDefinition::TransformDefinition(YAML::Node const &argsNode)
     : TransformDefinition(
-          argsNode.as<epochflow::strategy::AlgorithmNode>(),
-          argsNode["timeframe"].as<std::optional<epochflow::TimeFrame>>(
+          argsNode.as<epoch_script::strategy::AlgorithmNode>(),
+          argsNode["timeframe"].as<std::optional<epoch_script::TimeFrame>>(
               std::nullopt)) {}
 
-epochflow::TimeFrame
+epoch_script::TimeFrame
 GetTimeFrame(std::string const &id,
-             std::optional<epochflow::TimeFrame> offset,
-             std::optional<epochflow::TimeFrame> fallbackTimeframe) {
+             std::optional<epoch_script::TimeFrame> offset,
+             std::optional<epoch_script::TimeFrame> fallbackTimeframe) {
   if (offset) {
     return offset.value();
   }
@@ -57,7 +57,7 @@ TransformDefinition::TransformDefinition(
       }) {
 
   auto metaDataPtr =
-      epochflow::transforms::ITransformRegistry::GetInstance().GetMetaData(
+      epoch_script::transforms::ITransformRegistry::GetInstance().GetMetaData(
           m_data.type);
   AssertFromStream(metaDataPtr, "Invalid Transform: " << m_data.type);
   m_data.metaData = *metaDataPtr;
@@ -105,4 +105,4 @@ TransformDefinition::TransformDefinition(
   }
 
 }
-} // namespace epochflow
+} // namespace epoch_script

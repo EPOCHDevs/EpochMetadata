@@ -10,7 +10,7 @@
 #include "../type_checker.h"
 #include <stdexcept>
 
-namespace epochflow
+namespace epoch_script
 {
     void FirstNonNullValidator::ValidateInputs(const ValidationContext& ctx) const {
         // Validate at least 1 input
@@ -27,4 +27,4 @@ namespace epochflow
     // Auto-register this validator
     REGISTER_SPECIAL_VALIDATOR("first_non_null", FirstNonNullValidator)
 
-} // namespace epochflow
+} // namespace epoch_script

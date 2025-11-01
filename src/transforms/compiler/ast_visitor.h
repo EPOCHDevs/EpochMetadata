@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow AST Visitor
+// EpochScript AST Visitor
 //
 // Coordinates AST traversal and dispatches to appropriate handlers.
 // Entry point for compilation from Python AST to AlgorithmNodes.
@@ -14,7 +14,7 @@
 #include "constructor_parser.h"
 #include "parser/ast_nodes.h"
 
-namespace epochflow
+namespace epoch_script
 {
 
     class AstVisitor
@@ -50,4 +50,4 @@ namespace epochflow
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

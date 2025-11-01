@@ -2,9 +2,9 @@
 //
 // Created by dewe on 4/14/23.
 //
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 struct CumProdOperation : ITransform {
   explicit CumProdOperation(const TransformConfiguration &config)
@@ -16,4 +16,4 @@ struct CumProdOperation : ITransform {
   }
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

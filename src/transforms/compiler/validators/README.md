@@ -1,4 +1,4 @@
-# EpochFlow Special Node Validator System
+# EpochScript Special Node Validator System
 
 ## Overview
 
@@ -76,7 +76,7 @@ Each validator implements `ISpecialNodeValidator`:
 #pragma once
 #include "special_node_validator.h"
 
-namespace epoch_stratifyx::epochflow {
+namespace epoch_stratifyx::epoch_script {
     class MyTransformValidator : public ISpecialNodeValidator {
     public:
         void ValidateInputs(const ValidationContext& ctx) const override;
@@ -92,7 +92,7 @@ namespace epoch_stratifyx::epochflow {
 #include "my_transform_validator.h"
 #include "../type_checker.h"
 
-namespace epoch_stratifyx::epochflow {
+namespace epoch_stratifyx::epoch_script {
     void MyTransformValidator::ValidateInputs(const ValidationContext& ctx) const {
         // Example: require exactly 3 inputs
         if (ctx.args.size() != 3) {
@@ -194,7 +194,7 @@ void ConditionalSelectValidator::ValidateInputs(const ValidationContext& ctx) co
 
 ## Test Cases
 
-Test cases are in `test/epochflow/compiler/test_cases/`:
+Test cases are in `test/epoch_script/compiler/test_cases/`:
 
 ### Error Cases (Should Fail Compilation)
 - `first_non_null_no_inputs` - No inputs provided
@@ -209,13 +209,13 @@ Test cases are in `test/epochflow/compiler/test_cases/`:
 
 ```bash
 # Run all compiler tests
-cmake-build-debug/bin/epoch_metadata_test "*EpochFlow Compiler*"
+cmake-build-debug/bin/epoch_metadata_test "*EpochScript Compiler*"
 
 # Interactive validator demonstration
-test/epochflow/test_validators_interactive.sh
+test/epoch_script/test_validators_interactive.sh
 
 # Python demonstration script
-python3 test/epochflow/test_validators.py
+python3 test/epoch_script/test_validators.py
 ```
 
 ## Benefits

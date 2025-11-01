@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Compilation Context
+// EpochScript Compilation Context
 //
 // Shared state structure used across all compiler components.
 // Provides centralized access to compilation state and metadata registry.
@@ -8,14 +8,14 @@
 
 #pragma once
 
-#include <epochflow/strategy/metadata.h>
-#include <epochflow/transforms/core/registry.h>
+#include <epoch_script/strategy/metadata.h>
+#include <epoch_script/transforms/core/registry.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <string>
 
-namespace epochflow
+namespace epoch_script
 {
 
     // Type system for type checking and casting
@@ -82,4 +82,4 @@ namespace epochflow
         }
     };
 
-} // namespace epochflow
+} // namespace epoch_script

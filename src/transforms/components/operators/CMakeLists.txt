@@ -1,2 +1,2 @@
-target_sources(epochflow PRIVATE select.cpp)
+target_sources(epoch_script PRIVATE select.cpp)
 

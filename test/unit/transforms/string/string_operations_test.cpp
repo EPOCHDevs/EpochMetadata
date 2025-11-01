@@ -2,20 +2,20 @@
 // Created by adesola on 10/31/25.
 //
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 

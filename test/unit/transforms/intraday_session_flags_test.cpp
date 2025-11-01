@@ -4,19 +4,19 @@
 
 #include "transforms/tbb_nodes/function_node.h"
 #include "transforms/tbb_nodes/icache_manager.h"
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_definition.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_definition.h>
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <epoch_frame/datetime.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
-#include <epochflow/time_frame.h>
+#include <epoch_script/time_frame.h>
 #include <model/asset/asset.h>
-#include <epochflow/core/constants.h>
+#include <epoch_script/core/constants.h>
 
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace epoch_frame;
 
 namespace {
@@ -80,10 +80,10 @@ private:
 
 // Helpers
 transform::TransformConfiguration
-MakeConfig(std::string const &id, epochflow::TimeFrame const &tf,
+MakeConfig(std::string const &id, epoch_script::TimeFrame const &tf,
            std::optional<epoch_frame::SessionRange> sessionRange,
            bool intradayOnly) {
-  epochflow::transforms::TransformsMetaData meta{};
+  epoch_script::transforms::TransformsMetaData meta{};
   meta.id = id;
   meta.intradayOnly = intradayOnly;
   // outputs not required for this test; fake cache stores what is passed in
@@ -178,7 +178,7 @@ TEST_CASE("intradayOnly=true skips non-intraday timeframes",
 
   // Daily timeframe
   auto tfDaily =
-      epochflow::TimeFrame(epoch_frame::factory::offset::days(1));
+      epoch_script::TimeFrame(epoch_frame::factory::offset::days(1));
   auto cfg =
       MakeConfig("test_op", tfDaily, std::nullopt, /*intradayOnly*/ true);
 
@@ -207,7 +207,7 @@ TEST_CASE("requiresSession slices to provided SessionRange",
 
   // Intraday timeframe (30 minutes)
   auto tf =
-      epochflow::TimeFrame(epoch_frame::factory::offset::minutes(30));
+      epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(30));
 
   // Session range 09:30 - 16:00
   epoch_frame::SessionRange session{

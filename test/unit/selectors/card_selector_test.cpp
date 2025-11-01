@@ -1,11 +1,11 @@
 #include <catch.hpp>
-#include <epochflow/transforms/components/selectors/card_selector.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/registration.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/transforms/components/selectors/card_selector.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/registration.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/core/metadata_options.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -13,10 +13,10 @@
 #include <glaze/glaze.hpp>
 #include <sstream>
 
-#include <epochflow/transforms/core/registry.h>
+#include <epoch_script/transforms/core/registry.h>
 
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace epoch_frame;
 using Catch::Approx;
 
@@ -293,11 +293,11 @@ TEST_CASE("CardSelectorFromFilter - Transform Functionality", "[selectors][card_
     };
 
     // Create transform config using helper function - pass object directly
-    auto transformConfig = epochflow::transform::card_selector_filter_cfg(
+    auto transformConfig = epoch_script::transform::card_selector_filter_cfg(
       "test_selector",
       schema,
       {"direction", "profit_pct", "is_signal"},
-      epochflow::TimeFrame(epoch_frame::factory::offset::days(1))
+      epoch_script::TimeFrame(epoch_frame::factory::offset::days(1))
     );
 
     // Create selector

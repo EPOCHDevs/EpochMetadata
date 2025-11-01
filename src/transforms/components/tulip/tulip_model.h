@@ -5,7 +5,7 @@
 #include <candles.h>
 
 #include "arrow/array.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include "indicators.h"
 #include "stdexcept"
 #include "string"
@@ -15,7 +15,7 @@
 #include <epoch_core/macros.h>
 #include <mutex>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 template <bool IsIndicator> class TulipModelImpl final : public ITransform {
 public:
@@ -43,4 +43,4 @@ protected:
 extern template class TulipModelImpl<true>;
 extern template class TulipModelImpl<false>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

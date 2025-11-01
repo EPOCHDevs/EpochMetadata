@@ -9,7 +9,7 @@
 #include <methods/temporal.h>
 #include <unordered_map>
 
-namespace epochflow::transform
+namespace epoch_script::transform
 {
     // Helper functions for string-to-integer conversions
     namespace {
@@ -332,4 +332,4 @@ namespace epochflow::transform
     template class CalendarEffect<epoch_core::CalendarEffectType::Holiday>;
     template class CalendarEffect<epoch_core::CalendarEffectType::WeekOfMonth>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

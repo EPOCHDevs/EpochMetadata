@@ -3,11 +3,11 @@
 // Created by dewe on 4/14/23.
 //
 #include "epoch_frame/factory/array_factory.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <numbers>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 template <typename T> struct ScalarDataFrameTransform : ITransform {
   explicit ScalarDataFrameTransform(const TransformConfiguration &config)
       : ITransform(config),
@@ -138,4 +138,4 @@ struct BoolFalseScalar : ScalarDataFrameTransform<bool> {
 using NumericScalarDataFrameTransform = ScalarDataFrameTransform<double>;
     using StringScalarDataFrameTransform = ScalarDataFrameTransform<std::string>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

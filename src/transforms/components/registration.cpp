@@ -2,12 +2,12 @@
 // Created by adesola on 5/15/25.
 //
 
-#include <epochflow/transforms/core/registration.h>
+#include <epoch_script/transforms/core/registration.h>
 #include "agg.h"
 #include "data_source.h"
-#include <epochflow/transforms/core/registry.h>
-#include <epochflow/transforms/core/trade_executors.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/transforms/core/registry.h>
+#include <epoch_script/transforms/core/trade_executors.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 
 #include "hosseinmoein/indicators/hurst_exponent.h"
 #include "hosseinmoein/volatility/hodges_tompkins.h"
@@ -36,7 +36,7 @@
 #include "price_actions/chart_formations/triangles.h"
 #include "price_actions/chart_formations/pennant.h"
 #include "price_actions/chart_formations/consolidation_box.h"
-#include <epochflow/strategy/registration.h>
+#include <epoch_script/strategy/registration.h>
 
 // Calendar Effects
 #include "calendar/calendar_effect.h"
@@ -52,7 +52,7 @@
 #include "data_sources/fred_transform.h"
 
 // Selector includes
-#include <epochflow/transforms/components/selectors/card_selector.h>
+#include <epoch_script/transforms/components/selectors/card_selector.h>
 
 // SQL and Report includes
 #include "sql/sql_query_transform.h"
@@ -91,12 +91,12 @@
 
 #include <candles.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 void InitializeTransforms(
     std::function<YAML::Node(std::string const &)> const &loader,
     std::vector<std::string> const &algorithmBuffers,
     std::vector<std::string> const &strategyBuffers) {
-  epochflow::strategy::RegisterStrategyMetadata(loader, algorithmBuffers,
+  epoch_script::strategy::RegisterStrategyMetadata(loader, algorithmBuffers,
                                                      strategyBuffers);
 
   // Scalar Transforms
@@ -338,4 +338,4 @@ void InitializeTransforms(
   // reports::RegisterReport<reports::CardSelectorReport>();  // Commented out - missing epoch_proto types
 
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

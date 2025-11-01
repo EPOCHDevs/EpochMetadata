@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <regex>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   if (m_sqlStatement.GetSql().empty()) {
@@ -76,4 +76,4 @@ std::string TableReport::GetTableTitle() const {
 
 
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

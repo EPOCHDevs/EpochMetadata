@@ -1,6 +1,6 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
@@ -11,7 +11,7 @@
 #include <numeric>
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 /**
  * Liquidity - identifies clusters of swing highs or swing lows that are close
  * to each other. Liquidity is when there are multiple highs within a small
@@ -50,7 +50,7 @@ private:
 
   arrow::TablePtr BuildTable(epoch_frame::DataFrame const &bars) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     // Column shortcuts
     const auto high = bars[C.HIGH()].contiguous_array().to_view<double>();
@@ -225,4 +225,4 @@ private:
 
   double m_range_percent;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

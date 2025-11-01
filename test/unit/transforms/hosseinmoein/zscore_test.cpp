@@ -7,16 +7,16 @@
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
 #include "transforms/components/hosseinmoein/indicators/zscore.h"
 
 using namespace epoch_frame;
-using namespace epochflow::transform;
+using namespace epoch_script::transform;
 
 TEST_CASE("ZScore rolling", "[hosseinmoein][zscore]") {
-  auto C = epochflow::EpochStratifyXConstants::instance();
+  auto C = epoch_script::EpochStratifyXConstants::instance();
   auto path = std::format("{}/hmdf/IBM.csv",
                           SMC_TEST_DATA_DIR);
 
@@ -33,7 +33,7 @@ TEST_CASE("ZScore rolling", "[hosseinmoein][zscore]") {
       index, {df.get_column<double>("IBM_Close")}, {C.CLOSE()});
 
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
   const int64_t window = 20;
 
   YAML::Node inputs_yaml;

@@ -1,4 +1,4 @@
-target_sources(epoch_flow_test PRIVATE
+target_sources(epoch_script_test PRIVATE
 transform_metadata_factory.cpp
 transforms_test.cpp trade_executor_test.cpp)
 
@@ -16,5 +16,5 @@ add_subdirectory(volatility)
 add_subdirectory(statistics)    
 
 
-target_compile_definitions(epoch_flow_test PUBLIC -DMETADATA_FILES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files")
+target_compile_definitions(epoch_script_test PUBLIC -DMETADATA_FILES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files")
 MESSAGE("METADATA_FILES_DIR ${METADATA_FILES_DIR}")

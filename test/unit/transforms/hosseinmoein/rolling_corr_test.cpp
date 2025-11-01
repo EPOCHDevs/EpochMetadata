@@ -5,19 +5,19 @@
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
 
 #include "transforms/src/hosseinmoein/statistics/rolling_corr.h"
 
 using namespace epoch_frame;
-using namespace epochflow::transform;
+using namespace epoch_script::transform;
 
 TEST_CASE("RollingCorr basic correlation",
           "[hosseinmoein][rolling_corr]") {
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t window = 20;
   YAML::Node inputs_yaml;
@@ -61,7 +61,7 @@ TEST_CASE("RollingCorr basic correlation",
 TEST_CASE("RollingCorr negative correlation",
           "[hosseinmoein][rolling_corr]") {
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t window = 20;
   YAML::Node inputs_yaml;

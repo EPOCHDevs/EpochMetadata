@@ -8,7 +8,7 @@
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/index.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <arrow/compute/api.h>
 
 CREATE_ENUM(CalendarEffectType,
@@ -19,7 +19,7 @@ CREATE_ENUM(CalendarEffectType,
             Holiday,         // Days before/after holidays
             WeekOfMonth);    // First/last week of month
 
-namespace epochflow::transform
+namespace epoch_script::transform
 {
 
     /**
@@ -67,4 +67,4 @@ namespace epochflow::transform
     using HolidayEffect = CalendarEffect<epoch_core::CalendarEffectType::Holiday>;
     using WeekOfMonthEffect = CalendarEffect<epoch_core::CalendarEffectType::WeekOfMonth>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

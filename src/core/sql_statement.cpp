@@ -1,8 +1,8 @@
-#include <epochflow/core/sql_statement.h>
+#include <epoch_script/core/sql_statement.h>
 #include <duckdb.hpp>
 #include <mutex>
 
-namespace epochflow
+namespace epoch_script
 {
 
 namespace
@@ -159,4 +159,4 @@ std::string SqlStatement::JoinColumns(const std::vector<std::string> &columns)
   return result;
 }
 
-} // namespace epochflow
+} // namespace epoch_script

@@ -8,7 +8,7 @@
 
 #include "epoch_frame/dataframe.h"
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Utility for loading test data from CSV files
@@ -61,4 +61,4 @@ public:
                             bool includeIndex = true);
 };
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

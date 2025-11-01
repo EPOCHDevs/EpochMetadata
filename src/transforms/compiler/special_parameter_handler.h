@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Special Parameter Handler
+// EpochScript Special Parameter Handler
 //
 // Handles special parameters like 'timeframe' and 'session'.
 // Validates, canonicalizes, and applies these parameters to algorithm nodes.
@@ -9,11 +9,11 @@
 #pragma once
 
 #include "compilation_context.h"
-#include <epochflow/strategy/metadata.h>
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/strategy/metadata.h>
+#include <epoch_script/core/metadata_options.h>
 #include <unordered_map>
 
-namespace epochflow
+namespace epoch_script
 {
 
     class SpecialParameterHandler
@@ -22,15 +22,15 @@ namespace epochflow
         explicit SpecialParameterHandler(CompilationContext& context) : context_(context) {}
 
         // Validate and canonicalize timeframe parameter
-        void CanonicalizeTimeframe(std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params);
+        void CanonicalizeTimeframe(std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params);
 
         // Validate and canonicalize session parameter
-        void CanonicalizeSession(std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params);
+        void CanonicalizeSession(std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params);
 
         // Apply special fields (timeframe and session) to an AlgorithmNode
         void ApplySpecialFields(
-            epochflow::strategy::AlgorithmNode& algo,
-            const std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params);
+            epoch_script::strategy::AlgorithmNode& algo,
+            const std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params);
 
         // Verify that all nodes with session parameters have corresponding sessions nodes
         // Auto-creates missing sessions nodes if needed
@@ -49,4 +49,4 @@ namespace epochflow
         [[noreturn]] void ThrowError(const std::string& msg);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

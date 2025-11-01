@@ -1,6 +1,6 @@
 #include "any_card_report.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 std::string AnyCardReport::GetAggregation() const {
   auto options = m_config.GetOptions();
@@ -10,4 +10,4 @@ std::string AnyCardReport::GetAggregation() const {
   return "last";  // Default for any type
 }
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

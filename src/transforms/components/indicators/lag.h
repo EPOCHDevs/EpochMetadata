@@ -2,9 +2,9 @@
 //
 // Created by adesola on 1/20/25.
 //
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 class Lag : public ITransform {
 public:
@@ -17,4 +17,4 @@ private:
   int m_period;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

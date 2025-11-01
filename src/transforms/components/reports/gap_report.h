@@ -1,7 +1,7 @@
 #pragma once
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <glaze/glaze.hpp>
-#include <epochflow/core/bar_attribute.h>
+#include <epoch_script/core/bar_attribute.h>
 
 // EpochDashboard includes
 #include <epoch_dashboard/tearsheet/table_builder.h>
@@ -13,7 +13,7 @@
 #include <epoch_dashboard/tearsheet/scalar_converter.h>
 #include <epoch_dashboard/tearsheet/dataframe_converter.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 // Structure to hold comprehensive gap data for reuse across visualizations
 struct GapTableData {
@@ -37,7 +37,7 @@ struct GapTableData {
 
 class GapReport : public IReporter {
 public:
-  explicit GapReport(epochflow::transform::TransformConfiguration config)
+  explicit GapReport(epoch_script::transform::TransformConfiguration config)
       : IReporter(std::move(config)), m_pivotHour(m_config.GetOptionValue("fill_time_pivot_hour").GetInteger()) {}
 
 protected:
@@ -87,7 +87,7 @@ private:
 template <> struct ReportMetadata<GapReport> {
   constexpr static const char *kReportId = "gap_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
    return {
     .id = kReportId,
     .category = epoch_core::TransformCategory::Reporter,
@@ -95,7 +95,7 @@ template <> struct ReportMetadata<GapReport> {
     .options = {{.id = "fill_time_pivot_hour",
           .name = "Fill Time Pivot Hour",
           .type = epoch_core::MetaDataOptionType::Integer,
-          .defaultValue = epochflow::MetaDataOptionDefinition{13.0},
+          .defaultValue = epoch_script::MetaDataOptionDefinition{13.0},
           .isRequired = false,
           .min = 0,
           .max = 23,
@@ -103,7 +103,7 @@ template <> struct ReportMetadata<GapReport> {
         {.id = "histogram_bins",
           .name = "Histogram Bins",
           .type = epoch_core::MetaDataOptionType::Integer,
-          .defaultValue = epochflow::MetaDataOptionDefinition{10.0},
+          .defaultValue = epoch_script::MetaDataOptionDefinition{10.0},
           .isRequired = false,
           .min = 3,
           .max = 50,
@@ -130,7 +130,7 @@ template <> struct ReportMetadata<GapReport> {
     .tags = {"session_gap", "overnight", "session-gap"},
  .requiresTimeFrame = true,
     .requiredDataSources =
-        {epochflow::EpochStratifyXConstants::instance().CLOSE()},
+        {epoch_script::EpochStratifyXConstants::instance().CLOSE()},
     // intradayOnly=true because the report needs intraday bars to analyze
     // fill timing patterns throughout the trading session (early vs late fills)
     .intradayOnly=true,
@@ -138,9 +138,9 @@ template <> struct ReportMetadata<GapReport> {
   }
 
   // Helper to create a TransformConfiguration from a gap classifier config
-  static epochflow::transform::TransformConfiguration
+  static epoch_script::transform::TransformConfiguration
   CreateConfig(const std::string &instance_id,
-               const epochflow::transform::TransformConfiguration
+               const epoch_script::transform::TransformConfiguration
                    &gap_classifier_config,
                const YAML::Node &options = {}) {
 
@@ -167,12 +167,12 @@ template <> struct ReportMetadata<GapReport> {
     // SessionRange is optional, skip it for now
     config["options"] = options;
 
-    return epochflow::transform::TransformConfiguration{
-        epochflow::TransformDefinition{config}};
+    return epoch_script::transform::TransformConfiguration{
+        epoch_script::TransformDefinition{config}};
   }
 
   // Simpler helper for testing without a preceding node
-  static epochflow::transform::TransformConfiguration
+  static epoch_script::transform::TransformConfiguration
   CreateConfig(const std::string &instance_id,
                const std::string &timeframe = "1D",
                const YAML::Node &options = {}) {
@@ -185,9 +185,9 @@ template <> struct ReportMetadata<GapReport> {
     config["sessionRange"] = YAML::Node();
     config["options"] = options;
 
-    return epochflow::transform::TransformConfiguration{
-        epochflow::TransformDefinition{config}};
+    return epoch_script::transform::TransformConfiguration{
+        epoch_script::TransformDefinition{config}};
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

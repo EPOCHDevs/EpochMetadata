@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Node Builder
+// EpochScript Node Builder
 //
 // Handles AlgorithmNode creation, input wiring, and assignment statements.
 // Coordinates with TypeChecker, OptionValidator, and SpecialParameterHandler.
@@ -17,7 +17,7 @@
 #include "parser/ast_nodes.h"
 #include <vector>
 
-namespace epochflow
+namespace epoch_script
 {
 
     class NodeBuilder
@@ -76,4 +76,4 @@ namespace epochflow
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

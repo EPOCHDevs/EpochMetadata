@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Special Node Validator Interface
+// EpochScript Special Node Validator Interface
 //
 // Provides pluggable validation system for transforms with special requirements.
 // Validators can be registered per-transform and are automatically invoked during compilation.
@@ -15,7 +15,7 @@
 #include "../compilation_context.h"
 #include "../parser/ast_nodes.h"
 
-namespace epochflow
+namespace epoch_script
 {
     class TypeChecker;  // Forward declaration
 
@@ -77,4 +77,4 @@ namespace epochflow
             static validator_class##_registrar validator_class##_reg_instance; \
         }
 
-} // namespace epochflow
+} // namespace epoch_script

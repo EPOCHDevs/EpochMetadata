@@ -1,13 +1,13 @@
 //
 // Created by adesola on 12/3/24.
 //
-#include <epochflow/core/bar_attribute.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_definition.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_definition.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/operators/equality.h"
 #include "transforms/components/operators/logical.h"
 #include "transforms/components/operators/select.h"
@@ -16,8 +16,8 @@
 #include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
@@ -86,7 +86,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Vector Equals (vector_eq)") {
       TransformConfiguration config = vector_op(
           "eq", 7, "actual", "expected",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -103,7 +103,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Vector Not Equals (vector_neq)") {
       TransformConfiguration config = vector_op(
           "neq", 8, "actual", "expected",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -120,7 +120,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Vector Less Than (vector_lt)") {
       TransformConfiguration config = vector_op(
           "lt", 9, "previous", "current",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -137,7 +137,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Vector Less Than Equals (vector_lte)") {
       TransformConfiguration config = vector_op(
           "lte", 10, "previous", "current",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -158,7 +158,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Logical OR (logical_or)") {
       TransformConfiguration config = logical_op(
           "or", 11, "bool_a", "bool_b",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -175,7 +175,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Logical AND (logical_and)") {
       TransformConfiguration config = logical_op(
           "and", 12, "bool_a", "bool_b",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -192,7 +192,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Logical NOT (logical_not)") {
       TransformConfiguration config = single_operand_op(
           "logical", "not", 13, "bool_a",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -209,7 +209,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Logical XOR (logical_xor)") {
       TransformConfiguration config = logical_op(
           "xor", 14, "bool_a", "bool_b",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -226,7 +226,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Logical AND NOT (logical_and_not)") {
       TransformConfiguration config = logical_op(
           "and_not", 15, "bool_a", "bool_b",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -265,7 +265,7 @@ TEST_CASE("Comparative Transforms") {
 
       TransformConfiguration config = boolean_select(
           20, "condition", "value_if_true", "value_if_false",
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -282,7 +282,7 @@ TEST_CASE("Comparative Transforms") {
     SECTION("Select2 Transform") {
       TransformConfiguration config = select_n(
           21, 2, "selector", {"option_0", "option_1"},
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -324,7 +324,7 @@ TEST_CASE("Comparative Transforms") {
 
       TransformConfiguration config = select_n(
           22, 3, "selector", {"option_0", "option_1", "option_2"},
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -365,7 +365,7 @@ TEST_CASE("Comparative Transforms") {
 
       TransformConfiguration config = select_n(
           23, 4, "selector", {"option_0", "option_1", "option_2", "option_3"},
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -418,7 +418,7 @@ TEST_CASE("Comparative Transforms") {
       TransformConfiguration config = select_n(
           24, 5, "selector",
           {"option_0", "option_1", "option_2", "option_3", "option_4"},
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -444,7 +444,7 @@ TEST_CASE("Additional Comparative Transforms") {
 
     TransformConfiguration config = vector_op(
         "gt", 25, "current", "previous",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -463,7 +463,7 @@ TEST_CASE("Additional Comparative Transforms") {
 
     TransformConfiguration config = vector_op(
         "gte", 26, "current", "previous",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -503,7 +503,7 @@ TEST_CASE("Additional Comparative Transforms") {
     // Use the helper function instead of direct YAML
     TransformConfiguration config = percentile_select(
         "30", "value", "high", "low", 3, 50,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -544,7 +544,7 @@ TEST_CASE("Additional Comparative Transforms") {
     // Use the helper function instead of direct YAML
     TransformConfiguration config = boolean_branch(
         "31", "condition",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -579,7 +579,7 @@ TEST_CASE("Additional Comparative Transforms") {
     // Use the helper function instead of direct YAML
     TransformConfiguration config = ratio_branch(
         "32", "ratio", 1.5, 0.8,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -643,7 +643,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
     struct TestCase {
       std::string name;
       std::function<TransformConfiguration(std::string, std::string, int,
-                                           const epochflow::TimeFrame &)>
+                                           const epoch_script::TimeFrame &)>
           configFn;
       std::vector<std::optional<bool>> expectedResults;
     };
@@ -664,7 +664,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", 1,
-                          epochflow::EpochStratifyXConstants::instance()
+                          epoch_script::EpochStratifyXConstants::instance()
                               .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
@@ -710,7 +710,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
     struct TestCase {
       std::string name;
       std::function<TransformConfiguration(std::string, std::string, int,
-                                           const epochflow::TimeFrame &)>
+                                           const epoch_script::TimeFrame &)>
           configFn;
       std::vector<std::optional<bool>> expectedResults;
     };
@@ -740,7 +740,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", lookback,
-                          epochflow::EpochStratifyXConstants::instance()
+                          epoch_script::EpochStratifyXConstants::instance()
                               .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
@@ -786,7 +786,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
     struct TestCase {
       std::string name;
       std::function<TransformConfiguration(std::string, std::string, int,
-                                           const epochflow::TimeFrame &)>
+                                           const epoch_script::TimeFrame &)>
           configFn;
       std::vector<std::optional<bool>> expectedResults;
     };
@@ -816,7 +816,7 @@ TEST_CASE("Value Comparison Operators", "[value_compare]") {
       SECTION(test.name) {
         TransformConfiguration config =
             test.configFn("test_id", "price", lookback,
-                          epochflow::EpochStratifyXConstants::instance()
+                          epoch_script::EpochStratifyXConstants::instance()
                               .DAILY_FREQUENCY);
 
         auto transformBase = MAKE_TRANSFORM(config);
@@ -868,7 +868,7 @@ TEST_CASE("Type Casting in Equality Operators", "[equality][type_cast]") {
 
     TransformConfiguration config = vector_op(
         "neq", 100, "bool_column", "double_column",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -901,7 +901,7 @@ TEST_CASE("Type Casting in Equality Operators", "[equality][type_cast]") {
 
     TransformConfiguration config = vector_op(
         "eq", 101, "bool_column", "double_column",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -934,7 +934,7 @@ TEST_CASE("Type Casting in Equality Operators", "[equality][type_cast]") {
 
     TransformConfiguration config = vector_op(
         "neq", 102, "double_column", "bool_column",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -972,7 +972,7 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
 
     TransformConfiguration config = first_non_null(
         200, {"SLOT0", "SLOT1", "SLOT2"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1000,7 +1000,7 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
 
     TransformConfiguration config = first_non_null(
         201, {"SLOT0", "SLOT1", "SLOT2"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1023,7 +1023,7 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
 
     TransformConfiguration config = first_non_null(
         202, {"SLOT0", "SLOT1", "SLOT2"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1062,7 +1062,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
 
     TransformConfiguration config = conditional_select(
         300, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1094,7 +1094,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
 
     TransformConfiguration config = conditional_select(
         301, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1130,7 +1130,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
 
     TransformConfiguration config = conditional_select(
         302, {"SLOT0", "SLOT1", "SLOT2", "SLOT3", "SLOT4"},
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 

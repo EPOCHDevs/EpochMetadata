@@ -4,7 +4,7 @@
 #include <arrow/compute/api_aggregate.h>
 #include <sstream>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   // For single input transforms, get the inputId (which is what the column is renamed to)
@@ -275,4 +275,4 @@ epoch_proto::EpochFolioDashboardWidget BaseCardReport::GetWidgetType() const {
   return epoch_proto::EpochFolioDashboardWidget::WidgetCard;  // Default widget type
 }
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

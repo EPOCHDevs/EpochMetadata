@@ -1,12 +1,12 @@
 #include "common.h"
 #include "epoch_core/common_utils.h"
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include "indicators.h"
 #include <epoch_core/ranges_to.h>
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace epochflow::transforms {
+namespace epoch_script::transforms {
 
 struct IndicatorMetaData {
   std::vector<std::string> tags;
@@ -990,4 +990,4 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
 
   return allIndicators;
 }
-} // namespace epochflow::transforms
+} // namespace epoch_script::transforms

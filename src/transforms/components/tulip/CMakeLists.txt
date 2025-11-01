@@ -1,2 +1,2 @@
-target_sources(epochflow PRIVATE tulip_model.cpp)
+target_sources(epoch_script PRIVATE tulip_model.cpp)
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/core/time_frame.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/core/time_frame.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include "date_time/date_offsets.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 /**
  * SessionTimeWindow - Detects when bars are exactly X minutes from session boundaries
@@ -35,7 +35,7 @@ public:
     auto index = bars.index();
 
     // Build session range from session_type
-    epoch_frame::SessionRange range = epochflow::kSessionRegistry.at(m_session_type);
+    epoch_frame::SessionRange range = epoch_script::kSessionRegistry.at(m_session_type);
 
     // Convert session times to UTC and compute boundaries
     const auto startHMS = range.start;
@@ -96,4 +96,4 @@ private:
   std::string m_boundary_type;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -8,17 +8,17 @@
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
 
 #include "transforms/components/hosseinmoein/indicators/ichimoku.h"
 
 using namespace epoch_frame;
-using namespace epochflow::transform;
+using namespace epoch_script::transform;
 
 TEST_CASE("Ichimoku", "[hosseinmoein][ichimoku]") {
-  auto C = epochflow::EpochStratifyXConstants::instance();
+  auto C = epoch_script::EpochStratifyXConstants::instance();
   auto path = std::format("{}/hmdf/IBM.csv", SMC_TEST_DATA_DIR);
 
   hmdf::StdDataFrame<std::string> df;
@@ -38,15 +38,15 @@ TEST_CASE("Ichimoku", "[hosseinmoein][ichimoku]") {
       {C.CLOSE(), C.HIGH(), C.LOW(), C.OPEN(), C.VOLUME()});
 
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t p_tenkan = 9, p_kijun = 26, p_senkou_b = 52;
-  epochflow::MetaDataArgDefinitionMapping opts{
+  epoch_script::MetaDataArgDefinitionMapping opts{
       {"p_tenkan",
-       epochflow::MetaDataOptionDefinition{static_cast<double>(p_tenkan)}},
+       epoch_script::MetaDataOptionDefinition{static_cast<double>(p_tenkan)}},
       {"p_kijun",
-       epochflow::MetaDataOptionDefinition{static_cast<double>(p_kijun)}},
-      {"p_senkou_b", epochflow::MetaDataOptionDefinition{
+       epoch_script::MetaDataOptionDefinition{static_cast<double>(p_kijun)}},
+      {"p_senkou_b", epoch_script::MetaDataOptionDefinition{
                          static_cast<double>(p_senkou_b)}}};
   YAML::Node inputs_yaml; // none
   YAML::Node options_yaml;

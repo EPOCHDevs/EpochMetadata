@@ -6,7 +6,7 @@
 #include "epoch_protos/tearsheet.pb.h"
 
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Utility for comparing TearSheet protobuf objects via JSON conversion
@@ -75,4 +75,4 @@ private:
     static std::string GenerateDiff(const std::string& expectedJson, const std::string& actualJson);
 };
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

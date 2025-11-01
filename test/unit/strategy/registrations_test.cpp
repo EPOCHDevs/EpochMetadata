@@ -2,13 +2,13 @@
 // Created by adesola on 12/16/24.
 //
 #include "../../common.h"
-#include "epochflow/strategy/registration.h"
-#include "epochflow/strategy/registry.h"
+#include "epoch_script/strategy/registration.h"
+#include "epoch_script/strategy/registry.h"
 #include <catch.hpp>
 
 TEST_CASE("Strategy Component MetaData Total Count is Correct")
 {
-        using namespace epochflow::strategy;
+        using namespace epoch_script::strategy;
 
         REQUIRE(slippage::Registry::GetInstance().GetMetaData().size() == 3);
         REQUIRE(commission::Registry::GetInstance().GetMetaData().size() == 2);

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <regex>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   try {
@@ -38,4 +38,4 @@ void PieChartReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
 
 
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

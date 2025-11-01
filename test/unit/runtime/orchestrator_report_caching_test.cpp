@@ -22,10 +22,10 @@
 #include <trompeloeil.hpp>
 #include <epoch_protos/tearsheet.pb.h>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 // Helper to create a tearsheet with specific content
 epoch_proto::TearSheet CreateTearSheetWithCards(int cardCount) {
@@ -75,7 +75,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
         REQUIRE_CALL(*mock, GetTearSheet())
             .RETURN(emptySheet);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -103,7 +103,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
         REQUIRE_CALL(*mock, GetTearSheet())
             .RETURN(sheet);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -135,7 +135,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
             .TIMES(AT_LEAST(1))
             .RETURN(sheet);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft, googl}, CreateMockTransformManager(std::move(transforms)));
@@ -176,7 +176,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
         REQUIRE_CALL(*reporter2, GetTearSheet())
             .RETURN(sheet2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
 
@@ -219,7 +219,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
         REQUIRE_CALL(*reporter3, GetTearSheet())
             .TIMES(AT_LEAST(1)).RETURN(sheet3);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
         transforms.push_back(std::move(reporter3));
@@ -255,7 +255,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
             .RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*reporter2, GetTearSheet()).RETURN(sheet2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
 
@@ -285,7 +285,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
             .RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*reporter2, GetTearSheet()).RETURN(sheet2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
 
@@ -315,7 +315,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
             .RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*reporter2, GetTearSheet()).RETURN(sheet2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
 
@@ -350,7 +350,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
             .RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*reporter2, GetTearSheet()).RETURN(sheet2);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(reporter1));
         transforms.push_back(std::move(reporter2));
 
@@ -376,7 +376,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
 
         // No GetTearSheet call expected
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -391,7 +391,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Report Caching", "[.][orchestrator][rep
     }
 
     SECTION("Large number of reporters (stress test)") {
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
 
         for (int i = 0; i < 20; ++i) {
             auto mock = CreateSimpleMockTransform("reporter_" + std::to_string(i), dailyTF);

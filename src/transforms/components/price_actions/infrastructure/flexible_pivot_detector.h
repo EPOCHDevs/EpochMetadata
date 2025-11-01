@@ -1,12 +1,12 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/factory/table_factory.h>
 #include <limits>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 /**
  * FlexiblePivotDetector - Detects pivot points (local highs/lows) with
@@ -36,7 +36,7 @@ public:
 
   arrow::TablePtr Call(epoch_frame::DataFrame const &bars) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
     const size_t N = bars.num_rows();
@@ -110,4 +110,4 @@ private:
   size_t m_right_count;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

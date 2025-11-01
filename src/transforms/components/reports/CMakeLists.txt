@@ -1,4 +1,4 @@
-target_sources(epochflow PRIVATE
+target_sources(epoch_script PRIVATE
         gap_report.cpp
         base_card_report.cpp
         numeric_card_report.cpp

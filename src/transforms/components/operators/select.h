@@ -5,9 +5,9 @@
 #pragma once
 #include "epoch_frame/array.h"
 #include "epoch_frame/factory/dataframe_factory.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 class BooleanSelectTransform : public ITransform {
 public:
   explicit BooleanSelectTransform(const TransformConfiguration &config)
@@ -154,4 +154,4 @@ public:
   TransformData(epoch_frame::DataFrame const &bars) const override;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

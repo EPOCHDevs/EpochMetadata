@@ -9,7 +9,7 @@
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/core/metadata_options.h>
 #include <spdlog/spdlog.h>
 
 // EpochDashboard builders
@@ -17,7 +17,7 @@
 #include <epoch_dashboard/tearsheet/tearsheet_builder.h>
 #include <epoch_dashboard/tearsheet/table_builder.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 // Gap size category constants
 namespace {
@@ -41,7 +41,7 @@ namespace {
   }
 }
   using namespace epoch_tearsheet;
-  const auto closeLiteral = epochflow::EpochStratifyXConstants::instance().CLOSE();
+  const auto closeLiteral = epoch_script::EpochStratifyXConstants::instance().CLOSE();
 
   void GapReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
     // Generate the tearsheet using the existing implementation
@@ -259,7 +259,7 @@ namespace {
     data.performance_col = "performance";
 
     // Build SelectorData for card selector
-    std::vector<epochflow::CardColumnSchema> card_schemas;
+    std::vector<epoch_script::CardColumnSchema> card_schemas;
 
     // Primary badge: gap_type (gap up/down)
     card_schemas.push_back({
@@ -339,7 +339,7 @@ namespace {
 
     // Store selector data in base class
     // reset_index("pivot_index") converts the datetime index to a column named "pivot_index"
-    this->SetSelectorData(epochflow::transform::SelectorData(
+    this->SetSelectorData(epoch_script::transform::SelectorData(
       "Gap Events",
       card_schemas,
       daily_df.reset_index("pivot_index"),
@@ -787,4 +787,4 @@ namespace {
   }
 
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

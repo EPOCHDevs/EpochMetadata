@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Constructor Parser
+// EpochScript Constructor Parser
 //
 // Parses constructor calls and feed chains from AST.
 // Handles both named constructors with options and feed operator chains.
@@ -10,12 +10,12 @@
 
 #include "compilation_context.h"
 #include "parser/ast_nodes.h"
-#include <epochflow/core/metadata_options.h>
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/core/metadata_options.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include <unordered_map>
 #include <vector>
 
-namespace epochflow
+namespace epoch_script
 {
 
     // Forward declaration
@@ -25,7 +25,7 @@ namespace epochflow
     struct ConstructorParseResult
     {
         std::string ctor_name;
-        std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T> ctor_kwargs;
+        std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T> ctor_kwargs;
         std::vector<std::pair<std::vector<ValueHandle>, std::unordered_map<std::string, ValueHandle>>> feed_steps;
     };
 
@@ -42,10 +42,10 @@ namespace epochflow
         ConstructorParseResult ParseConstructorAndFeeds(const Call& call);
 
         // Parse a literal or primitive value for use as an option
-        epochflow::MetaDataOptionDefinition::T ParseLiteralOrPrimitive(
+        epoch_script::MetaDataOptionDefinition::T ParseLiteralOrPrimitive(
             const Expr& expr,
-            const epochflow::MetaDataOption& meta_option,
-            const epochflow::transforms::TransformsMetaData& comp_meta);
+            const epoch_script::MetaDataOption& meta_option,
+            const epoch_script::transforms::TransformsMetaData& comp_meta);
 
     private:
         CompilationContext& context_;
@@ -57,14 +57,14 @@ namespace epochflow
         // Custom type constructor parsers
         // These correspond to types in MetaDataOptionDefinition::T variant
         epoch_frame::Time ParseTimeConstructor(const Call& call);
-        epochflow::CardSchemaFilter ParseCardSchemaFilterConstructor(const Call& call);
-        epochflow::CardSchemaSQL ParseCardSchemaSQLConstructor(const Call& call);
-        epochflow::SqlStatement ParseSqlStatementConstructor(const Call& call);
-        epochflow::CardColumnSchema ParseCardColumnSchemaConstructor(const Call& call);
+        epoch_script::CardSchemaFilter ParseCardSchemaFilterConstructor(const Call& call);
+        epoch_script::CardSchemaSQL ParseCardSchemaSQLConstructor(const Call& call);
+        epoch_script::SqlStatement ParseSqlStatementConstructor(const Call& call);
+        epoch_script::CardColumnSchema ParseCardColumnSchemaConstructor(const Call& call);
         // Note: SessionRange and TimeFrame are handled as special parameters, not regular options
 
         // Helper to convert Call kwargs to glz::generic for deserialization
         glz::generic CallKwargsToGeneric(const Call& call);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

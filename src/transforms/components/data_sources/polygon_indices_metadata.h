@@ -1,15 +1,15 @@
 #ifndef EPOCH_METADATA_POLYGON_INDICES_METADATA_H
 #define EPOCH_METADATA_POLYGON_INDICES_METADATA_H
 
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
-inline std::vector<epochflow::transforms::TransformsMetaData> MakePolygonIndicesDataSources() {
-  std::vector<epochflow::transforms::TransformsMetaData> metadataList;
+inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndicesDataSources() {
+  std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
   // Common Indices with SelectOption dropdown
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "common_indices",
       .category = epoch_core::TransformCategory::DataSource,
       .plotKind = epoch_core::TransformPlotKind::Null,
@@ -71,7 +71,7 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakePolygonIndices
   });
 
   // Dynamic Indices with ticker parameter
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "indices",
       .category = epoch_core::TransformCategory::DataSource,
       .plotKind = epoch_core::TransformPlotKind::Null,
@@ -122,6 +122,6 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakePolygonIndices
   return metadataList;
 }
 
-}  // namespace epochflow::transform
+}  // namespace epoch_script::transform
 
 #endif  // EPOCH_METADATA_POLYGON_INDICES_METADATA_H

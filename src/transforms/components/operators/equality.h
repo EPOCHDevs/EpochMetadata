@@ -4,13 +4,13 @@
 
 #pragma once
 #include "epoch_core/macros.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <arrow/compute/api.h>
 
 CREATE_ENUM(EqualityOperator, GreaterThan, GreaterThanOrEquals, LessThan,
             LessThanOrEquals, Equals, NotEquals);
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 template <epoch_core::EqualityOperator sign>
 struct EqualityTransform : ITransform {
@@ -19,8 +19,8 @@ struct EqualityTransform : ITransform {
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
-    epoch_frame::Series lhs = bars[GetInputId(epochflow::ARG0)];
-    epoch_frame::Series rhs = bars[GetInputId(epochflow::ARG1)];
+    epoch_frame::Series lhs = bars[GetInputId(epoch_script::ARG0)];
+    epoch_frame::Series rhs = bars[GetInputId(epoch_script::ARG1)];
 
     // For eq/neq operators, handle type mismatches by casting to a common type
     if constexpr (sign == epoch_core::EqualityOperator::Equals ||
@@ -181,4 +181,4 @@ using LessThanOrEqualsPrevious =
     ValueCompare<epoch_core::EqualityOperator::LessThanOrEquals,
                  ValueCompareType::Previous>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

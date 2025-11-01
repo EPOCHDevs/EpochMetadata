@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Constructor Parser Implementation
+// EpochScript Constructor Parser Implementation
 //
 
 #include "constructor_parser.h"
@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <format>
 
-namespace epochflow
+namespace epoch_script
 {
 
     bool ConstructorParser::IsConstructorCall(const Expr& expr)
@@ -57,7 +57,7 @@ namespace epochflow
         const auto& comp_meta = context_.GetComponentMetadata(ctor_name);
 
         // Build metadata lookup map for O(1) lookups
-        std::unordered_map<std::string, epochflow::MetaDataOption> option_metadata;
+        std::unordered_map<std::string, epoch_script::MetaDataOption> option_metadata;
         for (const auto& opt : comp_meta.options)
         {
             option_metadata[opt.id] = opt;
@@ -158,13 +158,13 @@ namespace epochflow
         return result;
     }
 
-    epochflow::MetaDataOptionDefinition::T ConstructorParser::ParseLiteralOrPrimitive(
+    epoch_script::MetaDataOptionDefinition::T ConstructorParser::ParseLiteralOrPrimitive(
         const Expr& expr,
-        const epochflow::MetaDataOption& meta_option,
-        const epochflow::transforms::TransformsMetaData& comp_meta)
+        const epoch_script::MetaDataOption& meta_option,
+        const epoch_script::transforms::TransformsMetaData& comp_meta)
     {
         // Extract raw value from AST expression
-        epochflow::MetaDataOptionDefinition::T raw_value;
+        epoch_script::MetaDataOptionDefinition::T raw_value;
 
         // Handle custom type constructor calls
         if (auto* call = dynamic_cast<const Call*>(&expr))
@@ -181,19 +181,19 @@ namespace epochflow
             // Dispatch to appropriate constructor parser based on name
             if (ctor_name == "Time")
             {
-                return epochflow::MetaDataOptionDefinition::T{ParseTimeConstructor(*call)};
+                return epoch_script::MetaDataOptionDefinition::T{ParseTimeConstructor(*call)};
             }
             else if (ctor_name == "CardSchemaFilter")
             {
-                return epochflow::MetaDataOptionDefinition::T{ParseCardSchemaFilterConstructor(*call)};
+                return epoch_script::MetaDataOptionDefinition::T{ParseCardSchemaFilterConstructor(*call)};
             }
             else if (ctor_name == "CardSchemaSQL")
             {
-                return epochflow::MetaDataOptionDefinition::T{ParseCardSchemaSQLConstructor(*call)};
+                return epoch_script::MetaDataOptionDefinition::T{ParseCardSchemaSQLConstructor(*call)};
             }
             else if (ctor_name == "SqlStatement")
             {
-                return epochflow::MetaDataOptionDefinition::T{ParseSqlStatementConstructor(*call)};
+                return epoch_script::MetaDataOptionDefinition::T{ParseSqlStatementConstructor(*call)};
             }
             // Note: SessionRange and TimeFrame are handled as special parameters
             // in SpecialParameterHandler, not as regular options
@@ -204,7 +204,7 @@ namespace epochflow
         }
         else if (auto* constant = dynamic_cast<const Constant*>(&expr))
         {
-            raw_value = std::visit([](auto&& value) -> epochflow::MetaDataOptionDefinition::T
+            raw_value = std::visit([](auto&& value) -> epoch_script::MetaDataOptionDefinition::T
             {
                 using T = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<T, int>) {
@@ -487,12 +487,12 @@ namespace epochflow
         return time;
     }
 
-    epochflow::CardColumnSchema ConstructorParser::ParseCardColumnSchemaConstructor(const Call& call)
+    epoch_script::CardColumnSchema ConstructorParser::ParseCardColumnSchemaConstructor(const Call& call)
     {
         // Convert kwargs to glz::generic and let glaze deserialize
         glz::generic obj = CallKwargsToGeneric(call);
 
-        epochflow::CardColumnSchema schema{};
+        epoch_script::CardColumnSchema schema{};
         auto error = glz::read<glz::opts{}>(schema, obj);
         if (error)
         {
@@ -502,12 +502,12 @@ namespace epochflow
         return schema;
     }
 
-    epochflow::CardSchemaFilter ConstructorParser::ParseCardSchemaFilterConstructor(const Call& call)
+    epoch_script::CardSchemaFilter ConstructorParser::ParseCardSchemaFilterConstructor(const Call& call)
     {
         // Convert kwargs to glz::generic and let glaze deserialize
         glz::generic obj = CallKwargsToGeneric(call);
 
-        epochflow::CardSchemaFilter filter{};
+        epoch_script::CardSchemaFilter filter{};
         auto error = glz::read<glz::opts{}>(filter, obj);
         if (error)
         {
@@ -517,12 +517,12 @@ namespace epochflow
         return filter;
     }
 
-    epochflow::CardSchemaSQL ConstructorParser::ParseCardSchemaSQLConstructor(const Call& call)
+    epoch_script::CardSchemaSQL ConstructorParser::ParseCardSchemaSQLConstructor(const Call& call)
     {
         // Convert kwargs to glz::generic and let glaze deserialize
         glz::generic obj = CallKwargsToGeneric(call);
 
-        epochflow::CardSchemaSQL schema_sql{};
+        epoch_script::CardSchemaSQL schema_sql{};
         auto error = glz::read<glz::opts{}>(schema_sql, obj);
         if (error)
         {
@@ -532,12 +532,12 @@ namespace epochflow
         return schema_sql;
     }
 
-    epochflow::SqlStatement ConstructorParser::ParseSqlStatementConstructor(const Call& call)
+    epoch_script::SqlStatement ConstructorParser::ParseSqlStatementConstructor(const Call& call)
     {
         // Convert kwargs to glz::generic and let glaze deserialize
         glz::generic obj = CallKwargsToGeneric(call);
 
-        epochflow::SqlStatement stmt{};
+        epoch_script::SqlStatement stmt{};
         auto error = glz::read<glz::opts{}>(stmt, obj);
         if (error)
         {
@@ -559,4 +559,4 @@ namespace epochflow
         throw std::runtime_error(full_msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

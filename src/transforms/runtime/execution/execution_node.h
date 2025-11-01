@@ -4,20 +4,20 @@
 
 #pragma once
 #include "execution_context.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <functional>
 #include <memory>
 #include <tbb/flow_graph.h>
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
 using execution_context_t = const tbb::flow::continue_msg &;
 
 // Apply a regular transform
-void ApplyDefaultTransform(const epochflow::transform::ITransformBase &transformer,
+void ApplyDefaultTransform(const epoch_script::transform::ITransformBase &transformer,
                            ExecutionContext &msg);
 
 // Apply a cross-sectional transform
-void ApplyCrossSectionTransform(const epochflow::transform::ITransformBase &transformer,
+void ApplyCrossSectionTransform(const epoch_script::transform::ITransformBase &transformer,
                                 ExecutionContext &msg);
 
 // Create a node function for a regular transform
@@ -25,7 +25,7 @@ void ApplyCrossSectionTransform(const epochflow::transform::ITransformBase &tran
 // references
 template <bool is_cross_sectional>
 std::function<void(execution_context_t)>
-MakeExecutionNode(const epochflow::transform::ITransformBase &transformer,
+MakeExecutionNode(const epoch_script::transform::ITransformBase &transformer,
                  ExecutionContext &msg) {
 
   return [&](execution_context_t /*unused*/) {
@@ -37,4 +37,4 @@ MakeExecutionNode(const epochflow::transform::ITransformBase &transformer,
   };
 }
 
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

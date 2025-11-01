@@ -7,7 +7,7 @@
 #include <DataFrame/DataFrame.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 
-namespace epochflow::transform::pattern_utils {
+namespace epoch_script::transform::pattern_utils {
 
 /**
  * LinearRegressionResult - stores results of linear regression
@@ -234,4 +234,4 @@ public:
   }
 };
 
-} // namespace epochflow::transform::pattern_utils
+} // namespace epoch_script::transform::pattern_utils

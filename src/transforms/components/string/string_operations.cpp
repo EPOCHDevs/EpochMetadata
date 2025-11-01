@@ -6,7 +6,7 @@
 #include "epoch_frame/series.h"
 #include <arrow/compute/api.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // ============================================================================
 // String Case Transformations
@@ -300,4 +300,4 @@ epoch_frame::DataFrame StringReverseTransform::TransformData(
   return make_dataframe(bars.index(), {result.as_chunked_array()}, {GetOutputId()});
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

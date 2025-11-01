@@ -3,7 +3,7 @@
 //
 #include "lag.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 Lag::Lag(const TransformConfiguration &config)
     : ITransform(config),
@@ -16,4 +16,4 @@ Lag::TransformData(epoch_frame::DataFrame const &bars) const {
   return MakeResult(result);
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

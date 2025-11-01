@@ -1,10 +1,10 @@
 //
 // Created by dewe on 1/10/23.
 //
-#include <epochflow/core/symbol.h>
-#include <epochflow/core/bar_attribute.h>
+#include <epoch_script/core/symbol.h>
+#include <epoch_script/core/bar_attribute.h>
 
-namespace epochflow {
+namespace epoch_script {
 
 InvalidSymbol::InvalidSymbol(std::string _symbol_base)
     : symbol_base(std::move(_symbol_base)) {}
@@ -76,4 +76,4 @@ std::ostream &operator<<(std::ostream &os, SymbolList const &symbols) {
   return os;
 }
 
-} // namespace epochflow
+} // namespace epoch_script

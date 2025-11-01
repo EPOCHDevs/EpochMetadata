@@ -1,4 +1,4 @@
-target_sources(epochflow PRIVATE registration.cpp)
+target_sources(epoch_script PRIVATE registration.cpp)
 
 
 add_subdirectory(calendar)

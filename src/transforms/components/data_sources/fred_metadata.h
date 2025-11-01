@@ -1,18 +1,18 @@
 #pragma once
 
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include "../data_source.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Factory function to create metadata for FRED economic data source
-inline std::vector<epochflow::transforms::TransformsMetaData>
+inline std::vector<epoch_script::transforms::TransformsMetaData>
 MakeFREDDataSource() {
-  std::vector<epochflow::transforms::TransformsMetaData> metadataList;
+  std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
   // Single FRED transform with category SelectOption
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "economic_indicator",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -107,4 +107,4 @@ MakeFREDDataSource() {
   return metadataList;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

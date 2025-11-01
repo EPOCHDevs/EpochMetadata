@@ -4,8 +4,8 @@
 #include "catch2/catch_session.hpp"
 #include "common.h"
 #include "epoch_frame/factory/calendar_factory.h"
-#include "epochflow/strategy/registration.h"
-#include "../include/epochflow/transforms/core/registration.h"
+#include "epoch_script/strategy/registration.h"
+#include "../include/epoch_script/transforms/core/registration.h"
 #include <arrow/compute/initialize.h>
 #include <iostream>
 #include <google/protobuf/stubs/common.h>
@@ -27,12 +27,12 @@ int main(int argc, char *argv[])
   epoch_frame::calendar::CalendarFactory::instance().Init();
 
   // Register transform metadata
-  epochflow::transforms::RegisterTransformMetadata(
-      epochflow::DEFAULT_YAML_LOADER);
+  epoch_script::transforms::RegisterTransformMetadata(
+      epoch_script::DEFAULT_YAML_LOADER);
 
   // Initialize transforms registry
-  epochflow::transform::InitializeTransforms(
-      epochflow::DEFAULT_YAML_LOADER, {}, {});
+  epoch_script::transform::InitializeTransforms(
+      epoch_script::DEFAULT_YAML_LOADER, {}, {});
 
   // your setup ...
   int result = Catch::Session().run(argc, argv);

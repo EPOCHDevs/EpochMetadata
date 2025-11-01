@@ -1,17 +1,17 @@
 #pragma once
 
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/metadata.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Factory function to create metadata for all SEC data source transforms
-inline std::vector<epochflow::transforms::TransformsMetaData>
+inline std::vector<epoch_script::transforms::TransformsMetaData>
 MakeSECDataSources() {
-  std::vector<epochflow::transforms::TransformsMetaData> metadataList;
+  std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
   // 1. Form 13F Institutional Holdings
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "form13f_holdings",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -97,7 +97,7 @@ MakeSECDataSources() {
 
   // 2. Insider Trading
   metadataList.emplace_back(
-      epochflow::transforms::TransformsMetaData{
+      epoch_script::transforms::TransformsMetaData{
           .id = "insider_trading",
           .category = epoch_core::TransformCategory::DataSource,
           .plotKind = epoch_core::TransformPlotKind::Null,
@@ -211,4 +211,4 @@ MakeSECDataSources() {
   return metadataList;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

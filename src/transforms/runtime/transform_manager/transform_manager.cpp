@@ -3,22 +3,22 @@
 //
 
 #include "transform_manager.h"
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 
-namespace epoch_flow::runtime {
-  std::optional<epochflow::TimeFrame> TimeframeResolutionCache::ResolveTimeframe(
+namespace epoch_script::runtime {
+  std::optional<epoch_script::TimeFrame> TimeframeResolutionCache::ResolveTimeframe(
       const std::string &nodeId, const std::vector<std::string> &inputIds,
-      const std::optional<epochflow::TimeFrame> &baseTimeframe) {
+      const std::optional<epoch_script::TimeFrame> &baseTimeframe) {
     // Check cache first
     if (nodeTimeframes.contains(nodeId)) {
       return nodeTimeframes[nodeId];
     }
 
-    std::optional<epochflow::TimeFrame> resolvedTimeframe;
+    std::optional<epoch_script::TimeFrame> resolvedTimeframe;
 
     // If we have inputs, resolve from them
     if (!inputIds.empty()) {
-      std::vector<epochflow::TimeFrame> inputTimeframes;
+      std::vector<epoch_script::TimeFrame> inputTimeframes;
       inputTimeframes.reserve(inputIds.size());
 
       for (const auto &handleId : inputIds) {
@@ -47,9 +47,9 @@ namespace epoch_flow::runtime {
     return resolvedTimeframe;
   };
 
-  std::optional<epochflow::TimeFrame> ResolveNodeTimeframe(
-    const epochflow::strategy::AlgorithmNode &node,
-    const std::optional<epochflow::TimeFrame> &baseTimeframe,
+  std::optional<epoch_script::TimeFrame> ResolveNodeTimeframe(
+    const epoch_script::strategy::AlgorithmNode &node,
+    const std::optional<epoch_script::TimeFrame> &baseTimeframe,
     TimeframeResolutionCache &cache) {
 
     // If node has explicit timeframe, use it
@@ -69,8 +69,8 @@ namespace epoch_flow::runtime {
   }
 
   void TransformManager::BuildTransformManager(
-    std::vector<epochflow::strategy::AlgorithmNode> &algorithms,
-    const std::optional<epochflow::TimeFrame> &baseTimeframe) {
+    std::vector<epoch_script::strategy::AlgorithmNode> &algorithms,
+    const std::optional<epoch_script::TimeFrame> &baseTimeframe) {
     TimeframeResolutionCache cache;
 
     // Process algorithms with timeframe resolution
@@ -78,8 +78,8 @@ namespace epoch_flow::runtime {
       auto resolvedTimeframe =
           ResolveNodeTimeframe(algorithm, baseTimeframe, cache);
       this->Insert(
-          epochflow::TransformDefinition{algorithm, resolvedTimeframe});
-      if (algorithm.type == epochflow::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
+          epoch_script::TransformDefinition{algorithm, resolvedTimeframe});
+      if (algorithm.type == epoch_script::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
         m_executorId = algorithm.id;
       }
     }
@@ -102,7 +102,7 @@ namespace epoch_flow::runtime {
         algorithms, options.timeframe);
   }
 
-  const epochflow::transform::TransformConfiguration *
+  const epoch_script::transform::TransformConfiguration *
   TransformManager::Insert(TransformConfigurationPtr info) {
     const auto name = info->GetId();
     auto ptr =
@@ -116,7 +116,7 @@ namespace epoch_flow::runtime {
     return ptr;
   }
 
-  const epochflow::transform::TransformConfiguration *
+  const epoch_script::transform::TransformConfiguration *
   TransformManager::Insert(const std::string &name,
                            TransformConfigurationPtr info) {
     AssertFromStream(!m_configurationsById.contains(name),
@@ -129,15 +129,15 @@ namespace epoch_flow::runtime {
     if (transformManager) {
       for (auto const &transformInfo : *transformManager->GetTransforms()) {
         Insert(
-            std::make_unique<epochflow::transform::TransformConfiguration>(
+            std::make_unique<epoch_script::transform::TransformConfiguration>(
                 *transformInfo));
       }
     }
   }
 
-  std::vector<std::unique_ptr<epochflow::transform::ITransformBase>>
+  std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>>
   TransformManager::BuildTransforms() const {
-    std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+    std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
     transforms.reserve(m_configurations.size());
 
     for (const auto& config : m_configurations) {
@@ -146,4 +146,4 @@ namespace epoch_flow::runtime {
 
     return transforms;
   }
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

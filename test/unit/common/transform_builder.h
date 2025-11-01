@@ -1,13 +1,13 @@
 #pragma once
 
-#include <../../include/epochflow/transforms/core/itransform.h>
-#include <../../include/epochflow/transforms/core/transform_configuration.h>
-#include <../../include/epochflow/transforms/core/registration.h>
-#include <../../include/epochflow/transforms/core/transform_registry.h>
+#include <../../include/epoch_script/transforms/core/itransform.h>
+#include <../../include/epoch_script/transforms/core/transform_configuration.h>
+#include <../../include/epoch_script/transforms/core/registration.h>
+#include <../../include/epoch_script/transforms/core/transform_registry.h>
 #include <memory>
 #include <vector>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Utility class for building transforms from configurations in tests
@@ -23,11 +23,11 @@ public:
      * @param configs List of transform configurations
      * @return Vector of transform instances ready to be passed to DataFlowRuntimeOrchestrator
      */
-    static std::vector<std::unique_ptr<epochflow::transform::ITransformBase>>
+    static std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>>
     BuildFromConfigurations(
-        const epochflow::transform::TransformConfigurationList& configs) {
+        const epoch_script::transform::TransformConfigurationList& configs) {
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.reserve(configs.size());
 
         for (const auto& config : configs) {
@@ -43,10 +43,10 @@ public:
      * @param config Transform configuration
      * @return Transform instance
      */
-    static std::unique_ptr<epochflow::transform::ITransformBase>
-    BuildFromConfiguration(const epochflow::transform::TransformConfiguration& config) {
+    static std::unique_ptr<epoch_script::transform::ITransformBase>
+    BuildFromConfiguration(const epoch_script::transform::TransformConfiguration& config) {
         return MAKE_TRANSFORM(config);
     }
 };
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

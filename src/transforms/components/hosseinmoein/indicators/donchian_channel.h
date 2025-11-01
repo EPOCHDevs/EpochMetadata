@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 using namespace epoch_frame;
 
 // Donchian Channel: upper = rolling max(high), lower = rolling min(low), middle
@@ -23,7 +23,7 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const override {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     const auto highArr = df[C.HIGH()].contiguous_array();
     const auto lowArr = df[C.LOW()].contiguous_array();
@@ -53,4 +53,4 @@ private:
   int64_t m_window;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

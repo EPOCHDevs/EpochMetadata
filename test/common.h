@@ -7,7 +7,7 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
-namespace epochflow {
+namespace epoch_script {
 const auto DEFAULT_YAML_LOADER = [](std::string const &_path) {
   return YAML::LoadFile(std::filesystem::path{METADATA_FILES_DIR} / _path);
 };
@@ -39,4 +39,4 @@ const auto LoadAIGeneratedResources = [](std::string const &id) {
   return buffers;
 };
 
-} // namespace epochflow
+} // namespace epoch_script

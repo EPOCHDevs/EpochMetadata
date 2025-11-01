@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
 struct Ilogger {
   virtual void log(std::string const &message) = 0;
   virtual std::string str() const = 0;
@@ -39,4 +39,4 @@ private:
 };
 
 using ILoggerPtr = std::unique_ptr<Ilogger>;
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

@@ -2,21 +2,21 @@
 
 #include "date_time/date_offsets.h"
 #include "epoch_frame/factory/array_factory.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/sessions_utils.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/sessions_utils.h>
 #include <algorithm>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/factory/table_factory.h>
-#include <epochflow/core/time_frame.h>
+#include <epoch_script/core/time_frame.h>
 #include <limits>
 #include <vector>
 
 using namespace std::chrono_literals;
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 /**
  * bos_v / choch_v  – Break‑of‑Structure & Change‑of‑Character
@@ -65,7 +65,7 @@ private:
     const Scalar null_d{NaN};
 
     /* --- column shortcuts ----------------------------------------- */
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     const auto high_arr = bars[C.HIGH()].contiguous_array();
     const auto low_arr = bars[C.LOW()].contiguous_array();
@@ -130,9 +130,9 @@ private:
 class DefaultSessions : public Sessions {
 public:
   explicit DefaultSessions(const TransformConfiguration &cfg)
-      : Sessions(cfg, epochflow::kSessionRegistry.at(
+      : Sessions(cfg, epoch_script::kSessionRegistry.at(
                           cfg.GetOptionValue("session_type")
                               .GetSelectOption<epoch_core::SessionType>())) {}
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

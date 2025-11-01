@@ -3,14 +3,14 @@
 // Created by dewe on 4/14/23.
 //
 #include "epoch_core/enum_wrapper.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 
 CREATE_ENUM(AggType, AllOf, AnyOf, NoneOf, Sum, Average, Min, Max, IsEqual,
             IsUnique);
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 template <epoch_core::AggType agg_type>
 struct AggregateTransform final : ITransform {
@@ -84,4 +84,4 @@ using AllEqualAggregateTransform =
     AggregateTransform<epoch_core::AggType::IsEqual>;
 using AllUniqueAggregateTransform =
     AggregateTransform<epoch_core::AggType::IsUnique>;
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

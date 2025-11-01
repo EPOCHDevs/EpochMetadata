@@ -6,10 +6,10 @@
 #include <unordered_map>
 #include <optional>
 
-namespace epochflow {
+namespace epoch_script {
 
 /**
- * @brief Constant folding preprocessing pass for the EpochFlow compiler.
+ * @brief Constant folding preprocessing pass for the EpochScript compiler.
  *
  * This class implements a two-pass algorithm to resolve constant expressions
  * at compile-time, enabling features like:
@@ -157,4 +157,4 @@ private:
     std::optional<bool> ToBool(const Constant::Value& value);
 };
 
-} // namespace epochflow
+} // namespace epoch_script

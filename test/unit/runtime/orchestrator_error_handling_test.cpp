@@ -22,10 +22,10 @@
 #include <trompeloeil.hpp>
 #include <stdexcept>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors][critical]") {
     const auto dailyTF = TestTimeFrames::Daily();
@@ -37,7 +37,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         auto mock1 = CreateSimpleMockTransform("same_id", dailyTF);
         auto mock2 = CreateSimpleMockTransform("same_id", dailyTF);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock1));
         transforms.push_back(std::move(mock2));
 
@@ -50,7 +50,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         try {
             auto mock1_retry = CreateSimpleMockTransform("same_id", dailyTF);
             auto mock2_retry = CreateSimpleMockTransform("same_id", dailyTF);
-            std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms_retry;
+            std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms_retry;
             transforms_retry.push_back(std::move(mock1_retry));
             transforms_retry.push_back(std::move(mock2_retry));
 
@@ -68,7 +68,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         // Create a transform that depends on a handle that doesn't exist
         auto mock = CreateSimpleMockTransform("dependent", dailyTF, {"missing_handle#output"}, {"result"});
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         REQUIRE_THROWS_AS(
@@ -79,7 +79,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         // Verify exact error message
         try {
             auto mock_retry = CreateSimpleMockTransform("dependent", dailyTF, {"missing_handle#output"}, {"result"});
-            std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms_retry;
+            std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms_retry;
             transforms_retry.push_back(std::move(mock_retry));
 
             DataFlowRuntimeOrchestrator({aapl}, CreateMockTransformManager(std::move(transforms_retry)));
@@ -98,7 +98,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mock, TransformData(trompeloeil::_))
             .THROW(std::runtime_error("Intentional transform failure"));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -128,7 +128,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mockC, TransformData(trompeloeil::_))
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -154,7 +154,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mockB, TransformData(trompeloeil::_))
             .THROW(std::runtime_error("B failed"));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
 
@@ -174,7 +174,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mock, TransformData(trompeloeil::_))
             .THROW(std::runtime_error(detailedMessage));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -198,7 +198,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mock, GetTearSheet())
             .THROW(std::runtime_error("TearSheet generation failed"));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -217,7 +217,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         ALLOW_CALL(*mock, TransformData(trompeloeil::_))
             .THROW(std::runtime_error("Null pointer access"));
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl}, CreateMockTransformManager(std::move(transforms)));
@@ -241,7 +241,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
             )
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch({aapl, msft}, CreateMockTransformManager(std::move(transforms)));
@@ -264,7 +264,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Error Handling", "[orchestrator][errors
         auto mockA = CreateSimpleMockTransform("A", dailyTF, {"B#result"}, {"result"});
         auto mockB = CreateSimpleMockTransform("B", dailyTF, {"A#result"}, {"result"});
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
 

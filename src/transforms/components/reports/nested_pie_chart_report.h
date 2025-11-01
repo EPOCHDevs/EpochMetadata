@@ -1,14 +1,14 @@
 #pragma once
 
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <epoch_frame/dataframe.h>
 #include <arrow/api.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class NestedPieChartReport : public IReporter {
 public:
-  explicit NestedPieChartReport(epochflow::transform::TransformConfiguration config)
+  explicit NestedPieChartReport(epoch_script::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
         m_chartTitle(m_config.GetOptionValue("title").GetString()),
         m_category(m_config.GetOptionValue("category").GetString()) {
@@ -25,7 +25,7 @@ private:
 template <> struct ReportMetadata<NestedPieChartReport> {
   constexpr static const char *kReportId = "nested_pie_chart_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -58,4 +58,4 @@ template <> struct ReportMetadata<NestedPieChartReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

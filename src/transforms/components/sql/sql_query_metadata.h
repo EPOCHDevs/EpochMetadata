@@ -1,28 +1,28 @@
 #pragma once
 
-#include <epochflow/transforms/core/metadata.h>
-#include <epochflow/transforms/core/sql_options.h>
+#include <epoch_script/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/sql_options.h>
 #include "sql_query_transform.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Function to create SQL Query metadata for all variants
-inline std::vector<epochflow::transforms::TransformsMetaData> MakeSQLQueryMetaData() {
-  std::vector<epochflow::transforms::TransformsMetaData> metadataList;
+inline std::vector<epoch_script::transforms::TransformsMetaData> MakeSQLQueryMetaData() {
+  std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
   // SQLQueryTransform1 - Single output
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
     .id = "sql_query_1",
     .category = epoch_core::TransformCategory::Utility,
     .name = "SQL Query (1 Output)",
     .options = {
-      epochflow::transforms::TIMESERIES_SQL_OPTION
+      epoch_script::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL queries on timeseries data. "
             "Single output variant - returns entire query result as one DataFrame. "
             "Result will be indexed by the specified index_column_name for timeseries merging.",
-    .inputs = {{epoch_core::IODataType::Any, epochflow::ARG, "", true}},
+    .inputs = {{epoch_core::IODataType::Any, epoch_script::ARG, "", true}},
     .outputs = {
         {epoch_core::IODataType::Any, "RESULT0", "Output 0", true}
     },
@@ -38,18 +38,18 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakeSQLQueryMetaDa
   });
 
   // SQLQueryTransform2 - Two outputs
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
     .id = "sql_query_2",
     .category = epoch_core::TransformCategory::Utility,
     .name = "SQL Query (2 Outputs)",
     .options = {
-      epochflow::transforms::TIMESERIES_SQL_OPTION
+      epoch_script::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 2 separate output ports. "
             "SQL result MUST contain exactly these columns: RESULT0, RESULT1, and index_column_name. "
             "Each output port carries its respective result column with the index.",
-    .inputs = {{epoch_core::IODataType::Any, epochflow::ARG, "", true}},
+    .inputs = {{epoch_core::IODataType::Any, epoch_script::ARG, "", true}},
     .outputs = {
       {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
       {epoch_core::IODataType::Any, "RESULT1", "Output 1", true}
@@ -66,18 +66,18 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakeSQLQueryMetaDa
   });
 
   // SQLQueryTransform3 - Three outputs
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
     .id = "sql_query_3",
     .category = epoch_core::TransformCategory::Utility,
     .name = "SQL Query (3 Outputs)",
     .options = {
-      epochflow::transforms::TIMESERIES_SQL_OPTION
+      epoch_script::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 3 separate output ports. "
             "SQL result MUST contain exactly: RESULT0, RESULT1, RESULT2, and index_column_name. "
             "Each output port carries its own data series with the index.",
-    .inputs = {{epoch_core::IODataType::Any, epochflow::ARG, "", true}},
+    .inputs = {{epoch_core::IODataType::Any, epoch_script::ARG, "", true}},
     .outputs = {
       {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
       {epoch_core::IODataType::Any, "RESULT1", "Output 1", true},
@@ -95,18 +95,18 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakeSQLQueryMetaDa
   });
 
   // SQLQueryTransform4 - Four outputs
-  metadataList.emplace_back(epochflow::transforms::TransformsMetaData{
+  metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
     .id = "sql_query_4",
     .category = epoch_core::TransformCategory::Utility,
     .name = "SQL Query (4 Outputs)",
     .options = {
-      epochflow::transforms::TIMESERIES_SQL_OPTION
+      epoch_script::transforms::TIMESERIES_SQL_OPTION
     },
     .isCrossSectional = false,
     .desc = "Execute SQL query producing 4 separate output ports. "
             "SQL result MUST contain exactly: RESULT0, RESULT1, RESULT2, RESULT3, and index_column_name. "
             "Each output port is a separate data stream for connecting to different downstream nodes.",
-    .inputs = {{epoch_core::IODataType::Any, epochflow::ARG, "", true}},
+    .inputs = {{epoch_core::IODataType::Any, epoch_script::ARG, "", true}},
     .outputs = {
       {epoch_core::IODataType::Any, "RESULT0", "Output 0", true},
       {epoch_core::IODataType::Any, "RESULT1", "Output 1", true},
@@ -127,4 +127,4 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakeSQLQueryMetaDa
   return metadataList;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

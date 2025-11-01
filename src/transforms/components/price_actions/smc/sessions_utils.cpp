@@ -1,9 +1,9 @@
-#include <epochflow/transforms/core/sessions_utils.h>
+#include <epoch_script/transforms/core/sessions_utils.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/index.h>
 
-namespace epochflow::transform::sessions_utils {
+namespace epoch_script::transform::sessions_utils {
 
 SessionState BuildActiveMaskUTC(const epoch_frame::IndexPtr &utcIndex,
                                 const epoch_frame::SessionRange &range) {
@@ -62,4 +62,4 @@ SliceBySessionUTC(const epoch_frame::DataFrame &dfUTC,
   return dfUTC.loc(mask);
 }
 
-} // namespace epochflow::transform::sessions_utils
+} // namespace epoch_script::transform::sessions_utils

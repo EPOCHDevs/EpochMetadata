@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Python Parser Implementation
+// EpochScript Python Parser Implementation
 //
 
 #include "python_parser.h"
@@ -11,7 +11,7 @@ extern "C" {
     const TSLanguage *tree_sitter_python();
 }
 
-namespace epochflow {
+namespace epoch_script {
 
 PythonParser::PythonParser() {
     // Initialize parser with Python language
@@ -551,4 +551,4 @@ ExprPtr PythonParser::parseDict(const ts::Node& node, std::string_view source) {
     return dict;
 }
 
-} // namespace epochflow
+} // namespace epoch_script

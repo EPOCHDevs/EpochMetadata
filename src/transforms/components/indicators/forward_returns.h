@@ -2,13 +2,13 @@
 //
 // Created by adesola on 1/28/25.
 //
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/metadata.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/metadata.h>
 #include <epoch_core/enum_wrapper.h>
 
 CREATE_ENUM(ReturnType, simple, log);
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 class ForwardReturns : public ITransform {
 public:
@@ -23,8 +23,8 @@ private:
 };
 
 // Metadata function
-inline std::vector<epochflow::transforms::TransformsMetaData> MakeForwardReturnsMetaData() {
-  using namespace epochflow::transforms;
+inline std::vector<epoch_script::transforms::TransformsMetaData> MakeForwardReturnsMetaData() {
+  using namespace epoch_script::transforms;
   std::vector<TransformsMetaData> metadataList;
 
   metadataList.emplace_back(TransformsMetaData{
@@ -68,4 +68,4 @@ inline std::vector<epochflow::transforms::TransformsMetaData> MakeForwardReturns
   return metadataList;
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

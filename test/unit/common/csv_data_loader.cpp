@@ -6,7 +6,7 @@
 
 #include "epoch_frame/serialization.h"
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 CsvDataLoader::TimeFrameAssetDataFrameMap
 CsvDataLoader::LoadFromDirectory(const std::filesystem::path& inputDir) {
@@ -102,4 +102,4 @@ void CsvDataLoader::WriteCsvFile(const epoch_frame::DataFrame& df,
                 csvPath.string(), df.num_rows(), df.num_cols());
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

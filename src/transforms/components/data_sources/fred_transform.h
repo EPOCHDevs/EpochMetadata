@@ -1,12 +1,12 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <unordered_map>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Transform for FRED economic indicators
 // Auto-derives date range from input DataFrame and returns publication events
@@ -72,4 +72,4 @@ inline const std::unordered_map<std::string, std::string> FRED_SERIES_MAP{
     {"VIX", "VIXCLS"},
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

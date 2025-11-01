@@ -3,11 +3,11 @@
 #include "base_card_report.h"
 #include "epoch_core/enum_wrapper.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class QuantileCardReport : public BaseCardReport {
 public:
-  explicit QuantileCardReport(epochflow::transform::TransformConfiguration config)
+  explicit QuantileCardReport(epoch_script::transform::TransformConfiguration config)
       : BaseCardReport(std::move(config)) {}
 
 protected:
@@ -42,7 +42,7 @@ protected:
 template <> struct ReportMetadata<QuantileCardReport> {
   constexpr static const char *kReportId = "quantile_cards_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -51,7 +51,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
         {.id = "quantile",
          .name = "Quantile",
          .type = epoch_core::MetaDataOptionType::Decimal,
-         .defaultValue = epochflow::MetaDataOptionDefinition{0.5},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{0.5},
          .isRequired = true,
          .min = 0.0,
          .max = 1.0,
@@ -59,7 +59,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
         {.id = "interpolation",
          .name = "Interpolation Method",
          .type = epoch_core::MetaDataOptionType::Select,
-         .defaultValue = epochflow::MetaDataOptionDefinition{"linear"},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{"linear"},
          .isRequired = false,
          .selectOption = {
                           {"Linear", "linear"},
@@ -97,7 +97,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
       .isCrossSectional = false,
       .desc = "Calculate a specific quantile (percentile) of the input numeric series.",
       .inputs = {
-        {epoch_core::IODataType::Number, epochflow::ARG}
+        {epoch_core::IODataType::Number, epoch_script::ARG}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
@@ -108,4 +108,4 @@ template <> struct ReportMetadata<QuantileCardReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

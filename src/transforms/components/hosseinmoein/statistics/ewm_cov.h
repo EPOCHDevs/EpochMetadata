@@ -10,13 +10,13 @@
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <DataFrame/DataFrameStatsVisitors.h>
 #include <DataFrame/DataFrameTypes.h>
 
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Exponentially weighted moving covariance using HMDF ExponentiallyWeightedCovVisitor
 // Inputs: x, y
@@ -60,4 +60,4 @@ private:
   int64_t m_span;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

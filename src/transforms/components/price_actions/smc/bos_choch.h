@@ -1,6 +1,6 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
@@ -10,7 +10,7 @@
 #include <limits>
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 constexpr double epsilon = 1e-8;
 
 // Safe floating-point comparison function
@@ -64,7 +64,7 @@ private:
     const Scalar null_d{NaN};
 
     /* --- column shortcuts ----------------------------------------- */
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     const auto open = bars[C.OPEN()].contiguous_array();
     const auto high = bars[C.HIGH()].contiguous_array();
@@ -277,4 +277,4 @@ private:
   bool m_close_break;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

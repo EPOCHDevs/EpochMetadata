@@ -9,11 +9,11 @@ CREATE_ENUM(AnyArrowAggregateFunction,
   last                 // last
 );
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class AnyCardReport : public BaseCardReport {
 public:
-  explicit AnyCardReport(epochflow::transform::TransformConfiguration config)
+  explicit AnyCardReport(epoch_script::transform::TransformConfiguration config)
       : BaseCardReport(std::move(config)) {}
 
 protected:
@@ -24,7 +24,7 @@ protected:
 template <> struct ReportMetadata<AnyCardReport> {
   constexpr static const char *kReportId = "any_cards_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -33,7 +33,7 @@ template <> struct ReportMetadata<AnyCardReport> {
         {.id = "agg",
          .name = "Aggregation",
          .type = epoch_core::MetaDataOptionType::Select,
-         .defaultValue = epochflow::MetaDataOptionDefinition{"last"},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{"last"},
          .isRequired = false,
          .selectOption = {
                           {"First", "first"},
@@ -68,7 +68,7 @@ template <> struct ReportMetadata<AnyCardReport> {
       .isCrossSectional = false,
       .desc = "Generate a single summary card by applying a generic Arrow aggregate function to the input column.",
       .inputs = {
-        {epoch_core::IODataType::Any, epochflow::ARG}
+        {epoch_core::IODataType::Any, epoch_script::ARG}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
@@ -79,4 +79,4 @@ template <> struct ReportMetadata<AnyCardReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

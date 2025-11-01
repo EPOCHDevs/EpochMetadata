@@ -8,22 +8,22 @@
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
 
 #include "transforms/src/hosseinmoein/statistics/linear_fit.h"
 
 using namespace epoch_frame;
-using namespace epochflow::transform;
+using namespace epoch_script::transform;
 
 TEST_CASE("LinearFit rolling (slope/intercept/residual)",
           "[hosseinmoein][linear_fit]") {
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   const int64_t window = 20;
-  epochflow::MetaDataArgDefinitionMapping opts{
+  epoch_script::MetaDataArgDefinitionMapping opts{
       {"window", static_cast<double>(window)}};
   YAML::Node inputs_yaml;
   inputs_yaml["x"] = "x";

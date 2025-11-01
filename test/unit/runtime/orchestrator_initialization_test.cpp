@@ -12,10 +12,10 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 #include <trompeloeil.hpp>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 
 TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]") {
     const auto dailyTF = TestTimeFrames::Daily();
@@ -27,7 +27,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         ALLOW_CALL(*mock, TransformData(trompeloeil::_))
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         auto manager = CreateMockTransformManager(std::move(transforms));
@@ -35,7 +35,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
     }
 
     SECTION("Empty transform list is valid") {
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         auto manager = CreateMockTransformManager(std::move(transforms));
         REQUIRE_NOTHROW(DataFlowRuntimeOrchestrator({aapl}, std::move(manager)));
     }
@@ -49,7 +49,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         ALLOW_CALL(*mock2, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*mock3, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock1));
         transforms.push_back(std::move(mock2));
         transforms.push_back(std::move(mock3));
@@ -62,7 +62,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         auto mock1 = CreateSimpleMockTransform("duplicate_id", dailyTF);
         auto mock2 = CreateSimpleMockTransform("duplicate_id", dailyTF);
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock1));
         transforms.push_back(std::move(mock2));
 
@@ -80,7 +80,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         ALLOW_CALL(*mockA, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*mockB, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
 
@@ -91,7 +91,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
     SECTION("Invalid input handle throws during construction") {
         auto mock = CreateSimpleMockTransform("dependent", dailyTF, {"nonexistent#output"});
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         auto manager = CreateMockTransformManager(std::move(transforms));
@@ -106,7 +106,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         auto mock = CreateSimpleMockTransform("transform1", dailyTF);
         ALLOW_CALL(*mock, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         auto manager = CreateMockTransformManager(std::move(transforms));
@@ -126,7 +126,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Initialization", "[orchestrator][init]"
         ALLOW_CALL(*mockD, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
         ALLOW_CALL(*mockE, TransformData(trompeloeil::_)).RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));

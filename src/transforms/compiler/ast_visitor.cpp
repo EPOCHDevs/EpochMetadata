@@ -1,12 +1,12 @@
 //
 // Created by Claude Code
-// EpochFlow AST Visitor Implementation
+// EpochScript AST Visitor Implementation
 //
 
 #include "ast_visitor.h"
 #include <stdexcept>
 
-namespace epochflow
+namespace epoch_script
 {
 
     void AstVisitor::VisitModule(const Module& module)
@@ -103,4 +103,4 @@ namespace epochflow
         throw std::runtime_error(full_msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

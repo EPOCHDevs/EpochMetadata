@@ -5,11 +5,11 @@
 #pragma once
 #include "epoch_frame/array.h"
 #include "epoch_frame/factory/dataframe_factory.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include "string_enums.h"
 #include <arrow/compute/api.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // ============================================================================
 // String Case Transformations
@@ -122,4 +122,4 @@ public:
   TransformData(epoch_frame::DataFrame const &bars) const override;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

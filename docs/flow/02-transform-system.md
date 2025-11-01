@@ -18,7 +18,7 @@ Understanding how transforms work, timeframes, sessions, and cross-sectional ana
 
 ## Transform Anatomy
 
-Transforms are the core building blocks of EpochFlow. Each transform has:
+Transforms are the core building blocks of Epoch script. Each transform has:
 
 - **Name**: Identifier (e.g., `ema`, `rsi`, `crossover`)
 - **Options**: Configuration parameters (e.g., `period=20`)

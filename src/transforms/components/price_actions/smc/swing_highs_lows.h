@@ -1,12 +1,12 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
 #include <epoch_frame/factory/table_factory.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 /**
     Swing Highs and Lows
     A swing high is when the current high is the highest high out of the
@@ -28,7 +28,7 @@ public:
 
   arrow::TablePtr Call(epoch_frame::DataFrame const &bars) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
     const Scalar null{nan};
 
@@ -140,4 +140,4 @@ public:
 private:
   size_t m_swing_length;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -1,1 +1,1 @@
-target_sources(epoch_flow_test PRIVATE ta_model_test.cpp)
+target_sources(epoch_script_test PRIVATE ta_model_test.cpp)

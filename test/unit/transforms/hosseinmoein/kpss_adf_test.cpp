@@ -7,19 +7,19 @@
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
 
 // If you already have ADF/KPSS transforms, include their headers here
 // #include "transforms/src/hosseinmoein/statistics/adf_test.h"
 // #include "transforms/src/hosseinmoein/statistics/stationary_check.h"
 
 using namespace epoch_frame;
-using namespace epochflow::transform;
+using namespace epoch_script::transform;
 
 TEST_CASE("KPSS vs HMDF", "[hosseinmoein][kpss]") {
-  auto C = epochflow::EpochStratifyXConstants::instance();
+  auto C = epoch_script::EpochStratifyXConstants::instance();
   auto path = std::format("{}/test_data/hmdf/IBM.csv",
                           std::filesystem::current_path().string());
 
@@ -35,7 +35,7 @@ TEST_CASE("KPSS vs HMDF", "[hosseinmoein][kpss]") {
       index, {df.get_column<double>("IBM_Close")}, {C.CLOSE()});
 
   const auto tf =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
   const int64_t window = 60;
   const double alpha = 0.05;
 
@@ -58,7 +58,7 @@ TEST_CASE("KPSS vs HMDF", "[hosseinmoein][kpss]") {
   }
 
   YAML::Node inputs_yaml;
-  inputs_yaml[epochflow::ARG] = C.CLOSE();
+  inputs_yaml[epoch_script::ARG] = C.CLOSE();
   YAML::Node options_yaml;
   options_yaml["window"] = window;
   options_yaml["alpha"] = alpha;

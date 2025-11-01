@@ -8,7 +8,7 @@
 #include <arrow/chunked_array.h>
 #include <memory>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 epoch_frame::DataFrame BooleanSelectTransform::TransformData(
     epoch_frame::DataFrame const &bars) const {
   const epoch_frame::Array index =
@@ -153,4 +153,4 @@ epoch_frame::DataFrame ConditionalSelectTransform::TransformData(
   return epoch_frame::make_dataframe(bars.index(), {result}, {GetOutputId()});
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

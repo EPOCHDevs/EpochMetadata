@@ -1,6 +1,6 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/series_factory.h>
@@ -12,7 +12,7 @@
 #include <ranges>
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 /**
  * OrderBlocks ‑ detects bullish and bearish order‑block zones.
@@ -299,7 +299,7 @@ private:
   /* --------------------------------------------------------------------- */
   arrow::TablePtr BuildTable(const epoch_frame::DataFrame &bars) const {
     using namespace epoch_frame;
-    const auto &C = epochflow::EpochStratifyXConstants::instance();
+    const auto &C = epoch_script::EpochStratifyXConstants::instance();
 
     /* Column shortcuts */
     const auto open = bars[C.OPEN()].contiguous_array().to_view<double>();
@@ -362,4 +362,4 @@ private:
   bool m_close_mitigation;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

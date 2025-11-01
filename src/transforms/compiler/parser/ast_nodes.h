@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow AST Node Definitions
+// EpochScript AST Node Definitions
 //
 // Mirrors Python's ast module structure for representing parsed Python syntax.
 //
@@ -12,7 +12,7 @@
 #include <vector>
 #include <variant>
 
-namespace epochflow {
+namespace epoch_script {
 
 // Forward declarations
 struct ASTNode;
@@ -163,4 +163,4 @@ using ExprPtr = std::unique_ptr<Expr>;
 using StmtPtr = std::unique_ptr<Stmt>;
 using ModulePtr = std::unique_ptr<Module>;
 
-} // namespace epochflow
+} // namespace epoch_script

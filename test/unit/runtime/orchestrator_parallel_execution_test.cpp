@@ -27,10 +27,10 @@
 #include <thread>
 #include <atomic>
 
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime;
-using namespace epoch_flow::runtime::test;
-using namespace epochflow;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime;
+using namespace epoch_script::runtime::test;
+using namespace epoch_script;
 using namespace std::chrono_literals;
 
 TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][parallel][critical]") {
@@ -70,7 +70,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
             )
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock1));
         transforms.push_back(std::move(mock2));
         transforms.push_back(std::move(mock3));
@@ -96,7 +96,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
         // Multiple reporters, multiple assets, all trying to cache simultaneously
         // This stress-tests the mutex protection (line 291 in dataflow_orchestrator.cpp)
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
 
         for (int i = 0; i < 10; ++i) {
             auto mock = CreateSimpleMockTransform("reporter_" + std::to_string(i), dailyTF);
@@ -160,7 +160,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
             .LR_SIDE_EFFECT(std::this_thread::sleep_for(20ms))
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock1));
         transforms.push_back(std::move(mock2));
         transforms.push_back(std::move(mock3));
@@ -210,7 +210,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
             )
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -245,7 +245,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
             )
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mock));
 
         DataFlowRuntimeOrchestrator orch(
@@ -313,7 +313,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
             )
             .RETURN(epoch_frame::DataFrame());
 
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
         transforms.push_back(std::move(mockA));
         transforms.push_back(std::move(mockB));
         transforms.push_back(std::move(mockC));
@@ -340,7 +340,7 @@ TEST_CASE("DataFlowRuntimeOrchestrator - Parallel Execution", "[.orchestrator][p
 
     SECTION("Stress test - many parallel transforms") {
         // 50 independent transforms executing in parallel
-        std::vector<std::unique_ptr<epochflow::transform::ITransformBase>> transforms;
+        std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> transforms;
 
         for (int i = 0; i < 50; ++i) {
             auto mock = CreateSimpleMockTransform("stress_" + std::to_string(i), dailyTF);

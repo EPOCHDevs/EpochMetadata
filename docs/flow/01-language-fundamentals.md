@@ -1,6 +1,6 @@
 # Language Fundamentals
 
-Complete syntax reference for Flow script.
+Complete syntax reference for Epoch script.
 
 ---
 
@@ -18,7 +18,7 @@ Complete syntax reference for Flow script.
 
 ## Statements
 
-EpochFlow supports two statement types:
+Epoch script supports two statement types:
 
 ### Assignment Statement
 

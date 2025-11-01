@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Expression Compiler Implementation
+// EpochScript Expression Compiler Implementation
 //
 
 #include "expression_compiler.h"
@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace epochflow
+namespace epoch_script
 {
 
     ValueHandle ExpressionCompiler::VisitExpr(const Expr& expr)
@@ -95,7 +95,7 @@ namespace epochflow
         option_validator_.ValidateAndApplyOptions(synthetic_id, comp_meta, params, call);
 
         // Create AlgorithmNode
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = synthetic_id;
         algo.type = parse_result.ctor_name;
 
@@ -104,7 +104,7 @@ namespace epochflow
         {
             if (key != "timeframe" && key != "session")
             {
-                algo.options[key] = epochflow::MetaDataOptionDefinition{value};
+                algo.options[key] = epoch_script::MetaDataOptionDefinition{value};
             }
         }
 
@@ -307,7 +307,7 @@ namespace epochflow
         // IMPORTANT: Create node ID and add placeholder to algorithms_ BEFORE recursing
         // This matches Python's behavior where parent nodes get lower IDs than children
         std::string node_id = UniqueNodeId(comp_name);
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = comp_name;
 
@@ -454,7 +454,7 @@ namespace epochflow
 
             // Create mul AlgorithmNode
             std::string node_id = UniqueNodeId("mul");
-            epochflow::strategy::AlgorithmNode algo;
+            epoch_script::strategy::AlgorithmNode algo;
             algo.id = node_id;
             algo.type = "mul";
 
@@ -490,7 +490,7 @@ namespace epochflow
 
             // Create node AFTER resolving operand
             std::string node_id = UniqueNodeId(comp_name);
-            epochflow::strategy::AlgorithmNode algo;
+            epoch_script::strategy::AlgorithmNode algo;
             algo.id = node_id;
             algo.type = comp_name;
 
@@ -567,7 +567,7 @@ namespace epochflow
 
         // Create node AFTER resolving operands
         std::string node_id = UniqueNodeId(comp_name);
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = comp_name;
 
@@ -703,7 +703,7 @@ namespace epochflow
         for (size_t i = 0; i < handles.size() - 1; ++i)
         {
             std::string node_id = UniqueNodeId(comp_name);
-            epochflow::strategy::AlgorithmNode algo;
+            epoch_script::strategy::AlgorithmNode algo;
             algo.id = node_id;
             algo.type = comp_name;
 
@@ -772,7 +772,7 @@ namespace epochflow
 
         // Create node AFTER resolving inputs
         std::string node_id = UniqueNodeId("ifexp");
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = comp_name;
 
@@ -856,12 +856,12 @@ namespace epochflow
 
         // Create AlgorithmNode for lag
         std::string node_id = UniqueNodeId("lag");
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "lag";
 
         // Add period option
-        algo.options["period"] = epochflow::MetaDataOptionDefinition{static_cast<double>(lag_period)};
+        algo.options["period"] = epoch_script::MetaDataOptionDefinition{static_cast<double>(lag_period)};
 
         // Wire the value to the lag input
         algo.inputs["SLOT"].push_back(JoinId(value.node_id, value.handle));
@@ -883,10 +883,10 @@ namespace epochflow
     {
         std::string node_id = UniqueNodeId("number");
 
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "number";
-        algo.options["value"] = epochflow::MetaDataOptionDefinition{value};
+        algo.options["value"] = epoch_script::MetaDataOptionDefinition{value};
 
         context_.algorithms.push_back(std::move(algo));
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
@@ -901,7 +901,7 @@ namespace epochflow
         std::string node_type = value ? "bool_true" : "bool_false";
         std::string node_id = UniqueNodeId(node_type);
 
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = node_type;
         // No options needed for boolean nodes
@@ -918,10 +918,10 @@ namespace epochflow
     {
         std::string node_id = UniqueNodeId("text");
 
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "text";
-        algo.options["value"] = epochflow::MetaDataOptionDefinition{value};
+        algo.options["value"] = epoch_script::MetaDataOptionDefinition{value};
 
         context_.algorithms.push_back(std::move(algo));
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
@@ -935,7 +935,7 @@ namespace epochflow
     {
         std::string node_id = UniqueNodeId("null");
 
-        epochflow::strategy::AlgorithmNode algo;
+        epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "null";
         // No options needed for null node
@@ -1131,7 +1131,7 @@ namespace epochflow
         }
 
         // Helper lambda to find the target node by ID
-        auto find_target_node = [this](const std::string& node_id) -> epochflow::strategy::AlgorithmNode* {
+        auto find_target_node = [this](const std::string& node_id) -> epoch_script::strategy::AlgorithmNode* {
             for (auto& algo : context_.algorithms)
             {
                 if (algo.id == node_id)
@@ -1269,4 +1269,4 @@ namespace epochflow
         throw std::runtime_error(full_msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

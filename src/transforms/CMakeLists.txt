@@ -1,5 +1,5 @@
 
-target_sources(epochflow PRIVATE metadata.cpp registration.cpp tulip_charts.cpp tulip_indicators.cpp transform_definition.cpp)
+target_sources(epoch_script PRIVATE metadata.cpp registration.cpp tulip_charts.cpp tulip_indicators.cpp transform_definition.cpp)
 add_subdirectory(compiler)
 add_subdirectory(runtime)
 add_subdirectory(components)

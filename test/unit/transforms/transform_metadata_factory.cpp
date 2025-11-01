@@ -2,29 +2,29 @@
 // Created by adesola on 5/23/25.
 //
 #include "epoch_frame/array.h"
-#include <epochflow/core/constants.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/constants.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/cross_sectional/rank.h"
 #include "transforms/components/cross_sectional/returns.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
 
-#include <epochflow/transforms/core/registry.h>
+#include <epoch_script/transforms/core/registry.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
 TEST_CASE("Transform Metadata Factory") {
   auto metadataMap =
-      epochflow::transforms::ITransformRegistry::GetInstance()
+      epoch_script::transforms::ITransformRegistry::GetInstance()
           .GetMetaData();
   const auto transformMap = TransformRegistry::GetInstance().GetAll();
 
@@ -117,20 +117,20 @@ TEST_CASE("Transform Metadata Factory") {
     config["timeframe"]["interval"] = 1;
     config["timeframe"]["type"] = "day";
 
-    const epochflow::transforms::TransformsMetaData metadata =
+    const epoch_script::transforms::TransformsMetaData metadata =
         metadataMap.at(id);
     if (metadata.isCrossSectional) {
       if (metadata.inputs.size() == 1 &&
           metadata.inputs.front().allowMultipleConnections) {
-        config["inputs"][epochflow::ARG] = std::vector{"1#result"};
+        config["inputs"][epoch_script::ARG] = std::vector{"1#result"};
       } else {
-        config["inputs"][epochflow::ARG] = "1#result";
+        config["inputs"][epoch_script::ARG] = "1#result";
       }
       fields_vec = {"1#result"};
       inputs_vec = {getArrayFromType(metadata.inputs.front().type)};
     } else if (metadata.inputs.size() == 1 &&
                metadata.inputs.front().allowMultipleConnections) {
-      config["inputs"][epochflow::ARG] = std::vector{"1#result"};
+      config["inputs"][epoch_script::ARG] = std::vector{"1#result"};
       fields_vec = {"1#result"};
       inputs_vec.emplace_back(getArrayFromType(metadata.inputs.front().type));
     } else {
@@ -166,7 +166,7 @@ TEST_CASE("Transform Metadata Factory") {
             node.second.template as<double>();
       }
     } else {
-      for (epochflow::MetaDataOption const &optionMetadata :
+      for (epoch_script::MetaDataOption const &optionMetadata :
            metadata.options) {
         auto optionId = optionMetadata.id;
         if (optionMetadata.type == MetaDataOptionType::Integer) {
@@ -175,12 +175,12 @@ TEST_CASE("Transform Metadata Factory") {
           } else {
             const auto defaultInteger =
                 optionMetadata.defaultValue
-                    .value_or(epochflow::MetaDataOptionDefinition{2.0})
+                    .value_or(epoch_script::MetaDataOptionDefinition{2.0})
                     .GetInteger();
             if (optionId.contains("long")) {
               config["options"][optionId] =
                   optionMetadata.defaultValue
-                      .value_or(epochflow::MetaDataOptionDefinition{5.0})
+                      .value_or(epoch_script::MetaDataOptionDefinition{5.0})
                       .GetInteger();
             } else {
               config["options"][optionId] = defaultInteger;
@@ -190,27 +190,27 @@ TEST_CASE("Transform Metadata Factory") {
                    epoch_core::MetaDataOptionType::Decimal) {
           config["options"][optionId] =
               optionMetadata.defaultValue
-                  .value_or(epochflow::MetaDataOptionDefinition{0.2})
+                  .value_or(epoch_script::MetaDataOptionDefinition{0.2})
                   .GetDecimal();
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::Boolean) {
           config["options"][optionId] =
               optionMetadata.defaultValue
-                  .value_or(epochflow::MetaDataOptionDefinition{true})
+                  .value_or(epoch_script::MetaDataOptionDefinition{true})
                   .GetBoolean();
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::Select) {
           REQUIRE(optionMetadata.selectOption.size() > 0);
           config["options"][optionId] =
               optionMetadata.defaultValue
-                  .value_or(epochflow::MetaDataOptionDefinition{
+                  .value_or(epoch_script::MetaDataOptionDefinition{
                       optionMetadata.selectOption[0].value})
                   .GetSelectOption();
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::String) {
           config["options"][optionId] =
               optionMetadata.defaultValue
-                  .value_or(epochflow::MetaDataOptionDefinition{""})
+                  .value_or(epoch_script::MetaDataOptionDefinition{""})
                   .GetString();
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::CardSchema) {
@@ -249,7 +249,7 @@ TEST_CASE("Transform Metadata Factory") {
   };
 
   for (auto const &[id, factory] : transformMap) {
-    if (id == epochflow::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
+    if (id == epoch_script::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
       continue;
     }
 

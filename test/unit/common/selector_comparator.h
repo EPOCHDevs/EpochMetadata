@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Utility for comparing Selector data via JSON conversion
@@ -16,7 +16,7 @@ namespace epoch_flow::runtime::test {
  */
 class SelectorComparator {
 public:
-    using SelectorData = epochflow::transform::SelectorData;
+    using SelectorData = epoch_script::transform::SelectorData;
 
     /**
      * @brief Convert selector data to JSON string
@@ -81,4 +81,4 @@ private:
     static std::string GenerateDiff(const std::string& expectedJson, const std::string& actualJson);
 };
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

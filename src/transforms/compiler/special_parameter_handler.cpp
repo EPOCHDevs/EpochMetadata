@@ -1,19 +1,19 @@
 //
 // Created by Claude Code
-// EpochFlow Special Parameter Handler Implementation
+// EpochScript Special Parameter Handler Implementation
 //
 
 #include "special_parameter_handler.h"
 #include <epoch_core/enum_wrapper.h>
-#include <epochflow/strategy/session_variant.h>
+#include <epoch_script/strategy/session_variant.h>
 #include <unordered_set>
 #include <map>
 
-namespace epochflow
+namespace epoch_script
 {
 
     void SpecialParameterHandler::CanonicalizeTimeframe(
-        std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params)
+        std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params)
     {
         // Validate timeframe is a pandas offset string if provided; do not mutate unless empty
         if (params.contains("timeframe"))
@@ -44,7 +44,7 @@ namespace epochflow
     }
 
     void SpecialParameterHandler::CanonicalizeSession(
-        std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params)
+        std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params)
     {
         // Validate session parameter if provided - must be a string literal
         if (params.contains("session"))
@@ -74,8 +74,8 @@ namespace epochflow
     }
 
     void SpecialParameterHandler::ApplySpecialFields(
-        epochflow::strategy::AlgorithmNode& algo,
-        const std::unordered_map<std::string, epochflow::MetaDataOptionDefinition::T>& params)
+        epoch_script::strategy::AlgorithmNode& algo,
+        const std::unordered_map<std::string, epoch_script::MetaDataOptionDefinition::T>& params)
     {
         // Extract timeframe and session from params and set as separate fields
         // These should NOT be added to the options map
@@ -91,7 +91,7 @@ namespace epochflow
                 // Validate timeframe (should already be validated by CanonicalizeTimeframe, but double-check)
                 ValidateTimeframe(tf_str);
                 // Convert string to TimeFrame object
-                algo.timeframe = epochflow::TimeFrame(tf_str);
+                algo.timeframe = epoch_script::TimeFrame(tf_str);
             }
             else
             {
@@ -201,13 +201,13 @@ namespace epochflow
             {
                 std::string synthetic_id = "sessions_" + std::to_string(session_counter++);
 
-                epochflow::strategy::AlgorithmNode sessions_algo;
+                epoch_script::strategy::AlgorithmNode sessions_algo;
                 sessions_algo.id = synthetic_id;
                 sessions_algo.type = "sessions";
-                sessions_algo.options["session_type"] = epochflow::MetaDataOptionDefinition{session_val};
+                sessions_algo.options["session_type"] = epoch_script::MetaDataOptionDefinition{session_val};
                 if (timeframe_str.has_value())
                 {
-                    sessions_algo.timeframe = epochflow::TimeFrame(*timeframe_str);
+                    sessions_algo.timeframe = epoch_script::TimeFrame(*timeframe_str);
                 }
 
                 context_.algorithms.push_back(std::move(sessions_algo));
@@ -252,4 +252,4 @@ namespace epochflow
         throw std::runtime_error(msg);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Expression Compiler
+// EpochScript Expression Compiler
 //
 // Compiles AST expressions into ValueHandles.
 // Handles operators, function calls, literals, attributes, and subscripts.
@@ -13,7 +13,7 @@
 #include "constructor_parser.h"
 #include "parser/ast_nodes.h"
 
-namespace epochflow
+namespace epoch_script
 {
 
     // Forward declarations
@@ -83,4 +83,4 @@ namespace epochflow
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);
     };
 
-} // namespace epochflow
+} // namespace epoch_script

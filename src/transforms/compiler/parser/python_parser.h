@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow Python Parser - Tree-sitter Integration
+// EpochScript Python Parser - Tree-sitter Integration
 //
 // Parses Python source code into C++ AST nodes using tree-sitter.
 //
@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <optional>
 
-namespace epochflow {
+namespace epoch_script {
 
 class PythonParseError : public std::runtime_error {
 public:
@@ -74,4 +74,4 @@ private:
     void throwError(const std::string& msg, const ts::Node& node);
 };
 
-} // namespace epochflow
+} // namespace epoch_script

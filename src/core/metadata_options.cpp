@@ -2,13 +2,13 @@
 // Created by dewe on 9/12/24.
 //
 
-#include <epochflow/core/metadata_options.h>
+#include <epoch_script/core/metadata_options.h>
 #include "doc_deserialization_helper.h"
 #include <epoch_core/ranges_to.h>
 #include <unordered_set>
 #include <sstream>
 
-namespace epochflow {
+namespace epoch_script {
 
 // Helper function to convert YAML node to JSON string
 static std::string YamlNodeToJsonString(const YAML::Node& node) {
@@ -395,7 +395,7 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
   case epoch_core::MetaDataOptionType::String:
     return MetaDataOptionDefinition{node.as<std::string>()};
   case epoch_core::MetaDataOptionType::CardSchema: {
-    // CardSchema only comes from EpochFlow DSL as a YAML Map - convert to JSON
+    // CardSchema only comes from EpochScript DSL as a YAML Map - convert to JSON
     // Config helpers now use TransformDefinitionData and bypass YAML entirely
     if (node.IsMap()) {
       std::string jsonStr = YamlNodeToJsonString(node);
@@ -469,4 +469,4 @@ void MetaDataOption::decode(const YAML::Node &element) {
   desc = element["desc"].as<std::string>("");
   tuningGuidance = element["tuningGuidance"].as<std::string>("");
 }
-} // namespace epochflow
+} // namespace epoch_script

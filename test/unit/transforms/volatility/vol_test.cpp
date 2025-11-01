@@ -2,19 +2,19 @@
 // Created by adesola on 12/3/24.
 //
 #include "epoch_frame/factory/index_factory.h"
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/volatility/volatility.h"
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/dataframe_factory.h>
-#include <epochflow/strategy/registration.h>
+#include <epoch_script/strategy/registration.h>
 
-using namespace epochflow;
-using namespace epochflow::transform;
-using namespace epochflow::transforms;
+using namespace epoch_script;
+using namespace epoch_script::transform;
+using namespace epoch_script::transforms;
 using namespace epoch_core;
 
 // Helper function to create test data
@@ -26,13 +26,13 @@ epoch_frame::DataFrame createTestData() {
 
   return epoch_frame::make_dataframe<double>(
       epoch_frame::factory::index::from_range(close.size()), {close},
-      {epochflow::EpochStratifyXConstants::instance().CLOSE()});
+      {epoch_script::EpochStratifyXConstants::instance().CLOSE()});
 }
 
 TEST_CASE("ReturnVolatility Transform", "[Indicator]") {
   TransformConfiguration config = rolling_volatility(
       "1", 3,
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
   // Use registry to create the transform
   auto transformBase = MAKE_TRANSFORM(config);
@@ -61,7 +61,7 @@ TEST_CASE("ReturnVolatility Transform", "[Indicator]") {
 TEST_CASE("PriceDiffVolatility Transform", "[Indicator]") {
   TransformConfiguration config = price_diff_volatility(
       "2", 3,
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
   // Use registry to create the transform
   auto transformBase = MAKE_TRANSFORM(config);

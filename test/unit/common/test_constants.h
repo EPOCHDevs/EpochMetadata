@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
 
-namespace epochflow {
+namespace epoch_script {
     // Forward declaration - TimeFrame is defined in EpochMetadata
     class TimeFrame;
 }
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
  * @brief Test constants for AssetIDs
@@ -39,9 +39,9 @@ struct TestAssetConstants {
 struct TestTimeFrames {
     // These are just simple inline constructors
     // TimeFrame likely has string constructor or static factory methods
-    static epochflow::TimeFrame Daily();
-    static epochflow::TimeFrame Hourly();
-    static epochflow::TimeFrame Minute();
+    static epoch_script::TimeFrame Daily();
+    static epoch_script::TimeFrame Hourly();
+    static epoch_script::TimeFrame Minute();
 };
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

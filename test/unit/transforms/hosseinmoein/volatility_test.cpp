@@ -1,23 +1,23 @@
 #include "epoch_frame/factory/array_factory.h"
 #include "epoch_frame/factory/dataframe_factory.h"
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/transforms/core/config_helper.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/transforms/core/config_helper.h>
 #include "transforms/components/hosseinmoein/volatility/volatility.h"
 #include <DataFrame/DataFrame.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 #include <catch.hpp>
 #include <epoch_frame/factory/index_factory.h>
 
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 
 TEST_CASE("VolatilityTest", "[volatility]") {
   using namespace hmdf;
   using namespace epoch_frame;
-  using namespace epochflow::transform;
+  using namespace epoch_script::transform;
 
-  auto C = epochflow::EpochStratifyXConstants::instance();
+  auto C = epoch_script::EpochStratifyXConstants::instance();
   auto path = std::format("{}/hmdf/IBM.csv",
                           SMC_TEST_DATA_DIR);
 

@@ -1,4 +1,4 @@
-# EpochFlow Script Language
+# Epoch Script Language
 
 **Declarative Language for Quantitative Trading Strategies and Market Research**
 
@@ -8,7 +8,7 @@ Version 2.0 | Last Updated: 2025-01-01
 
 ## Overview
 
-EpochFlow is a Python-like domain-specific language designed for institutional traders to build sophisticated quantitative trading strategies and conduct market research. It provides access to 300+ technical indicators, statistical functions, and market microstructure tools through a simple, type-safe syntax.
+Epoch script is a Python-like language designed for institutional traders to build sophisticated quantitative trading strategies and conduct market research. It provides access to 300+ technical indicators, statistical functions, and market microstructure tools through a simple, type-safe syntax.
 
 ### Key Capabilities
 
@@ -23,7 +23,7 @@ EpochFlow is a Python-like domain-specific language designed for institutional t
 
 ### Design Philosophy
 
-EpochFlow is **declarative**, not imperative. You describe *what* you want, not *how* to compute it:
+Epoch script is **declarative**, not imperative. You describe *what* you want, not *how* to compute it:
 
 - No loops, no if statements, no function definitions
 - Variables are immutable (single assignment)
@@ -211,7 +211,7 @@ trade_signal_executor()(enter_long=top10)
 
 ## Key Limitations
 
-EpochFlow is **not** full Python. These constructs are prohibited:
+Epoch script is **not** full Python. These constructs are prohibited:
 
 ### ❌ No Control Flow
 ```python

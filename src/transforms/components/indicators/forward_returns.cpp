@@ -4,7 +4,7 @@
 #include "forward_returns.h"
 #include <cmath>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 ForwardReturns::ForwardReturns(const TransformConfiguration &config)
     : ITransform(config),
@@ -29,4 +29,4 @@ ForwardReturns::TransformData(epoch_frame::DataFrame const &bars) const {
   return MakeResult(result);
 }
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

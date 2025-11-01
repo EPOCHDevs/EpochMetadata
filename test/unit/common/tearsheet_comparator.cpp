@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <sstream>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 std::string TearSheetComparator::ToJson(const epoch_proto::TearSheet& tearsheet, bool prettyPrint) {
     std::string jsonStr;
@@ -165,4 +165,4 @@ std::string TearSheetComparator::GenerateDiff(const std::string& expectedJson,
     return diffStream.str();
 }
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

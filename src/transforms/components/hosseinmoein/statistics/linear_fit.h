@@ -10,12 +10,12 @@
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 #include "epoch_frame/scalar.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <DataFrame/DataFrameFinancialVisitors.h>
 
 #include <vector>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Rolling linear regression fit (y on x) using HMDF LinearFit visitor
 // Inputs: x, y
@@ -68,4 +68,4 @@ private:
   int64_t m_window;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

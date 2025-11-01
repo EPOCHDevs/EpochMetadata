@@ -1,8 +1,8 @@
 #include "index_card_report.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 // Implementation is inherited from BaseCardReport
 // The GetTargetValue() method provides the configurable parameter
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

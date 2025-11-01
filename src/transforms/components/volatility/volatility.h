@@ -1,8 +1,8 @@
 #pragma once
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 class PriceDiffVolatility : public ITransform {
 public:
   explicit PriceDiffVolatility(const TransformConfiguration &config)
@@ -12,7 +12,7 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
     auto price =
-        bars[epochflow::EpochStratifyXConstants::instance().CLOSE()];
+        bars[epoch_script::EpochStratifyXConstants::instance().CLOSE()];
     return price.diff()
         .rolling_agg({.window_size = m_window})
         .stddev()
@@ -32,7 +32,7 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
     auto price =
-        bars[epochflow::EpochStratifyXConstants::instance().CLOSE()];
+        bars[epoch_script::EpochStratifyXConstants::instance().CLOSE()];
     return price.pct_change()
         .rolling_agg({.window_size = m_window})
         .stddev()
@@ -42,4 +42,4 @@ public:
 private:
   int m_window;
 };
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

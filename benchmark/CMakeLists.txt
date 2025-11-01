@@ -19,7 +19,7 @@ add_executable(ast_compiler_benchmark
     common/catch_benchmark_main.cpp)
 
 target_link_libraries(ast_compiler_benchmark PRIVATE
-    epochflow
+    epoch_script
     Catch2::Catch2
     spdlog::spdlog
     fmt::fmt)

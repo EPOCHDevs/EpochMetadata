@@ -1,6 +1,6 @@
 //
 // Created by Claude Code
-// EpochFlow AST Compiler - Refactored Facade Implementation
+// EpochScript AST Compiler - Refactored Facade Implementation
 //
 
 #include "ast_compiler.h"
@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <algorithm>
 
-namespace epochflow
+namespace epoch_script
 {
     // Helper function to extract node_id from "node_id#handle" reference
     static std::string extractNodeId(const std::string& ref)
@@ -26,10 +26,10 @@ namespace epochflow
 
     // Topological sort using Kahn's algorithm (BFS-based)
     // Returns nodes in dependency order: dependencies before dependents
-    static std::vector<epochflow::strategy::AlgorithmNode> TopologicalSort(
-        std::vector<epochflow::strategy::AlgorithmNode> nodes)
+    static std::vector<epoch_script::strategy::AlgorithmNode> TopologicalSort(
+        std::vector<epoch_script::strategy::AlgorithmNode> nodes)
     {
-        using AlgorithmNode = epochflow::strategy::AlgorithmNode;
+        using AlgorithmNode = epoch_script::strategy::AlgorithmNode;
 
         // Build node index: node_id -> position in input vector
         std::unordered_map<std::string, size_t> node_index;
@@ -227,7 +227,7 @@ namespace epochflow
         special_param_handler_->VerifySessionDependencies();
     }
 
-    void AlgorithmAstCompiler::resolveTimeframes(const std::optional<epochflow::TimeFrame>& base_timeframe)
+    void AlgorithmAstCompiler::resolveTimeframes(const std::optional<epoch_script::TimeFrame>& base_timeframe)
     {
         // Use TimeframeResolver utility to resolve timeframes for all nodes
         // Create fresh resolver instance to avoid stale cache from previous compilations
@@ -250,4 +250,4 @@ namespace epochflow
         return compiler.compile(source);
     }
 
-} // namespace epochflow
+} // namespace epoch_script

@@ -1,10 +1,10 @@
-# EpochFlow AST Compiler Benchmark Module
+# EpochScript AST Compiler Benchmark Module
 
-Performance benchmarking and regression tracking for the EpochFlow AST compiler.
+Performance benchmarking and regression tracking for the EpochScript AST compiler.
 
 ## Overview
 
-This benchmark module establishes baseline performance metrics for the EpochFlow AST compiler compilation process, enabling:
+This benchmark module establishes baseline performance metrics for the EpochScript AST compiler compilation process, enabling:
 - **Performance tracking** across different script complexities
 - **Regression detection** when code changes impact compilation speed
 - **Optimization validation** to measure improvements

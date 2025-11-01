@@ -1,6 +1,6 @@
 #pragma once
 
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <epoch_frame/dataframe.h>
 #include <arrow/api.h>
 
@@ -14,11 +14,11 @@ CREATE_ENUM(BarChartAgg,
  max
 );
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class BarChartReport : public IReporter {
 public:
- explicit BarChartReport(epochflow::transform::TransformConfiguration config)
+ explicit BarChartReport(epoch_script::transform::TransformConfiguration config)
      : IReporter(std::move(config), true),
        m_agg(m_config.GetOptionValue("agg").GetSelectOption<epoch_core::BarChartAgg>()),
        m_chartTitle(m_config.GetOptionValue("title").GetString()),
@@ -43,7 +43,7 @@ private:
 template <> struct ReportMetadata<BarChartReport> {
   constexpr static const char *kReportId = "bar_chart_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -86,7 +86,7 @@ template <> struct ReportMetadata<BarChartReport> {
         {.id = "vertical",
          .name = "Vertical Bars",
          .type = epoch_core::MetaDataOptionType::Boolean,
-         .defaultValue = epochflow::MetaDataOptionDefinition{true},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{true},
          .isRequired = false,
          .desc = "Use vertical bars (true) or horizontal bars (false)"}
       },
@@ -105,4 +105,4 @@ template <> struct ReportMetadata<BarChartReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

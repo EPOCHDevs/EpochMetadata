@@ -3,11 +3,11 @@
 #include "base_card_report.h"
 #include "epoch_core/enum_wrapper.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class IndexCardReport : public BaseCardReport {
 public:
-  explicit IndexCardReport(epochflow::transform::TransformConfiguration config)
+  explicit IndexCardReport(epoch_script::transform::TransformConfiguration config)
       : BaseCardReport(std::move(config)) {}
 
 protected:
@@ -45,7 +45,7 @@ protected:
 template <> struct ReportMetadata<IndexCardReport> {
   constexpr static const char *kReportId = "index_cards_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -54,7 +54,7 @@ template <> struct ReportMetadata<IndexCardReport> {
         {.id = "target_value",
          .name = "Target Value",
          .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epochflow::MetaDataOptionDefinition{"0"},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{"0"},
          .isRequired = true,
          .desc = "Value to search for in the series (will return the index position)"},
         {.id = "category",
@@ -85,7 +85,7 @@ template <> struct ReportMetadata<IndexCardReport> {
       .isCrossSectional = false,
       .desc = "Find the index position of a specific value in the input series.",
       .inputs = {
-        {epoch_core::IODataType::Any, epochflow::ARG}
+        {epoch_core::IODataType::Any, epoch_script::ARG}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
@@ -96,4 +96,4 @@ template <> struct ReportMetadata<IndexCardReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

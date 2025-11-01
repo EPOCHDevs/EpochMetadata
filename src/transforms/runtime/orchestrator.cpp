@@ -4,24 +4,24 @@
 #include "orchestrator.h"
 #include "execution/intermediate_storage.h"
 #include <boost/container_hash/hash.hpp>
-#include <epochflow/transforms/core/registration.h>
+#include <epoch_script/transforms/core/registration.h>
 #include <format>
 #include <spdlog/spdlog.h>
 
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "epoch_protos/tearsheet.pb.h"
 
 #include <tbb/parallel_for_each.h>
 namespace {
   // Helper to check if transform metadata indicates it's a reporter
-  bool IsReporterTransform(const epochflow::transform::ITransformBase& transform) {
+  bool IsReporterTransform(const epoch_script::transform::ITransformBase& transform) {
     const auto metadata = transform.GetConfiguration().GetTransformDefinition().GetMetadata();
     return metadata.category == epoch_core::TransformCategory::Reporter;
   }
 
 }
 
-namespace epoch_flow::runtime {
+namespace epoch_script::runtime {
 DataFlowRuntimeOrchestrator::DataFlowRuntimeOrchestrator(
     std::vector<std::string> asset_ids,
     ITransformManagerPtr transformManager,
@@ -65,7 +65,7 @@ DataFlowRuntimeOrchestrator::DataFlowRuntimeOrchestrator(
 
 std::vector<DataFlowRuntimeOrchestrator::TransformExecutionNode *>
 DataFlowRuntimeOrchestrator::ResolveInputDependencies(
-    const epochflow::strategy::InputMapping &inputs) const {
+    const epoch_script::strategy::InputMapping &inputs) const {
   std::vector<TransformExecutionNode *> result;
   std::ranges::for_each(inputs | std::views::values,
                         [&](std::vector<std::string> const &inputList) {
@@ -82,7 +82,7 @@ DataFlowRuntimeOrchestrator::ResolveInputDependencies(
 }
 
 void DataFlowRuntimeOrchestrator::RegisterTransform(
-    std::unique_ptr<epochflow::transform::ITransformBase> transform) {
+    std::unique_ptr<epoch_script::transform::ITransformBase> transform) {
   auto& transformRef = *transform;
   auto node = CreateTransformNode(transformRef);
   auto inputs = transformRef.GetInputIds();
@@ -169,7 +169,7 @@ DataFlowRuntimeOrchestrator::ExecutePipeline(TimeFrameAssetDataFrameMap data) {
 }
 
 std::function<void(execution_context_t)> DataFlowRuntimeOrchestrator::CreateExecutionFunction(
-    const epochflow::transform::ITransformBase &transform) {
+    const epoch_script::transform::ITransformBase &transform) {
   // Check if this transform is cross-sectional from its metadata
   bool isCrossSectional = transform.GetConfiguration().IsCrossSectional();
 
@@ -182,7 +182,7 @@ std::function<void(execution_context_t)> DataFlowRuntimeOrchestrator::CreateExec
 }
 
 DataFlowRuntimeOrchestrator::TransformNodePtr DataFlowRuntimeOrchestrator::CreateTransformNode(
-    epochflow::transform::ITransformBase& transform) {
+    epoch_script::transform::ITransformBase& transform) {
   auto body = CreateExecutionFunction(transform);
   m_executionFunctions.push_back(body);
 
@@ -211,7 +211,7 @@ DataFlowRuntimeOrchestrator::TransformNodePtr DataFlowRuntimeOrchestrator::Creat
 
 
 void DataFlowRuntimeOrchestrator::CacheReportFromTransform(
-    const epochflow::transform::ITransformBase& transform) const {
+    const epoch_script::transform::ITransformBase& transform) const {
   const std::string transformId = transform.GetId();
 
   try {
@@ -300,7 +300,7 @@ AssetReportMap DataFlowRuntimeOrchestrator::GetGeneratedReports() const {
 }
 
 void DataFlowRuntimeOrchestrator::CacheSelectorFromTransform(
-    const epochflow::transform::ITransformBase& transform) const {
+    const epoch_script::transform::ITransformBase& transform) const {
   const std::string transformId = transform.GetId();
 
   try {
@@ -326,7 +326,7 @@ void DataFlowRuntimeOrchestrator::CacheSelectorFromTransform(
                selectorData.schemas.size(), m_selectorCache[asset].size());
       } else {
         // Create new vector with this selector
-        std::vector<epochflow::transform::SelectorData> newVector;
+        std::vector<epoch_script::transform::SelectorData> newVector;
         newVector.push_back(selectorData);
         m_selectorCache.emplace(asset, std::move(newVector));
         SPDLOG_DEBUG("Cached first selector from transform {} for asset {} (title: '{}', {} schemas)",
@@ -344,4 +344,4 @@ AssetSelectorMap DataFlowRuntimeOrchestrator::GetGeneratedSelectors() const {
   return m_selectorCache;
 }
 
-} // namespace epoch_flow::runtime
+} // namespace epoch_script::runtime

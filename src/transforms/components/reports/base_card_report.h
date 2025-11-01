@@ -1,17 +1,17 @@
 #pragma once
 
-#include <epochflow/transforms/components/reports/ireport.h>
+#include <epoch_script/transforms/components/reports/ireport.h>
 #include <epoch_dashboard/tearsheet/card_builder.h>
 #include <epoch_dashboard/tearsheet/scalar_converter.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/series_or_scalar.h>
 #include <epoch_frame/scalar.h>
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class BaseCardReport : public IReporter {
 public:
-  explicit BaseCardReport(epochflow::transform::TransformConfiguration config)
+  explicit BaseCardReport(epoch_script::transform::TransformConfiguration config)
       : IReporter(std::move(config), true) {}
 
 protected:
@@ -29,4 +29,4 @@ protected:
 };
 
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

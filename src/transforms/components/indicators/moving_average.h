@@ -3,9 +3,9 @@
 // Created by dewe on 4/14/23.
 //
 #include "../tulip/tulip_model.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 class MovingAverage : public ITransform {
 public:
@@ -21,4 +21,4 @@ private:
   TulipModelImpl<true> m_model;
 };
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

@@ -1,20 +1,20 @@
 //
 // Created by adesola on 1/26/25.
 //
-#include <epochflow/core/bar_attribute.h>
-#include "epochflow/strategy/registration.h"
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/transforms/core/transform_configuration.h>
-#include <epochflow/transforms/core/transform_registry.h>
+#include <epoch_script/core/bar_attribute.h>
+#include "epoch_script/strategy/registration.h"
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/transform_configuration.h>
+#include <epoch_script/transforms/core/transform_registry.h>
 #include "transforms/components/agg.h"
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/index_factory.h>
 
 using namespace epoch_core;
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace std::chrono_literals;
 using namespace epoch_frame;
 
@@ -56,7 +56,7 @@ TEST_CASE("Aggregate Transforms - Numeric Operations", "[aggregate]") {
   auto input = MakeMultiColumnTestData();
   std::vector<std::string> columns = {"col_1", "col_2", "col_3"};
   const auto &timeframe =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("Sum Aggregate") {
     // col_1 + col_2 + col_3 = [17, 39, 61, 83]
@@ -139,7 +139,7 @@ TEST_CASE("Aggregate Transforms - Boolean Operations", "[aggregate]") {
   auto input = MakeBooleanTestData();
   std::vector<std::string> columns = {"bool_1", "bool_2", "bool_3"};
   const auto &timeframe =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("AllOf Aggregate") {
     // bool_1 && bool_2 && bool_3 = [false, false, false, false]
@@ -203,7 +203,7 @@ TEST_CASE("Aggregate Transforms - Comparison Operations", "[aggregate]") {
   auto input = MakeMultiColumnTestData();
   std::vector<std::string> columns = {"col_1", "col_2"};
   const auto &timeframe =
-      epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
 
   SECTION("IsEqual Aggregate") {
     // col_1 == col_2 = [false, false, false, false]

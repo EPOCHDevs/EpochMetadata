@@ -1,6 +1,6 @@
 #include "boolean_card_report.h"
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 std::string BooleanCardReport::GetAggregation() const {
   auto options = m_config.GetOptions();
@@ -10,4 +10,4 @@ std::string BooleanCardReport::GetAggregation() const {
   return "any";  // Default for boolean
 }
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

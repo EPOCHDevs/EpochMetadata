@@ -9,11 +9,11 @@ CREATE_ENUM(BooleanArrowAggregateFunction,
   any                  // any
 );
 
-namespace epochflow::reports {
+namespace epoch_script::reports {
 
 class BooleanCardReport : public BaseCardReport {
 public:
-  explicit BooleanCardReport(epochflow::transform::TransformConfiguration config)
+  explicit BooleanCardReport(epoch_script::transform::TransformConfiguration config)
       : BaseCardReport(std::move(config)) {}
 
 protected:
@@ -24,7 +24,7 @@ protected:
 template <> struct ReportMetadata<BooleanCardReport> {
   constexpr static const char *kReportId = "boolean_cards_report";
 
-  static epochflow::transforms::TransformsMetaData Get() {
+  static epoch_script::transforms::TransformsMetaData Get() {
     return {
       .id = kReportId,
       .category = epoch_core::TransformCategory::Reporter,
@@ -33,7 +33,7 @@ template <> struct ReportMetadata<BooleanCardReport> {
         {.id = "agg",
          .name = "Aggregation",
          .type = epoch_core::MetaDataOptionType::Select,
-         .defaultValue = epochflow::MetaDataOptionDefinition{"any"},
+         .defaultValue = epoch_script::MetaDataOptionDefinition{"any"},
          .isRequired = false,
          .selectOption = {
                           {"All", "all"},
@@ -68,7 +68,7 @@ template <> struct ReportMetadata<BooleanCardReport> {
       .isCrossSectional = false,
       .desc = "Generate a single summary card by applying a boolean Arrow aggregate function to the input column.",
       .inputs = {
-        {epoch_core::IODataType::Boolean, epochflow::ARG}
+        {epoch_core::IODataType::Boolean, epoch_script::ARG}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
@@ -79,4 +79,4 @@ template <> struct ReportMetadata<BooleanCardReport> {
   }
 };
 
-} // namespace epochflow::reports
+} // namespace epoch_script::reports

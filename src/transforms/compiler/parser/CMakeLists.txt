@@ -1,1 +1,1 @@
-target_sources(epochflow PRIVATE python_parser.cpp)
+target_sources(epoch_script PRIVATE python_parser.cpp)

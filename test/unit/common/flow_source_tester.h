@@ -6,19 +6,19 @@
 #include <vector>
 
 #include "csv_data_loader.h"
-#include "epochflow/strategy/metadata.h"
+#include "epoch_script/strategy/metadata.h"
 #include "epoch_protos/tearsheet.pb.h"
 
-#include <epochflow/runtime/iorchestrator.h>
+#include <epoch_script/runtime/iorchestrator.h>
 
-namespace epoch_flow::runtime::test {
+namespace epoch_script::runtime::test {
 
 /**
- * @brief Test runner for EpochFlow Python source files
+ * @brief Test runner for EpochScript Python source files
  *
  * Discovers and executes test cases in flow_source_test_cases/ directory.
  * Each test case contains:
- *   - source.py: EpochFlow source code
+ *   - source.py: EpochScript source code
  *   - input/: CSV files with test data
  *   - expected/: Expected outputs (dataframes, selectors, tearsheets)
  *   - config.yaml: Optional test configuration
@@ -85,7 +85,7 @@ private:
      * @param sourceFile Path to source.py
      * @return Compiled PythonSource object
      */
-    static epochflow::strategy::PythonSource LoadSource(const std::filesystem::path& sourceFile);
+    static epoch_script::strategy::PythonSource LoadSource(const std::filesystem::path& sourceFile);
 
     /**
      * @brief Auto-detect assets required by source code
@@ -94,7 +94,7 @@ private:
      * @return Vector of assets
      */
     static std::vector<std::string> DetectRequiredAssets(
-        const epochflow::strategy::PythonSource& source,
+        const epoch_script::strategy::PythonSource& source,
         const std::filesystem::path& inputDir);
 
     /**
@@ -102,7 +102,7 @@ private:
      * @param source Compiled PythonSource
      * @return True if cross-sectional transforms detected
      */
-    static bool IsCrossSectional(const epochflow::strategy::PythonSource& source);
+    static bool IsCrossSectional(const epoch_script::strategy::PythonSource& source);
 
     /**
      * @brief Execute test case and get outputs
@@ -113,10 +113,10 @@ private:
      * @return Test outputs (dataframes, tearsheets, selectors)
      */
     static TestOutputs ExecuteTest(
-        const epochflow::strategy::PythonSource& source,
+        const epoch_script::strategy::PythonSource& source,
         const TimeFrameAssetDataFrameMap& inputData,
         const std::vector<std::string>& assets,
-        const std::optional<epochflow::TimeFrame>& baseTimeframe);
+        const std::optional<epoch_script::TimeFrame>& baseTimeframe);
 
     /**
      * @brief Validate test outputs against expected
@@ -150,4 +150,4 @@ private:
 // Standalone function to run all tests (for use in TEST_CASE)
 void FlowSourceTestRunAllTests(const FlowSourceTestRunner::Config& config);
 
-} // namespace epoch_flow::runtime::test
+} // namespace epoch_script::runtime::test

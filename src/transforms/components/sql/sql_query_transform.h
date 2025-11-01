@@ -1,7 +1,7 @@
 #pragma once
 
-#include <epochflow/transforms/core/itransform.h>
-#include <epochflow/core/sql_statement.h>
+#include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/core/sql_statement.h>
 #include <epoch_frame/dataframe.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -12,7 +12,7 @@
 
 #include "../reports/report_utils.h"
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 template <size_t NumOutputs>
 class SQLQueryTransform : public ITransform {
@@ -105,4 +105,4 @@ using SQLQueryTransform2 = SQLQueryTransform<2>;
 using SQLQueryTransform3 = SQLQueryTransform<3>;
 using SQLQueryTransform4 = SQLQueryTransform<4>;
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

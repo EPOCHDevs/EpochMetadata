@@ -4,7 +4,7 @@
 //
 #include "dataframe_armadillo_utils.h"
 #include "epoch_frame/aliases.h"
-#include <epochflow/transforms/core/itransform.h>
+#include <epoch_script/transforms/core/itransform.h>
 #include <arrow/array.h>
 #include <arrow/array/builder_base.h>
 #include <arrow/builder.h>
@@ -28,7 +28,7 @@ using arma::u64;
 using arma::vec;
 using mlpack::GaussianDistribution;
 
-namespace epochflow::transform {
+namespace epoch_script::transform {
 
 // Concrete Gaussian HMM type alias (mlpack observations are column-oriented)
 using HMMGaussian = mlpack::HMM<GaussianDistribution<>>;
@@ -51,35 +51,35 @@ public:
     // Number of states (dynamic)
     m_n_states = static_cast<size_t>(
         cfg.GetOptionValue("n_states",
-                           epochflow::MetaDataOptionDefinition{3.0})
+                           epoch_script::MetaDataOptionDefinition{3.0})
             .GetInteger());
 
     // Core HMM parameters
     m_max_iterations = static_cast<size_t>(
         cfg.GetOptionValue("max_iterations",
-                           epochflow::MetaDataOptionDefinition{1000.0})
+                           epoch_script::MetaDataOptionDefinition{1000.0})
             .GetInteger());
 
     m_tolerance =
         cfg.GetOptionValue("tolerance",
-                           epochflow::MetaDataOptionDefinition{1e-5})
+                           epoch_script::MetaDataOptionDefinition{1e-5})
             .GetDecimal();
 
     // Data preprocessing options
     m_compute_zscore =
         cfg.GetOptionValue("compute_zscore",
-                           epochflow::MetaDataOptionDefinition{true})
+                           epoch_script::MetaDataOptionDefinition{true})
             .GetBoolean();
 
     // Training options
     m_min_training_samples = static_cast<size_t>(
         cfg.GetOptionValue("min_training_samples",
-                           epochflow::MetaDataOptionDefinition{100.0})
+                           epoch_script::MetaDataOptionDefinition{100.0})
             .GetInteger());
 
     m_lookback_window = static_cast<size_t>(
         cfg.GetOptionValue("lookback_window",
-                           epochflow::MetaDataOptionDefinition{0.0})
+                           epoch_script::MetaDataOptionDefinition{0.0})
             .GetInteger());
   }
 
@@ -308,4 +308,4 @@ private:
 
 // HMMTransform uses Gaussian distributions by default
 
-} // namespace epochflow::transform
+} // namespace epoch_script::transform

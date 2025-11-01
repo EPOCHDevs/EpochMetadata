@@ -2,18 +2,18 @@
 // Created by adesola on 5/12/25.
 //
 
-#include <epochflow/core/bar_attribute.h>
-#include <epochflow/core/constants.h>
-#include <epochflow/transforms/core/config_helper.h>
-#include <epochflow/transforms/core/trade_executors.h>
+#include <epoch_script/core/bar_attribute.h>
+#include <epoch_script/core/constants.h>
+#include <epoch_script/transforms/core/config_helper.h>
+#include <epoch_script/transforms/core/trade_executors.h>
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 
-using namespace epochflow;
-using namespace epochflow::transform;
+using namespace epoch_script;
+using namespace epoch_script::transform;
 using namespace epoch_frame;
 
 namespace {
@@ -38,7 +38,7 @@ TEST_CASE("TradeExecutorAdapter") {
   SECTION("Constructor initializes correctly") {
     auto config = trade_executor_adapter_cfg(
         "test_adapter", "test_input",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     TradeExecutorAdapter adapter(config);
 
     REQUIRE(adapter.GetInputId() == "test_input");
@@ -49,7 +49,7 @@ TEST_CASE("TradeExecutorAdapter") {
   SECTION("TransformData with positive values") {
     auto config = trade_executor_adapter_cfg(
         "test_adapter", "signal",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     TradeExecutorAdapter adapter(config);
 
     // Create test data with positive values (long signals)
@@ -84,7 +84,7 @@ TEST_CASE("TradeExecutorAdapter") {
   SECTION("TransformData with all zero values") {
     auto config = trade_executor_adapter_cfg(
         "test_adapter", "signal",
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
     TradeExecutorAdapter adapter(config);
 
     auto testData = createTestDataFrame({0.0, 0.0, 0.0});
@@ -106,7 +106,7 @@ TEST_CASE("TradeExecutorTransform - SingleExecutor") {
         {TE_ENTER_LONG_KEY, "long_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -128,7 +128,7 @@ TEST_CASE("TradeExecutorTransform - SingleExecutor") {
         {TE_ENTER_SHORT_KEY, "short_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -153,7 +153,7 @@ TEST_CASE("TradeExecutorTransform - SingleExecutorWithExit") {
         {TE_EXIT_LONG_KEY, "exit_long_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -178,7 +178,7 @@ TEST_CASE("TradeExecutorTransform - SingleExecutorWithExit") {
         {TE_EXIT_SHORT_KEY, "exit_short_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -205,7 +205,7 @@ TEST_CASE("TradeExecutorTransform - MultipleExecutor") {
         {TE_ENTER_SHORT_KEY, "short_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -233,7 +233,7 @@ TEST_CASE("TradeExecutorTransform - MultipleExecutorWithExit") {
         {TE_EXIT_LONG_KEY, "exit_long_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -263,7 +263,7 @@ TEST_CASE("TradeExecutorTransform - Basic Pass-through") {
         {TE_ENTER_SHORT_KEY, "short_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -298,7 +298,7 @@ TEST_CASE("TradeExecutorTransform - Basic Pass-through") {
         {TE_EXIT_LONG_KEY, "exit_long_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -342,7 +342,7 @@ TEST_CASE("TradeExecutorTransform - Error Cases") {
         {"invalid_key", "signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     // Should not throw but create a valid transform that ignores invalid keys
     REQUIRE_NOTHROW(TradeExecutorTransform(config));
@@ -359,7 +359,7 @@ TEST_CASE("TradeExecutorTransform - Error Cases") {
     std::unordered_map<std::string, std::string> inputs = {};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -375,7 +375,7 @@ TEST_CASE("TradeExecutorTransform - Error Cases") {
         {TE_ENTER_LONG_KEY, "missing_column"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -395,7 +395,7 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_LONG_KEY, "long_signal"}};
       auto config = trade_signal_executor_cfg(
           "test", inputs,
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -404,7 +404,7 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_SHORT_KEY, "short_signal"}};
       auto config = trade_signal_executor_cfg(
           "test", inputs,
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -414,7 +414,7 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_EXIT_LONG_KEY, "exit_long_signal"}};
       auto config = trade_signal_executor_cfg(
           "test", inputs,
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -424,7 +424,7 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_ENTER_SHORT_KEY, "short_signal"}};
       auto config = trade_signal_executor_cfg(
           "test", inputs,
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
 
@@ -435,7 +435,7 @@ TEST_CASE("TradeExecutorTransform - Types selection") {
           {TE_EXIT_LONG_KEY, "exit_long_signal"}};
       auto config = trade_signal_executor_cfg(
           "test", inputs,
-          epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
       REQUIRE_NOTHROW(TradeExecutorTransform(config));
     }
   }
@@ -448,7 +448,7 @@ TEST_CASE("TradeExecutorTransform - Data Type Handling") {
         {TE_ENTER_SHORT_KEY, "short_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 
@@ -480,7 +480,7 @@ TEST_CASE("TradeExecutorTransform - Data Type Handling") {
         {TE_ENTER_LONG_KEY, "long_signal"}};
     auto config = trade_signal_executor_cfg(
         "test_transform", inputs,
-        epochflow::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
 
     TradeExecutorTransform transform(config);
 

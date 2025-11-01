@@ -1,6 +1,6 @@
 #include "flow_graph_tester.hpp"
-#include <../../include/epochflow/transforms/core/config_helper.h>
-#include <../../include/epochflow/transforms/core/transform_definition.h>
+#include <../../include/epoch_script/transforms/core/config_helper.h>
+#include <../../include/epoch_script/transforms/core/transform_definition.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/scalar_factory.h>
@@ -14,7 +14,7 @@ namespace test {
 
 using namespace epoch_core;
 using namespace epoch_frame;
-using namespace epochflow;
+using namespace epoch_script;
 
 bool FlowGraphOutput::equals(const IOutputType& other) const {
     const auto* otherFlowGraph = dynamic_cast<const FlowGraphOutput*>(&other);
@@ -210,8 +210,8 @@ std::vector<std::string> loadAssetsFromYAML(const YAML::Node& node) {
     return assets;
 }
 
-epochflow::transform::TransformConfigurationList loadConfigurationFromYAML(const YAML::Node& node) {
-    epochflow::transform::TransformConfigurationList configurations;
+epoch_script::transform::TransformConfigurationList loadConfigurationFromYAML(const YAML::Node& node) {
+    epoch_script::transform::TransformConfigurationList configurations;
 
     if (!node["transforms"]) {
         return configurations;
@@ -219,8 +219,8 @@ epochflow::transform::TransformConfigurationList loadConfigurationFromYAML(const
 
     for (const auto& transformNode : node["transforms"]) {
         // Create TransformConfiguration from YAML node using TransformDefinition
-        epochflow::TransformDefinition definition(transformNode);
-        epochflow::transform::TransformConfiguration config(std::move(definition));
+        epoch_script::TransformDefinition definition(transformNode);
+        epoch_script::transform::TransformConfiguration config(std::move(definition));
         configurations.push_back(config);
     }
 
