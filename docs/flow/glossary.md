@@ -274,6 +274,18 @@ Visualization displaying single metrics (numeric, boolean, quantile)
 **Chart Report**
 Visualization: bar chart, pie chart, histogram, line chart
 
+**Auto-Plotting**
+Automatic visualization of every indicator without manual configuration
+
+**Event Marker**
+Timeline navigation system for jumping to important signals and patterns
+
+**Research Dashboard**
+Interactive analysis interface for gap reports, tables, and charts (separate from trading charts)
+
+**Sidebar Cards**
+Real-time metrics display organized in card groups (numeric, boolean, quantile)
+
 **Compiler**
 Program that translates EpochFlow DSL to executable format
 

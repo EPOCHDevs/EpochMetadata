@@ -374,8 +374,8 @@ This appendix lists ALL transforms available in EpochFlow. For detailed document
 **Specialized Reports:**
 - `gap_report` - Comprehensive gap analysis (cards + charts + tables)
 
-**Selectors:**
-- `card_selector_filter` - Interactive UI card selector
+**Event Navigation:**
+- `event_marker` - Timeline event markers for quick navigation to signals
 
 ---
 

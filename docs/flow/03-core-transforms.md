@@ -1709,6 +1709,64 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 - Histograms: Gap size distribution, fill time distribution
 - Tables: Gaps by hour, gaps by day of week, gaps by size bucket
 
+### event_marker
+
+**Purpose:** Create timeline events for quick navigation to important signals and patterns
+
+**Options:**
+- `color_map` (Dict, required) - Map event names to colors (Success, Warning, Error, Info)
+
+**Inputs:**
+- Named boolean series for events (e.g., `breakout=breakout_signal`)
+
+**Outputs:** None (generates scrollable event list)
+
+**Use Cases:**
+- Jump to RSI overbought/oversold conditions
+- Navigate to all breakout signals
+- Review all divergence patterns
+- Inspect regime changes
+- Analyze signal clusters
+
+**Example:**
+```python
+# RSI extremes
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+
+# Bollinger breakouts
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+upper_break = src.c > upper
+lower_break = src.c < lower
+
+# Create event markers
+event_marker(color_map={
+    Success: ["oversold", "lower_break"],    # Green
+    Error: ["overbought", "upper_break"],    # Red
+    Warning: ["regime_change"]               # Yellow
+})(
+    oversold=oversold,
+    overbought=overbought,
+    upper_break=upper_break,
+    lower_break=lower_break,
+    regime_change=regime_shift
+)
+```
+
+**How It Works:**
+1. Creates scrollable list in sidebar showing all event occurrences
+2. Each event shows timestamp and name
+3. Clicking event jumps chart to that timestamp
+4. Color-coded by severity/type (Success, Warning, Error, Info)
+5. Useful for reviewing signal quality and timing
+
+**Color Categories:**
+- **Success** (Green): Positive signals, entry opportunities, bullish patterns
+- **Warning** (Yellow): Caution signals, regime changes, neutral patterns
+- **Error** (Red): Exit signals, overbought conditions, bearish patterns
+- **Info** (Blue): Informational events, milestones, reference points
+
 ### table_report
 
 **Purpose:** SQL-like table visualization with aggregations
@@ -1763,7 +1821,7 @@ This catalog covers the 80 essential transforms for institutional trading strate
 - **Market Microstructure**: 4 transforms
 - **Chart Patterns**: 3 transforms
 - **Calendar**: 3 transforms
-- **Reporting**: 2 transforms
+- **Reporting**: 3 transforms (gap_report, event_marker, table_report)
 
 **Total: ~80 curated transforms**
 

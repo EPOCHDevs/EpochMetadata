@@ -12,7 +12,8 @@ Troubleshooting guide with common errors and solutions.
 4. [Lag Operator Errors](#lag-operator-errors)
 5. [Multi-Output Errors](#multi-output-errors)
 6. [Execution Errors](#execution-errors)
-7. [Quick Troubleshooting](#quick-troubleshooting)
+7. [Reporting Errors](#reporting-errors)
+8. [Quick Troubleshooting](#quick-troubleshooting)
 
 ---
 
@@ -445,6 +446,169 @@ london = sessions(session_type="London")()
 # ✅ FIX
 # Use intraday timeframe (1Min, 5Min, 15Min, etc.)
 # Configure strategy to run on intraday data
+```
+
+---
+
+## Reporting Errors
+
+### event_marker: Missing color_map
+
+**Error:** `Missing required option 'color_map'`
+
+**Cause:** event_marker requires color_map option
+
+```python
+# ❌ WRONG
+event_marker()(
+    oversold=rsi_val < 30
+)
+
+# ✅ FIX
+event_marker(color_map={
+    Success: ["oversold"]
+})(
+    oversold=rsi_val < 30
+)
+```
+
+### event_marker: Invalid Color Category
+
+**Error:** `Unknown color category 'Green'`
+
+**Cause:** Using wrong color name (must be Success, Warning, Error, or Info)
+
+```python
+# ❌ WRONG
+event_marker(color_map={
+    Green: ["oversold"],     # Wrong: 'Green' not valid
+    Red: ["overbought"]      # Wrong: 'Red' not valid
+})(
+    oversold=oversold,
+    overbought=overbought
+)
+
+# ✅ FIX
+event_marker(color_map={
+    Success: ["oversold"],   # Green color
+    Error: ["overbought"]    # Red color
+})(
+    oversold=oversold,
+    overbought=overbought
+)
+```
+
+**Valid color categories:** `Success` (green), `Warning` (yellow), `Error` (red), `Info` (blue)
+
+### event_marker: Event Name Not in Inputs
+
+**Error:** `Event 'breakout' referenced in color_map but not provided as input`
+
+**Cause:** Event name in color_map doesn't match any input
+
+```python
+# ❌ WRONG
+event_marker(color_map={
+    Success: ["breakout"]  # 'breakout' not in inputs
+})(
+    upper_break=src.c > upper  # Named 'upper_break', not 'breakout'
+)
+
+# ✅ FIX - Option 1: Match input name
+event_marker(color_map={
+    Success: ["upper_break"]  # Matches input name
+})(
+    upper_break=src.c > upper
+)
+
+# ✅ FIX - Option 2: Rename input
+event_marker(color_map={
+    Success: ["breakout"]
+})(
+    breakout=src.c > upper  # Renamed to match
+)
+```
+
+### event_marker: Non-Boolean Input
+
+**Error:** `Expected Boolean input for 'price', got Decimal`
+
+**Cause:** event_marker inputs must be boolean series
+
+```python
+# ❌ WRONG
+event_marker(color_map={
+    Success: ["price"]
+})(
+    price=src.c  # Decimal, not Boolean
+)
+
+# ✅ FIX
+event_marker(color_map={
+    Success: ["high_price"]
+})(
+    high_price=src.c > 100  # Boolean condition
+)
+```
+
+### gap_report: Missing Required Inputs
+
+**Error:** `gap_report requires inputs: gap_filled, gap_retrace, gap_size, psc, psc_timestamp`
+
+**Cause:** gap_report needs specific outputs from session_gap or bar_gap
+
+```python
+# ❌ WRONG
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+gap_report()(gaps.gap_filled)  # Missing other required inputs
+
+# ✅ FIX
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
+    gaps.gap_filled,
+    gaps.gap_retrace,
+    gaps.gap_size,
+    gaps.psc,
+    gaps.psc_timestamp
+)
+```
+
+### table_report: SQL Syntax Error
+
+**Error:** `SQL syntax error: unexpected token 'FORM'`
+
+**Cause:** Typo in SQL query
+
+```python
+# ❌ WRONG
+table_report(sql="""
+    SELECT AVG(returns)
+    FORM input  -- Typo: FORM instead of FROM
+""")(returns=ret)
+
+# ✅ FIX
+table_report(sql="""
+    SELECT AVG(returns)
+    FROM input
+""")(returns=ret)
+```
+
+### table_report: Column Not Found
+
+**Error:** `Column 'return' not found in input`
+
+**Cause:** SQL references column not provided in inputs
+
+```python
+# ❌ WRONG
+table_report(sql="""
+    SELECT AVG(return) FROM input  -- 'return' not in inputs
+""")(returns=ret)  # Named 'returns', not 'return'
+
+# ✅ FIX
+table_report(sql="""
+    SELECT AVG(returns) FROM input  -- Matches input name
+""")(returns=ret)
 ```
 
 ---

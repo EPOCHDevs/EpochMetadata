@@ -12,6 +12,7 @@ Market research and analysis using EpochFlow (non-trading scripts).
 4. [Pattern Research](#pattern-research)
 5. [Factor Analysis](#factor-analysis)
 6. [Calendar Effects](#calendar-effects)
+7. [Research Dashboard Workflow](#research-dashboard-workflow)
 
 ---
 
@@ -720,15 +721,327 @@ table_report(sql="""
 
 ---
 
+## Research Dashboard Workflow
+
+Research scripts generate interactive dashboards with multiple report types. Understanding the dashboard workflow is critical for effective analysis.
+
+### Dashboard Components
+
+When you run a research script with reporting transforms, the results appear in a dedicated **Research Dashboard** (separate from live trading charts):
+
+**Available Report Types:**
+1. **Gap Reports** - Comprehensive gap analysis with cards, charts, tables
+2. **Table Reports** - SQL-based tabular analysis
+3. **Bar Charts** - Category comparisons
+4. **Pie Charts** - Proportional breakdowns
+5. **Histograms** - Distribution analysis
+6. **Line Charts** - Time series trends
+7. **Card Reports** - Key metrics summary
+
+### Typical Dashboard Workflow
+
+#### Step 1: Run Research Script
+
+```python
+# Gap analysis research script
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
+    gaps.gap_filled,
+    gaps.gap_retrace,
+    gaps.gap_size,
+    gaps.psc,
+    gaps.psc_timestamp
+)
+```
+
+#### Step 2: Review Dashboard Outputs
+
+The dashboard organizes results into tabs/sections:
+
+**Gap Report Tab:**
+- **Cards Section**: Fill rate %, average gap size, median fill time
+- **Histogram Section**: Gap size distribution, fill time distribution
+- **Table Section**: Gaps by hour, gaps by weekday, gaps by size bucket
+
+#### Step 3: Interactive Analysis
+
+**Within the Dashboard:**
+- Click table rows to filter charts
+- Hover over histograms for exact counts
+- Export tables to CSV for external analysis
+- Compare across different parameter sets
+
+#### Step 4: Iterative Refinement
+
+Based on dashboard insights, refine your research:
+
+```python
+# Initial research shows gaps > 2.0% rarely fill
+# Refine to focus on smaller gaps
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# Add table report to segment by size
+table_report(sql="""
+    SELECT
+        CASE
+            WHEN gap_size < 0.5 THEN 'Micro'
+            WHEN gap_size < 1.0 THEN 'Small'
+            WHEN gap_size < 2.0 THEN 'Medium'
+            ELSE 'Large'
+        END as size_category,
+        COUNT(*) as count,
+        AVG(CASE WHEN gap_filled = 1 THEN 1.0 ELSE 0.0 END) as fill_rate,
+        AVG(fill_time_minutes) as avg_fill_time
+    FROM input
+    GROUP BY size_category
+    ORDER BY gap_size
+""")(
+    gap_size=gaps.gap_size,
+    gap_filled=gaps.gap_filled,
+    fill_time_minutes=gaps.fill_time_minutes
+)
+```
+
+### Multi-Report Research Example
+
+Combine multiple report types for comprehensive analysis:
+
+```python
+# Price action pattern research
+src = market_data_source()
+
+# Detect hammers and shooting stars
+hammer = hammer_pattern()(src.o, src.h, src.l, src.c)
+shooting_star = shooting_star_pattern()(src.o, src.h, src.l, src.c)
+
+# Calculate forward returns (research only!)
+fwd_1d = forward_returns(period=1)(src.c)
+fwd_5d = forward_returns(period=5)(src.c)
+
+# Card Report: Overall statistics
+numeric_card_report()(
+    hammer_count=agg_sum()(hammer),
+    shooting_star_count=agg_sum()(shooting_star),
+    avg_1d_return=agg_mean()(fwd_1d),
+    avg_5d_return=agg_mean()(fwd_5d)
+)
+
+# Bar Chart: Win rate by pattern
+bar_chart_report(x_axis_column="pattern")(
+    pattern=pattern_name,
+    win_rate=win_rate_pct
+)
+
+# Table Report: Detailed breakdowns
+table_report(sql="""
+    SELECT
+        CASE
+            WHEN hammer = 1 THEN 'Hammer'
+            WHEN shooting_star = 1 THEN 'Shooting Star'
+            ELSE 'No Pattern'
+        END as pattern,
+        COUNT(*) as occurrences,
+        AVG(fwd_1d) as avg_1d_return,
+        AVG(fwd_5d) as avg_5d_return,
+        STDDEV(fwd_1d) as volatility_1d,
+        SUM(CASE WHEN fwd_1d > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as win_rate_1d
+    FROM input
+    WHERE hammer = 1 OR shooting_star = 1
+    GROUP BY pattern
+""")(
+    hammer=hammer,
+    shooting_star=shooting_star,
+    fwd_1d=fwd_1d,
+    fwd_5d=fwd_5d
+)
+
+# Histogram: Return distribution
+histogram_chart_report(bins=20, x_axis_column="returns")(
+    returns=fwd_1d
+)
+```
+
+**Dashboard Output:**
+1. **Cards**: Total patterns detected, average returns
+2. **Bar Chart**: Visual comparison of win rates
+3. **Table**: Detailed statistics with statistical significance
+4. **Histogram**: Return distribution (look for skew, outliers)
+
+### Research to Strategy Conversion
+
+Once research validates an edge, convert to trading strategy:
+
+**Research Script (uses forward_returns):**
+```python
+# Research: Does RSI < 30 predict positive returns?
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+fwd_returns = forward_returns(period=5)(src.c)  # Look-ahead!
+
+table_report(sql="""
+    SELECT
+        AVG(fwd_returns) as avg_return,
+        STDDEV(fwd_returns) as volatility,
+        COUNT(*) as sample_size
+    FROM input
+    WHERE oversold = 1
+""")(oversold=oversold, fwd_returns=fwd_returns)
+```
+
+**Trading Strategy (no look-ahead):**
+```python
+# Convert to live trading (NO forward_returns)
+rsi_val = rsi(period=14)(src.c)
+buy = rsi_val < 30
+exit_profit = rsi_val > 70
+
+trade_signal_executor()(
+    enter_long=buy,
+    exit_long=exit_profit
+)
+```
+
+### Dashboard Best Practices
+
+#### 1. Start with Overview Cards
+
+```python
+# High-level metrics first
+numeric_card_report()(
+    total_signals=agg_sum()(signal),
+    avg_return=agg_mean()(returns),
+    win_rate=agg_mean()(profitable)
+)
+```
+
+#### 2. Add Charts for Visualization
+
+```python
+# Visual patterns
+bar_chart_report(x_axis_column="day_of_week")(
+    day_of_week=dow,
+    avg_return=returns_by_day
+)
+```
+
+#### 3. Use Tables for Detailed Breakdowns
+
+```python
+# Granular analysis
+table_report(sql="""
+    SELECT hour, COUNT(*), AVG(return)
+    FROM input
+    GROUP BY hour
+    ORDER BY hour
+""")(hour=hour, return=ret)
+```
+
+#### 4. Histograms for Distributions
+
+```python
+# Understand distribution shape
+histogram_chart_report(bins=30)(
+    values=return_distribution
+)
+```
+
+### Common Dashboard Patterns
+
+#### Pattern 1: Segmentation Analysis
+
+```python
+# Analyze different market regimes
+regime = regime_detector()(...)
+
+table_report(sql="""
+    SELECT
+        regime,
+        COUNT(*) as samples,
+        AVG(signal_return) as avg_return,
+        SUM(CASE WHEN signal_return > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as win_rate
+    FROM input
+    GROUP BY regime
+""")(regime=regime, signal_return=fwd_returns)
+```
+
+#### Pattern 2: Time-Based Analysis
+
+```python
+# Calendar effect research
+dow = day_of_week()()
+hour = hour_of_day()()
+
+table_report(sql="""
+    SELECT
+        dow,
+        hour,
+        AVG(returns) as avg_return,
+        COUNT(*) as count
+    FROM input
+    GROUP BY dow, hour
+    ORDER BY dow, hour
+""")(dow=dow, hour=hour, returns=returns)
+```
+
+#### Pattern 3: Parameter Sensitivity
+
+```python
+# Test multiple parameter combinations (run separately)
+# Script 1: RSI 10
+rsi_10 = rsi(period=10)(src.c)
+# ...generate reports
+
+# Script 2: RSI 14
+rsi_14 = rsi(period=14)(src.c)
+# ...generate reports
+
+# Script 3: RSI 20
+rsi_20 = rsi(period=20)(src.c)
+# ...generate reports
+
+# Compare dashboards side-by-side
+```
+
+### Dashboard Limitations
+
+**What Dashboard CANNOT Do:**
+1. **No live updating**: Dashboard shows historical research results (not real-time)
+2. **No parameter sweeps**: Must run separate scripts for different parameters
+3. **No optimization**: Dashboard is for analysis, not automated parameter finding
+4. **No backtesting**: Use trading strategies with `trade_signal_executor()` for backtests
+
+**What Dashboard CAN Do:**
+1. **Interactive exploration**: Click, filter, drill down
+2. **Multiple views**: Cards, charts, tables for different perspectives
+3. **Export results**: Save tables, charts for presentations
+4. **Comparative analysis**: Run multiple scripts, compare dashboards
+
+### Integration with Strategy Development
+
+**Research → Strategy Workflow:**
+
+1. **Hypothesis**: "Do session gaps larger than 1% fill within 2 hours?"
+2. **Research Script**: Use `gap_report()` to analyze historical gap behavior
+3. **Dashboard Analysis**: Review fill rates, timing, size distribution
+4. **Insight**: "Gaps 0.5-1.5% fill 78% of the time within 90 minutes"
+5. **Strategy Design**: Build gap fade strategy with size filter
+6. **Trading Strategy**: Implement with `trade_signal_executor()`
+7. **Backtest**: Evaluate performance metrics
+8. **Refinement**: Return to research if results don't match expectations
+
+---
+
 ## Summary
 
 ### Research Script Components
 
 1. **No Executor**: Research scripts don't call `trade_signal_executor()`
-2. **Reporting Sinks**: Use `gap_report()`, `table_report()`, etc.
-3. **Look-Ahead Allowed**: Can use `src.c[-5]` for forward returns (historical analysis only)
+2. **Reporting Sinks**: Use `gap_report()`, `table_report()`, card reports, charts
+3. **Look-Ahead Allowed**: Can use `forward_returns()` for historical analysis (NOT for trading)
 4. **SQL Queries**: `table_report()` supports complex aggregations
 5. **Statistical Analysis**: Focus on understanding, not trading
+6. **Dashboard Output**: Results appear in interactive research dashboard (separate from trading charts)
 
 ### Common Research Questions
 

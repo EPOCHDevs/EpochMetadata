@@ -5,7 +5,7 @@
 
 #include <catch2/catch_all.hpp>
 #include <benchmark_utils.h>
-#include <epochflow/compiler/ast_compiler.h>
+#include "transforms/compiler/ast_compiler.h"
 #include <spdlog/spdlog.h>
 #include <filesystem>
 #include <fstream>

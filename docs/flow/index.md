@@ -19,6 +19,7 @@ EpochFlow is a Python-like domain-specific language designed for institutional t
 - **Cross-Sectional**: Factor models, momentum rankings, universe filtering
 - **Fundamental Data**: Balance sheets, income statements, economic indicators
 - **Pattern Recognition**: Chart formations, candlestick patterns, structural analysis
+- **Interactive Visualization**: Auto-plotting charts, real-time sidebar cards, event timeline navigation, research dashboards
 
 ### Design Philosophy
 
@@ -131,6 +132,7 @@ trade_signal_executor()(
 5. **[Research Workflows](05-research-workflows.md)** - Market research vs live trading strategies
 6. **[Advanced Topics](06-advanced-topics.md)** - Multi-condition logic, optimization, best practices
 7. **[Error Reference](07-error-reference.md)** - Troubleshooting guide with solutions
+8. **[Visualization System](08-visualization-system.md)** - Auto-plotting, sidebar cards, event markers, research dashboards
 
 **Appendices:**
 - **[Full Transform Catalog](appendix-full-catalog.md)** - Complete list of 300+ transforms
