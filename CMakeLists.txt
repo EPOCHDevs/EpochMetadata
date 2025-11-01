@@ -30,7 +30,7 @@ option(BUILD_TEST OFF)
 option(ENABLE_COVERAGE "Enable code coverage reporting" OFF)
 ########################################################################################################################
 
-project(EpochMetadata LANGUAGES C CXX)
+project(EpochFlow LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -66,11 +66,11 @@ find_package(Armadillo CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 
-add_library(epoch_metadata "")
-add_library(epoch::metadata ALIAS epoch_metadata)
+add_library(epochflow "")
+add_library(epoch::flow ALIAS epochflow)
 
 # Configure version for shared libraries
-set_target_properties(epoch_metadata PROPERTIES
+set_target_properties(epochflow PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
         WINDOWS_EXPORT_ALL_SYMBOLS ON
@@ -78,21 +78,23 @@ set_target_properties(epoch_metadata PROPERTIES
 
 # For shared libraries, export all symbols by default (Linux-friendly approach)
 if(BUILD_SHARED_LIBS)
-    set_target_properties(epoch_metadata PROPERTIES
+    set_target_properties(epochflow PROPERTIES
             CXX_VISIBILITY_PRESET default
             VISIBILITY_INLINES_HIDDEN OFF
     )
 endif()
 
-target_include_directories(epoch_metadata
+target_include_directories(epochflow
         PUBLIC
         ${PROJECT_SOURCE_DIR}/include
         PRIVATE
         ${PROJECT_SOURCE_DIR}/src
 )
 
-target_compile_options(epoch_metadata PRIVATE -Wall -Wextra -Werror)
-target_link_libraries(epoch_metadata PUBLIC
+target_compile_options(epochflow PRIVATE -Wall -Wextra -Werror)
+target_link_libraries(epochflow PUBLIC
+        cpp-tree-sitter
+        tree-sitter-python
     armadillo
         DataFrame::DataFrame
        epoch::dashboard
@@ -101,6 +103,7 @@ target_link_libraries(epoch_metadata PUBLIC
        libmpdec
        tulip_indicators
        TBB::tbb)
+
 
 add_subdirectory(src)
 

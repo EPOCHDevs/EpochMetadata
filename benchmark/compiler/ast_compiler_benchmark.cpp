@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <fstream>
 
-using namespace epoch_stratifyx::epochflow;
+using namespace epochflow;
 using namespace epoch_benchmark;
 
 // Helper to load script from benchmark/scripts directory

@@ -4,9 +4,9 @@
 #include "epoch_testing/dataframe_tester.hpp"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
-#include "epoch_metadata/transforms/itransform.h"
-#include "epoch_metadata/transforms/transform_configuration.h"
-#include "epoch_metadata/transforms/transform_registry.h"
+#include "epochflow/transforms/itransform.h"
+#include "epochflow/transforms/transform_configuration.h"
+#include "epochflow/transforms/transform_registry.h"
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/datetime.h>
 #include <epoch_frame/index.h>

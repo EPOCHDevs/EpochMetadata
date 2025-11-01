@@ -2,8 +2,8 @@
 // Created by adesola on 12/16/24.
 //
 #include "../common.h"
-#include "epoch_metadata/transforms/registration.h"
-#include "epoch_metadata/transforms/registry.h"
+#include "epochflow/transforms/registration.h"
+#include "epochflow/transforms/registry.h"
 #include <catch.hpp>
 #include <fstream>
 #include <glaze/glaze.hpp>
@@ -15,7 +15,7 @@ constexpr bool kWriteToCsv = false;
 #endif
 
 TEST_CASE("Transform MetaData Total Count is Correct", "[.]") {
-  using namespace epoch_metadata::transforms;
+  using namespace epochflow::transforms;
 
   auto metadata = ITransformRegistry::GetInstance().GetMetaData();
   REQUIRE(metadata.size() == 277);

@@ -2,18 +2,18 @@
 // Created by Rhythm on 12/8/2024.
 //
 
-#include "epoch_metadata/transforms/metadata.h"
+#include "epochflow/transforms/metadata.h"
 #include <catch.hpp>
 
 TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
           "[TransformsMetaData]") {
-  using namespace epoch_metadata;
+  using namespace epochflow;
 
   MetaDataOption sampleArg{
       .id = "arg_id",
       .name = "arg_name",
       .type = epoch_core::MetaDataOptionType::Decimal,
-      .defaultValue = epoch_metadata::MetaDataOptionDefinition{10.5},
+      .defaultValue = epochflow::MetaDataOptionDefinition{10.5},
       .isRequired = true,
       .selectOption = {{"label1", "value1"}, {"label2", "value2"}}};
 
@@ -50,7 +50,7 @@ TEST_CASE("TransformsMetaData::ToJson generates correct JSON",
 
 TEST_CASE("IOMetaDataConstants: List and Struct types are available",
           "[IOMetaDataConstants]") {
-  using namespace epoch_metadata::transforms;
+  using namespace epochflow::transforms;
 
   SECTION("List metadata constants exist") {
     REQUIRE(IOMetaDataConstants::LIST_INPUT_METADATA.type ==

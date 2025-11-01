@@ -1,20 +1,20 @@
 //
 // Created by dewe on 9/11/24.
 //
-#include "epoch_metadata/strategy/registration.h"
-#include "../doc_deserialization_helper.h"
-#include "epoch_metadata/glaze_custom_types.h"
-#include "epoch_metadata/strategy/data_options.h"
-#include "epoch_metadata/strategy/enums.h"
-#include "epoch_metadata/strategy/generic_function.h"
-#include "epoch_metadata/strategy/metadata.h"
-#include "epoch_metadata/strategy/registry.h"
-#include "epoch_metadata/strategy/strategy_config.h"
-#include "epoch_metadata/transforms/registration.h"
-#include "compiler/compiler/ast_compiler.h"
+#include <epochflow/transforms/strategy/registration.h>
+#include "../core/doc_deserialization_helper.h"
+#include <epochflow/core/glaze_custom_types.h>
+#include <epochflow/transforms/strategy/data_options.h>
+#include <epochflow/transforms/strategy/enums.h>
+#include <epochflow/transforms/strategy/generic_function.h>
+#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/transforms/strategy/registry.h>
+#include <epochflow/transforms/strategy/strategy_config.h>
+#include <epochflow/transforms/core/registration.h>
+#include "transforms/compiler/ast_compiler.h"
 #include <unordered_map>
 
-namespace epoch_metadata::strategy
+namespace epochflow::strategy
 {
   struct AIGeneratedAlgorithmMetaData
   {
@@ -182,4 +182,4 @@ namespace epoch_metadata::strategy
     }
   }
 
-} // namespace epoch_metadata::strategy
+} // namespace epochflow::strategy

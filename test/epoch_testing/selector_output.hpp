@@ -2,7 +2,7 @@
 #define SELECTOR_OUTPUT_HPP
 
 #include "epoch_testing/transform_tester_base.hpp"
-#include <epoch_metadata/transforms/itransform.h>
+#include <epochflow/transforms/itransform.h>
 #include <sstream>
 #include <iostream>
 #include <unordered_set>
@@ -13,7 +13,7 @@ namespace test {
 class SelectorOutput : public IOutputType {
 public:
     // Store the actual selector data
-    epoch_metadata::transform::SelectorData selectorData;
+    epochflow::transform::SelectorData selectorData;
 
     SelectorOutput() = default;
 
@@ -43,8 +43,8 @@ public:
     }
 
 private:
-    bool compareSelectorData(const epoch_metadata::transform::SelectorData& a,
-                            const epoch_metadata::transform::SelectorData& b) const {
+    bool compareSelectorData(const epochflow::transform::SelectorData& a,
+                            const epochflow::transform::SelectorData& b) const {
         // Compare title
         if (a.title != b.title) {
             std::cerr << "DEBUG compareSelectorData: Title mismatch - a='" << a.title

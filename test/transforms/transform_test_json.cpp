@@ -6,11 +6,11 @@
 #include <epoch_testing/tearsheet_output.hpp>
 #include <epoch_testing/selector_output.hpp>
 #include <epoch_testing/dataframe_tester.hpp>
-#include <epoch_metadata/transforms/itransform.h>
-#include <epoch_metadata/transforms/transform_registry.h>
-#include <epoch_metadata/transforms/transform_definition.h>
-#include <epoch_metadata/transforms/transform_configuration.h>
-#include <epoch_metadata/reports/ireport.h>
+#include <epochflow/transforms/itransform.h>
+#include <epochflow/transforms/transform_registry.h>
+#include <epochflow/transforms/transform_definition.h>
+#include <epochflow/transforms/transform_configuration.h>
+#include <epochflow/reports/ireport.h>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <yaml-cpp/yaml.h>
@@ -19,8 +19,8 @@
 
 using namespace epoch::test;
 using namespace epoch::test::json;
-using namespace epoch_metadata;
-using namespace epoch_metadata::transform;
+using namespace epochflow;
+using namespace epochflow::transform;
 
 namespace
 {
@@ -775,7 +775,7 @@ namespace
                             }
 
                             // Cast to reporter
-                            auto reporter = dynamic_cast<epoch_metadata::reports::IReporter *>(transformPtr.get());
+                            auto reporter = dynamic_cast<epochflow::reports::IReporter *>(transformPtr.get());
                             if (!reporter)
                             {
                                 FAIL("Transform does not implement IReporter interface");
@@ -850,9 +850,9 @@ namespace
                                         expectedDf = CatchTransformTester::tableToDataFrame(expectedTable, timestampColumns, "");
                                     }
 
-                                    expectedSelector->selectorData = epoch_metadata::transform::SelectorData(
+                                    expectedSelector->selectorData = epochflow::transform::SelectorData(
                                         selectorExpect.title,
-                                        std::vector<epoch_metadata::CardColumnSchema>{}, // empty for basic validation
+                                        std::vector<epochflow::CardColumnSchema>{}, // empty for basic validation
                                         expectedDf,
                                         selectorExpect.pivot_index,
                                         expectedIcon

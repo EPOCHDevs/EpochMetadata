@@ -1,17 +1,32 @@
-add_executable(epoch_flow_test catch_main.cpp metadata_options_test.cpp sql_statement_test.cpp timeframe_test.cpp)
-target_link_libraries(epoch_flow_test PRIVATE epoch_metadata Catch2::Catch2 yaml-cpp::yaml-cpp trompeloeil::trompeloeil protobuf::libprotobuf)
-target_include_directories(epoch_flow_test PRIVATE ../src . )
+# EpochFlow Test Suite
+add_executable(epoch_flow_test catch_main.cpp)
+target_link_libraries(epoch_flow_test PRIVATE
+    epochflow
+    Catch2::Catch2
+    yaml-cpp::yaml-cpp
+    trompeloeil::trompeloeil
+    protobuf::libprotobuf
+)
+target_include_directories(epoch_flow_test PRIVATE
+    ../src
+    .
+)
 
 # Set runtime output directory to bin (where test resources are copied)
 set_target_properties(epoch_flow_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-add_subdirectory(strategy)
-add_subdirectory(transforms)
-add_subdirectory(compiler)
-add_subdirectory(runtime)
-add_subdirectory(selectors)
+# Add shared testing utilities and mocks
+add_subdirectory(testing)
+add_subdirectory(mocks)
 
+# Add unit tests
+add_subdirectory(unit)
+
+# Add integration tests
+add_subdirectory(integration)
+
+# Copy test files
 set(METADATA_FILES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 

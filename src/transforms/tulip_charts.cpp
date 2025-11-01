@@ -1,12 +1,12 @@
 #include "candles.h"
 #include "common.h"
 #include "epoch_core/common_utils.h"
-#include "epoch_metadata/transforms/metadata.h"
+#include <epochflow/transforms/core/metadata.h>
 #include <epoch_core/ranges_to.h>
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace epoch_metadata::transforms {
+namespace epochflow::transforms {
 
 struct CandlePatternMetaData {
   std::vector<std::string> tags;
@@ -261,7 +261,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Period",
                      .type = epoch_core::MetaDataOptionType::Integer,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->period)},
                      .isRequired = true,
                      .min = 1, // Period must be at least 1
@@ -275,7 +275,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Body None Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->body_none)},
                      .isRequired = true};
     options.push_back(o);
@@ -287,7 +287,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Body Short Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->body_short)},
                      .isRequired = true};
     options.push_back(o);
@@ -299,7 +299,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Body Long Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->body_long)},
                      .isRequired = true};
     options.push_back(o);
@@ -311,7 +311,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Wick None Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->wick_none)},
                      .isRequired = true};
     options.push_back(o);
@@ -323,7 +323,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Wick Long Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->wick_long)},
                      .isRequired = true};
     options.push_back(o);
@@ -335,7 +335,7 @@ std::vector<MetaDataOption> MakeCandleOptions() {
                      .name = "Near Threshold",
                      .type = epoch_core::MetaDataOptionType::Decimal,
                      .defaultValue =
-                         epoch_metadata::MetaDataOptionDefinition{
+                         epochflow::MetaDataOptionDefinition{
                              static_cast<double>(defaults->near)},
                      .isRequired = true};
     options.push_back(o);
@@ -381,4 +381,4 @@ std::vector<TransformsMetaData> MakeTulipCandles() {
   return allCandles;
 }
 
-} // namespace epoch_metadata::transforms
+} // namespace epochflow::transforms

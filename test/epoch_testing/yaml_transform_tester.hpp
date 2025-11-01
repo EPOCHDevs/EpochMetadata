@@ -6,21 +6,21 @@
 #include "epoch_testing/transform_tester_base.hpp"
 #include "epoch_testing/dataframe_tester.hpp"
 #include "epoch_frame/factory/index_factory.h"
-#include "epoch_metadata/bar_attribute.h"
-#include "epoch_metadata/transforms/itransform.h"
-#include "epoch_metadata/transforms/transform_configuration.h"
-#include "epoch_metadata/transforms/transform_definition.h"
-#include "epoch_metadata/transforms/transform_registry.h"
-#include "epoch_metadata/reports/ireport.h"
+#include "epochflow/bar_attribute.h"
+#include "epochflow/transforms/itransform.h"
+#include "epochflow/transforms/transform_configuration.h"
+#include "epochflow/transforms/transform_definition.h"
+#include "epochflow/transforms/transform_registry.h"
+#include "epochflow/reports/ireport.h"
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/factory/dataframe_factory.h>
-#include <epoch_metadata/strategy/registration.h>
+#include <epochflow/strategy/registration.h>
 #include <filesystem>
 #include <vector>
 #include <string>
 
-using namespace epoch_metadata;
-using namespace epoch_metadata::transform;
+using namespace epochflow;
+using namespace epochflow::transform;
 
 namespace epoch {
 namespace test {
@@ -377,7 +377,7 @@ private:
         auto transformPtr = createTransformFromOptions(options, input);
 
         // Cast to IReporter to access tearsheet functionality
-        auto reporter = dynamic_cast<epoch_metadata::reports::IReporter*>(transformPtr.get());
+        auto reporter = dynamic_cast<epochflow::reports::IReporter*>(transformPtr.get());
         if (!reporter) {
             std::string transformName = getTransformName(options);
             throw std::runtime_error("Transform '" + transformName + "' does not implement IReporter interface");

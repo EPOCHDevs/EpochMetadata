@@ -1,13 +1,14 @@
 //
 // Created by dewe on 9/10/24.
 //
-#include "epoch_metadata/strategy/metadata.h"
-#include "doc_deserialization_helper.h"
-#include "epoch_metadata/metadata_options.h"
-#include "epoch_metadata/transforms/registry.h"
-#include "epoch_metadata/transforms/metadata.h"
-#include "epoch_metadata/transforms/registration.h"
-#include "compiler/compiler/ast_compiler.h"
+#include <epochflow/transforms/strategy/metadata.h>
+#include "../core/doc_deserialization_helper.h"
+#include <epochflow/core/metadata_options.h>
+#include <epochflow/transforms/core/registry.h>
+#include <epochflow/transforms/core/metadata.h>
+#include <epochflow/transforms/core/registration.h>
+#include <epochflow/transforms/strategy/registration.h>
+#include "transforms/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>
 #include <glaze/json/json_concepts.hpp>
@@ -18,8 +19,8 @@
 #include <ranges>
 #include <algorithm>
 
-using namespace epoch_metadata;
-using namespace epoch_metadata::strategy;
+using namespace epochflow;
+using namespace epochflow::strategy;
 using epoch_core::BaseDataTimeFrame;
 using epoch_core::EpochOffsetType;
 
@@ -32,7 +33,7 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
   for (const auto &node : compilationResult)
   {
     // Check if node type requires intraday data or has a session
-    if (epoch_metadata::transforms::kIntradayOnlyIds.contains(node.type) ||
+    if (epochflow::transforms::kIntradayOnlyIds.contains(node.type) ||
         node.session)
     {
       types.emplace(EpochOffsetType::Minute);
@@ -52,7 +53,7 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
   }
 
   return std::ranges::any_of(types, [](EpochOffsetType t)
-                             { return epoch_metadata::IsIntraday(t); })
+                             { return epochflow::IsIntraday(t); })
              ? BaseDataTimeFrame::Minute
              : BaseDataTimeFrame::EOD;
 }
@@ -66,7 +67,7 @@ PythonSource::PythonSource(std::string src) : source_(std::move(src))
   }
 
   // Compile Python source to get algorithm nodes
-  epoch_stratifyx::epochflow::AlgorithmAstCompiler compiler;
+  epochflow::AlgorithmAstCompiler compiler;
   compilationResult_ = compiler.compile(source_);
   m_executor_count = compiler.getExecutorCount();
 
@@ -94,8 +95,8 @@ namespace YAML
     {
       auto start = node["start"].as<std::string>();
       auto end = node["end"].as<std::string>();
-      metadata = epoch_frame::SessionRange{epoch_metadata::TimeFromString(start),
-                                           epoch_metadata::TimeFromString(end)};
+      metadata = epoch_frame::SessionRange{epochflow::TimeFromString(start),
+                                           epochflow::TimeFromString(end)};
     }
     else
     {

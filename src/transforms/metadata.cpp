@@ -1,8 +1,8 @@
 //
 // Created by dewe on 1/10/23.
 //
-#include "epoch_metadata/transforms/metadata.h"
-#include "doc_deserialization_helper.h"
+#include <epochflow/transforms/core/metadata.h>
+#include "../core/doc_deserialization_helper.h"
 #include <array>
 #include <cctype>
 #include <epoch_core/ranges_to.h>
@@ -13,7 +13,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace epoch_metadata::transforms {
+namespace epochflow::transforms {
 void IOMetaData::decode(const YAML::Node &element) {
   if (element.IsScalar()) {
     *this =
@@ -1521,4 +1521,4 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
 }
 
 
-} // namespace epoch_metadata::transforms
+} // namespace epochflow::transforms

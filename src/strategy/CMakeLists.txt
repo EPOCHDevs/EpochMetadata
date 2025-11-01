@@ -1,4 +1,4 @@
-target_sources(epoch_metadata PRIVATE
+target_sources(epochflow PRIVATE
     metadata.cpp
     registration.cpp
 )
