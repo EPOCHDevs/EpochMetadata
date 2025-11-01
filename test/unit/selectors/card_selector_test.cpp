@@ -1,11 +1,11 @@
 #include <catch.hpp>
-#include "epochflow/selectors/card_selector.h"
-#include "../../../include/epochflow/core/constants.h"
-#include "../../../include/epochflow/transforms/core/registration.h"
-#include "../../../include/epochflow/transforms/core/transform_configuration.h"
-#include "../../../include/epochflow/transforms/core/transform_registry.h"
-#include "../../../include/epochflow/transforms/core/config_helper.h"
-#include "../../../include/epochflow/core/metadata_options.h"
+#include <epochflow/transforms/components/selectors/card_selector.h>
+#include <epochflow/core/constants.h>
+#include <epochflow/transforms/core/registration.h>
+#include <epochflow/transforms/core/transform_configuration.h>
+#include <epochflow/transforms/core/transform_registry.h>
+#include <epochflow/transforms/core/config_helper.h>
+#include <epochflow/core/metadata_options.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/index_factory.h>
@@ -13,7 +13,7 @@
 #include <glaze/glaze.hpp>
 #include <sstream>
 
-#include "../../../include/epochflow/transforms/core/registry.h"
+#include <epochflow/transforms/core/registry.h>
 
 using namespace epochflow;
 using namespace epochflow::transform;

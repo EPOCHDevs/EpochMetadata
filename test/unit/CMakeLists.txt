@@ -1,7 +1,8 @@
-# Unit tests
-add_subdirectory(compiler)
-#add_subdirectory(transforms)
-#add_subdirectory(runtime)
-#add_subdirectory(strategy)
-add_subdirectory(selectors)
-#add_subdirectory(core)
+# Unit tests organized by module
+add_subdirectory(common)      # Shared test utilities
+add_subdirectory(core)         # Core component tests
+add_subdirectory(transforms)   # Transform tests
+add_subdirectory(strategy)     # Strategy tests
+add_subdirectory(runtime)      # Runtime unit tests
+add_subdirectory(compiler)     # Compiler tests
+add_subdirectory(selectors)    # Selector tests

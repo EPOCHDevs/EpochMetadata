@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
-#include "compiler/ast_compiler.h"
+#include "transforms/compiler/ast_compiler.h"
 
 using namespace epochflow;
 namespace fs = std::filesystem;
@@ -253,7 +253,7 @@ x = 5.0
 // TIMEFRAME RESOLUTION TESTS
 // ============================================================================
 
-#include "compiler/timeframe_resolver.h"
+#include "transforms/compiler/timeframe_resolver.h"
 #include "epoch_frame/factory/date_offset_factory.h"
 
 using epochflow::TimeframeResolver;

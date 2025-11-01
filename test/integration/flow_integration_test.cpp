@@ -21,7 +21,7 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
-#include "compiler/ast_compiler.h"
+#include "transforms/compiler/ast_compiler.h"
 
 using namespace epochflow;
 namespace fs = std::filesystem;

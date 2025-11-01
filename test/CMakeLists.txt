@@ -16,14 +16,10 @@ target_include_directories(epoch_flow_test PRIVATE
 set_target_properties(epoch_flow_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Add shared testing utilities and mocks
-add_subdirectory(testing)
-add_subdirectory(mocks)
-
-# Add unit tests
+# Add unit tests (includes shared utilities in unit/common)
 add_subdirectory(unit)
 
-# Add integration tests
+# Add integration tests (includes mocks in integration/mocks)
 add_subdirectory(integration)
 
 # Copy test files
