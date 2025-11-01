@@ -1,1 +1,1 @@
-target_sources(epoch_metadata_test PRIVATE cummulative_test.cpp)
+target_sources(epoch_flow_test PRIVATE cummulative_test.cpp)

@@ -133,4 +133,25 @@ private:
   double m_threshold_high;
   double m_threshold_low;
 };
+
+// FirstNonNull (Coalesce) - returns first non-null value from varargs inputs
+class FirstNonNullTransform : public ITransform {
+public:
+  explicit FirstNonNullTransform(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
+// ConditionalSelect (Case When) - SQL-style multi-condition selector
+class ConditionalSelectTransform : public ITransform {
+public:
+  explicit ConditionalSelectTransform(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
 } // namespace epoch_metadata::transform

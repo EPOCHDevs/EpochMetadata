@@ -488,6 +488,32 @@ inline auto select_n = [](int64_t id, int n, std::string const &index,
   return TransformConfiguration{TransformDefinition{inputs_yaml}};
 };
 
+inline auto first_non_null = [](int64_t id, const std::vector<std::string> &inputs,
+                                 const epoch_metadata::TimeFrame &timeframe) {
+  YAML::Node inputs_yaml;
+  inputs_yaml["type"] = "first_non_null";
+  inputs_yaml["id"] = id;
+  inputs_yaml["timeframe"] = YAML::Load(timeframe.Serialize());
+
+  // VARARGS inputs
+  inputs_yaml["inputs"][epoch_metadata::ARG] = inputs;
+
+  return TransformConfiguration{TransformDefinition{inputs_yaml}};
+};
+
+inline auto conditional_select = [](int64_t id, const std::vector<std::string> &inputs,
+                                    const epoch_metadata::TimeFrame &timeframe) {
+  YAML::Node inputs_yaml;
+  inputs_yaml["type"] = "conditional_select";
+  inputs_yaml["id"] = id;
+  inputs_yaml["timeframe"] = YAML::Load(timeframe.Serialize());
+
+  // VARARGS inputs (alternating conditions and values)
+  inputs_yaml["inputs"][epoch_metadata::ARG] = inputs;
+
+  return TransformConfiguration{TransformDefinition{inputs_yaml}};
+};
+
 inline auto rolling_volatility =
     [](std::string const &id, int64_t period,
        const epoch_metadata::TimeFrame &timeframe) {
@@ -1659,5 +1685,123 @@ inline auto card_selector_sql_cfg =
       };
       return TransformConfiguration{TransformDefinition{std::move(data)}};
     };
+
+// =========================
+// String operation helpers
+// =========================
+
+inline auto string_case_cfg = [](std::string const &id, std::string const &operation,
+                                  std::string const &input,
+                                  const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_case",
+      .id = id,
+      .options = {{"operation", MetaDataOptionDefinition{operation}}},
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_trim_cfg = [](std::string const &id, std::string const &operation,
+                                  std::string const &input, std::string const &trim_chars,
+                                  const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_trim",
+      .id = id,
+      .options = {
+          {"operation", MetaDataOptionDefinition{operation}},
+          {"trim_chars", MetaDataOptionDefinition{trim_chars}}
+      },
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_pad_cfg = [](std::string const &id, std::string const &operation,
+                                 std::string const &input, int64_t width,
+                                 std::string const &pad_string,
+                                 const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_pad",
+      .id = id,
+      .options = {
+          {"operation", MetaDataOptionDefinition{operation}},
+          {"width", MetaDataOptionDefinition{static_cast<double>(width)}},
+          {"pad_string", MetaDataOptionDefinition{pad_string}}
+      },
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_contains_cfg = [](std::string const &id, std::string const &operation,
+                                      std::string const &input, std::string const &pattern,
+                                      const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_contains",
+      .id = id,
+      .options = {
+          {"operation", MetaDataOptionDefinition{operation}},
+          {"pattern", MetaDataOptionDefinition{pattern}}
+      },
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_check_cfg = [](std::string const &id, std::string const &operation,
+                                   std::string const &input,
+                                   const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_check",
+      .id = id,
+      .options = {{"operation", MetaDataOptionDefinition{operation}}},
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_replace_cfg = [](std::string const &id, std::string const &input,
+                                     std::string const &pattern, std::string const &replacement,
+                                     const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_replace",
+      .id = id,
+      .options = {
+          {"pattern", MetaDataOptionDefinition{pattern}},
+          {"replacement", MetaDataOptionDefinition{replacement}}
+      },
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_length_cfg = [](std::string const &id, std::string const &input,
+                                    const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_length",
+      .id = id,
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+inline auto string_reverse_cfg = [](std::string const &id, std::string const &input,
+                                     const epoch_metadata::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "string_reverse",
+      .id = id,
+      .timeframe = timeframe,
+      .inputs = {{"input", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
 
 } // namespace epoch_metadata::transform

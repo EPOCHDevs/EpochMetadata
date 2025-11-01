@@ -1,1 +1,1 @@
-target_sources(epoch_metadata_test PRIVATE aggregate_test.cpp comparative_test.cpp scalar_test.cpp)
+target_sources(epoch_flow_test PRIVATE aggregate_test.cpp comparative_test.cpp scalar_test.cpp)

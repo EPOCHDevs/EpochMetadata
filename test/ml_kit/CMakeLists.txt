@@ -1,1 +1,0 @@
-target_sources(epoch_metadata_test PRIVATE ml_kit_test.cpp)

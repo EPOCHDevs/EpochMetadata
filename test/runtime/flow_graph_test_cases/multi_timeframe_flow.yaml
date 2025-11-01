@@ -1,0 +1,92 @@
+# Multi-timeframe transform flow test
+data_sources:
+  price_data: "datasets/sample_ohlcv.yaml"
+
+tests:
+  - title: "Multiple timeframes with different transforms"
+    assets: ["AAPL", "MSFT"]
+    timeframes: ["1D", "1Min"]
+    configuration:
+      transforms:
+        - type: "market_data_source"
+          id: "dataDaily"
+          timeframe: "1D"
+        - type: "market_data_source"
+          id: "dataMinute"
+          timeframe: "1Min"
+        - type: "number"
+          id: "twoDaily"
+          timeframe: "1D"
+          options:
+            value: 2
+        - type: "number"
+          id: "threeMinute"
+          timeframe: "1Min"
+          options:
+            value: 3
+        - type: "add"
+          id: "0"
+          timeframe: "1D"
+          inputs:
+            SLOT0: "dataDaily#c"
+            SLOT1: "twoDaily#result"
+        - type: "mul"
+          id: "1"
+          timeframe: "1Min"
+          inputs:
+            SLOT0: "dataMinute#c"
+            SLOT1: "threeMinute#result"
+    expect:
+      type: "flow_graph"
+      dataframes:
+        "1D":
+          AAPL:
+            columns: ["0#result", "twoDaily#result", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T00:00:00", "2020-01-02T00:00:00", "2020-01-03T00:00:00"]
+            values: [
+              [4.0, 6.0, 8.0],
+              [2.0, 2.0, 2.0],
+              [2.0, 4.0, 6.0],
+              [4.0, 6.0, 10.0],
+              [1.5, 2.5, 4.5],
+              [1.0, 2.0, 4.0],
+              [1000, 1200, 1500]
+            ]
+          MSFT:
+            columns: ["0#result", "twoDaily#result", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T00:00:00", "2020-01-02T00:00:00", "2020-01-03T00:00:00"]
+            values: [
+              [12.0, 22.0, 32.0],
+              [2.0, 2.0, 2.0],
+              [10.0, 20.0, 30.0],
+              [40.0, 40.0, 40.0],
+              [8.0, 15.0, 25.0],
+              [7.0, 12.0, 20.0],
+              [2000, 2200, 2500]
+            ]
+        "1Min":
+          AAPL:
+            columns: ["1#result", "threeMinute#result", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T09:30:00", "2020-01-01T09:31:00", "2020-01-01T09:32:00"]
+            values: [
+              [15.0, 30.0, 45.0],
+              [3.0, 3.0, 3.0],
+              [5.0, 10.0, 15.0],
+              [6.0, 9.0, 16.0],
+              [4.5, 8.5, 14.5],
+              [4.0, 8.0, 14.0],
+              [100, 120, 150]
+            ]
+          MSFT:
+            columns: ["1#result", "threeMinute#result", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T09:30:00", "2020-01-01T09:31:00", "2020-01-01T09:32:00"]
+            values: [
+              [75.0, 90.0, 105.0],
+              [3.0, 3.0, 3.0],
+              [25.0, 30.0, 35.0],
+              [40.0, 44.0, 48.0],
+              [20.0, 25.0, 30.0],
+              [18.0, 22.0, 28.0],
+              [200, 220, 250]
+            ]
+      tearsheets: {}

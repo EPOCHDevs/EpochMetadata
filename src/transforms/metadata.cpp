@@ -301,6 +301,58 @@ TransformsMetaData MakeValueCompareMetaData(
   return metadata;
 }
 
+TransformsMetaData MakeFirstNonNullMetaData() {
+  return {
+      .id = "first_non_null",
+      .category = epoch_core::TransformCategory::ControlFlow,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "First Non-Null",
+      .options = {},
+      .isCrossSectional = false,
+      .desc = "Returns the first non-null value from the input list. "
+              "Evaluates inputs left to right and returns the first value "
+              "that is not null. If all inputs are null, returns null.",
+      .inputs = {IOMetaData{epoch_core::IODataType::Any, ARG, "", true}}, // VARARGS with allowMultipleConnections
+      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
+      .atLeastOneInputRequired = true,
+      .allowNullInputs = false, // Null handling is the purpose, but inputs themselves are valid arrays (can contain nulls)
+      .strategyTypes = {"conditional-logic", "null-handling"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Handle missing data by falling back to alternative values. "
+                      "Common pattern: first_non_null(primary_signal, backup_signal, default_value). "
+                      "Useful for data quality: use calculated value if available, otherwise use raw data.",
+      .limitations = "All inputs must be compatible types (or Any). Evaluates all inputs even after finding non-null value (not short-circuit)."
+  };
+}
+
+TransformsMetaData MakeConditionalSelectMetaData() {
+  return {
+      .id = "conditional_select",
+      .category = epoch_core::TransformCategory::ControlFlow,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "Conditional Select",
+      .options = {},
+      .isCrossSectional = false,
+      .desc = "SQL-style CASE WHEN selector. Evaluates condition/value pairs "
+              "in order and returns the value for the first true condition. "
+              "Inputs alternate: condition1, value1, condition2, value2, ..., [default]. "
+              "If no conditions match and no default provided, returns null.",
+      .inputs = {IOMetaData{epoch_core::IODataType::Any, ARG, "", true}}, // VARARGS with allowMultipleConnections
+      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
+      .atLeastOneInputRequired = true,
+      .allowNullInputs = false, // Inputs are valid arrays (conditions/values), not null connection slots
+      .strategyTypes = {"conditional-logic", "multi-condition-routing", "regime-switching"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Multi-way conditional logic. Use when you have 3+ conditions. "
+                      "Example: conditional_select(rsi < 30, 'oversold', rsi > 70, 'overbought', rsi < 50, 'weak', 'strong'). "
+                      "Cleaner than nested ternary expressions for complex logic.",
+      .limitations = "Inputs must alternate boolean conditions and values. "
+                     "Final odd input (if present) is default value. "
+                     "All value inputs must be compatible types. "
+                     "Evaluates conditions sequentially - first match wins."
+  };
+}
+
 std::vector<TransformsMetaData> MakeComparativeMetaData() {
   std::vector<TransformsMetaData> metadataList;
 
@@ -345,6 +397,10 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
   for (const auto &op : {"gt", "gte", "lt", "lte", "eq", "neq"}) {
     metadataList.emplace_back(MakeValueCompareMetaData("lowest", op, 14));
   }
+
+  // Selecting/multiplexing functions
+  metadataList.emplace_back(MakeFirstNonNullMetaData());
+  metadataList.emplace_back(MakeConditionalSelectMetaData());
 
   return metadataList;
 }
@@ -1197,5 +1253,272 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
 
   return metadataList;
 }
+
+std::vector<TransformsMetaData> MakeStringTransformMetaData() {
+  std::vector<TransformsMetaData> metadataList;
+
+  // String Case Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_case",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Case",
+      .options = {
+          MetaDataOption{
+              .id = "operation",
+              .name = "Operation",
+              .type = epoch_core::MetaDataOptionType::Select,
+              .defaultValue = MetaDataOptionDefinition("upper"),
+              .selectOption = {
+                  {"upper", "Uppercase"},
+                  {"lower", "Lowercase"},
+                  {"capitalize", "Capitalize First"},
+                  {"title", "Title Case"},
+                  {"swapcase", "Swap Case"}
+              },
+              .desc = "Case transformation to apply"
+          }
+      },
+      .desc = "Convert string case. Upper/lower for full conversion, capitalize for first character only, "
+              "title for titlecase (first char of each word), swapcase to invert case.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+      .tags = {"string", "text", "case", "uppercase", "lowercase"},
+      .strategyTypes = {"text-processing", "data-cleaning"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Normalize text case for comparison or display. Common: uppercase ticker symbols, "
+                      "lowercase for case-insensitive matching, titlecase for labels.",
+      .limitations = "UTF-8 aware. Case rules may vary by locale for some characters."
+  });
+
+  // String Trim Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_trim",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Trim",
+      .options = {
+          MetaDataOption{
+              .id = "operation",
+              .name = "Operation",
+              .type = epoch_core::MetaDataOptionType::Select,
+              .defaultValue = MetaDataOptionDefinition("trim"),
+              .selectOption = {
+                  {"trim", "Trim Both"},
+                  {"trim_left", "Trim Left"},
+                  {"trim_right", "Trim Right"}
+              },
+              .desc = "Which side to trim"
+          },
+          MetaDataOption{
+              .id = "trim_chars",
+              .name = "Characters",
+              .type = epoch_core::MetaDataOptionType::String,
+              .defaultValue = MetaDataOptionDefinition(""),
+              .desc = "Characters to trim (empty = whitespace)"
+          }
+      },
+      .desc = "Remove leading/trailing characters from strings. Default removes whitespace, "
+              "or specify custom characters to remove.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+      .tags = {"string", "text", "trim", "whitespace", "clean"},
+      .strategyTypes = {"text-processing", "data-cleaning"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Clean user input or data with extra whitespace. Remove padding characters.",
+      .limitations = "Only removes from start/end, not middle of string."
+  });
+
+  // String Pad Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_pad",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Pad",
+      .options = {
+          MetaDataOption{
+              .id = "operation",
+              .name = "Operation",
+              .type = epoch_core::MetaDataOptionType::Select,
+              .defaultValue = MetaDataOptionDefinition("pad_left"),
+              .selectOption = {
+                  {"pad_left", "Pad Left"},
+                  {"pad_right", "Pad Right"},
+                  {"center", "Center"}
+              },
+              .desc = "Where to add padding"
+          },
+          MetaDataOption{
+              .id = "width",
+              .name = "Width",
+              .type = epoch_core::MetaDataOptionType::Integer,
+              .defaultValue = MetaDataOptionDefinition(10.0),
+              .min = 0,
+              .desc = "Target string width"
+          },
+          MetaDataOption{
+              .id = "pad_string",
+              .name = "Pad String",
+              .type = epoch_core::MetaDataOptionType::String,
+              .defaultValue = MetaDataOptionDefinition(" "),
+              .desc = "String to use for padding"
+          }
+      },
+      .desc = "Pad strings to a target width. Useful for fixed-width formatting or alignment.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+      .tags = {"string", "text", "pad", "format", "align"},
+      .strategyTypes = {"text-processing", "formatting"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Format strings for fixed-width display, add leading zeros, align text.",
+      .limitations = "Strings already longer than width are unchanged."
+  });
+
+  // String Contains Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_contains",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Contains",
+      .options = {
+          MetaDataOption{
+              .id = "operation",
+              .name = "Operation",
+              .type = epoch_core::MetaDataOptionType::Select,
+              .defaultValue = MetaDataOptionDefinition("contains"),
+              .selectOption = {
+                  {"starts_with", "Starts With"},
+                  {"ends_with", "Ends With"},
+                  {"contains", "Contains"}
+              },
+              .desc = "Type of containment check"
+          },
+          MetaDataOption{
+              .id = "pattern",
+              .name = "Pattern",
+              .type = epoch_core::MetaDataOptionType::String,
+              .defaultValue = MetaDataOptionDefinition(""),
+              .desc = "Pattern to search for"
+          }
+      },
+      .desc = "Check if strings contain, start with, or end with a pattern. Returns boolean.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA},
+      .tags = {"string", "text", "search", "pattern", "boolean"},
+      .strategyTypes = {"text-processing", "filtering"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Filter strings by pattern, check prefixes/suffixes. Common: ticker symbol patterns, "
+                      "file extensions, category prefixes.",
+      .limitations = "Case-sensitive matching. Use string_case first for case-insensitive checks."
+  });
+
+  // String Check Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_check",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Check",
+      .options = {
+          MetaDataOption{
+              .id = "operation",
+              .name = "Operation",
+              .type = epoch_core::MetaDataOptionType::Select,
+              .defaultValue = MetaDataOptionDefinition("is_alpha"),
+              .selectOption = {
+                  {"is_alpha", "Is Alphabetic"},
+                  {"is_digit", "Is Digit"},
+                  {"is_alnum", "Is Alphanumeric"},
+                  {"is_numeric", "Is Numeric"},
+                  {"is_decimal", "Is Decimal"},
+                  {"is_upper", "Is Uppercase"},
+                  {"is_lower", "Is Lowercase"},
+                  {"is_title", "Is Title Case"},
+                  {"is_space", "Is Whitespace"},
+                  {"is_printable", "Is Printable"},
+                  {"is_ascii", "Is ASCII"}
+              },
+              .desc = "Character type to check"
+          }
+      },
+      .desc = "Check character types in strings. Returns boolean indicating if all characters match the type.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA},
+      .tags = {"string", "text", "validate", "type", "boolean"},
+      .strategyTypes = {"text-processing", "validation"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Validate data types, check formatting. Example: verify field is numeric before conversion, "
+                      "check if ticker is uppercase, validate input format.",
+      .limitations = "Checks ALL characters in string. Empty strings may return unexpected results for some checks."
+  });
+
+  // String Replace Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_replace",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Replace",
+      .options = {
+          MetaDataOption{
+              .id = "pattern",
+              .name = "Pattern",
+              .type = epoch_core::MetaDataOptionType::String,
+              .defaultValue = MetaDataOptionDefinition(""),
+              .desc = "Substring to find"
+          },
+          MetaDataOption{
+              .id = "replacement",
+              .name = "Replacement",
+              .type = epoch_core::MetaDataOptionType::String,
+              .defaultValue = MetaDataOptionDefinition(""),
+              .desc = "Replacement string"
+          }
+      },
+      .desc = "Replace all occurrences of a substring with another string.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+      .tags = {"string", "text", "replace", "substitute"},
+      .strategyTypes = {"text-processing", "data-cleaning"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Clean or normalize text data. Remove/replace unwanted characters, standardize formats.",
+      .limitations = "Replaces ALL occurrences. Case-sensitive matching."
+  });
+
+  // String Length Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_length",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Length",
+      .options = {},
+      .desc = "Get the length of a string in UTF-8 characters. Returns integer.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::INTEGER_OUTPUT_METADATA},
+      .tags = {"string", "text", "length", "size", "count"},
+      .strategyTypes = {"text-processing", "metrics"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Filter by length, validate input size, analyze text data.",
+      .limitations = "Counts UTF-8 codepoints, not bytes. Multi-byte characters count as 1."
+  });
+
+  // String Reverse Transform
+  metadataList.emplace_back(TransformsMetaData{
+      .id = "string_reverse",
+      .category = epoch_core::TransformCategory::Utility,
+      .plotKind = epoch_core::TransformPlotKind::Null,
+      .name = "String Reverse",
+      .options = {},
+      .desc = "Reverse the order of characters in a string.",
+      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
+      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
+      .tags = {"string", "text", "reverse"},
+      .strategyTypes = {"text-processing"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Specialized text processing, palindrome detection, string manipulation.",
+      .limitations = "Reverses codepoint order. May not preserve grapheme clusters correctly for complex scripts."
+  });
+
+  return metadataList;
+}
+
 
 } // namespace epoch_metadata::transforms

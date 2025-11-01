@@ -1,4 +1,4 @@
-target_sources(epoch_metadata_test PRIVATE
+target_sources(epoch_flow_test PRIVATE
         dataframe_tester.cpp
         registrations_test.cpp
         tearsheet_output.cpp
@@ -6,7 +6,7 @@ target_sources(epoch_metadata_test PRIVATE
         transform_tester_base.cpp
         transforms_metadata_test.cpp)
 
-target_compile_definitions(epoch_metadata_test PRIVATE
+target_compile_definitions(epoch_flow_test PRIVATE
         -DGLZ_ENABLE_JSON_PRETTY_PRINT)
 
 # Copy test case files (JSON only) to runtime output directory

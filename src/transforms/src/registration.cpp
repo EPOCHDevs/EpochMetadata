@@ -22,6 +22,10 @@
 #include "price_actions/smc/session_time_window.h"
 #include "price_actions/smc/swing_highs_lows.h"
 #include "statistics/hmm.h"
+#include "hosseinmoein/statistics/rolling_corr.h"
+#include "hosseinmoein/statistics/rolling_cov.h"
+#include "hosseinmoein/statistics/ewm_corr.h"
+#include "hosseinmoein/statistics/ewm_cov.h"
 
 // Chart Formation Pattern Transforms
 #include "price_actions/infrastructure/flexible_pivot_detector.h"
@@ -36,6 +40,9 @@
 
 // Calendar Effects
 #include "calendar/calendar_effect.h"
+
+// String Operations
+#include "string/string_operations.h"
 
 // Data Source includes
 #include "data_sources/polygon_data_source.h"
@@ -113,6 +120,16 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(log10e, Log10EScalar);
   REGISTER_TRANSFORM(null, NullScalar);
 
+  // String Transforms
+  REGISTER_TRANSFORM(string_case, StringCaseTransform);
+  REGISTER_TRANSFORM(string_trim, StringTrimTransform);
+  REGISTER_TRANSFORM(string_pad, StringPadTransform);
+  REGISTER_TRANSFORM(string_contains, StringContainsTransform);
+  REGISTER_TRANSFORM(string_check, StringCheckTransform);
+  REGISTER_TRANSFORM(string_replace, StringReplaceTransform);
+  REGISTER_TRANSFORM(string_length, StringLengthTransform);
+  REGISTER_TRANSFORM(string_reverse, StringReverseTransform);
+
   // Vector Transforms
   REGISTER_TRANSFORM(gt, VectorGT);
   REGISTER_TRANSFORM(gte, VectorGTE);
@@ -132,6 +149,8 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(select_3, Select3);
   REGISTER_TRANSFORM(select_4, Select4);
   REGISTER_TRANSFORM(select_5, Select5);
+  REGISTER_TRANSFORM(first_non_null, FirstNonNullTransform);
+  REGISTER_TRANSFORM(conditional_select, ConditionalSelectTransform);
 
   REGISTER_TRANSFORM(previous_gt, GreaterThanPrevious);
   REGISTER_TRANSFORM(previous_gte, GreaterThanOrEqualsPrevious);
@@ -254,6 +273,12 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(vortex, Vortex);
   REGISTER_TRANSFORM(zscore, ZScore);
 
+  // Statistical Transforms
+  REGISTER_TRANSFORM(rolling_corr, RollingCorr);
+  REGISTER_TRANSFORM(rolling_cov, RollingCov);
+  REGISTER_TRANSFORM(ewm_corr, EWMCorr);
+  REGISTER_TRANSFORM(ewm_cov, EWMCov);
+
   REGISTER_TRANSFORM(trade_executor_adapter, TradeExecutorAdapter);
   REGISTER_TRANSFORM(trade_signal_executor, TradeExecutorTransform);
 
@@ -288,11 +313,11 @@ void InitializeTransforms(
   transforms::ITransformRegistry::GetInstance().Register(
     SelectorMetadata::Get());
 
-  // SQL Query Transforms (1-4 outputs)
-  REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
-  REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
-  REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
-  REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
+  // SQL Query Transforms (1-4 outputs) - DISABLED
+  // REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
+  // REGISTER_TRANSFORM(sql_query_2, SQLQueryTransform2);
+  // REGISTER_TRANSFORM(sql_query_3, SQLQueryTransform3);
+  // REGISTER_TRANSFORM(sql_query_4, SQLQueryTransform4);
 
   // Register Reports
   reports::RegisterReport<reports::NumericCardReport>();

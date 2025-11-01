@@ -1,0 +1,72 @@
+# Tearsheet test with gap analysis
+data_sources:
+  price_data: "datasets/gap_data.yaml"
+
+tests:
+  - title: "Gap analysis with tearsheet generation"
+    assets: ["AAPL", "MSFT"]
+    timeframes: ["15Min"]
+    configuration:
+      transforms:
+        - type: "market_data_source"
+          id: "data"
+          timeframe: "15Min"
+        - type: "gap_classify"
+          id: "gap_classifier"
+          timeframe: "15Min"
+          options:
+            fill_percent: 100
+        - type: "gap_report"
+          id: "gap_analysis"
+          timeframe: "15Min"
+          inputs:
+            gap_up: "gap_classifier#gap_up"
+            fill_fraction: "gap_classifier#fill_fraction"
+            gap_size: "gap_classifier#gap_size"
+            psc: "gap_classifier#psc"
+            psc_timestamp: "gap_classifier#psc_timestamp"
+          options:
+            show_fill_analysis: true
+            show_day_of_week_analysis: true
+            show_fill_time_analysis: true
+            show_performance_analysis: true
+            show_streak_analysis: true
+            show_distribution_histogram: true
+            histogram_bins: 10
+    expect:
+      type: "flow_graph"
+      dataframes:
+        "15Min":
+          AAPL:
+            columns: ["gap_classifier#psc_timestamp", "gap_classifier#psc", "gap_classifier#gap_size", "gap_classifier#gap_filled", "gap_classifier#gap_up", "gap_classifier#fill_fraction", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T13:30:00", "2020-01-01T20:00:00", "2020-01-02T09:30:00", "2020-01-02T16:00:00"]
+            values: [
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [100.0, 102.5, 99.5, 101.0],
+              [105.0, 107.0, 100.0, 108.0],
+              [98.0, 99.0, 95.0, 99.5],
+              [101.0, 105.0, 97.0, 106.5],
+              [1000000, 1500000, 2000000, 1200000]
+            ]
+          MSFT:
+            columns: ["gap_classifier#psc_timestamp", "gap_classifier#psc", "gap_classifier#gap_size", "gap_classifier#gap_filled", "gap_classifier#gap_up", "gap_classifier#fill_fraction", "c", "h", "o", "l", "v"]
+            timestamps: ["2020-01-01T13:30:00", "2020-01-01T20:00:00", "2020-01-02T09:30:00", "2020-01-02T16:00:00"]
+            values: [
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [~, ~, ~, ~],
+              [200.0, 203.0, 195.0, 210.0],
+              [205.0, 208.0, 200.0, 215.0],
+              [195.0, 198.0, 190.0, 205.0],
+              [202.0, 206.0, 193.0, 212.0],
+              [800000, 1100000, 1800000, 900000]
+            ]
+      tearsheets: {}

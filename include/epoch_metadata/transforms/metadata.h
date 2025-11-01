@@ -270,6 +270,7 @@ std::vector<TransformsMetaData> MakeTulipCandles();
 std::vector<TransformsMetaData> MakeLagMetaData();
 std::vector<TransformsMetaData> MakeChartFormationMetaData();
 std::vector<TransformsMetaData> MakeCalendarEffectMetaData();
+std::vector<TransformsMetaData> MakeStringTransformMetaData();
 } // namespace epoch_metadata::transforms
 
 // Forward declarations for data source metadata factories

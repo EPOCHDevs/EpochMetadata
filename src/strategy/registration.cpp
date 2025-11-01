@@ -11,7 +11,7 @@
 #include "epoch_metadata/strategy/registry.h"
 #include "epoch_metadata/strategy/strategy_config.h"
 #include "epoch_metadata/transforms/registration.h"
-#include "epochflow/compiler/ast_compiler.h"
+#include "compiler/compiler/ast_compiler.h"
 #include <unordered_map>
 
 namespace epoch_metadata::strategy

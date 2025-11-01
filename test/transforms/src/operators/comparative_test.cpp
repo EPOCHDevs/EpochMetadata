@@ -953,3 +953,197 @@ TEST_CASE("Type Casting in Equality Operators", "[equality][type_cast]") {
     REQUIRE(output.equals(expected));
   }
 }
+
+TEST_CASE("FirstNonNull Transform (Coalesce)") {
+  auto index = epoch_frame::factory::index::make_datetime_index(
+      {epoch_frame::DateTime{2020y, std::chrono::January, 1d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 2d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 3d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 4d}});
+
+  SECTION("Basic coalesce - returns first non-null") {
+    // Create DataFrame with nulls in first column (using NaN for null)
+    std::vector<std::vector<double>> data = {
+        {std::nan(""), 5.0, std::nan(""), std::nan("")},  // SLOT0
+        {std::nan(""), std::nan(""), 10.0, 15.0},  // SLOT1
+        {20.0, 25.0, 30.0, 35.0}   // SLOT2
+    };
+    epoch_frame::DataFrame input = make_dataframe<double>(index, data, {"SLOT0", "SLOT1", "SLOT2"});
+
+    TransformConfiguration config = first_non_null(
+        200, {"SLOT0", "SLOT1", "SLOT2"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // Expected: first non-null from each row
+    // Row 0: SLOT0=null, SLOT1=null, SLOT2=20.0 => 20.0
+    // Row 1: SLOT0=5.0, ... => 5.0
+    // Row 2: SLOT0=null, SLOT1=10.0, ... => 10.0
+    // Row 3: SLOT0=null, SLOT1=15.0, ... => 15.0
+    epoch_frame::DataFrame expected = make_dataframe<double>(
+        index, {{20.0, 5.0, 10.0, 15.0}}, {"200#result"});
+
+    INFO("First non-null test:\n" << output << "\n!=\n" << expected);
+    REQUIRE(output.equals(expected));
+  }
+
+  SECTION("All nulls - returns null") {
+    std::vector<std::vector<double>> data = {
+        {std::nan(""), std::nan(""), std::nan(""), std::nan("")},  // SLOT0
+        {std::nan(""), std::nan(""), std::nan(""), std::nan("")},  // SLOT1
+        {std::nan(""), std::nan(""), std::nan(""), std::nan("")}   // SLOT2
+    };
+    epoch_frame::DataFrame input = make_dataframe<double>(index, data, {"SLOT0", "SLOT1", "SLOT2"});
+
+    TransformConfiguration config = first_non_null(
+        201, {"SLOT0", "SLOT1", "SLOT2"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // All nulls => result should be null
+    auto result_series = output["201#result"];
+    REQUIRE(result_series.array()->null_count() == 4);
+  }
+
+  SECTION("First column has values - returns first column") {
+    epoch_frame::DataFrame input = make_dataframe<double>(
+        index,
+        {
+            {1.0, 2.0, 3.0, 4.0},    // SLOT0
+            {10.0, 20.0, 30.0, 40.0},  // SLOT1
+            {100.0, 200.0, 300.0, 400.0}  // SLOT2
+        },
+        {"SLOT0", "SLOT1", "SLOT2"});
+
+    TransformConfiguration config = first_non_null(
+        202, {"SLOT0", "SLOT1", "SLOT2"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // All values in SLOT0 are non-null, so should return SLOT0
+    epoch_frame::DataFrame expected = make_dataframe<double>(
+        index, {{1.0, 2.0, 3.0, 4.0}}, {"202#result"});
+
+    INFO("First column values:\n" << output << "\n!=\n" << expected);
+    REQUIRE(output.equals(expected));
+  }
+}
+
+TEST_CASE("ConditionalSelect Transform (Case When)") {
+  auto index = epoch_frame::factory::index::make_datetime_index(
+      {epoch_frame::DateTime{2020y, std::chrono::January, 1d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 2d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 3d},
+       epoch_frame::DateTime{2020y, std::chrono::January, 4d}});
+
+  SECTION("Basic case when - first condition matches") {
+    using epoch_frame::Scalar;
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {Scalar(true), Scalar(false), Scalar(false), Scalar(false)},  // SLOT0 - condition1
+            {10.0_scalar, 20.0_scalar, 30.0_scalar, 40.0_scalar},  // SLOT1 - value1
+            {Scalar(false), Scalar(false), Scalar(false), Scalar(false)},  // SLOT2 - condition2
+            {100.0_scalar, 200.0_scalar, 300.0_scalar, 400.0_scalar}  // SLOT3 - value2
+        },
+        {arrow::field("SLOT0", arrow::boolean()),
+         arrow::field("SLOT1", arrow::float64()),
+         arrow::field("SLOT2", arrow::boolean()),
+         arrow::field("SLOT3", arrow::float64())});
+
+    TransformConfiguration config = conditional_select(
+        300, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // Row 0: condition1=true => value1=10.0
+    // Rows 1-3: both conditions false => null (no default)
+    std::vector<std::vector<double>> expected_data = {{10.0, std::nan(""), std::nan(""), std::nan("")}};
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"300#result"});
+
+    INFO("First condition matches:\n" << output << "\n!=\n" << expected);
+    REQUIRE(output.equals(expected));
+  }
+
+  SECTION("Second condition matches") {
+    using epoch_frame::Scalar;
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {Scalar(false), Scalar(false), Scalar(true), Scalar(false)},  // SLOT0 - condition1
+            {10.0_scalar, 20.0_scalar, 30.0_scalar, 40.0_scalar},  // SLOT1 - value1
+            {Scalar(false), Scalar(true), Scalar(false), Scalar(true)},   // SLOT2 - condition2
+            {100.0_scalar, 200.0_scalar, 300.0_scalar, 400.0_scalar}  // SLOT3 - value2
+        },
+        {arrow::field("SLOT0", arrow::boolean()),
+         arrow::field("SLOT1", arrow::float64()),
+         arrow::field("SLOT2", arrow::boolean()),
+         arrow::field("SLOT3", arrow::float64())});
+
+    TransformConfiguration config = conditional_select(
+        301, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // Row 0: both false => null
+    // Row 1: condition2=true => value2=200.0
+    // Row 2: condition1=true => value1=30.0 (first match wins)
+    // Row 3: condition2=true => value2=400.0
+    std::vector<std::vector<double>> expected_data = {{std::nan(""), 200.0, 30.0, 400.0}};
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"301#result"});
+
+    INFO("Second condition matches:\n" << output << "\n!=\n" << expected);
+    REQUIRE(output.equals(expected));
+  }
+
+  SECTION("With default value") {
+    using epoch_frame::Scalar;
+    epoch_frame::DataFrame input = make_dataframe(
+        index,
+        {
+            {Scalar(false), Scalar(true), Scalar(false), Scalar(false)},  // SLOT0 - condition1
+            {10.0_scalar, 20.0_scalar, 30.0_scalar, 40.0_scalar},  // SLOT1 - value1
+            {Scalar(false), Scalar(false), Scalar(true), Scalar(false)},  // SLOT2 - condition2
+            {100.0_scalar, 200.0_scalar, 300.0_scalar, 400.0_scalar},  // SLOT3 - value2
+            {999.0_scalar, 999.0_scalar, 999.0_scalar, 999.0_scalar}   // SLOT4 - default
+        },
+        {arrow::field("SLOT0", arrow::boolean()),
+         arrow::field("SLOT1", arrow::float64()),
+         arrow::field("SLOT2", arrow::boolean()),
+         arrow::field("SLOT3", arrow::float64()),
+         arrow::field("SLOT4", arrow::float64())});
+
+    TransformConfiguration config = conditional_select(
+        302, {"SLOT0", "SLOT1", "SLOT2", "SLOT3", "SLOT4"},
+        epoch_metadata::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    epoch_frame::DataFrame output = transform->TransformData(input);
+
+    // Row 0: both false => default=999.0
+    // Row 1: condition1=true => value1=20.0
+    // Row 2: condition2=true => value2=300.0
+    // Row 3: both false => default=999.0
+    std::vector<std::vector<double>> expected_data = {{999.0, 20.0, 300.0, 999.0}};
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"302#result"});
+
+    INFO("With default value:\n" << output << "\n!=\n" << expected);
+    REQUIRE(output.equals(expected));
+  }
+}

@@ -7,6 +7,7 @@
 #include <epoch_frame/datetime.h>
 #include <epoch_metadata/strategy/metadata.h>
 #include <epoch_metadata/transforms/metadata.h>
+#include <epoch_metadata/transforms/registry.h>
 #include <yaml-cpp/yaml.h>
 
 namespace epoch_metadata {
@@ -25,7 +26,14 @@ struct TransformDefinitionData {
 struct TransformDefinition {
 public:
   explicit TransformDefinition(TransformDefinitionData data)
-      : m_data(std::move(data)) {}
+      : m_data(std::move(data)) {
+    // Auto-fill metadata from registry if not provided
+    if (m_data.metaData.id.empty()) {
+      auto metaDataPtr = epoch_metadata::transforms::ITransformRegistry::GetInstance().GetMetaData(m_data.type);
+      AssertFromStream(metaDataPtr, "Invalid Transform: " << m_data.type);
+      m_data.metaData = *metaDataPtr;
+    }
+  }
   explicit TransformDefinition(YAML::Node const &node);
   TransformDefinition(epoch_metadata::strategy::AlgorithmNode const &algorithm,
                       std::optional<epoch_metadata::TimeFrame> timeframe);

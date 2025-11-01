@@ -41,12 +41,28 @@ TEST_CASE("Form 13F Holdings Configuration", "[sec][form13f]") {
   auto metadataList = MakeSECDataSources();
   auto& form13f = metadataList[0];
 
-  SECTION("Has no options (ticker and dates provided by orchestrator)") {
-    REQUIRE(form13f.options.empty());
+  SECTION("Has correct options") {
+    REQUIRE(form13f.options.size() == 3);
+
+    // filing_type option
+    REQUIRE(form13f.options[0].id == "filing_type");
+    REQUIRE(form13f.options[0].name == "Filing Type");
+    REQUIRE(form13f.options[0].type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(form13f.options[0].selectOption.size() == 5);
+
+    // min_value option
+    REQUIRE(form13f.options[1].id == "min_value");
+    REQUIRE(form13f.options[1].name == "Minimum Position Value");
+    REQUIRE(form13f.options[1].type == epoch_core::MetaDataOptionType::Decimal);
+
+    // institution_cik option
+    REQUIRE(form13f.options[2].id == "institution_cik");
+    REQUIRE(form13f.options[2].name == "Institution CIK");
+    REQUIRE(form13f.options[2].type == epoch_core::MetaDataOptionType::String);
   }
 
   SECTION("Has correct output fields") {
-    REQUIRE(form13f.outputs.size() == 7);
+    REQUIRE(form13f.outputs.size() == 6);
 
     // Shares
     REQUIRE(form13f.outputs[0].id == "shares");
@@ -61,12 +77,12 @@ TEST_CASE("Form 13F Holdings Configuration", "[sec][form13f]") {
 
     // Security Type
     REQUIRE(form13f.outputs[2].id == "security_type");
-    REQUIRE(form13f.outputs[2].name == "Security Type");
+    REQUIRE(form13f.outputs[2].name == "Security Type (SH/PRN)");
     REQUIRE(form13f.outputs[2].type == epoch_core::IODataType::String);
 
     // Investment Discretion
     REQUIRE(form13f.outputs[3].id == "investment_discretion");
-    REQUIRE(form13f.outputs[3].name == "Investment Discretion");
+    REQUIRE(form13f.outputs[3].name == "Investment Discretion (SOLE/SHARED/DFND)");
     REQUIRE(form13f.outputs[3].type == epoch_core::IODataType::String);
 
     // Institution Name
@@ -74,15 +90,10 @@ TEST_CASE("Form 13F Holdings Configuration", "[sec][form13f]") {
     REQUIRE(form13f.outputs[4].name == "Institution Name");
     REQUIRE(form13f.outputs[4].type == epoch_core::IODataType::String);
 
-    // Filing Date
-    REQUIRE(form13f.outputs[5].id == "filing_date");
-    REQUIRE(form13f.outputs[5].name == "Filing Date");
-    REQUIRE(form13f.outputs[5].type == epoch_core::IODataType::String);
-
-    // Period End
-    REQUIRE(form13f.outputs[6].id == "period_end");
-    REQUIRE(form13f.outputs[6].name == "Reporting Period End");
-    REQUIRE(form13f.outputs[6].type == epoch_core::IODataType::String);
+    // Period End (now Timestamp type, filing_date removed as it's the index)
+    REQUIRE(form13f.outputs[5].id == "period_end");
+    REQUIRE(form13f.outputs[5].name == "Reporting Period End (Quarter End Date)");
+    REQUIRE(form13f.outputs[5].type == epoch_core::IODataType::Timestamp);
   }
 
   SECTION("Has no input fields") {
@@ -162,16 +173,23 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
   auto& insiderTrading = metadataList[1];
 
   SECTION("Has correct options") {
-    REQUIRE(insiderTrading.options.size() == 1);
+    REQUIRE(insiderTrading.options.size() == 4);
 
-    // Transaction Code SelectOption (ticker and dates provided by orchestrator)
-    auto& transactionCodeOption = insiderTrading.options[0];
+    // filing_type option
+    auto& filingTypeOption = insiderTrading.options[0];
+    REQUIRE(filingTypeOption.id == "filing_type");
+    REQUIRE(filingTypeOption.name == "Filing Type");
+    REQUIRE(filingTypeOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(filingTypeOption.selectOption.size() == 5);
+
+    // transaction_code option
+    auto& transactionCodeOption = insiderTrading.options[1];
     REQUIRE(transactionCodeOption.id == "transaction_code");
     REQUIRE(transactionCodeOption.name == "Transaction Type");
     REQUIRE(transactionCodeOption.type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(transactionCodeOption.selectOption.size() == 5);
+    REQUIRE(transactionCodeOption.selectOption.size() == 12);
 
-    // Verify transaction code options
+    // Verify key transaction code options
     auto hasAll = std::any_of(transactionCodeOption.selectOption.begin(),
                              transactionCodeOption.selectOption.end(),
                              [](const auto& opt) { return opt.value == "All"; });
@@ -193,15 +211,27 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
     REQUIRE(hasSale);
     REQUIRE(hasAward);
     REQUIRE(hasExercise);
+
+    // min_value option
+    auto& minValueOption = insiderTrading.options[2];
+    REQUIRE(minValueOption.id == "min_value");
+    REQUIRE(minValueOption.name == "Minimum Transaction Value");
+    REQUIRE(minValueOption.type == epoch_core::MetaDataOptionType::Decimal);
+
+    // owner_name option
+    auto& ownerNameOption = insiderTrading.options[3];
+    REQUIRE(ownerNameOption.id == "owner_name");
+    REQUIRE(ownerNameOption.name == "Insider Name");
+    REQUIRE(ownerNameOption.type == epoch_core::MetaDataOptionType::String);
   }
 
   SECTION("Has correct output fields") {
-    REQUIRE(insiderTrading.outputs.size() == 7);
+    REQUIRE(insiderTrading.outputs.size() == 6);
 
-    // Transaction Date
+    // Transaction Date (now Timestamp type)
     REQUIRE(insiderTrading.outputs[0].id == "transaction_date");
-    REQUIRE(insiderTrading.outputs[0].name == "Transaction Date");
-    REQUIRE(insiderTrading.outputs[0].type == epoch_core::IODataType::String);
+    REQUIRE(insiderTrading.outputs[0].name == "Transaction Date (When Trade Occurred)");
+    REQUIRE(insiderTrading.outputs[0].type == epoch_core::IODataType::Timestamp);
     REQUIRE(insiderTrading.outputs[0].allowMultipleConnections == true);
 
     // Owner Name
@@ -229,10 +259,7 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
     REQUIRE(insiderTrading.outputs[5].name == "Ownership After Transaction");
     REQUIRE(insiderTrading.outputs[5].type == epoch_core::IODataType::Decimal);
 
-    // Filing Date
-    REQUIRE(insiderTrading.outputs[6].id == "filing_date");
-    REQUIRE(insiderTrading.outputs[6].name == "Filing Date");
-    REQUIRE(insiderTrading.outputs[6].type == epoch_core::IODataType::String);
+    // Note: filing_date removed as it's the DataFrame index, not an output column
   }
 
   SECTION("Has no input fields") {

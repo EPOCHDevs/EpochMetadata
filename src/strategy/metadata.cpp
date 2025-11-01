@@ -7,7 +7,7 @@
 #include "epoch_metadata/transforms/registry.h"
 #include "epoch_metadata/transforms/metadata.h"
 #include "epoch_metadata/transforms/registration.h"
-#include "epochflow/compiler/ast_compiler.h"
+#include "compiler/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>
 #include <glaze/json/json_concepts.hpp>

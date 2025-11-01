@@ -48,6 +48,7 @@ endif ()
 if (BUILD_TEST)
     # Find Catch2 for both tests and benchmarks
     find_package(Catch2 3 REQUIRED)
+    find_package(trompeloeil CONFIG REQUIRED)
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
     enable_testing()
@@ -62,6 +63,8 @@ include(${PROJECT_SOURCE_DIR}/cmake/TreeSitter.cmake)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(DataFrame CONFIG REQUIRED)
 find_package(Armadillo CONFIG REQUIRED)
+find_package(TBB CONFIG REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 
 add_library(epoch_metadata "")
 add_library(epoch::metadata ALIAS epoch_metadata)
@@ -96,7 +99,8 @@ target_link_libraries(epoch_metadata PUBLIC
        yaml-cpp::yaml-cpp
        libmpdec++
        libmpdec
-       tulip_indicators)
+       tulip_indicators
+       TBB::tbb)
 
 add_subdirectory(src)
 

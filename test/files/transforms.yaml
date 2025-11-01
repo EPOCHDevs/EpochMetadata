@@ -1062,6 +1062,110 @@ psl:
   requiresTimeFrame: true
   requiredDataSources: ["o", "c"]
 
+rolling_corr:
+  name: Rolling Correlation
+  desc: "Calculates Pearson correlation coefficient between two series over a rolling window. Values range from -1 (perfect negative correlation) to +1 (perfect positive correlation), with 0 indicating no linear relationship."
+  usageContext: "Use for lead-lag analysis, pairs trading, and cross-asset relationship monitoring. Track evolving correlation between assets for pair selection, hedge effectiveness, or diversification analysis. Common use: rolling correlation between stock and sector index to detect beta changes, or between two assets in pairs trading to identify correlation breakdowns."
+  strategyTypes: ["pairs-trading", "lead-lag-analysis", "correlation-trading", "hedge-analysis", "cross-asset"]
+  relatedTransforms: ["rolling_cov", "linear_fit", "ewm_corr", "lag"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Only detects linear relationships - may miss non-linear dependencies. Window size critical: too small creates noise, too large misses regime changes. Sensitive to outliers. Correlation doesn't imply causation. Non-stationary series can show spurious correlations."
+  inputs:
+    - { type: Decimal, id: "x", name: "Series X", allowMultipleConnections: false }
+    - { type: Decimal, id: "y", name: "Series Y", allowMultipleConnections: false }
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 20
+      min: 3
+      max: 500
+      desc: "Rolling window size for correlation calculation"
+      tuningGuidance: "Minimum 10-20 bars for stable estimates. Use 20-50 for tactical correlation (daily regime changes), 60-120 for strategic allocation (monthly trends). Larger windows (200+) for long-term relationship analysis. Balance stability vs responsiveness to regime shifts."
+  outputs:
+    - { type: Decimal, id: "correlation", name: "Correlation" }
+  tags: ["statistics", "correlation", "rolling", "cross-asset", "pairs-trading", "relationship"]
+  category: Statistical
+  plotKind: panel_line
+
+rolling_cov:
+  name: Rolling Covariance
+  desc: "Calculates covariance between two series over a rolling window. Measures how two variables move together, without normalization like correlation. Units are in product of the input series units."
+  usageContext: "Use for risk management, portfolio optimization, and understanding joint variability. Unlike correlation, covariance preserves magnitude information useful for portfolio variance calculations. Common use: covariance matrix construction for mean-variance optimization, or risk factor analysis where absolute comovement matters."
+  strategyTypes: ["risk-management", "portfolio-optimization", "factor-analysis", "variance-analysis"]
+  relatedTransforms: ["rolling_corr", "ewm_cov", "linear_fit"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Not normalized - values depend on input scales, making comparison across different asset pairs difficult. Use rolling_corr for standardized relationship measure. Sensitive to outliers. Requires series to be somewhat stationary for meaningful results."
+  inputs:
+    - { type: Decimal, id: "x", name: "Series X", allowMultipleConnections: false }
+    - { type: Decimal, id: "y", name: "Series Y", allowMultipleConnections: false }
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 20
+      min: 3
+      max: 500
+      desc: "Rolling window size for covariance calculation"
+      tuningGuidance: "Minimum 10-20 bars for stable estimates. Use 20-60 for tactical risk management, 120-252 for strategic portfolio allocation. Larger windows provide smoother estimates but lag regime changes."
+  outputs:
+    - { type: Decimal, id: "covariance", name: "Covariance" }
+  tags: ["statistics", "covariance", "rolling", "cross-asset", "risk-management", "portfolio"]
+  category: Statistical
+  plotKind: panel_line
+
+ewm_corr:
+  name: Exponentially Weighted Moving Correlation
+  desc: "Calculates correlation between two series using exponential weighting, giving more weight to recent observations. Adapts faster to regime changes than simple rolling correlation while maintaining stability."
+  usageContext: "Use when you need correlation estimates that adapt to changing market regimes faster than rolling windows. Ideal for dynamic hedging where recent correlation matters more than historical. Exponential weighting provides smooth adaptation without abrupt window edge effects."
+  strategyTypes: ["adaptive-hedging", "dynamic-pairs-trading", "regime-sensitive-correlation", "real-time-risk"]
+  relatedTransforms: ["rolling_corr", "ewm_cov", "linear_fit"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Span parameter requires tuning - too low creates noise, too high lags regime changes. No clear lookback period like rolling windows, making interpretation less intuitive. Early values (first 10-20 bars) are unstable. Still only captures linear relationships."
+  inputs:
+    - { type: Decimal, id: "x", name: "Series X", allowMultipleConnections: false }
+    - { type: Decimal, id: "y", name: "Series Y", allowMultipleConnections: false }
+  options:
+    - id: span
+      name: Span
+      type: Integer
+      default: 20
+      min: 2
+      max: 500
+      desc: "Span for exponential weighting (decay = 2/(1+span)). Higher values give more weight to history."
+      tuningGuidance: "Use span=10-20 for fast adaptation to correlation shifts (tactical trading). Use span=30-60 for balanced responsiveness and stability. Use span=100+ for strategic allocation with smooth estimates. Roughly equivalent to rolling window of span/2 bars but smoother."
+  outputs:
+    - { type: Decimal, id: "correlation", name: "Correlation" }
+  tags: ["statistics", "correlation", "exponential-weighted", "adaptive", "cross-asset", "dynamic"]
+  category: Statistical
+  plotKind: panel_line
+
+ewm_cov:
+  name: Exponentially Weighted Moving Covariance
+  desc: "Calculates covariance between two series using exponential weighting, emphasizing recent observations while smoothly incorporating history. Adapts faster than rolling covariance to changing relationships."
+  usageContext: "Use for adaptive risk models where recent comovement is more relevant than distant history. Ideal for real-time portfolio risk monitoring, dynamic hedging ratio calculation, or fast-adapting risk parity strategies. Exponential weighting provides continuous adaptation without the edge effects of rolling windows."
+  strategyTypes: ["adaptive-risk-management", "dynamic-hedging", "real-time-portfolio-risk", "risk-parity"]
+  relatedTransforms: ["rolling_cov", "ewm_corr", "rolling_corr"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Not normalized - depends on input scales. Use ewm_corr for standardized measure. Span parameter requires tuning. Early values unstable. No intuitive lookback period like rolling windows."
+  inputs:
+    - { type: Decimal, id: "x", name: "Series X", allowMultipleConnections: false }
+    - { type: Decimal, id: "y", name: "Series Y", allowMultipleConnections: false }
+  options:
+    - id: span
+      name: Span
+      type: Integer
+      default: 20
+      min: 2
+      max: 500
+      desc: "Span for exponential weighting (decay = 2/(1+span)). Higher values give more weight to history."
+      tuningGuidance: "Use span=10-20 for fast-adapting risk models. Use span=30-60 for balanced adaptation. Use span=100+ for strategic risk analysis with smooth estimates. Roughly corresponds to rolling window of span/2 bars but with smoother transitions."
+  outputs:
+    - { type: Decimal, id: "covariance", name: "Covariance" }
+  tags: ["statistics", "covariance", "exponential-weighted", "adaptive", "cross-asset", "risk-management"]
+  category: Statistical
+  plotKind: panel_line
+
 qqe:
   name: Quantitative Qualitative Estimation
   desc: "Enhanced RSI-based indicator with smoothing and adaptive bands. Generates potential trading signals when price crosses the upper or lower threshold lines."

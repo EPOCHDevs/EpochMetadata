@@ -31,7 +31,8 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(epoch_metadata::transform::MakeForwardReturnsMetaData());
   metaDataList.emplace_back(MakeChartFormationMetaData());
   metaDataList.emplace_back(MakeCalendarEffectMetaData());
-  metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData());
+  metaDataList.emplace_back(MakeStringTransformMetaData());
+  // metaDataList.emplace_back(epoch_metadata::transform::MakeSQLQueryMetaData()); // DISABLED
   metaDataList.emplace_back(epoch_metadata::transform::MakePolygonDataSources());
   metaDataList.emplace_back(epoch_metadata::transform::MakePolygonIndicesDataSources());
   metaDataList.emplace_back(epoch_metadata::transform::MakeFREDDataSource());
