@@ -1,0 +1,81 @@
+[
+  {
+    "id": "concurrent_corr",
+    "type": "rolling_corr",
+    "options": {
+      "window": 20
+    },
+    "inputs": {
+      "x": [
+        "crypto_vol#result"
+      ],
+      "y": [
+        "tech_dd#result"
+      ]
+    }
+  },
+  {
+    "id": "crypto",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {}
+  },
+  {
+    "id": "crypto_vol",
+    "type": "return_vol",
+    "options": {
+      "period": 20
+    },
+    "inputs": {
+      "SLOT": [
+        "crypto#c"
+      ]
+    }
+  },
+  {
+    "id": "lag5_corr",
+    "type": "rolling_corr",
+    "options": {
+      "window": 20
+    },
+    "inputs": {
+      "x": [
+        "crypto_vol_lag5#result"
+      ],
+      "y": [
+        "tech_dd#result"
+      ]
+    }
+  },
+  {
+    "id": "crypto_vol_lag5",
+    "type": "lag",
+    "options": {
+      "period": 5
+    },
+    "inputs": {
+      "SLOT": [
+        "crypto_vol#result"
+      ]
+    }
+  },
+  {
+    "id": "tech",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {}
+  },
+  {
+    "id": "tech_dd",
+    "type": "ulcer_index",
+    "options": {
+      "period": 20,
+      "use_sum": false
+    },
+    "inputs": {
+      "SLOT": [
+        "tech#c"
+      ]
+    }
+  }
+]

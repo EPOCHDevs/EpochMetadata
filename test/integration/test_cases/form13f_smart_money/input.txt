@@ -1,0 +1,20 @@
+# Real-world strategy: Track large institutional holdings changes
+# Form 13F filings show what hedge funds and institutional investors own
+# Use this to follow "smart money" and detect accumulation patterns
+
+# Get 13F holdings data for significant positions only
+# Filter for 13F-HR filings (standard institutional holdings report)
+# Only show positions worth $10M+ to focus on meaningful holdings
+institutional_holdings = form13f_holdings(
+    filing_type="13F-HR",
+    min_value=10000000,
+    timeframe="1D"
+)()
+
+# The institutional_holdings node has these outputs available:
+# .shares - Number of shares held
+# .value - Position value in USD
+# .security_type - Security type (SH/PRN)
+# .investment_discretion - Investment discretion (SOLE/SHARED/DFND)
+# .institution_name - Name of the institution
+# .period_end - Quarter end date

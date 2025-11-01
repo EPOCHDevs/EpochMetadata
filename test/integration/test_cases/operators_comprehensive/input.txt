@@ -1,0 +1,34 @@
+src = market_data_source(timeframe="1D")
+
+# Arithmetic operators
+add_test = src.h + src.l
+sub_test = src.h - src.l
+mul_test = src.c * number(value=2).result
+div_test = src.c / number(value=2).result
+
+# Comparison operators
+gt_test = src.c > src.o
+lt_test = src.c < src.o
+gte_test = src.c >= src.o
+lte_test = src.c <= src.o
+eq_test = src.c == src.o
+ne_test = src.c != src.o
+
+# Logical operators
+and_test = (src.c > src.o) and (src.h > src.c)
+or_test = (src.c < src.o) or (src.h > src.c)
+not_test = not (src.c > src.o)
+
+# Unary operators
+neg_test = -src.c
+abs_test = abs()(src.c - src.o)
+
+# Complex expressions
+complex_expr = ((src.c - src.o) / src.o) * number(value=100).result
+condition = (src.c > sma(period=20)(src.c).result) and (src.v > sma(period=20)(src.v).result)
+
+# Use in signal
+trade_signal_executor()(
+    enter_long=condition,
+    enter_short=not_test
+)

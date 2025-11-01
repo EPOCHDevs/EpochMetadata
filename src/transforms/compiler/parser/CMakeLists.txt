@@ -1,0 +1,1 @@
+target_sources(epochflow PRIVATE python_parser.cpp)
