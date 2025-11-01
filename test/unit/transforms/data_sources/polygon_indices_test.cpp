@@ -1,0 +1,207 @@
+#include <catch2/catch_test_macros.hpp>
+#include <epochflow/core/constants.h>
+#include <epochflow/transforms/core/registry.h>
+#include "transforms/components/data_sources/polygon_indices_metadata.h"
+
+using namespace epochflow::transforms;
+using namespace epochflow::transform;
+
+TEST_CASE("Polygon Indices Metadata Registration", "[polygon_indices]") {
+  SECTION("MakePolygonIndicesDataSources returns two nodes") {
+    auto metadataList = MakePolygonIndicesDataSources();
+    REQUIRE(metadataList.size() == 2);
+  }
+
+  SECTION("Common Indices node has correct basic properties") {
+    auto metadataList = MakePolygonIndicesDataSources();
+    auto& commonIndices = metadataList[0];
+
+    REQUIRE(commonIndices.id == "common_indices");
+    REQUIRE(commonIndices.name == "Common Indices");
+    REQUIRE(commonIndices.category == epoch_core::TransformCategory::DataSource);
+    REQUIRE(commonIndices.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(commonIndices.requiresTimeFrame == false);
+  }
+
+  SECTION("Dynamic Indices node has correct basic properties") {
+    auto metadataList = MakePolygonIndicesDataSources();
+    auto& indices = metadataList[1];
+
+    REQUIRE(indices.id == "indices");
+    REQUIRE(indices.name == "Indices");
+    REQUIRE(indices.category == epoch_core::TransformCategory::DataSource);
+    REQUIRE(indices.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(indices.requiresTimeFrame == false);
+  }
+}
+
+TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
+  auto metadataList = MakePolygonIndicesDataSources();
+  auto& commonIndices = metadataList[0];
+
+  SECTION("Has index SelectOption parameter") {
+    REQUIRE(commonIndices.options.size() == 2);
+    auto& indexOption = commonIndices.options[0];
+
+    REQUIRE(indexOption.id == "index");
+    REQUIRE(indexOption.name == "Index");
+    REQUIRE(indexOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(indexOption.desc == "Select the market index");
+  }
+
+  SECTION("Has data_type SelectOption parameter") {
+    auto& dataTypeOption = commonIndices.options[1];
+
+    REQUIRE(dataTypeOption.id == "data_type");
+    REQUIRE(dataTypeOption.name == "Data Type");
+    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(dataTypeOption.selectOption.size() == 2);
+
+    // Verify EOD and Intraday options (using value field which holds the enum value)
+    auto hasOption = [&](const std::string& optionValue) {
+      return std::any_of(dataTypeOption.selectOption.begin(),
+                         dataTypeOption.selectOption.end(),
+                         [&optionValue](const auto& option) { return option.value == optionValue; });
+    };
+
+    REQUIRE(hasOption("eod"));
+    REQUIRE(hasOption("intraday"));
+  }
+
+  SECTION("SelectOption contains common indices") {
+    auto& indexOption = commonIndices.options[0];
+    REQUIRE(indexOption.selectOption.size() == 10);
+
+    // Verify a few key indices are present
+    bool hasSPX = false;
+    bool hasDJI = false;
+    bool hasVIX = false;
+
+    for (const auto& opt : indexOption.selectOption) {
+      if (opt.name == "S&P 500" && opt.value == "SPX") hasSPX = true;
+      if (opt.name == "Dow Jones Industrial Average" && opt.value == "DJI") hasDJI = true;
+      if (opt.name == "CBOE Volatility Index" && opt.value == "VIX") hasVIX = true;
+    }
+
+    REQUIRE(hasSPX);
+    REQUIRE(hasDJI);
+    REQUIRE(hasVIX);
+  }
+
+  SECTION("Has correct output fields") {
+    REQUIRE(commonIndices.outputs.size() == 4);
+
+    // Verify OHLC outputs
+    REQUIRE(commonIndices.outputs[0].id == "o");
+    REQUIRE(commonIndices.outputs[0].name == "Open");
+    REQUIRE(commonIndices.outputs[0].type == epoch_core::IODataType::Decimal);
+    REQUIRE(commonIndices.outputs[0].allowMultipleConnections == true);
+
+    REQUIRE(commonIndices.outputs[1].id == "h");
+    REQUIRE(commonIndices.outputs[1].name == "High");
+    REQUIRE(commonIndices.outputs[1].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(commonIndices.outputs[2].id == "l");
+    REQUIRE(commonIndices.outputs[2].name == "Low");
+    REQUIRE(commonIndices.outputs[2].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(commonIndices.outputs[3].id == "c");
+    REQUIRE(commonIndices.outputs[3].name == "Close");
+    REQUIRE(commonIndices.outputs[3].type == epoch_core::IODataType::Decimal);
+  }
+
+  SECTION("Has no input fields") {
+    REQUIRE(commonIndices.inputs.empty());
+  }
+
+  SECTION("Has requiredDataSources set to 'c'") {
+    REQUIRE(commonIndices.requiredDataSources.size() == 1);
+    REQUIRE(commonIndices.requiredDataSources[0] == "c");
+  }
+
+  SECTION("Has strategy metadata") {
+    REQUIRE(!commonIndices.strategyTypes.empty());
+    REQUIRE(!commonIndices.assetRequirements.empty());
+    REQUIRE(!commonIndices.usageContext.empty());
+    REQUIRE(!commonIndices.limitations.empty());
+
+    // Verify description is domain-focused (not implementation details)
+    REQUIRE(commonIndices.desc.find("Historical price data") != std::string::npos);
+    REQUIRE(commonIndices.desc.find("open, high, low, and close") != std::string::npos);
+  }
+}
+
+TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
+  auto metadataList = MakePolygonIndicesDataSources();
+  auto& indices = metadataList[1];
+
+  SECTION("Has ticker String parameter") {
+    REQUIRE(indices.options.size() == 2);
+    auto& tickerOption = indices.options[0];
+
+    REQUIRE(tickerOption.id == "ticker");
+    REQUIRE(tickerOption.name == "Index Ticker");
+    REQUIRE(tickerOption.type == epoch_core::MetaDataOptionType::String);
+    REQUIRE(tickerOption.desc == "Index ticker symbol (e.g., SPX, DJI, NDX)");
+  }
+
+  SECTION("Has data_type SelectOption parameter") {
+    auto& dataTypeOption = indices.options[1];
+
+    REQUIRE(dataTypeOption.id == "data_type");
+    REQUIRE(dataTypeOption.name == "Data Type");
+    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
+    REQUIRE(dataTypeOption.selectOption.size() == 2);
+
+    // Verify EOD and Intraday options (using value field which holds the enum value)
+    auto hasOption = [&](const std::string& optionValue) {
+      return std::any_of(dataTypeOption.selectOption.begin(),
+                         dataTypeOption.selectOption.end(),
+                         [&optionValue](const auto& option) { return option.value == optionValue; });
+    };
+
+    REQUIRE(hasOption("eod"));
+    REQUIRE(hasOption("intraday"));
+  }
+
+  SECTION("Has same output fields as common_indices") {
+    REQUIRE(indices.outputs.size() == 4);
+
+    // Verify OHLC outputs
+    REQUIRE(indices.outputs[0].id == "o");
+    REQUIRE(indices.outputs[0].name == "Open");
+    REQUIRE(indices.outputs[0].type == epoch_core::IODataType::Decimal);
+    REQUIRE(indices.outputs[0].allowMultipleConnections == true);
+
+    REQUIRE(indices.outputs[1].id == "h");
+    REQUIRE(indices.outputs[1].name == "High");
+    REQUIRE(indices.outputs[1].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(indices.outputs[2].id == "l");
+    REQUIRE(indices.outputs[2].name == "Low");
+    REQUIRE(indices.outputs[2].type == epoch_core::IODataType::Decimal);
+
+    REQUIRE(indices.outputs[3].id == "c");
+    REQUIRE(indices.outputs[3].name == "Close");
+    REQUIRE(indices.outputs[3].type == epoch_core::IODataType::Decimal);
+  }
+
+  SECTION("Has no input fields") {
+    REQUIRE(indices.inputs.empty());
+  }
+
+  SECTION("Has requiredDataSources set to 'c'") {
+    REQUIRE(indices.requiredDataSources.size() == 1);
+    REQUIRE(indices.requiredDataSources[0] == "c");
+  }
+
+  SECTION("Has comprehensive descriptions") {
+    REQUIRE(!indices.desc.empty());
+    REQUIRE(!indices.usageContext.empty());
+    REQUIRE(!indices.limitations.empty());
+
+    // Verify description is domain-focused
+    REQUIRE(indices.desc.find("Historical price data") != std::string::npos);
+    REQUIRE(indices.desc.find("ticker symbol") != std::string::npos);
+  }
+}

@@ -1,0 +1,6 @@
+src = market_data_source(timeframe="1H")
+sma20 = sma(period=20)(src.c)
+rsi14 = rsi(period=14)(src.c)
+cond = gt()(src.c, sma20.result)
+cond2 = lt()(rsi14.result, 30)
+trade_signal_executor()(enter_long=(cond.result and cond2.result))

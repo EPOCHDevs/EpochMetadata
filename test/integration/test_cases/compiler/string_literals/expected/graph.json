@@ -1,0 +1,179 @@
+[
+  {
+    "id": "number_0",
+    "type": "number",
+    "options": {
+      "value": 30
+    },
+    "inputs": {}
+  },
+  {
+    "id": "number_1",
+    "type": "number",
+    "options": {
+      "value": 70
+    },
+    "inputs": {}
+  },
+  {
+    "id": "src",
+    "type": "market_data_source",
+    "options": {},
+    "inputs": {}
+  },
+  {
+    "id": "text_0",
+    "type": "text",
+    "options": {
+      "value": "Oversold"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_1",
+    "type": "text",
+    "options": {
+      "value": "Normal"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_2",
+    "type": "text",
+    "options": {
+      "value": "Overbought"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_3",
+    "type": "text",
+    "options": {
+      "value": ""
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_4",
+    "type": "text",
+    "options": {
+      "value": "Active"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_5",
+    "type": "text",
+    "options": {
+      "value": "Inactive"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "text_6",
+    "type": "text",
+    "options": {
+      "value": "Trading"
+    },
+    "inputs": {}
+  },
+  {
+    "id": "rsi_val",
+    "type": "rsi",
+    "options": {
+      "period": 14
+    },
+    "inputs": {
+      "SLOT": [
+        "src#c"
+      ]
+    }
+  },
+  {
+    "id": "gt_0",
+    "type": "gt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_1#result"
+      ],
+      "SLOT0": [
+        "rsi_val#result"
+      ]
+    }
+  },
+  {
+    "id": "lt_0",
+    "type": "lt",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "number_0#result"
+      ],
+      "SLOT0": [
+        "rsi_val#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_1",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "condition": [
+        "gt_0#result"
+      ],
+      "true": [
+        "text_2#result"
+      ],
+      "false": [
+        "text_3#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_0",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "condition": [
+        "lt_0#result"
+      ],
+      "true": [
+        "text_0#result"
+      ],
+      "false": [
+        "text_1#result"
+      ]
+    }
+  },
+  {
+    "id": "logical_or_0",
+    "type": "logical_or",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "gt_0#result"
+      ],
+      "SLOT0": [
+        "lt_0#result"
+      ]
+    }
+  },
+  {
+    "id": "ifexp_2",
+    "type": "boolean_select",
+    "options": {},
+    "inputs": {
+      "condition": [
+        "logical_or_0#result"
+      ],
+      "true": [
+        "text_4#result"
+      ],
+      "false": [
+        "text_5#result"
+      ]
+    }
+  }
+]
