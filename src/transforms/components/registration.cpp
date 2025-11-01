@@ -36,7 +36,7 @@
 #include "price_actions/chart_formations/triangles.h"
 #include "price_actions/chart_formations/pennant.h"
 #include "price_actions/chart_formations/consolidation_box.h"
-#include <epochflow/transforms/strategy/registration.h>
+#include <epochflow/strategy/registration.h>
 
 // Calendar Effects
 #include "calendar/calendar_effect.h"

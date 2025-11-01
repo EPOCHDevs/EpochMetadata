@@ -9,7 +9,7 @@
 #pragma once
 
 #include "compilation_context.h"
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include <epochflow/core/metadata_options.h>
 #include <unordered_map>
 

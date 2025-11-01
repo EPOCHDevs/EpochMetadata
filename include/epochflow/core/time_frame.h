@@ -5,7 +5,7 @@
 #pragma once
 #include "epoch_frame/day_of_week.h"
 #include "epoch_frame/time_delta.h"
-#include "epochflow/transforms/strategy/session_variant.h"
+#include "epochflow/strategy/session_variant.h"
 #include <epoch_frame/factory/date_offset_factory.h>
 #include <glaze/json/generic.hpp>
 #include <string_view>

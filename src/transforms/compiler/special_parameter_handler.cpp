@@ -5,7 +5,7 @@
 
 #include "special_parameter_handler.h"
 #include <epoch_core/enum_wrapper.h>
-#include <epochflow/transforms/strategy/session_variant.h>
+#include <epochflow/strategy/session_variant.h>
 #include <unordered_set>
 #include <map>
 

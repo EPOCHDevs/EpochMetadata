@@ -1,13 +1,13 @@
 //
 // Created by dewe on 9/10/24.
 //
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include "../core/doc_deserialization_helper.h"
 #include <epochflow/core/metadata_options.h>
 #include <epochflow/transforms/core/registry.h>
 #include <epochflow/transforms/core/metadata.h>
 #include <epochflow/transforms/core/registration.h>
-#include <epochflow/transforms/strategy/registration.h>
+#include <epochflow/strategy/registration.h>
 #include "transforms/compiler/ast_compiler.h"
 #include <epoch_core/macros.h>
 #include <glaze/core/reflect.hpp>

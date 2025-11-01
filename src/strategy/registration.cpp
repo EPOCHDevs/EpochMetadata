@@ -1,15 +1,15 @@
 //
 // Created by dewe on 9/11/24.
 //
-#include <epochflow/transforms/strategy/registration.h>
+#include <epochflow/strategy/registration.h>
 #include "../core/doc_deserialization_helper.h"
 #include <epochflow/core/glaze_custom_types.h>
-#include <epochflow/transforms/strategy/data_options.h>
-#include <epochflow/transforms/strategy/enums.h>
-#include <epochflow/transforms/strategy/generic_function.h>
-#include <epochflow/transforms/strategy/metadata.h>
-#include <epochflow/transforms/strategy/registry.h>
-#include <epochflow/transforms/strategy/strategy_config.h>
+#include <epochflow/strategy/data_options.h>
+#include <epochflow/strategy/enums.h>
+#include <epochflow/strategy/generic_function.h>
+#include <epochflow/strategy/metadata.h>
+#include <epochflow/strategy/registry.h>
+#include <epochflow/strategy/strategy_config.h>
 #include <epochflow/transforms/core/registration.h>
 #include "transforms/compiler/ast_compiler.h"
 #include <unordered_map>

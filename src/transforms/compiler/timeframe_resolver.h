@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include <epochflow/core/time_frame.h>
 #include <unordered_map>
 #include <vector>

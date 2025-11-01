@@ -19,7 +19,7 @@
 #include "timeframe_resolver.h"
 #include "constant_folder.h"
 #include "parser/ast_nodes.h"
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include <epochflow/core/time_frame.h>
 #include <vector>
 #include <optional>

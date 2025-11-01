@@ -5,7 +5,7 @@
 #pragma once
 #include <epoch_core/common_utils.h>
 #include <epoch_frame/datetime.h>
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include <epochflow/transforms/core/metadata.h>
 #include <epochflow/transforms/core/registry.h>
 #include <yaml-cpp/yaml.h>

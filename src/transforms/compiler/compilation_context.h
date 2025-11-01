@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <epochflow/transforms/strategy/metadata.h>
+#include <epochflow/strategy/metadata.h>
 #include <epochflow/transforms/core/registry.h>
 #include <unordered_map>
 #include <unordered_set>
