@@ -20,4 +20,8 @@ namespace epoch_script::runtime {
 
         virtual ~IDataFlowOrchestrator() = default;
     };
+
+    std::unique_ptr<IDataFlowOrchestrator> CreateDataFlowRuntimeOrchestrator(
+        const std::set<std::string>& assetIdList,
+        const epoch_script::transform::TransformConfigurationList &configList);
 } // namespace epoch_script::runtime

@@ -12,6 +12,13 @@ target_include_directories(epoch_script_test PRIVATE
     .
 )
 
+# Helper tool to generate graph.json from EpochScript source
+add_executable(generate_graph ../generate_graph.cpp)
+target_link_libraries(generate_graph PRIVATE epoch_script)
+target_include_directories(generate_graph PRIVATE ../src)
+set_target_properties(generate_graph PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
 # Set runtime output directory to bin (where test resources are copied)
 set_target_properties(epoch_script_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
