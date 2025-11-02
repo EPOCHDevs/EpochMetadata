@@ -18,13 +18,6 @@ namespace epoch_script::runtime {
         const std::optional<epoch_script::TimeFrame> &baseTimeframe);
   };
 
-  struct TransformManagerOptions {
-    epoch_script::strategy::PythonSource source;
-    bool strict = true;
-    bool timeframeIsBase = false;
-    std::optional<epoch_script::TimeFrame> timeframe;
-  };
-
   class TransformManager : public ITransformManager {
 
   public:

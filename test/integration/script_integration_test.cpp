@@ -4,8 +4,30 @@
 // Unified integration testing framework that tests both compilation and runtime execution
 // from a single test case directory structure.
 //
-// Test Case Structure:
-//   test_cases/my_test/
+// Test Case Structure (Categorized):
+//   test_cases/
+//   ├── basic/                   # Basic language features
+//   ├── operators/               # Operator tests
+//   ├── constants/               # Constant folding
+//   ├── literals/                # Literal values
+//   ├── variables/               # Variable resolution
+//   ├── control_flow/            # Conditionals & selection
+//   ├── tuples/                  # Tuple handling
+//   ├── parameters/              # Parameter handling
+//   ├── type_system/             # Type checking & casting
+//   ├── transforms/              # Transform-specific tests
+//   ├── graphs/                  # Graph topology
+//   ├── timeframes/              # Timeframe handling
+//   ├── strategies/              # Strategy examples
+//   ├── reports/                 # Report generation
+//   ├── runtime/                 # Full integration (script + data → output)
+//   ├── errors/                  # Error/negative tests
+//   ├── string_operations/       # String handling
+//   ├── shared_data/             # Reusable CSV datasets
+//   └── archived/                # Deprecated tests
+//
+// Each test directory contains:
+//   category/test_name/
 //   ├── input.txt                # EpochScript source code
 //   ├── input_data/              # Runtime inputs (CSV files) [optional]
 //   │   └── 1D_TICKER-AssetClass.csv
@@ -14,12 +36,6 @@
 //       ├── dataframes/          # Expected runtime dataframe outputs [optional]
 //       ├── tearsheets/          # Expected runtime tearsheet outputs [optional]
 //       └── selectors/           # Expected runtime selector outputs [optional]
-//
-// Shared Data:
-//   test_cases/shared_data/      # Reusable CSV datasets
-//   ├── README.md                # Documentation of available datasets
-//   ├── 1D_AAPL-Stocks.csv       # Stock data examples
-//   └── 1Min_EURUSD-FX.csv       # FX data examples
 //
 // Test Types:
 //   1. Compilation-Only: Has input.txt and expected/graph.json
@@ -62,7 +78,7 @@ struct CompilerErrorCase
     std::string error;
 };
 
-// Helper to load all test cases from test_cases directory
+// Helper to recursively load all test cases from test_cases directory
 std::vector<IntegrationTestCase> LoadIntegrationTestCases()
 {
     std::vector<IntegrationTestCase> cases;
@@ -73,34 +89,70 @@ std::vector<IntegrationTestCase> LoadIntegrationTestCases()
         return cases;
     }
 
-    for (const auto &entry : fs::directory_iterator(test_dir))
+    // Special directories to skip
+    auto skip_dir = [](const std::string& name) {
+        return name == "archived" || name == "shared_data";
+    };
+
+    // Recursively scan for test cases
+    for (const auto &category_entry : fs::directory_iterator(test_dir))
     {
-        if (!entry.is_directory())
+        if (!category_entry.is_directory())
             continue;
 
-        // Skip special directories
-        if (entry.path().filename() == "archived" ||
-            entry.path().filename() == "shared_data")
+        // Skip special directories at root level
+        if (skip_dir(category_entry.path().filename().string()))
             continue;
 
-        fs::path input = entry.path() / "input.txt";
-        fs::path expected_dir = entry.path() / "expected";
+        // Check if this is a test case directory (has input.txt)
+        fs::path input = category_entry.path() / "input.txt";
+        fs::path expected_dir = category_entry.path() / "expected";
         fs::path expected_graph = expected_dir / "graph.json";
 
-        // Must have input.txt and expected/graph.json at minimum
         if (fs::exists(input) && fs::exists(expected_graph))
         {
+            // This is a test case at the category level (no subcategories)
             IntegrationTestCase test_case;
-            test_case.name = entry.path().filename().string();
-            test_case.test_dir = entry.path();
+            test_case.name = category_entry.path().filename().string();
+            test_case.test_dir = category_entry.path();
             test_case.input_script = input;
             test_case.expected_graph = expected_graph;
-            test_case.input_data_dir = entry.path() / "input_data";
+            test_case.input_data_dir = category_entry.path() / "input_data";
             test_case.expected_dataframes_dir = expected_dir / "dataframes";
             test_case.expected_tearsheets_dir = expected_dir / "tearsheets";
             test_case.expected_selectors_dir = expected_dir / "selectors";
 
             cases.push_back(test_case);
+        }
+        else
+        {
+            // This is a category directory, scan its subdirectories
+            for (const auto &test_entry : fs::directory_iterator(category_entry.path()))
+            {
+                if (!test_entry.is_directory())
+                    continue;
+
+                fs::path test_input = test_entry.path() / "input.txt";
+                fs::path test_expected_dir = test_entry.path() / "expected";
+                fs::path test_expected_graph = test_expected_dir / "graph.json";
+
+                if (fs::exists(test_input) && fs::exists(test_expected_graph))
+                {
+                    IntegrationTestCase test_case;
+                    // Include category in name: "operators/binary_operators"
+                    test_case.name = category_entry.path().filename().string() + "/" +
+                                    test_entry.path().filename().string();
+                    test_case.test_dir = test_entry.path();
+                    test_case.input_script = test_input;
+                    test_case.expected_graph = test_expected_graph;
+                    test_case.input_data_dir = test_entry.path() / "input_data";
+                    test_case.expected_dataframes_dir = test_expected_dir / "dataframes";
+                    test_case.expected_tearsheets_dir = test_expected_dir / "tearsheets";
+                    test_case.expected_selectors_dir = test_expected_dir / "selectors";
+
+                    cases.push_back(test_case);
+                }
+            }
         }
     }
 

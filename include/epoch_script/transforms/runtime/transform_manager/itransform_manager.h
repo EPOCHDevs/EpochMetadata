@@ -6,15 +6,22 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include <epoch_script/strategy/metadata.h>
 
 
 namespace epoch_script::transform {
     class TransformConfiguration;
-    class ITransformBase;
+    struct ITransformBase;
 }
 
 namespace epoch_script::runtime {
-    struct TransformManagerOptions;
+    struct TransformManagerOptions {
+        epoch_script::strategy::PythonSource source;
+        bool strict = true;
+        bool timeframeIsBase = false;
+        std::optional<epoch_script::TimeFrame> timeframe;
+    };
+
     using TransformConfigurationPtr =
         std::unique_ptr<epoch_script::transform::TransformConfiguration>;
 
