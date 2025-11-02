@@ -1,0 +1,22 @@
+# Lead-Lag Analysis: Crypto Volatility vs Tech Drawdowns
+crypto = market_data_source()
+crypto_vol = return_vol(period=20)(crypto.c)
+
+tech = market_data_source()
+tech_dd = ulcer_index(period=20, use_sum=False)(tech.c)
+
+# Concurrent correlation
+concurrent_corr = rolling_corr(window=20)(x=crypto_vol, y=tech_dd)
+
+# Lagged correlations
+crypto_vol_lag1 = crypto_vol[1]
+crypto_vol_lag5 = crypto_vol[5]
+crypto_vol_lag10 = crypto_vol[10]
+
+lag1_corr = rolling_corr(window=20)(x=crypto_vol_lag1, y=tech_dd)
+lag5_corr = rolling_corr(window=20)(x=crypto_vol_lag5, y=tech_dd)
+lag10_corr = rolling_corr(window=20)(x=crypto_vol_lag10, y=tech_dd)
+
+# Covariances
+concurrent_cov = rolling_cov(window=20)(x=crypto_vol, y=tech_dd)
+lag5_cov = rolling_cov(window=20)(x=crypto_vol_lag5, y=tech_dd)

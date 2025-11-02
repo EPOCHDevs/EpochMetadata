@@ -1,0 +1,7 @@
+src = market_data_source(timeframe="1H")
+rsi_node = rsi(period=14)(src.c)
+over = gt()(rsi_node.result, number(value=70).result)
+under = lt()(rsi_node.result, number(value=30).result)
+trade_signal_executor()(enter_long=(over.result if under.result else bool_false().result))
+
+
