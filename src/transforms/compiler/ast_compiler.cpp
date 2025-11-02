@@ -205,7 +205,8 @@ namespace epoch_script
         verifySessionDependencies();
 
         // Resolve timeframes for all nodes using TimeframeResolver utility
-        resolveTimeframes(std::nullopt); // Pass nullopt as base timeframe for now
+        // Default to daily timeframe if no base timeframe specified
+        resolveTimeframes(epoch_script::TimeFrame("1d"));
 
         // Sort algorithms in topological order: dependencies before dependents
         // This ensures handles are registered before they're referenced
@@ -227,7 +228,7 @@ namespace epoch_script
         special_param_handler_->VerifySessionDependencies();
     }
 
-    void AlgorithmAstCompiler::resolveTimeframes(const std::optional<epoch_script::TimeFrame>& base_timeframe)
+    void AlgorithmAstCompiler::resolveTimeframes(const epoch_script::TimeFrame& base_timeframe)
     {
         // Use TimeframeResolver utility to resolve timeframes for all nodes
         // Create fresh resolver instance to avoid stale cache from previous compilations

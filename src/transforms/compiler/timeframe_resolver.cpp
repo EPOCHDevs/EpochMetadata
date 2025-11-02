@@ -35,7 +35,7 @@ namespace epoch_script
     std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveTimeframe(
         const std::string &nodeId,
         const std::vector<std::string> &inputIds,
-        const std::optional<epoch_script::TimeFrame> &baseTimeframe)
+        const epoch_script::TimeFrame &baseTimeframe)
     {
         // Check cache first
         if (nodeTimeframes.contains(nodeId))
@@ -73,6 +73,7 @@ namespace epoch_script
         }
 
         // Fall back to base timeframe if no inputs or no input timeframes found
+        // baseTimeframe is now always provided (non-optional)
         if (!resolvedTimeframe)
         {
             resolvedTimeframe = baseTimeframe;
@@ -85,7 +86,7 @@ namespace epoch_script
 
     std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveNodeTimeframe(
         const epoch_script::strategy::AlgorithmNode &node,
-        const std::optional<epoch_script::TimeFrame> &baseTimeframe)
+        const epoch_script::TimeFrame &baseTimeframe)
     {
         // If node has explicit timeframe, use it and cache it
         if (node.timeframe)

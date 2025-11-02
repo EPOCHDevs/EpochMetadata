@@ -65,7 +65,7 @@ namespace epoch_script
 
         // Post-compilation steps
         void verifySessionDependencies();
-        void resolveTimeframes(const std::optional<TimeFrame>& base_timeframe);
+        void resolveTimeframes(const TimeFrame& base_timeframe);
     };
 
     // Convenience function (mirrors Python's compile_algorithm)
