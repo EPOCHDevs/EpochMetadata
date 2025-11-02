@@ -62,7 +62,7 @@ namespace epoch_script::runtime {
     }
 
     const epoch_script::transform::TransformConfiguration *Insert(
-        epoch_script::transform::TransformConfiguration const &configuration) {
+        epoch_script::transform::TransformConfiguration const &configuration) override {
       return Insert(
           configuration.GetId(),
           std::make_unique<epoch_script::transform::TransformConfiguration>(

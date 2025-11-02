@@ -14,6 +14,7 @@ namespace epoch_script::transform {
 }
 
 namespace epoch_script::runtime {
+    struct TransformManagerOptions;
     using TransformConfigurationPtr =
         std::unique_ptr<epoch_script::transform::TransformConfiguration>;
 
@@ -33,6 +34,9 @@ namespace epoch_script::runtime {
         [[nodiscard]] virtual std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>>
         BuildTransforms() const = 0;
 
+        virtual const epoch_script::transform::TransformConfiguration *
+            Insert(const epoch_script::transform::TransformConfiguration& config) = 0;
+
         template <class T = epoch_script::transform::TransformConfiguration>
         const T *GetTTransformConfigurationById(std::string const &name) const {
             if (const auto *casted =
@@ -45,5 +49,9 @@ namespace epoch_script::runtime {
 
     using ITransformManagerPtr = std::unique_ptr<ITransformManager>;
     ITransformManagerPtr CreateTransformManager();
+
+    ITransformManagerPtr CreateTransformManager(
+    const TransformManagerOptions& options
+);
 
 } // namespace epoch_script::runtime

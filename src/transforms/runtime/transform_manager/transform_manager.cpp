@@ -10,6 +10,10 @@ namespace epoch_script::runtime {
     return std::make_unique<TransformManager>();
   }
 
+  ITransformManagerPtr CreateTransformManager(TransformManagerOptions const& options) {
+    return std::make_unique<TransformManager>(options);
+  }
+
   std::optional<epoch_script::TimeFrame> TimeframeResolutionCache::ResolveTimeframe(
       const std::string &nodeId, const std::vector<std::string> &inputIds,
       const std::optional<epoch_script::TimeFrame> &baseTimeframe) {

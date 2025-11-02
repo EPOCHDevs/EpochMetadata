@@ -65,6 +65,11 @@ public:
         return result;
     }
 
+    const epoch_script::transform::TransformConfiguration *
+            Insert(const epoch_script::transform::TransformConfiguration& ) override {
+        throw std::runtime_error("Insert() not used in tests - orchestrator uses interface methods");
+    }
+
 private:
     mutable std::vector<std::unique_ptr<epoch_script::transform::ITransformBase>> m_transforms;
 };
