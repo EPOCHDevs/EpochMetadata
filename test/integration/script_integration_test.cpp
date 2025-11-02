@@ -6,17 +6,30 @@
 //
 // Test Case Structure:
 //   test_cases/my_test/
-//   ├── input.txt                # Flow script
+//   ├── input.txt                # EpochScript source code
 //   ├── input_data/              # Runtime inputs (CSV files) [optional]
-//   │   └── 1d_TICKER-AssetClass.csv
+//   │   └── 1D_TICKER-AssetClass.csv
 //   └── expected/
-//       ├── graph.json           # Expected compilation output
+//       ├── graph.json           # Expected compilation output (AST)
 //       ├── dataframes/          # Expected runtime dataframe outputs [optional]
 //       ├── tearsheets/          # Expected runtime tearsheet outputs [optional]
 //       └── selectors/           # Expected runtime selector outputs [optional]
 //
+// Shared Data:
+//   test_cases/shared_data/      # Reusable CSV datasets
+//   ├── README.md                # Documentation of available datasets
+//   ├── 1D_AAPL-Stocks.csv       # Stock data examples
+//   └── 1Min_EURUSD-FX.csv       # FX data examples
+//
+// Test Types:
+//   1. Compilation-Only: Has input.txt and expected/graph.json
+//   2. Error Tests: Has input.txt and expected/graph.json with {"error": "..."}
+//   3. Full Integration: Has input.txt, expected/graph.json, input_data/, and expected outputs
+//
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 #include <glaze/glaze.hpp>
 #include <filesystem>
 #include <fstream>
@@ -66,7 +79,8 @@ std::vector<IntegrationTestCase> LoadIntegrationTestCases()
             continue;
 
         // Skip special directories
-        if (entry.path().filename() == "archived")
+        if (entry.path().filename() == "archived" ||
+            entry.path().filename() == "shared_data")
             continue;
 
         fs::path input = entry.path() / "input.txt";
@@ -117,23 +131,21 @@ std::string ReadFile(const fs::path &path)
                        std::istreambuf_iterator<char>());
 }
 
-// Main integration test
+// Generate individual test cases using Catch2's generators
 TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration][epoch_script]")
 {
     auto test_cases = LoadIntegrationTestCases();
 
-    if (test_cases.empty())
-    {
-        WARN("No integration test cases found in test_cases directory");
-        return;
-    }
+    REQUIRE_FALSE(test_cases.empty());
 
     INFO("Found " << test_cases.size() << " integration test cases");
 
-    for (const auto &test_case : test_cases)
+    // Use GENERATE to create a separate test run for each test case
+    auto test_case = GENERATE_COPY(from_range(test_cases));
+
+    // Each test case now runs as a separate test instance
+    SECTION(test_case.name)
     {
-        DYNAMIC_SECTION(test_case.name)
-        {
             // =================================================================
             // PHASE 1: COMPILATION TESTING
             // =================================================================
@@ -239,6 +251,5 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
 
                 WARN("Runtime testing not yet implemented");
             }
-        }
     }
 }

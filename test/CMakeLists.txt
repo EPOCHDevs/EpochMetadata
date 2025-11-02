@@ -13,7 +13,7 @@ target_include_directories(epoch_script_test PRIVATE
 )
 
 # Helper tool to generate graph.json from EpochScript source
-add_executable(generate_graph ../generate_graph.cpp)
+add_executable(generate_graph integration/tools/generate_graph.cpp)
 target_link_libraries(generate_graph PRIVATE epoch_script)
 target_include_directories(generate_graph PRIVATE ../src)
 set_target_properties(generate_graph PROPERTIES

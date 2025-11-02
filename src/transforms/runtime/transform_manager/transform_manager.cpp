@@ -6,6 +6,10 @@
 #include <epoch_script/transforms/core/transform_registry.h>
 
 namespace epoch_script::runtime {
+  ITransformManagerPtr CreateTransformManager() {
+    return std::make_unique<TransformManager>();
+  }
+
   std::optional<epoch_script::TimeFrame> TimeframeResolutionCache::ResolveTimeframe(
       const std::string &nodeId, const std::vector<std::string> &inputIds,
       const std::optional<epoch_script::TimeFrame> &baseTimeframe) {

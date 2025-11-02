@@ -44,4 +44,6 @@ namespace epoch_script::runtime {
     };
 
     using ITransformManagerPtr = std::unique_ptr<ITransformManager>;
+    ITransformManagerPtr CreateTransformManager();
+
 } // namespace epoch_script::runtime
