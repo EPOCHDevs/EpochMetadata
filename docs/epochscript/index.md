@@ -125,18 +125,18 @@ trade_signal_executor()(
 
 ## Documentation Structure
 
-1. **[Language Fundamentals](01-language-fundamentals.md)** - Syntax, types, operators, critical limitations
-2. **[Transform System](02-transform-system.md)** - How transforms work, timeframes, sessions, cross-sectional
-3. **[Core Transforms](03-core-transforms.md)** - Essential indicators and functions (80+ curated transforms)
-4. **[Strategy Patterns](04-strategy-patterns.md)** - Complete strategy examples by trading style
-5. **[Research Workflows](05-research-workflows.md)** - Market research vs live trading strategies
-6. **[Advanced Topics](06-advanced-topics.md)** - Multi-condition logic, optimization, best practices
-7. **[Error Reference](07-error-reference.md)** - Troubleshooting guide with solutions
-8. **[Visualization System](08-visualization-system.md)** - Auto-plotting, sidebar cards, event markers, research dashboards
+1. **[Language Fundamentals](./language-fundamentals.md)** - Syntax, types, operators, critical limitations
+2. **[Transform System](./transform-system.md)** - How transforms work, timeframes, sessions, cross-sectional
+3. **[Core Transforms](./core-transforms.md)** - Essential indicators and functions (80+ curated transforms)
+4. **[Strategy Patterns](../strategies/strategy-patterns.md)** - Complete strategy examples by trading style
+5. **[Research Workflows](../strategies/research-workflows.md)** - Market research vs live trading strategies
+6. **[Advanced Topics](./advanced-topics.md)** - Multi-condition logic, optimization, best practices
+7. **[Error Reference](../reference/error-reference.md)** - Troubleshooting guide with solutions
+8. **[Visualization System](./visualization-system.md)** - Auto-plotting, sidebar cards, event markers, research dashboards
 
 **Appendices:**
-- **[Full Transform Catalog](appendix-full-catalog.md)** - Complete list of 300+ transforms
-- **[Glossary](glossary.md)** - Technical terms and definitions
+- **[Full Transform Catalog](../reference/function-catalog.md)** - Complete list of 300+ transforms
+- **[Glossary](../reference/glossary.md)** - Technical terms and definitions
 
 ## Strategy vs Research
 
@@ -276,17 +276,17 @@ current = src.c
 
 ## Getting Help
 
-- **Syntax errors**: See [Error Reference](07-error-reference.md)
-- **Transform documentation**: See [Core Transforms](03-core-transforms.md)
-- **Strategy examples**: See [Strategy Patterns](04-strategy-patterns.md)
-- **Full transform list**: See [Appendix](appendix-full-catalog.md)
+- **Syntax errors**: See [Error Reference](../reference/error-reference.md)
+- **Transform documentation**: See [Core Transforms](./core-transforms.md)
+- **Strategy examples**: See [Strategy Patterns](../strategies/strategy-patterns.md)
+- **Full transform list**: See [Appendix](../reference/function-catalog.md)
 
 ## Next Steps
 
-- **New users**: Start with [Language Fundamentals](01-language-fundamentals.md)
-- **Experienced traders**: Jump to [Strategy Patterns](04-strategy-patterns.md)
-- **Researchers**: See [Research Workflows](05-research-workflows.md)
-- **Troubleshooting**: Check [Error Reference](07-error-reference.md)
+- **New users**: Start with [Language Fundamentals](./language-fundamentals.md)
+- **Experienced traders**: Jump to [Strategy Patterns](../strategies/strategy-patterns.md)
+- **Researchers**: See [Research Workflows](../strategies/research-workflows.md)
+- **Troubleshooting**: Check [Error Reference](../reference/error-reference.md)
 
 ---
 

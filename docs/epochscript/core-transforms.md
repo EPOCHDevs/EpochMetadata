@@ -1841,4 +1841,4 @@ This catalog covers the 80 essential transforms for institutional trading strate
 
 ---
 
-**Next:** [Strategy Patterns →](04-strategy-patterns.md)
+**Next:** [Strategy Patterns →](../strategies/strategy-patterns.md)

@@ -70,7 +70,7 @@ TEST_CASE("EventMarker - Basic Functionality", "[event_markers][event_marker]") 
       if (option.id == "event_marker_schema") {
         hasCardSchemaOption = true;
         REQUIRE(option.isRequired == true);
-        REQUIRE(option.type == epoch_core::MetaDataOptionType::CardSchema);
+        REQUIRE(option.type == epoch_core::MetaDataOptionType::EventMarkerSchema);
       }
     }
     REQUIRE(hasCardSchemaOption);

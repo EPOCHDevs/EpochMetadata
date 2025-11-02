@@ -1,97 +1,7 @@
 [
   {
-    "id": "number_0",
-    "type": "number",
-    "options": {
-      "value": 30
-    },
-    "inputs": {}
-  },
-  {
-    "id": "number_1",
-    "type": "number",
-    "options": {
-      "value": 70
-    },
-    "inputs": {}
-  },
-  {
-    "id": "src",
-    "type": "market_data_source",
-    "options": {},
-    "inputs": {}
-  },
-  {
-    "id": "text_0",
-    "type": "text",
-    "options": {
-      "value": "Oversold"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_1",
-    "type": "text",
-    "options": {
-      "value": "Normal"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_2",
-    "type": "text",
-    "options": {
-      "value": "Overbought"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_3",
-    "type": "text",
-    "options": {
-      "value": ""
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_4",
-    "type": "text",
-    "options": {
-      "value": "Active"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_5",
-    "type": "text",
-    "options": {
-      "value": "Inactive"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "text_6",
-    "type": "text",
-    "options": {
-      "value": "Trading"
-    },
-    "inputs": {}
-  },
-  {
-    "id": "rsi_val",
-    "type": "rsi",
-    "options": {
-      "period": 14
-    },
-    "inputs": {
-      "SLOT": [
-        "src#c"
-      ]
-    }
-  },
-  {
-    "id": "gt_0",
     "type": "gt",
+    "id": "gt_0",
     "options": {},
     "inputs": {
       "SLOT1": [
@@ -100,11 +10,77 @@
       "SLOT0": [
         "rsi_val#result"
       ]
-    }
+    },
+    "timeframe": null
   },
   {
-    "id": "lt_0",
+    "type": "boolean_select",
+    "id": "ifexp_0",
+    "options": {},
+    "inputs": {
+      "false": [
+        "text_1#result"
+      ],
+      "true": [
+        "text_0#result"
+      ],
+      "condition": [
+        "lt_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "boolean_select",
+    "id": "ifexp_1",
+    "options": {},
+    "inputs": {
+      "false": [
+        "text_3#result"
+      ],
+      "true": [
+        "text_2#result"
+      ],
+      "condition": [
+        "gt_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "boolean_select",
+    "id": "ifexp_2",
+    "options": {},
+    "inputs": {
+      "false": [
+        "text_5#result"
+      ],
+      "true": [
+        "text_4#result"
+      ],
+      "condition": [
+        "logical_or_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
+    "type": "logical_or",
+    "id": "logical_or_0",
+    "options": {},
+    "inputs": {
+      "SLOT1": [
+        "gt_0#result"
+      ],
+      "SLOT0": [
+        "lt_0#result"
+      ]
+    },
+    "timeframe": null
+  },
+  {
     "type": "lt",
+    "id": "lt_0",
     "options": {},
     "inputs": {
       "SLOT1": [
@@ -113,67 +89,108 @@
       "SLOT0": [
         "rsi_val#result"
       ]
-    }
+    },
+    "timeframe": null
   },
   {
-    "id": "ifexp_1",
-    "type": "boolean_select",
-    "options": {},
-    "inputs": {
-      "condition": [
-        "gt_0#result"
-      ],
-      "true": [
-        "text_2#result"
-      ],
-      "false": [
-        "text_3#result"
-      ]
-    }
+    "type": "number",
+    "id": "number_0",
+    "options": {
+      "value": 30
+    },
+    "inputs": {},
+    "timeframe": null
   },
   {
-    "id": "ifexp_0",
-    "type": "boolean_select",
-    "options": {},
-    "inputs": {
-      "condition": [
-        "lt_0#result"
-      ],
-      "true": [
-        "text_0#result"
-      ],
-      "false": [
-        "text_1#result"
-      ]
-    }
+    "type": "number",
+    "id": "number_1",
+    "options": {
+      "value": 70
+    },
+    "inputs": {},
+    "timeframe": null
   },
   {
-    "id": "logical_or_0",
-    "type": "logical_or",
-    "options": {},
+    "type": "rsi",
+    "id": "rsi_val",
+    "options": {
+      "period": 14
+    },
     "inputs": {
-      "SLOT1": [
-        "gt_0#result"
-      ],
-      "SLOT0": [
-        "lt_0#result"
+      "SLOT": [
+        "src#c"
       ]
-    }
+    },
+    "timeframe": null
   },
   {
-    "id": "ifexp_2",
-    "type": "boolean_select",
+    "type": "market_data_source",
+    "id": "src",
     "options": {},
-    "inputs": {
-      "condition": [
-        "logical_or_0#result"
-      ],
-      "true": [
-        "text_4#result"
-      ],
-      "false": [
-        "text_5#result"
-      ]
-    }
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_0",
+    "options": {
+      "value": "Oversold"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_1",
+    "options": {
+      "value": "Normal"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_2",
+    "options": {
+      "value": "Overbought"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_3",
+    "options": {
+      "value": ""
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_4",
+    "options": {
+      "value": "Active"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_5",
+    "options": {
+      "value": "Inactive"
+    },
+    "inputs": {},
+    "timeframe": null
+  },
+  {
+    "type": "text",
+    "id": "text_6",
+    "options": {
+      "value": "Trading"
+    },
+    "inputs": {},
+    "timeframe": null
   }
 ]

@@ -788,7 +788,7 @@ x = condition  # If you just need True/False
 If error persists:
 
 1. **Check transform catalog**: Verify transform name, options, inputs, outputs
-2. **Review examples**: See working examples in [Strategy Patterns](04-strategy-patterns.md)
+2. **Review examples**: See working examples in [Strategy Patterns](../strategies/strategy-patterns.md)
 3. **Simplify**: Remove parts until error disappears, then add back
 4. **Test incrementally**: Build up strategy step-by-step
 

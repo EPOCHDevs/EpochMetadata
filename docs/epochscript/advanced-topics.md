@@ -608,4 +608,4 @@ entry = (src.c > ema(period=50)(src.c)) and (rsi(period=14)(src.c) < 30) and (sr
 
 ---
 
-**Next:** [Error Reference →](07-error-reference.md)
+**Next:** [Error Reference →](../reference/error-reference.md)

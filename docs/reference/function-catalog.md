@@ -6,7 +6,7 @@ Complete reference of all 300+ available transforms.
 
 ## Overview
 
-This appendix lists ALL transforms available in Epoch script. For detailed documentation of the most commonly used transforms, see [Core Transforms](03-core-transforms.md).
+This appendix lists ALL transforms available in Epoch script. For detailed documentation of the most commonly used transforms, see [Core Transforms](../epochscript/core-transforms.md).
 
 **Organization:** Transforms are grouped by category and listed alphabetically within each category.
 
@@ -473,4 +473,4 @@ The complete transform metadata (options, inputs, outputs, descriptions) is avai
 
 ---
 
-**For detailed documentation of the 80 most commonly used transforms, see [Core Transforms](03-core-transforms.md).**
+**For detailed documentation of the 80 most commonly used transforms, see [Core Transforms](../epochscript/core-transforms.md).**

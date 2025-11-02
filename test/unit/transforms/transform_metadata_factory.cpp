@@ -213,7 +213,7 @@ TEST_CASE("Transform Metadata Factory") {
                   .value_or(epoch_script::MetaDataOptionDefinition{""})
                   .GetString();
         } else if (optionMetadata.type ==
-                   epoch_core::MetaDataOptionType::CardSchema) {
+                   epoch_core::MetaDataOptionType::EventMarkerSchema) {
           // Generate minimal valid CardSchema JSON for testing
           if (id == "card_selector_filter") {
             // Use a boolean column from test data

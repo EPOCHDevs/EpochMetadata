@@ -35,7 +35,7 @@
 //       ├── graph.json           # Expected compilation output (AST)
 //       ├── dataframes/          # Expected runtime dataframe outputs [optional]
 //       ├── tearsheets/          # Expected runtime tearsheet outputs [optional]
-//       └── selectors/           # Expected runtime selector outputs [optional]
+//       └── event_markers/           # Expected runtime selector outputs [optional]
 //
 // Test Types:
 //   1. Compilation-Only: Has input.txt and expected/graph.json
@@ -50,7 +50,13 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <epoch_frame/dataframe.h>
+#include <epoch_frame/serialization.h>
+#include <epoch_script/transforms/core/transform_definition.h>
+#include "common/csv_data_loader.h"
+#include "common/runtime_output_validator.h"
 #include "transforms/compiler/ast_compiler.h"
+#include "transforms/runtime/orchestrator.h"
 
 using namespace epoch_script;
 namespace fs = std::filesystem;
@@ -65,7 +71,7 @@ struct IntegrationTestCase
     fs::path input_data_dir;
     fs::path expected_dataframes_dir;
     fs::path expected_tearsheets_dir;
-    fs::path expected_selectors_dir;
+    fs::path expected_event_markers_dir;
 
     bool has_runtime_test() const {
         return fs::exists(input_data_dir) && !fs::is_empty(input_data_dir);
@@ -78,6 +84,61 @@ struct CompilerErrorCase
     std::string error;
 };
 
+// Special directories to skip
+static bool ShouldSkipDirectory(const std::string& name) {
+    return name == "archived" || name == "shared_data";
+}
+
+// Recursively scan directory for test cases
+static void ScanForTestCases(const fs::path& dir, const fs::path& base_dir,
+                             std::vector<IntegrationTestCase>& cases)
+{
+    if (!fs::exists(dir) || !fs::is_directory(dir))
+        return;
+
+    // Check if this directory is a test case (has input.txt and expected/graph.json)
+    fs::path input = dir / "input.txt";
+    fs::path expected_dir = dir / "expected";
+    fs::path expected_graph = expected_dir / "graph.json";
+
+    if (fs::exists(input) && fs::exists(expected_graph))
+    {
+        // This is a test case directory
+        IntegrationTestCase test_case;
+
+        // Build relative path from base_dir to create hierarchical name
+        fs::path relative_path = fs::relative(dir, base_dir);
+        test_case.name = relative_path.string();
+
+        test_case.test_dir = dir;
+        test_case.input_script = input;
+        test_case.expected_graph = expected_graph;
+        test_case.input_data_dir = dir / "input_data";
+        test_case.expected_dataframes_dir = expected_dir / "dataframes";
+        test_case.expected_tearsheets_dir = expected_dir / "tearsheets";
+        test_case.expected_event_markers_dir = expected_dir / "event_markers";
+
+        cases.push_back(test_case);
+
+        // Don't recurse into test case directories
+        return;
+    }
+
+    // Not a test case, recurse into subdirectories
+    for (const auto& entry : fs::directory_iterator(dir))
+    {
+        if (!entry.is_directory())
+            continue;
+
+        // Skip special directories
+        if (ShouldSkipDirectory(entry.path().filename().string()))
+            continue;
+
+        // Recursively scan subdirectory
+        ScanForTestCases(entry.path(), base_dir, cases);
+    }
+}
+
 // Helper to recursively load all test cases from test_cases directory
 std::vector<IntegrationTestCase> LoadIntegrationTestCases()
 {
@@ -89,76 +150,14 @@ std::vector<IntegrationTestCase> LoadIntegrationTestCases()
         return cases;
     }
 
-    // Special directories to skip
-    auto skip_dir = [](const std::string& name) {
-        return name == "archived" || name == "shared_data";
-    };
+    // Start recursive scan from test_cases directory
+    ScanForTestCases(test_dir, test_dir, cases);
 
-    // Recursively scan for test cases
-    for (const auto &category_entry : fs::directory_iterator(test_dir))
-    {
-        if (!category_entry.is_directory())
-            continue;
-
-        // Skip special directories at root level
-        if (skip_dir(category_entry.path().filename().string()))
-            continue;
-
-        // Check if this is a test case directory (has input.txt)
-        fs::path input = category_entry.path() / "input.txt";
-        fs::path expected_dir = category_entry.path() / "expected";
-        fs::path expected_graph = expected_dir / "graph.json";
-
-        if (fs::exists(input) && fs::exists(expected_graph))
-        {
-            // This is a test case at the category level (no subcategories)
-            IntegrationTestCase test_case;
-            test_case.name = category_entry.path().filename().string();
-            test_case.test_dir = category_entry.path();
-            test_case.input_script = input;
-            test_case.expected_graph = expected_graph;
-            test_case.input_data_dir = category_entry.path() / "input_data";
-            test_case.expected_dataframes_dir = expected_dir / "dataframes";
-            test_case.expected_tearsheets_dir = expected_dir / "tearsheets";
-            test_case.expected_selectors_dir = expected_dir / "selectors";
-
-            cases.push_back(test_case);
-        }
-        else
-        {
-            // This is a category directory, scan its subdirectories
-            for (const auto &test_entry : fs::directory_iterator(category_entry.path()))
-            {
-                if (!test_entry.is_directory())
-                    continue;
-
-                fs::path test_input = test_entry.path() / "input.txt";
-                fs::path test_expected_dir = test_entry.path() / "expected";
-                fs::path test_expected_graph = test_expected_dir / "graph.json";
-
-                if (fs::exists(test_input) && fs::exists(test_expected_graph))
-                {
-                    IntegrationTestCase test_case;
-                    // Include category in name: "operators/binary_operators"
-                    test_case.name = category_entry.path().filename().string() + "/" +
-                                    test_entry.path().filename().string();
-                    test_case.test_dir = test_entry.path();
-                    test_case.input_script = test_input;
-                    test_case.expected_graph = test_expected_graph;
-                    test_case.input_data_dir = test_entry.path() / "input_data";
-                    test_case.expected_dataframes_dir = test_expected_dir / "dataframes";
-                    test_case.expected_tearsheets_dir = test_expected_dir / "tearsheets";
-                    test_case.expected_selectors_dir = test_expected_dir / "selectors";
-
-                    cases.push_back(test_case);
-                }
-            }
-        }
-    }
-
+    // Sort test cases by name for consistent ordering
     std::sort(cases.begin(), cases.end(),
               [](const auto &a, const auto &b)
               { return a.name < b.name; });
+
     return cases;
 }
 
@@ -181,6 +180,45 @@ std::string ReadFile(const fs::path &path)
     }
     return std::string(std::istreambuf_iterator<char>(file),
                        std::istreambuf_iterator<char>());
+}
+
+// Load CSV files from input_data directory
+runtime::TimeFrameAssetDataFrameMap LoadInputData(const fs::path& input_data_dir)
+{
+    runtime::test::CsvDataLoader loader;
+    return loader.LoadFromDirectory(input_data_dir);
+}
+
+// Extract unique assets from input data
+std::set<std::string> ExtractAssets(const runtime::TimeFrameAssetDataFrameMap& data_map)
+{
+    std::set<std::string> assets;
+
+    for (const auto& [timeframe, asset_map] : data_map)
+    {
+        for (const auto& [asset, df] : asset_map)
+        {
+            assets.insert(asset);
+        }
+    }
+
+    return assets;
+}
+
+// Convert AlgorithmNode vector to TransformConfigurationList
+transform::TransformConfigurationList ConvertToConfigurationList(
+    const std::vector<strategy::AlgorithmNode>& nodes)
+{
+    transform::TransformConfigurationList configs;
+
+    for (const auto& node : nodes)
+    {
+        // Create TransformDefinition from AlgorithmNode
+        TransformDefinition def(node, node.timeframe);
+        configs.push_back(transform::TransformConfiguration{def});
+    }
+
+    return configs;
 }
 
 // Generate individual test cases using Catch2's generators
@@ -286,22 +324,59 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
             REQUIRE(expected_normalized == actual_normalized);
 
             // =================================================================
-            // PHASE 2: RUNTIME TESTING (if input_data exists)
+            // PHASE 2: RUNTIME TESTING (MANDATORY for all successful compilations)
             // =================================================================
 
-            if (test_case.has_runtime_test())
-            {
-                INFO("Runtime testing enabled for: " << test_case.name);
+            INFO("Runtime testing for: " << test_case.name);
 
-                // TODO: Implement runtime execution and validation
-                // 1. Load input data from input_data/ directory (CSV files)
-                // 2. Create orchestrator from compiled graph
-                // 3. Execute pipeline with input data
-                // 4. Validate output dataframes against expected/dataframes/
-                // 5. Validate tearsheets against expected/tearsheets/
-                // 6. Validate selectors against expected/selectors/
+            // 1. Load input data from input_data/ directory (CSV files)
+            // If no input_data exists, input_data_map will be empty
+            auto input_data_map = LoadInputData(test_case.input_data_dir);
 
-                WARN("Runtime testing not yet implemented");
+            // 2. Extract unique assets from input data
+            // If no input data, we still need to test with empty asset list
+            auto assets = ExtractAssets(input_data_map);
+            INFO("Assets: " << assets.size());
+
+            // 3. Convert compiled graph to TransformConfigurationList
+            auto config_list = ConvertToConfigurationList(actual_result);
+
+            // 4. Create orchestrator from compiled graph
+            auto orchestrator = runtime::CreateDataFlowRuntimeOrchestrator(assets, config_list);
+            REQUIRE(orchestrator != nullptr);
+
+            // 5. Execute pipeline with input data
+            runtime::TimeFrameAssetDataFrameMap output_data_map;
+            REQUIRE_NOTHROW(output_data_map = orchestrator->ExecutePipeline(input_data_map));
+
+            // 6. Get generated reports and event markers
+            auto reports = orchestrator->GetGeneratedReports();
+            auto event_markers = orchestrator->GetGeneratedEventMarkers();
+
+            INFO("Pipeline executed successfully");
+            INFO("Output dataframes: " << output_data_map.size());
+            INFO("Generated reports: " << reports.size());
+            INFO("Generated event markers: " << event_markers.size());
+
+            // 7. Validate output dataframes against expected/dataframes/
+            auto df_result = runtime::test::RuntimeOutputValidator::ValidateDataframes(
+                output_data_map, test_case.expected_dataframes_dir);
+            if (!df_result.passed) {
+                FAIL("Dataframe validation failed: " << df_result.message);
+            }
+
+            // 8. Validate tearsheets against expected/tearsheets/
+            auto tearsheet_result = runtime::test::RuntimeOutputValidator::ValidateTearsheets(
+                reports, test_case.expected_tearsheets_dir);
+            if (!tearsheet_result.passed) {
+                FAIL("Tearsheet validation failed: " << tearsheet_result.message);
+            }
+
+            // 9. Validate event_markers against expected/event_markers/
+            auto event_marker_result = runtime::test::RuntimeOutputValidator::ValidateEventMarkers(
+                event_markers, test_case.expected_event_markers_dir);
+            if (!event_marker_result.passed) {
+                FAIL("Event marker validation failed: " << event_marker_result.message);
             }
     }
 }
