@@ -337,9 +337,9 @@ namespace {
     // The pivot_index points to the timestamp schema (last element in the array)
     size_t pivot_idx = card_schemas.size() - 1;
 
-    // Store selector data in base class
+    // Store event marker data in base class
     // reset_index("pivot_index") converts the datetime index to a column named "pivot_index"
-    this->SetSelectorData(epoch_script::transform::SelectorData(
+    this->SetEventMarkerData(epoch_script::transform::EventMarkerData(
       "Gap Events",
       card_schemas,
       daily_df.reset_index("pivot_index"),

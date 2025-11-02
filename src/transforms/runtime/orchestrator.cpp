@@ -154,7 +154,7 @@ DataFlowRuntimeOrchestrator::ExecutePipeline(TimeFrameAssetDataFrameMap data) {
 
   // Cache reports from reporter transforms
   for (const auto& transform : m_transforms) {
-    CacheSelectorFromTransform(*transform);
+    CacheEventMarkerFromTransform(*transform);
     if (IsReporterTransform(*transform)) {
       CacheReportFromTransform(*transform);
     }
@@ -261,7 +261,7 @@ void DataFlowRuntimeOrchestrator::CacheReportFromTransform(
           m_reportCache.emplace(asset, report);
         }
       }
-      // Note: Selector caching is handled by CacheSelectorFromTransform() to avoid duplication
+      // Note: EventMarker caching is handled by CacheEventMarkerFromTransform() to avoid duplication
     });
 
   } catch (const std::exception& e) {
@@ -313,49 +313,49 @@ AssetReportMap DataFlowRuntimeOrchestrator::GetGeneratedReports() const {
   return m_reportCache;
 }
 
-void DataFlowRuntimeOrchestrator::CacheSelectorFromTransform(
+void DataFlowRuntimeOrchestrator::CacheEventMarkerFromTransform(
     const epoch_script::transform::ITransformBase& transform) const {
   const std::string transformId = transform.GetId();
 
   try {
-    auto selectorData = transform.GetSelectorData();
+    auto eventMarkerData = transform.GetEventMarkerData();
 
-    // Validate selector data before caching
-    if (selectorData.title.empty() || selectorData.schemas.empty()) {
+    // Validate event marker data before caching
+    if (eventMarkerData.title.empty() || eventMarkerData.schemas.empty()) {
       return;
     }
 
-    // For multi-asset scenarios, cache the selector for each asset
-    // Selector transforms typically generate UI metadata that applies to all assets
-    // Parallel selector caching with mutex protection
+    // For multi-asset scenarios, cache the event marker for each asset
+    // EventMarker transforms typically generate UI metadata that applies to all assets
+    // Parallel event marker caching with mutex protection
     tbb::parallel_for_each(m_asset_ids.begin(), m_asset_ids.end(), [&](const auto& asset) {
-      std::lock_guard<std::mutex> lock(m_selectorCacheMutex);
+      std::lock_guard<std::mutex> lock(m_eventMarkerCacheMutex);
 
-      // Check if we already have selectors for this asset
-      if (m_selectorCache.contains(asset)) {
-        // Append to existing vector of selectors
-        m_selectorCache[asset].push_back(selectorData);
-        SPDLOG_DEBUG("Appended selector from transform {} for asset {} (title: '{}', {} schemas, total selectors: {})",
-               transformId, asset.GetSymbolStr(), selectorData.title,
-               selectorData.schemas.size(), m_selectorCache[asset].size());
+      // Check if we already have event markers for this asset
+      if (m_eventMarkerCache.contains(asset)) {
+        // Append to existing vector of event markers
+        m_eventMarkerCache[asset].push_back(eventMarkerData);
+        SPDLOG_DEBUG("Appended event marker from transform {} for asset {} (title: '{}', {} schemas, total event markers: {})",
+               transformId, asset.GetSymbolStr(), eventMarkerData.title,
+               eventMarkerData.schemas.size(), m_eventMarkerCache[asset].size());
       } else {
-        // Create new vector with this selector
-        std::vector<epoch_script::transform::SelectorData> newVector;
-        newVector.push_back(selectorData);
-        m_selectorCache.emplace(asset, std::move(newVector));
-        SPDLOG_DEBUG("Cached first selector from transform {} for asset {} (title: '{}', {} schemas)",
-               transformId, asset.GetSymbolStr(), selectorData.title,
-               selectorData.schemas.size());
+        // Create new vector with this event marker
+        std::vector<epoch_script::transform::EventMarkerData> newVector;
+        newVector.push_back(eventMarkerData);
+        m_eventMarkerCache.emplace(asset, std::move(newVector));
+        SPDLOG_DEBUG("Cached first event marker from transform {} for asset {} (title: '{}', {} schemas)",
+               transformId, asset.GetSymbolStr(), eventMarkerData.title,
+               eventMarkerData.schemas.size());
       }
     });
 
   } catch (const std::exception& e) {
-    SPDLOG_WARN("Failed to cache selector from transform {}: {}", transformId, e.what());
+    SPDLOG_WARN("Failed to cache event marker from transform {}: {}", transformId, e.what());
   }
 }
 
-AssetSelectorMap DataFlowRuntimeOrchestrator::GetGeneratedSelectors() const {
-  return m_selectorCache;
+AssetEventMarkerMap DataFlowRuntimeOrchestrator::GetGeneratedEventMarkers() const {
+  return m_eventMarkerCache;
 }
 
 } // namespace epoch_script::runtime

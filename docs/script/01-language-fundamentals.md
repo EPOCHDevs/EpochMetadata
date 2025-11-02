@@ -56,7 +56,7 @@ transform_call()(inputs)
 **Valid sinks:**
 - `trade_signal_executor` - Execute trades
 - `gap_report` - Generate gap analysis report
-- `card_selector_filter` - Interactive UI selector
+- `event_marker` - Interactive UI selector
 
 ```python
 # Valid expression statement
@@ -172,7 +172,7 @@ labels = ["Buy", "Sell", "Hold"]
 ### Dictionaries (for configurations)
 
 ```python
-# Used in card_selector_filter and similar
+# Used in event_marker and similar
 color_map = {
     Success: ["BULLISH", "BUY"],
     Error: ["BEARISH", "SELL"],

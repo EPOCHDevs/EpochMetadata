@@ -285,7 +285,7 @@ transform_call()(inputs)
 ```
 
 **Rules:**
-- Only allowed for "sink" transforms (no outputs): `trade_signal_executor`, `gap_report`, `card_selector_filter`
+- Only allowed for "sink" transforms (no outputs): `trade_signal_executor`, `gap_report`, `event_marker`
 - Must be a function call, not a bare variable
 
 **Example:**
@@ -374,7 +374,7 @@ labels = ["Buy", "Sell", "Hold"]
 
 #### Dictionaries (for color maps, configurations)
 ```python
-# Used in card_selector_filter and similar transforms
+# Used in event_marker and similar transforms
 color_map = {
     Success: ["BULLISH", "BUY"],
     Error: ["BEARISH", "SELL"],

@@ -2,6 +2,7 @@
 
 target_sources(epoch_script_test PRIVATE
     sql_statement_test.cpp
+        symbol_test.cpp
     timeframe_test.cpp
     metadata_options_test.cpp
 )

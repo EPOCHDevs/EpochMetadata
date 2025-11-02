@@ -38,7 +38,7 @@ namespace epoch_script::runtime {
 
         AssetReportMap GetGeneratedReports() const override;
 
-        AssetSelectorMap GetGeneratedSelectors() const override;
+        AssetEventMarkerMap GetGeneratedEventMarkers() const override;
 
         // Public for testing
         static void MergeReportInPlace(epoch_proto::TearSheet& existing,
@@ -60,9 +60,9 @@ namespace epoch_script::runtime {
         mutable AssetReportMap m_reportCache;
         mutable std::mutex m_reportCacheMutex;
 
-        // Selector cache for selector transforms (thread-safe with mutex)
-        mutable AssetSelectorMap m_selectorCache;
-        mutable std::mutex m_selectorCacheMutex;
+        // EventMarker cache for event_marker transforms (thread-safe with mutex)
+        mutable AssetEventMarkerMap m_eventMarkerCache;
+        mutable std::mutex m_eventMarkerCacheMutex;
 
         std::function<void(execution_context_t)> CreateExecutionFunction(
             const epoch_script::transform::ITransformBase &transform);
@@ -76,8 +76,8 @@ namespace epoch_script::runtime {
         // Helper to cache reports from reporter transforms
         void CacheReportFromTransform(const epoch_script::transform::ITransformBase& transform) const;
 
-        // Helper to cache selectors from selector transforms
-        void CacheSelectorFromTransform(const epoch_script::transform::ITransformBase& transform) const;
+        // Helper to cache event markers from event_marker transforms
+        void CacheEventMarkerFromTransform(const epoch_script::transform::ITransformBase& transform) const;
     };
 
     using DataFlowOrchestratorPtr = std::unique_ptr<DataFlowRuntimeOrchestrator>;

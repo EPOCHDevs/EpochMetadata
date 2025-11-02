@@ -12,5 +12,5 @@ namespace epoch_script::runtime {
     using TimeFrameAssetDataFrameMap = std::unordered_map<std::string, AssetDataFrameMap>;
 
     using AssetReportMap = std::unordered_map<AssetID, epoch_proto::TearSheet>;
-    using AssetSelectorMap = std::unordered_map<AssetID, std::vector<epoch_script::transform::SelectorData>>;
+    using AssetEventMarkerMap = std::unordered_map<AssetID, std::vector<epoch_script::transform::EventMarkerData>>;
 }

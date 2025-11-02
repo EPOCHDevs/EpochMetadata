@@ -22,7 +22,7 @@
 #include <epoch_script/core/sql_statement.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList, Time, String, CardSchema, SqlStatement);
+            StringList, Time, String, EventMarkerSchema, SqlStatement);
 
 namespace epoch_script
 {
@@ -71,13 +71,13 @@ namespace epoch_script
   };
 
   // Card selector schema using boolean column filter
-  struct CardSchemaFilter {
+  struct EventMarkerSchema {
     std::string title;
     epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
     std::string select_key;  // Boolean column to filter rows
     std::vector<CardColumnSchema> schemas;
 
-    bool operator==(const CardSchemaFilter &) const = default;
+    bool operator==(const EventMarkerSchema &) const = default;
 
     struct glaze_json_schema {
       glz::schema title{
@@ -130,12 +130,12 @@ namespace epoch_script
   };
 
   // Legacy type alias for backwards compatibility - kept for existing code
-  using CardSchemaList = CardSchemaFilter;
+  using CardSchemaList = EventMarkerSchema;
 
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, CardSchemaFilter, CardSchemaSQL, SqlStatement>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, EventMarkerSchema, CardSchemaSQL, SqlStatement>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -250,9 +250,9 @@ namespace epoch_script
 
     [[nodiscard]] epoch_frame::Time GetTime() const;
 
-    [[nodiscard]] CardSchemaFilter GetCardSchemaList() const
+    [[nodiscard]] EventMarkerSchema GetCardSchemaList() const
     {
-      return GetValueByType<CardSchemaFilter>();
+      return GetValueByType<EventMarkerSchema>();
     }
 
     [[nodiscard]] CardSchemaSQL GetCardSchemaSQL() const
@@ -648,12 +648,12 @@ namespace glz
         // CardSchema object - parse into proper type based on presence of select_key vs sql
         if (in.contains("select_key"))
         {
-          // CardSchemaFilter
-          epoch_script::CardSchemaFilter schema;
+          // EventMarkerSchema
+          epoch_script::EventMarkerSchema schema;
           auto error = glz::read_json(schema, in.dump().value_or("{}"));
           if (error)
           {
-            throw std::runtime_error("Failed to parse CardSchemaFilter JSON: " +
+            throw std::runtime_error("Failed to parse EventMarkerSchema JSON: " +
                                      glz::format_error(error));
           }
           value = epoch_script::MetaDataOptionDefinition{

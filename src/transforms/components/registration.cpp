@@ -51,8 +51,8 @@
 #include "data_sources/fred_metadata.h"
 #include "data_sources/fred_transform.h"
 
-// Selector includes
-#include <epoch_script/transforms/components/selectors/card_selector.h>
+// EventMarker includes
+#include <epoch_script/transforms/components/event_markers/event_marker.h>
 
 // SQL and Report includes
 #include "sql/sql_query_transform.h"
@@ -308,10 +308,10 @@ void InitializeTransforms(
   // Economic Data Source Transforms
   REGISTER_TRANSFORM(economic_indicator, FREDTransform);
 
-  // Register Selectors
-  REGISTER_TRANSFORM(card_selector_filter, CardSelectorFromFilter);
+  // Register EventMarkers
+  REGISTER_TRANSFORM(event_marker, EventMarker);
   transforms::ITransformRegistry::GetInstance().Register(
-    SelectorMetadata::Get());
+    EventMarkerMetadata::Get());
 
   // SQL Query Transforms (1-4 outputs) - DISABLED
   // REGISTER_TRANSFORM(sql_query_1, SQLQueryTransform1);
@@ -335,7 +335,7 @@ void InitializeTransforms(
 
   // Register Specialized Reports
   reports::RegisterReport<reports::GapReport>();
-  // reports::RegisterReport<reports::CardSelectorReport>();  // Commented out - missing epoch_proto types
+  // reports::RegisterReport<reports::EventMarkerReport>();  // Commented out - missing epoch_proto types
 
 };
 } // namespace epoch_script::transform

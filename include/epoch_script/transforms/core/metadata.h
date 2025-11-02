@@ -19,10 +19,10 @@ CREATE_ENUM(TransformCategory,
             PriceAction, // candlestick & chart patterns
             Statistical, // z-score, regression, percentiles
             Factor,      // cross-sectional ranks & spreads
-            Utility,     // switches, selectors, helpers
+            Utility,     // switches, event_markers, helpers
             Reporter,    // report / visualization sink nodes
             Executor,    // trade / order sink nodes
-            Selector);   // interactive UI selectors
+            EventMarker);   // interactive UI event_markers
 
 // Chart helper (omit / null ⇒ not plotted)
 CREATE_ENUM(
@@ -71,7 +71,7 @@ CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, An
 // Note: Use TransformCategory to distinguish between transform types:
 //   - Regular transforms: Aggregate, Math, Trend, Momentum, etc.
 //   - Reports: category = Executor
-//   - Selectors: category = Selector
+//   - EventMarkers: category = EventMarker
 
 namespace epoch_script::transforms {
 constexpr auto MARKET_DATA_SOURCE_ID = "market_data_source";

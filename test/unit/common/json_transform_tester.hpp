@@ -142,7 +142,7 @@ namespace epoch
                 std::optional<std::vector<HistogramBin>> bins;
             };
 
-            // Expected dataframe output (forward declared for SelectorDataExpect)
+            // Expected dataframe output (forward declared for EventMarkerDataExpect)
             struct DataFrameExpect
             {
                 std::string type = "dataframe";
@@ -151,7 +151,7 @@ namespace epoch
             };
 
             // Selector data for card navigation
-            struct SelectorDataExpect
+            struct EventMarkerDataExpect
             {
                 std::string title;
                 std::string icon;
@@ -167,7 +167,7 @@ namespace epoch
                 std::optional<CardsList> cards;
                 std::vector<TearsheetTable> tables;
                 std::vector<TearsheetChart> charts;
-                std::optional<SelectorDataExpect> selector_data;
+                std::optional<EventMarkerDataExpect> selector_data;
             };
 
             // Test case structure
@@ -886,7 +886,7 @@ namespace epoch
                                         if (expectJson.contains("selector_data") && expectJson["selector_data"].holds<glz::generic::object_t>())
                                         {
                                             auto &selectorJson = expectJson["selector_data"].get<glz::generic::object_t>();
-                                            SelectorDataExpect selectorData;
+                                            EventMarkerDataExpect selectorData;
 
                                             if (selectorJson.contains("title") && selectorJson["title"].holds<std::string>())
                                             {

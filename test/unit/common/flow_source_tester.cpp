@@ -5,7 +5,7 @@
 #include <glaze/glaze.hpp>
 #include <spdlog/spdlog.h>
 
-#include "selector_comparator.h"
+#include "event_marker_comparator.h"
 #include "tearsheet_comparator.h"
 #include "runtime/orchestrator.h"
 #include <runtime/transform_manager/transform_manager.h>
@@ -259,7 +259,7 @@ FlowSourceTestRunner::TestOutputs FlowSourceTestRunner::ExecuteTest(
     TestOutputs outputs;
     outputs.dataframes = orchestrator->ExecutePipeline(inputData);
     outputs.tearsheets = orchestrator->GetGeneratedReports();
-    outputs.selectors = orchestrator->GetGeneratedSelectors();
+    outputs.selectors = orchestrator->GetGeneratedEventMarkers();
 
     return outputs;
 }

@@ -51,10 +51,10 @@ public:
     explicit MockTransform() = default;
     ~MockTransform() override = default;
 
-    // Mock only methods that need verification (TransformData, GetTearSheet, GetSelectorData)
+    // Mock only methods that need verification (TransformData, GetTearSheet, GetEventMarkerData)
     MAKE_CONST_MOCK1(TransformData, epoch_frame::DataFrame(const epoch_frame::DataFrame&), override);
     MAKE_CONST_MOCK0(GetTearSheet, epoch_proto::TearSheet(), override);
-    MAKE_CONST_MOCK0(GetSelectorData, epoch_script::transform::SelectorData(), override);
+    MAKE_CONST_MOCK0(GetEventMarkerData, epoch_script::transform::EventMarkerData(), override);
 
     // Note: GetConfiguration is stubbed below, not mocked, to avoid complexity
 
@@ -107,7 +107,7 @@ public:
                     "inputs:\n"
                     "  SLOT: [data#c]\n"
                     "options:\n"
-                    "  card_schema:\n"
+                    "  event_marker_schema:\n"
                     "    title: Test Selector\n"
                     "    select_key: filter\n"
                     "    schemas:\n"

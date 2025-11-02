@@ -5,7 +5,7 @@
 target_sources(epoch_script_test PRIVATE
     json_transform_tester.hpp
     yaml_transform_tester.hpp
-    selector_output.hpp
+    event_marker_output.hpp
     test_constants.cpp
     test_constants.h
 )

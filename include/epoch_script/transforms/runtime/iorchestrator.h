@@ -3,7 +3,7 @@
 // Created by dewe on 1/26/23.
 //
 #include <epoch_script/transforms/runtime/types.h>
-#include <epoch_script/transforms/components/selectors/card_selector.h>
+#include <epoch_script/transforms/components/event_markers/event_marker.h>
 #include <epoch_script/transforms/core/itransform.h>
 #include "epoch_protos/tearsheet.pb.h"
 
@@ -16,7 +16,7 @@ namespace epoch_script::runtime {
 
         virtual AssetReportMap GetGeneratedReports() const = 0;
 
-        virtual AssetSelectorMap GetGeneratedSelectors() const = 0;
+        virtual AssetEventMarkerMap GetGeneratedEventMarkers() const = 0;
 
         virtual ~IDataFlowOrchestrator() = default;
     };

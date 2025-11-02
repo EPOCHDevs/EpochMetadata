@@ -520,8 +520,8 @@ namespace epoch_script
                     str = JoinId(arg_handle.node_id, arg_handle.handle);
                 }
             }
-            // Handle CardSchemaFilter
-            else if (auto* filter_ptr = std::get_if<epoch_script::CardSchemaFilter>(&value))
+            // Handle EventMarkerSchema
+            else if (auto* filter_ptr = std::get_if<epoch_script::EventMarkerSchema>(&value))
             {
                 auto& filter = *filter_ptr;
 

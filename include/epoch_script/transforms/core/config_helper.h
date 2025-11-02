@@ -1651,19 +1651,19 @@ inline auto consolidation_box_cfg =
     };
 
 // =========================
-// Card Selector configuration helpers
+// Event Marker configuration helpers
 // =========================
 
-// Card Selector with Filter - Uses boolean column to filter rows
-// Accepts CardSchemaFilter object directly - NO YAML!
-inline auto card_selector_filter_cfg =
-    [](std::string const &id, epoch_script::CardSchemaFilter const &card_schema,
+// Event Marker with Filter - Uses boolean column to filter rows
+// Accepts EventMarkerSchema object directly - NO YAML!
+inline auto event_marker_cfg =
+    [](std::string const &id, epoch_script::EventMarkerSchema const &event_marker_schema,
        const std::vector<std::string> &inputs,
        const epoch_script::TimeFrame &timeframe) {
       TransformDefinitionData data{
-        .type = "card_selector_filter",
+        .type = "event_marker",
         .id = id,
-        .options = {{"card_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{card_schema}}}},
+        .options = {{"event_marker_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{event_marker_schema}}}},
         .timeframe = timeframe,
         .inputs = {{"SLOT", inputs}}
       };
@@ -1673,13 +1673,13 @@ inline auto card_selector_filter_cfg =
 // Card Selector with SQL - Uses SQL query to filter rows
 // Accepts CardSchemaSQL object directly - NO YAML!
 inline auto card_selector_sql_cfg =
-    [](std::string const &id, epoch_script::CardSchemaSQL const &card_schema,
+    [](std::string const &id, epoch_script::CardSchemaSQL const &event_marker_schema,
        const std::vector<std::string> &inputs,
        const epoch_script::TimeFrame &timeframe) {
       TransformDefinitionData data{
         .type = "card_selector_sql",
         .id = id,
-        .options = {{"card_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{card_schema}}}},
+        .options = {{"event_marker_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{event_marker_schema}}}},
         .timeframe = timeframe,
         .inputs = {{"SLOT", inputs}}
       };

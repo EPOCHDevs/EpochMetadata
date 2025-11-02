@@ -10,16 +10,16 @@
 
 namespace epoch_script::transform {
 
-  // Forward declaration for SelectorData
-  struct SelectorData {
+  // Forward declaration for EventMarkerData
+  struct EventMarkerData {
     std::string title;
     epoch_core::CardIcon icon;
     std::vector<epoch_script::CardColumnSchema> schemas;
     epoch_frame::DataFrame data;
     std::optional<size_t> pivot_index;  // Index in schemas array pointing to Timestamp column for chart navigation
 
-    SelectorData() : icon(epoch_core::CardIcon::Info) {}
-    SelectorData(std::string title_,
+    EventMarkerData() : icon(epoch_core::CardIcon::Info) {}
+    EventMarkerData(std::string title_,
                  std::vector<epoch_script::CardColumnSchema> schemas_,
                  epoch_frame::DataFrame data_,
                  std::optional<size_t> pivot_index_ = std::nullopt,
@@ -63,7 +63,7 @@ struct ITransformBase {
   TransformData(const epoch_frame::DataFrame &) const = 0;
 
   virtual  epoch_proto::TearSheet GetTearSheet() const = 0;
-  virtual  SelectorData GetSelectorData() const = 0;
+  virtual  EventMarkerData GetEventMarkerData() const = 0;
 
   virtual ~ITransformBase() = default;
 };
@@ -140,11 +140,11 @@ public:
     return epoch_proto::TearSheet::default_instance();
   }
 
-  SelectorData GetSelectorData() const override {
-    if (!m_selectorData.has_value()) {
-      return {};  // Return empty SelectorData if not set
+  EventMarkerData GetEventMarkerData() const override {
+    if (!m_eventMarkerData.has_value()) {
+      return {};  // Return empty EventMarkerData if not set
     }
-    return m_selectorData.value();
+    return m_eventMarkerData.value();
   }
 
   ~ITransform() override = default;
@@ -152,11 +152,11 @@ public:
 
 protected:
   TransformConfiguration m_config;
-  mutable std::optional<SelectorData> m_selectorData;
+  mutable std::optional<EventMarkerData> m_eventMarkerData;
 
-  // Protected setter for derived classes to populate selector data
-  void SetSelectorData(SelectorData data) const {
-    m_selectorData = std::move(data);
+  // Protected setter for derived classes to populate event marker data
+  void SetEventMarkerData(EventMarkerData data) const {
+    m_eventMarkerData = std::move(data);
   }
 
   static auto GetValidSeries(epoch_frame::Series const &input) {

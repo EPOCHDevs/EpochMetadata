@@ -5,4 +5,4 @@ add_subdirectory(transforms)   # Transform tests
 add_subdirectory(strategy)     # Strategy tests
 add_subdirectory(runtime)      # Runtime unit tests
 add_subdirectory(compiler)     # Compiler tests
-add_subdirectory(selectors)    # Selector tests
+add_subdirectory(event_markers)    # Selector tests

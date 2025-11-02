@@ -57,7 +57,7 @@ namespace epoch_script
         // Custom type constructor parsers
         // These correspond to types in MetaDataOptionDefinition::T variant
         epoch_frame::Time ParseTimeConstructor(const Call& call);
-        epoch_script::CardSchemaFilter ParseCardSchemaFilterConstructor(const Call& call);
+        epoch_script::EventMarkerSchema ParseEventMarkerSchemaConstructor(const Call& call);
         epoch_script::CardSchemaSQL ParseCardSchemaSQLConstructor(const Call& call);
         epoch_script::SqlStatement ParseSqlStatementConstructor(const Call& call);
         epoch_script::CardColumnSchema ParseCardColumnSchemaConstructor(const Call& call);

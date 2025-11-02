@@ -183,9 +183,9 @@ namespace epoch_script
             {
                 return epoch_script::MetaDataOptionDefinition::T{ParseTimeConstructor(*call)};
             }
-            else if (ctor_name == "CardSchemaFilter")
+            else if (ctor_name == "EventMarkerSchema")
             {
-                return epoch_script::MetaDataOptionDefinition::T{ParseCardSchemaFilterConstructor(*call)};
+                return epoch_script::MetaDataOptionDefinition::T{ParseEventMarkerSchemaConstructor(*call)};
             }
             else if (ctor_name == "CardSchemaSQL")
             {
@@ -199,7 +199,7 @@ namespace epoch_script
             // in SpecialParameterHandler, not as regular options
             else
             {
-                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, CardSchemaFilter, CardSchemaSQL, SqlStatement", call->lineno, call->col_offset);
+                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, EventMarkerSchema, CardSchemaSQL, SqlStatement", call->lineno, call->col_offset);
             }
         }
         else if (auto* constant = dynamic_cast<const Constant*>(&expr))
@@ -502,16 +502,16 @@ namespace epoch_script
         return schema;
     }
 
-    epoch_script::CardSchemaFilter ConstructorParser::ParseCardSchemaFilterConstructor(const Call& call)
+    epoch_script::EventMarkerSchema ConstructorParser::ParseEventMarkerSchemaConstructor(const Call& call)
     {
         // Convert kwargs to glz::generic and let glaze deserialize
         glz::generic obj = CallKwargsToGeneric(call);
 
-        epoch_script::CardSchemaFilter filter{};
+        epoch_script::EventMarkerSchema filter{};
         auto error = glz::read<glz::opts{}>(filter, obj);
         if (error)
         {
-            ThrowError("Failed to parse CardSchemaFilter constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+            ThrowError("Failed to parse EventMarkerSchema constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
         }
 
         return filter;

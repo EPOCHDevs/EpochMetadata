@@ -187,16 +187,16 @@ namespace epoch_script
             return raw_value;
         }
 
-        case MetaType::CardSchema:
+        case MetaType::EventMarkerSchema:
         {
-            // If already parsed as CardSchemaFilter or CardSchemaSQL, return as-is (already validated)
-            if (std::holds_alternative<epoch_script::CardSchemaFilter>(raw_value) ||
+            // If already parsed as EventMarkerSchema or CardSchemaSQL, return as-is (already validated)
+            if (std::holds_alternative<epoch_script::EventMarkerSchema>(raw_value) ||
                 std::holds_alternative<epoch_script::CardSchemaSQL>(raw_value))
             {
                 return raw_value;
             }
 
-            // Expect a JSON string to parse into CardSchemaFilter or CardSchemaSQL
+            // Expect a JSON string to parse into EventMarkerSchema or CardSchemaSQL
             if (!std::holds_alternative<std::string>(raw_value))
             {
                 ThrowError(
@@ -209,8 +209,8 @@ namespace epoch_script
             // Trim leading/trailing whitespace (triple-quoted strings may have newlines)
             std::string trimmed_json = TrimWhitespace(json_str);
 
-            // Try parsing as CardSchemaFilter first (uses select_key)
-            auto filter_result = glz::read_json<epoch_script::CardSchemaFilter>(trimmed_json);
+            // Try parsing as EventMarkerSchema first (uses select_key)
+            auto filter_result = glz::read_json<epoch_script::EventMarkerSchema>(trimmed_json);
             if (filter_result)
             {
                 return epoch_script::MetaDataOptionDefinition::T{filter_result.value()};
@@ -239,7 +239,7 @@ namespace epoch_script
                 return epoch_script::MetaDataOptionDefinition::T{card_schema_sql};
             }
 
-            // Both CardSchemaFilter and CardSchemaSQL failed
+            // Both EventMarkerSchema and CardSchemaSQL failed
             ThrowError(
                 std::format("Invalid CardSchema JSON for option '{}' of node '{}'. "
                             "CardSchema must contain either 'select_key' (for filter mode) or 'sql' (for SQL mode).",

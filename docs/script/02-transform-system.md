@@ -486,7 +486,7 @@ trade_signal_executor()(enter_long=buy)
 gap_report(...)(inputs)
 
 # UI selector
-card_selector_filter(...)(inputs)
+event_marker(...)(inputs)
 ```
 
 ### Sources (No Inputs)

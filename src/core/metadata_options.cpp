@@ -134,11 +134,11 @@ void MetaDataOptionDefinition::AssertType(
   case epoch_core::MetaDataOptionType::String:
     AssertType<std::string>();
     break;
-  case epoch_core::MetaDataOptionType::CardSchema:
-    // CardSchema can be either CardSchemaFilter or CardSchemaSQL
-    if (!std::holds_alternative<CardSchemaFilter>(m_optionsVariant) &&
+  case epoch_core::MetaDataOptionType::EventMarkerSchema:
+    // EventMarkerSchema can be either EventMarkerSchema or CardSchemaSQL
+    if (!std::holds_alternative<EventMarkerSchema>(m_optionsVariant) &&
         !std::holds_alternative<CardSchemaSQL>(m_optionsVariant)) {
-      throw std::runtime_error("Expected CardSchemaFilter or CardSchemaSQL type");
+      throw std::runtime_error("Expected EventMarkerSchema or CardSchemaSQL type");
     }
     break;
   case epoch_core::MetaDataOptionType::SqlStatement:
@@ -167,8 +167,8 @@ bool MetaDataOptionDefinition::IsType(
     return std::holds_alternative<Sequence>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::String:
     return std::holds_alternative<std::string>(m_optionsVariant);
-  case epoch_core::MetaDataOptionType::CardSchema:
-    return std::holds_alternative<CardSchemaFilter>(m_optionsVariant) ||
+  case epoch_core::MetaDataOptionType::EventMarkerSchema:
+    return std::holds_alternative<EventMarkerSchema>(m_optionsVariant) ||
            std::holds_alternative<CardSchemaSQL>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::SqlStatement:
     return std::holds_alternative<SqlStatement>(m_optionsVariant);
@@ -255,8 +255,8 @@ size_t MetaDataOptionDefinition::GetHash() const {
           seed ^= std::hash<int>{}(arg.microsecond.count()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           seed ^= std::hash<std::string>{}(arg.tz) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           return seed;
-        } else if constexpr (std::same_as<K, CardSchemaFilter>) {
-          // Hash CardSchemaFilter by hashing its fields
+        } else if constexpr (std::same_as<K, EventMarkerSchema>) {
+          // Hash EventMarkerSchema by hashing its fields
           size_t seed = 0;
           seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           seed ^= std::hash<std::string>{}(arg.select_key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -314,8 +314,8 @@ std::string MetaDataOptionDefinition::ToString() const {
         } else if constexpr (std::same_as<K, epoch_frame::Time>) {
           // Use the built-in repr() method for simple string representation
           return arg.repr();
-        } else if constexpr (std::same_as<K, CardSchemaFilter>) {
-          // Use glaze to pretty print the full CardSchemaFilter structure
+        } else if constexpr (std::same_as<K, EventMarkerSchema>) {
+          // Use glaze to pretty print the full EventMarkerSchema structure
           return glz::write_json(arg).value_or("{}");
         } else if constexpr (std::same_as<K, CardSchemaSQL>) {
           // Use glaze to pretty print the full CardSchemaSQL structure
@@ -359,8 +359,8 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
           return MetaDataOptionDefinition{};
       }
     }
-    // CardSchema and SqlStatement can be Maps/Objects, others must be Scalars
-    if (arg.type != epoch_core::MetaDataOptionType::CardSchema &&
+    // EventMarkerSchema and SqlStatement can be Maps/Objects, others must be Scalars
+    if (arg.type != epoch_core::MetaDataOptionType::EventMarkerSchema &&
         arg.type != epoch_core::MetaDataOptionType::SqlStatement) {
       AssertFromStream(node.IsScalar(), "invalid transform option type: "
                                             << node << ", expected a scalar for "
@@ -394,14 +394,14 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
   }
   case epoch_core::MetaDataOptionType::String:
     return MetaDataOptionDefinition{node.as<std::string>()};
-  case epoch_core::MetaDataOptionType::CardSchema: {
-    // CardSchema only comes from EpochScript DSL as a YAML Map - convert to JSON
+  case epoch_core::MetaDataOptionType::EventMarkerSchema: {
+    // EventMarkerSchema only comes from EpochScript DSL as a YAML Map - convert to JSON
     // Config helpers now use TransformDefinitionData and bypass YAML entirely
     if (node.IsMap()) {
       std::string jsonStr = YamlNodeToJsonString(node);
       return MetaDataOptionDefinition{jsonStr};
     } else {
-      throw std::runtime_error("CardSchema must be a Map/Object, not a scalar");
+      throw std::runtime_error("EventMarkerSchema must be a Map/Object, not a scalar");
     }
   }
   case epoch_core::MetaDataOptionType::SqlStatement: {
