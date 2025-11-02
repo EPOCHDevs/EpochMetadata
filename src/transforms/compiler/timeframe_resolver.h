@@ -26,17 +26,21 @@ namespace epoch_script
     public:
         TimeframeResolver() = default;
 
-        // Resolve timeframe for a node given its input IDs and base timeframe
+        // Resolve timeframe for a node given its input IDs
         // Returns cached result if available, otherwise computes and caches
         std::optional<epoch_script::TimeFrame> ResolveTimeframe(
             const std::string &nodeId,
-            const std::vector<std::string> &inputIds,
-            const epoch_script::TimeFrame &baseTimeframe);
+            const std::vector<std::string> &inputIds);
 
         // Resolve timeframe for a single AlgorithmNode
         std::optional<epoch_script::TimeFrame> ResolveNodeTimeframe(
-            const epoch_script::strategy::AlgorithmNode &node,
-            const epoch_script::TimeFrame &baseTimeframe);
+            const epoch_script::strategy::AlgorithmNode &node);
+
+        // Resolve timeframe for a literal by finding nodes that use it
+        // Literals inherit timeframes from their dependent nodes
+        std::optional<epoch_script::TimeFrame> ResolveLiteralTimeframe(
+            const std::string &nodeId,
+            const std::vector<epoch_script::strategy::AlgorithmNode> &allNodes);
 
         // Cache of resolved timeframes: nodeId -> resolved timeframe
         std::unordered_map<std::string, std::optional<epoch_script::TimeFrame>> nodeTimeframes;

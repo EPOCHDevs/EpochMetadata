@@ -258,27 +258,25 @@ x = 5.0
 
 using epoch_script::TimeframeResolver;
 
-TEST_CASE("TimeframeResolver: Resolves from base timeframe", "[timeframe_resolution]")
+TEST_CASE("TimeframeResolver: Returns nullopt when no inputs", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
 
-    auto result = resolver.ResolveTimeframe("test_node", {}, baseTimeframe);
+    auto result = resolver.ResolveTimeframe("test_node", {});
 
-    REQUIRE(result.has_value());
-    REQUIRE(result.value().ToString() == baseTimeframe.ToString());
+    // With no inputs, resolver returns nullopt (literals will be resolved in pass 2)
+    REQUIRE_FALSE(result.has_value());
 }
 
 TEST_CASE("TimeframeResolver: Resolves from input timeframes", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
     auto inputTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(5));
 
     // Set up input node with timeframe
     resolver.nodeTimeframes["input1"] = inputTimeframe;
 
-    auto result = resolver.ResolveTimeframe("test_node", {"input1#result"}, baseTimeframe);
+    auto result = resolver.ResolveTimeframe("test_node", {"input1#result"});
 
     REQUIRE(result.has_value());
     REQUIRE(result.value().ToString() == inputTimeframe.ToString());
@@ -295,7 +293,7 @@ TEST_CASE("TimeframeResolver: Uses lowest resolution from multiple inputs", "[ti
     resolver.nodeTimeframes["input1"] = timeframe5Min; // Lower resolution (higher timeframe value)
     resolver.nodeTimeframes["input2"] = timeframe1Min; // Higher resolution (lower timeframe value)
 
-    auto result = resolver.ResolveTimeframe("test_node", {"input1#result", "input2#result"}, baseTimeframe);
+    auto result = resolver.ResolveTimeframe("test_node", {"input1#result", "input2#result"});
 
     REQUIRE(result.has_value());
     // Should pick the maximum (lowest resolution) timeframe
@@ -312,7 +310,7 @@ TEST_CASE("TimeframeResolver: Caching works correctly", "[timeframe_resolution]"
     resolver.nodeTimeframes["input1"] = inputTimeframe;
 
     // First call should resolve and cache
-    auto result1 = resolver.ResolveTimeframe("test_node", {"input1#result"}, baseTimeframe);
+    auto result1 = resolver.ResolveTimeframe("test_node", {"input1#result"});
     REQUIRE(result1.has_value());
     REQUIRE(result1.value().ToString() == inputTimeframe.ToString());
 
@@ -320,9 +318,8 @@ TEST_CASE("TimeframeResolver: Caching works correctly", "[timeframe_resolution]"
     REQUIRE(resolver.nodeTimeframes.contains("test_node"));
     REQUIRE(resolver.nodeTimeframes["test_node"] == result1);
 
-    // Second call should return cached value (even with different base timeframe)
-    auto differentBase = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(30));
-    auto result2 = resolver.ResolveTimeframe("test_node", {"input1#result"}, differentBase);
+    // Second call should return cached value
+    auto result2 = resolver.ResolveTimeframe("test_node", {"input1#result"});
     REQUIRE(result2.has_value());
     REQUIRE(result2.value().ToString() == result1.value().ToString());
 }
@@ -337,27 +334,27 @@ TEST_CASE("TimeframeResolver: ResolveNodeTimeframe uses explicit node timeframe"
     node.id = "test_node";
     node.timeframe = nodeTimeframe;
 
-    auto result = resolver.ResolveNodeTimeframe(node, baseTimeframe);
+    auto result = resolver.ResolveNodeTimeframe(node);
 
     REQUIRE(result.has_value());
     REQUIRE(result.value().ToString() == nodeTimeframe.ToString());
     REQUIRE(resolver.nodeTimeframes["test_node"] == nodeTimeframe);
 }
 
-TEST_CASE("TimeframeResolver: ResolveNodeTimeframe falls back to base timeframe", "[timeframe_resolution]")
+TEST_CASE("TimeframeResolver: ResolveNodeTimeframe returns nullopt for nodes without timeframe or inputs", "[timeframe_resolution]")
 {
     TimeframeResolver resolver;
-    auto baseTimeframe = epoch_script::TimeFrame(epoch_frame::factory::offset::minutes(1));
 
     epoch_script::strategy::AlgorithmNode node;
     node.id = "test_node";
     // node.timeframe is not set
     // node has no inputs
 
-    auto result = resolver.ResolveNodeTimeframe(node, baseTimeframe);
+    auto result = resolver.ResolveNodeTimeframe(node);
 
-    REQUIRE(result.has_value());
-    REQUIRE(result.value().ToString() == baseTimeframe.ToString());
+    // Nodes without timeframes or inputs (e.g., literals) return nullopt
+    // They will be resolved in a second pass via ResolveLiteralTimeframe
+    REQUIRE_FALSE(result.has_value());
 }
 
 TEST_CASE("TimeframeResolver: ResolveNodeTimeframe resolves from inputs", "[timeframe_resolution]")
@@ -375,7 +372,7 @@ TEST_CASE("TimeframeResolver: ResolveNodeTimeframe resolves from inputs", "[time
     node.inputs["SLOT0"] = {"input_node#result"};
     node.inputs["SLOT1"] = {"input_node#result"};
 
-    auto result = resolver.ResolveNodeTimeframe(node, baseTimeframe);
+    auto result = resolver.ResolveNodeTimeframe(node);
 
     REQUIRE(result.has_value());
     // Should resolve to input's timeframe (15min)

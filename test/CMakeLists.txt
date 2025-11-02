@@ -15,7 +15,7 @@ target_include_directories(epoch_script_test PRIVATE
 # Helper tool to generate graph.json from EpochScript source
 add_executable(generate_graph integration/tools/generate_graph.cpp)
 target_link_libraries(generate_graph PRIVATE epoch_script)
-target_include_directories(generate_graph PRIVATE ../src)
+target_include_directories(generate_graph PRIVATE ../src .)
 set_target_properties(generate_graph PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
@@ -36,4 +36,8 @@ file(COPY ${CMAKE_CURRENT_LIST_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIR
 target_compile_definitions(epoch_script_test PUBLIC
     -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}"
     -DTRANSFORMS_TEST_CASES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/transforms_test_cases")
+
+target_compile_definitions(generate_graph PUBLIC
+    -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
+
 MESSAGE("METADATA_FILES_DIR ${METADATA_FILES_DIR}")

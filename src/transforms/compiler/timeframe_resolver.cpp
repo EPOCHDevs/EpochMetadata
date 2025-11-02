@@ -4,6 +4,7 @@
 //
 
 #include "timeframe_resolver.h"
+#include <epoch_script/transforms/core/transform_registry.h>
 #include <algorithm>
 
 namespace epoch_script
@@ -34,8 +35,7 @@ namespace epoch_script
 
     std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveTimeframe(
         const std::string &nodeId,
-        const std::vector<std::string> &inputIds,
-        const epoch_script::TimeFrame &baseTimeframe)
+        const std::vector<std::string> &inputIds)
     {
         // Check cache first
         if (nodeTimeframes.contains(nodeId))
@@ -72,21 +72,13 @@ namespace epoch_script
             }
         }
 
-        // Fall back to base timeframe if no inputs or no input timeframes found
-        // baseTimeframe is now always provided (non-optional)
-        if (!resolvedTimeframe)
-        {
-            resolvedTimeframe = baseTimeframe;
-        }
-
-        // Cache the result
+        // Cache the result (might be nullopt if no inputs had timeframes)
         nodeTimeframes[nodeId] = resolvedTimeframe;
         return resolvedTimeframe;
     }
 
     std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveNodeTimeframe(
-        const epoch_script::strategy::AlgorithmNode &node,
-        const epoch_script::TimeFrame &baseTimeframe)
+        const epoch_script::strategy::AlgorithmNode &node)
     {
         // If node has explicit timeframe, use it and cache it
         if (node.timeframe)
@@ -102,8 +94,78 @@ namespace epoch_script
             inputIds.insert(inputIds.end(), values.begin(), values.end());
         }
 
-        // Use cache to resolve timeframe
-        return ResolveTimeframe(node.id, inputIds, baseTimeframe);
+        // If node has inputs, resolve timeframe from them
+        if (!inputIds.empty())
+        {
+            auto resolved = ResolveTimeframe(node.id, inputIds);
+
+            // If we resolved a timeframe from inputs, return it
+            if (resolved)
+            {
+                return resolved;
+            }
+        }
+
+        // Node has no explicit timeframe and no inputs (or inputs had no timeframes)
+        // This means it's likely a literal - will be resolved in second pass
+        return std::nullopt;
+    }
+
+    std::optional<epoch_script::TimeFrame> TimeframeResolver::ResolveLiteralTimeframe(
+        const std::string &nodeId,
+        const std::vector<epoch_script::strategy::AlgorithmNode> &allNodes)
+    {
+        // Check cache first
+        if (nodeTimeframes.contains(nodeId) && nodeTimeframes[nodeId])
+        {
+            return nodeTimeframes[nodeId];
+        }
+
+        // Find all nodes that use this literal as an input
+        std::vector<epoch_script::TimeFrame> dependentTimeframes;
+
+        for (const auto &node : allNodes)
+        {
+            // Skip if this node doesn't have a resolved timeframe yet
+            if (!nodeTimeframes.contains(node.id) || !nodeTimeframes[node.id])
+            {
+                continue;
+            }
+
+            // Check if this node uses our literal
+            for (const auto &[inputName, inputRefs] : node.inputs)
+            {
+                for (const auto &ref : inputRefs)
+                {
+                    // Extract node ID from "node_id#handle"
+                    auto hashPos = ref.find('#');
+                    std::string inputNodeId = (hashPos != std::string::npos)
+                        ? ref.substr(0, hashPos)
+                        : ref;
+
+                    if (inputNodeId == nodeId)
+                    {
+                        // This node uses our literal - add its timeframe
+                        dependentTimeframes.push_back(nodeTimeframes[node.id].value());
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If we found dependent nodes, inherit their timeframe
+        // Use the maximum (lowest resolution) if multiple dependents exist
+        if (!dependentTimeframes.empty())
+        {
+            auto maxTimeframe = *std::max_element(dependentTimeframes.begin(), dependentTimeframes.end());
+            nodeTimeframes[nodeId] = maxTimeframe;
+            return maxTimeframe;
+        }
+
+        // No dependents found - use daily timeframe as default
+        epoch_script::TimeFrame defaultTimeframe("1d");
+        nodeTimeframes[nodeId] = defaultTimeframe;
+        return defaultTimeframe;
     }
 
 } // namespace epoch_script

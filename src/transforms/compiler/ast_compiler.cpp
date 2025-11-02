@@ -204,13 +204,26 @@ namespace epoch_script
         // Verify session dependencies and auto-create missing sessions nodes
         verifySessionDependencies();
 
-        // Resolve timeframes for all nodes using TimeframeResolver utility
-        // Default to daily timeframe if no base timeframe specified
-        resolveTimeframes(epoch_script::TimeFrame("1d"));
-
         // Sort algorithms in topological order: dependencies before dependents
         // This ensures handles are registered before they're referenced
+        // IMPORTANT: Must sort BEFORE resolving timeframes so input nodes are cached first
         context_.algorithms = TopologicalSort(std::move(context_.algorithms));
+
+        // Extract base timeframe from market_data_source if present, else use 1d default
+        std::optional<epoch_script::TimeFrame> base_timeframe;
+        for (const auto& algo : context_.algorithms) {
+            if (algo.type == "market_data_source" && algo.timeframe) {
+                base_timeframe = algo.timeframe;
+                break;
+            }
+        }
+        if (!base_timeframe) {
+            base_timeframe = epoch_script::TimeFrame("1d");
+        }
+
+        // Resolve timeframes for all nodes using TimeframeResolver utility
+        // This runs AFTER topological sort so input timeframes are available
+        resolveTimeframes(base_timeframe.value());
 
         // Update node_lookup indices after reordering
         context_.node_lookup.clear();
@@ -228,18 +241,39 @@ namespace epoch_script
         special_param_handler_->VerifySessionDependencies();
     }
 
-    void AlgorithmAstCompiler::resolveTimeframes(const epoch_script::TimeFrame& base_timeframe)
+    void AlgorithmAstCompiler::resolveTimeframes(const epoch_script::TimeFrame& /*base_timeframe*/)
     {
         // Use TimeframeResolver utility to resolve timeframes for all nodes
         // Create fresh resolver instance to avoid stale cache from previous compilations
         TimeframeResolver resolver;
 
+        // PASS 1: Resolve timeframes for nodes with inputs or explicit timeframes
+        // Literals will return nullopt and be handled in pass 2
         for (auto& algo : context_.algorithms)
         {
-            auto resolved_timeframe = resolver.ResolveNodeTimeframe(algo, base_timeframe);
+            auto resolved_timeframe = resolver.ResolveNodeTimeframe(algo);
             if (resolved_timeframe)
             {
                 algo.timeframe = resolved_timeframe;
+            }
+        }
+
+        // PASS 2: Resolve literal timeframes by finding nodes that use them
+        // Literals inherit timeframes from their dependent nodes
+        // Fallback to "1d" if no usage found
+        for (auto& algo : context_.algorithms)
+        {
+            // Skip if already resolved
+            if (algo.timeframe)
+            {
+                continue;
+            }
+
+            // Resolve literal timeframe based on usage
+            auto literal_timeframe = resolver.ResolveLiteralTimeframe(algo.id, context_.algorithms);
+            if (literal_timeframe)
+            {
+                algo.timeframe = literal_timeframe;
             }
         }
     }

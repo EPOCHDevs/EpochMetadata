@@ -48,7 +48,7 @@ TEST_CASE("Form 13F Holdings Configuration", "[sec][form13f]") {
     REQUIRE(form13f.options[0].id == "filing_type");
     REQUIRE(form13f.options[0].name == "Filing Type");
     REQUIRE(form13f.options[0].type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(form13f.options[0].selectOption.size() == 5);
+    REQUIRE(form13f.options[0].selectOption.size() == 4);
 
     // min_value option
     REQUIRE(form13f.options[1].id == "min_value");
@@ -180,19 +180,16 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
     REQUIRE(filingTypeOption.id == "filing_type");
     REQUIRE(filingTypeOption.name == "Filing Type");
     REQUIRE(filingTypeOption.type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(filingTypeOption.selectOption.size() == 5);
+    REQUIRE(filingTypeOption.selectOption.size() == 4);
 
     // transaction_code option
     auto& transactionCodeOption = insiderTrading.options[1];
     REQUIRE(transactionCodeOption.id == "transaction_code");
     REQUIRE(transactionCodeOption.name == "Transaction Type");
     REQUIRE(transactionCodeOption.type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(transactionCodeOption.selectOption.size() == 12);
+    REQUIRE(transactionCodeOption.selectOption.size() == 11);
 
-    // Verify key transaction code options
-    auto hasAll = std::any_of(transactionCodeOption.selectOption.begin(),
-                             transactionCodeOption.selectOption.end(),
-                             [](const auto& opt) { return opt.value == "All"; });
+    // Verify key transaction code options (removed "All" as user requested)
     auto hasPurchase = std::any_of(transactionCodeOption.selectOption.begin(),
                                    transactionCodeOption.selectOption.end(),
                                    [](const auto& opt) { return opt.value == "P"; });
@@ -206,7 +203,6 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
                                   transactionCodeOption.selectOption.end(),
                                   [](const auto& opt) { return opt.value == "M"; });
 
-    REQUIRE(hasAll);
     REQUIRE(hasPurchase);
     REQUIRE(hasSale);
     REQUIRE(hasAward);

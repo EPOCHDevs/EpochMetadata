@@ -15,11 +15,8 @@
 #include <arrow/compute/initialize.h>
 #include <absl/log/initialize.h>
 #include <google/protobuf/stubs/common.h>
+#include "../../common.h"
 
-// Simple YAML loader (no files directory needed for compilation-only mode)
-static const auto YAML_LOADER = [](const std::string& path) -> YAML::Node {
-    return YAML::Node(); // Empty node for standalone compilation
-};
 
 std::string readFile(const std::string& path) {
     std::ifstream file(path);
@@ -57,8 +54,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Register transform metadata and initialize registry
-    epoch_script::transforms::RegisterTransformMetadata(YAML_LOADER);
-    epoch_script::transform::InitializeTransforms(YAML_LOADER, {}, {});
+    epoch_script::transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
+    epoch_script::transform::InitializeTransforms(epoch_script::DEFAULT_YAML_LOADER, {}, {});
 
     std::string input_path = argv[1];
     std::string output_path = argc == 3 ? argv[2] : "";

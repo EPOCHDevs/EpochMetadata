@@ -22,10 +22,8 @@ MakeSECDataSources() {
                       .id = "filing_type",
                       .name = "Filing Type",
                       .type = epoch_core::MetaDataOptionType::Select,
-                      .defaultValue = MetaDataOptionDefinition(std::string("All")),
                       .selectOption =
                           {
-                              {"All Forms", "All"},
                               {"13F-HR (Institutional Holdings)", "13F-HR"},
                               {"10-K (Annual Report)", "10-K"},
                               {"10-Q (Quarterly Report)", "10-Q"},
@@ -44,7 +42,6 @@ MakeSECDataSources() {
                       .id = "institution_cik",
                       .name = "Institution CIK",
                       .type = epoch_core::MetaDataOptionType::String,
-                      .defaultValue = MetaDataOptionDefinition(std::string("")),
                       .desc = "Filter by specific institution's CIK (Central Index Key). "
                               "Example: 1067983 = Berkshire Hathaway, 1324404 = Citadel Advisors"},
               },
@@ -111,7 +108,6 @@ MakeSECDataSources() {
                       .defaultValue = MetaDataOptionDefinition(std::string("All")),
                       .selectOption =
                           {
-                              {"All Forms", "All"},
                               {"Form 3 (Initial Ownership)", "3"},
                               {"Form 4 (Transaction Report)", "4"},
                               {"Form 5 (Annual Summary)", "5"},
@@ -123,10 +119,8 @@ MakeSECDataSources() {
                       .id = "transaction_code",
                       .name = "Transaction Type",
                       .type = epoch_core::MetaDataOptionType::Select,
-                      .defaultValue = MetaDataOptionDefinition(std::string("All")),
                       .selectOption =
                           {
-                              {"All Transactions", "All"},
                               {"P - Open Market Purchase", "P"},
                               {"S - Open Market Sale", "S"},
                               {"A - Award/Grant (Rule 16b-3)", "A"},

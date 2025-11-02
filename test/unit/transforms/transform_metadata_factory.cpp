@@ -300,8 +300,9 @@ TEST_CASE("Transform Metadata Factory") {
         REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
         break;
       case IODataType::Integer:
-        // Accept both INT64 and TIMESTAMP (timestamps are stored as int64)
-        REQUIRE((col.dtype()->id() == arrow::Type::INT64 ||
+        // Accept INT32, INT64, and TIMESTAMP (timestamps are stored as int64)
+        REQUIRE((col.dtype()->id() == arrow::Type::INT32 ||
+                 col.dtype()->id() == arrow::Type::INT64 ||
                  col.dtype()->id() == arrow::Type::TIMESTAMP));
         break;
       case IODataType::Boolean:
