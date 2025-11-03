@@ -34,7 +34,7 @@ EpochScript's type system including built-in types, literals, and type compatibi
 
 ### Numbers Mix Freely
 
-```epochscript
+```python
 int_val = 10
 dec_val = 3.14
 result = int_val + dec_val  # 13.14 (Decimal)
@@ -42,7 +42,7 @@ result = int_val + dec_val  # 13.14 (Decimal)
 
 ### Boolean ↔ Number Casting
 
-```epochscript
+```python
 # Boolean → Number (automatic)
 is_up = True
 score = is_up + 10  # 11 (True = 1)
@@ -61,7 +61,7 @@ Cannot mix strings with numbers in arithmetic operations.
 </Callout>
 
 **Valid uses:**
-```epochscript
+```python
 src = market_data_source()
 fast = ema(period=12)(src.c)
 slow = ema(period=26)(src.c)
@@ -78,7 +78,7 @@ label = conditional_select(rsi < 30, "OVERSOLD", rsi > 70, "OVERBOUGHT", "NEUTRA
 
 ### Number Literals
 
-```epochscript
+```python
 # Integers
 count = 42
 lookback = 20
@@ -92,14 +92,14 @@ scientific = 1.5e-3  # 0.0015
 
 ### Boolean Literals
 
-```epochscript
+```python
 enabled = True
 disabled = False
 ```
 
 ### String Literals
 
-```epochscript
+```python
 # Single or double quotes
 label = "BULLISH"
 symbol = 'AAPL'
@@ -115,7 +115,7 @@ config = """
 
 ### None Literal
 
-```epochscript
+```python
 no_value = None
 fallback = signal if condition else None
 ```
@@ -124,7 +124,7 @@ fallback = signal if condition else None
 
 Used in certain transform parameters:
 
-```epochscript
+```python
 colors = [0xFF0000, 0x00FF00, 0x0000FF]
 labels = ["Buy", "Sell", "Hold"]
 ```
@@ -137,7 +137,7 @@ labels = ["Buy", "Sell", "Hold"]
 
 Types are inferred automatically:
 
-```epochscript
+```python
 src = market_data_source()
 price = src.c          # Inferred: Decimal series
 fast = ema(period=20)(price)  # Inferred: Decimal series
@@ -149,7 +149,7 @@ signal = fast > slow   # Inferred: Boolean series
 
 The compiler validates type compatibility:
 
-```epochscript
+```python
 # Type safe
 ratio = fast / slow    # Decimal / Decimal → Decimal
 condition = fast > slow  # Decimal > Decimal → Boolean
@@ -173,7 +173,7 @@ When passing options (parameters) to transforms, the type must match exactly wha
 
 Each transform option has a specific type requirement:
 
-```epochscript
+```python
 # Integer option - must be whole number
 ema_result = ema(period=20)(src.c)  # ✅ Correct
 
@@ -192,7 +192,7 @@ ema_result = ema(period="20")(src.c)  # ❌ Type mismatch
 
 ### Type Mismatch Examples
 
-```epochscript
+```python
 # ERROR: String where Integer expected
 rsi_val = rsi(period="14")(src.c)
 
@@ -215,7 +215,7 @@ When you see this error, check:
 
 EpochScript automatically casts between booleans and numbers in some contexts:
 
-```epochscript
+```python
 # Boolean → Number (automatic)
 is_up = True
 score = is_up + 10  # ✅ 11 (True = 1, False = 0)
@@ -227,7 +227,7 @@ has_volume = volume and True  # ✅ True (non-zero = True)
 
 However, boolean operations expect boolean inputs:
 
-```epochscript
+```python
 # ✅ Correct: Boolean operands
 condition = (price > 100) and (volume > 1000)
 

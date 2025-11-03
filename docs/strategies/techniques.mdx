@@ -28,7 +28,7 @@ Nested ternaries become unreadable quickly. Use `conditional_select` instead.
 
 **Problematic approach:**
 
-```epochscript
+```python
 # Works but hard to read and maintain
 label = (
     "STRONG_BUY" if rsi < 20 else (
@@ -40,7 +40,7 @@ label = (
 
 **Better approach:**
 
-```epochscript
+```python
 # Much clearer - reads like a decision table
 label = conditional_select(
     rsi < 20, "STRONG_BUY",
@@ -59,7 +59,7 @@ Build complex signals by combining multiple independent filters.
 Layer filters hierarchically - each level adds confirmation to the previous levels.
 </Callout>
 
-```epochscript
+```python
 src = market_data_source()
 
 # Level 1: Trend direction
@@ -104,7 +104,7 @@ Adapt strategy logic based on detected market regimes.
 Different market conditions require different strategies. Detect the regime first, then route to appropriate logic. For regime detection methods (trending vs ranging, volatility states, ADX/DMI, Vortex), see [Regime Detection](./regime-detection)
 </Callout>
 
-```epochscript
+```python
 src = market_data_source()
 
 # Detect regime using ADX and volatility
@@ -147,7 +147,7 @@ Limitation: Transform options must be literals, not variables. You cannot pass c
 
 **What doesn't work:**
 
-```epochscript
+```python
 # This won't work - can't use variable as parameter
 vol = volatility(period=20)(src.c)
 ema_period = conditional_select(vol < 10, 12, vol < 20, 20, 50)
@@ -156,7 +156,7 @@ adaptive = ema(period=ema_period)(src.c)  # ERROR: period must be literal
 
 **Workaround:** Pre-calculate multiple indicators, then select:
 
-```epochscript
+```python
 src = market_data_source()
 
 # Calculate multiple EMAs with different periods
@@ -192,7 +192,7 @@ Build multiple exit conditions combined with OR logic.
 EpochScript doesn't support stateful position tracking. Use proxies like moving averages to approximate entry levels.
 </Callout>
 
-```epochscript
+```python
 src = market_data_source()
 
 # Entry signal
@@ -227,7 +227,7 @@ Combine multiple signals into a weighted score for entry filtering and signal st
 Scoring systems allow you to quantify signal strength and filter entries based on confidence levels.
 </Callout>
 
-```epochscript
+```python
 src = market_data_source()
 
 # Individual signals (boolean)

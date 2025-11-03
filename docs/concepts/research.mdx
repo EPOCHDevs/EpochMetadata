@@ -54,7 +54,7 @@ Comprehensive gap analysis with summary cards, histograms, and detailed tables.
 
 The `gap_report` transform requires **all 5 outputs** from `session_gap` or `bar_gap`:
 
-```epochscript
+```python
 # Get gap detection outputs
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
@@ -92,7 +92,7 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 
 <Tabs items={['Asian Session', 'London Session']}>
   <Tab value="Asian Session">
-    ```epochscript
+    ```python
     # Asian session gaps
     asian_gaps = session_gap(fill_percent=100, session="AsianKillZone")()
     gap_report(fill_time_pivot_hour=12)(
@@ -106,7 +106,7 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
   </Tab>
 
   <Tab value="London Session">
-    ```epochscript
+    ```python
     # London session gaps
     london_gaps = session_gap(fill_percent=100, session="LondonKillZone")()
     gap_report(fill_time_pivot_hour=12)(
@@ -128,7 +128,7 @@ SQL-based data analysis and aggregation.
 
 ### Basic Usage
 
-```epochscript
+```python
 # Calculate returns by RSI regime
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
@@ -170,7 +170,7 @@ table_report(sql="""
 
 **Inputs are accessed as SLOT0, SLOT1, SLOT2, etc. in order:**
 
-```epochscript
+```python
 # Inputs map to SLOT columns by position
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
@@ -187,7 +187,7 @@ table_report(sql="""
 <Callout type="warning" title="Use SLOT* Column Names">
 SQL must reference inputs as SLOT0, SLOT1, SLOT2, etc.:
 
-```epochscript
+```python
 src = market_data_source()
 returns = (src.c - src.c[1]) / src.c[1]
 
@@ -203,7 +203,7 @@ table_report(sql="SELECT AVG(SLOT0) FROM self")(returns)
 
 **Aggregation by group:**
 
-```epochscript
+```python
 src = market_data_source()
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
@@ -227,7 +227,7 @@ table_report(sql="""
 
 **Time-based analysis:**
 
-```epochscript
+```python
 table_report(sql="""
     SELECT
         EXTRACT(HOUR FROM SLOT0) as hour,
@@ -240,7 +240,7 @@ table_report(sql="""
 
 **Conditional aggregation:**
 
-```epochscript
+```python
 table_report(sql="""
     SELECT
         CASE
@@ -272,7 +272,7 @@ Visual reports for distribution and relationship analysis.
 
 **Distribution visualization:**
 
-```epochscript
+```python
 # Return distribution
 returns = (src.c - src.c[1]) / src.c[1]
 histogram_chart_report(bins=20, title="Return Distribution")(
@@ -288,7 +288,7 @@ histogram_chart_report(bins=20, title="Return Distribution")(
 
 **Categorical comparisons:**
 
-```epochscript
+```python
 # Count by regime
 rsi_val = rsi(period=14)(src.c)
 regime = conditional_select(
@@ -311,7 +311,7 @@ bar_chart_report(x="regime", y="count", title="Bars by Regime")(
 
 **Proportion visualization:**
 
-```epochscript
+```python
 # Market regime proportions
 pie_chart_report(category="regime", value="count", title="Regime Distribution")(
     regime=regime
@@ -327,7 +327,7 @@ pie_chart_report(category="regime", value="count", title="Regime Distribution")(
 
 **Time series and trends:**
 
-```epochscript
+```python
 # Average volume by hour
 hour = extract_hour(src.t)
 volume = src.v
@@ -347,7 +347,7 @@ lines_chart_report(x="hour", y="volume", title="Hourly Volume Pattern")(
 
 **Relationship analysis:**
 
-```epochscript
+```python
 # RSI vs Returns
 rsi_val = rsi(period=14)(src.c)
 returns = (src.c - src.c[1]) / src.c[1]
@@ -369,7 +369,7 @@ scatter_chart_report(x="rsi_val", y="returns", title="RSI vs Returns")(
 
 **Combine multiple reports** in a single research script:
 
-```epochscript
+```python
 src = market_data_source()
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 rsi_val = rsi(period=14)(src.c)

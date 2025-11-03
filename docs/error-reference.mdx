@@ -33,7 +33,7 @@ Quick reference for EpochScript compilation and runtime errors. Each error inclu
 
 **Cause:** Attempting to reassign a variable
 
-```epochscript
+```python
 # Incorrect:
 price = src.c
 price = src.o  # ERROR: Cannot reassign
@@ -53,7 +53,7 @@ open_price = src.o
 
 **Cause:** Using variable before definition
 
-```epochscript
+```python
 # Incorrect:
 signal = ema_val > 100
 ema_val = ema(period=20)(src.c)  # Defined after use
@@ -71,7 +71,7 @@ signal = ema_val > 100
 
 **Cause:** Using syntax like `a < b < c`
 
-```epochscript
+```python
 # Incorrect:
 valid = 30 < rsi_val < 70
 
@@ -91,7 +91,7 @@ valid = above_30 and below_70
 
 **Cause:** Using `if`, `for`, `while`, `def`, `class`
 
-```epochscript
+```python
 # Incorrect:
 if price > 100:
     signal = True
@@ -115,7 +115,7 @@ signal = price > 100
 
 **Cause:** Trying to mix incompatible types (e.g., String + Number)
 
-```epochscript
+```python
 # Incorrect:
 label = "PRICE"
 result = label + 100  # Cannot add string to number
@@ -133,7 +133,7 @@ result = value + 100
 
 **Cause:** Wrong type for transform parameter
 
-```epochscript
+```python
 # Incorrect:
 ema_val = ema(period="20")(src.c)  # String instead of Integer
 
@@ -151,7 +151,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Using `and`/`or`/`not` with non-boolean values incorrectly
 
-```epochscript
+```python
 # Incorrect: (if not auto-cast)
 value = 100
 result = value and True  # May fail if no auto-cast
@@ -173,7 +173,7 @@ result = is_positive and True
 
 **Cause:** Transform requires an option that wasn't provided
 
-```epochscript
+```python
 # Incorrect:
 ema_val = ema()(src.c)  # Missing period
 
@@ -189,7 +189,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Typo in option name
 
-```epochscript
+```python
 # Incorrect:
 ema_val = ema(periood=20)(src.c)  # Typo
 
@@ -205,7 +205,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Accessing wrong output name
 
-```epochscript
+```python
 # Incorrect:
 src = market_data_source()
 price = src.result  # market_data_source has no 'result'
@@ -222,7 +222,7 @@ price = src.c  # Use correct handle: c, h, l, o, v
 
 **Cause:** Typo in transform name or transform doesn't exist
 
-```epochscript
+```python
 # Incorrect:
 ema_val = ema_20()(src.c)  # No such transform
 
@@ -238,7 +238,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Transform requires specific number of inputs
 
-```epochscript
+```python
 # Incorrect:
 cross = crossover()(fast)  # Needs 2 inputs
 
@@ -254,7 +254,7 @@ cross = crossover()(fast, slow)
 
 **Cause:** Passing wrong type to transform input
 
-```epochscript
+```python
 # Incorrect:
 ema_val = ema(period=20)(is_bullish)  # Boolean, not Decimal
 
@@ -272,7 +272,7 @@ ema_val = ema(period=20)(src.c)  # Decimal
 
 **Cause:** Using `[0]` as lag index
 
-```epochscript
+```python
 # Incorrect:
 current = src.c[0]
 
@@ -290,7 +290,7 @@ current = src.c  # Omit index for current value
 
 **Cause:** Using float as lag index
 
-```epochscript
+```python
 # Incorrect:
 lag = src.c[1.5]
 
@@ -306,7 +306,7 @@ lag = src.c[2]  # Use integer
 
 **Cause:** Using negative index (forward-looking)
 
-```epochscript
+```python
 # Incorrect:
 future = src.c[-1]
 
@@ -327,7 +327,7 @@ future_ret = forward_returns(period=1)(src.c)
 
 **Cause:** Using multi-output transform in expression without specifying which output
 
-```epochscript
+```python
 # Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # Which output? (lower, middle, or upper?)
@@ -351,7 +351,7 @@ signal = upper > 100
 
 **Cause:** Number of variables doesn't match number of outputs
 
-```epochscript
+```python
 # Incorrect:
 lower, upper = bbands(period=20, stddev=2)(src.c)  # 3 outputs, 2 variables
 
@@ -372,7 +372,7 @@ lower, _, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to unpack something that isn't a transform call
 
-```epochscript
+```python
 # Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
 lower, middle, upper = bb  # Cannot unpack after assignment
@@ -391,7 +391,7 @@ lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to call an output handle
 
-```epochscript
+```python
 # Incorrect:
 bb_upper = bbands(period=20, stddev=2).bbands_upper(src.c)
 
@@ -412,7 +412,7 @@ bb_upper = bb.bbands_upper  # Access, don't call
 
 **Cause:** Using unsupported timeframe string
 
-```epochscript
+```python
 # Incorrect:
 daily = ema(period=50, timeframe="BAD_TF")(src.c)
 daily = ema(period=50, timeframe="1Day")(src.c)  # Wrong format
@@ -434,7 +434,7 @@ hourly = ema(period=20, timeframe="1H")(src.c)
 
 **Cause:** Using unsupported session name
 
-```epochscript
+```python
 # Incorrect:
 london_ema = ema(period=20, session="BAD_SESSION")(src.c)
 london_ema = ema(period=20, session="LondonKillZone")(src.c)  # Doesn't exist
@@ -456,7 +456,7 @@ lkz_ema = ema(period=20, session="LondonOpenKillZone")(src.c)
 
 **Cause:** Using session-based transform on daily or higher timeframe
 
-```epochscript
+```python
 # Incorrect: (if running on daily data)
 london = sessions(session_type="London")()
 
@@ -477,7 +477,7 @@ london = sessions(session_type="London")()
 
 **Cause:** Using wrong color name (must be Success, Warning, Error, or Info)
 
-```epochscript
+```python
 # Incorrect:
 event_marker(color_map={
     Green: ["oversold"],     # Wrong: 'Green' not valid
@@ -509,7 +509,7 @@ event_marker(color_map={
 
 **Cause:** Event name in color_map doesn't match any input
 
-```epochscript
+```python
 # Incorrect:
 event_marker(color_map={
     Success: ["breakout"]  # 'breakout' not in inputs
@@ -540,7 +540,7 @@ event_marker(color_map={
 
 **Cause:** event_marker inputs must be boolean series
 
-```epochscript
+```python
 # Incorrect:
 event_marker(color_map={
     Success: ["price"]
@@ -606,7 +606,7 @@ Error messages tell you:
 
 ### 2. Check Variable Names
 
-```epochscript
+```python
 # Common typos
 ema_val = ema(period=20)(src.c)
 signal = emv_val > 100  # Typo: emv_val vs ema_val
@@ -614,7 +614,7 @@ signal = emv_val > 100  # Typo: emv_val vs ema_val
 
 ### 3. Verify Transform Names and Options
 
-```epochscript
+```python
 # Check spelling
 rsi_val = rsi(period=14)(src.c)  # TRUE
 rsi_val = rsi(periood=14)(src.c)  # FALSE Typo
@@ -626,7 +626,7 @@ ema_val = ema(period=20)(src.c)  # TRUE
 
 ### 4. Check Output Handles
 
-```epochscript
+```python
 # Wrong handle
 src = market_data_source()
 price = src.result  # FALSE No 'result' handle
@@ -638,7 +638,7 @@ high = src.h   # High
 
 ### 5. Verify Input/Output Counts
 
-```epochscript
+```python
 # Crossover needs 2 inputs
 cross = crossover()(fast)  # FALSE Only 1 input
 cross = crossover()(fast, slow)  # TRUE
@@ -650,7 +650,7 @@ lower, middle, upper = bbands(period=20, stddev=2)(src.c)  # TRUE
 
 ### 6. Check Data Types
 
-```epochscript
+```python
 # Wrong type
 ema_val = ema(period="20")(src.c)  # FALSE String
 ema_val = ema(period=20)(src.c)    # Integer
@@ -666,7 +666,7 @@ result = label + 100  # FALSE String + Number
 
 ### Pattern 1: Variable Reassignment
 
-```epochscript
+```python
 # Problem
 x = src.c
 x = src.o  # ERROR
@@ -678,7 +678,7 @@ open = src.o
 
 ### Pattern 2: Chained Comparison
 
-```epochscript
+```python
 # Problem
 valid = 30 < rsi < 70  # ERROR
 
@@ -688,7 +688,7 @@ valid = (rsi > 30) and (rsi < 70)
 
 ### Pattern 3: Multi-Output Access
 
-```epochscript
+```python
 # Problem
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # ERROR
@@ -707,7 +707,7 @@ signal = upper > 100
 
 ### Pattern 5: Conditional Logic
 
-```epochscript
+```python
 # Problem
 if condition:  # ERROR
     x = 1

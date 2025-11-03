@@ -18,7 +18,7 @@ Top/bottom K selection, factor portfolios, relative strength rotation.
 
 ## Top K / Bottom K Assets
 
-```epochscript
+```python
 # Multi-factor composite score
 momentum = (close / close[20] - 1) * 100
 rsi_score = 50 - rsi(period=14)(close)  # Inverted: lower RSI = higher score
@@ -46,7 +46,7 @@ Top vs Top Percentile: `top_k_assets(k=10)` = fixed count, `top_pct_k_assets(k=2
 
 ## Cross-Sectional Momentum
 
-```epochscript
+```python
 # Aggregate momentum across universe
 xs_momentum = cross_sectional_momentum(lookback=20)(prices)
 
@@ -62,7 +62,7 @@ stock_signal = individual_momentum and strong_market
 
 ## Factor Portfolio Strategy
 
-```epochscript
+```python
 # Factor 1: Momentum (12m - 1m)
 mom_12m = (close / close[252] - 1) * 100
 mom_1m = (close / close[21] - 1) * 100
@@ -96,7 +96,7 @@ short_entry = bottom_10 and month_end
 
 ## Relative Strength Rotation
 
-```epochscript
+```python
 # RS = stock momentum / sector momentum
 stock_mom = close / sma(period=252)(close)
 sector_index = market_data_source(symbol="XLK")
@@ -117,7 +117,7 @@ exit = not top_5_rs  # Drop when exits top 5
 
 ## Pairs Trading with Ranking
 
-```epochscript
+```python
 # Score pair quality
 stock_a = market_data_source(symbol="AAPL")
 stock_b = market_data_source(symbol="MSFT")
@@ -146,7 +146,7 @@ entry_short_a = (pair_score > 0.6) and (spread_z > 2)
 
 ## Dynamic Universe Filtering
 
-```epochscript
+```python
 # Pre-filters before ranking
 avg_volume = sma(period=20)(volume)
 liquid = avg_volume > 1000000  # >1M shares/day

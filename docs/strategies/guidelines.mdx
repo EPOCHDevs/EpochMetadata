@@ -26,7 +26,7 @@ Compiler Optimizations: The EpochScript compiler automatically handles most perf
 
 Only apply session filters when necessary, and apply them to signals rather than every indicator.
 
-```epochscript
+```python
 # Get session data
 london = sessions(session_type="London")()
 in_london = london.active
@@ -56,7 +56,7 @@ Critical Error: Using future data in trading strategies creates unrealistic back
 
 **Wrong (uses future data):**
 
-```epochscript
+```python
 # Negative lag indices access future data
 future_return = (src.c[-5] - src.c) / src.c
 entry = future_return > 0.02  # Cheating!
@@ -64,7 +64,7 @@ entry = future_return > 0.02  # Cheating!
 
 **Correct (uses only past/current data):**
 
-```epochscript
+```python
 # Positive lag indices access historical data
 momentum = (src.c - src.c[10]) / src.c[10]
 entry = momentum > 0.02
@@ -80,7 +80,7 @@ Hyper-optimized parameters rarely generalize to live trading.
 
 **Wrong (overfit):**
 
-```epochscript
+```python
 # Suspiciously precise parameters
 ema_fast = ema(period=17)(src.c)  # Why exactly 17?
 ema_slow = ema(period=43)(src.c)  # Why exactly 43?
@@ -89,7 +89,7 @@ rsi_threshold = 28.3              # Why 28.3?
 
 **Correct (standard parameters):**
 
-```epochscript
+```python
 # Round, widely-used parameters
 ema_fast = ema(period=20)(src.c)
 ema_slow = ema(period=50)(src.c)
@@ -106,7 +106,7 @@ High-frequency signals generate excessive trading costs.
 
 **Problem:**
 
-```epochscript
+```python
 # Very fast EMAs create frequent crossovers
 fast = ema(period=5)(src.c)
 slow = ema(period=10)(src.c)
@@ -115,7 +115,7 @@ entry = crossover(fast, slow)  # Too many trades!
 
 **Solution:**
 
-```epochscript
+```python
 # Add confirmation filter to reduce trade frequency
 fast = ema(period=5)(src.c)
 slow = ema(period=10)(src.c)
@@ -132,14 +132,14 @@ Static strategies fail when market conditions change.
 
 **Fragile (same logic always):**
 
-```epochscript
+```python
 # Always uses RSI < 30 regardless of market state
 entry = rsi(period=14)(src.c) < 30
 ```
 
 **Robust (adapts to regime):**
 
-```epochscript
+```python
 # Detect trending vs ranging market
 adx_val = adx(period=14)(src.h, src.l, src.c)
 trending = adx_val > 25
@@ -163,14 +163,14 @@ Excessive decimal places suggest false precision and overfitting.
 
 **Wrong:**
 
-```epochscript
+```python
 threshold = 0.0237894   # Meaningless precision
 multiplier = 1.4732891  # Likely overfit
 ```
 
 **Correct:**
 
-```epochscript
+```python
 threshold = 0.024   # or 2.4% - readable and reasonable
 multiplier = 1.5    # Round number
 ```
@@ -187,7 +187,7 @@ Coding standards for maintainable, robust strategies.
 Only add complexity if it measurably improves performance. More complexity does not equal better results.
 </Callout>
 
-```epochscript
+```python
 # Phase 1: Simple MA crossover
 entry_v1 = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
 
@@ -205,7 +205,7 @@ entry_v3 = entry_v2 and (src.c > daily_trend)
 
 **Bad:**
 
-```epochscript
+```python
 src = market_data_source()
 x1 = ema(period=20)(src.c)
 x2 = ema(period=50)(src.c)
@@ -214,7 +214,7 @@ s = x1 > x2
 
 **Good:**
 
-```epochscript
+```python
 src = market_data_source()
 fast_ema = ema(period=20)(src.c)
 slow_ema = ema(period=50)(src.c)
@@ -225,7 +225,7 @@ bullish_trend = fast_ema > slow_ema
 
 Add comments explaining why, not just what.
 
-```epochscript
+```python
 # Calculate session-specific volatility
 # Rationale: London session typically has 2x volatility of Asian session
 london = sessions(session_type="London")()
@@ -246,7 +246,7 @@ current_atr = conditional_select(
 
 Organize code into logical sections.
 
-```epochscript
+```python
 # ============ DATA SOURCE ============
 src = market_data_source()
 
@@ -279,7 +279,7 @@ Consider how your strategy handles unusual conditions.
 - Large gaps
 - Sudden volatility changes
 
-```epochscript
+```python
 # Handle missing data with defaults
 rsi_val = rsi(period=14)(src.c)
 safe_rsi = first_non_null(rsi_val, 50.0)  # Default to neutral
@@ -297,7 +297,7 @@ capped_returns = conditional_select(
 
 Make explicit the conditions under which your strategy is designed to work.
 
-```epochscript
+```python
 # ==================== ASSUMPTIONS ====================
 # - Instrument: SPY (S&P 500 ETF)
 # - Timeframe: 1-hour bars
@@ -319,7 +319,7 @@ Favor readability over brevity.
 
 **Good (clear logic flow):**
 
-```epochscript
+```python
 # Step 1: Identify trend
 trend = ema(period=50)(src.c)
 uptrend = src.c > trend
@@ -338,7 +338,7 @@ entry = uptrend and oversold and high_volume
 
 **Bad (unreadable one-liner):**
 
-```epochscript
+```python
 entry = (src.c > ema(period=50)(src.c)) and (rsi(period=14)(src.c) < 30) and (src.v > (sma(period=20)(src.v) * 1.5))
 ```
 
