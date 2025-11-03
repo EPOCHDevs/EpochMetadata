@@ -1,0 +1,36 @@
+# Source: strategies/patterns/technical.mdx:135
+# Section: Technical Trading > Bollinger Band Squeeze Breakout
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Bollinger Bands
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+width = bband_width()(lower, middle, upper)
+
+# Squeeze detection (width at multi-week low)
+squeeze_threshold = 1.5  # Varies by asset
+in_squeeze = width < squeeze_threshold
+
+# Breakout detection
+breakout_up = crossover(src.c, upper)
+breakout_down = crossover(lower, src.c)
+
+# Volume confirmation
+avg_vol = sma(period=20)(src.v)
+volume_surge = src.v > (avg_vol * 1.5)
+
+# Entry after squeeze
+buy = in_squeeze[1] and breakout_up and volume_surge
+sell = in_squeeze[1] and breakout_down and volume_surge
+
+# Exit when bands tighten again or price reverts to middle
+exit_long = crossunder(src.c, middle) or (width < squeeze_threshold)
+exit_short = crossover(src.c, middle) or (width < squeeze_threshold)
+
+trade_signal_executor()(
+    enter_long=buy,
+    enter_short=sell,
+    exit_long=exit_long,
+    exit_short=exit_short
+)

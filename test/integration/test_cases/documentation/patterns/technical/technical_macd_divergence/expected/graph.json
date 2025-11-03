@@ -1,0 +1,266 @@
+[
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_2#result"
+         ],
+         "SLOT0": [
+            "sub_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_0",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_2",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "sub_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gt_1#result"
+         ],
+         "SLOT0": [
+            "lt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lt_1#result"
+         ],
+         "SLOT0": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_2",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "macd_cross_up#result"
+         ],
+         "SLOT0": [
+            "logical_and_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_3",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "macd_cross_down#result"
+         ],
+         "SLOT0": [
+            "logical_and_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_2#result"
+         ],
+         "SLOT0": [
+            "sub_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "macd",
+      "id": "mac",
+      "options": {
+         "short_period": 12,
+         "long_period": 26,
+         "signal_period": 9
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "crossover",
+      "id": "macd_cross_down",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "mac#macd"
+         ],
+         "SLOT0": [
+            "mac#macd_signal"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "crossover",
+      "id": "macd_cross_up",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "mac#macd_signal"
+         ],
+         "SLOT0": [
+            "mac#macd"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "trade_signal_executor",
+      "id": "node_0",
+      "options": {},
+      "inputs": {
+         "enter_long": [
+            "logical_and_2#result"
+         ],
+         "enter_short": [
+            "logical_and_3#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "sub",
+      "id": "sub_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "mac#macd_signal"
+         ],
+         "SLOT0": [
+            "mac#macd"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

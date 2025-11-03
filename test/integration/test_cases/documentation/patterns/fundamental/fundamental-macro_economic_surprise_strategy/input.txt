@@ -1,0 +1,31 @@
+# Source: strategies/patterns/fundamental-macro.mdx:78
+# Section: Fundamental & Macro > Economic Surprise Strategy
+# Type: complete_strategy
+
+# Economic data (FRED)
+gdp_data = economic_indicator(category="GDP")()
+gdp = gdp_data.value
+unemployment_data = economic_indicator(category="Unemployment")()
+unemployment = unemployment_data.value
+cpi_data = economic_indicator(category="CPI")()
+cpi = cpi_data.value
+
+# Calculate surprise (actual vs expectation)
+# Expectation = moving average
+gdp_ma = sma(period=4)(gdp)  # 4 quarters
+gdp_surprise = (gdp - gdp_ma) / gdp_ma
+
+# Positive surprise (growth accelerating)
+positive_surprise = gdp_surprise > 0.01  # 1% above trend
+
+# Market data
+src = market_data_source()
+
+# Trend following on positive surprise
+fast = ema(period=20)(src.c)
+slow = ema(period=50)(src.c)
+trend_up = fast > slow
+
+entry = positive_surprise and trend_up
+
+trade_signal_executor()(enter_long=entry)

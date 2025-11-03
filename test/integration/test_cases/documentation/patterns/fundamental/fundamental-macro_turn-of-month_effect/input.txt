@@ -1,0 +1,24 @@
+# Source: strategies/patterns/fundamental-macro.mdx:121
+# Section: Fundamental & Macro > Turn-of-Month Effect
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Turn-of-month window (3 days before, 5 days after)
+tom = turn_of_month(days_before=3, days_after=5)()
+in_window = tom.result
+
+# Bullish bias during window
+trend = ema(period=50)(src.c)
+above_trend = src.c > trend
+
+# Enter on turn-of-month + uptrend
+entry = in_window and above_trend
+
+# Exit after window closes
+exit = not in_window
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)

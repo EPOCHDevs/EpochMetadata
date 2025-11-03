@@ -1,0 +1,38 @@
+# Source: strategies/patterns/intraday.mdx:157
+# Section: Intraday & Microstructure > Opening Range Breakout
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Get first bar of NY session
+ny = sessions(session_type="NewYork")()
+session_opened = ny.opened
+
+# Track opening range (first 30 min on 5Min chart)
+# Assuming 5Min timeframe: 30 min = 6 bars
+# Use session high/low at bar 6 after open
+or_complete = session_opened[6]  # 6 bars ago = 30 min after open
+or_high = ny.high[6]  # High at that time
+or_low = ny.low[6]   # Low at that time
+
+# Breakout
+breakout_up = or_complete and (src.c > or_high)
+breakout_down = or_complete and (src.c < or_low)
+
+# Volume confirmation
+avg_vol = sma(period=20)(src.v)
+high_volume = src.v > (avg_vol * 1.3)
+
+entry_long = breakout_up and high_volume
+entry_short = breakout_down and high_volume
+
+# Stop at opposite side of range
+stop_long = src.c < or_low
+stop_short = src.c > or_high
+
+trade_signal_executor()(
+    enter_long=entry_long,
+    enter_short=entry_short,
+    exit_long=stop_long,
+    exit_short=stop_short
+)

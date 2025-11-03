@@ -1,0 +1,31 @@
+# Source: strategies/patterns/intraday.mdx:86
+# Section: Intraday & Microstructure > NY Kill Zone Momentum
+# Type: complete_strategy
+
+src = market_data_source()
+
+# NY Kill Zone (07:00-10:00 ET)
+ny_kz = sessions(session_type="NewYorkKillZone")()
+in_kill_zone = ny_kz.active
+
+# Momentum indicators
+rsi_val = rsi(period=14)(src.c)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+
+# Strong momentum signals
+strong_bullish = (rsi_val > 60) and (mac.macd > mac.macd_signal)
+strong_bearish = (rsi_val < 40) and (mac.macd < mac.macd_signal)
+
+# Only trade during kill zone
+entry_long = in_kill_zone and strong_bullish
+entry_short = in_kill_zone and strong_bearish
+
+# Exit at end of kill zone
+kill_zone_ending = ny_kz.closed
+
+trade_signal_executor()(
+    enter_long=entry_long,
+    enter_short=entry_short,
+    exit_long=kill_zone_ending,
+    exit_short=kill_zone_ending
+)

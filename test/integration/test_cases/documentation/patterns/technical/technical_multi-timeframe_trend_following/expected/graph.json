@@ -1,0 +1,285 @@
+[
+   {
+      "type": "ema",
+      "id": "daily_ema",
+      "options": {
+         "period": 50
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "daily_ema#result"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "hourly_ema_slow#result"
+         ],
+         "SLOT0": [
+            "hourly_ema_fast#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "hourly_ema_fast",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "hourly_ema_slow",
+      "options": {
+         "period": 50
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "crossover",
+      "id": "intraday_cross_down",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "intraday_fast#result"
+         ],
+         "SLOT0": [
+            "intraday_slow#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "crossover",
+      "id": "intraday_cross_up",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "intraday_slow#result"
+         ],
+         "SLOT0": [
+            "intraday_fast#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "intraday_fast",
+      "options": {
+         "period": 12
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "intraday_slow",
+      "options": {
+         "period": 26
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "logical_and_1#result"
+         ],
+         "SLOT0": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "intraday_cross_up#result"
+         ],
+         "SLOT0": [
+            "gt_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_2",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "logical_and_3#result"
+         ],
+         "SLOT0": [
+            "lt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_3",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "intraday_cross_down#result"
+         ],
+         "SLOT0": [
+            "lt_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "daily_ema#result"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "hourly_ema_slow#result"
+         ],
+         "SLOT0": [
+            "hourly_ema_fast#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "hour"
+      }
+   },
+   {
+      "type": "trade_signal_executor",
+      "id": "node_0",
+      "options": {},
+      "inputs": {
+         "enter_long": [
+            "logical_and_0#result"
+         ],
+         "enter_short": [
+            "logical_and_2#result"
+         ],
+         "exit_long": [
+            "lt_0#result"
+         ],
+         "exit_short": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

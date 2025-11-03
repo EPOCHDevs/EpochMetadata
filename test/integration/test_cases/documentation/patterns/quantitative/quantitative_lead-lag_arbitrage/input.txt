@@ -1,0 +1,28 @@
+# Source: strategies/patterns/quantitative.mdx:187
+# Section: Quantitative Strategies > Lead-Lag Arbitrage
+# Type: complete_strategy
+
+# Leading indicator (e.g., crypto volatility)
+leader = market_data_source()
+leader_vol = volatility(period=20)(leader.c)
+
+# Lagging indicator (e.g., tech stock drawdowns)
+lagger = market_data_source()
+lagger_dd = ulcer_index(period=20)(lagger.c)
+
+# Concurrent correlation
+concurrent_corr = rolling_corr(window=20)(x=leader_vol, y=lagger_dd)
+
+# Lagged correlations (test different lags)
+leader_vol_lag5 = leader_vol[5]
+lag5_corr = rolling_corr(window=20)(x=leader_vol_lag5, y=lagger_dd)
+
+# Lead-lag signal (if lag5_corr > concurrent_corr, leader predicts)
+lead_lag_exists = lag5_corr > (concurrent_corr + 0.1)
+
+# Trade lagger based on leader's signal
+leader_spike = leader_vol > leader_vol[1] * 1.5
+predicted_lagger_stress = lead_lag_exists and leader_spike
+
+# Short lagger when leader predicts stress
+trade_signal_executor()(enter_short=predicted_lagger_stress)

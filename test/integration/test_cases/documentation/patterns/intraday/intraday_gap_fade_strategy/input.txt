@@ -1,0 +1,27 @@
+# Source: strategies/patterns/intraday.mdx:54
+# Section: Intraday & Microstructure > Gap Fade Strategy
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Detect overnight gaps
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# Gap characteristics
+large_gap = gaps.gap_size > 1.5  # 1.5% gap
+gap_not_filled = not gaps.gap_filled
+
+# Fade entry (bet on reversion to previous close)
+# Enter when gap exists and hasn't filled yet
+fade_entry = large_gap and gap_not_filled
+
+# Exit when gap fills (target reached)
+exit_fade = gaps.gap_filled
+
+# Stop if gap expands further (failed fade)
+gap_expanding = gaps.gap_retrace < 20  # Less than 20% retraced
+
+trade_signal_executor()(
+    enter_long=fade_entry,
+    exit_long=(exit_fade or gap_expanding)
+)

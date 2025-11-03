@@ -1,0 +1,234 @@
+[
+   {
+      "type": "add",
+      "id": "add_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_0#result"
+         ],
+         "SLOT0": [
+            "concurrent_corr#correlation"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rolling_corr",
+      "id": "concurrent_corr",
+      "options": {
+         "window": 20
+      },
+      "inputs": {
+         "x": [
+            "leader_vol#result"
+         ],
+         "y": [
+            "lagger_dd#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "add_0#result"
+         ],
+         "SLOT0": [
+            "lag5_corr#correlation"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "mul_0#result"
+         ],
+         "SLOT0": [
+            "leader_vol#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rolling_corr",
+      "id": "lag5_corr",
+      "options": {
+         "window": 20
+      },
+      "inputs": {
+         "x": [
+            "lag_0#result"
+         ],
+         "y": [
+            "lagger_dd#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_0",
+      "options": {
+         "period": 5
+      },
+      "inputs": {
+         "SLOT": [
+            "leader_vol#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_1",
+      "options": {
+         "period": 1
+      },
+      "inputs": {
+         "SLOT": [
+            "leader_vol#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ulcer_index",
+      "id": "lagger_dd",
+      "options": {
+         "period": 20,
+         "use_sum": false
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "leader",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "volatility",
+      "id": "leader_vol",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "leader#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gt_1#result"
+         ],
+         "SLOT0": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "mul",
+      "id": "mul_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_1#result"
+         ],
+         "SLOT0": [
+            "lag_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "trade_signal_executor",
+      "id": "node_0",
+      "options": {},
+      "inputs": {
+         "enter_short": [
+            "logical_and_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 0.1
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_1",
+      "options": {
+         "value": 1.5
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

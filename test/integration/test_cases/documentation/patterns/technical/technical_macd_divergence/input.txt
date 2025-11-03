@@ -1,0 +1,31 @@
+# Source: strategies/patterns/technical.mdx:176
+# Section: Technical Trading > MACD Divergence
+# Type: complete_strategy
+
+src = market_data_source()
+
+# MACD
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+histogram = mac.macd - mac.macd_signal
+
+# Price extremes
+price_high = src.c > src.c[20]
+price_low = src.c < src.c[20]
+
+# MACD extremes
+macd_lower = histogram < histogram[20]
+macd_higher = histogram > histogram[20]
+
+# Divergence
+bullish_div = price_low and macd_higher  # Price lower, MACD higher
+bearish_div = price_high and macd_lower  # Price higher, MACD lower
+
+# MACD crossover confirmation
+macd_cross_up = crossover(mac.macd, mac.macd_signal)
+macd_cross_down = crossover(mac.macd_signal, mac.macd)
+
+# Entry with divergence + crossover
+buy = bullish_div and macd_cross_up
+sell = bearish_div and macd_cross_down
+
+trade_signal_executor()(enter_long=buy, enter_short=sell)

@@ -1,0 +1,208 @@
+[
+   {
+      "type": "crossover",
+      "id": "bullish",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "slow#result"
+         ],
+         "SLOT0": [
+            "fast#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rolling_cov",
+      "id": "cov_stock_market",
+      "options": {
+         "window": 60
+      },
+      "inputs": {
+         "x": [
+            "stock#c"
+         ],
+         "y": [
+            "stock#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "div",
+      "id": "div_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "var_market#covariance"
+         ],
+         "SLOT0": [
+            "cov_stock_market#covariance"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "fast",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "stock#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_1#result"
+         ],
+         "SLOT0": [
+            "div_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lt_0#result"
+         ],
+         "SLOT0": [
+            "bullish#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_0#result"
+         ],
+         "SLOT0": [
+            "div_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "trade_signal_executor",
+      "id": "node_0",
+      "options": {},
+      "inputs": {
+         "enter_long": [
+            "logical_and_0#result"
+         ],
+         "exit_long": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 0.8
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_1",
+      "options": {
+         "value": 1.2
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "slow",
+      "options": {
+         "period": 50
+      },
+      "inputs": {
+         "SLOT": [
+            "stock#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "stock",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rolling_cov",
+      "id": "var_market",
+      "options": {
+         "window": 60
+      },
+      "inputs": {
+         "x": [
+            "stock#c"
+         ],
+         "y": [
+            "stock#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

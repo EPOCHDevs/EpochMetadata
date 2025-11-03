@@ -1,0 +1,31 @@
+# Source: strategies/patterns/quantitative.mdx:117
+# Section: Quantitative Strategies > Dynamic Beta Hedging
+# Type: complete_strategy
+
+stock = market_data_source()
+market = market_data_source()  # SPY or market index
+
+# Calculate rolling beta
+cov_stock_market = rolling_cov(window=60)(x=stock.c, y=market.c)
+var_market = rolling_cov(window=60)(x=market.c, y=market.c)
+beta = cov_stock_market / var_market
+
+# Beta regimes
+low_beta = beta < 0.8   # Stock less sensitive to market (good)
+high_beta = beta > 1.2  # Stock more sensitive to market (risky)
+
+# Bullish signal (EMA cross)
+fast = ema(period=20)(stock.c)
+slow = ema(period=50)(stock.c)
+bullish = crossover(fast, slow)
+
+# Entry only in low-beta regime
+entry = bullish and low_beta
+
+# Exit when beta spikes (risk-off)
+exit = high_beta
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)

@@ -1,4 +1,5 @@
 ---
+title: Intraday & Microstructure
 page_type: implementation
 layout: default
 order: 5
@@ -118,35 +119,8 @@ trade_signal_executor()(
 ## SMC Order Block Strategy
 
 <Callout type="info">
-For detailed Smart Money Concepts (order blocks, liquidity, BOS/CHoCH, FVGs), see [ICT & Smart Money](../ict-smart-money)
+For detailed Smart Money Concepts (order blocks, liquidity, BOS/CHoCH, FVGs), see [ICT & Smart Money](../ict-smart-money) for complete working examples
 </Callout>
-
-**Strategy:** Enter on order block retest with FVG fill
-
-```epochscript
-src = market_data_source()
-
-# SMC indicators
-ob = order_blocks()(src.o, src.h, src.l, src.c)
-fvg = fair_value_gap()(src.o, src.h, src.l, src.c)
-shl = swing_highs_lows(left_count=5, right_count=5)()
-
-# Bullish setup: Order block + FVG fill + structure break
-bullish_ob = ob.bullish
-fvg_filled = fvg.bullish_filled
-structure_break = src.c > shl.swing_high_price
-
-entry_long = bullish_ob and fvg_filled and structure_break
-
-# Stop below order block
-stop = ob.bullish_ob_low
-exit_long = src.c < stop
-
-trade_signal_executor()(
-    enter_long=entry_long,
-    exit_long=exit_long
-)
-```
 
 ---
 

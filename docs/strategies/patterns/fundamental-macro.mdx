@@ -1,4 +1,5 @@
 ---
+title: Fundamental & Macro
 page_type: implementation
 layout: default
 order: 6
@@ -24,7 +25,7 @@ src = market_data_source()
 
 # Fundamental data
 income = income_statement()
-eps = income.basic_earnings_per_share
+eps = income.net_income
 
 # Earnings growth (QoQ)
 eps_growth = (eps - eps[1]) / eps[1]
@@ -50,24 +51,21 @@ trade_signal_executor()(enter_long=entry)
 ```epochscript
 src = market_data_source()
 
-# Value metrics
+# Quality metrics
 ratios = financial_ratios()
-pe = ratios.price_to_earnings
-pb = ratios.price_to_book
+low_debt = ratios.debt_equity < 0.7
+liquid = ratios.current_ratio > 1.3
+high_roe = ratios.roe > 0.15
 
-# Value signal (low P/E and P/B)
-undervalued = (pe < 15) and (pb < 2.0)
+# Value signal (quality fundamentals)
+high_quality = low_debt and liquid and high_roe
 
 # Momentum signal
 momentum = roc(period=60)(src.c)
 positive_momentum = momentum > 0
 
-# Quality filter
-roe = ratios.return_on_equity
-high_quality = roe > 15.0
-
-# Combined signal
-entry = undervalued and positive_momentum and high_quality
+# Combined signal (quality + momentum)
+entry = high_quality and positive_momentum
 
 trade_signal_executor()(enter_long=entry)
 ```
@@ -80,9 +78,12 @@ trade_signal_executor()(enter_long=entry)
 
 ```epochscript
 # Economic data (FRED)
-gdp = economic_indicator(category="GDP")()
-unemployment = economic_indicator(category="Unemployment")()
-cpi = economic_indicator(category="CPI")()
+gdp_data = economic_indicator(category="GDP")()
+gdp = gdp_data.value
+unemployment_data = economic_indicator(category="Unemployment")()
+unemployment = unemployment_data.value
+cpi_data = economic_indicator(category="CPI")()
+cpi = cpi_data.value
 
 # Calculate surprise (actual vs expectation)
 # Expectation = moving average
@@ -156,9 +157,10 @@ returns = roc(period=20)(src.c)
 momentum = cs_momentum()(returns)
 
 # Stronger filter in January (top 20 vs top 10)
+# More aggressive in January, normal rest of year
 entry = conditional_select(
-    is_january, top_k(k=20)(momentum),  # More aggressive in Jan
-    top_k(k=10)(momentum)               # Normal rest of year
+    is_january, top_k(k=20)(momentum),
+    top_k(k=10)(momentum)
 )
 
 trade_signal_executor()(enter_long=entry)
