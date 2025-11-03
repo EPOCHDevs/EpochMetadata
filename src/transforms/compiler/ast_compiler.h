@@ -18,6 +18,7 @@
 #include "ast_visitor.h"
 #include "timeframe_resolver.h"
 #include "constant_folder.h"
+#include "cse_optimizer.h"
 #include "parser/ast_nodes.h"
 #include <epoch_script/strategy/metadata.h>
 #include <epoch_script/core/time_frame.h>
@@ -59,6 +60,7 @@ namespace epoch_script
         std::unique_ptr<AstVisitor> ast_visitor_;
         std::unique_ptr<TimeframeResolver> timeframe_resolver_;
         std::unique_ptr<ConstantFolder> constant_folder_;
+        std::unique_ptr<CSEOptimizer> cse_optimizer_;
 
         // Initialization helper
         void initializeComponents();

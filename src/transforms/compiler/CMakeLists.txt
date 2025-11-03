@@ -10,6 +10,7 @@ target_sources(epoch_script PRIVATE
     ast_visitor.cpp
     constant_folder.cpp
     constructor_parser.cpp
+    cse_optimizer.cpp
     expression_compiler.cpp
     node_builder.cpp
     option_validator.cpp

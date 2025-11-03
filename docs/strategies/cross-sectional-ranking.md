@@ -1,0 +1,161 @@
+---
+page_type: reference
+layout: default
+order: 11
+category: Strategies
+description: Cross-sectional analysis - Top K assets, factor portfolios, relative value strategies
+parent: ./index.md
+---
+
+# Cross-Sectional Ranking & Multi-Asset Strategies
+
+Top/bottom K selection, factor portfolios, relative strength rotation.
+
+---
+
+## Top K / Bottom K Assets
+
+```epochscript
+# Multi-factor composite score
+momentum = (close / close[20] - 1) * 100
+rsi_score = 50 - rsi(period=14)(close)  # Inverted: lower RSI = higher score
+vol_ratio = volume / sma(period=20)(volume)
+
+composite = (momentum * 0.5) + (rsi_score * 0.3) + (vol_ratio * 0.2)
+
+# Select top 10
+top_10 = top_k_assets(k=10)(composite)
+
+# Select bottom 5 for shorting
+bottom_5 = bottom_k_assets(k=5)(composite)
+
+# Monthly rebalance
+month_end = month() != month()[1]
+long_entry = top_10 and month_end
+short_entry = bottom_5 and month_end
+```
+
+**Top vs Top Percentile:** `top_k_assets(k=10)` = fixed count, `top_pct_k_assets(k=20)` = top 20% (adapts to universe size).
+
+---
+
+## Cross-Sectional Momentum
+
+```epochscript
+# Aggregate momentum across universe
+xs_momentum = cross_sectional_momentum(lookback=20)(prices)
+
+# Market-wide regime filter
+strong_market = xs_momentum > 0
+weak_market = xs_momentum < 0
+
+# Only trade individual stocks when market is strong
+stock_signal = individual_momentum and strong_market
+```
+
+---
+
+## Factor Portfolio Strategy
+
+```epochscript
+# Factor 1: Momentum (12m - 1m)
+mom_12m = (close / close[252] - 1) * 100
+mom_1m = (close / close[21] - 1) * 100
+momentum_score = mom_12m - mom_1m
+
+# Factor 2: Low volatility
+vol = yang_zhang(period=60, trading_periods=252)(low, high, open, close)
+vol_score = -1 * vol.result  # Invert: lower vol = higher score
+
+# Factor 3: Liquidity
+avg_vol = sma(period=60)(volume)
+liquidity_score = avg_vol
+
+# Composite with weights
+composite = (
+    momentum_score * 0.40 +
+    vol_score * 0.30 +
+    liquidity_score * 0.30
+)
+
+# Long top 20, short bottom 10
+top_20 = top_k_assets(k=20)(composite)
+bottom_10 = bottom_k_assets(k=10)(composite)
+
+month_end = month() != month()[1]
+long_entry = top_20 and month_end
+short_entry = bottom_10 and month_end
+```
+
+---
+
+## Relative Strength Rotation
+
+```epochscript
+# RS = stock momentum / sector momentum
+stock_mom = close / sma(period=252)(close)
+sector_index = market_data_source(symbol="XLK")
+sector_mom = sector_index.c / sma(period=252)(sector_index.c)
+
+rs_score = stock_mom / sector_mom
+
+# Top 5 highest RS stocks
+top_5_rs = top_k_assets(k=5)(rs_score)
+
+# Weekly rotation
+week_end = week() != week()[1]
+entry = top_5_rs and week_end
+exit = not top_5_rs  # Drop when exits top 5
+```
+
+---
+
+## Pairs Trading with Ranking
+
+```epochscript
+# Score pair quality
+stock_a = market_data_source(symbol="AAPL")
+stock_b = market_data_source(symbol="MSFT")
+
+spread = stock_a.c - stock_b.c
+
+ret_a = (stock_a.c / stock_a.c[1] - 1) * 100
+ret_b = (stock_b.c / stock_b.c[1] - 1) * 100
+
+corr = rolling_correlation(window=60)(x=ret_a, y=ret_b)
+spread_vol = stdev(period=60)(spread)
+
+# Pair quality: high correlation + stable spread
+pair_score = corr.result - (spread_vol / stock_a.c)
+
+# Rank all pairs, trade top K
+# (In multi-pair context: top_pairs = top_k_assets(k=3)(pair_scores))
+
+# Standard pairs logic on top-ranked pairs
+spread_z = zscore(period=60)(spread)
+entry_long_a = (pair_score > 0.6) and (spread_z < -2)
+entry_short_a = (pair_score > 0.6) and (spread_z > 2)
+```
+
+---
+
+## Dynamic Universe Filtering
+
+```epochscript
+# Pre-filters before ranking
+avg_volume = sma(period=20)(volume)
+liquid = avg_volume > 1000000  # >1M shares/day
+price_ok = close > 5  # No penny stocks
+vol = yang_zhang(period=20, trading_periods=252)(low, high, open, close)
+vol_ok = vol.result < 0.50  # <50% annual vol
+
+eligible = liquid and price_ok and vol_ok
+
+# Mask scores with eligibility
+filtered_score = conditional_select(eligible, momentum_score, -9999)
+
+# Rank only eligible assets
+top_10 = top_k_assets(k=10)(filtered_score)
+```
+
+**Next:** [Volume & Order Flow →](./volume-order-flow.md)

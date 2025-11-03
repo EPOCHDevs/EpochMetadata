@@ -1,21 +1,26 @@
+---
+page_type: reference
+layout: table
+order: 1
+category: Reference
+description: Comprehensive troubleshooting guide with searchable error messages, causes, and fixes
+parent: ./index.md
+---
+
 # Error Reference
 
-Troubleshooting guide with common errors and solutions.
+Quick reference for EpochScript compilation and runtime errors. Each error includes the error message, cause, and fix example with links to detailed documentation.
+
+:::tip
+**For detailed explanations and best practices:**
+- [Types & Literals - Parameter Type Validation](./language/types.md#parameter-type-validation)
+- [Design Guidelines](./design-guidelines.md) - Patterns and common mistakes
+- [Language Limitations](./language/limitations.md) - Python features not supported
+- [Core Concepts](./concepts/index.md) - Timeframes, sessions, cross-sectional
+:::
 
 ---
 
-## Table of Contents
-
-1. [Syntax Errors](#syntax-errors)
-2. [Type Errors](#type-errors)
-3. [Transform Errors](#transform-errors)
-4. [Lag Operator Errors](#lag-operator-errors)
-5. [Multi-Output Errors](#multi-output-errors)
-6. [Execution Errors](#execution-errors)
-7. [Reporting Errors](#reporting-errors)
-8. [Quick Troubleshooting](#quick-troubleshooting)
-
----
 
 ## Syntax Errors
 
@@ -25,15 +30,19 @@ Troubleshooting guide with common errors and solutions.
 
 **Cause:** Attempting to reassign a variable
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 price = src.c
 price = src.o  # ERROR: Cannot reassign
 
-# ✅ FIX
+# FIX
 close_price = src.c
 open_price = src.o
 ```
+
+**See also:** [Design Guidelines - Variable Reassignment](./design-guidelines.md#variable-reassignment)
+
+---
 
 ### Undefined Variable
 
@@ -41,15 +50,17 @@ open_price = src.o
 
 **Cause:** Using variable before definition
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 signal = ema_val > 100
 ema_val = ema(period=20)(src.c)  # Defined after use
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)
 signal = ema_val > 100
 ```
+
+---
 
 ### Chained Comparison Not Supported
 
@@ -57,15 +68,19 @@ signal = ema_val > 100
 
 **Cause:** Using syntax like `a < b < c`
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 valid = 30 < rsi_val < 70
 
-# ✅ FIX
+# FIX
 above_30 = rsi_val > 30
 below_70 = rsi_val < 70
 valid = above_30 and below_70
 ```
+
+**See also:** [Design Guidelines - Chained Comparisons](./design-guidelines.md#chained-comparisons)
+
+---
 
 ### Control Flow Not Allowed
 
@@ -73,17 +88,19 @@ valid = above_30 and below_70
 
 **Cause:** Using `if`, `for`, `while`, `def`, `class`
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 if price > 100:
     signal = True
 else:
     signal = False
 
-# ✅ FIX
+# FIX
 signal = price > 100
 # Or: signal = True if price > 100 else False
 ```
+
+**See also:** [Design Guidelines - Control Flow Statements](./design-guidelines.md#control-flow-statements)
 
 ---
 
@@ -95,15 +112,17 @@ signal = price > 100
 
 **Cause:** Trying to mix incompatible types (e.g., String + Number)
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 label = "PRICE"
 result = label + 100  # Cannot add string to number
 
-# ✅ FIX
+# FIX
 value = 100
 result = value + 100
 ```
+
+---
 
 ### Type Mismatch for Option
 
@@ -111,13 +130,17 @@ result = value + 100
 
 **Cause:** Wrong type for transform parameter
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 ema_val = ema(period="20")(src.c)  # String instead of Integer
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)
 ```
+
+**See also:** [Types & Literals - Parameter Type Validation](./language/types.md#parameter-type-validation)
+
+---
 
 ### Boolean Operation on Non-Boolean
 
@@ -125,12 +148,12 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Using `and`/`or`/`not` with non-boolean values incorrectly
 
-```python
-# ❌ WRONG (if not auto-cast)
+```epochscript
+# Incorrect: (if not auto-cast)
 value = 100
 result = value and True  # May fail if no auto-cast
 
-# ✅ FIX
+# FIX
 is_positive = value > 0
 result = is_positive and True
 ```
@@ -139,19 +162,23 @@ result = is_positive and True
 
 ## Transform Errors
 
+**See also:** [Core Concepts](./concepts/index.md) for timeframes, sessions, and cross-sectional capabilities.
+
 ### Missing Required Option
 
 **Error:** `Missing required option 'period'`
 
 **Cause:** Transform requires an option that wasn't provided
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 ema_val = ema()(src.c)  # Missing period
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)
 ```
+
+---
 
 ### Unknown Option
 
@@ -159,13 +186,15 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Typo in option name
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 ema_val = ema(periood=20)(src.c)  # Typo
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)
 ```
+
+---
 
 ### Unknown Handle
 
@@ -173,14 +202,16 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Accessing wrong output name
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 src = market_data_source()
 price = src.result  # market_data_source has no 'result'
 
-# ✅ FIX
+# FIX
 price = src.c  # Use correct handle: c, h, l, o, v
 ```
+
+---
 
 ### Transform Not Found
 
@@ -188,13 +219,15 @@ price = src.c  # Use correct handle: c, h, l, o, v
 
 **Cause:** Typo in transform name or transform doesn't exist
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 ema_val = ema_20()(src.c)  # No such transform
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)
 ```
+
+---
 
 ### Wrong Input Count
 
@@ -202,13 +235,15 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Transform requires specific number of inputs
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 cross = crossover()(fast)  # Needs 2 inputs
 
-# ✅ FIX
+# FIX
 cross = crossover()(fast, slow)
 ```
+
+---
 
 ### Wrong Input Type
 
@@ -216,11 +251,11 @@ cross = crossover()(fast, slow)
 
 **Cause:** Passing wrong type to transform input
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 ema_val = ema(period=20)(is_bullish)  # Boolean, not Decimal
 
-# ✅ FIX
+# FIX
 ema_val = ema(period=20)(src.c)  # Decimal
 ```
 
@@ -234,13 +269,17 @@ ema_val = ema(period=20)(src.c)  # Decimal
 
 **Cause:** Using `[0]` as lag index
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 current = src.c[0]
 
-# ✅ FIX
+# FIX
 current = src.c  # Omit index for current value
 ```
+
+**See also:** [Design Guidelines - Zero Indexing](./design-guidelines.md#zero-indexing)
+
+---
 
 ### Invalid Lag Float
 
@@ -248,13 +287,15 @@ current = src.c  # Omit index for current value
 
 **Cause:** Using float as lag index
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 lag = src.c[1.5]
 
-# ✅ FIX
+# FIX
 lag = src.c[2]  # Use integer
 ```
+
+---
 
 ### Negative Lag Not Allowed
 
@@ -262,14 +303,16 @@ lag = src.c[2]  # Use integer
 
 **Cause:** Using negative index (forward-looking)
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 future = src.c[-1]
 
-# ✅ FIX (for research only)
+# FIX (for research only)
 # Use forward_returns transform
 future_ret = forward_returns(period=1)(src.c)
 ```
+
+**See also:** [Design Guidelines - Negative Indexing](./design-guidelines.md#negative-indexing)
 
 ---
 
@@ -281,19 +324,23 @@ future_ret = forward_returns(period=1)(src.c)
 
 **Cause:** Using multi-output transform in expression without specifying which output
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # Which output? (lower, middle, or upper?)
 
-# ✅ FIX - Option 1: Access specific handle
+# FIX - Option 1: Access specific handle
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb.bbands_upper > 100
 
-# ✅ FIX - Option 2: Tuple unpacking
+# FIX - Option 2: Tuple unpacking
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 signal = upper > 100
 ```
+
+**See also:** [Design Guidelines - Multi-Output Transform Access](./design-guidelines.md#multi-output-transform-access)
+
+---
 
 ### Tuple Unpacking Count Mismatch
 
@@ -301,16 +348,20 @@ signal = upper > 100
 
 **Cause:** Number of variables doesn't match number of outputs
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 lower, upper = bbands(period=20, stddev=2)(src.c)  # 3 outputs, 2 variables
 
-# ✅ FIX - Option 1: Match count
+# FIX - Option 1: Match count
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
-# ✅ FIX - Option 2: Discard with underscore
+# FIX - Option 2: Discard with underscore
 lower, _, upper = bbands(period=20, stddev=2)(src.c)
 ```
+
+**See also:** [Design Guidelines - Tuple Unpacking Count Matching](./design-guidelines.md#tuple-unpacking-count-matching)
+
+---
 
 ### Right-Hand Side Must Be Constructor Call
 
@@ -318,14 +369,18 @@ lower, _, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to unpack something that isn't a transform call
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
 lower, middle, upper = bb  # Cannot unpack after assignment
 
-# ✅ FIX
+# FIX
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 ```
+
+**See also:** [Design Guidelines - Only Unpack Transform Calls](./design-guidelines.md#only-unpack-transform-calls)
+
+---
 
 ### Calling Attribute as Function
 
@@ -333,65 +388,16 @@ lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to call an output handle
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 bb_upper = bbands(period=20, stddev=2).bbands_upper(src.c)
 
-# ✅ FIX
+# FIX
 bb = bbands(period=20, stddev=2)(src.c)
 bb_upper = bb.bbands_upper  # Access, don't call
 ```
 
----
-
-## Execution Errors
-
-### No Trade Signal Executor Found
-
-**Error:** `No trade_signal_executor found in strategy`
-
-**Cause:** Trading strategy missing required executor
-
-```python
-# ❌ WRONG
-src = market_data_source()
-signal = src.c > src.c[1]
-# Missing executor!
-
-# ✅ FIX
-src = market_data_source()
-signal = src.c > src.c[1]
-trade_signal_executor()(enter_long=signal)
-```
-
-### Multiple Trade Signal Executors
-
-**Error:** `Multiple trade_signal_executor calls found`
-
-**Cause:** More than one executor in strategy
-
-```python
-# ❌ WRONG
-trade_signal_executor()(enter_long=buy)
-trade_signal_executor()(enter_short=sell)  # Second executor
-
-# ✅ FIX
-trade_signal_executor()(enter_long=buy, enter_short=sell)
-```
-
-### Missing Required Executor Input
-
-**Error:** `trade_signal_executor requires at least one input`
-
-**Cause:** Executor called with no signals
-
-```python
-# ❌ WRONG
-trade_signal_executor()()  # No inputs
-
-# ✅ FIX
-trade_signal_executor()(enter_long=signal)
-```
+**See also:** [Design Guidelines - Common Design Mistakes](./design-guidelines.md#2-calling-output-attributes-as-functions)
 
 ---
 
@@ -403,17 +409,21 @@ trade_signal_executor()(enter_long=signal)
 
 **Cause:** Using unsupported timeframe string
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 daily = ema(period=50, timeframe="BAD_TF")(src.c)
 daily = ema(period=50, timeframe="1Day")(src.c)  # Wrong format
 
-# ✅ FIX
+# FIX
 daily = ema(period=50, timeframe="1D")(src.c)
 hourly = ema(period=20, timeframe="1H")(src.c)
 ```
 
 **Valid formats:** `"1Min"`, `"5Min"`, `"15Min"`, `"1H"`, `"4H"`, `"1D"`, `"1W"`, `"1M"`
+
+**See also:** [Design Guidelines - Valid Timeframe Formats](./design-guidelines.md#valid-timeframe-formats)
+
+---
 
 ### Invalid Session
 
@@ -421,17 +431,21 @@ hourly = ema(period=20, timeframe="1H")(src.c)
 
 **Cause:** Using unsupported session name
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 london_ema = ema(period=20, session="BAD_SESSION")(src.c)
 london_ema = ema(period=20, session="LondonKillZone")(src.c)  # Doesn't exist
 
-# ✅ FIX
+# FIX
 london_ema = ema(period=20, session="London")(src.c)
 lkz_ema = ema(period=20, session="LondonOpenKillZone")(src.c)
 ```
 
 **Valid sessions:** `"Sydney"`, `"Tokyo"`, `"London"`, `"NewYork"`, `"AsianKillZone"`, `"LondonOpenKillZone"`, `"NewYorkKillZone"`, `"LondonCloseKillZone"`
+
+**See also:** [Design Guidelines - Valid Session Names](./design-guidelines.md#valid-session-names)
+
+---
 
 ### Intraday-Only Transform on Daily Data
 
@@ -439,38 +453,20 @@ lkz_ema = ema(period=20, session="LondonOpenKillZone")(src.c)
 
 **Cause:** Using session-based transform on daily or higher timeframe
 
-```python
-# ❌ WRONG (if running on daily data)
+```epochscript
+# Incorrect: (if running on daily data)
 london = sessions(session_type="London")()
 
-# ✅ FIX
+# FIX
 # Use intraday timeframe (1Min, 5Min, 15Min, etc.)
 # Configure strategy to run on intraday data
 ```
 
+**See also:** [Design Guidelines - Session-Based Transforms Require Intraday Data](./design-guidelines.md#session-based-transforms-require-intraday-data)
+
 ---
 
 ## Reporting Errors
-
-### event_marker: Missing color_map
-
-**Error:** `Missing required option 'color_map'`
-
-**Cause:** event_marker requires color_map option
-
-```python
-# ❌ WRONG
-event_marker()(
-    oversold=rsi_val < 30
-)
-
-# ✅ FIX
-event_marker(color_map={
-    Success: ["oversold"]
-})(
-    oversold=rsi_val < 30
-)
-```
 
 ### event_marker: Invalid Color Category
 
@@ -478,8 +474,8 @@ event_marker(color_map={
 
 **Cause:** Using wrong color name (must be Success, Warning, Error, or Info)
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 event_marker(color_map={
     Green: ["oversold"],     # Wrong: 'Green' not valid
     Red: ["overbought"]      # Wrong: 'Red' not valid
@@ -488,7 +484,7 @@ event_marker(color_map={
     overbought=overbought
 )
 
-# ✅ FIX
+# FIX
 event_marker(color_map={
     Success: ["oversold"],   # Green color
     Error: ["overbought"]    # Red color
@@ -500,28 +496,32 @@ event_marker(color_map={
 
 **Valid color categories:** `Success` (green), `Warning` (yellow), `Error` (red), `Info` (blue)
 
+**See also:** [Design Guidelines - event_marker Color Map Pattern](./design-guidelines.md#event_marker-color-map-pattern)
+
+---
+
 ### event_marker: Event Name Not in Inputs
 
 **Error:** `Event 'breakout' referenced in color_map but not provided as input`
 
 **Cause:** Event name in color_map doesn't match any input
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 event_marker(color_map={
     Success: ["breakout"]  # 'breakout' not in inputs
 })(
     upper_break=src.c > upper  # Named 'upper_break', not 'breakout'
 )
 
-# ✅ FIX - Option 1: Match input name
+# FIX - Option 1: Match input name
 event_marker(color_map={
     Success: ["upper_break"]  # Matches input name
 })(
     upper_break=src.c > upper
 )
 
-# ✅ FIX - Option 2: Rename input
+# FIX - Option 2: Rename input
 event_marker(color_map={
     Success: ["breakout"]
 })(
@@ -529,21 +529,23 @@ event_marker(color_map={
 )
 ```
 
+---
+
 ### event_marker: Non-Boolean Input
 
 **Error:** `Expected Boolean input for 'price', got Decimal`
 
 **Cause:** event_marker inputs must be boolean series
 
-```python
-# ❌ WRONG
+```epochscript
+# Incorrect:
 event_marker(color_map={
     Success: ["price"]
 })(
     price=src.c  # Decimal, not Boolean
 )
 
-# ✅ FIX
+# FIX
 event_marker(color_map={
     Success: ["high_price"]
 })(
@@ -551,65 +553,7 @@ event_marker(color_map={
 )
 ```
 
-### gap_report: Missing Required Inputs
-
-**Error:** `gap_report requires inputs: gap_filled, gap_retrace, gap_size, psc, psc_timestamp`
-
-**Cause:** gap_report needs specific outputs from session_gap or bar_gap
-
-```python
-# ❌ WRONG
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
-gap_report()(gaps.gap_filled)  # Missing other required inputs
-
-# ✅ FIX
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
-gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
-    gaps.gap_filled,
-    gaps.gap_retrace,
-    gaps.gap_size,
-    gaps.psc,
-    gaps.psc_timestamp
-)
-```
-
-### table_report: SQL Syntax Error
-
-**Error:** `SQL syntax error: unexpected token 'FORM'`
-
-**Cause:** Typo in SQL query
-
-```python
-# ❌ WRONG
-table_report(sql="""
-    SELECT AVG(returns)
-    FORM input  -- Typo: FORM instead of FROM
-""")(returns=ret)
-
-# ✅ FIX
-table_report(sql="""
-    SELECT AVG(returns)
-    FROM input
-""")(returns=ret)
-```
-
-### table_report: Column Not Found
-
-**Error:** `Column 'return' not found in input`
-
-**Cause:** SQL references column not provided in inputs
-
-```python
-# ❌ WRONG
-table_report(sql="""
-    SELECT AVG(return) FROM input  -- 'return' not in inputs
-""")(returns=ret)  # Named 'returns', not 'return'
-
-# ✅ FIX
-table_report(sql="""
-    SELECT AVG(returns) FROM input  -- Matches input name
-""")(returns=ret)
-```
+**See also:** [Research Dashboards - Gap Report Required Inputs](./visualization/research-dashboards.md#gap-report-required-inputs) and [Research Dashboards - Table Report SQL Patterns](./visualization/research-dashboards.md#table-report-sql-patterns)
 
 ---
 
@@ -641,8 +585,8 @@ table_report(sql="""
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| `No trade_signal_executor` | Missing executor | Add `trade_signal_executor()` |
-| `Multiple executors` | Two `trade_signal_executor` calls | Combine into one |
+| `No trade_signal_executor` | Missing executor | See [Design Guidelines](./design-guidelines.md#every-trading-strategy-must-have-exactly-one-executor) |
+| `Multiple executors` | Two `trade_signal_executor` calls | See [Design Guidelines](./design-guidelines.md#anti-pattern-multiple-executors) |
 | `Invalid timeframe` | Wrong format | Use `"1D"`, `"1H"`, etc. |
 | `Invalid session` | Wrong name | Use valid session names |
 
@@ -659,7 +603,7 @@ Error messages tell you:
 
 ### 2. Check Variable Names
 
-```python
+```epochscript
 # Common typos
 ema_val = ema(period=20)(src.c)
 signal = emv_val > 100  # Typo: emv_val vs ema_val
@@ -667,50 +611,50 @@ signal = emv_val > 100  # Typo: emv_val vs ema_val
 
 ### 3. Verify Transform Names and Options
 
-```python
+```epochscript
 # Check spelling
-rsi_val = rsi(period=14)(src.c)  # ✓
-rsi_val = rsi(periood=14)(src.c)  # ✗ Typo
+rsi_val = rsi(period=14)(src.c)  # TRUE
+rsi_val = rsi(periood=14)(src.c)  # FALSE Typo
 
 # Check required options
-ema_val = ema()(src.c)  # ✗ Missing period
-ema_val = ema(period=20)(src.c)  # ✓
+ema_val = ema()(src.c)  # FALSE Missing period
+ema_val = ema(period=20)(src.c)  # TRUE
 ```
 
 ### 4. Check Output Handles
 
-```python
+```epochscript
 # Wrong handle
 src = market_data_source()
-price = src.result  # ✗ No 'result' handle
+price = src.result  # FALSE No 'result' handle
 
 # Correct handles
-price = src.c  # ✓ Close
-high = src.h   # ✓ High
+price = src.c  # Close
+high = src.h   # High
 ```
 
 ### 5. Verify Input/Output Counts
 
-```python
+```epochscript
 # Crossover needs 2 inputs
-cross = crossover()(fast)  # ✗ Only 1 input
-cross = crossover()(fast, slow)  # ✓
+cross = crossover()(fast)  # FALSE Only 1 input
+cross = crossover()(fast, slow)  # TRUE
 
 # Bollinger Bands returns 3 outputs
-lower, upper = bbands(period=20, stddev=2)(src.c)  # ✗ Only 2 variables
-lower, middle, upper = bbands(period=20, stddev=2)(src.c)  # ✓
+lower, upper = bbands(period=20, stddev=2)(src.c)  # FALSE Only 2 variables
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)  # TRUE
 ```
 
 ### 6. Check Data Types
 
-```python
+```epochscript
 # Wrong type
-ema_val = ema(period="20")(src.c)  # ✗ String
-ema_val = ema(period=20)(src.c)    # ✓ Integer
+ema_val = ema(period="20")(src.c)  # FALSE String
+ema_val = ema(period=20)(src.c)    # Integer
 
 # Type compatibility
 label = "PRICE"
-result = label + 100  # ✗ String + Number
+result = label + 100  # FALSE String + Number
 ```
 
 ---
@@ -719,7 +663,7 @@ result = label + 100  # ✗ String + Number
 
 ### Pattern 1: Variable Reassignment
 
-```python
+```epochscript
 # Problem
 x = src.c
 x = src.o  # ERROR
@@ -731,7 +675,7 @@ open = src.o
 
 ### Pattern 2: Chained Comparison
 
-```python
+```epochscript
 # Problem
 valid = 30 < rsi < 70  # ERROR
 
@@ -741,7 +685,7 @@ valid = (rsi > 30) and (rsi < 70)
 
 ### Pattern 3: Multi-Output Access
 
-```python
+```epochscript
 # Problem
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb > 100  # ERROR
@@ -756,20 +700,11 @@ signal = upper > 100
 
 ### Pattern 4: Missing Executor
 
-```python
-# Problem
-src = market_data_source()
-signal = src.c > 100  # ERROR: No executor
-
-# Solution
-src = market_data_source()
-signal = src.c > 100
-trade_signal_executor()(enter_long=signal)
-```
+**See:** [Design Guidelines - Strategy Executor Requirements](./design-guidelines.md#strategy-executor-requirements)
 
 ### Pattern 5: Conditional Logic
 
-```python
+```epochscript
 # Problem
 if condition:  # ERROR
     x = 1
@@ -787,11 +722,16 @@ x = condition  # If you just need True/False
 
 If error persists:
 
-1. **Check transform catalog**: Verify transform name, options, inputs, outputs
-2. **Review examples**: See working examples in [Strategy Patterns](../strategies/strategy-patterns.md)
-3. **Simplify**: Remove parts until error disappears, then add back
-4. **Test incrementally**: Build up strategy step-by-step
+1. **Check design guidelines**: Review [Design Guidelines](./design-guidelines.md) for required patterns
+2. **Check transform catalog**: Use the UI Transform Browser to verify transform name, options, inputs, outputs
+3. **Review examples**: See working examples in [Strategy Patterns](../strategies/patterns/index.md)
+4. **Simplify**: Remove parts until error disappears, then add back
+5. **Test incrementally**: Build up strategy step-by-step
 
 ---
 
-**Next:** [Appendix: Full Catalog →](appendix-full-catalog.md)
+**Related Documentation:**
+- [Design Guidelines](./design-guidelines.md) - Required design patterns and constraints
+- [Language Fundamentals](./language/index.md) - Syntax and types
+- [Core Concepts](./concepts/index.md) - Timeframes, sessions, cross-sectional
+- [Strategy Patterns](../strategies/patterns/index.md) - Complete strategy examples

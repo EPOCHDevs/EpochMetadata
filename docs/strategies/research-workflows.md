@@ -1,20 +1,18 @@
+---
+page_type: concept
+layout: default
+order: 1
+category: Strategies
+description: Market research and analysis workflows using EpochScript for non-trading analysis
+parent: ./index.md
+---
+
 # Research Workflows
 
 Market research and analysis using Epoch script (non-trading scripts).
 
 ---
 
-## Table of Contents
-
-1. [Research vs Strategy](#research-vs-strategy)
-2. [Gap Analysis](#gap-analysis)
-3. [Correlation Studies](#correlation-studies)
-4. [Pattern Research](#pattern-research)
-5. [Factor Analysis](#factor-analysis)
-6. [Calendar Effects](#calendar-effects)
-7. [Research Dashboard Workflow](#research-dashboard-workflow)
-
----
 
 ## Research vs Strategy
 
@@ -30,7 +28,7 @@ Market research and analysis using Epoch script (non-trading scripts).
 
 ### Trading Strategy Example
 
-```python
+```epochscript
 # MUST have trade_signal_executor
 src = market_data_source()
 signal = rsi(period=14)(src.c) < 30
@@ -39,7 +37,7 @@ trade_signal_executor()(enter_long=signal)  # Required
 
 ### Research Script Example
 
-```python
+```epochscript
 # NO trade_signal_executor
 # Outputs reports instead
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
@@ -58,7 +56,7 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 
 Research gap fill behavior across different markets and sessions.
 
-```python
+```epochscript
 # Overnight gaps - session boundaries
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
@@ -89,7 +87,7 @@ london_gaps = session_gap(fill_percent=100, timeframe="1Min", session="London")(
 
 Research lead-lag relationships, stability, and cross-asset dynamics.
 
-```python
+```epochscript
 # Lead-Lag Analysis: Does crypto volatility predict tech drawdowns?
 crypto_vol = volatility(period=20)(crypto.c)
 tech_dd = ulcer_index(period=20)(tech.c)
@@ -120,7 +118,7 @@ table_report(sql="SELECT date, concurrent_corr, lag5_corr FROM input ORDER BY da
 
 Analyze pattern frequency, success rates, and directional bias.
 
-```python
+```epochscript
 # Head & Shoulders: Occurrence and target hit rate
 hs = head_and_shoulders(tolerance=0.02)()
 breakdown = src.c < hs.neckline
@@ -146,7 +144,7 @@ table_report(sql="""
 
 **Question:** How long does momentum persist?
 
-```python
+```epochscript
 # Current momentum
 momentum_now = roc(period=20)(close)
 
@@ -200,7 +198,7 @@ table_report(sql="""
 
 **Question:** Do value and momentum work together?
 
-```python
+```epochscript
 # Value factor (from fundamentals)
 ratios = financial_ratios()
 pe = ratios.price_to_earnings
@@ -253,7 +251,7 @@ table_report(sql="""
 
 **Question:** Does turn-of-month provide excess returns?
 
-```python
+```epochscript
 src = market_data_source()
 
 # Turn-of-month window
@@ -285,7 +283,7 @@ table_report(sql="""
 
 **Question:** Which days have best/worst returns?
 
-```python
+```epochscript
 src = market_data_source()
 
 # Day of week
@@ -328,7 +326,7 @@ table_report(sql="""
 
 **Question:** Which months outperform?
 
-```python
+```epochscript
 src = market_data_source()
 
 # Define all months
@@ -370,7 +368,7 @@ table_report(sql="""
 
 **Question:** What predicts 5-day forward returns?
 
-```python
+```epochscript
 src = market_data_source()
 
 # Features (current)
@@ -409,7 +407,7 @@ table_report(sql="""
 )
 ```
 
-**⚠️ Critical:** Forward returns create look-ahead bias. Use ONLY for:
+**Note: Critical:** Forward returns create look-ahead bias. Use ONLY for:
 - Historical analysis
 - ML model training (on past data)
 - Feature importance research
@@ -422,7 +420,7 @@ table_report(sql="""
 
 ### 1. Document Assumptions
 
-```python
+```epochscript
 # GOOD: Clear assumptions
 # Assumption: Gaps > 1.5% are significant for SPY
 # Assumption: 100% fill = gap completely closed
@@ -431,7 +429,7 @@ gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
 ### 2. Test Multiple Parameters
 
-```python
+```epochscript
 # Test different thresholds
 gap_small = session_gap(fill_percent=100, min_gap_size=0.5)()
 gap_medium = session_gap(fill_percent=100, min_gap_size=1.0)()
@@ -442,7 +440,7 @@ gap_large = session_gap(fill_percent=100, min_gap_size=2.0)()
 
 ### 3. Check Sample Size
 
-```python
+```epochscript
 table_report(sql="""
     SELECT
         COUNT(*) as total_gaps,
@@ -484,7 +482,7 @@ Results appear in a dedicated **Research Dashboard** (separate from live trading
 
 ### Workflow: Run → Review → Refine
 
-```python
+```epochscript
 # 1. Run research script
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
@@ -501,7 +499,7 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 
 Combine report types for comprehensive research:
 
-```python
+```epochscript
 # Pattern research with multiple outputs
 src = market_data_source()
 hammer = hammer_pattern()(src.o, src.h, src.l, src.c)
@@ -526,7 +524,7 @@ histogram_chart_report(bins=20)(returns=fwd_1d)
 
 ### Research to Strategy Conversion
 
-```python
+```epochscript
 # Research (uses forward_returns)
 rsi_val = rsi(period=14)(src.c)
 oversold = rsi_val < 30
@@ -549,7 +547,7 @@ trade_signal_executor()(enter_long=buy, exit_long=(rsi_val > 70))
 3. **Tables** - Detailed breakdowns with SQL (segmentation, grouping, filtering)
 
 **Common Patterns:**
-```python
+```epochscript
 # Segmentation: Analyze by market regime
 table_report(sql="""
     SELECT regime, COUNT(*), AVG(return),
@@ -602,4 +600,4 @@ table_report(sql="""
 
 ---
 
-**Next:** [Advanced Topics →](../epochscript/advanced-topics.md)
+**Next:** [Techniques →](./techniques.md) | [Guidelines & Best Practices →](./guidelines.md)

@@ -1,0 +1,180 @@
+---
+page_type: reference
+layout: default
+order: 7
+category: Strategies
+description: ICT Smart Money Concepts - Order Blocks, Liquidity, BOS/CHoCH, Fair Value Gaps
+parent: ./index.md
+---
+
+# ICT & Smart Money Concepts
+
+Institutional order flow analysis: order blocks, liquidity sweeps, market structure breaks, FVGs.
+
+:::note
+For session filtering best practices, see [Guidelines & Best Practices](./guidelines.md#session-filtering-best-practices)
+:::
+
+---
+
+## Order Blocks
+
+```epochscript
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+
+ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
+
+# Volume-confirmed valid blocks
+bullish_ob = (ob.ob == 1) and (ob.mitigated_index == 0) and (ob.percentage > 70)
+at_block = src.c >= ob.bottom and src.c <= ob.top
+
+entry = bullish_ob and at_block
+```
+
+**close_mitigation:** `false` = wick touch mitigates (sensitive), `true` = close required (conservative). **Mitigation** = block tested (still valid support/resistance), **Breaker** = fully invalidated.
+
+---
+
+## Liquidity Zones & Sweeps
+
+```epochscript
+liq = liquidity(range_percent=0.01)(swings.high_low, swings.level)
+
+# Sweep detection (stops grabbed, reversal imminent)
+ssl_swept = (liq.swept > 0) and (liq.liquidity == -1)  # Sell-side liquidity
+bsl_swept = (liq.swept > 0) and (liq.liquidity == 1)   # Buy-side liquidity
+
+# Reversal setup after sweep
+reversal = ssl_swept and (src.c > src.o)  # Bullish candle after SSL sweep
+```
+
+**range_percent:** Clustering tolerance (0.01 = 1% of price range). Tighter = more granular liquidity detection.
+
+---
+
+## Market Structure (BOS/CHoCH)
+
+```epochscript
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+
+# BOS = trend continuation, CHoCH = potential reversal
+bullish_bos = structure.bos_v == 1
+bearish_choch = structure.choch_v == -1
+
+# Combine with order blocks for high-probability setup
+ob = order_blocks()(swings.high_low, swings.level)
+entry = bullish_bos and (ob.ob == 1) and (src.c >= ob.bottom)
+exit = bearish_choch
+```
+
+**close_break:** `false` = high/low break (early signals, more whipsaws), `true` = close break (delayed but fewer fakeouts).
+
+---
+
+## Fair Value Gaps
+
+```epochscript
+fvg = fair_value_gap(join_consecutive=false)()
+
+# Gap fill retracement entry
+gap_mid = (fvg.top + fvg.bottom) / 2
+at_fvg = (fvg.fvg == 1) and (src.c <= gap_mid)
+
+entry = at_fvg and (src.c > src.o)  # Bullish reaction at FVG
+```
+
+**join_consecutive:** `false` = each gap separate, `true` = merge adjacent gaps into zones. Merged zones = wider target areas.
+
+---
+
+## Session-Based Execution
+
+```epochscript
+london = sessions(session_type="London")()
+ny = sessions(session_type="NewYork")()
+
+# Track session range for liquidity targets
+london_high = conditional_select(london.active, src.h, 0)
+london_low = conditional_select(london.active, src.l, 0)
+
+# NY session sweep of London liquidity
+sweep_high = ny.active and (src.h > london_high)  # Bearish sweep
+sweep_low = ny.active and (src.l < london_low)    # Bullish sweep
+
+# Custom session window
+killzone = session_time_window(
+    start_hour=8, start_minute=30,
+    end_hour=11, end_minute=0,
+    timezone="America/New_York"
+)()
+
+entry_timing = killzone.active
+```
+
+**London/NY overlap** (08:00-12:00 EST) = highest institutional volume. **Killzones** = specific hours with predictable institutional activity (London open, NY open).
+
+---
+
+## Multi-Factor SMC Strategy
+
+```epochscript
+# Layer all SMC concepts
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+
+ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
+liq = liquidity(range_percent=0.01)(swings.high_low, swings.level)
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=false)()
+
+london = sessions(session_type="London")()
+ny = sessions(session_type="NewYork")()
+
+# High-probability confluence
+bullish_structure = structure.bos_v == 1
+valid_ob = (ob.ob == 1) and (ob.mitigated_index == 0)
+at_ob = src.c >= ob.bottom and src.c <= ob.top
+liq_swept = (liq.swept > 0) and (liq.liquidity == -1)
+fvg_present = fvg.fvg == 1
+session_ok = london.active or ny.active
+
+entry = (
+    bullish_structure and
+    valid_ob and
+    at_ob and
+    liq_swept and
+    fvg_present and
+    session_ok
+)
+
+# Exit on opposite structure or OB
+exit = (structure.choch_v == -1) or (ob.ob == -1)
+```
+
+---
+
+## Advanced: Session Range Manipulation
+
+```epochscript
+# Detect session range manipulation pattern
+asia = sessions(session_type="Asian")()
+london = sessions(session_type="London")()
+
+# Asian session establishes range
+asia_high = conditional_select(asia.active, src.h, 0)
+asia_low = conditional_select(asia.active, src.l, 0)
+asia_mid = (asia_high + asia_low) / 2
+
+# London reversal from Asian extremes
+london_active = london.active
+swept_high = london_active and (src.h > asia_high) and (src.c < asia_mid)
+swept_low = london_active and (src.l < asia_low) and (src.c > asia_mid)
+
+# Manipulation = sweep then reversal
+bearish_manipulation = swept_high
+bullish_manipulation = swept_low
+
+entry = bullish_manipulation
+exit = bearish_manipulation
+```
+
+**Next:** [Statistical Analysis →](./statistical-analysis.md)

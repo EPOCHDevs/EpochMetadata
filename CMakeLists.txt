@@ -111,3 +111,8 @@ if (BUILD_TEST)
     add_subdirectory(test)
     add_subdirectory(benchmark)
 endif()
+
+# Utility: Dump transform metadata to JSON for documentation verification
+add_executable(dump_transform_metadata scripts/dump_transform_metadata.cpp)
+target_link_libraries(dump_transform_metadata PRIVATE epoch::script)
+target_include_directories(dump_transform_metadata PRIVATE ${PROJECT_SOURCE_DIR}/include)

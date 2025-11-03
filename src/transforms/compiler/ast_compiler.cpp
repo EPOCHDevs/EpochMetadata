@@ -169,6 +169,9 @@ namespace epoch_script
 
         // Initialize constant folder for preprocessing
         constant_folder_ = std::make_unique<ConstantFolder>(context_);
+
+        // Initialize CSE optimizer for deduplicating identical transforms
+        cse_optimizer_ = std::make_unique<CSEOptimizer>();
     }
 
     CompilationResult AlgorithmAstCompiler::compile(const std::string& source)
@@ -203,6 +206,11 @@ namespace epoch_script
 
         // Verify session dependencies and auto-create missing sessions nodes
         verifySessionDependencies();
+
+        // Common Subexpression Elimination (CSE) optimization pass
+        // Deduplicates semantically identical transform nodes to reduce computation
+        // Runs before topological sort so we can modify the graph structure
+        cse_optimizer_->Optimize(context_.algorithms, context_);
 
         // Sort algorithms in topological order: dependencies before dependents
         // This ensures handles are registered before they're referenced
