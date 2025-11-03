@@ -4,25 +4,31 @@
 
 src = market_data_source()
 
-current_month = month()
-dow = day_of_week()
+# Month of year detection (Nov-Apr strong, May-Oct weak)
+nov = month_of_year(month="November")()
+dec = month_of_year(month="December")()
+jan = month_of_year(month="January")()
+feb = month_of_year(month="February")()
+mar = month_of_year(month="March")()
+apr = month_of_year(month="April")()
+strong_season = nov.result or dec.result or jan.result or feb.result or mar.result or apr.result
 
-# Month of year (Nov-Apr strong, May-Oct weak)
-strong_season = (current_month >= 11) or (current_month <= 4)
-
-# Turn of month (last day + first 3 days)
-tom_period = (month() != month()[1]) or (month() != month()[3])
+# Turn of month detection
+tom = turn_of_month(days_before=1, days_after=3)()
+tom_period = tom.result
 
 # Week of month
-first_week = week_of_month(week="First")
+first_week = week_of_month(week="First Week")()
 bullish_week = first_week.result
 
 # Day of week
-avoid_monday = dow == 1
-prefer_friday = dow == 5
+monday = day_of_week(weekday="Monday")()
+friday = day_of_week(weekday="Friday")()
+avoid_monday = monday.result
+prefer_friday = friday.result
 
 # Holiday effect
-pre_holiday = holiday(days_before=1)
+pre_holiday = holiday(days_before=1)()
 holiday_boost = pre_holiday.result
 
 # Calendar score
@@ -51,6 +57,6 @@ strong_setup = uptrend and (rsi_val < 35) and (src.v > sma(period=20)(src.v) * 2
 entry_unfavorable = (not favorable_calendar) and strong_setup
 
 entry = entry_favorable or entry_unfavorable
-exit = calendar_score <= -2  # Very unfavorable
+exit = calendar_score <= -2
 
-trade_signal_executor(entry, exit)
+trade_signal_executor()(enter_long=entry, exit_long=exit)

@@ -5,14 +5,14 @@
 src = market_data_source()
 
 swings = swing_highs_lows(swing_length=5)(src.h, src.l)
-structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+structure = bos_choch()(swings.high_low, swings.level)
 
 # BOS = trend continuation, CHoCH = potential reversal
-bullish_bos = structure.bos_v == 1
-bearish_choch = structure.choch_v == -1
+bullish_bos = structure.bos == 1
+bearish_choch = structure.choch == -1
 
 # Combine with order blocks for high-probability setup
-ob = order_blocks()(swings.high_low, swings.level)
+ob = order_blocks()(swings.high_low)
 entry = bullish_bos and (ob.ob == 1) and (src.c >= ob.bottom)
 exit = bearish_choch
 

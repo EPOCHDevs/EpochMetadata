@@ -1,4 +1,4 @@
-# Source: strategies/regime-detection.md:226
+# Source: strategies/regime-detection.md:196
 # Section: Regime Detection > Regime Transition Detection
 # Type: partial_example
 
@@ -16,10 +16,8 @@ range_to_trend = not trending_prev and trending_now
 
 # Vol transitions
 vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
-# NOTE: percentile not yet implemented - using median approximation
-vol_median = sma(period=252)(vol.result)  # Approximate median with mean
-
-high_vol_now = vol.result > vol_median
+# Vol regime using percentile_select (50th percentile = median)
+high_vol_now = percentile_select(lookback=252, percentile=50)(vol.result, 1, 0)  # Above median
 high_vol_prev = high_vol_now[1]
 
 vol_spike = not high_vol_prev and high_vol_now

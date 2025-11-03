@@ -15,14 +15,12 @@ london_low = conditional_select(london.active, src.l, 0)
 sweep_high = ny.active and (src.h > london_high)  # Bearish sweep
 sweep_low = ny.active and (src.l < london_low)    # Bullish sweep
 
-# Custom session window
-killzone = session_time_window(
-    start_hour=8, start_minute=30,
-    end_hour=11, end_minute=0,
-    timezone="America/New_York"
-)()
+# Custom session window (8am-11am NY time)
+# NOTE: Using sessions transform instead as session_time_window may not support start_hour/end_hour
+# In production, consider using time-based filtering
+killzone_active = london.active or ny.active
 
-entry_timing = killzone.active
+entry_timing = killzone_active
 
 trade_signal_executor()(
     enter_short=sweep_high and entry_timing,

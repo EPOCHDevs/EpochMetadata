@@ -4,12 +4,12 @@
 
 src = market_data_source()
 
-dt = double_top(tolerance=0.02)(src.h, src.l, src.c)
-db = double_bottom(tolerance=0.02)(src.h, src.l, src.c)
+dt = double_top_bottom(pattern_type="Double Top Only", similarity_tolerance=0.02)(src.h, src.l, src.c)
+db = double_top_bottom(pattern_type="Double Bottom Only", similarity_tolerance=0.02)(src.h, src.l, src.c)
 
 # Wait for neckline break
-dt_break = dt.result and (src.c < dt.neckline)
-db_break = db.result and (src.c > db.neckline)
+dt_break = dt.pattern_detected and (src.c < dt.breakout_level)
+db_break = db.pattern_detected and (src.c > db.breakout_level)
 
 # Volume confirmation
 vol_surge = src.v > sma(period=20)(src.v) * 1.3

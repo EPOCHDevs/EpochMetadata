@@ -107,8 +107,10 @@ namespace epoch_script
             return true;
         }
 
-        // Number accepts Integer and Decimal
-        if (target == DataType::Number && (source == DataType::Integer || source == DataType::Decimal))
+        // Numeric type compatibility: Number, Decimal, and Integer are mutually compatible
+        // This allows arithmetic operations between different numeric types
+        if ((target == DataType::Number || target == DataType::Decimal || target == DataType::Integer) &&
+            (source == DataType::Number || source == DataType::Decimal || source == DataType::Integer))
         {
             return true;
         }

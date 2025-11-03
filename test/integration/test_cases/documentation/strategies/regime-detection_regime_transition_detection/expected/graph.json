@@ -29,14 +29,20 @@
       }
    },
    {
-      "type": "gt",
-      "id": "gt_1",
-      "options": {},
+      "type": "percentile_select",
+      "id": "high_vol_now",
+      "options": {
+         "lookback": 252,
+         "percentile": 50
+      },
       "inputs": {
-         "SLOT1": [
-            "vol_median#result"
+         "low": [
+            "number_2#result"
          ],
-         "SLOT0": [
+         "high": [
+            "number_1#result"
+         ],
+         "value": [
             "vol#result"
          ]
       },
@@ -69,7 +75,7 @@
       },
       "inputs": {
          "SLOT": [
-            "gt_1#result"
+            "high_vol_now#result"
          ]
       },
       "timeframe": {
@@ -117,7 +123,7 @@
       "options": {},
       "inputs": {
          "SLOT1": [
-            "gt_1#result"
+            "high_vol_now#result"
          ],
          "SLOT0": [
             "logical_not_2#result"
@@ -231,6 +237,30 @@
       }
    },
    {
+      "type": "number",
+      "id": "number_1",
+      "options": {
+         "value": 1
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_2",
+      "options": {
+         "value": 0
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
       "type": "market_data_source",
       "id": "src",
       "options": {},
@@ -248,22 +278,6 @@
          "trading_periods": 252
       },
       "inputs": {},
-      "timeframe": {
-         "interval": 1,
-         "type": "day"
-      }
-   },
-   {
-      "type": "sma",
-      "id": "vol_median",
-      "options": {
-         "period": 252
-      },
-      "inputs": {
-         "SLOT": [
-            "vol#result"
-         ]
-      },
       "timeframe": {
          "interval": 1,
          "type": "day"

@@ -5,20 +5,19 @@
 src = market_data_source()
 
 # Detect all patterns
-db = double_bottom(tolerance=0.02)(src.h, src.l, src.c)
+db = double_top_bottom(pattern_type="Double Bottom Only", similarity_tolerance=0.02)(src.h, src.l, src.c)
 ihs = inverse_head_and_shoulders()(src.h, src.l, src.c)
-asc_tri = ascending_triangle()(src.h, src.l, src.c)
-bf = bull_flag()(src.h, src.l, src.c)
-falling_wedge = falling_wedge()(src.h, src.l, src.c)
+asc_tri = triangles(triangle_type="Ascending (Bullish)")(src.h, src.l, src.c)
+bf = flag()(src.h, src.l, src.c)
+# fw = falling_wedge()(src.h, src.l, src.c)  # falling_wedge doesn't exist
 
 # Bullish breakouts
-db_break = db.result and (src.c > db.neckline)
-ihs_break = ihs.result and (src.c > ihs.neckline_level)
-asc_break = asc_tri.result and (src.c > asc_tri.resistance)
-flag_break = bf.result and (src.c > bf.upper_bound)
-wedge_break = falling_wedge.result and (src.c > falling_wedge.upper_bound)
+db_break = db.pattern_detected and (src.c > db.breakout_level)
+ihs_break = ihs.pattern_detected and (src.c > ihs.neckline_level)
+asc_break = asc_tri.pattern_detected
+flag_break = bf.bull_flag
 
-bullish_pattern = db_break or ihs_break or asc_break or flag_break or wedge_break
+bullish_pattern = db_break or ihs_break or asc_break or flag_break
 
 # Volume + trend confirmation
 uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)

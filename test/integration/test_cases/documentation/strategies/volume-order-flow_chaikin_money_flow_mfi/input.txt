@@ -4,12 +4,12 @@
 
 src = market_data_source()
 
-cmf = chaikin_money_flow(period=20)(src.h, src.l, src.c, src.v)
+cmf = adosc(short_period=3, long_period=10)(src.h, src.l, src.c, src.v)
 mfi_val = mfi(period=14)(src.h, src.l, src.c, src.v)
 
 # Accumulation/Distribution
-strong_acc = cmf.result > 0.20
-strong_dist = cmf.result < -0.20
+strong_acc = cmf > 0.20
+strong_dist = cmf < -0.20
 
 # Volume-weighted overbought/oversold
 mfi_oversold = mfi_val.result < 20

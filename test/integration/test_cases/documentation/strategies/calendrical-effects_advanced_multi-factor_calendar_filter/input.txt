@@ -5,9 +5,9 @@
 src = market_data_source()
 
 # All calendar effects
-current_month = month()
-dow = day_of_week()
-first_week = week_of_month(week="First")
+current_month = month_of_year()()
+dow = day_of_week()()
+first_week = week_of_month(week="First Week")()
 pre_holiday = holiday(days_before=1)
 
 # Month seasonality
@@ -18,7 +18,7 @@ weak_months = (current_month >= 5) and (current_month <= 10)
 september = current_month == 9
 
 # Turn of month
-tom = (month() != month()[1]) or (month() != month()[3])
+tom = (month_of_year()() != month_of_year()()[1]) or (month_of_year()() != month_of_year()()[3])
 
 # Day of week
 monday = dow == 1
@@ -50,4 +50,4 @@ conservative_entry = risk_off_calendar and signal and (rsi(period=14)(src.c) < 3
 
 entry = aggressive_entry or conservative_entry
 
-trade_signal_executor(entry)
+trade_signal_executor()(enter_long=entry)

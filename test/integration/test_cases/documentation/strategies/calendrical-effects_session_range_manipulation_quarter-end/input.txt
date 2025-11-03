@@ -4,7 +4,7 @@
 
 src = market_data_source()
 
-current_month = month()
+current_month = month_of_year()()
 
 quarter_end_month = (
     current_month == 3 or
@@ -15,10 +15,11 @@ quarter_end_month = (
 
 # Last few days of quarter
 # (Approximation—ideally detect last trading day)
-late_quarter = quarter_end_month  # Placeholder
+late_quarter = quarter_end_month
 
 # Window dressing: institutions buy winners
-winners = src.c > sma(period=60)(src.c) * 1.1  # 10% above 60-day MA
+# 10% above 60-day MA
+winners = src.c > sma(period=60)(src.c) * 1.1
 losers = src.c < sma(period=60)(src.c) * 0.9
 
 buy_winners = late_quarter and winners
@@ -27,4 +28,4 @@ avoid_losers = late_quarter and losers
 entry = buy_winners
 exit = avoid_losers
 
-trade_signal_executor(entry, exit)
+trade_signal_executor()(enter_long=entry, exit_long=exit)

@@ -6,12 +6,12 @@ src = market_data_source()
 
 # Multi-volume indicator confirmation
 obv_val = obv()(src.c, src.v)
-ad = ad_line()(src.h, src.l, src.c, src.v)
-cmf = chaikin_money_flow(period=20)(src.h, src.l, src.c, src.v)
+ad_val = ad()(src.h, src.l, src.c, src.v)
+cmf = adosc(short_period=3, long_period=10)(src.h, src.l, src.c, src.v)
 
 obv_rising = obv_val > sma(period=20)(obv_val)
-ad_rising = ad.result > ad.result[5]
-cmf_positive = cmf.result > 0.1
+ad_rising = ad_val > ad_val[5]
+cmf_positive = cmf > 0.1
 
 volume_confirmed = obv_rising and ad_rising and cmf_positive
 

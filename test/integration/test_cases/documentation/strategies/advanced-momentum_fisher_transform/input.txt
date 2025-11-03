@@ -4,15 +4,17 @@
 
 src = market_data_source()
 
-fisher = fisher_transform(period=10)(src.h, src.l)
+fisher_result = fisher(period=10)(src.h, src.l)
+fisher_val = fisher_result.fisher
+fisher_signal = ema(period=3)(fisher_val)
 
 # Extreme reversal signals
-fisher_oversold = fisher.fisher < -2.0
-fisher_overbought = fisher.fisher > 2.0
+fisher_oversold = fisher_val < -2.0
+fisher_overbought = fisher_val > 2.0
 
 # Crossover
-bullish_cross = crossover(fisher.fisher, fisher.signal)
-bearish_cross = crossunder(fisher.fisher, fisher.signal)
+bullish_cross = crossover(fisher_val, fisher_signal)
+bearish_cross = crossunder(fisher_val, fisher_signal)
 
 entry = fisher_oversold and bullish_cross
 exit = fisher_overbought or bearish_cross

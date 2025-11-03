@@ -5,17 +5,18 @@
 src = market_data_source()
 
 trix_val = trix(period=14)(src.c)
+trix_signal = ema(period=9)(trix_val)
 
 # Zero-line crosses
-bullish_trend = trix_val.trix > 0
-bearish_trend = trix_val.trix < 0
+bullish_trend = trix_val > 0
+bearish_trend = trix_val < 0
 
-bull_cross = crossover(trix_val.trix, 0)
-bear_cross = crossunder(trix_val.trix, 0)
+bull_cross = crossover(trix_val, 0)
+bear_cross = crossunder(trix_val, 0)
 
 # Signal line crossover (MACD-style)
-bullish_signal = crossover(trix_val.trix, trix_val.signal)
-bearish_signal = crossunder(trix_val.trix, trix_val.signal)
+bullish_signal = crossover(trix_val, trix_signal)
+bearish_signal = crossunder(trix_val, trix_signal)
 
 entry = bullish_trend and bullish_signal
 exit = bear_cross or bearish_signal

@@ -4,12 +4,11 @@
 
 src = market_data_source()
 
-bull_f = bull_flag()(src.h, src.l, src.c)
-bear_f = bear_flag()(src.h, src.l, src.c)
+flags = flag()(src.h, src.l, src.c)
 pnt = pennant()(src.h, src.l, src.c)
 
-bull_flag_break = bull_f.result and (src.c > bull_f.upper_bound)
-bear_flag_break = bear_f.result and (src.c < bear_f.lower_bound)
+bull_flag_break = flags.bull_flag
+bear_flag_break = flags.bear_flag
 
 # Vol decreases during formation, surges on breakout
 vol_breakout = src.v > sma(period=20)(src.v) * 1.5

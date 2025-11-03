@@ -4,20 +4,22 @@
 
 src = market_data_source()
 
-bar_index = cumsum(1)
-reg = linear_fit(window=50)(x=bar_index, y=src.c)
+# Linear regression components
+fitted = linreg(period=50)(src.c)
+slope = linregslope(period=50)(src.c)
+intercept = linregintercept(period=50)(src.c)
 
 # Trend strength
-strong_uptrend = reg.slope > 0.5
-weak_uptrend = reg.slope > 0 and reg.slope < 0.3
+strong_uptrend = slope > 0.5
+weak_uptrend = slope > 0 and slope < 0.3
 
 # Deviation from trend (residual)
-overextended = reg.residual > 2
-underextended = reg.residual < -2
+residual = src.c - fitted
+overextended = residual > 2
+underextended = residual < -2
 
 # Regression channel
-fitted = reg.intercept + (reg.slope * bar_index)
-std_dev = stdev(period=50)(reg.residual)
+std_dev = stddev(period=50)(residual)
 upper_band = fitted + (2 * std_dev)
 lower_band = fitted - (2 * std_dev)
 
