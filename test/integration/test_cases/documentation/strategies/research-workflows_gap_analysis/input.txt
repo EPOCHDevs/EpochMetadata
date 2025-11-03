@@ -1,0 +1,21 @@
+# Source: strategies/research-workflows.md:60
+# Section: Research Workflows > Gap Analysis
+# Type: partial_example
+
+src = market_data_source()
+
+# Overnight gaps - session boundaries
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
+    gaps.gap_filled, gaps.gap_retrace, gaps.gap_size,
+    gaps.psc, gaps.psc_timestamp
+)
+
+# Intraday gaps - trading halts (2% threshold for stocks)
+intraday_gaps = bar_gap(fill_percent=100, min_gap_size=2.0, timeframe="1Min")()
+
+# FX gaps - small moves (4 pips = 0.04%)
+fx_gaps = bar_gap(fill_percent=100, min_gap_size=0.04, timeframe="1Min")()
+
+# Session-specific gaps (compare London vs NY vs Asian)
+london_gaps = session_gap(fill_percent=100, timeframe="1Min", session="London")()

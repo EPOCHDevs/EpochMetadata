@@ -1,0 +1,17 @@
+# Source: design-guidelines.md:27
+# Section: EpochScript Design Guidelines > Strategy Executor Requirements
+# Type: complete_strategy
+
+# Correct: - One executor with all signals
+src = market_data_source()
+
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+
+buy_signal = crossover(fast, slow)
+sell_signal = crossover(slow, fast)
+
+trade_signal_executor()(
+    enter_long=buy_signal,
+    enter_short=sell_signal
+)

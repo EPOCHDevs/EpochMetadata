@@ -1,0 +1,29 @@
+# Source: strategies/research-workflows.md:388
+# Section: Research Workflows > Machine Learning Feature Engineering
+# Type: partial_example
+
+src = market_data_source()
+
+# Features (current)
+rsi_val = rsi(period=14)(src.c)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+macd_line = mac.macd
+vol = volatility(period=20)(src.c)
+momentum = roc(period=20)(src.c)
+
+# Export features for ML model training
+# Note: Target variable (forward returns) must be calculated in your ML pipeline
+# using future price data, as EpochScript doesn't support forward-looking references
+table_report(sql="""
+    SELECT
+        SLOT0 as rsi_val,
+        SLOT1 as macd_line,
+        SLOT2 as vol,
+        SLOT3 as momentum
+    FROM self
+""")(
+    rsi_val,
+    macd_line,
+    vol,
+    momentum
+)

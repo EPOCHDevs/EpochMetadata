@@ -1,0 +1,22 @@
+# Source: strategies/regime-detection.md:18
+# Section: Regime Detection > Vortex Indicator
+# Type: complete_strategy
+
+src = market_data_source()
+
+vtx = vortex(period=14)(src.h, src.l, src.c)
+
+# Direction
+bullish = vtx.plus_indicator > vtx.minus_indicator
+bearish = vtx.minus_indicator > vtx.plus_indicator
+
+# Strength (spread between lines)
+spread = abs(vtx.plus_indicator - vtx.minus_indicator)
+strong_trend = spread > 0.15
+weak_choppy = spread < 0.05
+
+# Crossover signals
+cross_bull = crossover(vtx.plus_indicator, vtx.minus_indicator)
+cross_bear = crossunder(vtx.plus_indicator, vtx.minus_indicator)
+
+trade_signal_executor(entry=cross_bull, exit=cross_bear)

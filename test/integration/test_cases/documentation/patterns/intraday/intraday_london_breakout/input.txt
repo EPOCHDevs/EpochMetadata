@@ -1,0 +1,31 @@
+# Source: strategies/patterns/intraday.md:16
+# Section: Intraday & Microstructure > London Breakout
+# Type: complete_strategy
+
+src = market_data_source()
+
+# London session detection
+london = sessions(session_type="London")()
+
+# Session state
+in_london = london.active
+london_closed = london.closed
+
+# Breakout from session range
+breakout_high = src.c > london.high
+breakout_low = src.c < london.low
+
+# Entry during or shortly after London
+entry_long = (in_london or london_closed[1]) and breakout_high
+entry_short = (in_london or london_closed[1]) and breakout_low
+
+# Stop at opposite side of range
+stop_long = src.c < london.low
+stop_short = src.c > london.high
+
+trade_signal_executor()(
+    enter_long=entry_long,
+    enter_short=entry_short,
+    exit_long=stop_long,
+    exit_short=stop_short
+)

@@ -1,0 +1,19 @@
+# Source: concepts/cross-sectional.md:26
+# Section: Cross-Sectional Analysis > Cross-Sectional Transforms
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Momentum ranking across universe
+returns = roc(period=20)(src.c)
+momentum = cs_momentum()(returns)
+
+# Select top K assets
+top10 = top_k(k=10)(momentum)
+top20_percent = top_k_percent(k=20)(momentum)
+
+# Select bottom K assets
+bottom10 = bottom_k(k=10)(momentum)
+
+# Trade top performers
+trade_signal_executor()(enter_long=top10)

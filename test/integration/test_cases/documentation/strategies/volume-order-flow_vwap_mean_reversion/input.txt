@@ -1,0 +1,20 @@
+# Source: strategies/volume-order-flow.md:45
+# Section: Volume & Order Flow Analysis > VWAP Mean Reversion
+# Type: complete_strategy
+
+src = market_data_source()
+
+vwap_val = vwap()(src.h, src.l, src.c, src.v)
+
+# Deviation from VWAP
+deviation = (src.c - vwap_val.result) / vwap_val.result
+extended_above = deviation > 0.02  # 2% above
+extended_below = deviation < -0.02  # 2% below
+
+# Mean reversion entry
+entry_long = extended_below and (src.c > src.o)  # Bullish candle at deviation
+entry_short = extended_above and (src.c < src.o)
+
+exit = abs(deviation) < 0.005  # Back to VWAP
+
+trade_signal_executor()(enter_long=entry_long, exit_long=exit, enter_short=entry_short, exit_short=exit)

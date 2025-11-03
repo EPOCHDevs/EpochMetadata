@@ -1,0 +1,27 @@
+# Source: strategies/statistical-analysis.md:18
+# Section: Statistical Analysis & Machine Learning > Hidden Markov Model
+# Type: complete_strategy
+
+src = market_data_source()
+
+returns = (src.c / src.c[1] - 1) * 100
+vol = volatility(period=20)(src.c)
+volume_ratio = src.v / sma(period=20)(src.v)
+
+# 3-state regime detection
+hmm = hidden_markov_model(
+    n_states=3,
+    max_iterations=1000,
+    lookback_window=252,
+    compute_zscore=true
+)(x=returns, y=vol, z=volume_ratio)
+
+# State interpretation (higher state number typically = higher vol/returns)
+bull_regime = (hmm.state == 2) and (hmm.state_probability > 0.7)
+bear_regime = (hmm.state == 0) and (hmm.state_probability > 0.7)
+
+# Regime transition detection
+regime_change = hmm.state != hmm.state[1]
+exit_on_change = regime_change  # Exit when regime shifts
+
+trade_signal_executor()(enter_long=bull_regime, exit_long=exit_on_change)

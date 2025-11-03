@@ -1,0 +1,48 @@
+# Source: strategies/research-workflows.md:160
+# Section: Research Workflows > Factor Analysis
+# Type: partial_example
+
+src = market_data_source()
+
+# Current momentum
+momentum_now = roc(period=20)(src.c)
+
+# Future returns at various horizons (RESEARCH ONLY - look-ahead bias)
+return_1d = forward_returns(period=1)(src.c)
+return_5d = forward_returns(period=5)(src.c)
+return_10d = forward_returns(period=10)(src.c)
+return_20d = forward_returns(period=20)(src.c)
+
+# Correlation between current momentum and future returns
+corr_1d = rolling_corr(window=252)(x=momentum_now, y=return_1d)
+corr_5d = rolling_corr(window=252)(x=momentum_now, y=return_5d)
+corr_10d = rolling_corr(window=252)(x=momentum_now, y=return_10d)
+corr_20d = rolling_corr(window=252)(x=momentum_now, y=return_20d)
+
+# Table of decay
+table_report(sql="""
+    SELECT
+        '1 Day' as horizon,
+        AVG(SLOT0) as avg_correlation
+    FROM self
+    UNION ALL
+    SELECT
+        '5 Days' as horizon,
+        AVG(SLOT1) as avg_correlation
+    FROM self
+    UNION ALL
+    SELECT
+        '10 Days' as horizon,
+        AVG(SLOT2) as avg_correlation
+    FROM self
+    UNION ALL
+    SELECT
+        '20 Days' as horizon,
+        AVG(SLOT3) as avg_correlation
+    FROM self
+""")(
+    corr_1d,
+    corr_5d,
+    corr_10d,
+    corr_20d
+)

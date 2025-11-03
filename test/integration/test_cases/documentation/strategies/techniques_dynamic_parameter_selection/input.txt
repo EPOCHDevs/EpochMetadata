@@ -1,0 +1,29 @@
+# Source: strategies/techniques.md:158
+# Section: Advanced Techniques > Dynamic Parameter Selection
+# Type: partial_example
+
+src = market_data_source()
+
+# Calculate multiple EMAs with different periods
+ema_12 = ema(period=12)(src.c)
+ema_20 = ema(period=20)(src.c)
+ema_26 = ema(period=26)(src.c)
+ema_50 = ema(period=50)(src.c)
+
+# Select based on volatility
+vol = volatility(period=20)(src.c)
+
+# Adaptive EMA selection:
+# - Low vol (< 10): fast EMA (12)
+# - Medium vol (10-20): standard EMA (20)
+# - Higher vol (20-30): slower EMA (26)
+# - High vol (> 30): very slow EMA (50)
+adaptive_ema = conditional_select(
+    vol < 10, ema_12,
+    vol < 20, ema_20,
+    vol < 30, ema_26,
+    ema_50
+)
+
+# Use adaptive EMA
+signal = src.c > adaptive_ema

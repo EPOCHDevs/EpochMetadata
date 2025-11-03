@@ -1,0 +1,165 @@
+[
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "london#high"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_0",
+      "options": {
+         "period": 1
+      },
+      "inputs": {
+         "SLOT": [
+            "london#closed"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gt_0#result"
+         ],
+         "SLOT0": [
+            "logical_or_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lt_0#result"
+         ],
+         "SLOT0": [
+            "logical_or_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_or",
+      "id": "logical_or_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "london#active"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_or",
+      "id": "logical_or_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "london#active"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "sessions",
+      "id": "london",
+      "options": {
+         "session_type": "London"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "london#low"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "trade_signal_executor",
+      "id": "node_0",
+      "options": {},
+      "inputs": {
+         "enter_long": [
+            "logical_and_0#result"
+         ],
+         "enter_short": [
+            "logical_and_1#result"
+         ],
+         "exit_long": [
+            "lt_0#result"
+         ],
+         "exit_short": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

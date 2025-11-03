@@ -1,0 +1,135 @@
+[
+   {
+      "type": "div",
+      "id": "div_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "sub_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "session_gap",
+      "id": "gaps",
+      "options": {
+         "fill_percent": 100
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "lag",
+      "id": "lag_0",
+      "options": {
+         "period": 1
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gap_report",
+      "id": "node_0",
+      "options": {
+         "fill_time_pivot_hour": 12
+      },
+      "inputs": {
+         "psc_timestamp": [
+            "gaps#psc_timestamp"
+         ],
+         "gap_size": [
+            "gaps#gap_size"
+         ],
+         "psc": [
+            "gaps#psc"
+         ],
+         "gap_retrace": [
+            "gaps#gap_retrace"
+         ],
+         "gap_filled": [
+            "gaps#gap_filled"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "table_report",
+      "id": "node_1",
+      "options": {
+         "sql": "\n    SELECT\n        CASE WHEN SLOT0 < 30 THEN 'Oversold'\n             WHEN SLOT0 > 70 THEN 'Overbought'\n             ELSE 'Neutral'\n        END as regime,\n        AVG(SLOT1) as avg_return,\n        COUNT(*) as count\n    FROM self\n    GROUP BY regime\n"
+      },
+      "inputs": {
+         "SLOT": [
+            "rsi_val#result",
+            "div_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rsi",
+      "id": "rsi_val",
+      "options": {
+         "period": 14
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "sub",
+      "id": "sub_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lag_0#result"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

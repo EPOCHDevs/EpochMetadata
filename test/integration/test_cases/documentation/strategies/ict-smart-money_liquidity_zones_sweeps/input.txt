@@ -1,0 +1,19 @@
+# Source: strategies/ict-smart-money.md:46
+# Section: ICT & Smart Money Concepts > Liquidity Zones & Sweeps
+# Type: complete_strategy
+
+src = market_data_source()
+
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+liq = liquidity(range_percent=0.01)(swings.high_low, swings.level)
+
+# Sweep detection (stops grabbed, reversal imminent)
+ssl_swept = (liq.swept > 0) and (liq.liquidity == -1)  # Sell-side liquidity
+bsl_swept = (liq.swept > 0) and (liq.liquidity == 1)   # Buy-side liquidity
+
+# Reversal setup after sweep
+reversal = ssl_swept and (src.c > src.o)  # Bullish candle after SSL sweep
+
+trade_signal_executor()(
+    enter_long=reversal
+)

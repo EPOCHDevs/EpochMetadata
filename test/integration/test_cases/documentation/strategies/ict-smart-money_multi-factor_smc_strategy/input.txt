@@ -1,0 +1,41 @@
+# Source: strategies/ict-smart-money.md:154
+# Section: ICT & Smart Money Concepts > Multi-Factor SMC Strategy
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Layer all SMC concepts
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+
+ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
+liq = liquidity(range_percent=0.01)(swings.high_low, swings.level)
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=false)()
+
+london = sessions(session_type="London")()
+ny = sessions(session_type="NewYork")()
+
+# High-probability confluence
+bullish_structure = structure.bos_v == 1
+valid_ob = (ob.ob == 1) and (ob.mitigated_index == 0)
+at_ob = src.c >= ob.bottom and src.c <= ob.top
+liq_swept = (liq.swept > 0) and (liq.liquidity == -1)
+fvg_present = fvg.fvg == 1
+session_ok = london.active or ny.active
+
+entry = (
+    bullish_structure and
+    valid_ob and
+    at_ob and
+    liq_swept and
+    fvg_present and
+    session_ok
+)
+
+# Exit on opposite structure or OB
+exit = (structure.choch_v == -1) or (ob.ob == -1)
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)

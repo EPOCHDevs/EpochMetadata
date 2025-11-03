@@ -1,0 +1,24 @@
+# Source: strategies/chart-formations.md:60
+# Section: Chart Formation Recognition > Triangles
+# Type: complete_strategy
+
+src = market_data_source()
+
+asc_tri = ascending_triangle()(src.h, src.l, src.c)
+desc_tri = descending_triangle()(src.h, src.l, src.c)
+sym_tri = symmetrical_triangle()(src.h, src.l, src.c)
+
+# Breakout direction
+uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
+
+asc_break = asc_tri.result and (src.c > asc_tri.resistance)
+desc_break = desc_tri.result and (src.c < desc_tri.support)
+
+# Symmetrical breaks in trend direction
+sym_bull = sym_tri.result and (src.c > sym_tri.upper) and uptrend
+sym_bear = sym_tri.result and (src.c < sym_tri.lower) and not uptrend
+
+entry = asc_break or sym_bull
+exit = desc_break or sym_bear
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)

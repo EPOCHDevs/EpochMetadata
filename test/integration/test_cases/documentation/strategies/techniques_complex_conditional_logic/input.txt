@@ -1,0 +1,38 @@
+# Source: strategies/techniques.md:59
+# Section: Advanced Techniques > Complex Conditional Logic
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Level 1: Trend direction
+ema_fast = ema(period=20)(src.c)
+ema_slow = ema(period=50)(src.c)
+trend_up = ema_fast > ema_slow
+
+# Level 2: Momentum confirmation
+rsi_val = rsi(period=14)(src.c)
+momentum_ok = rsi_val < 70
+
+# Level 3: Volatility filter
+atr_val = atr(period=14)(src.h, src.l, src.c)
+vol_expanding = atr_val > atr_val[5]
+
+# Level 4: Volume confirmation
+avg_vol = sma(period=20)(src.v)
+volume_ok = src.v > (avg_vol * 1.2)
+
+# Combine all levels
+strong_signal = trend_up and momentum_ok and vol_expanding and volume_ok
+weak_signal = trend_up and momentum_ok
+
+# Signal strength classification (for reporting/analysis)
+signal_strength = conditional_select(
+    strong_signal, "STRONG",
+    weak_signal, "WEAK",
+    "NONE"
+)
+
+# Entry decision based on signal strength
+entry = strong_signal  # Only enter on strong signals
+
+trade_signal_executor(entry)

@@ -1,0 +1,27 @@
+# Source: strategies/statistical-analysis.md:50
+# Section: Statistical Analysis & Machine Learning > Hurst Exponent
+# Type: complete_strategy
+
+src = market_data_source()
+
+returns = (src.c / src.c[1] - 1) * 100
+
+# Rolling Hurst for adaptive regime detection
+hurst = rolling_hurst_exponent(window=252)(returns)
+
+# H < 0.5 = mean-reverting, H > 0.5 = trending
+mean_reverting = hurst.result < 0.45
+trending = hurst.result > 0.55
+random_walk = hurst.result >= 0.45 and hurst.result <= 0.55
+
+# Strategy routing
+mr_signal = rsi(period=14)(src.c) < 30
+tf_signal = ema(period=20)(src.c) > ema(period=50)(src.c)
+
+entry = conditional_select(
+    mean_reverting, mr_signal,  # Mean-revert when H<0.45
+    trending, tf_signal,         # Trend-follow when H>0.55
+    false                        # Avoid random walk
+)
+
+trade_signal_executor()(enter_long=entry)

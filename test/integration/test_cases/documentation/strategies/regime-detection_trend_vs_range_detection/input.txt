@@ -1,0 +1,26 @@
+# Source: strategies/regime-detection.md:135
+# Section: Regime Detection > Trend vs Range Detection
+# Type: partial_example
+
+src = market_data_source()
+
+# Multi-indicator confirmation
+adx_val = adx(period=14)(src.h, src.l, src.c)
+vtx = vortex(period=14)(src.h, src.l, src.c)
+vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
+
+# Trending = ADX + Vortex confirm + reasonable vol
+adx_trending = adx_val > 25
+vtx_strong = abs(vtx.plus_indicator - vtx.minus_indicator) > 0.12
+vol_ok = vol.result < 0.30
+
+trending = adx_trending and vtx_strong and vol_ok
+
+# Ranging = low ADX + low vortex spread
+adx_ranging = adx_val < 20
+vtx_weak = abs(vtx.plus_indicator - vtx.minus_indicator) < 0.08
+
+ranging = adx_ranging and vtx_weak and vol_ok
+
+# High vol chaos
+chaos = vol.result >= 0.30

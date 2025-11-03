@@ -1,0 +1,25 @@
+# Source: strategies/research-workflows.md:128
+# Section: Research Workflows > Pattern Research
+# Type: partial_example
+
+src = market_data_source()
+
+# Head & Shoulders: Occurrence and target hit rate
+hs = head_and_shoulders()()
+breakdown = src.c < hs.neckline_level
+target_hit = src.c <= hs.target
+
+# Triangle Breakouts: Pattern type and detection
+tri = triangles()()
+future_return_5 = forward_returns(period=5)(src.c)  # Research only
+
+# Table analysis
+table_report(sql="""
+    SELECT
+        COUNT(*) as count,
+        AVG(SLOT0) as success_rate,
+        SLOT1 as triangle_type
+    FROM self
+    WHERE SLOT2 = true
+    GROUP BY SLOT1
+""")(target_hit, tri.triangle_type, hs.pattern_detected)

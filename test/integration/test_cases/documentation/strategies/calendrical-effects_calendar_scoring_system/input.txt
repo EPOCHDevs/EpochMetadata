@@ -1,0 +1,56 @@
+# Source: strategies/calendrical-effects.md:18
+# Section: Calendrical Effects & Seasonal Patterns > Calendar Scoring System
+# Type: complete_strategy
+
+src = market_data_source()
+
+current_month = month()
+dow = day_of_week()
+
+# Month of year (Nov-Apr strong, May-Oct weak)
+strong_season = (current_month >= 11) or (current_month <= 4)
+
+# Turn of month (last day + first 3 days)
+tom_period = (month() != month()[1]) or (month() != month()[3])
+
+# Week of month
+first_week = week_of_month(week="First")
+bullish_week = first_week.result
+
+# Day of week
+avoid_monday = dow == 1
+prefer_friday = dow == 5
+
+# Holiday effect
+pre_holiday = holiday(days_before=1)
+holiday_boost = pre_holiday.result
+
+# Calendar score
+calendar_score = (
+    conditional_select(strong_season, 1, 0) +
+    conditional_select(tom_period, 1, 0) +
+    conditional_select(bullish_week, 1, 0) +
+    conditional_select(prefer_friday, 1, 0) +
+    conditional_select(holiday_boost, 1, 0) +
+    conditional_select(avoid_monday, -1, 0)
+)
+
+favorable_calendar = calendar_score >= 2
+unfavorable_calendar = calendar_score <= -1
+
+# Adjust aggressiveness
+uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
+rsi_val = rsi(period=14)(src.c)
+pullback = src.c < ema(period=20)(src.c)
+
+# Favorable calendar: standard entry
+entry_favorable = favorable_calendar and uptrend and pullback and (rsi_val < 65)
+
+# Unfavorable calendar: only very strong setups
+strong_setup = uptrend and (rsi_val < 35) and (src.v > sma(period=20)(src.v) * 2.0)
+entry_unfavorable = (not favorable_calendar) and strong_setup
+
+entry = entry_favorable or entry_unfavorable
+exit = calendar_score <= -2  # Very unfavorable
+
+trade_signal_executor(entry, exit)

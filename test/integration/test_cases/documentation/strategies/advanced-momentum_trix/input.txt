@@ -1,0 +1,23 @@
+# Source: strategies/advanced-momentum.md:70
+# Section: Advanced Momentum Indicators > TRIX
+# Type: complete_strategy
+
+src = market_data_source()
+
+trix_val = trix(period=14)(src.c)
+
+# Zero-line crosses
+bullish_trend = trix_val.trix > 0
+bearish_trend = trix_val.trix < 0
+
+bull_cross = crossover(trix_val.trix, 0)
+bear_cross = crossunder(trix_val.trix, 0)
+
+# Signal line crossover (MACD-style)
+bullish_signal = crossover(trix_val.trix, trix_val.signal)
+bearish_signal = crossunder(trix_val.trix, trix_val.signal)
+
+entry = bullish_trend and bullish_signal
+exit = bear_cross or bearish_signal
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)

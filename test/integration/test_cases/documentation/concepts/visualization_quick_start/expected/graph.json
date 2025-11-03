@@ -1,0 +1,93 @@
+[
+   {
+      "type": "crossover",
+      "id": "buy_signal",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "src#c"
+         ],
+         "SLOT0": [
+            "ema_20#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "ema_20",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "event_marker",
+      "id": "node_0",
+      "options": {
+         "event_marker_schema": {
+            "title": "Buy Signals",
+            "icon": "Signal",
+            "select_key": "buy_signal#result",
+            "schemas": [
+               {
+                  "column_id": "buy_signal#result",
+                  "slot": "Hero",
+                  "render_type": "Text",
+                  "color_map": {
+                     "Success": [
+                        "buy_signal"
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      "inputs": {
+         "SLOT": [
+            "buy_signal#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "rsi",
+      "id": "rsi_val",
+      "options": {
+         "period": 14
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

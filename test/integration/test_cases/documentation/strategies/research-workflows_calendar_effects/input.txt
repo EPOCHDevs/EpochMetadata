@@ -1,0 +1,29 @@
+# Source: strategies/research-workflows.md:271
+# Section: Research Workflows > Calendar Effects
+# Type: partial_example
+
+src = market_data_source()
+
+# Turn-of-month window
+tom = turn_of_month(days_before=3, days_after=5)()
+in_tom = tom.result
+
+# Daily returns
+daily_return = (src.c - src.c[1]) / src.c[1]
+
+# Average returns in/out of window
+table_report(sql="""
+    SELECT
+        CASE
+            WHEN SLOT0 = 1 THEN 'Turn-of-Month'
+            ELSE 'Other Days'
+        END as period,
+        AVG(SLOT1) as avg_return,
+        STDDEV(SLOT1) as volatility,
+        COUNT(*) as trading_days
+    FROM self
+    GROUP BY period
+""")(
+    in_tom,
+    daily_return
+)

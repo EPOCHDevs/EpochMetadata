@@ -1,0 +1,25 @@
+# Source: strategies/regime-detection.md:107
+# Section: Regime Detection > Volatility Regimes
+# Type: partial_example
+
+src = market_data_source()
+
+vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
+
+# Alternative: Use fixed thresholds or moving averages
+vol_ma = sma(period=252)(vol.result)
+vol_std = stddev(period=252)(vol.result)
+
+# Z-score based regimes (approximate percentiles)
+vol_z = (vol.result - vol_ma) / vol_std
+very_low = vol_z < -0.84   # ~20th percentile
+low_normal = vol_z >= -0.84 and vol_z < 0
+normal_high = vol_z >= 0 and vol_z < 0.84
+high_vol = vol_z >= 0.84   # ~80th percentile
+
+# Expansion/contraction
+expanding = vol.result > vol_ma * 1.2
+contracting = vol.result < vol_ma * 0.8
+
+# Vol breakout
+vol_squeeze = contracting[5] and expanding

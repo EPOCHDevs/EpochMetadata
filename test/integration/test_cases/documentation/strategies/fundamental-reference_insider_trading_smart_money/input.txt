@@ -1,0 +1,28 @@
+# Source: strategies/fundamental-reference.md:50
+# Section: Fundamental Data Integration > Insider Trading (Smart Money)
+# Type: partial_example
+
+src = market_data_source()
+
+# P = open market purchase
+insider = insider_trading(
+    filing_type="4",
+    transaction_code="P",
+    min_value=100000
+)
+
+# Cluster buying (multiple insiders)
+insider_buy = insider.transaction_code == "P"
+buy_count = sum(period=30)(conditional_select(insider_buy, 1, 0))
+# 3+ buys in 30 days
+cluster = buy_count >= 3
+
+# Large executive purchases (can filter by insider.owner_name if needed)
+large_buy = (insider.shares * insider.price) > 500000
+exec_buy = large_buy
+
+catalyst = cluster or exec_buy
+
+# Technical + catalyst
+technical_signal = src.c > sma(period=50)(src.c)
+entry = technical_signal and catalyst

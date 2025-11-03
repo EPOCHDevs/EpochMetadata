@@ -1,0 +1,35 @@
+# Source: strategies/techniques.md:233
+# Section: Advanced Techniques > Multi-Condition Signal Scoring
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Individual signals (boolean)
+trend_up = ema(period=20)(src.c) > ema(period=50)(src.c)
+rsi_ok = rsi(period=14)(src.c) < 70
+macd_result = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+macd_bullish = macd_result[0] > macd_result[1]
+volume_high = src.v > sma(period=20)(src.v) * 1.2
+
+# Convert booleans to numbers (True = 1, False = 0)
+trend_score = conditional_select(trend_up, 1, 0)
+rsi_score = conditional_select(rsi_ok, 1, 0)
+macd_score = conditional_select(macd_bullish, 1, 0)
+volume_score = conditional_select(volume_high, 1, 0)
+
+# Weighted sum (weights: trend=3, rsi=2, macd=2, volume=1)
+total_score = (trend_score * 3) + (rsi_score * 2) + (macd_score * 2) + (volume_score * 1)
+max_score = 8
+
+# Classify signal strength by score
+signal_quality = conditional_select(
+    total_score >= 7, "STRONG",   # Strong signal (7-8 points)
+    total_score >= 5, "MEDIUM",   # Medium signal (5-6 points)
+    total_score >= 3, "WEAK",     # Weak signal (3-4 points)
+    "NONE"                        # No signal (0-2 points)
+)
+
+# Entry threshold - only take strong signals
+entry = total_score >= 7
+
+trade_signal_executor(entry)

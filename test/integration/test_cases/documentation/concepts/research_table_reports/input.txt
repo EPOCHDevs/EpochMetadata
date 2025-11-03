@@ -1,0 +1,23 @@
+# Source: concepts/research.md:174
+# Section: Research Reports > Table Reports
+# Type: partial_example
+
+src = market_data_source()
+returns = (src.c - src.c[1]) / src.c[1]
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+regime_label = conditional_select(
+    oversold, "Oversold",
+    overbought, "Overbought",
+    "Neutral"
+)
+
+table_report(sql="""
+    SELECT
+        SLOT0 as regime,
+        AVG(SLOT1) as avg_return,
+        COUNT(*) as count
+    FROM self
+    GROUP BY SLOT0
+""")(regime_label, returns)

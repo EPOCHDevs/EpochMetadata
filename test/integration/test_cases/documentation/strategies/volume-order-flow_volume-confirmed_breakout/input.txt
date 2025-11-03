@@ -1,0 +1,24 @@
+# Source: strategies/volume-order-flow.md:116
+# Section: Volume & Order Flow Analysis > Volume-Confirmed Breakout
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Multi-volume indicator confirmation
+obv_val = obv()(src.c, src.v)
+ad = ad_line()(src.h, src.l, src.c, src.v)
+cmf = chaikin_money_flow(period=20)(src.h, src.l, src.c, src.v)
+
+obv_rising = obv_val > sma(period=20)(obv_val)
+ad_rising = ad.result > ad.result[5]
+cmf_positive = cmf.result > 0.1
+
+volume_confirmed = obv_rising and ad_rising and cmf_positive
+
+# Price breakout
+resistance = max(period=50)(src.h[1])
+breakout = src.c > resistance
+
+entry = breakout and volume_confirmed
+
+trade_signal_executor()(enter_long=entry)

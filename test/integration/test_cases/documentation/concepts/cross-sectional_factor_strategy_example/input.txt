@@ -1,0 +1,18 @@
+# Source: concepts/cross-sectional.md:69
+# Section: Cross-Sectional Analysis > Factor Strategy Example
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Calculate multiple factors
+momentum = roc(period=20)(src.c)
+value = earnings_yield()  # From fundamental data
+quality = roe()
+
+# Combine factors (equal-weight)
+combined = (momentum + value + quality) / 3
+
+# Select top 20 stocks
+top_stocks = top_k(k=20)(combined)
+
+trade_signal_executor()(enter_long=top_stocks)

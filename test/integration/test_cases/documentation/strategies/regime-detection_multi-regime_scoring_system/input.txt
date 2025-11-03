@@ -1,0 +1,58 @@
+# Source: strategies/regime-detection.md:163
+# Section: Regime Detection > Multi-Regime Scoring System
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Combine all indicators
+adx_result = adx(period=14)(src.h, src.l, src.c)
+vtx = vortex(period=14)(src.h, src.l, src.c)
+vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
+
+# HMM for statistical regime
+returns = (src.c / src.c[1] - 1) * 100
+vol_simple = volatility(period=20)(src.c)
+volume_ratio = src.v / sma(period=20)(src.v)
+
+hmm = hidden_markov_model(n_states=3, lookback_window=252)(
+    x=returns, y=vol_simple, z=volume_ratio
+)
+
+# Regime scores
+trending_score = (
+    conditional_select(adx_result.adx > 25, 1, 0) +
+    conditional_select(abs(vtx.plus_indicator - vtx.minus_indicator) > 0.12, 1, 0)
+)
+
+bullish_score = (
+    conditional_select(adx_result.plus_di > adx_result.minus_di, 1, 0) +
+    conditional_select(vtx.plus_indicator > vtx.minus_indicator, 1, 0) +
+    conditional_select(hmm.state == 2, 1, 0)
+)
+
+# NOTE: percentile not yet implemented - using z-score approximation
+vol_ma = sma(period=252)(vol.result)
+vol_std = stdev(period=252)(vol.result)
+vol_z = (vol.result - vol_ma) / vol_std
+
+vol_score = conditional_select(
+    vol_z < -0.84, 0,  # Very low (~20th percentile)
+    vol_z < 0.84, 1,   # Normal (20th-80th percentile)
+    2  # High (>80th percentile)
+)
+
+# Regime classification
+strong_bull_trend = (trending_score >= 2) and (bullish_score >= 2) and (vol_score <= 1)
+weak_bull = (bullish_score >= 2) and (trending_score < 2) and (vol_score <= 1)
+high_vol_avoid = vol_score == 2
+
+# Strategy routing
+entry = conditional_select(
+    strong_bull_trend, ema(period=20)(src.c) > ema(period=50)(src.c),  # Trend-follow
+    weak_bull, rsi(period=14)(src.c) < 35,  # Buy dips
+    false  # Avoid in other regimes
+)
+
+exit = high_vol_avoid or not (strong_bull_trend or weak_bull)
+
+trade_signal_executor(entry=entry, exit=exit)

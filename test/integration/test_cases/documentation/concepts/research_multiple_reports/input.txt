@@ -1,0 +1,35 @@
+# Source: concepts/research.md:334
+# Section: Research Reports > Multiple Reports
+# Type: partial_example
+
+src = market_data_source()
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+rsi_val = rsi(period=14)(src.c)
+returns = (src.c - src.c[1]) / src.c[1]
+
+# Gap analysis
+gap_report(fill_time_pivot_hour=12)(
+    gaps.gap_filled,
+    gaps.gap_retrace,
+    gaps.gap_size,
+    gaps.psc,
+    gaps.psc_timestamp
+)
+
+# RSI regime analysis
+table_report(sql="""
+    SELECT
+        CASE WHEN SLOT0 < 30 THEN 'Oversold'
+             WHEN SLOT0 > 70 THEN 'Overbought'
+             ELSE 'Neutral'
+        END as regime,
+        AVG(SLOT1) as avg_return,
+        COUNT(*) as count
+    FROM self
+    GROUP BY regime
+""")(rsi_val, returns)
+
+# Return distribution (commented out - histogram_chart_report requires 'category' option)
+# histogram_chart_report(bins=30, title="Return Distribution")(
+#     returns=returns
+# )

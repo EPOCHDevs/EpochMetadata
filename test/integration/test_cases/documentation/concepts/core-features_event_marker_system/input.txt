@@ -1,0 +1,31 @@
+# Source: concepts/core-features.md:188
+# Section: Core Visualization Features > Event Marker System
+# Type: partial_example
+
+src = market_data_source()
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+
+# Entry/exit signals
+buy_signal = crossover(fast, slow)
+sell_signal = crossover(slow, fast)
+signal = buy_signal or sell_signal
+
+# Event markers for signals
+signal_type = "BUY" if buy_signal else ("SELL" if sell_signal else "NONE")
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="MA Crossover Signals",
+        icon=Signal,
+        select_key="signal#result",
+        schemas=[
+            CardColumnSchema(
+                column_id="signal_type#result",
+                slot=Hero,
+                render_type=Text,
+                color_map={Success: ["BUY"], Error: ["SELL"]}
+            )
+        ]
+    )
+)(signal, signal_type)

@@ -1,0 +1,22 @@
+# Source: strategies/advanced-volatility.md:30
+# Section: Advanced Volatility Estimators > Garman-Klass (7.4x)
+# Type: complete_strategy
+
+src = market_data_source()
+
+vol_gk = garman_klass(period=20, trading_days=252)(src.l, src.h, src.o, src.c)
+
+# Vol regime detection
+# NOTE: percentile not yet implemented - using z-score approximation
+vol_ma = sma(period=252)(vol_gk.result)
+vol_std = stdev(period=252)(vol_gk.result)
+vol_z = (vol_gk.result - vol_ma) / vol_std
+
+low_vol = vol_z < -0.84   # ~20th percentile
+high_vol = vol_z > 0.84   # ~80th percentile
+
+# Vol breakout
+vol_ma = sma(period=50)(vol_gk.result)
+vol_expansion = vol_gk.result > vol_ma * 1.5
+
+trade_signal_executor()(enter_long=low_vol, enter_short=high_vol)

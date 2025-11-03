@@ -1,0 +1,47 @@
+# Source: strategies/fundamental-reference.md:142
+# Section: Fundamental Data Integration > Complete Fundamental + Technical Fusion
+# Type: partial_example
+
+src = market_data_source()
+
+# Fundamentals
+bs = balance_sheet()
+income = income_statement()
+cf = cash_flow()
+ratios = financial_ratios()
+
+low_debt = ratios.debt_equity < 0.7
+profitable = income.net_income > 0
+high_roe = ratios.roe > 0.15
+positive_fcf = (cf.cfo_cont - cf.capex) > 0
+pe = src.c / income.basic_eps
+reasonable_pe = pe < 25 and pe > 5
+
+fundamentals_strong = low_debt and profitable and high_roe and positive_fcf and reasonable_pe
+
+# Smart money
+insider = insider_trading(filing_type="4", transaction_code="P")
+insider_buying = sum(period=30)(conditional_select(insider.transaction_code == "P", 1, 0)) >= 2
+
+# Macro
+vix = indices(ticker="VIX")()
+macro_ok = vix.c < 20
+
+# Technical
+uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
+pullback = src.c < ema(period=20)(src.c)
+rsi_val = rsi(period=14)(src.c)
+not_overbought = rsi_val < 70
+
+# Combined entry
+entry = (
+    fundamentals_strong and
+    insider_buying and
+    macro_ok and
+    uptrend and
+    pullback and
+    not_overbought
+)
+
+# Exit on deterioration
+exit = (not fundamentals_strong) or (vix.c > 30)

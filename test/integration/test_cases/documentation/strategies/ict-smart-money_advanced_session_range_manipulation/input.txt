@@ -1,0 +1,31 @@
+# Source: strategies/ict-smart-money.md:198
+# Section: ICT & Smart Money Concepts > Advanced: Session Range Manipulation
+# Type: complete_strategy
+
+src = market_data_source()
+
+# Detect session range manipulation pattern
+asia = sessions(session_type="Asian")()
+london = sessions(session_type="London")()
+
+# Asian session establishes range
+asia_high = conditional_select(asia.active, src.h, 0)
+asia_low = conditional_select(asia.active, src.l, 0)
+asia_mid = (asia_high + asia_low) / 2
+
+# London reversal from Asian extremes
+london_active = london.active
+swept_high = london_active and (src.h > asia_high) and (src.c < asia_mid)
+swept_low = london_active and (src.l < asia_low) and (src.c > asia_mid)
+
+# Manipulation = sweep then reversal
+bearish_manipulation = swept_high
+bullish_manipulation = swept_low
+
+entry = bullish_manipulation
+exit = bearish_manipulation
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)

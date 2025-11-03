@@ -1,0 +1,32 @@
+# Source: strategies/regime-detection.md:45
+# Section: Regime Detection > ADX / DMI
+# Type: complete_strategy
+
+src = market_data_source()
+
+adx_result = adx(period=14)(src.h, src.l, src.c)
+
+# Trend strength (direction-agnostic)
+strong_trend = adx_result.adx > 25
+ranging = adx_result.adx < 20
+
+# Direction
+bullish = adx_result.plus_di > adx_result.minus_di
+
+# Regime classification
+strong_uptrend = strong_trend and bullish
+strong_downtrend = strong_trend and not bullish
+
+# Route strategy
+trend_signal = ema(period=20)(src.c) > ema(period=50)(src.c)
+mr_signal = rsi(period=14)(src.c) < 30
+
+entry = conditional_select(
+    strong_trend, trend_signal,  # Trend-follow in trending markets
+    ranging, mr_signal,           # Mean-revert in ranges
+    false
+)
+
+exit = not strong_trend
+
+trade_signal_executor(entry=entry, exit=exit)

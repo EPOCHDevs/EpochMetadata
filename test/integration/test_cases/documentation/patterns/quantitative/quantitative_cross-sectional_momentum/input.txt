@@ -1,0 +1,20 @@
+# Source: strategies/patterns/quantitative.md:25
+# Section: Quantitative Strategies > Cross-Sectional Momentum
+# Type: complete_strategy
+
+src = market_data_source()
+close = src.c
+
+# Calculate momentum (20-day rate of change)
+returns_20 = roc(period=20)(close)
+
+# Rank across universe
+momentum_rank = cs_momentum()(returns_20)
+
+# Select top 10 stocks
+top_10 = top_k(k=10)(momentum_rank)
+
+# Monthly rebalance (using month_of_year or custom logic)
+# Rebalancing handled by execution engine
+
+trade_signal_executor()(enter_long=top_10)

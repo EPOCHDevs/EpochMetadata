@@ -1,0 +1,23 @@
+# Source: strategies/advanced-volatility.md:106
+# Section: Advanced Volatility Estimators > Comparative Analysis
+# Type: complete_strategy
+
+src = market_data_source()
+
+vol_park = parkinson(period=20, trading_periods=252)(src.l, src.h)
+vol_gk = garman_klass(period=20, trading_days=252)(src.l, src.h, src.o, src.c)
+vol_yz = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
+
+# Detect gap vs intraday vol
+park_vs_gk = vol_park.result / vol_gk.result
+gap_vol_present = vol_yz.result > vol_gk.result * 1.2  # YZ>GK = gaps
+
+# High intraday vol (range-based)
+gk_vs_close = vol_gk.result / (stdev(period=20)(returns) * sqrt(252))
+high_intraday = gk_vs_close > 1.5  # Lots of intraday movement
+
+# Regime classification
+trending_gappy = gap_vol_present and high_intraday
+clean_ranging = not gap_vol_present and (park_vs_gk > 0.95)
+
+trade_signal_executor()(enter_long=clean_ranging, exit_long=trending_gappy)
