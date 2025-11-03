@@ -1,0 +1,321 @@
+---
+page_type: implementation
+layout: default
+order: 2
+category: Concepts
+description: Auto-plotting and event markers for real-time strategy visualization
+parent: ./visualization.md
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Core Visualization Features
+
+## Auto-Plotting System
+
+**Every transform automatically plots** based on its category:
+
+| Category | Plot Type | Location | Example |
+|----------|-----------|----------|---------|
+| **Overlay** | Line on price chart | Main panel | EMA, SMA, Bollinger Bands |
+| **Oscillator** | Line in separate panel | Below chart | RSI, Stochastic, Williams %R |
+| **Histogram** | Bars in separate panel | Below chart | MACD histogram, Volume |
+| **Boolean** | Markers on chart | Main panel | Crossover signals, Breakouts |
+| **Multi-output** | Multiple lines | Appropriate panel | Bollinger (3 lines), MACD (line + histogram) |
+
+**No manual configuration required** - just write the code:
+
+```epochscript
+src = market_data_source()
+
+# These automatically plot:
+ema_20 = ema(period=20)(src.c)        # → Line overlay on price chart
+rsi_val = rsi(period=14)(src.c)       # → Panel below chart (0-100 scale)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)  # → Panel with 2 lines
+```
+
+### Chart Overlays
+
+**Plot on main price chart** (same scale as OHLCV):
+
+```epochscript
+src = market_data_source()
+
+# Moving averages
+fast_ema = ema(period=12)(src.c)
+slow_ema = ema(period=26)(src.c)
+sma_200 = sma(period=200)(src.c)
+
+# Bollinger Bands - 3 lines
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+
+# Adaptive moving averages
+kama_line = kama(period=20)(src.c)
+hma_line = hma(period=20)(src.c)
+```
+
+All lines appear on the price chart with distinct colors.
+
+### Panel Indicators (Oscillators)
+
+**Plot in separate panels** below the price chart:
+
+```epochscript
+src = market_data_source()
+
+# RSI (0-100 scale)
+rsi_val = rsi(period=14)(src.c)
+
+# Stochastic (0-100 scale)
+k, d = stoch(k_period=14, k_smooth=3, d_period=3)(src.h, src.l, src.c)
+
+# MACD
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+histogram = mac.macd - mac.macd_signal
+
+# CCI (unbounded)
+cci_val = cci(period=20)(src.h, src.l, src.c)
+
+# ADX (0-100 scale)
+adx_val = adx(period=14)(src.h, src.l, src.c)
+```
+
+Each indicator gets its own panel, auto-scaled to natural range.
+
+### Boolean Markers
+
+**Boolean transforms create visual markers:**
+
+```epochscript
+src = market_data_source()
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+
+# Crossovers
+buy_signal = crossover(fast, slow)
+sell_signal = crossover(slow, fast)
+
+# Pattern detection
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+
+# Breakouts
+bb = bbands(period=20, stddev=2)(src.c)
+breakout_up = crossover(src.c, bb.bbands_upper)
+breakout_down = crossunder(src.c, bb.bbands_lower)
+```
+
+Markers appear on the chart at bars where conditions are true.
+
+### Multi-Output Visualization
+
+**Multiple outputs plot appropriately:**
+
+```epochscript
+src = market_data_source()
+
+# Bollinger Bands - 3 overlay lines
+lower, middle, upper = bbands(period=20, stddev=2)(src.c)
+
+# MACD - panel with 2 lines + histogram
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+
+# Stochastic - panel with 2 lines
+k, d = stoch(k_period=14, k_smooth=3, d_period=3)(src.h, src.l, src.c)
+
+# Aroon - panel with 2 lines
+aroon_up, aroon_down = aroon(period=25)(src.h, src.l)
+
+# Ichimoku - 5 overlay lines
+tenkan, kijun, senkou_a, senkou_b, chikou = ichimoku()(src.h, src.l, src.c)
+```
+
+### Volume Visualization
+
+**Volume has special treatment:**
+
+```epochscript
+src = market_data_source()
+
+# Raw volume (histogram at bottom)
+volume = src.v
+
+# Volume indicators
+obv_val = obv()(src.c, src.v)
+
+# Volume moving average
+avg_vol = sma(period=20)(src.v)
+```
+
+---
+
+## Event Marker System
+
+**Mark important timestamps** for timeline navigation:
+
+```epochscript
+# Mark RSI extremes
+rsi_val = rsi(period=14)(src.c)
+oversold_event = rsi_val < 30
+overbought_event = rsi_val > 70
+
+event_marker(color_map={
+    Success: ["oversold_event"],
+    Error: ["overbought_event"]
+})(
+    oversold_event=oversold_event,
+    overbought_event=overbought_event
+)
+```
+
+**Creates scrollable timeline:**
+```text
+EVENTS (Timeline)
+├─ 2024-01-15 09:35  ● Oversold Event    [Success]
+├─ 2024-01-15 11:20  ● Overbought Event  [Error]
+├─ 2024-01-15 14:45  ● Oversold Event    [Success]
+└─ 2024-01-16 10:10  ● Overbought Event  [Error]
+```
+
+### Creating Event Markers
+
+**Color categories:**
+- `Success` (Green): Bullish signals, entries, confirmations
+- `Error` (Red): Bearish signals, exits, warnings
+- `Warning` (Yellow): Neutral events, patterns, regime changes
+
+#### Entry/Exit Tracking
+
+```epochscript
+src = market_data_source()
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+
+# Entry/exit signals
+buy_signal = crossover(fast, slow)
+sell_signal = crossover(slow, fast)
+signal = buy_signal or sell_signal
+
+# Event markers for signals
+signal_type = "BUY" if buy_signal else ("SELL" if sell_signal else "NONE")
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="MA Crossover Signals",
+        icon=Signal,
+        select_key="signal#result",
+        schemas=[
+            CardColumnSchema(
+                column_id="signal_type#result",
+                slot=Hero,
+                render_type=Text,
+                color_map={Success: ["BUY"], Error: ["SELL"]}
+            )
+        ]
+    )
+)(signal, signal_type)
+```
+
+**Timeline shows:**
+```text
+├─ 2024-01-10 10:30  ▲ Buy Signal       [Success]
+├─ 2024-01-12 14:20  ▼ Sell Signal      [Error]
+├─ 2024-01-15 09:45  ⚠ Stop Hit         [Error]
+└─ 2024-01-17 11:15  ▲ Buy Signal       [Success]
+```
+
+#### Pattern Detection Events
+
+```epochscript
+src = market_data_source()
+
+# Detect patterns
+hs = head_and_shoulders(tolerance=0.02)()
+tri = triangles(min_pattern_bars=15)()
+
+# Pattern events
+hs_detected = hs.pattern_detected
+triangle_breakout = tri.breakout
+
+event_marker(color_map={
+    Warning: ["hs_detected"],
+    Success: ["triangle_breakout"]
+})(
+    hs_detected=hs_detected,
+    triangle_breakout=triangle_breakout
+)
+```
+
+#### Regime Change Events
+
+```epochscript
+src = market_data_source()
+adx_val = adx(period=14)(src.h, src.l, src.c)
+vol = volatility(period=20)(src.c)
+
+# Regime transitions
+entering_trend = crossover(adx_val, 25)
+leaving_trend = crossunder(adx_val, 20)
+vol_spike = vol > vol[10] * 1.5
+
+event_marker(color_map={
+    Success: ["entering_trend"],
+    Warning: ["leaving_trend", "vol_spike"]
+})(
+    entering_trend=entering_trend,
+    leaving_trend=leaving_trend,
+    vol_spike=vol_spike
+)
+```
+
+#### Gap Fill Events
+
+```epochscript
+# Mark gap fills
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+large_gap = gaps.gap_size > 2.0
+gap_filled = gaps.gap_filled
+partial_fill = (gaps.gap_retrace > 50) and not gaps.gap_filled
+
+event_marker(color_map={
+    Warning: ["large_gap"],
+    Success: ["gap_filled"],
+    Error: ["partial_fill"]
+})(
+    large_gap=large_gap,
+    gap_filled=gap_filled,
+    partial_fill=partial_fill
+)
+```
+
+**Timeline:**
+```text
+├─ 2024-01-10 09:30  ⚠ Large Gap (2.3%)         [Warning]
+├─ 2024-01-10 10:45  ✓ Gap Filled               [Success]
+├─ 2024-01-11 09:30  ⚠ Large Gap (1.8%)         [Warning]
+└─ 2024-01-11 15:30  ✗ Partial Fill (62%)       [Error]
+```
+
+### Use Cases
+
+**Strategy Development:**
+- Mark all entry signals → Review each visually → Refine conditions
+- Mark pattern detections → Validate accuracy → Tune parameters
+- Mark regime changes → See if strategy adapts correctly
+
+**Debugging:**
+- Mark unexpected behavior → Identify problem bars
+- Mark edge cases → Study what happened
+- Mark false signals → Identify why they occurred
+
+**Performance Analysis:**
+- Mark all trades → Review execution
+- Mark stops hit → Analyze stop placement
+- Mark missed opportunities → Improve signal timing
+
+---
+
+**Next:** [Research Reports →](./research)

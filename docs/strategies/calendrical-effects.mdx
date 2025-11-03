@@ -1,0 +1,184 @@
+---
+page_type: reference
+layout: default
+order: 17
+category: Strategies
+description: Calendar anomalies - Holiday Effect, Month of Year, Day of Week, Turn of Month, Week of Month
+parent: ./index.md
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Calendrical Effects & Seasonal Patterns
+
+Calendar-based timing filters: holiday effect, month/week patterns, turn-of-month, quarter-end.
+
+---
+
+## Calendar Scoring System
+
+```epochscript
+src = market_data_source()
+
+current_month = month()
+dow = day_of_week()
+
+# Month of year (Nov-Apr strong, May-Oct weak)
+strong_season = (current_month >= 11) or (current_month <= 4)
+
+# Turn of month (last day + first 3 days)
+tom_period = (month() != month()[1]) or (month() != month()[3])
+
+# Week of month
+first_week = week_of_month(week="First")
+bullish_week = first_week.result
+
+# Day of week
+avoid_monday = dow == 1
+prefer_friday = dow == 5
+
+# Holiday effect
+pre_holiday = holiday(days_before=1)
+holiday_boost = pre_holiday.result
+
+# Calendar score
+calendar_score = (
+    conditional_select(strong_season, 1, 0) +
+    conditional_select(tom_period, 1, 0) +
+    conditional_select(bullish_week, 1, 0) +
+    conditional_select(prefer_friday, 1, 0) +
+    conditional_select(holiday_boost, 1, 0) +
+    conditional_select(avoid_monday, -1, 0)
+)
+
+favorable_calendar = calendar_score >= 2
+unfavorable_calendar = calendar_score <= -1
+
+# Adjust aggressiveness
+uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
+rsi_val = rsi(period=14)(src.c)
+pullback = src.c < ema(period=20)(src.c)
+
+# Favorable calendar: standard entry
+entry_favorable = favorable_calendar and uptrend and pullback and (rsi_val < 65)
+
+# Unfavorable calendar: only very strong setups
+strong_setup = uptrend and (rsi_val < 35) and (src.v > sma(period=20)(src.v) * 2.0)
+entry_unfavorable = (not favorable_calendar) and strong_setup
+
+entry = entry_favorable or entry_unfavorable
+exit = calendar_score <= -2  # Very unfavorable
+
+trade_signal_executor(entry, exit)
+```
+
+---
+
+## Session Range Manipulation (Quarter-End)
+
+```epochscript
+src = market_data_source()
+
+current_month = month()
+
+quarter_end_month = (
+    current_month == 3 or
+    current_month == 6 or
+    current_month == 9 or
+    current_month == 12
+)
+
+# Last few days of quarter
+# (Approximation—ideally detect last trading day)
+late_quarter = quarter_end_month  # Placeholder
+
+# Window dressing: institutions buy winners
+winners = src.c > sma(period=60)(src.c) * 1.1  # 10% above 60-day MA
+losers = src.c < sma(period=60)(src.c) * 0.9
+
+buy_winners = late_quarter and winners
+avoid_losers = late_quarter and losers
+
+entry = buy_winners
+exit = avoid_losers
+
+trade_signal_executor(entry, exit)
+```
+
+---
+
+## Advanced: Multi-Factor Calendar Filter
+
+```epochscript
+src = market_data_source()
+
+# All calendar effects
+current_month = month()
+dow = day_of_week()
+first_week = week_of_month(week="First")
+pre_holiday = holiday(days_before=1)
+
+# Month seasonality
+strong_months = (current_month >= 11) or (current_month <= 4)
+weak_months = (current_month >= 5) and (current_month <= 10)
+
+# September = weakest month
+september = current_month == 9
+
+# Turn of month
+tom = (month() != month()[1]) or (month() != month()[3])
+
+# Day of week
+monday = dow == 1
+friday = dow == 5
+
+# Combined risk-on/risk-off
+risk_on_calendar = (
+    strong_months and
+    tom and
+    first_week.result and
+    friday and
+    pre_holiday.result
+)
+
+risk_off_calendar = (
+    weak_months and
+    september and
+    monday and
+    not tom
+)
+
+# Use as portfolio heat adjuster
+# Technical signal
+signal = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
+
+# Entry sizing/aggressiveness based on calendar
+aggressive_entry = risk_on_calendar and signal
+conservative_entry = risk_off_calendar and signal and (rsi(period=14)(src.c) < 30)
+
+entry = aggressive_entry or conservative_entry
+
+trade_signal_executor(entry)
+```
+
+<Callout type="warning">
+Calendar effects have weakened significantly. Use as timing filters, not primary signals. Always combine with technical/fundamental analysis.
+</Callout>
+
+---
+
+**All Advanced Topics:**
+
+1. [ICT & Smart Money Concepts](./ict-smart-money)
+2. [Statistical Analysis & Machine Learning](./statistical-analysis)
+3. [Advanced Volatility Estimators](./advanced-volatility)
+4. [Regime Detection](./regime-detection)
+5. [Cross-Sectional Ranking](./cross-sectional-ranking)
+6. [Volume & Order Flow](./volume-order-flow)
+7. [Advanced Momentum](./advanced-momentum)
+8. [Candlestick Patterns](./candlestick-patterns)
+9. [Chart Formations](./chart-formations)
+10. [Fundamental Integration](./fundamental-integration)
+11. [Calendrical Effects](./calendrical-effects)
+
+**Return to:** [Advanced Topics Index](./index)
