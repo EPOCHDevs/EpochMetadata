@@ -203,6 +203,7 @@ entry_v3 = entry_v2 and (src.c > daily_trend)
 **Bad:**
 
 ```epochscript
+src = market_data_source()
 x1 = ema(period=20)(src.c)
 x2 = ema(period=50)(src.c)
 s = x1 > x2
@@ -211,6 +212,7 @@ s = x1 > x2
 **Good:**
 
 ```epochscript
+src = market_data_source()
 fast_ema = ema(period=20)(src.c)
 slow_ema = ema(period=50)(src.c)
 bullish_trend = fast_ema > slow_ema
@@ -300,6 +302,9 @@ Make explicit the conditions under which your strategy is designed to work.
 # - Market regime: Normal volatility (VIX < 30)
 # - Gap threshold: 1.5% is considered significant for SPY
 # ====================================================
+
+# Track S&P 500 index (SPX) for market context
+spx = indices(ticker="SPX")()
 
 src = market_data_source()
 gaps = session_gap(fill_percent=100, min_gap_size=1.5, timeframe="1H")()

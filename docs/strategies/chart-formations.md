@@ -16,6 +16,8 @@ Pattern detection with breakout confirmation, volume validation.
 ## Double Top/Bottom + Breakout
 
 ```epochscript
+src = market_data_source()
+
 dt = double_top(tolerance=0.02)(src.h, src.l, src.c)
 db = double_bottom(tolerance=0.02)(src.h, src.l, src.c)
 
@@ -28,6 +30,8 @@ vol_surge = src.v > sma(period=20)(src.v) * 1.3
 
 entry = db_break and vol_surge
 exit = dt_break and vol_surge
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -35,14 +39,18 @@ exit = dt_break and vol_surge
 ## Head & Shoulders
 
 ```epochscript
+src = market_data_source()
+
 hs = head_and_shoulders()(src.h, src.l, src.c)
 ihs = inverse_head_and_shoulders()(src.h, src.l, src.c)
 
-hs_break = hs.result and (src.c < hs.neckline) and (src.v > sma(period=20)(src.v) * 1.3)
-ihs_break = ihs.result and (src.c > ihs.neckline) and (src.v > sma(period=20)(src.v) * 1.3)
+hs_break = hs.result and (src.c < hs.neckline_level) and (src.v > sma(period=20)(src.v) * 1.3)
+ihs_break = ihs.result and (src.c > ihs.neckline_level) and (src.v > sma(period=20)(src.v) * 1.3)
 
 entry = ihs_break
 exit = hs_break
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -50,6 +58,8 @@ exit = hs_break
 ## Triangles
 
 ```epochscript
+src = market_data_source()
+
 asc_tri = ascending_triangle()(src.h, src.l, src.c)
 desc_tri = descending_triangle()(src.h, src.l, src.c)
 sym_tri = symmetrical_triangle()(src.h, src.l, src.c)
@@ -66,6 +76,8 @@ sym_bear = sym_tri.result and (src.c < sym_tri.lower) and not uptrend
 
 entry = asc_break or sym_bull
 exit = desc_break or sym_bear
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -73,6 +85,8 @@ exit = desc_break or sym_bear
 ## Flags & Pennants
 
 ```epochscript
+src = market_data_source()
+
 bull_f = bull_flag()(src.h, src.l, src.c)
 bear_f = bear_flag()(src.h, src.l, src.c)
 pnt = pennant()(src.h, src.l, src.c)
@@ -85,6 +99,8 @@ vol_breakout = src.v > sma(period=20)(src.v) * 1.5
 
 entry = bull_flag_break and vol_breakout
 exit = bear_flag_break
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -92,18 +108,20 @@ exit = bear_flag_break
 ## Complete Pattern Strategy
 
 ```epochscript
+src = market_data_source()
+
 # Detect all patterns
 db = double_bottom(tolerance=0.02)(src.h, src.l, src.c)
 ihs = inverse_head_and_shoulders()(src.h, src.l, src.c)
 asc_tri = ascending_triangle()(src.h, src.l, src.c)
-bull_flag = bull_flag()(src.h, src.l, src.c)
+bf = bull_flag()(src.h, src.l, src.c)
 falling_wedge = falling_wedge()(src.h, src.l, src.c)
 
 # Bullish breakouts
 db_break = db.result and (src.c > db.neckline)
-ihs_break = ihs.result and (src.c > ihs.neckline)
+ihs_break = ihs.result and (src.c > ihs.neckline_level)
 asc_break = asc_tri.result and (src.c > asc_tri.resistance)
-flag_break = bull_flag.result and (src.c > bull_flag.upper_bound)
+flag_break = bf.result and (src.c > bf.upper_bound)
 wedge_break = falling_wedge.result and (src.c > falling_wedge.upper_bound)
 
 bullish_pattern = db_break or ihs_break or asc_break or flag_break or wedge_break
@@ -113,6 +131,8 @@ uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
 vol_surge = src.v > sma(period=20)(src.v) * 1.3
 
 entry = bullish_pattern and uptrend and vol_surge
+
+trade_signal_executor()(enter_long=entry)
 ```
 
 **Next:** [Fundamental Integration →](./fundamental-integration.md)

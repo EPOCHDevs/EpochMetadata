@@ -123,7 +123,7 @@ ret_a = (stock_a.c / stock_a.c[1] - 1) * 100
 ret_b = (stock_b.c / stock_b.c[1] - 1) * 100
 
 corr = rolling_correlation(window=60)(x=ret_a, y=ret_b)
-spread_vol = stdev(period=60)(spread)
+spread_vol = stddev(period=60)(spread)
 
 # Pair quality: high correlation + stable spread
 pair_score = corr.result - (spread_vol / stock_a.c)
@@ -132,7 +132,7 @@ pair_score = corr.result - (spread_vol / stock_a.c)
 # (In multi-pair context: top_pairs = top_k_assets(k=3)(pair_scores))
 
 # Standard pairs logic on top-ranked pairs
-spread_z = zscore(period=60)(spread)
+spread_z = zscore(window=60)(spread)
 entry_long_a = (pair_score > 0.6) and (spread_z < -2)
 entry_short_a = (pair_score > 0.6) and (spread_z > 2)
 ```

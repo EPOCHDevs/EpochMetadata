@@ -19,6 +19,10 @@ Epoch script supports two statement types:
 
 ### Assignment Statement
 
+:::tip Syntax Template
+This shows the assignment statement syntax. See example below for usage in context.
+:::
+
 ```epochscript
 variable = expression
 ```
@@ -48,6 +52,10 @@ price = src.o  # ERROR: Variable 'price' already bound
 
 ### Expression Statement
 
+:::tip Syntax Template
+This shows the expression statement syntax. See example below for usage in context.
+:::
+
 ```epochscript
 transform_call()(inputs)
 ```
@@ -65,6 +73,13 @@ transform_call()(inputs)
 **Examples:**
 
 ```epochscript
+src = market_data_source()
+
+# Define variables used in statements
+buy_signal = crossover(ema(period=12)(src.c), ema(period=26)(src.c))
+analysis_df = src.c
+signal_time = src.psc_timestamp
+
 # Valid expression statements (all have no outputs)
 trade_signal_executor()(enter_long=buy_signal)
 gap_report(card_schema="...")(data=analysis_df)
@@ -86,20 +101,22 @@ Expressions produce values and can be used anywhere a value is expected.
 
 ### Valid Expression Contexts
 
-1. **Right-hand side of assignment**:
-   ```epochscript
-   result = 2 + 2
-   ```
+```epochscript
+src = market_data_source()
+close = src.c
+fast_ma = ema(period=12)(close)
+slow_ma = ema(period=26)(close)
+atr_value = atr(period=14)(src.h, src.l, src.c)
 
-2. **Function arguments**:
-   ```epochscript
-   ema(period=20)(close + 10)
-   ```
+# 1. Right-hand side of assignment
+result = 2 + 2
 
-3. **Nested expressions**:
-   ```epochscript
-   result = (fast_ma - slow_ma) / atr_value
-   ```
+# 2. Function arguments
+adjusted_ema = ema(period=20)(close + 10)
+
+# 3. Nested expressions
+result2 = (fast_ma - slow_ma) / atr_value
+```
 
 ### Expression Types
 
@@ -133,6 +150,11 @@ Multi-line comments (triple quotes) are not supported.
 ### Valid Names
 
 ```epochscript
+src = market_data_source()
+close = src.c
+fast = ema(period=12)(close)
+slow = ema(period=26)(close)
+
 ema_20 = ema(period=20)(close)
 fastMA = ema(period=12)(close)
 _temp = close - close[1]

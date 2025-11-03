@@ -23,6 +23,9 @@ For detailed cross-sectional ranking techniques (top K, bottom K, factor portfol
 - Requires external universe configuration
 
 ```epochscript
+src = market_data_source()
+close = src.c
+
 # Calculate momentum (20-day rate of change)
 returns_20 = roc(period=20)(close)
 

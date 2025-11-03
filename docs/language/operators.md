@@ -48,6 +48,12 @@ momentum = src.c - src.c[5]
 **Example:**
 
 ```epochscript
+src = market_data_source()
+rsi_val = rsi(period=14)(src.c)
+price = src.c
+bb = bbands(period=20, stddev=2)(src.c)
+upper_band = bb.bbands_upper
+
 above_20 = rsi_val > 20
 below_80 = rsi_val < 80
 at_threshold = price == 100.0
@@ -90,6 +96,10 @@ not_oversold = not (rsi < 30)
 
 Conditional expression for value selection:
 
+:::tip Syntax Template
+This shows the ternary operator syntax. See example below for usage in context.
+:::
+
 ```epochscript
 result = value_if_true if condition else value_if_false
 ```
@@ -97,6 +107,12 @@ result = value_if_true if condition else value_if_false
 **Example:**
 
 ```epochscript
+src = market_data_source()
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+rsi = rsi(period=14)(src.c)
+high_confidence = rsi > 70
+
 direction = "UP" if fast > slow else "DOWN"
 size = 2.0 if high_confidence else 1.0
 label = "OVERSOLD" if rsi < 30 else ("OVERBOUGHT" if rsi > 70 else "NEUTRAL")
@@ -107,6 +123,10 @@ label = "OVERSOLD" if rsi < 30 else ("OVERBOUGHT" if rsi > 70 else "NEUTRAL")
 ## Lag Operator
 
 Access historical values using `[N]` where N is bars ago:
+
+:::tip Syntax Template
+This shows the lag operator syntax. See example below for usage in context.
+:::
 
 ```epochscript
 value[N]  # Value from N bars ago
@@ -135,6 +155,10 @@ The lag operator `[N]` is the ONLY form of indexing in EpochScript. There are no
 ## Attribute Access
 
 Access outputs from transforms or data sources:
+
+:::tip Syntax Template
+This shows the attribute access syntax. See example below for usage in context.
+:::
 
 ```epochscript
 object.attribute

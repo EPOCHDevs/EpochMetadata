@@ -16,23 +16,26 @@ Combine fundamental metrics with technical signals for quality screening and sma
 ## Quality Filters
 
 ```epochscript
+src = market_data_source()
+
 bs = balance_sheet()
 income = income_statement()
 cf = cash_flow()
+ratios = financial_ratios()
 
 # Balance sheet quality
-low_debt = bs.debt_to_equity < 0.7
-liquid = bs.current_ratio > 1.3
+low_debt = ratios.debt_equity < 0.7
+liquid = ratios.current_ratio > 1.3
 
 # Profitability
 profitable = income.net_income > 0
-high_roe = income.roe > 0.15
+high_roe = ratios.roe > 0.15
 
 # Cash generation
-positive_fcf = (cf.operating_cash_flow - cf.capex) > 0
+positive_fcf = (cf.cfo_cont - cf.capex) > 0
 
 # Valuation
-pe = src.c / income.eps
+pe = src.c / income.basic_eps
 reasonable_pe = pe < 25 and pe > 5
 
 # Combined quality filter
@@ -48,20 +51,24 @@ entry = technical_signal and fundamentals_ok
 ## Insider Trading (Smart Money)
 
 ```epochscript
+src = market_data_source()
+
+# P = open market purchase
 insider = insider_trading(
     filing_type="4",
-    transaction_code="P",  # P = open market purchase
+    transaction_code="P",
     min_value=100000
 )
 
 # Cluster buying (multiple insiders)
 insider_buy = insider.transaction_code == "P"
 buy_count = sum(period=30)(conditional_select(insider_buy, 1, 0))
-cluster = buy_count >= 3  # 3+ buys in 30 days
+# 3+ buys in 30 days
+cluster = buy_count >= 3
 
-# Large executive purchases
+# Large executive purchases (can filter by insider.owner_name if needed)
 large_buy = (insider.shares * insider.price) > 500000
-exec_buy = large_buy  # Can filter by insider.owner_name if needed
+exec_buy = large_buy
 
 catalyst = cluster or exec_buy
 
@@ -77,15 +84,20 @@ entry = technical_signal and catalyst
 ## Institutional Holdings (Form 13F)
 
 ```epochscript
+src = market_data_source()
+
+# Berkshire Hathaway CIK, $1B+ positions
 brk_holdings = form13f_holdings(
-    institution_cik="1067983",  # Berkshire Hathaway
-    min_value=1000000000  # $1B+ positions
+    institution_cik="1067983",
+    min_value=1000000000
 )
 
 shares_now = brk_holdings.shares
-shares_prev = brk_holdings.shares[90]  # ~1 quarter ago
+# ~1 quarter ago
+shares_prev = brk_holdings.shares[90]
 
-position_increased = shares_now > shares_prev * 1.1  # 10%+ increase
+# 10%+ increase
+position_increased = shares_now > shares_prev * 1.1
 new_position = (shares_prev == 0) and (shares_now > 0)
 
 bullish_13f = position_increased or new_position
@@ -101,18 +113,19 @@ entry = bullish_13f and technical_signal
 ## Macro Overlay (Economic Indicators)
 
 ```epochscript
+src = market_data_source()
 fed_funds = economic_indicator(category="FedFunds")
-vix = economic_indicator(category="VIX")
+vix = indices(ticker="VIX")()
 
 # Risk-on environment
 low_rates = fed_funds.value < 2.0
 falling_rates = fed_funds.value < fed_funds.value[30]
 
-low_fear = vix.value < 15
-rising_fear = vix.value > vix.value[5]
+low_fear = vix.c < 15
+rising_fear = vix.c > vix.c[5]
 
 risk_on = low_rates and low_fear
-risk_off = rising_fear or (vix.value > 30)
+risk_off = rising_fear or (vix.c > 30)
 
 # Only trade in risk-on
 technical_signal = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
@@ -127,16 +140,19 @@ exit = risk_off
 ## Complete Fundamental + Technical Fusion
 
 ```epochscript
+src = market_data_source()
+
 # Fundamentals
 bs = balance_sheet()
 income = income_statement()
 cf = cash_flow()
+ratios = financial_ratios()
 
-low_debt = bs.debt_to_equity < 0.7
+low_debt = ratios.debt_equity < 0.7
 profitable = income.net_income > 0
-high_roe = income.roe > 0.15
-positive_fcf = (cf.operating_cash_flow - cf.capex) > 0
-pe = src.c / income.eps
+high_roe = ratios.roe > 0.15
+positive_fcf = (cf.cfo_cont - cf.capex) > 0
+pe = src.c / income.basic_eps
 reasonable_pe = pe < 25 and pe > 5
 
 fundamentals_strong = low_debt and profitable and high_roe and positive_fcf and reasonable_pe
@@ -146,8 +162,8 @@ insider = insider_trading(filing_type="4", transaction_code="P")
 insider_buying = sum(period=30)(conditional_select(insider.transaction_code == "P", 1, 0)) >= 2
 
 # Macro
-vix = economic_indicator(category="VIX")
-macro_ok = vix.value < 20
+vix = indices(ticker="VIX")()
+macro_ok = vix.c < 20
 
 # Technical
 uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
@@ -166,7 +182,7 @@ entry = (
 )
 
 # Exit on deterioration
-exit = (not fundamentals_strong) or (vix.value > 30)
+exit = (not fundamentals_strong) or (vix.c > 30)
 ```
 
 **Next:** [Calendrical Effects →](./calendrical-effects.md)

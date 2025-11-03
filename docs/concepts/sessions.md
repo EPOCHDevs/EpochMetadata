@@ -27,6 +27,8 @@ Intraday session filtering and detection. Two modes: filter data to specific ses
 Execute transform on ONLY the bars within a specific trading session.
 
 ```epochscript
+src = market_data_source()
+
 # EMA calculated ONLY on London session bars
 london_ema = ema(period=20, session="London")(src.c)
 
@@ -65,6 +67,11 @@ session = sessions(session_type="session_name")()
 src = market_data_source()
 london = sessions(session_type="London")()
 
+# Define bullish condition
+fast_ema = ema(period=12)(src.c)
+slow_ema = ema(period=26)(src.c)
+bullish_condition = fast_ema > slow_ema
+
 # Trade only during London session
 in_session = london.active
 entry = bullish_condition and in_session
@@ -82,15 +89,17 @@ exit_signal = london.closed
 ## Available Sessions
 
 ### Geographic Sessions
-```epochscript
-"Sydney"    # Sydney, Australia (10 PM - 7 AM GMT)
-"Tokyo"     # Tokyo, Japan (12 AM - 9 AM GMT)
-"London"    # London, UK (8 AM - 5 PM GMT)
-"NewYork"   # New York, USA (1 PM - 10 PM GMT)
+```text
+"Sydney"    # Sydney, Australia (5 PM - 2 AM ET*)
+"Tokyo"     # Tokyo, Japan (7 PM - 4 AM ET*)
+"London"    # London, UK (3 AM - 12 PM ET*)
+"NewYork"   # New York, USA (8 AM - 5 PM ET*)
+
+* Times in EST; add 1 hour during EDT (daylight saving)
 ```
 
 ### Kill Zones (ICT - High Liquidity Periods)
-```epochscript
+```text
 "AsianKillZone"         # 19:00-23:00 ET
 "LondonOpenKillZone"    # 02:00-05:00 ET
 "NewYorkKillZone"       # 07:00-10:00 ET
@@ -102,11 +111,14 @@ exit_signal = london.closed
 ## Combined Session + TimeFrame
 
 ```epochscript
+src = market_data_source()
+
 # Daily bars, but only from New York session data
-daily_ny = market_data_source(
+daily_ny_src = market_data_source(
     timeframe="1D",
     session="NewYork"
-)().c
+)()
+daily_ny = daily_ny_src.c
 
 # Hourly EMA, London session only
 hourly_london = ema(

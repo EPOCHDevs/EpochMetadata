@@ -18,6 +18,8 @@ For detailed fundamental data reference (balance sheet, income statement, cash f
 **Strategy:** Buy stocks with positive earnings surprises and momentum
 
 ```epochscript
+src = market_data_source()
+
 # Fundamental data
 income = income_statement()
 eps = income.basic_earnings_per_share
@@ -26,7 +28,7 @@ eps = income.basic_earnings_per_share
 eps_growth = (eps - eps[1]) / eps[1]
 
 # Price momentum
-returns_20 = roc(period=20)(close)
+returns_20 = roc(period=20)(src.c)
 
 # Combined signal
 strong_earnings = eps_growth > 0.15  # 15% earnings growth
@@ -42,6 +44,8 @@ trade_signal_executor()(enter_long=entry)
 **Strategy:** Buy undervalued stocks with positive momentum
 
 ```epochscript
+src = market_data_source()
+
 # Value metrics
 ratios = financial_ratios()
 pe = ratios.price_to_earnings
@@ -51,7 +55,7 @@ pb = ratios.price_to_book
 undervalued = (pe < 15) and (pb < 2.0)
 
 # Momentum signal
-momentum = roc(period=60)(close)
+momentum = roc(period=60)(src.c)
 positive_momentum = momentum > 0
 
 # Quality filter
@@ -70,9 +74,9 @@ trade_signal_executor()(enter_long=entry)
 
 ```epochscript
 # Economic data (FRED)
-gdp = economic_indicator(indicator="GDP")()
-unemployment = economic_indicator(indicator="UNRATE")()
-cpi = economic_indicator(indicator="CPIAUCSL")()
+gdp = economic_indicator(category="GDP")()
+unemployment = economic_indicator(category="Unemployment")()
+cpi = economic_indicator(category="CPI")()
 
 # Calculate surprise (actual vs expectation)
 # Expectation = moving average
@@ -108,7 +112,7 @@ src = market_data_source()
 
 # Turn-of-month window (3 days before, 5 days after)
 tom = turn_of_month(days_before=3, days_after=5)()
-in_window = tom.in_window
+in_window = tom.result
 
 # Bullish bias during window
 trend = ema(period=50)(src.c)
@@ -131,12 +135,14 @@ trade_signal_executor()(
 **Strategy:** Overweight small-caps in January
 
 ```epochscript
+src = market_data_source()
+
 # January detection
 january = month_of_year(target_month="January")()
 is_january = january.is_target_month
 
 # Small-cap momentum (cross-sectional)
-returns = roc(period=20)(close)
+returns = roc(period=20)(src.c)
 momentum = cs_momentum()(returns)
 
 # Stronger filter in January (top 20 vs top 10)

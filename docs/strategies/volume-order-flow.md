@@ -16,6 +16,8 @@ Institutional flow detection using volume-based indicators, divergences, VWAP.
 ## OBV & A/D Line Divergences
 
 ```epochscript
+src = market_data_source()
+
 obv_val = obv()(src.c, src.v)
 ad = ad_line()(src.h, src.l, src.c, src.v)
 
@@ -32,6 +34,8 @@ obv_higher = obv_val > obv_val[20]
 ad_higher = ad.result > ad.result[20]
 
 bullish_div = price_new_low and (obv_higher or ad_higher)
+
+trade_signal_executor()(enter_long=bullish_div, enter_short=bearish_div)
 ```
 
 ---
@@ -39,6 +43,8 @@ bullish_div = price_new_low and (obv_higher or ad_higher)
 ## VWAP Mean Reversion
 
 ```epochscript
+src = market_data_source()
+
 vwap_val = vwap()(src.h, src.l, src.c, src.v)
 
 # Deviation from VWAP
@@ -51,6 +57,8 @@ entry_long = extended_below and (src.c > src.o)  # Bullish candle at deviation
 entry_short = extended_above and (src.c < src.o)
 
 exit = abs(deviation) < 0.005  # Back to VWAP
+
+trade_signal_executor()(enter_long=entry_long, exit_long=exit, enter_short=entry_short, exit_short=exit)
 ```
 
 ---
@@ -58,6 +66,8 @@ exit = abs(deviation) < 0.005  # Back to VWAP
 ## Klinger Oscillator
 
 ```epochscript
+src = market_data_source()
+
 klinger = klinger_oscillator(fast=34, slow=55, signal=13)(
     src.h, src.l, src.c, src.v
 )
@@ -70,6 +80,8 @@ bearish_cross = crossunder(klinger.klinger, klinger.signal)
 price_low = src.c < min(period=20)(src.c[1])
 klinger_higher = klinger.klinger > klinger.klinger[20]
 bullish_div = price_low and klinger_higher
+
+trade_signal_executor()(enter_long=bullish_cross or bullish_div, enter_short=bearish_cross)
 ```
 
 ---
@@ -77,6 +89,8 @@ bullish_div = price_low and klinger_higher
 ## Chaikin Money Flow & MFI
 
 ```epochscript
+src = market_data_source()
+
 cmf = chaikin_money_flow(period=20)(src.h, src.l, src.c, src.v)
 mfi_val = mfi(period=14)(src.h, src.l, src.c, src.v)
 
@@ -91,6 +105,8 @@ mfi_overbought = mfi_val.result > 80
 # Combined signal
 entry = strong_acc and mfi_oversold
 exit = strong_dist or mfi_overbought
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -98,6 +114,8 @@ exit = strong_dist or mfi_overbought
 ## Volume-Confirmed Breakout
 
 ```epochscript
+src = market_data_source()
+
 # Multi-volume indicator confirmation
 obv_val = obv()(src.c, src.v)
 ad = ad_line()(src.h, src.l, src.c, src.v)
@@ -114,6 +132,8 @@ resistance = max(period=50)(src.h[1])
 breakout = src.c > resistance
 
 entry = breakout and volume_confirmed
+
+trade_signal_executor()(enter_long=entry)
 ```
 
 **Next:** [Advanced Momentum →](./advanced-momentum.md)

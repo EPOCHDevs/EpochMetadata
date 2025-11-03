@@ -20,6 +20,8 @@ For session filtering best practices, see [Guidelines & Best Practices](./guidel
 ## Order Blocks
 
 ```epochscript
+src = market_data_source()
+
 swings = swing_highs_lows(swing_length=5)(src.h, src.l)
 
 ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
@@ -29,6 +31,10 @@ bullish_ob = (ob.ob == 1) and (ob.mitigated_index == 0) and (ob.percentage > 70)
 at_block = src.c >= ob.bottom and src.c <= ob.top
 
 entry = bullish_ob and at_block
+
+trade_signal_executor()(
+    enter_long=entry
+)
 ```
 
 **close_mitigation:** `false` = wick touch mitigates (sensitive), `true` = close required (conservative). **Mitigation** = block tested (still valid support/resistance), **Breaker** = fully invalidated.
@@ -38,6 +44,9 @@ entry = bullish_ob and at_block
 ## Liquidity Zones & Sweeps
 
 ```epochscript
+src = market_data_source()
+
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
 liq = liquidity(range_percent=0.01)(swings.high_low, swings.level)
 
 # Sweep detection (stops grabbed, reversal imminent)
@@ -46,6 +55,10 @@ bsl_swept = (liq.swept > 0) and (liq.liquidity == 1)   # Buy-side liquidity
 
 # Reversal setup after sweep
 reversal = ssl_swept and (src.c > src.o)  # Bullish candle after SSL sweep
+
+trade_signal_executor()(
+    enter_long=reversal
+)
 ```
 
 **range_percent:** Clustering tolerance (0.01 = 1% of price range). Tighter = more granular liquidity detection.
@@ -55,6 +68,9 @@ reversal = ssl_swept and (src.c > src.o)  # Bullish candle after SSL sweep
 ## Market Structure (BOS/CHoCH)
 
 ```epochscript
+src = market_data_source()
+
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
 structure = bos_choch(close_break=true)(swings.high_low, swings.level)
 
 # BOS = trend continuation, CHoCH = potential reversal
@@ -65,6 +81,11 @@ bearish_choch = structure.choch_v == -1
 ob = order_blocks()(swings.high_low, swings.level)
 entry = bullish_bos and (ob.ob == 1) and (src.c >= ob.bottom)
 exit = bearish_choch
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)
 ```
 
 **close_break:** `false` = high/low break (early signals, more whipsaws), `true` = close break (delayed but fewer fakeouts).
@@ -74,6 +95,8 @@ exit = bearish_choch
 ## Fair Value Gaps
 
 ```epochscript
+src = market_data_source()
+
 fvg = fair_value_gap(join_consecutive=false)()
 
 # Gap fill retracement entry
@@ -81,6 +104,10 @@ gap_mid = (fvg.top + fvg.bottom) / 2
 at_fvg = (fvg.fvg == 1) and (src.c <= gap_mid)
 
 entry = at_fvg and (src.c > src.o)  # Bullish reaction at FVG
+
+trade_signal_executor()(
+    enter_long=entry
+)
 ```
 
 **join_consecutive:** `false` = each gap separate, `true` = merge adjacent gaps into zones. Merged zones = wider target areas.
@@ -90,6 +117,8 @@ entry = at_fvg and (src.c > src.o)  # Bullish reaction at FVG
 ## Session-Based Execution
 
 ```epochscript
+src = market_data_source()
+
 london = sessions(session_type="London")()
 ny = sessions(session_type="NewYork")()
 
@@ -109,6 +138,11 @@ killzone = session_time_window(
 )()
 
 entry_timing = killzone.active
+
+trade_signal_executor()(
+    enter_short=sweep_high and entry_timing,
+    enter_long=sweep_low and entry_timing
+)
 ```
 
 **London/NY overlap** (08:00-12:00 EST) = highest institutional volume. **Killzones** = specific hours with predictable institutional activity (London open, NY open).
@@ -118,6 +152,8 @@ entry_timing = killzone.active
 ## Multi-Factor SMC Strategy
 
 ```epochscript
+src = market_data_source()
+
 # Layer all SMC concepts
 swings = swing_highs_lows(swing_length=5)(src.h, src.l)
 
@@ -148,6 +184,11 @@ entry = (
 
 # Exit on opposite structure or OB
 exit = (structure.choch_v == -1) or (ob.ob == -1)
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)
 ```
 
 ---
@@ -155,6 +196,8 @@ exit = (structure.choch_v == -1) or (ob.ob == -1)
 ## Advanced: Session Range Manipulation
 
 ```epochscript
+src = market_data_source()
+
 # Detect session range manipulation pattern
 asia = sessions(session_type="Asian")()
 london = sessions(session_type="London")()
@@ -175,6 +218,11 @@ bullish_manipulation = swept_low
 
 entry = bullish_manipulation
 exit = bearish_manipulation
+
+trade_signal_executor()(
+    enter_long=entry,
+    exit_long=exit
+)
 ```
 
 **Next:** [Statistical Analysis →](./statistical-analysis.md)

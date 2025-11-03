@@ -59,6 +59,12 @@ Cannot mix strings with numbers in arithmetic operations.
 
 **Valid uses:**
 ```epochscript
+src = market_data_source()
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+bullish = fast > slow
+rsi = rsi(period=14)(src.c)
+
 direction = "UP" if bullish else "DOWN"
 label = conditional_select(rsi < 30, "OVERSOLD", rsi > 70, "OVERBOUGHT", "NEUTRAL")
 ```
@@ -129,8 +135,10 @@ labels = ["Buy", "Sell", "Hold"]
 Types are inferred automatically:
 
 ```epochscript
+src = market_data_source()
 price = src.c          # Inferred: Decimal series
 fast = ema(period=20)(price)  # Inferred: Decimal series
+slow = ema(period=50)(price)
 signal = fast > slow   # Inferred: Boolean series
 ```
 

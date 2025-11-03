@@ -60,9 +60,21 @@ rsi_val = rsi(period=14)(src.c)       # → Panel below chart
 
 # Mark important moments
 buy_signal = crossover(ema_20, src.c)
-event_marker(color_map={
-    Success: ["buy_signal"]
-})(buy_signal=buy_signal)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Buy Signals",
+        icon=Signal,
+        select_key="buy_signal#result",
+        schemas=[
+            CardColumnSchema(
+                column_id="buy_signal#result",
+                slot=Hero,
+                render_type=Text,
+                color_map={Success: ["buy_signal"]}
+            )
+        ]
+    )
+)(buy_signal)
 ```
 
 **Result:**

@@ -40,6 +40,7 @@ trade_signal_executor()(enter_long=signal)  # Required
 ```epochscript
 # NO trade_signal_executor
 # Outputs reports instead
+src = market_data_source()
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
     gaps.gap_filled,
@@ -57,6 +58,8 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 Research gap fill behavior across different markets and sessions.
 
 ```epochscript
+src = market_data_source()
+
 # Overnight gaps - session boundaries
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
@@ -88,25 +91,29 @@ london_gaps = session_gap(fill_percent=100, timeframe="1Min", session="London")(
 Research lead-lag relationships, stability, and cross-asset dynamics.
 
 ```epochscript
+src = market_data_source()
+
 # Lead-Lag Analysis: Does crypto volatility predict tech drawdowns?
-crypto_vol = volatility(period=20)(crypto.c)
-tech_dd = ulcer_index(period=20)(tech.c)
+crypto_vol = volatility(period=20)(src.c)
+tech_dd = ulcer_index(period=20)(src.c)
 concurrent_corr = rolling_corr(window=20)(x=crypto_vol, y=tech_dd)
-lag5_corr = rolling_corr(window=20)(x=crypto_vol[5], y=tech_dd)  # 5-day lag
+# 5-day lag: shift crypto_vol forward by 5 periods
+crypto_vol_lag5 = lag(period=5)(crypto_vol)
+lag5_corr = rolling_corr(window=20)(x=crypto_vol_lag5, y=tech_dd)
 
 # Stability: Short vs long window (regime shifts when divergence > 0.3)
-corr_short = rolling_corr(window=20)(x=asset1.c, y=asset2.c)
-corr_long = rolling_corr(window=60)(x=asset1.c, y=asset2.c)
+corr_short = rolling_corr(window=20)(x=src.c, y=src.c)
+corr_long = rolling_corr(window=60)(x=src.c, y=src.c)
 regime_shift = abs(corr_short - corr_long) > 0.3
 
 # Cross-Asset Matrix: Pairwise correlations for diversification analysis
-corr_ab = rolling_corr(window=60)(x=asset_a.c, y=asset_b.c)
-corr_ac = rolling_corr(window=60)(x=asset_a.c, y=asset_c.c)
+corr_ab = rolling_corr(window=60)(x=src.c, y=src.c)
+corr_ac = rolling_corr(window=60)(x=src.c, y=src.c)
 avg_corr = (corr_ab + corr_ac) / 2.0  # Diversification measure
 
 # Table report for time series analysis
-table_report(sql="SELECT date, concurrent_corr, lag5_corr FROM input ORDER BY date DESC LIMIT 100")(
-    date=timestamp, concurrent_corr=concurrent_corr, lag5_corr=lag5_corr
+table_report(sql="SELECT SLOT0 as concurrent_corr, SLOT1 as lag5_corr FROM self LIMIT 100")(
+    concurrent_corr, lag5_corr
 )
 ```
 
@@ -119,21 +126,27 @@ table_report(sql="SELECT date, concurrent_corr, lag5_corr FROM input ORDER BY da
 Analyze pattern frequency, success rates, and directional bias.
 
 ```epochscript
+src = market_data_source()
+
 # Head & Shoulders: Occurrence and target hit rate
-hs = head_and_shoulders(tolerance=0.02)()
-breakdown = src.c < hs.neckline
+hs = head_and_shoulders()()
+breakdown = src.c < hs.neckline_level
 target_hit = src.c <= hs.target
 
-# Triangle Breakouts: Pattern type vs direction vs returns
-tri = triangles(min_pattern_bars=15)()
-breakout_up = tri.breakout and (src.c > tri.upper_line)
+# Triangle Breakouts: Pattern type and detection
+tri = triangles()()
 future_return_5 = forward_returns(period=5)(src.c)  # Research only
 
 # Table analysis
 table_report(sql="""
-    SELECT COUNT(*) as count, AVG(target_hit) as success_rate
-    FROM input WHERE pattern_detected = 1
-""")(pattern_detected=hs.pattern_detected, target_hit=target_hit)
+    SELECT
+        COUNT(*) as count,
+        AVG(SLOT0) as success_rate,
+        SLOT1 as triangle_type
+    FROM self
+    WHERE SLOT2 = true
+    GROUP BY SLOT1
+""")(target_hit, tri.triangle_type, hs.pattern_detected)
 ```
 
 ---
@@ -145,14 +158,16 @@ table_report(sql="""
 **Question:** How long does momentum persist?
 
 ```epochscript
-# Current momentum
-momentum_now = roc(period=20)(close)
+src = market_data_source()
 
-# Future returns at various horizons
-return_1d = (close[-1] - close) / close
-return_5d = (close[-5] - close) / close
-return_10d = (close[-10] - close) / close
-return_20d = (close[-20] - close) / close
+# Current momentum
+momentum_now = roc(period=20)(src.c)
+
+# Future returns at various horizons (RESEARCH ONLY - look-ahead bias)
+return_1d = forward_returns(period=1)(src.c)
+return_5d = forward_returns(period=5)(src.c)
+return_10d = forward_returns(period=10)(src.c)
+return_20d = forward_returns(period=20)(src.c)
 
 # Correlation between current momentum and future returns
 corr_1d = rolling_corr(window=252)(x=momentum_now, y=return_1d)
@@ -164,28 +179,28 @@ corr_20d = rolling_corr(window=252)(x=momentum_now, y=return_20d)
 table_report(sql="""
     SELECT
         '1 Day' as horizon,
-        AVG(corr_1d) as avg_correlation
-    FROM input
+        AVG(SLOT0) as avg_correlation
+    FROM self
     UNION ALL
     SELECT
         '5 Days' as horizon,
-        AVG(corr_5d) as avg_correlation
-    FROM input
+        AVG(SLOT1) as avg_correlation
+    FROM self
     UNION ALL
     SELECT
         '10 Days' as horizon,
-        AVG(corr_10d) as avg_correlation
-    FROM input
+        AVG(SLOT2) as avg_correlation
+    FROM self
     UNION ALL
     SELECT
         '20 Days' as horizon,
-        AVG(corr_20d) as avg_correlation
-    FROM input
+        AVG(SLOT3) as avg_correlation
+    FROM self
 """)(
-    corr_1d=corr_1d,
-    corr_5d=corr_5d,
-    corr_10d=corr_10d,
-    corr_20d=corr_20d
+    corr_1d,
+    corr_5d,
+    corr_10d,
+    corr_20d
 )
 ```
 
@@ -199,16 +214,18 @@ table_report(sql="""
 **Question:** Do value and momentum work together?
 
 ```epochscript
+src = market_data_source()
+
 # Value factor (from fundamentals)
 ratios = financial_ratios()
 pe = ratios.price_to_earnings
 value_score = 1.0 / pe  # Low P/E = high value score
 
 # Momentum factor
-momentum = roc(period=60)(close)
+momentum = roc(period=60)(src.c)
 
-# Future returns
-return_20d = (close[-20] - close) / close
+# Future returns (RESEARCH ONLY - look-ahead bias)
+return_20d = forward_returns(period=20)(src.c)
 
 # Bucket by value and momentum
 value_high = value_score > value_score[252]  # Above 1-year median
@@ -232,7 +249,7 @@ table_report(sql="""
         AVG(return_20d) as avg_return,
         STDDEV(return_20d) as volatility,
         COUNT(*) as count
-    FROM input
+    FROM self
     GROUP BY strategy
 """)(
     value_momentum=value_momentum,
@@ -256,7 +273,7 @@ src = market_data_source()
 
 # Turn-of-month window
 tom = turn_of_month(days_before=3, days_after=5)()
-in_tom = tom.in_window
+in_tom = tom.result
 
 # Daily returns
 daily_return = (src.c - src.c[1]) / src.c[1]
@@ -265,17 +282,17 @@ daily_return = (src.c - src.c[1]) / src.c[1]
 table_report(sql="""
     SELECT
         CASE
-            WHEN in_tom = 1 THEN 'Turn-of-Month'
+            WHEN SLOT0 = 1 THEN 'Turn-of-Month'
             ELSE 'Other Days'
         END as period,
-        AVG(daily_return) as avg_return,
-        STDDEV(daily_return) as volatility,
+        AVG(SLOT1) as avg_return,
+        STDDEV(SLOT1) as volatility,
         COUNT(*) as trading_days
-    FROM input
+    FROM self
     GROUP BY period
 """)(
-    in_tom=in_tom,
-    daily_return=daily_return
+    in_tom,
+    daily_return
 )
 ```
 
@@ -309,15 +326,15 @@ table_report(sql="""
         AVG(daily_return) as avg_return,
         STDDEV(daily_return) as volatility,
         COUNT(*) as count
-    FROM input
+    FROM self
     GROUP BY day_of_week
     ORDER BY avg_return DESC
 """)(
-    monday=monday.is_target_day,
-    tuesday=tuesday.is_target_day,
-    wednesday=wednesday.is_target_day,
-    thursday=thursday.is_target_day,
-    friday=friday.is_target_day,
+    monday=monday.result,
+    tuesday=tuesday.result,
+    wednesday=wednesday.result,
+    thursday=thursday.result,
+    friday=friday.result,
     daily_return=daily_return
 )
 ```
@@ -345,14 +362,14 @@ table_report(sql="""
         month_name,
         AVG(monthly_return) as avg_monthly_return,
         COUNT(*) as sample_count
-    FROM input
+    FROM self
     GROUP BY month_name
     ORDER BY avg_monthly_return DESC
 """)(
     month_name=conditional_select(
-        jan.is_target_month, "January",
-        feb.is_target_month, "February",
-        mar.is_target_month, "March",
+        jan.result, "January",
+        feb.result, "February",
+        mar.result, "March",
         # ... (all months)
         "December"
     ),
@@ -373,37 +390,26 @@ src = market_data_source()
 
 # Features (current)
 rsi_val = rsi(period=14)(src.c)
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+macd_line = mac.macd
 vol = volatility(period=20)(src.c)
 momentum = roc(period=20)(src.c)
 
-# Target variable (5-day forward return)
-forward_return_5d = (src.c[-5] - src.c) / src.c  # Look-ahead (research only)
-
-# Binary classification target
-target_positive = forward_return_5d > 0.02  # 2% gain
-
-# Export for ML model training
+# Export features for ML model training
+# Note: Target variable (forward returns) must be calculated in your ML pipeline
+# using future price data, as EpochScript doesn't support forward-looking references
 table_report(sql="""
     SELECT
-        date,
-        rsi_val,
-        macd_line,
-        vol,
-        momentum,
-        forward_return_5d,
-        target_positive
-    FROM input
-    WHERE forward_return_5d IS NOT NULL
-    ORDER BY date DESC
+        SLOT0 as rsi_val,
+        SLOT1 as macd_line,
+        SLOT2 as vol,
+        SLOT3 as momentum
+    FROM self
 """)(
-    date=timestamp,
-    rsi_val=rsi_val,
-    macd_line=macd_line,
-    vol=vol,
-    momentum=momentum,
-    forward_return_5d=forward_return_5d,
-    target_positive=target_positive
+    rsi_val,
+    macd_line,
+    vol,
+    momentum
 )
 ```
 
@@ -421,6 +427,8 @@ table_report(sql="""
 ### 1. Document Assumptions
 
 ```epochscript
+src = market_data_source()
+
 # GOOD: Clear assumptions
 # Assumption: Gaps > 1.5% are significant for SPY
 # Assumption: 100% fill = gap completely closed
@@ -430,6 +438,8 @@ gaps = session_gap(fill_percent=100, timeframe="1Min")()
 ### 2. Test Multiple Parameters
 
 ```epochscript
+src = market_data_source()
+
 # Test different thresholds
 gap_small = session_gap(fill_percent=100, min_gap_size=0.5)()
 gap_medium = session_gap(fill_percent=100, min_gap_size=1.0)()
@@ -441,14 +451,17 @@ gap_large = session_gap(fill_percent=100, min_gap_size=2.0)()
 ### 3. Check Sample Size
 
 ```epochscript
+src = market_data_source()
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
 table_report(sql="""
     SELECT
         COUNT(*) as total_gaps,
         SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled_count,
         AVG(gap_size) as avg_size
-    FROM input
+    FROM self
     WHERE gap_size > 1.0
-""")( ... )
+""")(gap_filled=gaps.gap_filled, gap_size=gaps.gap_size)
 ```
 
 ### 4. Look for Robustness
@@ -483,6 +496,8 @@ Results appear in a dedicated **Research Dashboard** (separate from live trading
 ### Workflow: Run → Review → Refine
 
 ```epochscript
+src = market_data_source()
+
 # 1. Run research script
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
@@ -515,7 +530,7 @@ numeric_card_report()(
 table_report(sql="""
     SELECT COUNT(*) as occurrences, AVG(fwd_1d) as avg_return,
            SUM(CASE WHEN fwd_1d > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as win_rate
-    FROM input WHERE hammer = 1
+    FROM self WHERE hammer = 1
 """)(hammer=hammer, fwd_1d=fwd_1d)
 
 # Histogram: Return distribution
@@ -526,14 +541,16 @@ histogram_chart_report(bins=20)(returns=fwd_1d)
 
 ```epochscript
 # Research (uses forward_returns)
+src = market_data_source()
 rsi_val = rsi(period=14)(src.c)
 oversold = rsi_val < 30
 fwd_returns = forward_returns(period=5)(src.c)  # Look-ahead allowed
-table_report(sql="SELECT AVG(fwd_returns), COUNT(*) FROM input WHERE oversold = 1")(
+table_report(sql="SELECT AVG(fwd_returns), COUNT(*) FROM self WHERE oversold = 1")(
     oversold=oversold, fwd_returns=fwd_returns
 )
 
 # Convert to Trading Strategy (NO look-ahead)
+src = market_data_source()
 rsi_val = rsi(period=14)(src.c)
 buy = rsi_val < 30
 trade_signal_executor()(enter_long=buy, exit_long=(rsi_val > 70))
@@ -548,17 +565,22 @@ trade_signal_executor()(enter_long=buy, exit_long=(rsi_val > 70))
 
 **Common Patterns:**
 ```epochscript
+src = market_data_source()
+
 # Segmentation: Analyze by market regime
+regime = volatility(period=20)(src.c) > 0.02  # Example regime definition
+fwd_returns = forward_returns(period=5)(src.c)
 table_report(sql="""
     SELECT regime, COUNT(*), AVG(return),
            SUM(CASE WHEN return > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as win_rate
-    FROM input GROUP BY regime
+    FROM self GROUP BY regime
 """)(regime=regime, return=fwd_returns)
 
 # Time-based: Calendar effects
+returns = (src.c - src.c[1]) / src.c[1]
 table_report(sql="""
     SELECT dow, hour, AVG(returns), COUNT(*)
-    FROM input GROUP BY dow, hour ORDER BY dow, hour
+    FROM self GROUP BY dow, hour ORDER BY dow, hour
 """)(dow=day_of_week()(), hour=hour_of_day()(), returns=returns)
 ```
 

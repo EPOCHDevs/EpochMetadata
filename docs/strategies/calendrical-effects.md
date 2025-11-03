@@ -16,6 +16,8 @@ Calendar-based timing filters: holiday effect, month/week patterns, turn-of-mont
 ## Calendar Scoring System
 
 ```epochscript
+src = market_data_source()
+
 current_month = month()
 dow = day_of_week()
 
@@ -64,6 +66,8 @@ entry_unfavorable = (not favorable_calendar) and strong_setup
 
 entry = entry_favorable or entry_unfavorable
 exit = calendar_score <= -2  # Very unfavorable
+
+trade_signal_executor(entry, exit)
 ```
 
 ---
@@ -71,6 +75,8 @@ exit = calendar_score <= -2  # Very unfavorable
 ## Session Range Manipulation (Quarter-End)
 
 ```epochscript
+src = market_data_source()
+
 current_month = month()
 
 quarter_end_month = (
@@ -93,6 +99,8 @@ avoid_losers = late_quarter and losers
 
 entry = buy_winners
 exit = avoid_losers
+
+trade_signal_executor(entry, exit)
 ```
 
 ---
@@ -100,6 +108,8 @@ exit = avoid_losers
 ## Advanced: Multi-Factor Calendar Filter
 
 ```epochscript
+src = market_data_source()
+
 # All calendar effects
 current_month = month()
 dow = day_of_week()
@@ -145,6 +155,8 @@ aggressive_entry = risk_on_calendar and signal
 conservative_entry = risk_off_calendar and signal and (rsi(period=14)(src.c) < 30)
 
 entry = aggressive_entry or conservative_entry
+
+trade_signal_executor(entry)
 ```
 
 **Warning:** Calendar effects have weakened significantly. Use as timing filters, not primary signals. Always combine with technical/fundamental analysis.

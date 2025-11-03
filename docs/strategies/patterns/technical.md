@@ -147,8 +147,8 @@ trade_signal_executor()(
 src = market_data_source()
 
 # MACD
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
-histogram = macd_line - signal_line
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+histogram = mac.macd - mac.macd_signal
 
 # Price extremes
 price_high = src.c > src.c[20]

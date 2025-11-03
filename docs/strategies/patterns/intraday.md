@@ -48,6 +48,8 @@ trade_signal_executor()(
 **Strategy:** Fade large overnight gaps (mean reversion)
 
 ```epochscript
+src = market_data_source()
+
 # Detect overnight gaps
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
@@ -84,11 +86,11 @@ in_kill_zone = ny_kz.active
 
 # Momentum indicators
 rsi_val = rsi(period=14)(src.c)
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
 
 # Strong momentum signals
-strong_bullish = (rsi_val > 60) and (macd_line > signal_line)
-strong_bearish = (rsi_val < 40) and (macd_line < signal_line)
+strong_bullish = (rsi_val > 60) and (mac.macd > mac.macd_signal)
+strong_bearish = (rsi_val < 40) and (mac.macd < mac.macd_signal)
 
 # Only trade during kill zone
 entry_long = in_kill_zone and strong_bullish
@@ -167,7 +169,16 @@ high_volume = src.v > (avg_vol * 1.3)
 entry_long = breakout_up and high_volume
 entry_short = breakout_down and high_volume
 
-trade_signal_executor()(enter_long=entry_long, enter_short=entry_short)
+# Stop at opposite side of range
+stop_long = src.c < or_low
+stop_short = src.c > or_high
+
+trade_signal_executor()(
+    enter_long=entry_long,
+    enter_short=entry_short,
+    exit_long=stop_long,
+    exit_short=stop_short
+)
 ```
 
 ---

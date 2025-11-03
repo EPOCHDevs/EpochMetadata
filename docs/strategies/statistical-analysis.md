@@ -16,6 +16,8 @@ HMM regime detection, Hurst exponent, linear regression, correlation analysis.
 ## Hidden Markov Model
 
 ```epochscript
+src = market_data_source()
+
 returns = (src.c / src.c[1] - 1) * 100
 vol = volatility(period=20)(src.c)
 volume_ratio = src.v / sma(period=20)(src.v)
@@ -35,6 +37,8 @@ bear_regime = (hmm.state == 0) and (hmm.state_probability > 0.7)
 # Regime transition detection
 regime_change = hmm.state != hmm.state[1]
 exit_on_change = regime_change  # Exit when regime shifts
+
+trade_signal_executor()(enter_long=bull_regime, exit_long=exit_on_change)
 ```
 
 **n_states:** 3 = bull/neutral/bear, 5 = more granular (crash/bear/neutral/bull/euphoria). **lookback_window:** Rolling training window (252 = 1-year adaptive). **State ordering:** Not guaranteed—inspect `state_probability` and price behavior to map states.
@@ -44,6 +48,8 @@ exit_on_change = regime_change  # Exit when regime shifts
 ## Hurst Exponent
 
 ```epochscript
+src = market_data_source()
+
 returns = (src.c / src.c[1] - 1) * 100
 
 # Rolling Hurst for adaptive regime detection
@@ -63,6 +69,8 @@ entry = conditional_select(
     trending, tf_signal,         # Trend-follow when H>0.55
     false                        # Avoid random walk
 )
+
+trade_signal_executor()(enter_long=entry)
 ```
 
 **Rolling vs Expanding:** `rolling_hurst_exponent(window=252)` = adaptive, `hurst_exponent(min_period=100)` = expanding (less responsive). **Lag grid:** Automatically scaled by window size—no manual tuning required.
@@ -72,6 +80,8 @@ entry = conditional_select(
 ## Linear Regression
 
 ```epochscript
+src = market_data_source()
+
 bar_index = cumsum(1)
 reg = linear_fit(window=50)(x=bar_index, y=src.c)
 
@@ -85,13 +95,15 @@ underextended = reg.residual < -2
 
 # Regression channel
 fitted = reg.intercept + (reg.slope * bar_index)
-std_dev = stdev(period=50)(reg.residual)
+std_dev = stddev(period=50)(reg.residual)
 upper_band = fitted + (2 * std_dev)
 lower_band = fitted - (2 * std_dev)
 
 # Mean reversion to channel
 entry = strong_uptrend and underextended and (src.c < lower_band)
 exit = overextended or (src.c > upper_band)
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 **Slope units:** Points per bar (e.g., slope=0.5 = +0.5 price units per bar). **Residual:** Actual - fitted value (not standardized—use with stdev for z-score equivalent).
@@ -101,7 +113,9 @@ exit = overextended or (src.c > upper_band)
 ## Z-Score
 
 ```epochscript
-price_z = zscore(period=20)(src.c)
+src = market_data_source()
+
+price_z = zscore(window=20)(src.c)
 
 # Standardized thresholds
 oversold = price_z < -2
@@ -109,11 +123,11 @@ overbought = price_z > 2
 
 # RSI z-score (more robust than fixed 30/70)
 rsi_val = rsi(period=14)(src.c)
-rsi_z = zscore(period=60)(rsi_val)
+rsi_z = zscore(window=60)(rsi_val)
 extreme_oversold = rsi_z < -1.5
 
 # Volume spike detection
-vol_z = zscore(period=20)(src.v)
+vol_z = zscore(window=20)(src.v)
 unusual_volume = vol_z > 2
 ```
 
@@ -124,6 +138,9 @@ unusual_volume = vol_z > 2
 ## Correlation & Covariance
 
 ```epochscript
+src = market_data_source()
+spy = market_data_source(symbol="SPY")
+
 spy_ret = (spy.c / spy.c[1] - 1) * 100
 stock_ret = (src.c / src.c[1] - 1) * 100
 
@@ -137,10 +154,12 @@ correlation_breaking = (ewm_corr.result < 0.5) and (corr.result > 0.7)
 
 # Pairs trade setup
 spread = src.c - spy.c
-spread_z = zscore(period=60)(spread)
+spread_z = zscore(window=60)(spread)
 
 entry = cointegrated and (spread_z < -2) and not correlation_breaking
 exit = spread_z > 0 or correlation_breaking
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 **EWM vs Rolling:** EWM reacts faster to correlation changes (good for dynamic hedging), rolling more stable (good for pair selection).
@@ -150,6 +169,8 @@ exit = spread_z > 0 or correlation_breaking
 ## Advanced: HMM + Hurst Adaptive Strategy
 
 ```epochscript
+src = market_data_source()
+
 # Combine probabilistic and fractal regime detection
 returns = (src.c / src.c[1] - 1) * 100
 vol = volatility(period=20)(src.c)
@@ -177,11 +198,13 @@ pullback = reg.residual < -1.5
 
 # Bull+Mean-reverting = buy extreme dips
 bull_mr = bull_state and mean_reverting
-price_z = zscore(period=20)(src.c)
+price_z = zscore(window=20)(src.c)
 extreme_dip = price_z < -2.5
 
 entry = (bull_trend and pullback) or (bull_mr and extreme_dip)
 exit = not bull_state or (hmm.state != hmm.state[1])  # Exit on regime change
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -208,12 +231,14 @@ highly_correlated = corr.result > 0.75
 tradeable = valid_pair and highly_correlated
 
 # Mean reversion entry
-spread_z = zscore(period=60)(spread)
+spread_z = zscore(window=60)(spread)
 entry_long_a = tradeable and (spread_z < -2)
 entry_short_a = tradeable and (spread_z > 2)
 
 # Exit on stationarity breakdown
 exit = not valid_pair or not highly_correlated or (abs(spread_z) < 0.5)
+
+trade_signal_executor()(enter_long=entry_long_a, exit_long=exit)
 ```
 
 **Next:** [Advanced Volatility →](./advanced-volatility.md)

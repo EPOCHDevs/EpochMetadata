@@ -20,6 +20,8 @@ This covers exotic momentum indicators. For basic RSI/MACD strategies, see [Tech
 ## Fisher Transform
 
 ```epochscript
+src = market_data_source()
+
 fisher = fisher_transform(period=10)(src.h, src.l)
 
 # Extreme reversal signals
@@ -32,6 +34,8 @@ bearish_cross = crossunder(fisher.fisher, fisher.signal)
 
 entry = fisher_oversold and bullish_cross
 exit = fisher_overbought or bearish_cross
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 **Sharp turning points:** Extreme values (±2) + crossover = high-probability reversals.
@@ -40,7 +44,10 @@ exit = fisher_overbought or bearish_cross
 
 ## Ultimate Oscillator
 
+<!-- NOTE: ultimate_oscillator is not yet implemented in EpochScript
 ```epochscript
+src = market_data_source()
+
 uo = ultimate_oscillator(fast=7, mid=14, slow=28)(src.h, src.l, src.c)
 
 # Divergence at extremes
@@ -54,12 +61,15 @@ uo_lower_high = uo.result < uo.result[20]
 
 bearish_div = price_higher_high and uo_lower_high and (uo.result > 70)
 ```
+-->
 
 ---
 
 ## TRIX
 
 ```epochscript
+src = market_data_source()
+
 trix_val = trix(period=14)(src.c)
 
 # Zero-line crosses
@@ -75,6 +85,8 @@ bearish_signal = crossunder(trix_val.trix, trix_val.signal)
 
 entry = bullish_trend and bullish_signal
 exit = bear_cross or bearish_signal
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
@@ -82,6 +94,8 @@ exit = bear_cross or bearish_signal
 ## Qstick
 
 ```epochscript
+src = market_data_source()
+
 qstick_val = qstick(period=14)(src.o, src.c)
 
 # Candle momentum
@@ -96,13 +110,18 @@ distribution = price_rising and qstick_falling  # Hidden weakness
 
 entry = (qstick_val.result > 0.3) and (qstick_val.result > qstick_val.result[3])
 exit = distribution
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
 
 ---
 
 ## Multi-Oscillator Confirmation
 
+<!-- NOTE: ultimate_oscillator is not yet implemented in EpochScript
 ```epochscript
+src = market_data_source()
+
 fisher = fisher_transform(period=10)(src.h, src.l)
 uo = ultimate_oscillator()(src.h, src.l, src.c)
 trix_val = trix(period=14)(src.c)
@@ -130,6 +149,9 @@ fisher_ob = fisher.fisher > 2.0
 trix_bearish = crossunder(trix_val.trix, 0)
 
 exit = fisher_ob or trix_bearish
+
+trade_signal_executor()(enter_long=entry, exit_long=exit)
 ```
+-->
 
 **Next:** [Candlestick Patterns →](./candlestick-patterns.md)

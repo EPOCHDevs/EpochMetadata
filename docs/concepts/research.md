@@ -104,26 +104,26 @@ volume = src.v
 table_report(sql="""
     SELECT
         CASE
-            WHEN rsi_val < 30 THEN 'Oversold'
-            WHEN rsi_val > 70 THEN 'Overbought'
+            WHEN SLOT0 < 30 THEN 'Oversold'
+            WHEN SLOT0 > 70 THEN 'Overbought'
             ELSE 'Neutral'
         END as regime,
-        AVG(returns) as avg_return,
-        STDDEV(returns) as volatility,
-        AVG(volume) as avg_volume,
+        AVG(SLOT1) as avg_return,
+        STDDEV(SLOT1) as volatility,
+        AVG(SLOT2) as avg_volume,
         COUNT(*) as count
-    FROM input
+    FROM self
     GROUP BY regime
     ORDER BY avg_return DESC
 """)(
-    rsi_val=rsi_val,
-    returns=returns,
-    volume=volume
+    rsi_val,    # SLOT0
+    returns,    # SLOT1
+    volume      # SLOT2
 )
 ```
 
 **Dashboard table:**
-```
+```text
 ┌─────────────┬─────────────┬────────────┬─────────────┬───────┐
 │ Regime      │ Avg Return  │ Volatility │ Avg Volume  │ Count │
 ├─────────────┼─────────────┼────────────┼─────────────┼───────┤
@@ -135,32 +135,35 @@ table_report(sql="""
 
 ### SQL Column Mapping
 
-**Input parameter names become SQL column names:**
+**Inputs are accessed as SLOT0, SLOT1, SLOT2, etc. in order:**
 
 ```epochscript
-# Input parameter names map to SQL columns
+# Inputs map to SLOT columns by position
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
 
 table_report(sql="""
-    SELECT AVG(returns), AVG(rsi_val)
-    FROM input
+    SELECT AVG(SLOT0), AVG(SLOT1)
+    FROM self
 """)(
-    returns=returns,    # "returns" column in SQL
-    rsi_val=rsi_val     # "rsi_val" column in SQL
+    returns,    # SLOT0
+    rsi_val     # SLOT1
 )
 ```
 
 :::warning
-**Column names must match exactly**
+**Use SLOT* column names**
 
-SQL column names must match input parameter names:
+SQL must reference inputs as SLOT0, SLOT1, SLOT2, etc.:
 ```epochscript
-# ❌ WRONG: SQL uses 'return' but input is 'returns'
-table_report(sql="SELECT AVG(return) FROM input")(returns=ret)
+src = market_data_source()
+returns = (src.c - src.c[1]) / src.c[1]
 
-# ✅ CORRECT: Names match
-table_report(sql="SELECT AVG(returns) FROM input")(returns=ret)
+# ❌ WRONG: Using variable names
+table_report(sql="SELECT AVG(returns) FROM self")(returns)
+
+# ✅ CORRECT: Use SLOT0
+table_report(sql="SELECT AVG(SLOT0) FROM self")(returns)
 ```
 :::
 
@@ -169,14 +172,25 @@ table_report(sql="SELECT AVG(returns) FROM input")(returns=ret)
 **Aggregation by group:**
 
 ```epochscript
+src = market_data_source()
+returns = (src.c - src.c[1]) / src.c[1]
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+regime_label = conditional_select(
+    oversold, "Oversold",
+    overbought, "Overbought",
+    "Neutral"
+)
+
 table_report(sql="""
     SELECT
-        regime,
-        AVG(returns) as avg_return,
+        SLOT0 as regime,
+        AVG(SLOT1) as avg_return,
         COUNT(*) as count
-    FROM input
-    GROUP BY regime
-""")(regime=regime_label, returns=returns)
+    FROM self
+    GROUP BY SLOT0
+""")(regime_label, returns)
 ```
 
 **Time-based analysis:**
@@ -184,12 +198,12 @@ table_report(sql="""
 ```epochscript
 table_report(sql="""
     SELECT
-        EXTRACT(HOUR FROM timestamp) as hour,
-        AVG(volume) as avg_volume
-    FROM input
+        EXTRACT(HOUR FROM SLOT0) as hour,
+        AVG(SLOT1) as avg_volume
+    FROM self
     GROUP BY hour
     ORDER BY hour
-""")(timestamp=src.t, volume=src.v)
+""")(src.t, src.v)
 ```
 
 **Conditional aggregation:**
@@ -198,14 +212,14 @@ table_report(sql="""
 table_report(sql="""
     SELECT
         CASE
-            WHEN rsi < 30 THEN 'Oversold'
-            WHEN rsi > 70 THEN 'Overbought'
+            WHEN SLOT0 < 30 THEN 'Oversold'
+            WHEN SLOT0 > 70 THEN 'Overbought'
             ELSE 'Neutral'
         END as condition,
-        AVG(returns) as performance
-    FROM input
+        AVG(SLOT1) as performance
+    FROM self
     GROUP BY condition
-""")(rsi=rsi_val, returns=returns)
+""")(rsi_val, returns)
 ```
 
 :::tip
@@ -341,20 +355,20 @@ gap_report(fill_time_pivot_hour=12)(
 # RSI regime analysis
 table_report(sql="""
     SELECT
-        CASE WHEN rsi_val < 30 THEN 'Oversold'
-             WHEN rsi_val > 70 THEN 'Overbought'
+        CASE WHEN SLOT0 < 30 THEN 'Oversold'
+             WHEN SLOT0 > 70 THEN 'Overbought'
              ELSE 'Neutral'
         END as regime,
-        AVG(returns) as avg_return,
+        AVG(SLOT1) as avg_return,
         COUNT(*) as count
-    FROM input
+    FROM self
     GROUP BY regime
-""")(rsi_val=rsi_val, returns=returns)
+""")(rsi_val, returns)
 
-# Return distribution
-histogram_chart_report(bins=30, title="Return Distribution")(
-    returns=returns
-)
+# Return distribution (commented out - histogram_chart_report requires 'category' option)
+# histogram_chart_report(bins=30, title="Return Distribution")(
+#     returns=returns
+# )
 ```
 
 All reports appear in the dashboard with separate sections.

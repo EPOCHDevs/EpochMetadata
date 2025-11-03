@@ -16,6 +16,8 @@ Objective trend/range classification, volatility states, multi-indicator regime 
 ## Vortex Indicator
 
 ```epochscript
+src = market_data_source()
+
 vtx = vortex(period=14)(src.h, src.l, src.c)
 
 # Direction
@@ -30,6 +32,8 @@ weak_choppy = spread < 0.05
 # Crossover signals
 cross_bull = crossover(vtx.plus_indicator, vtx.minus_indicator)
 cross_bear = crossunder(vtx.plus_indicator, vtx.minus_indicator)
+
+trade_signal_executor(entry=cross_bull, exit=cross_bear)
 ```
 
 **Interpretation:** Spread > 0.15 = strong directional, < 0.05 = ranging/choppy. Crossovers similar to DMI.
@@ -39,14 +43,17 @@ cross_bear = crossunder(vtx.plus_indicator, vtx.minus_indicator)
 ## ADX / DMI
 
 ```epochscript
-adx_result = adx(period=14)(src.h, src.l, src.c)
+src = market_data_source()
+
+adx_val = adx(period=14)(src.h, src.l, src.c)
+di_result = di(period=14)(src.h, src.l, src.c)
 
 # Trend strength (direction-agnostic)
-strong_trend = adx_result.adx > 25
-ranging = adx_result.adx < 20
+strong_trend = adx_val > 25
+ranging = adx_val < 20
 
 # Direction
-bullish = adx_result.plus_di > adx_result.minus_di
+bullish = di_result.plus_di > di_result.minus_di
 
 # Regime classification
 strong_uptrend = strong_trend and bullish
@@ -61,13 +68,20 @@ entry = conditional_select(
     ranging, mr_signal,           # Mean-revert in ranges
     false
 )
+
+exit = not strong_trend
+
+trade_signal_executor(entry=entry, exit=exit)
 ```
 
 ---
 
 ## Volatility Regimes
 
+<!-- NOTE: percentile is not yet implemented in EpochScript. Use manual percentile calculation or fixed thresholds instead.
 ```epochscript
+src = market_data_source()
+
 vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
 
 # Percentile-based regimes
@@ -88,26 +102,53 @@ contracting = vol.result < vol_ma * 0.8
 # Vol breakout
 vol_squeeze = contracting[5] and expanding
 ```
+-->
+
+```epochscript
+src = market_data_source()
+
+vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
+
+# Alternative: Use fixed thresholds or moving averages
+vol_ma = sma(period=252)(vol.result)
+vol_std = stddev(period=252)(vol.result)
+
+# Z-score based regimes (approximate percentiles)
+vol_z = (vol.result - vol_ma) / vol_std
+very_low = vol_z < -0.84   # ~20th percentile
+low_normal = vol_z >= -0.84 and vol_z < 0
+normal_high = vol_z >= 0 and vol_z < 0.84
+high_vol = vol_z >= 0.84   # ~80th percentile
+
+# Expansion/contraction
+expanding = vol.result > vol_ma * 1.2
+contracting = vol.result < vol_ma * 0.8
+
+# Vol breakout
+vol_squeeze = contracting[5] and expanding
+```
 
 ---
 
 ## Trend vs Range Detection
 
 ```epochscript
+src = market_data_source()
+
 # Multi-indicator confirmation
-adx_result = adx(period=14)(src.h, src.l, src.c)
+adx_val = adx(period=14)(src.h, src.l, src.c)
 vtx = vortex(period=14)(src.h, src.l, src.c)
 vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
 
 # Trending = ADX + Vortex confirm + reasonable vol
-adx_trending = adx_result.adx > 25
+adx_trending = adx_val > 25
 vtx_strong = abs(vtx.plus_indicator - vtx.minus_indicator) > 0.12
 vol_ok = vol.result < 0.30
 
 trending = adx_trending and vtx_strong and vol_ok
 
 # Ranging = low ADX + low vortex spread
-adx_ranging = adx_result.adx < 20
+adx_ranging = adx_val < 20
 vtx_weak = abs(vtx.plus_indicator - vtx.minus_indicator) < 0.08
 
 ranging = adx_ranging and vtx_weak and vol_ok
@@ -121,8 +162,11 @@ chaos = vol.result >= 0.30
 ## Multi-Regime Scoring System
 
 ```epochscript
+src = market_data_source()
+
 # Combine all indicators
-adx_result = adx(period=14)(src.h, src.l, src.c)
+adx_val = adx(period=14)(src.h, src.l, src.c)
+di_result = di(period=14)(src.h, src.l, src.c)
 vtx = vortex(period=14)(src.h, src.l, src.c)
 vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
 
@@ -137,20 +181,25 @@ hmm = hidden_markov_model(n_states=3, lookback_window=252)(
 
 # Regime scores
 trending_score = (
-    conditional_select(adx_result.adx > 25, 1, 0) +
+    conditional_select(adx_val > 25, 1, 0) +
     conditional_select(abs(vtx.plus_indicator - vtx.minus_indicator) > 0.12, 1, 0)
 )
 
 bullish_score = (
-    conditional_select(adx_result.plus_di > adx_result.minus_di, 1, 0) +
+    conditional_select(di_result.plus_di > di_result.minus_di, 1, 0) +
     conditional_select(vtx.plus_indicator > vtx.minus_indicator, 1, 0) +
     conditional_select(hmm.state == 2, 1, 0)
 )
 
+# NOTE: percentile not yet implemented - using z-score approximation
+vol_ma = sma(period=252)(vol.result)
+vol_std = stddev(period=252)(vol.result)
+vol_z = (vol.result - vol_ma) / vol_std
+
 vol_score = conditional_select(
-    vol.result < percentile(period=252)(vol.result, 20), 0,  # Very low
-    vol.result < percentile(period=252)(vol.result, 80), 1,  # Normal
-    2  # High
+    vol_z < -0.84, 0,  # Very low (~20th percentile)
+    vol_z < 0.84, 1,   # Normal (20th-80th percentile)
+    2  # High (>80th percentile)
 )
 
 # Regime classification
@@ -164,6 +213,10 @@ entry = conditional_select(
     weak_bull, rsi(period=14)(src.c) < 35,  # Buy dips
     false  # Avoid in other regimes
 )
+
+exit = high_vol_avoid or not (strong_bull_trend or weak_bull)
+
+trade_signal_executor(entry=entry, exit=exit)
 ```
 
 ---
@@ -171,10 +224,12 @@ entry = conditional_select(
 ## Regime Transition Detection
 
 ```epochscript
-# Track regime over time
-adx_result = adx(period=14)(src.h, src.l, src.c)
+src = market_data_source()
 
-trending_now = adx_result.adx > 25
+# Track regime over time
+adx_val = adx(period=14)(src.h, src.l, src.c)
+
+trending_now = adx_val > 25
 trending_prev = trending_now[1]
 
 # Detect transitions
@@ -183,9 +238,10 @@ range_to_trend = not trending_prev and trending_now
 
 # Vol transitions
 vol = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
-vol_p50 = percentile(period=252)(vol.result, 50)
+# NOTE: percentile not yet implemented - using median approximation
+vol_median = sma(period=252)(vol.result)  # Approximate median with mean
 
-high_vol_now = vol.result > vol_p50
+high_vol_now = vol.result > vol_median
 high_vol_prev = high_vol_now[1]
 
 vol_spike = not high_vol_prev and high_vol_now

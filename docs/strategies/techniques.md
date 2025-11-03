@@ -89,6 +89,8 @@ signal_strength = conditional_select(
 
 # Entry decision based on signal strength
 entry = strong_signal  # Only enter on strong signals
+
+trade_signal_executor(entry)
 ```
 
 ### Regime-Based Logic Switching
@@ -126,6 +128,8 @@ entry = conditional_select(
     ranging_high_vol, False,             # Stay out
     False                                # Default: no trade
 )
+
+trade_signal_executor(entry)
 ```
 
 ---
@@ -162,11 +166,17 @@ ema_50 = ema(period=50)(src.c)
 
 # Select based on volatility
 vol = volatility(period=20)(src.c)
+
+# Adaptive EMA selection:
+# - Low vol (< 10): fast EMA (12)
+# - Medium vol (10-20): standard EMA (20)
+# - Higher vol (20-30): slower EMA (26)
+# - High vol (> 30): very slow EMA (50)
 adaptive_ema = conditional_select(
-    vol < 10, ema_12,   # Low vol: fast EMA
-    vol < 20, ema_20,   # Medium vol: standard EMA
-    vol < 30, ema_26,   # Higher vol: slower EMA
-    ema_50              # High vol: very slow EMA
+    vol < 10, ema_12,
+    vol < 20, ema_20,
+    vol < 30, ema_26,
+    ema_50
 )
 
 # Use adaptive EMA
@@ -210,6 +220,8 @@ rsi_overbought = rsi(period=14)(src.c) > 80
 
 # Exit on any condition
 exit = profit_condition or stop_condition or trend_reversal or rsi_overbought
+
+trade_signal_executor(entry, exit)
 ```
 
 ---
@@ -230,8 +242,8 @@ src = market_data_source()
 # Individual signals (boolean)
 trend_up = ema(period=20)(src.c) > ema(period=50)(src.c)
 rsi_ok = rsi(period=14)(src.c) < 70
-macd_result = macd(fast=12, slow=26, signal=9)(src.c)
-macd_bullish = macd_result[0] > macd_result[1]
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+macd_bullish = mac.macd > mac.macd_signal
 volume_high = src.v > sma(period=20)(src.v) * 1.2
 
 # Convert booleans to numbers (True = 1, False = 0)
@@ -254,6 +266,8 @@ signal_quality = conditional_select(
 
 # Entry threshold - only take strong signals
 entry = total_score >= 7
+
+trade_signal_executor(entry)
 ```
 
 ### Confidence-Based Execution
@@ -284,6 +298,8 @@ entry = conditional_select(
     confidence_low, False,   # Skip
     False                    # Default: no entry
 )
+
+trade_signal_executor(entry)
 ```
 
 :::note

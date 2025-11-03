@@ -57,9 +57,7 @@ MakeFREDDataSource() {
                               // Market Sentiment & Money Supply
                               {"Consumer Sentiment (University of Michigan)",
                                "ConsumerSentiment"},
-                              {"M2 Money Supply", "M2"},
-                              {"S&P 500 Index", "SP500"},
-                              {"VIX Volatility Index (CBOE)", "VIX"},
+                              {"M2 Money Supply", "M2"}
                           },
                       .desc = "Select the economic indicator series to load"},
               },

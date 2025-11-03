@@ -28,18 +28,24 @@ Range-based volatility using OHLC data: 5-14x more efficient than close-to-close
 ## Garman-Klass (7.4x)
 
 ```epochscript
+src = market_data_source()
+
 vol_gk = garman_klass(period=20, trading_days=252)(src.l, src.h, src.o, src.c)
 
 # Vol regime detection
-vol_p20 = percentile(period=252)(vol_gk.result, 20)
-vol_p80 = percentile(period=252)(vol_gk.result, 80)
+# NOTE: percentile not yet implemented - using z-score approximation
+vol_ma = sma(period=252)(vol_gk.result)
+vol_std = stddev(period=252)(vol_gk.result)
+vol_z = (vol_gk.result - vol_ma) / vol_std
 
-low_vol = vol_gk.result < vol_p20
-high_vol = vol_gk.result > vol_p80
+low_vol = vol_z < -0.84   # ~20th percentile
+high_vol = vol_z > 0.84   # ~80th percentile
 
 # Vol breakout
 vol_ma = sma(period=50)(vol_gk.result)
 vol_expansion = vol_gk.result > vol_ma * 1.5
+
+trade_signal_executor()(enter_long=low_vol, enter_short=high_vol)
 ```
 
 **Drift assumption:** Assumes zero drift—underestimates in strong trends. Use Yang-Zhang for trending markets.
@@ -49,6 +55,8 @@ vol_expansion = vol_gk.result > vol_ma * 1.5
 ## Yang-Zhang (14x - Industry Standard)
 
 ```epochscript
+src = market_data_source()
+
 vol_yz = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
 
 # Vol targeting
@@ -67,6 +75,8 @@ vol_60 = yang_zhang(period=60, trading_periods=252)(src.l, src.h, src.o, src.c)
 
 upward_sloping = vol_60.result > vol_30.result  # Expecting vol increase
 inverted = vol_30.result > vol_60.result  # Expecting vol decrease
+
+trade_signal_executor()(exit_long=reduce_exposure, enter_long=increase_exposure)
 ```
 
 **Gap handling:** Combines overnight volatility + open-close volatility + Rogers-Satchell intraday. **Use case:** Risk parity, vol targeting, Sharpe ratio calc.
@@ -76,11 +86,16 @@ inverted = vol_30.result > vol_60.result  # Expecting vol decrease
 ## Parkinson (5.2x)
 
 ```epochscript
+src = market_data_source()
+
 vol_park = parkinson(period=20, trading_periods=252)(src.l, src.h)
 
 # Overestimates in trends—use for ranging markets
-ranging = adx(period=14)(src.h, src.l, src.c).adx < 20
+adx_val = adx(period=14)(src.h, src.l, src.c)
+ranging = adx_val < 20
 vol_ok = ranging and (vol_park.result < 0.30)
+
+trade_signal_executor()(enter_long=vol_ok)
 ```
 
 **Fails when:** Strong trend present (drift assumption violated). **Best when:** Sideways, range-bound markets.
@@ -90,6 +105,8 @@ vol_ok = ranging and (vol_park.result < 0.30)
 ## Comparative Analysis
 
 ```epochscript
+src = market_data_source()
+
 vol_park = parkinson(period=20, trading_periods=252)(src.l, src.h)
 vol_gk = garman_klass(period=20, trading_days=252)(src.l, src.h, src.o, src.c)
 vol_yz = yang_zhang(period=20, trading_periods=252)(src.l, src.h, src.o, src.c)
@@ -105,6 +122,8 @@ high_intraday = gk_vs_close > 1.5  # Lots of intraday movement
 # Regime classification
 trending_gappy = gap_vol_present and high_intraday
 clean_ranging = not gap_vol_present and (park_vs_gk > 0.95)
+
+trade_signal_executor()(enter_long=clean_ranging, exit_long=trending_gappy)
 ```
 
 **Next:** [Regime Detection →](./regime-detection.md)

@@ -29,7 +29,7 @@ src = market_data_source()
 # These automatically plot:
 ema_20 = ema(period=20)(src.c)        # → Line overlay on price chart
 rsi_val = rsi(period=14)(src.c)       # → Panel below chart (0-100 scale)
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)  # → Panel with 2 lines
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)  # → Panel with 2 lines
 ```
 
 ### Chart Overlays
@@ -68,8 +68,8 @@ rsi_val = rsi(period=14)(src.c)
 k, d = stoch(k_period=14, k_smooth=3, d_period=3)(src.h, src.l, src.c)
 
 # MACD
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
-histogram = macd_line - signal_line
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
+histogram = mac.macd - mac.macd_signal
 
 # CCI (unbounded)
 cci_val = cci(period=20)(src.h, src.l, src.c)
@@ -117,7 +117,7 @@ src = market_data_source()
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 # MACD - panel with 2 lines + histogram
-macd_line, signal_line = macd(fast=12, slow=26, signal=9)(src.c)
+mac = macd(short_period=12, long_period=26, signal_period=9)(src.c)
 
 # Stochastic - panel with 2 lines
 k, d = stoch(k_period=14, k_smooth=3, d_period=3)(src.h, src.l, src.c)
@@ -168,7 +168,7 @@ event_marker(color_map={
 ```
 
 **Creates scrollable timeline:**
-```
+```text
 EVENTS (Timeline)
 ├─ 2024-01-15 09:35  ● Oversold Event    [Success]
 ├─ 2024-01-15 11:20  ● Overbought Event  [Error]
@@ -193,22 +193,30 @@ slow = ema(period=26)(src.c)
 # Entry/exit signals
 buy_signal = crossover(fast, slow)
 sell_signal = crossover(slow, fast)
+signal = buy_signal or sell_signal
 
-# Stop loss hit
-stop_hit = src.c < entry_price * 0.98
+# Event markers for signals
+signal_type = "BUY" if buy_signal else ("SELL" if sell_signal else "NONE")
 
-event_marker(color_map={
-    Success: ["buy_signal"],
-    Error: ["sell_signal", "stop_hit"]
-})(
-    buy_signal=buy_signal,
-    sell_signal=sell_signal,
-    stop_hit=stop_hit
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="MA Crossover Signals",
+        icon=Signal,
+        select_key="signal#result",
+        schemas=[
+            CardColumnSchema(
+                column_id="signal_type#result",
+                slot=Hero,
+                render_type=Text,
+                color_map={Success: ["BUY"], Error: ["SELL"]}
+            )
+        ]
+    )
+)(signal, signal_type)
 ```
 
 **Timeline shows:**
-```
+```text
 ├─ 2024-01-10 10:30  ▲ Buy Signal       [Success]
 ├─ 2024-01-12 14:20  ▼ Sell Signal      [Error]
 ├─ 2024-01-15 09:45  ⚠ Stop Hit         [Error]
@@ -281,7 +289,7 @@ event_marker(color_map={
 ```
 
 **Timeline:**
-```
+```text
 ├─ 2024-01-10 09:30  ⚠ Large Gap (2.3%)         [Warning]
 ├─ 2024-01-10 10:45  ✓ Gap Filled               [Success]
 ├─ 2024-01-11 09:30  ⚠ Large Gap (1.8%)         [Warning]

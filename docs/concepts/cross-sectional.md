@@ -24,8 +24,10 @@ Multi-asset ranking and selection. Evaluate multiple assets simultaneously to ge
 ## Cross-Sectional Transforms
 
 ```epochscript
+src = market_data_source()
+
 # Momentum ranking across universe
-returns = roc(period=20)(close)
+returns = roc(period=20)(src.c)
 momentum = cs_momentum()(returns)
 
 # Select top K assets
@@ -65,8 +67,10 @@ trade_signal_executor()(enter_long=top10)
 ## Factor Strategy Example
 
 ```epochscript
+src = market_data_source()
+
 # Calculate multiple factors
-momentum = roc(period=20)(close)
+momentum = roc(period=20)(src.c)
 value = earnings_yield()  # From fundamental data
 quality = roe()
 
