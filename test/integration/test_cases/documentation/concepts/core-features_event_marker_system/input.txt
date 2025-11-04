@@ -11,8 +11,10 @@ buy_signal = crossover(fast, slow)
 sell_signal = crossover(slow, fast)
 signal = buy_signal or sell_signal
 
-# Event markers for signals
-signal_type = "BUY" if buy_signal else ("SELL" if sell_signal else "NONE")
+# Event markers for signals with colored badges
+signal_type = conditional_select(
+    buy_signal, "BUY",
+    sell_signal, "SELL")
 
 event_marker(
     event_marker_schema=EventMarkerSchema(
@@ -23,7 +25,7 @@ event_marker(
             CardColumnSchema(
                 column_id=SLOT1,
                 slot=Hero,
-                render_type=Text,
+                render_type=Badge,
                 color_map={Success: ["BUY"], Error: ["SELL"]}
             )
         ]

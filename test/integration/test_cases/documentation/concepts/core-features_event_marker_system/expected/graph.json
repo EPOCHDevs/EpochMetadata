@@ -33,46 +33,6 @@
       }
    },
    {
-      "type": "boolean_select",
-      "id": "ifexp_0",
-      "options": {},
-      "inputs": {
-         "false": [
-            "text_2#result"
-         ],
-         "true": [
-            "text_1#result"
-         ],
-         "condition": [
-            "sell_signal#result"
-         ]
-      },
-      "timeframe": {
-         "interval": 1,
-         "type": "day"
-      }
-   },
-   {
-      "type": "boolean_select",
-      "id": "ifexp_1",
-      "options": {},
-      "inputs": {
-         "false": [
-            "ifexp_0#result"
-         ],
-         "true": [
-            "text_0#result"
-         ],
-         "condition": [
-            "buy_signal#result"
-         ]
-      },
-      "timeframe": {
-         "interval": 1,
-         "type": "day"
-      }
-   },
-   {
       "type": "logical_or",
       "id": "logical_or_0",
       "options": {},
@@ -99,9 +59,9 @@
             "select_key": "logical_or_0#result",
             "schemas": [
                {
-                  "column_id": "ifexp_1#result",
+                  "column_id": "signal_type#result",
                   "slot": "Hero",
-                  "render_type": "Text",
+                  "render_type": "Badge",
                   "color_map": {
                      "Success": [
                         "BUY"
@@ -117,7 +77,7 @@
       "inputs": {
          "SLOT": [
             "logical_or_0#result",
-            "ifexp_1#result"
+            "signal_type#result"
          ]
       },
       "timeframe": {
@@ -135,6 +95,23 @@
          ],
          "SLOT0": [
             "slow#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "conditional_select",
+      "id": "signal_type",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "buy_signal#result",
+            "text_0#result",
+            "sell_signal#result",
+            "text_1#result"
          ]
       },
       "timeframe": {
@@ -185,18 +162,6 @@
       "id": "text_1",
       "options": {
          "value": "SELL"
-      },
-      "inputs": {},
-      "timeframe": {
-         "interval": 1,
-         "type": "day"
-      }
-   },
-   {
-      "type": "text",
-      "id": "text_2",
-      "options": {
-         "value": "NONE"
       },
       "inputs": {},
       "timeframe": {

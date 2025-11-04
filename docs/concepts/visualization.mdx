@@ -59,29 +59,35 @@ src = market_data_source()
 ema_20 = ema(period=20)(src.c)        # → Line overlay
 rsi_val = rsi(period=14)(src.c)       # → Panel below chart
 
-# Mark important moments
-buy_signal = crossover(ema_20, src.c)
+# Mark RSI crossover events with colored badges
+cross_above_30 = crossover(rsi_val, 30)
+cross_below_70 = crossunder(rsi_val, 70)
+flag = cross_above_30 or cross_below_70
+label = conditional_select(
+    cross_above_30, "RSI Cross Above 30 (Bullish)",
+    cross_below_70, "RSI Cross Below 70 (Bearish)")
+
 event_marker(
     event_marker_schema=EventMarkerSchema(
-        title="Buy Signals",
-        icon=Signal,
+        title="RSI Crossovers",
+        icon=TrendUp,
         select_key=SLOT0,
         schemas=[
             CardColumnSchema(
-                column_id=SLOT0,
+                column_id=SLOT1,
                 slot=Hero,
-                render_type=Text,
-                color_map={Success: ["buy_signal"]}
+                render_type=Badge,
+                color_map={Success: ["RSI Cross Above 30 (Bullish)"], Error: ["RSI Cross Below 70 (Bearish)"]}
             )
         ]
     )
-)(buy_signal)
+)(flag, label)
 ```
 
 **Result:**
 - EMA line overlays on price chart
 - RSI plots in separate panel (0-100 scale)
-- Buy signals appear in scrollable timeline
+- RSI crossover events appear in timeline with color-coded badges
 
 ---
 

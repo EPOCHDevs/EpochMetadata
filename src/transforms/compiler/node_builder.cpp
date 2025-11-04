@@ -573,6 +573,42 @@ namespace epoch_script
 
                         const auto& arg_handle = args[slot_idx];
                         schema.column_id = JoinId(arg_handle.node_id, arg_handle.handle);
+
+                        // Validate: If color_map is not empty, the input must be a String type
+                        if (!schema.color_map.empty())
+                        {
+                            // Look up the type of this input
+                            auto node_it = context_.node_output_types.find(arg_handle.node_id);
+                            if (node_it != context_.node_output_types.end())
+                            {
+                                auto handle_it = node_it->second.find(arg_handle.handle);
+                                if (handle_it != node_it->second.end())
+                                {
+                                        DataType input_type = handle_it->second;
+                                    // color_map only makes sense for String types
+                                    // Reject Boolean, Integer, Decimal, Number explicitly
+                                    // Allow String and Any (Any could be string at runtime)
+                                    if (input_type != DataType::String && input_type != DataType::Any)
+                                    {
+                                        std::string type_name;
+                                        switch (input_type)
+                                        {
+                                            case DataType::Boolean: type_name = "Boolean"; break;
+                                            case DataType::Integer: type_name = "Integer"; break;
+                                            case DataType::Decimal: type_name = "Decimal"; break;
+                                            case DataType::Number: type_name = "Number"; break;
+                                            case DataType::String: type_name = "String"; break;
+                                            case DataType::Any: type_name = "Any"; break;
+                                        }
+                                        ThrowError(
+                                            std::format("EventMarkerSchema CardColumnSchema at SLOT{} has color_map defined, "
+                                                        "but the input is of type '{}'. color_map can only be used with String inputs. "
+                                                        "Either remove color_map, or convert the input to a string first.",
+                                                        slot_idx, type_name));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

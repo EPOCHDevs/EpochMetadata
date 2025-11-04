@@ -1,14 +1,31 @@
 [
    {
       "type": "crossover",
-      "id": "buy_signal",
+      "id": "cross_above_30",
       "options": {},
       "inputs": {
          "SLOT1": [
-            "src#c"
+            "number_0#result"
          ],
          "SLOT0": [
-            "ema_20#result"
+            "rsi_val#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "crossunder",
+      "id": "cross_below_70",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_1#result"
+         ],
+         "SLOT0": [
+            "rsi_val#result"
          ]
       },
       "timeframe": {
@@ -33,21 +50,58 @@
       }
    },
    {
+      "type": "conditional_select",
+      "id": "label",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "cross_above_30#result",
+            "text_0#result",
+            "cross_below_70#result",
+            "text_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_or",
+      "id": "logical_or_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "cross_below_70#result"
+         ],
+         "SLOT0": [
+            "cross_above_30#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
       "type": "event_marker",
       "id": "node_0",
       "options": {
          "event_marker_schema": {
-            "title": "Buy Signals",
-            "icon": "Signal",
-            "select_key": "buy_signal#result",
+            "title": "RSI Crossovers",
+            "icon": "TrendUp",
+            "select_key": "logical_or_0#result",
             "schemas": [
                {
-                  "column_id": "buy_signal#result",
+                  "column_id": "label#result",
                   "slot": "Hero",
-                  "render_type": "Text",
+                  "render_type": "Badge",
                   "color_map": {
                      "Success": [
-                        "buy_signal"
+                        "RSI Cross Above 30 (Bullish)"
+                     ],
+                     "Error": [
+                        "RSI Cross Below 70 (Bearish)"
                      ]
                   }
                }
@@ -56,9 +110,34 @@
       },
       "inputs": {
          "SLOT": [
-            "buy_signal#result"
+            "logical_or_0#result",
+            "label#result"
          ]
       },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 30
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_1",
+      "options": {
+         "value": 70
+      },
+      "inputs": {},
       "timeframe": {
          "interval": 1,
          "type": "day"
@@ -84,6 +163,30 @@
       "type": "market_data_source",
       "id": "src",
       "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "text",
+      "id": "text_0",
+      "options": {
+         "value": "RSI Cross Above 30 (Bullish)"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "text",
+      "id": "text_1",
+      "options": {
+         "value": "RSI Cross Below 70 (Bearish)"
+      },
       "inputs": {},
       "timeframe": {
          "interval": 1,
