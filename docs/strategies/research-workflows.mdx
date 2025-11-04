@@ -113,10 +113,17 @@ corr_ab = rolling_corr(window=60)(x=src.c, y=src.c)
 corr_ac = rolling_corr(window=60)(x=src.c, y=src.c)
 avg_corr = (corr_ab + corr_ac) / 2.0  # Diversification measure
 
-# Table report for time series analysis
-table_report(sql="SELECT SLOT0 as concurrent_corr, SLOT1 as lag5_corr FROM self LIMIT 100")(
-    concurrent_corr, lag5_corr
-)
+# Table report for time series analysis - show high correlation periods
+high_corr = (abs(concurrent_corr) > 0.7) or (abs(lag5_corr) > 0.7)
+
+table_report(schema=TableReportSchema(
+    title="High Correlation Periods",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Concurrent Corr"),
+        TableColumnSchema(column_id=SLOT2, title="Lag 5 Corr")
+    ]
+))(high_corr, concurrent_corr, lag5_corr)
 ```
 
 <Callout type="tip">
@@ -141,16 +148,15 @@ target_hit = src.c <= hs.target
 tri = triangles()()
 future_return_5 = forward_returns(period=5)(src.c)  # Research only
 
-# Table analysis
-table_report(sql="""
-    SELECT
-        COUNT(*) as count,
-        AVG(SLOT0) as success_rate,
-        SLOT1 as triangle_type
-    FROM self
-    WHERE SLOT2 = true
-    GROUP BY SLOT1
-""")(target_hit, tri.triangle_type, hs.pattern_detected)
+# Table analysis - show detected patterns
+table_report(schema=TableReportSchema(
+    title="Pattern Analysis",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Target Hit"),
+        TableColumnSchema(column_id=SLOT2, title="Triangle Type")
+    ]
+))(hs.pattern_detected, target_hit, tri.triangle_type)
 ```
 
 ---
@@ -177,28 +183,20 @@ corr_5d = rolling_corr(window=252)(x=momentum_now, y=return_5d)
 corr_10d = rolling_corr(window=252)(x=momentum_now, y=return_10d)
 corr_20d = rolling_corr(window=252)(x=momentum_now, y=return_20d)
 
-# Table of decay
-table_report(sql="""
-    SELECT
-        '1 Day' as horizon,
-        AVG(SLOT0) as avg_correlation
-    FROM self
-    UNION ALL
-    SELECT
-        '5 Days' as horizon,
-        AVG(SLOT1) as avg_correlation
-    FROM self
-    UNION ALL
-    SELECT
-        '10 Days' as horizon,
-        AVG(SLOT2) as avg_correlation
-    FROM self
-    UNION ALL
-    SELECT
-        '20 Days' as horizon,
-        AVG(SLOT3) as avg_correlation
-    FROM self
-""")(
+# Table showing periods with strong correlations
+has_strong_correlation = (abs(corr_1d) > 0.5) or (abs(corr_5d) > 0.5) or (abs(corr_10d) > 0.5) or (abs(corr_20d) > 0.5)
+
+table_report(schema=TableReportSchema(
+    title="Momentum Factor Correlations",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="1 Day Corr"),
+        TableColumnSchema(column_id=SLOT2, title="5 Days Corr"),
+        TableColumnSchema(column_id=SLOT3, title="10 Days Corr"),
+        TableColumnSchema(column_id=SLOT4, title="20 Days Corr")
+    ]
+))(
+    has_strong_correlation,
     corr_1d,
     corr_5d,
     corr_10d,
@@ -222,7 +220,7 @@ Results appear in a dedicated Research Dashboard (separate from live trading cha
 
 **Available Report Types:**
 1. Gap Reports - Comprehensive gap analysis (cards, charts, tables)
-2. Table Reports - SQL-based tabular analysis
+2. Table Reports - Filtered row display
 3. Bar/Pie/Histogram/Line Charts - Visual analysis
 4. Card Reports - Key metrics summary
 

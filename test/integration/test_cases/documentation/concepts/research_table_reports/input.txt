@@ -1,4 +1,4 @@
-# Source: concepts/research.mdx:206
+# Source: concepts/research.mdx:219
 # Section: Research Reports > Table Reports
 # Type: partial_example
 
@@ -7,17 +7,19 @@ returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
 oversold = rsi_val < 30
 overbought = rsi_val > 70
+extreme_condition = oversold or overbought
 regime_label = conditional_select(
     oversold, "Oversold",
     overbought, "Overbought",
     "Neutral"
 )
 
-table_report(sql="""
-    SELECT
-        SLOT0 as regime,
-        AVG(SLOT1) as avg_return,
-        COUNT(*) as count
-    FROM self
-    GROUP BY SLOT0
-""")(regime_label, returns)
+table_report(schema=TableReportSchema(
+    title="Extreme RSI Conditions",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Regime"),
+        TableColumnSchema(column_id=SLOT2, title="Return"),
+        TableColumnSchema(column_id=SLOT3, title="RSI Value")
+    ]
+))(extreme_condition, regime_label, returns, rsi_val)

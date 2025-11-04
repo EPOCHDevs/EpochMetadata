@@ -1,4 +1,4 @@
-# Source: concepts/research.mdx:372
+# Source: concepts/research.mdx:388
 # Section: Research Reports > Multiple Reports
 # Type: partial_example
 
@@ -17,19 +17,21 @@ gap_report(fill_time_pivot_hour=12)(
 )
 
 # RSI regime analysis
-table_report(sql="""
-    SELECT
-        CASE WHEN SLOT0 < 30 THEN 'Oversold'
-             WHEN SLOT0 > 70 THEN 'Overbought'
-             ELSE 'Neutral'
-        END as regime,
-        AVG(SLOT1) as avg_return,
-        COUNT(*) as count
-    FROM self
-    GROUP BY regime
-""")(rsi_val, returns)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+extreme_rsi = oversold or overbought
+regime_label = conditional_select(
+    oversold, "Oversold",
+    overbought, "Overbought",
+    "Neutral"
+)
 
-# Return distribution (commented out - histogram_chart_report requires 'category' option)
-# histogram_chart_report(bins=30, title="Return Distribution")(
-#     returns=returns
-# )
+table_report(schema=TableReportSchema(
+    title="Extreme RSI Analysis",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="RSI"),
+        TableColumnSchema(column_id=SLOT2, title="Regime"),
+        TableColumnSchema(column_id=SLOT3, title="Return")
+    ]
+))(extreme_rsi, rsi_val, regime_label, returns)

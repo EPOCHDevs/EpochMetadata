@@ -1,4 +1,4 @@
-# Source: strategies/research-workflows.mdx:132
+# Source: strategies/research-workflows.mdx:139
 # Section: Research Workflows > Pattern Research
 # Type: partial_example
 
@@ -13,13 +13,12 @@ target_hit = src.c <= hs.target
 tri = triangles()()
 future_return_5 = forward_returns(period=5)(src.c)  # Research only
 
-# Table analysis
-table_report(sql="""
-    SELECT
-        COUNT(*) as count,
-        AVG(SLOT0) as success_rate,
-        SLOT1 as triangle_type
-    FROM self
-    WHERE SLOT2 = true
-    GROUP BY SLOT1
-""")(target_hit, tri.triangle_type, hs.pattern_detected)
+# Table analysis - show detected patterns
+table_report(schema=TableReportSchema(
+    title="Pattern Analysis",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Target Hit"),
+        TableColumnSchema(column_id=SLOT2, title="Triangle Type")
+    ]
+))(hs.pattern_detected, target_hit, tri.triangle_type)

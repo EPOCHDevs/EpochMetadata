@@ -43,6 +43,17 @@ namespace epoch_script
             }
         }
 
+        // 1b. Apply default options for missing optional parameters
+        for (const auto& meta_option : comp_meta.options)
+        {
+            if (!meta_option.isRequired &&
+                !kwargs.contains(meta_option.id) &&
+                meta_option.defaultValue.has_value())
+            {
+                kwargs[meta_option.id] = meta_option.defaultValue->GetVariant();
+            }
+        }
+
         // 2. Validate required options are present
         for (const auto& meta_option : comp_meta.options)
         {
@@ -308,6 +319,93 @@ namespace epoch_script
                     std::format("Option '{}' of node '{}': {}", option_id, node_id, e.what()),
                     call.lineno, call.col_offset);
             }
+        }
+
+        case MetaType::TableReportSchema:
+        {
+            // If already parsed as TableReportSchema, validate and return
+            if (std::holds_alternative<epoch_script::TableReportSchema>(raw_value))
+            {
+                auto schema = std::get<epoch_script::TableReportSchema>(raw_value);
+
+                // Validate SLOT syntax in select_key
+                static const std::regex slot_pattern(R"(SLOT\d+)");
+                if (!std::regex_match(schema.select_key, slot_pattern))
+                {
+                    ThrowError(
+                        std::format("TableReportSchema field 'select_key' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                    "Found: '{}'. String references are not supported.",
+                                    schema.select_key),
+                        call.lineno, call.col_offset);
+                }
+
+                // Validate SLOT syntax in all column_id fields
+                for (const auto& col_schema : schema.columns)
+                {
+                    if (!std::regex_match(col_schema.column_id, slot_pattern))
+                    {
+                        ThrowError(
+                            std::format("TableReportSchema TableColumnSchema 'column_id' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                        "Found: '{}'. String references are not supported.",
+                                        col_schema.column_id),
+                            call.lineno, call.col_offset);
+                    }
+                }
+
+                return raw_value;
+            }
+
+            // Expect a JSON string to parse into TableReportSchema
+            if (!std::holds_alternative<std::string>(raw_value))
+            {
+                ThrowError(
+                    std::format("Option '{}' of node '{}' expects TableReportSchema (JSON string) but got non-string value",
+                                option_id, node_id),
+                    call.lineno, call.col_offset);
+            }
+
+            const std::string& json_str = std::get<std::string>(raw_value);
+            // Trim leading/trailing whitespace
+            std::string trimmed_json = TrimWhitespace(json_str);
+
+            // Parse as TableReportSchema
+            auto schema_result = glz::read_json<epoch_script::TableReportSchema>(trimmed_json);
+            if (!schema_result)
+            {
+                ThrowError(
+                    std::format("Invalid TableReportSchema JSON for option '{}' of node '{}'. "
+                                "TableReportSchema must contain 'title', 'select_key', and 'columns' fields.",
+                                option_id, node_id),
+                    call.lineno, call.col_offset);
+            }
+
+            auto schema = schema_result.value();
+
+            // Validate SLOT syntax in select_key
+            static const std::regex slot_pattern(R"(SLOT\d+)");
+            if (!std::regex_match(schema.select_key, slot_pattern))
+            {
+                ThrowError(
+                    std::format("TableReportSchema field 'select_key' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                "Found: '{}'. String references are not supported.",
+                                schema.select_key),
+                    call.lineno, call.col_offset);
+            }
+
+            // Validate SLOT syntax in all column_id fields
+            for (const auto& col_schema : schema.columns)
+            {
+                if (!std::regex_match(col_schema.column_id, slot_pattern))
+                {
+                    ThrowError(
+                        std::format("TableReportSchema TableColumnSchema 'column_id' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                    "Found: '{}'. String references are not supported.",
+                                    col_schema.column_id),
+                        call.lineno, call.col_offset);
+                }
+            }
+
+            return epoch_script::MetaDataOptionDefinition::T{schema};
         }
 
         case MetaType::Time:

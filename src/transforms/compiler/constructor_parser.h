@@ -59,6 +59,7 @@ namespace epoch_script
         epoch_frame::Time ParseTimeConstructor(const Call& call);
         epoch_script::EventMarkerSchema ParseEventMarkerSchemaConstructor(const Call& call);
         epoch_script::SqlStatement ParseSqlStatementConstructor(const Call& call);
+        epoch_script::TableReportSchema ParseTableReportSchemaConstructor(const Call& call);
         epoch_script::CardColumnSchema ParseCardColumnSchemaConstructor(const Call& call);
         // Note: SessionRange and TimeFrame are handled as special parameters, not regular options
 

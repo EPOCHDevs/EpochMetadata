@@ -124,84 +124,97 @@ gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
 
 ## Table Reports
 
-SQL-based data analysis and aggregation.
+Display filtered rows from your data in a table format.
 
 ### Basic Usage
 
 ```python
-# Calculate returns by RSI regime
+# Display RSI extreme conditions
+src = market_data_source()
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
 volume = src.v
 
-table_report(sql="""
-    SELECT
-        CASE
-            WHEN SLOT0 < 30 THEN 'Oversold'
-            WHEN SLOT0 > 70 THEN 'Overbought'
-            ELSE 'Neutral'
-        END as regime,
-        AVG(SLOT1) as avg_return,
-        STDDEV(SLOT1) as volatility,
-        AVG(SLOT2) as avg_volume,
-        COUNT(*) as count
-    FROM self
-    GROUP BY regime
-    ORDER BY avg_return DESC
-""")(
-    rsi_val,    # SLOT0
-    returns,    # SLOT1
-    volume      # SLOT2
+# Create boolean filter for extreme RSI
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+extreme_rsi = oversold or overbought
+
+# Create regime labels
+regime_label = conditional_select(
+    oversold, "Oversold",
+    overbought, "Overbought",
+    "Neutral"
 )
+
+table_report(schema=TableReportSchema(
+    title="RSI Extreme Conditions",
+    select_key=SLOT0,  # Boolean column for filtering
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Regime"),
+        TableColumnSchema(column_id=SLOT2, title="RSI"),
+        TableColumnSchema(column_id=SLOT3, title="Return"),
+        TableColumnSchema(column_id=SLOT4, title="Volume")
+    ]
+))(extreme_rsi, regime_label, rsi_val, returns, volume)
 ```
 
 **Dashboard table:**
 ```text
-┌─────────────┬─────────────┬────────────┬─────────────┬───────┐
-│ Regime      │ Avg Return  │ Volatility │ Avg Volume  │ Count │
-├─────────────┼─────────────┼────────────┼─────────────┼───────┤
-│ Oversold    │ +0.42%      │ 1.85%      │ 3.2M        │ 347   │
-│ Neutral     │ +0.05%      │ 1.12%      │ 2.1M        │ 8,234 │
-│ Overbought  │ -0.18%      │ 1.67%      │ 2.8M        │ 412   │
-└─────────────┴─────────────┴────────────┴─────────────┴───────┘
+┌───────────┬──────┬─────────┬─────────┐
+│ Regime    │ RSI  │ Return  │ Volume  │
+├───────────┼──────┼─────────┼─────────┤
+│ Oversold  │ 28.5 │ +0.42%  │ 3.2M    │
+│ Oversold  │ 25.1 │ +1.15%  │ 4.1M    │
+│ Overbought│ 72.3 │ -0.18%  │ 2.8M    │
+│ Overbought│ 75.8 │ -0.65%  │ 3.5M    │
+└───────────┴──────┴─────────┴─────────┘
 ```
 
-### SQL Column Mapping
+### Schema Configuration
 
-**Inputs are accessed as SLOT0, SLOT1, SLOT2, etc. in order:**
+**Inputs are accessed as SLOT0, SLOT1, SLOT2, etc. by position:**
 
 ```python
 # Inputs map to SLOT columns by position
 returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
+signal = rsi_val > 70
 
-table_report(sql="""
-    SELECT AVG(SLOT0), AVG(SLOT1)
-    FROM self
-""")(
-    returns,    # SLOT0
-    rsi_val     # SLOT1
-)
+table_report(schema=TableReportSchema(
+    title="My Table",
+    select_key=SLOT0,  # signal (boolean filter)
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Return"),  # returns
+        TableColumnSchema(column_id=SLOT2, title="RSI")      # rsi_val
+    ]
+))(signal, returns, rsi_val)
 ```
 
 <Callout type="warning" title="Use SLOT* Column Names">
-SQL must reference inputs as SLOT0, SLOT1, SLOT2, etc.:
+Schema must reference inputs as SLOT0, SLOT1, SLOT2, etc.:
 
 ```python
 src = market_data_source()
-returns = (src.c - src.c[1]) / src.c[1]
+signal = src.c > src.o
 
 # ❌ WRONG: Using variable names
-table_report(sql="SELECT AVG(returns) FROM self")(returns)
+table_report(schema=TableReportSchema(
+    select_key="signal",  # Variable name won't work
+    ...
+))
 
 # ✅ CORRECT: Use SLOT0
-table_report(sql="SELECT AVG(SLOT0) FROM self")(returns)
+table_report(schema=TableReportSchema(
+    select_key=SLOT0,  # First input is SLOT0
+    ...
+))(signal, ...)
 ```
 </Callout>
 
-### Common SQL Patterns
+### Common Patterns
 
-**Aggregation by group:**
+**Simple filtering:**
 
 ```python
 src = market_data_source()
@@ -209,57 +222,60 @@ returns = (src.c - src.c[1]) / src.c[1]
 rsi_val = rsi(period=14)(src.c)
 oversold = rsi_val < 30
 overbought = rsi_val > 70
+extreme_condition = oversold or overbought
 regime_label = conditional_select(
     oversold, "Oversold",
     overbought, "Overbought",
     "Neutral"
 )
 
-table_report(sql="""
-    SELECT
-        SLOT0 as regime,
-        AVG(SLOT1) as avg_return,
-        COUNT(*) as count
-    FROM self
-    GROUP BY SLOT0
-""")(regime_label, returns)
+table_report(schema=TableReportSchema(
+    title="Extreme RSI Conditions",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Regime"),
+        TableColumnSchema(column_id=SLOT2, title="Return"),
+        TableColumnSchema(column_id=SLOT3, title="RSI Value")
+    ]
+))(extreme_condition, regime_label, returns, rsi_val)
 ```
 
-**Time-based analysis:**
+**Pattern detection:**
 
 ```python
-table_report(sql="""
-    SELECT
-        EXTRACT(HOUR FROM SLOT0) as hour,
-        AVG(SLOT1) as avg_volume
-    FROM self
-    GROUP BY hour
-    ORDER BY hour
-""")(src.t, src.v)
+# Show only rows where pattern is detected
+bullish_pattern = marubozu_bullish()()
+
+table_report(schema=TableReportSchema(
+    title="Bullish Patterns",
+    select_key=SLOT0,  # Pattern detected boolean
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Close"),
+        TableColumnSchema(column_id=SLOT2, title="Volume")
+    ]
+))(bullish_pattern, src.c, src.v)
 ```
 
-**Conditional aggregation:**
+**Multiple conditions:**
 
 ```python
-table_report(sql="""
-    SELECT
-        CASE
-            WHEN SLOT0 < 30 THEN 'Oversold'
-            WHEN SLOT0 > 70 THEN 'Overbought'
-            ELSE 'Neutral'
-        END as condition,
-        AVG(SLOT1) as performance
-    FROM self
-    GROUP BY condition
-""")(rsi_val, returns)
+# Combine multiple conditions
+high_volume = src.v > ema(period=20)(src.v)
+price_breakout = src.c > highest(period=20)(src.c[1])
+signal = high_volume & price_breakout
+
+table_report(schema=TableReportSchema(
+    title="Breakout Signals",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Price"),
+        TableColumnSchema(column_id=SLOT2, title="Volume")
+    ]
+))(signal, src.c, src.v)
 ```
 
-<Callout type="tip" title="SQL Syntax">
-Uses DuckDB SQL with support for:
-- Aggregations: `AVG()`, `SUM()`, `COUNT()`, `MIN()`, `MAX()`, `STDDEV()`
-- Window functions: `ROW_NUMBER()`, `RANK()`, `LAG()`, `LEAD()`
-- Date functions: `EXTRACT()`, `DATE_TRUNC()`
-- String functions: `CONCAT()`, `SUBSTRING()`, `UPPER()`, `LOWER()`
+<Callout type="tip" title="Filtering Rows">
+The `select_key` parameter specifies a boolean column - only rows where this column is `true` are displayed in the table.
 </Callout>
 
 ---
@@ -385,22 +401,24 @@ gap_report(fill_time_pivot_hour=12)(
 )
 
 # RSI regime analysis
-table_report(sql="""
-    SELECT
-        CASE WHEN SLOT0 < 30 THEN 'Oversold'
-             WHEN SLOT0 > 70 THEN 'Overbought'
-             ELSE 'Neutral'
-        END as regime,
-        AVG(SLOT1) as avg_return,
-        COUNT(*) as count
-    FROM self
-    GROUP BY regime
-""")(rsi_val, returns)
+oversold = rsi_val < 30
+overbought = rsi_val > 70
+extreme_rsi = oversold or overbought
+regime_label = conditional_select(
+    oversold, "Oversold",
+    overbought, "Overbought",
+    "Neutral"
+)
 
-# Return distribution (commented out - histogram_chart_report requires 'category' option)
-# histogram_chart_report(bins=30, title="Return Distribution")(
-#     returns=returns
-# )
+table_report(schema=TableReportSchema(
+    title="Extreme RSI Analysis",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="RSI"),
+        TableColumnSchema(column_id=SLOT2, title="Regime"),
+        TableColumnSchema(column_id=SLOT3, title="Return")
+    ]
+))(extreme_rsi, rsi_val, regime_label, returns)
 ```
 
 All reports appear in the dashboard with separate sections.

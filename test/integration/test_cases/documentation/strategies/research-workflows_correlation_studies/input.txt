@@ -22,7 +22,14 @@ corr_ab = rolling_corr(window=60)(x=src.c, y=src.c)
 corr_ac = rolling_corr(window=60)(x=src.c, y=src.c)
 avg_corr = (corr_ab + corr_ac) / 2.0  # Diversification measure
 
-# Table report for time series analysis
-table_report(sql="SELECT SLOT0 as concurrent_corr, SLOT1 as lag5_corr FROM self LIMIT 100")(
-    concurrent_corr, lag5_corr
-)
+# Table report for time series analysis - show high correlation periods
+high_corr = (abs(concurrent_corr) > 0.7) or (abs(lag5_corr) > 0.7)
+
+table_report(schema=TableReportSchema(
+    title="High Correlation Periods",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Concurrent Corr"),
+        TableColumnSchema(column_id=SLOT2, title="Lag 5 Corr")
+    ]
+))(high_corr, concurrent_corr, lag5_corr)

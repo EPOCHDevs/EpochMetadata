@@ -140,6 +140,9 @@ void MetaDataOptionDefinition::AssertType(
   case epoch_core::MetaDataOptionType::SqlStatement:
     AssertType<SqlStatement>();
     break;
+  case epoch_core::MetaDataOptionType::TableReportSchema:
+    AssertType<TableReportSchema>();
+    break;
   case epoch_core::MetaDataOptionType::Null:
     throw std::runtime_error("Null value not allowed.");
   }
@@ -167,6 +170,8 @@ bool MetaDataOptionDefinition::IsType(
     return std::holds_alternative<EventMarkerSchema>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::SqlStatement:
     return std::holds_alternative<SqlStatement>(m_optionsVariant);
+  case epoch_core::MetaDataOptionType::TableReportSchema:
+    return std::holds_alternative<TableReportSchema>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
     return false;
   }
@@ -262,6 +267,16 @@ size_t MetaDataOptionDefinition::GetHash() const {
         } else if constexpr (std::same_as<K, SqlStatement>) {
           // Hash SqlStatement by hashing its SQL string
           return std::hash<std::string>{}(arg.GetSql());
+        } else if constexpr (std::same_as<K, TableReportSchema>) {
+          // Hash TableReportSchema by hashing its fields
+          size_t seed = 0;
+          seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          seed ^= std::hash<std::string>{}(arg.select_key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          for (const auto &col : arg.columns) {
+            seed ^= std::hash<std::string>{}(col.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<std::string>{}(col.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+          }
+          return seed;
         } else {
           return std::hash<K>{}(arg);
         }
@@ -306,6 +321,9 @@ std::string MetaDataOptionDefinition::ToString() const {
         } else if constexpr (std::same_as<K, SqlStatement>) {
           // Return the SQL string
           return arg.GetSql();
+        } else if constexpr (std::same_as<K, TableReportSchema>) {
+          // Use glaze to pretty print the full TableReportSchema structure
+          return glz::write_json(arg).value_or("{}");
         } else {
           return std::to_string(arg);
         }
@@ -342,9 +360,10 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
           return MetaDataOptionDefinition{};
       }
     }
-    // EventMarkerSchema and SqlStatement can be Maps/Objects, others must be Scalars
+    // EventMarkerSchema, SqlStatement, and TableReportSchema can be Maps/Objects, others must be Scalars
     if (arg.type != epoch_core::MetaDataOptionType::EventMarkerSchema &&
-        arg.type != epoch_core::MetaDataOptionType::SqlStatement) {
+        arg.type != epoch_core::MetaDataOptionType::SqlStatement &&
+        arg.type != epoch_core::MetaDataOptionType::TableReportSchema) {
       AssertFromStream(node.IsScalar(), "invalid transform option type: "
                                             << node << ", expected a scalar for "
                                             << arg.id << ".");
@@ -395,6 +414,16 @@ CreateMetaDataArgDefinition(YAML::Node const &node, MetaDataOption const &arg) {
       return MetaDataOptionDefinition{MetaDataOptionDefinition::T{SqlStatement{node["sql"].as<std::string>()}}};
     } else {
       throw std::runtime_error("SqlStatement must be a scalar string or a map with 'sql' key");
+    }
+  }
+  case epoch_core::MetaDataOptionType::TableReportSchema: {
+    // TableReportSchema only comes from EpochScript DSL as a YAML Map - convert to JSON
+    // Config helpers now use TransformDefinitionData and bypass YAML entirely
+    if (node.IsMap()) {
+      std::string jsonStr = YamlNodeToJsonString(node);
+      return MetaDataOptionDefinition{jsonStr};
+    } else {
+      throw std::runtime_error("TableReportSchema must be a Map/Object, not a scalar");
     }
   }
   case epoch_core::MetaDataOptionType::Null:

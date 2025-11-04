@@ -191,11 +191,15 @@ namespace epoch_script
             {
                 return epoch_script::MetaDataOptionDefinition::T{ParseSqlStatementConstructor(*call)};
             }
+            else if (ctor_name == "TableReportSchema")
+            {
+                return epoch_script::MetaDataOptionDefinition::T{ParseTableReportSchemaConstructor(*call)};
+            }
             // Note: SessionRange and TimeFrame are handled as special parameters
             // in SpecialParameterHandler, not as regular options
             else
             {
-                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, EventMarkerSchema, SqlStatement", call->lineno, call->col_offset);
+                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, EventMarkerSchema, SqlStatement, TableReportSchema", call->lineno, call->col_offset);
             }
         }
         else if (auto* constant = dynamic_cast<const Constant*>(&expr))
@@ -527,6 +531,21 @@ namespace epoch_script
         }
 
         return stmt;
+    }
+
+    epoch_script::TableReportSchema ConstructorParser::ParseTableReportSchemaConstructor(const Call& call)
+    {
+        // Convert kwargs to glz::generic and let glaze deserialize
+        glz::generic obj = CallKwargsToGeneric(call);
+
+        epoch_script::TableReportSchema schema{};
+        auto error = glz::read<glz::opts{}>(schema, obj);
+        if (error)
+        {
+            ThrowError("Failed to parse TableReportSchema constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
+        }
+
+        return schema;
     }
 
     void ConstructorParser::ThrowError(const std::string& msg, int line, int col)

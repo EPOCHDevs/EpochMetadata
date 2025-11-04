@@ -22,7 +22,7 @@
 #include <epoch_script/core/sql_statement.h>
 
 CREATE_ENUM(MetaDataOptionType, Integer, Decimal, Boolean, Select, NumericList,
-            StringList, Time, String, EventMarkerSchema, SqlStatement);
+            StringList, Time, String, EventMarkerSchema, SqlStatement, TableReportSchema);
 
 namespace epoch_script
 {
@@ -103,10 +103,53 @@ namespace epoch_script
   // Legacy type alias for backwards compatibility - kept for existing code
   using CardSchemaList = EventMarkerSchema;
 
+  // Simple table column schema for table_report
+  struct TableColumnSchema {
+    std::string column_id;  // SLOT reference (e.g., "SLOT0", "SLOT1")
+    std::string title;      // Display name for the column
+
+    bool operator==(const TableColumnSchema &) const = default;
+
+    struct glaze_json_schema {
+      glz::schema column_id{
+        .description = "ID of the DataFrame column to display (e.g., SLOT0, SLOT1)",
+        .minLength = 1
+      };
+      glz::schema title{
+        .description = "Display name for this column in the table",
+        .minLength = 1
+      };
+    };
+  };
+
+  // Table report schema with select_key filtering
+  struct TableReportSchema {
+    std::string title;                      // Report title
+    std::string select_key;                 // Boolean column for filtering
+    std::vector<TableColumnSchema> columns; // Column configurations
+
+    bool operator==(const TableReportSchema &) const = default;
+
+    struct glaze_json_schema {
+      glz::schema title{
+        .description = "Title displayed above the table",
+        .minLength = 1
+      };
+      glz::schema select_key{
+        .description = "Name of boolean DataFrame column used to filter rows (only rows where this column is true will be shown)",
+        .minLength = 1
+      };
+      glz::schema columns{
+        .description = "Array of column definitions specifying which columns to display and their titles",
+        .minItems = 1
+      };
+    };
+  };
+
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, EventMarkerSchema, SqlStatement>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, EventMarkerSchema, SqlStatement, TableReportSchema>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -229,6 +272,11 @@ namespace epoch_script
     [[nodiscard]] SqlStatement GetSqlStatement() const
     {
       return GetValueByType<SqlStatement>();
+    }
+
+    [[nodiscard]] TableReportSchema GetTableReportSchema() const
+    {
+      return GetValueByType<TableReportSchema>();
     }
 
     std::string GetRef() const
@@ -621,6 +669,23 @@ namespace glz
         if (error)
         {
           throw std::runtime_error("Failed to parse EventMarkerSchema JSON: " +
+                                   glz::format_error(error));
+        }
+        value = epoch_script::MetaDataOptionDefinition{
+            epoch_script::MetaDataOptionDefinition::T{std::move(schema)}};
+      }
+      else if (in.is_object() && in.contains("columns"))
+      {
+        // TableReportSchema object
+        if (!in.contains("select_key"))
+        {
+          throw std::runtime_error("TableReportSchema object must contain 'select_key' field");
+        }
+        epoch_script::TableReportSchema schema;
+        auto error = glz::read_json(schema, in.dump().value_or("{}"));
+        if (error)
+        {
+          throw std::runtime_error("Failed to parse TableReportSchema JSON: " +
                                    glz::format_error(error));
         }
         value = epoch_script::MetaDataOptionDefinition{

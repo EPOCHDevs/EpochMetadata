@@ -1,8 +1,7 @@
 #pragma once
 
 #include <epoch_script/transforms/components/reports/ireport.h>
-#include <epoch_script/transforms/core/sql_options.h>
-#include <epoch_script/core/sql_statement.h>
+#include <epoch_script/core/metadata_options.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/scalar.h>
 #include <arrow/api.h>
@@ -13,9 +12,7 @@ class TableReport : public IReporter {
 public:
   explicit TableReport(epoch_script::transform::TransformConfiguration config)
       : IReporter(std::move(config), true),
-        m_sqlStatement(GetSQLStatement()),
-        m_tableTitle(GetTableTitle()),
-        m_addIndex(GetAddIndex()) {
+        m_schema(GetTableReportSchema()) {
   }
 
 protected:
@@ -24,14 +21,10 @@ protected:
 
 private:
   // Cached configuration values
-  const SqlStatement m_sqlStatement;
-  const std::string m_tableTitle;
-  const bool m_addIndex;
+  const TableReportSchema m_schema;
 
   // Configuration getters
-  SqlStatement GetSQLStatement() const;
-  bool GetAddIndex() const;
-  std::string GetTableTitle() const;
+  TableReportSchema GetTableReportSchema() const;
 
   // Helper methods
 };
@@ -46,23 +39,20 @@ template <> struct ReportMetadata<TableReport> {
       .category = epoch_core::TransformCategory::Reporter,
       .name = "Table Report",
       .options = {
-        epoch_script::transforms::SQL_OPTION,
-        epoch_script::transforms::ADD_INDEX_OPTION,
-        {.id = "title",
-         .name = "Table Title",
-         .type = epoch_core::MetaDataOptionType::String,
-         .defaultValue = epoch_script::MetaDataOptionDefinition{"SQL Query Result"},
-         .isRequired = false,
-         .desc = "Title for the generated table"}
+        {.id = "schema",
+         .name = "Table Schema",
+         .type = epoch_core::MetaDataOptionType::TableReportSchema,
+         .isRequired = true,
+         .desc = "Schema defining table title, select_key for filtering, and columns to display"}
       },
       .isCrossSectional = false,
-      .desc = "Execute SQL query on input DataFrame and generate table output for tearsheet visualization",
+      .desc = "Filter DataFrame using a boolean column and display specified columns in a table",
       .inputs = {
         {epoch_core::IODataType::Any, epoch_script::ARG, "", true}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
-      .tags = {"report", "table", "sql", "query"},
+      .tags = {"report", "table", "filter"},
       .requiresTimeFrame = false,
       .allowNullInputs = false
     };
