@@ -1,4 +1,4 @@
-# Source: strategies/statistical-analysis.md:171
+# Source: strategies/statistical-analysis.mdx:184
 # Section: Statistical Analysis & Machine Learning > Advanced: HMM + Hurst Adaptive Strategy
 # Type: complete_strategy
 
@@ -10,8 +10,10 @@ vol = volatility(period=20)(src.c)
 volume_ratio = src.v / sma(period=20)(src.v)
 
 # HMM for bull/bear/neutral
-hmm_result = hmm(n_states=3, lookback_window=252)(returns)
-bull_state = (hmm_result.state == 2) and (hmm_result.prob_state > 0.8)
+hmm = hidden_markov_model(n_states=3, lookback_window=252)(
+    x=returns, y=vol, z=volume_ratio
+)
+bull_state = (hmm.state == 2) and (hmm.state_probability > 0.8)
 
 # Hurst for mean-revert vs trend
 hurst = rolling_hurst_exponent(window=252)(returns)
@@ -19,14 +21,13 @@ mean_reverting = hurst.result < 0.45
 trending = hurst.result > 0.55
 
 # Linear regression for entry timing
-fitted = linreg(period=50)(src.c)
-slope = linregslope(period=50)(src.c)
-residual = src.c - fitted
+bar_index = cumsum(1)
+reg = linear_fit(window=50)(x=bar_index, y=src.c)
 
 # Strategy logic
 # Bull+Trending = follow slope, enter on pullback
-bull_trend = bull_state and trending and (slope > 0.3)
-pullback = residual < -1.5
+bull_trend = bull_state and trending and (reg.slope > 0.3)
+pullback = reg.residual < -1.5
 
 # Bull+Mean-reverting = buy extreme dips
 bull_mr = bull_state and mean_reverting
@@ -34,7 +35,6 @@ price_z = zscore(window=20)(src.c)
 extreme_dip = price_z < -2.5
 
 entry = (bull_trend and pullback) or (bull_mr and extreme_dip)
-# Exit on regime change
-exit = not bull_state or (hmm_result.state != hmm_result.state[1])
+exit = not bull_state or (hmm.state != hmm.state[1])  # Exit on regime change
 
 trade_signal_executor()(enter_long=entry, exit_long=exit)

@@ -1,23 +1,20 @@
-# Source: strategies/volume-order-flow.md:68
+# Source: strategies/volume-order-flow.mdx:75
 # Section: Volume & Order Flow Analysis > Klinger Oscillator
 # Type: complete_strategy
 
 src = market_data_source()
 
-klinger = kvo(short_period=34, long_period=55)(
+klinger = klinger_oscillator(fast=34, slow=55, signal=13)(
     src.h, src.l, src.c, src.v
 )
 
-# Use signal line for crossovers
-klinger_signal = ema(period=13)(klinger)
-
 # Crossover signals
-bullish_cross = crossover(klinger, klinger_signal)
-bearish_cross = crossunder(klinger, klinger_signal)
+bullish_cross = crossover(klinger.klinger, klinger.signal)
+bearish_cross = crossunder(klinger.klinger, klinger.signal)
 
 # Divergence (institutional flow reversal)
 price_low = src.c < min(period=20)(src.c[1])
-klinger_higher = klinger > klinger[20]
+klinger_higher = klinger.klinger > klinger.klinger[20]
 bullish_div = price_low and klinger_higher
 
 trade_signal_executor()(enter_long=bullish_cross or bullish_div, enter_short=bearish_cross)

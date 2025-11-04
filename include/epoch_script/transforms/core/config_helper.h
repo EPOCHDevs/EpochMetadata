@@ -1670,21 +1670,6 @@ inline auto event_marker_cfg =
       return TransformConfiguration{TransformDefinition{std::move(data)}};
     };
 
-// Card Selector with SQL - Uses SQL query to filter rows
-// Accepts CardSchemaSQL object directly - NO YAML!
-inline auto card_selector_sql_cfg =
-    [](std::string const &id, epoch_script::CardSchemaSQL const &event_marker_schema,
-       const std::vector<std::string> &inputs,
-       const epoch_script::TimeFrame &timeframe) {
-      TransformDefinitionData data{
-        .type = "card_selector_sql",
-        .id = id,
-        .options = {{"event_marker_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{event_marker_schema}}}},
-        .timeframe = timeframe,
-        .inputs = {{"SLOT", inputs}}
-      };
-      return TransformConfiguration{TransformDefinition{std::move(data)}};
-    };
 
 // =========================
 // String operation helpers

@@ -135,11 +135,7 @@ void MetaDataOptionDefinition::AssertType(
     AssertType<std::string>();
     break;
   case epoch_core::MetaDataOptionType::EventMarkerSchema:
-    // EventMarkerSchema can be either EventMarkerSchema or CardSchemaSQL
-    if (!std::holds_alternative<EventMarkerSchema>(m_optionsVariant) &&
-        !std::holds_alternative<CardSchemaSQL>(m_optionsVariant)) {
-      throw std::runtime_error("Expected EventMarkerSchema or CardSchemaSQL type");
-    }
+    AssertType<EventMarkerSchema>();
     break;
   case epoch_core::MetaDataOptionType::SqlStatement:
     AssertType<SqlStatement>();
@@ -168,8 +164,7 @@ bool MetaDataOptionDefinition::IsType(
   case epoch_core::MetaDataOptionType::String:
     return std::holds_alternative<std::string>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::EventMarkerSchema:
-    return std::holds_alternative<EventMarkerSchema>(m_optionsVariant) ||
-           std::holds_alternative<CardSchemaSQL>(m_optionsVariant);
+    return std::holds_alternative<EventMarkerSchema>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::SqlStatement:
     return std::holds_alternative<SqlStatement>(m_optionsVariant);
   case epoch_core::MetaDataOptionType::Null:
@@ -264,15 +259,6 @@ size_t MetaDataOptionDefinition::GetHash() const {
             seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
           }
           return seed;
-        } else if constexpr (std::same_as<K, CardSchemaSQL>) {
-          // Hash CardSchemaSQL by hashing its fields
-          size_t seed = 0;
-          seed ^= std::hash<std::string>{}(arg.title) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-          seed ^= std::hash<std::string>{}(arg.sql.GetSql()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-          for (const auto &schema : arg.schemas) {
-            seed ^= std::hash<std::string>{}(schema.column_id) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-          }
-          return seed;
         } else if constexpr (std::same_as<K, SqlStatement>) {
           // Hash SqlStatement by hashing its SQL string
           return std::hash<std::string>{}(arg.GetSql());
@@ -316,9 +302,6 @@ std::string MetaDataOptionDefinition::ToString() const {
           return arg.repr();
         } else if constexpr (std::same_as<K, EventMarkerSchema>) {
           // Use glaze to pretty print the full EventMarkerSchema structure
-          return glz::write_json(arg).value_or("{}");
-        } else if constexpr (std::same_as<K, CardSchemaSQL>) {
-          // Use glaze to pretty print the full CardSchemaSQL structure
           return glz::write_json(arg).value_or("{}");
         } else if constexpr (std::same_as<K, SqlStatement>) {
           // Return the SQL string

@@ -187,10 +187,6 @@ namespace epoch_script
             {
                 return epoch_script::MetaDataOptionDefinition::T{ParseEventMarkerSchemaConstructor(*call)};
             }
-            else if (ctor_name == "CardSchemaSQL")
-            {
-                return epoch_script::MetaDataOptionDefinition::T{ParseCardSchemaSQLConstructor(*call)};
-            }
             else if (ctor_name == "SqlStatement")
             {
                 return epoch_script::MetaDataOptionDefinition::T{ParseSqlStatementConstructor(*call)};
@@ -199,7 +195,7 @@ namespace epoch_script
             // in SpecialParameterHandler, not as regular options
             else
             {
-                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, EventMarkerSchema, CardSchemaSQL, SqlStatement", call->lineno, call->col_offset);
+                ThrowError("Unknown custom type constructor: " + ctor_name + ". Supported: Time, EventMarkerSchema, SqlStatement", call->lineno, call->col_offset);
             }
         }
         else if (auto* constant = dynamic_cast<const Constant*>(&expr))
@@ -517,20 +513,6 @@ namespace epoch_script
         return filter;
     }
 
-    epoch_script::CardSchemaSQL ConstructorParser::ParseCardSchemaSQLConstructor(const Call& call)
-    {
-        // Convert kwargs to glz::generic and let glaze deserialize
-        glz::generic obj = CallKwargsToGeneric(call);
-
-        epoch_script::CardSchemaSQL schema_sql{};
-        auto error = glz::read<glz::opts{}>(schema_sql, obj);
-        if (error)
-        {
-            ThrowError("Failed to parse CardSchemaSQL constructor: " + glz::format_error(error, glz::write_json(obj).value_or("{}")), call.lineno, call.col_offset);
-        }
-
-        return schema_sql;
-    }
 
     epoch_script::SqlStatement ConstructorParser::ParseSqlStatementConstructor(const Call& call)
     {

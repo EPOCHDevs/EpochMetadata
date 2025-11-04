@@ -1,4 +1,4 @@
-# Source: strategies/advanced-volatility.md:88
+# Source: strategies/advanced-volatility.mdx:90
 # Section: Advanced Volatility Estimators > Parkinson (5.2x)
 # Type: complete_strategy
 
@@ -7,7 +7,8 @@ src = market_data_source()
 vol_park = parkinson(period=20, trading_periods=252)(src.l, src.h)
 
 # Overestimates in trends—use for ranging markets
-ranging = adx(period=14)(src.h, src.l, src.c).adx < 20
+adx_val = adx(period=14)(src.h, src.l, src.c)
+ranging = adx_val < 20
 vol_ok = ranging and (vol_park.result < 0.30)
 
 trade_signal_executor()(enter_long=vol_ok)

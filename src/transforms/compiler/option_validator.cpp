@@ -10,6 +10,7 @@
 #include <glaze/glaze.hpp>
 #include <algorithm>
 #include <format>
+#include <regex>
 
 namespace epoch_script
 {
@@ -189,18 +190,43 @@ namespace epoch_script
 
         case MetaType::EventMarkerSchema:
         {
-            // If already parsed as EventMarkerSchema or CardSchemaSQL, return as-is (already validated)
-            if (std::holds_alternative<epoch_script::EventMarkerSchema>(raw_value) ||
-                std::holds_alternative<epoch_script::CardSchemaSQL>(raw_value))
+            // If already parsed as EventMarkerSchema, validate and return
+            if (std::holds_alternative<epoch_script::EventMarkerSchema>(raw_value))
             {
+                auto schema = std::get<epoch_script::EventMarkerSchema>(raw_value);
+
+                // Validate SLOT syntax in select_key
+                static const std::regex slot_pattern(R"(SLOT\d+)");
+                if (!std::regex_match(schema.select_key, slot_pattern))
+                {
+                    ThrowError(
+                        std::format("EventMarkerSchema field 'select_key' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                    "Found: '{}'. String references like 'signal#result' are not supported.",
+                                    schema.select_key),
+                        call.lineno, call.col_offset);
+                }
+
+                // Validate SLOT syntax in all column_id fields
+                for (const auto& col_schema : schema.schemas)
+                {
+                    if (!std::regex_match(col_schema.column_id, slot_pattern))
+                    {
+                        ThrowError(
+                            std::format("EventMarkerSchema CardColumnSchema 'column_id' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                        "Found: '{}'. String references like 'signal#result' are not supported.",
+                                        col_schema.column_id),
+                            call.lineno, call.col_offset);
+                    }
+                }
+
                 return raw_value;
             }
 
-            // Expect a JSON string to parse into EventMarkerSchema or CardSchemaSQL
+            // Expect a JSON string to parse into EventMarkerSchema
             if (!std::holds_alternative<std::string>(raw_value))
             {
                 ThrowError(
-                    std::format("Option '{}' of node '{}' expects CardSchema (JSON string) but got non-string value",
+                    std::format("Option '{}' of node '{}' expects EventMarkerSchema (JSON string) but got non-string value",
                                 option_id, node_id),
                     call.lineno, call.col_offset);
             }
@@ -209,42 +235,44 @@ namespace epoch_script
             // Trim leading/trailing whitespace (triple-quoted strings may have newlines)
             std::string trimmed_json = TrimWhitespace(json_str);
 
-            // Try parsing as EventMarkerSchema first (uses select_key)
+            // Parse as EventMarkerSchema
             auto filter_result = glz::read_json<epoch_script::EventMarkerSchema>(trimmed_json);
-            if (filter_result)
+            if (!filter_result)
             {
-                return epoch_script::MetaDataOptionDefinition::T{filter_result.value()};
+                ThrowError(
+                    std::format("Invalid EventMarkerSchema JSON for option '{}' of node '{}'. "
+                                "EventMarkerSchema must contain 'select_key' field.",
+                                option_id, node_id),
+                    call.lineno, call.col_offset);
             }
 
-            // Try parsing as CardSchemaSQL (uses sql)
-            auto sql_result = glz::read_json<epoch_script::CardSchemaSQL>(trimmed_json);
-            if (sql_result)
-            {
-                auto card_schema_sql = sql_result.value();
+            auto schema = filter_result.value();
 
-                // Validate SqlStatement with correct numOutputs
-                int num_outputs = static_cast<int>(comp_meta.outputs.size());
-                try
-                {
-                    card_schema_sql.sql.Validate(num_outputs);
-                }
-                catch (const std::exception& e)
+            // Validate SLOT syntax in select_key
+            static const std::regex slot_pattern(R"(SLOT\d+)");
+            if (!std::regex_match(schema.select_key, slot_pattern))
+            {
+                ThrowError(
+                    std::format("EventMarkerSchema field 'select_key' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                "Found: '{}'. String references like 'signal#result' are not supported.",
+                                schema.select_key),
+                    call.lineno, call.col_offset);
+            }
+
+            // Validate SLOT syntax in all column_id fields
+            for (const auto& col_schema : schema.schemas)
+            {
+                if (!std::regex_match(col_schema.column_id, slot_pattern))
                 {
                     ThrowError(
-                        std::format("Invalid SQL in CardSchema for option '{}' of node '{}': {}",
-                                    option_id, node_id, e.what()),
+                        std::format("EventMarkerSchema CardColumnSchema 'column_id' must use SLOT syntax (SLOT0, SLOT1, etc.). "
+                                    "Found: '{}'. String references like 'signal#result' are not supported.",
+                                    col_schema.column_id),
                         call.lineno, call.col_offset);
                 }
-
-                return epoch_script::MetaDataOptionDefinition::T{card_schema_sql};
             }
 
-            // Both EventMarkerSchema and CardSchemaSQL failed
-            ThrowError(
-                std::format("Invalid CardSchema JSON for option '{}' of node '{}'. "
-                            "CardSchema must contain either 'select_key' (for filter mode) or 'sql' (for SQL mode).",
-                            option_id, node_id),
-                call.lineno, call.col_offset);
+            return epoch_script::MetaDataOptionDefinition::T{schema};
         }
 
         case MetaType::SqlStatement:

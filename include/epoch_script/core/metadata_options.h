@@ -99,35 +99,6 @@ namespace epoch_script
     };
   };
 
-  // Card selector schema using SQL query
-  struct CardSchemaSQL {
-    std::string title;
-    epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
-    SqlStatement sql;  // SQL query to filter/transform
-    std::vector<CardColumnSchema> schemas;
-
-    bool operator==(const CardSchemaSQL &) const = default;
-
-    struct glaze_json_schema {
-      glz::schema title{
-        .description = "Title displayed above the card selector widget",
-        .minLength = 1
-      };
-      glz::schema icon{
-        .description = "Icon displayed in collapsed sidebar view to identify card type",
-        .enumeration = std::vector<std::string_view>{"Chart", "Gap", "Signal", "Trade", "Position", "Alert", "TrendUp", "TrendDown", "Calendar", "Dollar", "Candle", "Info"}
-      };
-      glz::schema sql{
-        .description = "SQL query to filter/transform data (MUST use 'FROM self'). Input columns are automatically renamed to SLOT0, SLOT1, SLOT2, etc. based on connection order",
-        .minLength = 1,
-        .pattern = ".*FROM\\s+self.*"
-      };
-      glz::schema schemas{
-        .description = "Array of column definitions specifying how each DataFrame column should be rendered in the cards",
-        .minItems = 1
-      };
-    };
-  };
 
   // Legacy type alias for backwards compatibility - kept for existing code
   using CardSchemaList = EventMarkerSchema;
@@ -135,7 +106,7 @@ namespace epoch_script
   class MetaDataOptionDefinition
   {
   public:
-    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, EventMarkerSchema, CardSchemaSQL, SqlStatement>;
+    using T = std::variant<Sequence, MetaDataArgRef, std::string, bool, double, epoch_frame::Time, EventMarkerSchema, SqlStatement>;
 
     explicit MetaDataOptionDefinition() = default;
 
@@ -253,11 +224,6 @@ namespace epoch_script
     [[nodiscard]] EventMarkerSchema GetCardSchemaList() const
     {
       return GetValueByType<EventMarkerSchema>();
-    }
-
-    [[nodiscard]] CardSchemaSQL GetCardSchemaSQL() const
-    {
-      return GetValueByType<CardSchemaSQL>();
     }
 
     [[nodiscard]] SqlStatement GetSqlStatement() const
@@ -645,37 +611,20 @@ namespace glz
       }
       else if (in.is_object() && in.contains("schemas"))
       {
-        // CardSchema object - parse into proper type based on presence of select_key vs sql
-        if (in.contains("select_key"))
+        // EventMarkerSchema object
+        if (!in.contains("select_key"))
         {
-          // EventMarkerSchema
-          epoch_script::EventMarkerSchema schema;
-          auto error = glz::read_json(schema, in.dump().value_or("{}"));
-          if (error)
-          {
-            throw std::runtime_error("Failed to parse EventMarkerSchema JSON: " +
-                                     glz::format_error(error));
-          }
-          value = epoch_script::MetaDataOptionDefinition{
-              epoch_script::MetaDataOptionDefinition::T{std::move(schema)}};
+          throw std::runtime_error("EventMarkerSchema object must contain 'select_key' field");
         }
-        else if (in.contains("sql"))
+        epoch_script::EventMarkerSchema schema;
+        auto error = glz::read_json(schema, in.dump().value_or("{}"));
+        if (error)
         {
-          // CardSchemaSQL
-          epoch_script::CardSchemaSQL schema;
-          auto error = glz::read_json(schema, in.dump().value_or("{}"));
-          if (error)
-          {
-            throw std::runtime_error("Failed to parse CardSchemaSQL JSON: " +
-                                     glz::format_error(error));
-          }
-          value = epoch_script::MetaDataOptionDefinition{
-              epoch_script::MetaDataOptionDefinition::T{std::move(schema)}};
+          throw std::runtime_error("Failed to parse EventMarkerSchema JSON: " +
+                                   glz::format_error(error));
         }
-        else
-        {
-          throw std::runtime_error("CardSchema object must contain either 'select_key' or 'sql' field");
-        }
+        value = epoch_script::MetaDataOptionDefinition{
+            epoch_script::MetaDataOptionDefinition::T{std::move(schema)}};
       }
       else
       {

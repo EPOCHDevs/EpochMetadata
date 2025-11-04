@@ -576,42 +576,6 @@ namespace epoch_script
                     }
                 }
             }
-            // Handle CardSchemaSQL
-            else if (auto* sql_ptr = std::get_if<epoch_script::CardSchemaSQL>(&value))
-            {
-                auto& sql_schema = *sql_ptr;
-
-                // Note: We don't resolve SLOT in sql.sql string itself, as that uses
-                // SLOT0, SLOT1 to reference input columns (not feed arguments)
-                // Only resolve in schemas column_id fields
-
-                // Resolve column_id in schemas
-                for (auto& schema : sql_schema.schemas)
-                {
-                    if (schema.column_id.rfind("SLOT", 0) == 0)
-                    {
-                        std::string slot_suffix = schema.column_id.substr(4);
-                        size_t slot_idx = 0;
-                        if (!slot_suffix.empty())
-                        {
-                            try {
-                                slot_idx = std::stoull(slot_suffix);
-                            } catch (...) {
-                                // Not a valid slot reference, skip
-                                continue;
-                            }
-                        }
-
-                        if (slot_idx >= args.size())
-                        {
-                            ThrowError("SLOT" + slot_suffix + " reference in column_id out of range");
-                        }
-
-                        const auto& arg_handle = args[slot_idx];
-                        schema.column_id = JoinId(arg_handle.node_id, arg_handle.handle);
-                    }
-                }
-            }
         };
 
         // Iterate through all options and resolve SLOT references

@@ -1,23 +1,23 @@
-# Source: strategies/volume-order-flow.md:18
+# Source: strategies/volume-order-flow.mdx:21
 # Section: Volume & Order Flow Analysis > OBV & A/D Line Divergences
 # Type: complete_strategy
 
 src = market_data_source()
 
 obv_val = obv()(src.c, src.v)
-ad_val = ad()(src.h, src.l, src.c, src.v)
+ad = ad_line()(src.h, src.l, src.c, src.v)
 
 # Bearish divergence (price higher, volume lower)
 price_new_high = src.c > max(period=20)(src.c[1])
 obv_lower = obv_val < obv_val[20]
-ad_lower = ad_val < ad_val[20]
+ad_lower = ad.result < ad.result[20]
 
 bearish_div = price_new_high and (obv_lower or ad_lower)
 
 # Bullish divergence
 price_new_low = src.l < min(period=20)(src.l[1])
 obv_higher = obv_val > obv_val[20]
-ad_higher = ad_val > ad_val[20]
+ad_higher = ad.result > ad.result[20]
 
 bullish_div = price_new_low and (obv_higher or ad_higher)
 

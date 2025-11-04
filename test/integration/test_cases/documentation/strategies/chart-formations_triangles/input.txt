@@ -1,22 +1,22 @@
-# Source: strategies/chart-formations.md:60
+# Source: strategies/chart-formations.mdx:63
 # Section: Chart Formation Recognition > Triangles
 # Type: complete_strategy
 
 src = market_data_source()
 
-asc_tri = triangles(triangle_type="Ascending (Bullish)")(src.h, src.l, src.c)
-desc_tri = triangles(triangle_type="Descending (Bearish)")(src.h, src.l, src.c)
-sym_tri = triangles(triangle_type="Symmetrical (Neutral)")(src.h, src.l, src.c)
+asc_tri = ascending_triangle()(src.h, src.l, src.c)
+desc_tri = descending_triangle()(src.h, src.l, src.c)
+sym_tri = symmetrical_triangle()(src.h, src.l, src.c)
 
 # Breakout direction
 uptrend = ema(period=50)(src.c) > ema(period=200)(src.c)
 
-asc_break = asc_tri.pattern_detected
-desc_break = desc_tri.pattern_detected
+asc_break = asc_tri.result and (src.c > asc_tri.resistance)
+desc_break = desc_tri.result and (src.c < desc_tri.support)
 
 # Symmetrical breaks in trend direction
-sym_bull = sym_tri.pattern_detected and uptrend
-sym_bear = sym_tri.pattern_detected and not uptrend
+sym_bull = sym_tri.result and (src.c > sym_tri.upper) and uptrend
+sym_bear = sym_tri.result and (src.c < sym_tri.lower) and not uptrend
 
 entry = asc_break or sym_bull
 exit = desc_break or sym_bear

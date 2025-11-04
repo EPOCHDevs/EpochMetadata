@@ -1,20 +1,18 @@
-# Source: strategies/advanced-momentum.md:22
+# Source: strategies/advanced-momentum.mdx:25
 # Section: Advanced Momentum Indicators > Fisher Transform
 # Type: complete_strategy
 
 src = market_data_source()
 
-fisher_result = fisher(period=10)(src.h, src.l)
-fisher_val = fisher_result.fisher
-fisher_signal = ema(period=3)(fisher_val)
+fisher = fisher(period=10)(src.h, src.l)
 
 # Extreme reversal signals
-fisher_oversold = fisher_val < -2.0
-fisher_overbought = fisher_val > 2.0
+fisher_oversold = fisher.fisher < -2.0
+fisher_overbought = fisher.fisher > 2.0
 
 # Crossover
-bullish_cross = crossover(fisher_val, fisher_signal)
-bearish_cross = crossunder(fisher_val, fisher_signal)
+bullish_cross = crossover(fisher.fisher, 0)
+bearish_cross = crossunder(fisher.fisher, 0)
 
 entry = fisher_oversold and bullish_cross
 exit = fisher_overbought or bearish_cross

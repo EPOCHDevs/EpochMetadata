@@ -1,4 +1,4 @@
-# Source: strategies/statistical-analysis.md:50
+# Source: strategies/statistical-analysis.mdx:55
 # Section: Statistical Analysis & Machine Learning > Hurst Exponent
 # Type: complete_strategy
 
@@ -18,11 +18,10 @@ random_walk = hurst.result >= 0.45 and hurst.result <= 0.55
 mr_signal = rsi(period=14)(src.c) < 30
 tf_signal = ema(period=20)(src.c) > ema(period=50)(src.c)
 
-# Mean-revert when H<0.45, trend-follow when H>0.55, avoid random walk
 entry = conditional_select(
-    mean_reverting, mr_signal,
-    trending, tf_signal,
-    0
+    mean_reverting, mr_signal,  # Mean-revert when H<0.45
+    trending, tf_signal,         # Trend-follow when H>0.55
+    false                        # Avoid random walk
 )
 
 trade_signal_executor()(enter_long=entry)
