@@ -84,6 +84,8 @@
 #include "indicators/bar_gap.h"
 #include "indicators/lag.h"
 #include "indicators/moving_average.h"
+#include "indicators/vwap.h"
+#include "indicators/trade_count.h"
 #include "operators/equality.h"
 #include "operators/logical.h"
 #include "operators/select.h"
@@ -198,6 +200,9 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(forward_returns, ForwardReturns);
   REGISTER_TRANSFORM(lag, Lag);
   REGISTER_TRANSFORM(ma, MovingAverage);
+  // Market-data derived single-series transforms
+  REGISTER_TRANSFORM(vwap, VWAPTransform);
+  REGISTER_TRANSFORM(trade_count, TradeCountTransform);
 
   REGISTER_TRANSFORM(price_diff_vol, PriceDiffVolatility);
   REGISTER_TRANSFORM(return_vol, ReturnVolatility);

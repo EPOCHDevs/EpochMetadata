@@ -532,7 +532,7 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
 std::vector<TransformsMetaData> MakeDataSource() {
   std::vector<TransformsMetaData> result;
 
-  // Refactored Names Applied Below
+  // Core market data source (now only OHLCV)
   result.emplace_back(TransformsMetaData{
       .id = MARKET_DATA_SOURCE_ID,
       .category = epoch_core::TransformCategory::DataSource,
@@ -545,16 +545,47 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::HIGH_PRICE_METADATA,
                   IOMetaDataConstants::LOW_PRICE_METADATA,
                   IOMetaDataConstants::CLOSE_PRICE_METADATA,
-                  IOMetaDataConstants::VOLUME_METADATA,
-                  {epoch_core::IODataType::Number, "vw", "Volume Weighted Average Price", true},
-                  {epoch_core::IODataType::Number, "n", "Trade Count", true}},
+                  IOMetaDataConstants::VOLUME_METADATA},
       .tags = {"data", "source", "price", "ohlcv"},
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"},
+      .requiredDataSources = {"o", "h", "l", "c", "v"},
       .strategyTypes = {"data-input"},
       .assetRequirements = {"single-asset"},
-      .usageContext = "Foundation node providing raw OHLCV market data to all strategies. Every strategy pipeline starts here. Outputs connect to indicators, comparisons, and calculations. VWAP and trade count available for advanced volume analysis.",
+      .usageContext = "Foundation node providing raw OHLCV market data to all strategies. Every strategy pipeline starts here. Outputs connect to indicators, comparisons, and calculations.",
       .limitations = "Data quality depends on feed provider. Historical data may have gaps or errors. Intraday data limited by subscription/exchange access."});
+
+  // Breakout transforms for VWAP and Trade Count (previously on market_data_source)
+  result.emplace_back(TransformsMetaData{
+      .id = "vwap",
+      .category = epoch_core::TransformCategory::Volume,
+      .plotKind = epoch_core::TransformPlotKind::vwap,
+      .name = "VWAP",
+      .options = {},
+      .desc = "Volume Weighted Average Price per bar (provider 'vw').",
+      .outputs = {IOMetaDataConstants::NUMBER_OUTPUT_METADATA},
+      .tags = {"volume", "price", "vwap"},
+      .requiresTimeFrame = true,
+      .requiredDataSources = {"vw"},
+      .strategyTypes = {"execution", "intraday", "mean-reversion", "trend-following"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Overlay for intraday execution and benchmarking. Use with OHLC and volume for confirmation.",
+      .limitations = "Requires data provider to supply per-bar VWAP (vw)."});
+
+  result.emplace_back(TransformsMetaData{
+      .id = "trade_count",
+      .category = epoch_core::TransformCategory::Volume,
+      .plotKind = epoch_core::TransformPlotKind::column,
+      .name = "Trade Count",
+      .options = {},
+      .desc = "Number of trades per bar (provider 'n').",
+      .outputs = {IOMetaDataConstants::NUMBER_OUTPUT_METADATA},
+      .tags = {"volume", "microstructure", "trades"},
+      .requiresTimeFrame = true,
+      .requiredDataSources = {"n"},
+      .strategyTypes = {"volume-analysis", "liquidity"},
+      .assetRequirements = {"single-asset"},
+      .usageContext = "Use to gauge liquidity and activity; combine with volume and range.",
+      .limitations = "Depends on provider aggregation; may vary across venues."});
 
   return result;
 }

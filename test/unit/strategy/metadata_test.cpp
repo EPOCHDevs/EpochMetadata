@@ -221,7 +221,8 @@ TEST_CASE("PythonSource - intraday timeframe detection", "[PythonSource]")
   // Algorithm using minute (intraday) data
   std::string source = R"(
 src = market_data_source(timeframe='1Min')
-gt_result = gt()(src.c, src.vw)
+v = vwap(timeframe='1Min')
+gt_result = gt()(src.c, v.result)
 )";
 
   PythonSource pythonSource(source);
@@ -332,7 +333,8 @@ TEST_CASE("PythonSource - glaze round-trip serialization", "[PythonSource]")
   std::string source = R"(
 src = market_data_source(timeframe='5Min')
 sma_val = sma(period=10, timeframe='5Min')(src.c)
-gt_result = gt()(src.vw, sma_val.result)
+v = vwap(timeframe='5Min')
+gt_result = gt()(v.result, sma_val.result)
 )";
   PythonSource original(source);
 
