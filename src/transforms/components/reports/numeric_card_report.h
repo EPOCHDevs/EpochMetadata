@@ -8,7 +8,9 @@ CREATE_ENUM(NumericArrowAggregateFunction,
   approximate_median,  // approximate_median
   count_all,           // count_all
   count_distinct,      // count_distinct
+  first,               // first
   kurtosis,            // kurtosis
+  last,                // last
   max,                 // max
   mean,                // mean
   min,                 // min
@@ -50,7 +52,9 @@ template <> struct ReportMetadata<NumericCardReport> {
                           {"Approximate Median", "approximate_median"},
                           {"Count All", "count_all"},
                           {"Count Distinct", "count_distinct"},
+                          {"First", "first"},
                           {"Kurtosis", "kurtosis"},
+                          {"Last", "last"},
                           {"Max", "max"},
                           {"Mean", "mean"},
                           {"Min", "min"},
