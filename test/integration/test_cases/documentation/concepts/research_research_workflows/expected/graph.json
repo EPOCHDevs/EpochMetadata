@@ -1,5 +1,119 @@
-{
-  "TODO": "Fix compilation error",
-  "error": "Error: Too many positional inputs for 'node_0'\n",
-  "status": "NEEDS_FIX"
-}
+[
+   {
+      "type": "atr",
+      "id": "atr_0",
+      "options": {
+         "period": 14
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "cs_zscore",
+      "id": "momentum",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "roc_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "cs_table_report",
+      "id": "node_0",
+      "options": {
+         "agg": "last",
+         "title": "Factor Scores",
+         "category": "Cross-Sectional"
+      },
+      "inputs": {
+         "SLOT": [
+            "momentum#result",
+            "volatility#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "histogram_chart_report",
+      "id": "node_1",
+      "options": {
+         "bins": 20,
+         "title": "Momentum Distribution",
+         "category": "Research",
+         "x_axis_label": "",
+         "y_axis_label": ""
+      },
+      "inputs": {
+         "value": [
+            "momentum#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "roc",
+      "id": "roc_0",
+      "options": {
+         "period": 60
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "common_indices",
+      "id": "spx",
+      "options": {
+         "index": "SPX"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "cs_zscore",
+      "id": "volatility",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "atr_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]
