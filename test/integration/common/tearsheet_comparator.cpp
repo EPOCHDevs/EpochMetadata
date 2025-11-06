@@ -95,9 +95,31 @@ bool TearSheetComparator::Compare(const std::string& expectedJson,
 bool TearSheetComparator::Compare(const epoch_proto::TearSheet& expected,
                                   const epoch_proto::TearSheet& actual,
                                   std::string& diff) {
-    std::string expectedJson = ToJson(expected, true);
-    std::string actualJson = ToJson(actual, true);
-    return Compare(expectedJson, actualJson, diff);
+    // Normalize copies to ensure deterministic ordering
+    epoch_proto::TearSheet exp = expected;
+    epoch_proto::TearSheet act = actual;
+    NormalizeTearSheet(exp);
+    NormalizeTearSheet(act);
+
+    // First try a deterministic binary comparison after normalization
+    std::string exp_bin, act_bin;
+    exp.SerializeToString(&exp_bin);
+    act.SerializeToString(&act_bin);
+    if (exp_bin == act_bin) {
+        return true;
+    }
+
+    // Fall back to JSON diff for human-readable diagnostics; never throw
+    try {
+        std::string expectedJson = ToJson(exp, true);
+        std::string actualJson = ToJson(act, true);
+        return Compare(expectedJson, actualJson, diff);
+    } catch (const std::exception& e) {
+        std::ostringstream oss;
+        oss << "TearSheet comparison failed to produce JSON diff: " << e.what();
+        diff = oss.str();
+        return false;
+    }
 }
 
 void TearSheetComparator::NormalizeTearSheet(epoch_proto::TearSheet& tearsheet) {

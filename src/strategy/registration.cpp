@@ -108,13 +108,15 @@ namespace epoch_script::strategy
       MetaDataOptionList options;
       // TODO: Extract exposed options from compiled AlgorithmNodes
 
-      // Determine if timeframe is required (check if any node has explicit timeframe)
-      bool requiresTimeframe = true;
+      // Determine if timeframe is required (check if any node lacks explicit timeframe)
+      // If ALL nodes have explicit timeframes, the strategy doesn't need one
+      // If ANY node lacks a timeframe, the strategy requires a timeframe parameter
+      bool requiresTimeframe = false;
       for (const auto &node : config.source.GetCompilationResult())
       {
-        if (node.timeframe.has_value())
+        if (!node.timeframe.has_value())
         {
-          requiresTimeframe = false;
+          requiresTimeframe = true;
           break;
         }
       }

@@ -1,0 +1,19 @@
+# Source: concepts/cross-sectional.mdx:189
+# Section: Cross-Sectional Analysis > Multi-Factor Example
+# Type: complete_strategy
+
+src = market_data_source(timeframe="1D")
+
+# Calculate and normalize factors
+momentum = cs_zscore()(roc(period=60)(src.c))
+value = cs_zscore()(pe_ratio()(src.c) * -1)
+quality = cs_zscore()(atr(period=14)(src.c) * -1)
+
+# Combine normalized factors
+combined_score = (momentum * 0.5 + value * 0.3 + quality * 0.2)
+
+# Select positions
+long_positions = top_k_percent(k=20)(combined_score)
+short_positions = bottom_k_percent(k=10)(combined_score)
+
+trade_signal_executor()(enter_long=long_positions, enter_short=short_positions)

@@ -1,0 +1,17 @@
+src = market_data_source(timeframe="1H")
+
+# Symbol logical operators
+and_symbol = (src.c > src.o) & (src.h > src.c)
+or_symbol = (src.c < src.l) | (src.h > src.o)
+not_symbol = !(src.c > src.o)
+
+# Chained symbol operators
+chained_and = (src.c > src.o) & (src.h > src.c) & (src.c > src.l)
+chained_or = (src.c < src.l) | (src.h > src.o) | (src.c == src.o)
+
+# Mixed keyword and symbol operators (should work identically)
+mixed_and = (src.c > src.o) and (src.h > src.c) & (src.c > src.l)
+mixed_or = (src.c < src.l) or (src.h > src.o) | (src.c == src.o)
+
+# Signal output
+trade_signal_executor()(enter_long=and_symbol)

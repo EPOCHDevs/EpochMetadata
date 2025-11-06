@@ -24,6 +24,7 @@
 #include "statistics/hmm.h"
 #include "hosseinmoein/statistics/rolling_corr.h"
 #include "hosseinmoein/statistics/rolling_cov.h"
+#include "hosseinmoein/statistics/beta.h"
 #include "hosseinmoein/statistics/ewm_corr.h"
 #include "hosseinmoein/statistics/ewm_cov.h"
 
@@ -40,6 +41,7 @@
 
 // Calendar Effects
 #include "calendar/calendar_effect.h"
+#include "calendar/time_of_day.h"
 
 // String Operations
 #include "string/string_operations.h"
@@ -67,6 +69,9 @@
 #include "reports/gap_report.h"
 #include "reports/table_report.h"
 #include "reports/bar_chart_report.h"
+#include "reports/cs_bar_chart_report.h"
+#include "reports/cs_table_report.h"
+#include "reports/cs_numeric_card_report.h"
 #include "reports/pie_chart_report.h"
 #include "reports/nested_pie_chart_report.h"
 #include "reports/histogram_chart_report.h"
@@ -74,12 +79,16 @@
 
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
+#include "cross_sectional/cs_rolling_corr.h"
+#include "cross_sectional/cs_rolling_cov.h"
+#include "cross_sectional/cs_zscore.h"
 #include "cummulative/cum_op.h"
 
 #include "hosseinmoein/hosseinmoein.h"
 
 #include "indicators/bband_variant.h"
 #include "indicators/forward_returns.h"
+#include "indicators/intraday_returns.h"
 #include "indicators/session_gap.h"
 #include "indicators/bar_gap.h"
 #include "indicators/lag.h"
@@ -89,6 +98,8 @@
 #include "operators/equality.h"
 #include "operators/logical.h"
 #include "operators/select.h"
+#include "operators/modulo.h"
+#include "operators/power.h"
 #include "scalar.h"
 #include "tulip/tulip_model.h"
 #include "volatility/volatility.h"
@@ -148,6 +159,9 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(logical_and_not, LogicalAND_NOT);
   REGISTER_TRANSFORM(logical_not, LogicalNot);
 
+  REGISTER_TRANSFORM(modulo, ModuloTransform);
+  REGISTER_TRANSFORM(power_op, PowerTransform);
+
   REGISTER_TRANSFORM(boolean_select, BooleanSelectTransform);
   REGISTER_TRANSFORM(select_2, Select2);
   REGISTER_TRANSFORM(select_3, Select3);
@@ -190,6 +204,11 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(bottom_k_percent,
                      CrossSectionalBottomKPercentileOperation);
 
+  // Cross-Sectional Statistical Transforms
+  REGISTER_TRANSFORM(cs_rolling_corr, CSRollingCorr);
+  REGISTER_TRANSFORM(cs_rolling_cov, CSRollingCov);
+  REGISTER_TRANSFORM(cs_zscore, CSZScore);
+
   REGISTER_TRANSFORM(bband_percent, BollingerBandsPercent);
   REGISTER_TRANSFORM(bband_width, BollingerBandsWidth);
 
@@ -198,6 +217,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(bar_gap, BarGap);
 
   REGISTER_TRANSFORM(forward_returns, ForwardReturns);
+  REGISTER_TRANSFORM(intraday_returns, IntradayReturns);
   REGISTER_TRANSFORM(lag, Lag);
   REGISTER_TRANSFORM(ma, MovingAverage);
   // Market-data derived single-series transforms
@@ -283,6 +303,7 @@ void InitializeTransforms(
   // Statistical Transforms
   REGISTER_TRANSFORM(rolling_corr, RollingCorr);
   REGISTER_TRANSFORM(rolling_cov, RollingCov);
+  REGISTER_TRANSFORM(beta, Beta);
   REGISTER_TRANSFORM(ewm_corr, EWMCorr);
   REGISTER_TRANSFORM(ewm_cov, EWMCov);
 
@@ -290,8 +311,11 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(trade_signal_executor, TradeExecutorTransform);
 
 
-  // Statistics Transforms
-  REGISTER_TRANSFORM(hmm, HMMTransform);
+  // Statistics Transforms - HMM specializations for 2-5 states
+  REGISTER_TRANSFORM(hmm_2, HMM2Transform);
+  REGISTER_TRANSFORM(hmm_3, HMM3Transform);
+  REGISTER_TRANSFORM(hmm_4, HMM4Transform);
+  REGISTER_TRANSFORM(hmm_5, HMM5Transform);
 
   // Calendar Effects Transforms
   REGISTER_TRANSFORM(turn_of_month, TurnOfMonthEffect);
@@ -300,6 +324,7 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(quarter, QuarterEffect);
   REGISTER_TRANSFORM(holiday, HolidayEffect);
   REGISTER_TRANSFORM(week_of_month, WeekOfMonthEffect);
+  REGISTER_TRANSFORM(time_of_day, TimeOfDay);
 
   // Fundamental & Market Data Source Transforms
   REGISTER_TRANSFORM(balance_sheet, PolygonBalanceSheetTransform);
@@ -308,7 +333,6 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(financial_ratios, PolygonFinancialRatiosTransform);
   REGISTER_TRANSFORM(quotes, PolygonQuotesTransform);
   REGISTER_TRANSFORM(trades, PolygonTradesTransform);
-  REGISTER_TRANSFORM(aggregates, PolygonAggregatesTransform);
   REGISTER_TRANSFORM(common_indices, PolygonCommonIndicesTransform);
   REGISTER_TRANSFORM(indices, PolygonIndicesTransform);
 
@@ -343,6 +367,11 @@ void InitializeTransforms(
   reports::RegisterReport<reports::PieChartReport>();
   reports::RegisterReport<reports::NestedPieChartReport>();
   reports::RegisterReport<reports::HistogramChartReport>();
+
+  // Register Cross-Sectional Reports
+  reports::RegisterReport<reports::CSBarChartReport>();
+  reports::RegisterReport<reports::CSTableReport>();
+  reports::RegisterReport<reports::CSNumericCardReport>();
 
   // Register Specialized Reports
   reports::RegisterReport<reports::GapReport>();

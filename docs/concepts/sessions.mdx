@@ -17,12 +17,13 @@ Intraday session filtering and detection. Two modes: filter data to specific ses
 
 ---
 
-## Two Session Features
+## Session Features
 
 | Feature | Purpose | Usage |
 |---------|---------|-------|
 | **`session` parameter** | Filter data to specific session | `ema(period=20, session="London")(src.c)` |
-| **`sessions()` transform** | Detect session boundaries | `london = sessions(session_type="London")()` |
+| **`sessions()` transform** | Detect predefined session boundaries | `london = sessions(session_type="London")()` |
+| **`time_of_day()` transform** | Detect custom time ranges | `morning = time_of_day(start="09:00", end="12:00")()` |
 
 ---
 
@@ -31,7 +32,7 @@ Intraday session filtering and detection. Two modes: filter data to specific ses
 Execute transform on ONLY the bars within a specific trading session.
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
 # EMA calculated ONLY on London session bars
 london_ema = ema(period=20, session="London")(src.c)
@@ -68,7 +69,7 @@ session = sessions(session_type="session_name")()
 
 **Example:**
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 london = sessions(session_type="London")()
 
 # Define bullish condition
@@ -87,6 +88,35 @@ breakout_low = src.c < london.low
 # Exit at session close
 exit_signal = london.closed
 ```
+
+---
+
+## time_of_day() Transform (Custom Time Ranges)
+
+Define custom UTC time ranges for intraday filtering.
+
+**Syntax:**
+```python
+period = time_of_day(start="HH:MM", end="HH:MM")()
+```
+
+**Example:**
+```python
+src = market_data_source(timeframe="1H")
+
+# Morning period: 09:00-12:00 UTC
+morning = time_of_day(start="09:00", end="12:00")()
+
+# Use same outputs as sessions()
+is_morning = morning.active
+morning_high = morning.high
+morning_low = morning.low
+```
+
+**Key differences from `sessions()`:**
+- Custom time ranges (not predefined)
+- All times in UTC (no DST handling)
+- Same 5 outputs: `active`, `opened`, `closed`, `high`, `low`
 
 ---
 
@@ -115,7 +145,7 @@ exit_signal = london.closed
 ## Combined Session + TimeFrame
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
 # Daily bars, but only from New York session data
 daily_ny_src = market_data_source(

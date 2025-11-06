@@ -20,6 +20,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+# Option to specify where script metadata files (transforms.yaml, etc.) should be copied
+# Defaults to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files but can be overridden
+set(SCRIPT_METADATA_FILES_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files" CACHE PATH
+    "Directory where script metadata files (transforms.yaml, commission.yaml, etc.) will be copied")
+message(STATUS "Script metadata files will be copied to: ${SCRIPT_METADATA_FILES_DIR}")
+
 # Enable vcpkg manifest mode (uses vcpkg.json)
 set(DEPENDENCY_DIR "/usr/local" CACHE STRING "Dependency directory")
 set(CMAKE_TOOLCHAIN_FILE $ENV{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")

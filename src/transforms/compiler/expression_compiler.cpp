@@ -292,6 +292,12 @@ namespace epoch_script
         case BinOpType::Or:
             comp_name = "logical_or";
             break;
+        case BinOpType::Mod:
+            comp_name = "modulo";
+            break;
+        case BinOpType::Pow:
+            comp_name = "power_op";
+            break;
         default:
             ThrowError("Unsupported binary operator", bin_op.lineno, bin_op.col_offset);
         }

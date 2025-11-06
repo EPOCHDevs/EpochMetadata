@@ -4,425 +4,290 @@ page_type: implementation
 layout: default
 order: 3
 category: Concepts
-description: Research reports for gap analysis, table queries, and chart visualizations
-parent: ./visualization.md
+description: Interactive dashboards for strategy analysis and discovery
+parent: ./index.md
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 # Research Reports
 
-## Overview
-
-**Generate research dashboards** to analyze strategy behavior:
-
-<Steps>
-  <Step>
-    ## Write Research Script
-
-    Write research script with report transforms
-  </Step>
-
-  <Step>
-    ## Run Script
-
-    Run script → Generate reports
-  </Step>
-
-  <Step>
-    ## Open Dashboard
-
-    Open dashboard → View results
-  </Step>
-
-  <Step>
-    ## Analyze & Refine
-
-    Analyze findings → Refine strategy
-  </Step>
-</Steps>
+Generate interactive dashboards to analyze strategy behavior, detect patterns, and validate hypotheses.
 
 ---
 
-## Gap Reports
+## Report Categories
 
-Comprehensive gap analysis with summary cards, histograms, and detailed tables.
+### Card Reports
 
-### Required Inputs
+Display aggregated metrics as dashboard cards.
 
-The `gap_report` transform requires **all 5 outputs** from `session_gap` or `bar_gap`:
+#### Numeric Cards
 
 ```python
-# Get gap detection outputs
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
+src = market_data_source(timeframe="1D")
+returns = roc(period=1)(src.c)
 
-# Pass all 5 required outputs to gap_report
-gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
-    gaps.gap_filled,      # Boolean: Was gap filled?
-    gaps.gap_retrace,     # Boolean: Did price retrace into gap?
-    gaps.gap_size,        # Decimal: Gap size in price units
-    gaps.psc,             # Decimal: Previous session close
-    gaps.psc_timestamp    # Timestamp: When gap formed
-)
+# Single metric card
+numeric_card_report(agg="mean", category="Performance", title="Avg Daily Return")(returns)
+
+# Multiple metrics in one category
+numeric_card_report(agg="mean", category="Stats", title="Mean", group=0, group_size=3)(returns)
+numeric_card_report(agg="stddev", category="Stats", title="Volatility", group=0, group_size=3)(returns)
+numeric_card_report(agg="max", category="Stats", title="Max Return", group=0, group_size=3)(returns)
 ```
 
-### Dashboard Components
+**Aggregations:** `mean`, `sum`, `min`, `max`, `stddev`, `variance`, `first`, `last`, `count`, `median`, `skew`, `kurtosis`
 
-**Summary Cards:**
-- Fill Rate: 67.3%
-- Average Gap Size: 1.24%
-- Median Fill Time: 42 minutes
-- Total Gaps: 1,247
+#### Boolean Cards
 
-**Histograms:**
-- Gap Size Distribution (bins: 0-0.5%, 0.5-1%, 1-1.5%, etc.)
-- Fill Time Distribution (bins: 0-15min, 15-30min, 30-60min, etc.)
+```python
+signal = crossover(rsi_val, 30)
+boolean_card_report(category="Signals", title="RSI Crossover Count")(signal)
+```
 
-**Tables:**
-- Gaps by Hour (pivot table)
-- Gaps by Day of Week
-- Gaps by Size Bucket
-- Detailed gap log (timestamp, size, fill time, filled?)
+#### Index Cards
 
-### Common Patterns
+Show specific rows by index (first, last, percentiles).
 
-**Analyze gaps by session:**
+```python
+high_returns = returns[returns > 0.02]  # Filter high return days
+index_card_report(index="first", category="Top Days", title="First Occurrence")(high_returns)
+```
 
-<Tabs items={['Asian Session', 'London Session']}>
-  <Tab value="Asian Session">
-    ```python
-    # Asian session gaps
-    asian_gaps = session_gap(fill_percent=100, session="AsianKillZone")()
-    gap_report(fill_time_pivot_hour=12)(
-        asian_gaps.gap_filled,
-        asian_gaps.gap_retrace,
-        asian_gaps.gap_size,
-        asian_gaps.psc,
-        asian_gaps.psc_timestamp
-    )
-    ```
-  </Tab>
+#### Quantile Cards
 
-  <Tab value="London Session">
-    ```python
-    # London session gaps
-    london_gaps = session_gap(fill_percent=100, session="LondonKillZone")()
-    gap_report(fill_time_pivot_hour=12)(
-        london_gaps.gap_filled,
-        london_gaps.gap_retrace,
-        london_gaps.gap_size,
-        london_gaps.psc,
-        london_gaps.psc_timestamp
-    )
-    ```
-  </Tab>
-</Tabs>
+Display quantile values (25th, 50th, 75th percentiles).
+
+```python
+quantile_card_report(quantile=0.95, category="Risk", title="95th Percentile Return")(returns)
+```
 
 ---
 
-## Table Reports
+### Chart Reports
 
-Display filtered rows from your data in a table format.
+#### Bar Charts
 
-### Basic Usage
+Categorical comparisons and distributions.
 
 ```python
-# Display RSI extreme conditions
-src = market_data_source()
-returns = (src.c - src.c[1]) / src.c[1]
+# Distribution by regime
+regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
+bar_chart_report(agg="count", title="Bar Count by Regime", category="Distribution")(regime)
+
+# Aggregate metrics by category
+bar_chart_report(agg="mean", title="Avg Return by Regime", category="Performance")(regime, returns)
+```
+
+**Aggregations:** `count`, `sum`, `mean`, `first`, `last`, `min`, `max`
+
+#### Pie Charts
+
+Proportional breakdowns.
+
+```python
+# Simple proportion
+pie_chart_report(agg="count", title="Regime Distribution", category="Analysis")(regime)
+
+# Nested pie (two-level hierarchy)
+sector = conditional_select(...)  # Sector categorization
+nested_pie_chart_report(agg="count", title="Asset Distribution", category="Breakdown")(sector, regime)
+```
+
+#### Histograms
+
+Value distributions and frequency analysis.
+
+```python
+returns = roc(period=1)(src.c)
+histogram_chart_report(bins=30, title="Return Distribution", category="Stats", vertical=False)(returns)
+```
+
+---
+
+### Table Reports
+
+Filtered row-level data with custom columns.
+
+```python
+src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
-volume = src.v
+returns = roc(period=1)(src.c)
 
-# Create boolean filter for extreme RSI
-oversold = rsi_val < 30
-overbought = rsi_val > 70
-extreme_rsi = oversold or overbought
-
-# Create regime labels
-regime_label = conditional_select(
-    oversold, "Oversold",
-    overbought, "Overbought",
-    "Neutral"
-)
+# Filter extreme conditions
+extreme = (rsi_val < 30) | (rsi_val > 70)
+regime = conditional_select(rsi_val < 30, "Oversold", "Overbought")
 
 table_report(schema=TableReportSchema(
-    title="RSI Extreme Conditions",
-    select_key=SLOT0,  # Boolean column for filtering
+    title="RSI Extremes",
+    select_key=SLOT0,  # Boolean filter (extreme)
     columns=[
         TableColumnSchema(column_id=SLOT1, title="Regime"),
         TableColumnSchema(column_id=SLOT2, title="RSI"),
-        TableColumnSchema(column_id=SLOT3, title="Return"),
-        TableColumnSchema(column_id=SLOT4, title="Volume")
+        TableColumnSchema(column_id=SLOT3, title="Return %")
     ]
-))(extreme_rsi, regime_label, rsi_val, returns, volume)
+))(extreme, regime, rsi_val, returns)
 ```
 
-**Dashboard table:**
-```text
-┌───────────┬──────┬─────────┬─────────┐
-│ Regime    │ RSI  │ Return  │ Volume  │
-├───────────┼──────┼─────────┼─────────┤
-│ Oversold  │ 28.5 │ +0.42%  │ 3.2M    │
-│ Oversold  │ 25.1 │ +1.15%  │ 4.1M    │
-│ Overbought│ 72.3 │ -0.18%  │ 2.8M    │
-│ Overbought│ 75.8 │ -0.65%  │ 3.5M    │
-└───────────┴──────┴─────────┴─────────┘
-```
+**Key Points:**
+- `select_key`: Boolean column for row filtering
+- Inputs map to `SLOT0`, `SLOT1`, `SLOT2`, etc. by position
+- Only rows where `select_key` is `true` appear in table
 
-### Schema Configuration
+---
 
-**Inputs are accessed as SLOT0, SLOT1, SLOT2, etc. by position:**
+### Specialized Reports
+
+#### Gap Report
+
+Comprehensive gap analysis with cards, histograms, and pivot tables.
 
 ```python
-# Inputs map to SLOT columns by position
-returns = (src.c - src.c[1]) / src.c[1]
-rsi_val = rsi(period=14)(src.c)
-signal = rsi_val > 70
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
-table_report(schema=TableReportSchema(
-    title="My Table",
-    select_key=SLOT0,  # signal (boolean filter)
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="Return"),  # returns
-        TableColumnSchema(column_id=SLOT2, title="RSI")      # rsi_val
-    ]
-))(signal, returns, rsi_val)
-```
-
-<Callout type="warning" title="Use SLOT* Column Names">
-Schema must reference inputs as SLOT0, SLOT1, SLOT2, etc.:
-
-```python
-src = market_data_source()
-signal = src.c > src.o
-
-# ❌ WRONG: Using variable names
-table_report(schema=TableReportSchema(
-    select_key="signal",  # Variable name won't work
-    ...
-))
-
-# ✅ CORRECT: Use SLOT0
-table_report(schema=TableReportSchema(
-    select_key=SLOT0,  # First input is SLOT0
-    ...
-))(signal, ...)
-```
-</Callout>
-
-### Common Patterns
-
-**Simple filtering:**
-
-```python
-src = market_data_source()
-returns = (src.c - src.c[1]) / src.c[1]
-rsi_val = rsi(period=14)(src.c)
-oversold = rsi_val < 30
-overbought = rsi_val > 70
-extreme_condition = oversold or overbought
-regime_label = conditional_select(
-    oversold, "Oversold",
-    overbought, "Overbought",
-    "Neutral"
+gap_report(fill_time_pivot_hour=12, histogram_bins=20)(
+    gaps.gap_filled,     # Boolean
+    gaps.gap_retrace,    # Boolean
+    gaps.gap_size,       # Decimal
+    gaps.psc,            # Decimal
+    gaps.psc_timestamp   # Timestamp
 )
+```
 
+**Output:**
+- Summary cards: fill rate, avg gap size, median fill time, total gaps
+- Histograms: gap size distribution, fill time distribution
+- Pivot tables: gaps by hour, by day of week, by size bucket
+- Detail table: timestamp, size, fill time, filled status
+
+---
+
+## Cross-Sectional Reports
+
+Multi-asset comparison reports for factor strategies.
+
+### CS Bar Chart
+
+Compare all assets in one chart.
+
+```python
+# Sector performance comparison
+src = market_data_source(timeframe="1D")  # 11 sector ETFs
+returns = roc(period=20)(src.c)
+
+cs_bar_chart_report(agg="last", title="20-Day Returns by Sector", category="Performance")(returns)
+# One bar per sector: XLK, XLF, XLE, etc.
+```
+
+**Use Cases:**
+- Sector performance rankings
+- Factor score comparisons
+- Multi-asset metrics side-by-side
+
+### CS Table
+
+Asset-by-metric table with aggregation.
+
+```python
+momentum = roc(period=60)(src.c)
+volatility = atr(period=14)(src.c)
+
+cs_table_report(agg="last", title="Sector Metrics", category="Analysis")(momentum, volatility)
+# Table: Asset | Momentum | Volatility
+#        XLK  |   +15%   |    0.8
+#        XLF  |    +8%   |    0.6
+```
+
+**Aggregations:** `first`, `last`, `mean`, `sum`, `min`, `max`
+
+### CS Numeric Cards
+
+Card group with one card per asset.
+
+```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")
+
+# Calculate returns
+returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
+# Calculate beta for each asset
+sector_beta = beta(window=60)(returns, spx_returns)
+
+cs_numeric_card_report(agg="last", category="Beta Analysis", group=0, group_size=11)(sector_beta)
+# Creates 11 cards showing current beta for each sector
+```
+
+**Use Cases:**
+- Multi-asset metric dashboards
+- Factor exposure visualization
+- Comparative performance cards
+
+---
+
+## Research Workflows
+
+### Pattern Discovery
+
+```python
+# Identify gap fill characteristics
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# Distribution analysis
+histogram_chart_report(bins=20, title="Gap Size Distribution")(gaps.gap_size)
+
+# Detailed inspection
+gap_report(fill_time_pivot_hour=12)(
+    gaps.gap_filled, gaps.gap_retrace, gaps.gap_size, gaps.psc, gaps.psc_timestamp
+)
+```
+
+### Factor Analysis
+
+```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")
+
+# Calculate factors
+momentum = cs_zscore()(roc(period=60)(src.c))
+correlation = cs_rolling_corr(window=60)(roc(period=1)(src.c), roc(period=1)(spx.c))
+
+# Compare factors across assets
+cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, correlation)
+
+# Visualize distributions
+histogram_chart_report(bins=20, title="Momentum Distribution")(momentum)
+```
+
+### Regime Detection
+
+```python
+rsi_val = rsi(period=14)(src.c)
+regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
+
+# Proportion analysis
+pie_chart_report(agg="count", title="Market Regime Distribution")(regime)
+
+# Performance by regime
+bar_chart_report(agg="mean", title="Avg Return by Regime")(regime, returns)
+
+# Detailed regime table
+extreme = (rsi_val < 30) | (rsi_val > 70)
 table_report(schema=TableReportSchema(
-    title="Extreme RSI Conditions",
+    title="Extreme Conditions",
     select_key=SLOT0,
     columns=[
         TableColumnSchema(column_id=SLOT1, title="Regime"),
-        TableColumnSchema(column_id=SLOT2, title="Return"),
-        TableColumnSchema(column_id=SLOT3, title="RSI Value")
+        TableColumnSchema(column_id=SLOT2, title="RSI")
     ]
-))(extreme_condition, regime_label, returns, rsi_val)
+))(extreme, regime, rsi_val)
 ```
-
-**Pattern detection:**
-
-```python
-# Show only rows where pattern is detected
-bullish_pattern = marubozu_bullish()()
-
-table_report(schema=TableReportSchema(
-    title="Bullish Patterns",
-    select_key=SLOT0,  # Pattern detected boolean
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="Close"),
-        TableColumnSchema(column_id=SLOT2, title="Volume")
-    ]
-))(bullish_pattern, src.c, src.v)
-```
-
-**Multiple conditions:**
-
-```python
-# Combine multiple conditions
-high_volume = src.v > ema(period=20)(src.v)
-price_breakout = src.c > highest(period=20)(src.c[1])
-signal = high_volume & price_breakout
-
-table_report(schema=TableReportSchema(
-    title="Breakout Signals",
-    select_key=SLOT0,
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="Price"),
-        TableColumnSchema(column_id=SLOT2, title="Volume")
-    ]
-))(signal, src.c, src.v)
-```
-
-<Callout type="tip" title="Filtering Rows">
-The `select_key` parameter specifies a boolean column - only rows where this column is `true` are displayed in the table.
-</Callout>
 
 ---
 
-## Chart Reports
+## See Also
 
-Visual reports for distribution and relationship analysis.
-
-### Histogram Reports
-
-**Distribution visualization:**
-
-```python
-# Return distribution
-returns = (src.c - src.c[1]) / src.c[1]
-histogram_chart_report(bins=20, title="Return Distribution")(
-    returns=returns
-)
-```
-
-**Parameters:**
-- `bins`: Number of histogram bins
-- `title`: Chart title
-
-### Bar Chart Reports
-
-**Categorical comparisons:**
-
-```python
-# Count by regime
-rsi_val = rsi(period=14)(src.c)
-regime = conditional_select(
-    rsi_val < 30, "Oversold",
-    rsi_val > 70, "Overbought",
-    "Neutral"
-)
-
-bar_chart_report(x="regime", y="count", title="Bars by Regime")(
-    regime=regime
-)
-```
-
-**Parameters:**
-- `x`: X-axis column name
-- `y`: Y-axis aggregation (count, sum, avg, etc.)
-- `title`: Chart title
-
-### Pie Chart Reports
-
-**Proportion visualization:**
-
-```python
-# Market regime proportions
-pie_chart_report(category="regime", value="count", title="Regime Distribution")(
-    regime=regime
-)
-```
-
-**Parameters:**
-- `category`: Column for pie segments
-- `value`: Aggregation method
-- `title`: Chart title
-
-### Line Chart Reports
-
-**Time series and trends:**
-
-```python
-# Average volume by hour
-hour = extract_hour(src.t)
-volume = src.v
-
-lines_chart_report(x="hour", y="volume", title="Hourly Volume Pattern")(
-    hour=hour,
-    volume=volume
-)
-```
-
-**Parameters:**
-- `x`: X-axis column (typically time or sequence)
-- `y`: Y-axis value
-- `title`: Chart title
-
-### Scatter Plot Reports
-
-**Relationship analysis:**
-
-```python
-# RSI vs Returns
-rsi_val = rsi(period=14)(src.c)
-returns = (src.c - src.c[1]) / src.c[1]
-
-scatter_chart_report(x="rsi_val", y="returns", title="RSI vs Returns")(
-    rsi_val=rsi_val,
-    returns=returns
-)
-```
-
-**Parameters:**
-- `x`: X-axis variable
-- `y`: Y-axis variable
-- `title`: Chart title
-
----
-
-## Multiple Reports
-
-**Combine multiple reports** in a single research script:
-
-```python
-src = market_data_source()
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
-rsi_val = rsi(period=14)(src.c)
-returns = (src.c - src.c[1]) / src.c[1]
-
-# Gap analysis
-gap_report(fill_time_pivot_hour=12)(
-    gaps.gap_filled,
-    gaps.gap_retrace,
-    gaps.gap_size,
-    gaps.psc,
-    gaps.psc_timestamp
-)
-
-# RSI regime analysis
-oversold = rsi_val < 30
-overbought = rsi_val > 70
-extreme_rsi = oversold or overbought
-regime_label = conditional_select(
-    oversold, "Oversold",
-    overbought, "Overbought",
-    "Neutral"
-)
-
-table_report(schema=TableReportSchema(
-    title="Extreme RSI Analysis",
-    select_key=SLOT0,
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="RSI"),
-        TableColumnSchema(column_id=SLOT2, title="Regime"),
-        TableColumnSchema(column_id=SLOT3, title="Return")
-    ]
-))(extreme_rsi, rsi_val, regime_label, returns)
-```
-
-All reports appear in the dashboard with separate sections.
-
----
-
-**Previous:** [Core Features ←](./core-features)
+- [Core Features](./core-features) - Auto-plotting and event markers
+- [Cross-Sectional Analysis](./cross-sectional) - Multi-asset strategies

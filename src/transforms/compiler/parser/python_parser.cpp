@@ -292,13 +292,16 @@ BinOpType PythonParser::parseBinOpType(const std::string& opText) {
     if (opText == "==") return BinOpType::Eq;
     if (opText == "!=") return BinOpType::NotEq;
     if (opText == "and") return BinOpType::And;
+    if (opText == "&") return BinOpType::And;
     if (opText == "or") return BinOpType::Or;
+    if (opText == "|") return BinOpType::Or;
 
     throw std::runtime_error("Unknown binary operator: " + opText);
 }
 
 UnaryOpType PythonParser::parseUnaryOpType(const std::string& opText) {
     if (opText == "not") return UnaryOpType::Not;
+    if (opText == "!") return UnaryOpType::Not;
     if (opText == "-") return UnaryOpType::USub;
     if (opText == "+") return UnaryOpType::UAdd;
 

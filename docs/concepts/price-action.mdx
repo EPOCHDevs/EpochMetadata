@@ -1,0 +1,439 @@
+---
+title: Price Action Analysis
+page_type: concept
+layout: default
+order: 4
+category: Core Concepts
+description: Smart money concepts, chart patterns, candlesticks, and market structure analysis
+parent: ./index.md
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Price Action Analysis
+
+Build sophisticated market structure strategies with 30+ specialized price action transforms.
+
+---
+
+## What You Can Build
+
+EpochScript includes institutional-grade price action analysis across five categories:
+
+| Category | What You Get |
+|----------|--------------|
+| **Smart Money Concepts** | Order blocks, fair value gaps, BOS/CHoCH, liquidity sweeps, retracements |
+| **Chart Formations** | Head & shoulders, triangles, flags, pennants, consolidation boxes |
+| **Candlestick Patterns** | 25+ patterns - hammers, engulfing, stars, dojis, soldiers, crows |
+| **Gap Analysis** | Session gaps, intraday halts, forex pip gaps with fill tracking |
+| **Support/Resistance** | Multi-level pivot points, swing detection, previous high/low breaks |
+
+---
+
+## Smart Money Concepts (ICT)
+
+Trade like institutions - track order flow, market structure, and liquidity manipulation.
+
+### Build a Liquidity Sweep Strategy
+
+Classic SMC setup: wait for liquidity sweep → price returns to order block → enter on reaction.
+
+```python
+src = market_data_source(timeframe="15Min")
+
+# Detect market structure
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
+ob = order_blocks()(swings.high_low, swings.level)
+
+# Liquidity taken above swing highs
+liquidity_swept = liq.swept != 0
+
+# Price returns to bullish order block
+at_order_block = (ob.ob == 1) and (src.c >= ob.bottom) and (src.c <= ob.top)
+
+# Entry on bullish reaction at block after sweep
+entry = liquidity_swept[1:3] and at_order_block and (src.c > src.o)
+```
+
+---
+
+### Detect Fair Value Gaps (FVG)
+
+Price imbalances that often act as support/resistance when revisited.
+
+```python
+src = market_data_source(timeframe="5Min")
+
+fvg = fair_value_gap(join_consecutive=true)()
+gap_mid = (fvg.top + fvg.bottom) / 2
+
+# Price enters bullish FVG and reacts
+at_fvg = (fvg.fvg == 1) and (src.c <= gap_mid)
+entry = at_fvg and (src.c > src.o) and (src.c > src.c[1])
+```
+
+---
+
+### Track Market Structure Shifts
+
+BOS (Break of Structure) = trend continuation. CHoCH (Change of Character) = potential reversal.
+
+```python
+src = market_data_source(timeframe="1H")
+
+swings = swing_highs_lows(swing_length=10)(src.h, src.l)
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+
+# Trend continuation signals
+bullish_bos = structure.bos == 1
+bearish_bos = structure.bos == -1
+
+# Reversal warnings
+bullish_choch = structure.choch == 1
+bearish_choch = structure.choch == -1
+
+# Confirm reversal with follow-through
+reversal_confirmed = bullish_choch and (structure.bos == 1)[1:5]
+```
+
+---
+
+### Golden Pocket Retracements
+
+Fibonacci retracements calculated automatically from swing points.
+
+```python
+src = market_data_source(timeframe="1H")
+
+swings = swing_highs_lows(swing_length=10)(src.h, src.l)
+retr = retracements()(swings.high_low, swings.level)
+
+# 61.8% - 78.6% retracement zone
+golden_pocket = retr.current_retracement >= 61.8 and
+                retr.current_retracement <= 78.6
+
+optimal_entry = golden_pocket and (retr.direction == 1)
+```
+
+---
+
+### Full SMC Multi-Confluence System
+
+Combine order blocks, FVG, liquidity, structure, and retracements.
+
+```python
+src = market_data_source(timeframe="15Min")
+
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=true)()
+liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
+retr = retracements()(swings.high_low, swings.level)
+
+# Score each confluence factor
+confirmations = (structure.bos == 1 ? 1 : 0) +
+                ((ob.ob == 1 and ob.mitigated_index == 0) ? 1 : 0) +
+                ((fvg.fvg == 1 and src.c >= fvg.bottom) ? 1 : 0) +
+                (liq.swept[1:5] != 0 ? 1 : 0) +
+                (retr.current_retracement >= 50 and retr.current_retracement <= 70 ? 1 : 0)
+
+# Require 3+ confirmations
+entry = confirmations >= 3
+```
+
+---
+
+## Chart Formations
+
+Automated detection for classical technical patterns.
+
+### Head & Shoulders
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Bearish reversal
+hs = head_and_shoulders(lookback=50, head_ratio_before=1.0002)()
+bearish_signal = hs.pattern_detected and (src.c < hs.neckline_level)
+target = hs.target
+
+# Bullish reversal (inverse)
+ihs = inverse_head_and_shoulders(lookback=50)()
+bullish_signal = ihs.pattern_detected and (src.c > ihs.neckline_level)
+```
+
+---
+
+### Triangles & Compression Patterns
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Ascending triangle (bullish bias)
+asc_tri = triangles(lookback=50, triangle_type="ascending", r_squared_min=0.9)()
+breakout_up = asc_tri.pattern_detected and (src.c > src.h[1])
+
+# Symmetrical triangle (neutral - wait for direction)
+sym_tri = triangles(lookback=50, triangle_type="symmetrical")()
+```
+
+**Triangle types:** `"ascending"`, `"descending"`, `"symmetrical"`
+
+---
+
+### Flags, Pennants & Consolidation Boxes
+
+```python
+src = market_data_source(timeframe="1H")
+
+# Bull flag - continuation pattern
+flag_pattern = flag(lookback=30, min_pivot_points=3, r_squared_min=0.8)()
+bull_flag_break = flag_pattern.bull_flag and (src.c > src.h[1])
+
+# Pennant - short-term consolidation
+pennant_pattern = pennant(lookback=20, min_pivot_points=3)()
+breakout = pennant_pattern.bull_pennant and (src.c > src.h[1])
+
+# Consolidation box (rectangle)
+box = consolidation_box(lookback=50, min_pivot_points=5, r_squared_min=0.8)()
+bullish_break = box.box_detected and (src.c > box.box_top)
+target = box.target_up
+```
+
+---
+
+### Double Tops & Bottoms
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Double bottom (bullish reversal)
+db = double_top_bottom(lookback=50, pattern_type="bottoms", similarity_tolerance=0.02)()
+bullish_breakout = db.pattern_detected and (src.c > db.breakout_level)
+
+# Double top (bearish reversal)
+dt = double_top_bottom(lookback=50, pattern_type="tops", similarity_tolerance=0.02)()
+bearish_breakout = dt.pattern_detected and (src.c < dt.breakout_level)
+```
+
+---
+
+## Candlestick Patterns
+
+25+ Japanese candlestick patterns ready to use.
+
+### Build a Multi-Pattern Reversal Detector
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Bullish reversals at support
+bullish_reversal = hammer() or engulfing_bull() or morning_star() or inverted_hammer()
+
+# Bearish reversals at resistance
+bearish_reversal = shooting_star() or engulfing_bear() or evening_star() or hanging_man()
+
+# Indecision at extremes
+indecision = doji() or long_legged_doji() or spinning_top()
+
+# Combine with RSI extremes
+rsi_val = rsi(period=14)(src.c)
+buy_signal = bullish_reversal and (rsi_val < 30)
+sell_signal = bearish_reversal and (rsi_val > 70)
+```
+
+---
+
+### Continuation Pattern Filters
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Strong trend continuation
+strong_uptrend = three_white_soldiers() or big_white_candle()
+strong_downtrend = three_black_crows() or big_black_candle()
+
+# Only enter with-trend when continuation patterns appear
+long_entry = buy_conditions and strong_uptrend
+short_entry = sell_conditions and strong_downtrend
+```
+
+**Available patterns:** `hammer`, `inverted_hammer`, `shooting_star`, `hanging_man`, `engulfing_bull`, `engulfing_bear`, `morning_star`, `evening_star`, `morning_doji_star`, `evening_doji_star`, `doji`, `dragonfly_doji`, `gravestone_doji`, `long_legged_doji`, `four_price_doji`, `spinning_top`, `marubozu`, `white_marubozu`, `black_marubozu`, `big_white_candle`, `big_black_candle`, `three_white_soldiers`, `three_black_crows`, `abandoned_baby_bull`, `abandoned_baby_bear`, and more.
+
+---
+
+## Gap Analysis
+
+Track overnight gaps, trading halts, and forex pip gaps.
+
+### Session Gap Fade Strategy
+
+```python
+src = market_data_source(timeframe="5Min")
+
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# Fade large gaps that get filled
+significant_gap = gaps.gap_size > 1.0
+gap_filled = gaps.gap_filled
+entry = significant_gap and gap_filled
+
+# Research which gaps fill fastest
+gap_report(fill_time_pivot_hour=12, histogram_bins=15)(
+    gaps.gap_filled,
+    gaps.gap_retrace,
+    gaps.gap_size,
+    gaps.psc,
+    gaps.psc_timestamp
+)
+```
+
+---
+
+### Intraday Trading Halt Detection
+
+```python
+src = market_data_source(timeframe="5Min")
+
+# Detect gaps >2% between ANY bars
+intraday_gaps = bar_gap(fill_percent=100, min_gap_size=2.0)()
+
+# Large gaps likely from halts or news
+halt_gaps = intraday_gaps.gap_size > 5.0
+```
+
+---
+
+### Forex Pip Gaps
+
+```python
+src = market_data_source(timeframe="1Min")
+
+# Track 4-pip gaps on EUR/USD
+fx_gaps = bar_gap(fill_percent=100, min_gap_size=0.04)()
+quick_fill = fx_gaps.gap_filled and (fx_gaps.gap_retrace == 1.0)
+```
+
+<Callout type="info">
+Use `session_gap` for daily opens, `bar_gap` for everything else. Adjust `min_gap_size` by asset volatility.
+</Callout>
+
+---
+
+## Support & Resistance
+
+### Pivot Point Levels
+
+```python
+src = market_data_source(timeframe="1H")
+
+pivots = pivot_point_sr(timeframe="1D")()
+
+# Three support, three resistance levels
+at_s1 = src.c <= pivots.support_1
+at_r1 = src.c >= pivots.resist_1
+
+# Reversal at support with confirmation
+reversal = at_s1 and hammer()
+```
+
+---
+
+### Previous High/Low Breakouts
+
+```python
+src = market_data_source(timeframe="5Min")
+
+prev_hl = previous_high_low(timeframe="1D")()
+
+# First break of previous day's high
+breakout_high = prev_hl.broken_high and not prev_hl.broken_high[1]
+
+# Range-bound mean reversion
+in_range = not prev_hl.broken_high and not prev_hl.broken_low
+fade_high = in_range and (src.c > prev_hl.previous_high)
+```
+
+---
+
+## Complete Multi-Strategy System
+
+Combine everything for maximum confluence.
+
+```python
+src = market_data_source(timeframe="15Min")
+
+# SMART MONEY
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+ob = order_blocks()(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=true)()
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
+
+# CHART PATTERNS
+ihs = inverse_head_and_shoulders(lookback=50)()
+flag_pattern = flag(lookback=30)()
+box = consolidation_box(lookback=50, min_pivot_points=5)()
+
+# CANDLESTICKS
+hammer_candle = hammer()()
+engulfing = engulfing_bull()()
+
+# GAPS & PIVOTS
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+pivots = pivot_point_sr(timeframe="1D")()
+
+# CONFLUENCE SCORING
+smc_score = ((ob.ob == 1) ? 1 : 0) +
+            ((structure.bos == 1) ? 1 : 0) +
+            ((fvg.fvg == 1) ? 1 : 0) +
+            ((liq.swept != 0)[1:3] ? 1 : 0)
+
+pattern_score = ((ihs.pattern_detected or flag_pattern.bull_flag) ? 2 : 0) +
+                ((hammer_candle or engulfing) ? 1 : 0)
+
+level_score = ((src.c <= pivots.support_1) ? 1 : 0)
+
+total_score = smc_score + pattern_score + level_score
+
+# High-probability entries require 5+ points
+entry = total_score >= 5
+
+# Mark significant patterns on timeline
+event_marker(color_map={
+    Success: ["pattern_detected", "gap_filled"],
+    Warning: ["liquidity_sweep"],
+    Error: ["gap_unfilled"]
+})(
+    pattern_detected=ihs.pattern_detected or flag_pattern.bull_flag,
+    gap_filled=gaps.gap_filled and (gaps.gap_size > 1.0),
+    liquidity_sweep=liq.swept != 0,
+    gap_unfilled=(gaps.gap_size > 1.0) and not gaps.gap_filled
+)
+```
+
+---
+
+## Strategy Ideas
+
+**Institutional Flow:**
+- Liquidity sweep → order block retest → FVG confluence → entry
+- BOS confirmation → retracement to golden pocket → enter on structure
+
+**Pattern Breakouts:**
+- Triangle compression → volume expansion → breakout confirmation
+- Consolidation box → multi-timeframe alignment → breakout trade
+
+**Gap Trading:**
+- Session gap >1% → track fill behavior → fade on completion
+- Intraday halt gaps → wait for resumption → momentum play
+
+**Multi-Timeframe:**
+- Daily chart patterns → hourly order blocks → 15min entry signals
+- Weekly structure → daily candlesticks → intraday execution
+
+---
+
+**Next:** [Statistical Analysis →](./statistical-analysis)

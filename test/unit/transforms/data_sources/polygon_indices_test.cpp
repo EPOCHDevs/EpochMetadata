@@ -20,7 +20,7 @@ TEST_CASE("Polygon Indices Metadata Registration", "[polygon_indices]") {
     REQUIRE(commonIndices.name == "Common Indices");
     REQUIRE(commonIndices.category == epoch_core::TransformCategory::DataSource);
     REQUIRE(commonIndices.plotKind == epoch_core::TransformPlotKind::Null);
-    REQUIRE(commonIndices.requiresTimeFrame == false);
+    REQUIRE(commonIndices.requiresTimeFrame == true);
   }
 
   SECTION("Dynamic Indices node has correct basic properties") {
@@ -31,7 +31,7 @@ TEST_CASE("Polygon Indices Metadata Registration", "[polygon_indices]") {
     REQUIRE(indices.name == "Indices");
     REQUIRE(indices.category == epoch_core::TransformCategory::DataSource);
     REQUIRE(indices.plotKind == epoch_core::TransformPlotKind::Null);
-    REQUIRE(indices.requiresTimeFrame == false);
+    REQUIRE(indices.requiresTimeFrame == true);
   }
 }
 
@@ -40,32 +40,13 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
   auto& commonIndices = metadataList[0];
 
   SECTION("Has index SelectOption parameter") {
-    REQUIRE(commonIndices.options.size() == 2);
+    REQUIRE(commonIndices.options.size() == 1);
     auto& indexOption = commonIndices.options[0];
 
     REQUIRE(indexOption.id == "index");
     REQUIRE(indexOption.name == "Index");
     REQUIRE(indexOption.type == epoch_core::MetaDataOptionType::Select);
     REQUIRE(indexOption.desc == "Select the market index");
-  }
-
-  SECTION("Has data_type SelectOption parameter") {
-    auto& dataTypeOption = commonIndices.options[1];
-
-    REQUIRE(dataTypeOption.id == "data_type");
-    REQUIRE(dataTypeOption.name == "Data Type");
-    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(dataTypeOption.selectOption.size() == 2);
-
-    // Verify EOD and Intraday options (using value field which holds the enum value)
-    auto hasOption = [&](const std::string& optionValue) {
-      return std::any_of(dataTypeOption.selectOption.begin(),
-                         dataTypeOption.selectOption.end(),
-                         [&optionValue](const auto& option) { return option.value == optionValue; });
-    };
-
-    REQUIRE(hasOption("eod"));
-    REQUIRE(hasOption("intraday"));
   }
 
   SECTION("SelectOption contains common indices") {
@@ -136,32 +117,13 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
   auto& indices = metadataList[1];
 
   SECTION("Has ticker String parameter") {
-    REQUIRE(indices.options.size() == 2);
+    REQUIRE(indices.options.size() == 1);
     auto& tickerOption = indices.options[0];
 
     REQUIRE(tickerOption.id == "ticker");
     REQUIRE(tickerOption.name == "Index Ticker");
     REQUIRE(tickerOption.type == epoch_core::MetaDataOptionType::String);
     REQUIRE(tickerOption.desc == "Index ticker symbol (e.g., SPX, DJI, NDX)");
-  }
-
-  SECTION("Has data_type SelectOption parameter") {
-    auto& dataTypeOption = indices.options[1];
-
-    REQUIRE(dataTypeOption.id == "data_type");
-    REQUIRE(dataTypeOption.name == "Data Type");
-    REQUIRE(dataTypeOption.type == epoch_core::MetaDataOptionType::Select);
-    REQUIRE(dataTypeOption.selectOption.size() == 2);
-
-    // Verify EOD and Intraday options (using value field which holds the enum value)
-    auto hasOption = [&](const std::string& optionValue) {
-      return std::any_of(dataTypeOption.selectOption.begin(),
-                         dataTypeOption.selectOption.end(),
-                         [&optionValue](const auto& option) { return option.value == optionValue; });
-    };
-
-    REQUIRE(hasOption("eod"));
-    REQUIRE(hasOption("intraday"));
   }
 
   SECTION("Has same output fields as common_indices") {

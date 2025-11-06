@@ -1,0 +1,201 @@
+---
+title: Statistical Analysis
+page_type: concept
+layout: default
+order: 4
+category: Core Concepts
+description: Statistical and machine learning transforms for regime detection, correlation analysis, and market characterization
+parent: ./index.md
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Statistical Analysis
+
+Statistical and machine learning transforms for regime detection, correlation analysis, mean reversion detection, and cross-asset relationships.
+
+---
+
+## Hidden Markov Models
+
+Gaussian Hidden Markov Models for detecting market regimes and state transitions. Available in 2-5 state variants: `hmm_2`, `hmm_3`, `hmm_4`, `hmm_5`.
+
+### `hmm_2` - Binary Regime Detection
+
+Two-state HMM for bull/bear or high/low volatility classification.
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Features for regime detection
+returns = roc(period=1)(src.c)
+volatility = atr(period=14)(src.c)
+
+# Detect 2 regimes (e.g., bull/bear)
+regime = hmm_2()(returns, volatility)
+
+# Access outputs - each state probability is a scalar!
+current_state = regime.state           # Most likely state (0 or 1)
+state_0_prob = regime.state_0_prob    # Probability of state 0
+state_1_prob = regime.state_1_prob    # Probability of state 1
+
+# Example: High-confidence filtering
+high_confidence = state_0_prob > 0.8
+rsi_val = rsi(period=14)(src.c)
+ma_signal = crossover(rsi_val, 30)
+signal = ma_signal & high_confidence
+```
+
+### `hmm_3` - Tri-Regime Detection
+
+Three-state HMM for low/medium/high volatility or bull/neutral/bear markets.
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Features for regime detection
+returns = roc(period=1)(src.c)
+volatility = atr(period=14)(src.c)
+volume_ratio = src.v / ema(period=20)(src.v)
+
+# Detect 3 market regimes
+regime = hmm_3()(returns, volatility, volume_ratio)
+
+# Access outputs - all probabilities are scalar columns!
+current_state = regime.state           # Most likely state (0, 1, or 2)
+state_0_prob = regime.state_0_prob    # Probability of state 0
+state_1_prob = regime.state_1_prob    # Probability of state 1
+state_2_prob = regime.state_2_prob    # Probability of state 2
+
+# Example: Confidence-based filtering
+max_prob = agg_max()(state_0_prob, state_1_prob, state_2_prob)
+low_confidence = max_prob < 0.6  # Uncertain regime
+rsi_val = rsi(period=14)(src.c)
+ma_signal = crossover(rsi_val, 30)
+signal = ma_signal & not low_confidence
+```
+
+### `hmm_4` / `hmm_5` - Higher Granularity
+
+Four and five-state HMMs for detailed regime classification (requires more data).
+
+```python
+# 4-state example
+regime = hmm_4(min_training_samples=500)(returns, volatility, volume_ratio, momentum)
+# Access state_0_prob through state_3_prob
+
+# 5-state example
+regime = hmm_5(min_training_samples=1000)(returns, volatility, volume, momentum, sentiment)
+# Access state_0_prob through state_4_prob
+```
+
+**How It Works:**
+- Trains Gaussian HMM on multiple input features
+- Infers hidden states (regimes) from observable data
+- Returns state probabilities as **individual scalar columns** (usable in expressions!)
+- Each `hmm_N` variant is compile-time optimized for N states
+
+**Key Improvements:**
+- ✅ State probabilities are now scalar columns, not lists
+- ✅ Can use in expressions: `state_0_prob > 0.8`, `state_1_prob - state_2_prob`
+- ✅ No more `n_states` parameter - use the right variant (`hmm_2`, `hmm_3`, etc.)
+
+**Common Parameters:**
+- `min_training_samples`: Minimum data before training (default: 100, recommend 200+ for 3+ states)
+- `lookback_window`: If >0, trains on last N samples for rolling HMM (default: 0 = all data)
+- `compute_zscore`: Normalize features before training (default: true, recommended)
+- `max_iterations`: EM algorithm iterations (default: 1000)
+- `tolerance`: Convergence threshold (default: 1e-5)
+
+---
+
+## Correlation & Covariance
+
+Measure relationships between two series.
+
+### `rolling_corr` / `ewm_corr`
+
+```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")
+
+stock_returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
+# Fixed window
+correlation = rolling_corr(window=60)(stock_returns, spx_returns)
+# Range: -1 (perfect negative) to +1 (perfect positive)
+
+# Exponential weighted (more responsive)
+correlation_ewm = ewm_corr(span=30)(stock_returns, spx_returns)
+```
+
+### `rolling_cov` / `ewm_cov`
+
+```python
+# Covariance for portfolio variance calculations
+covariance = rolling_cov(window=60)(stock_returns, spx_returns)
+```
+
+### `beta` - Market Sensitivity
+
+```python
+# Calculate rolling beta
+beta = beta(window=60)(stock_returns, spx_returns)
+# Beta > 1: More volatile than market
+# Beta < 1: Less volatile than market
+# Beta = 1: Matches market volatility
+```
+
+**Difference:**
+- **Correlation**: Normalized to [-1, +1], scale-independent
+- **Covariance**: Unnormalized, used in portfolio variance calculations
+- **Beta**: `cov(asset, market) / var(market)`, measures market sensitivity
+
+---
+
+## Normalization
+
+### `zscore` - Time-Series Z-Score
+
+Normalize values **over time** for a single asset.
+
+```python
+returns = roc(period=1)(src.c)
+
+# Rolling z-score: (value - rolling_mean) / rolling_std
+z = zscore(window=20)(returns)
+# Measures how many std devs current value is from rolling mean
+```
+
+**IMPORTANT:** This normalizes **over TIME** for one asset. For normalizing **across ASSETS** at each timestamp, use `cs_zscore` (see [Cross-Sectional Analysis](./cross-sectional)).
+
+---
+
+## Mean Reversion Analysis
+
+### `hurst_exponent` - Trend vs Mean Reversion
+
+Measures whether a series exhibits trending or mean-reverting behavior.
+
+```python
+returns = roc(period=1)(src.c)
+
+# Calculate Hurst exponent
+hurst = hurst_exponent(min_period=100)(returns)
+
+# Time-varying version
+rolling_h = rolling_hurst_exponent(window=100)(returns)
+```
+
+**Interpretation:**
+- **H < 0.5**: Mean reverting behavior
+- **H = 0.5**: Random walk (no predictability)
+- **H > 0.5**: Trending behavior
+
+---
+
+## See Also
+
+- [Cross-Sectional Analysis](./cross-sectional) - Multi-asset statistical transforms
+- [Research Reports](./research) - Visualize statistical metrics

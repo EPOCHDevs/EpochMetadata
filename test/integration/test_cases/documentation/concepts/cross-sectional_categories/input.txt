@@ -1,0 +1,18 @@
+# Source: concepts/cross-sectional.mdx:108
+# Section: Cross-Sectional Analysis > Categories
+# Type: partial_example
+
+src = market_data_source(timeframe="1D")
+
+# Calculate sector returns
+sector_returns = roc(period=20)(src.c)
+
+# Normalize returns across sectors at each timestamp
+normalized_returns = cs_zscore()(sector_returns)
+# At timestamp T:
+#   If XLK=+15%, XLF=+8%, XLE=-5%, mean=+6%, std=10%
+#   → XLK_zscore = (15-6)/10 = +0.9
+#   → XLE_zscore = (-5-6)/10 = -1.1
+
+# Identify outliers (>2 std devs from peer mean)
+outliers = normalized_returns > 2.0

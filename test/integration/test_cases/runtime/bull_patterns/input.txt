@@ -1,4 +1,4 @@
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
 lookback_period = 20
 flagpole_gain = (src.c - src.c[lookback_period]) / src.c[lookback_period]
@@ -20,7 +20,14 @@ top_20_stocks = top_k(k=20)(quality_score)
 filtered_score = quality_score if top_20_stocks else 0.0
 
 table_report(
-    sql="SELECT SLOT0 as RESULT_Quality_Score, SLOT1 as RESULT_Flagpole_Score, SLOT2 as RESULT_Steepness_Score, SLOT3 as RESULT_Volume_Score FROM self WHERE SLOT4 = True ORDER BY SLOT0 DESC",
-    add_index=True,
-    title="Top 20 Bull Flag Patterns by Quality Score"
+    schema=TableReportSchema(
+        title="Top 20 Bull Flag Patterns by Quality Score",
+        select_key="SLOT4",
+        columns=[
+            { column_id: "SLOT0", title: "RESULT_Quality_Score" },
+            { column_id: "SLOT1", title: "RESULT_Flagpole_Score" },
+            { column_id: "SLOT2", title: "RESULT_Steepness_Score" },
+            { column_id: "SLOT3", title: "RESULT_Volume_Score" }
+        ]
+    )
 )(quality_score, flagpole_score, steepness_score, volume_score, top_20_stocks)

@@ -65,8 +65,19 @@ RuntimeOutputValidator::ValidateDataframes(
                 "Missing asset in actual output: " + asset + " for timeframe " + timeframe);
         }
 
-        const auto& actual_df = asset_map.at(asset);
-        const auto& expected_df = expected_df_result.ValueOrDie();
+        auto actual_df = asset_map.at(asset);
+        auto expected_df = expected_df_result.ValueOrDie();
+
+        // Normalize: some CSV writers include an implicit 'index' column; ignore it
+        auto drop_index = [](epoch_frame::DataFrame df) {
+            auto names = df.column_names();
+            if (!names.empty() && names.front() == std::string("index")) {
+                return df.drop(std::string("index"));
+            }
+            return df;
+        };
+        expected_df = drop_index(std::move(expected_df));
+        actual_df = drop_index(std::move(actual_df));
 
         // Compare dataframes
         // TODO: Implement robust dataframe comparison

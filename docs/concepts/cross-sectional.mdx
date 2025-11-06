@@ -4,7 +4,7 @@ page_type: concept
 layout: default
 order: 3
 category: Core Concepts
-description: Multi-asset ranking and selection for factor strategies
+description: Multi-asset ranking, selection, and comparison for factor strategies
 parent: ./index.md
 ---
 
@@ -12,82 +12,214 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # Cross-Sectional Analysis
 
-Multi-asset ranking and selection. Evaluate multiple assets simultaneously to generate rankings, factors, or universe filters.
+Evaluate multiple assets simultaneously at each timestamp to generate rankings, factors, statistical comparisons, and universe filters.
 
 ---
 
-## Requirements
+## Overview
 
-1. **Multiple assets:** Minimum 10+ recommended
-2. **Same timestamp:** All assets evaluated at the same time point
-3. **Universe specification:** External configuration (not in script)
+Cross-sectional transforms operate **across assets at each point in time**, not over time for a single asset. At every timestamp, they compare all assets in your universe to produce rankings, selections, or normalized metrics.
+
+**Key Distinction:**
+- **Regular transforms**: Operate on one asset over time (e.g., `sma(period=20)` calculates 20-period average for each asset independently)
+- **Cross-sectional transforms**: Operate across all assets at each timestamp (e.g., `cs_zscore()` normalizes each asset relative to the mean/std of all assets at that moment)
 
 ---
 
-## Cross-Sectional Transforms
+## Categories
+
+### 1. Ranking & Selection
+
+**Purpose:** Identify top/bottom performers within your universe for portfolio construction.
+
+#### `cs_momentum` - Momentum Ranking
+
+Calculates percentile rank across assets based on input values (typically returns or momentum metrics).
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
-# Momentum ranking across universe
+# Calculate 20-day returns for all assets
 returns = roc(period=20)(src.c)
-momentum = cs_momentum()(returns)
 
-# Select top K assets
-top10 = top_k(k=10)(momentum)
-top20_percent = top_k_percent(k=20)(momentum)
-
-# Select bottom K assets
-bottom10 = bottom_k(k=10)(momentum)
-
-# Trade top performers
-trade_signal_executor()(enter_long=top10)
+# Rank assets by momentum (0-100 percentile)
+momentum_rank = cs_momentum()(returns)
+# Result: XLK=95, XLF=72, XLE=15, ... (percentile ranks)
 ```
 
----
-
-## Available Transforms
-
-| Transform | Description |
-|-----------|-------------|
-| `cs_momentum` | Rank assets by momentum (percentile) |
-| `top_k` | Select top K assets |
-| `bottom_k` | Select bottom K assets |
-| `top_k_percent` | Select top K% of assets |
-| `bottom_k_percent` | Select bottom K% of assets |
+**Use Cases:**
+- Relative strength/weakness identification
+- Factor scoring for multi-factor strategies
+- Portfolio rotation based on momentum
 
 ---
 
-## Rules
+#### `top_k` / `bottom_k` - Fixed Count Selection
 
-1. **Cannot mix single-asset and multi-asset strategies**
-2. **Requires external universe definition** (not in script)
-3. **All transforms must support cross-sectional mode**
-4. **Rankings are relative within the universe**
-
----
-
-## Factor Strategy Example
+Select exactly K top or bottom assets.
 
 ```python
-src = market_data_source()
+# Select top 10 assets by momentum
+top_performers = top_k(k=10)(momentum_rank)
+# Result: Boolean true for top 10, false for rest
 
-# Calculate multiple factors
-momentum = roc(period=20)(src.c)
-value = earnings_yield()  # From fundamental data
-quality = roe()
-
-# Combine factors (equal-weight)
-combined = (momentum + value + quality) / 3
-
-# Select top 20 stocks
-top_stocks = top_k(k=20)(combined)
-
-trade_signal_executor()(enter_long=top_stocks)
+# Select bottom 5 for shorting
+short_candidates = bottom_k(k=5)(momentum_rank)
 ```
+
+**Use Cases:**
+- Fixed-size portfolios (always hold exactly 10 stocks)
+- Long-short strategies with equal legs
+- Top-10 sector rotation
+
+---
+
+#### `top_k_percent` / `bottom_k_percent` - Percentage Selection
+
+Select top/bottom K% of assets (adapts to universe size).
+
+```python
+# Select top 20% of universe
+top_quintile = top_k_percent(k=20)(momentum_rank)
+# 100 assets → 20 selected, 50 assets → 10 selected
+
+# Long top 20%, short bottom 20%
+long_positions = top_k_percent(k=20)(combined_factor)
+short_positions = bottom_k_percent(k=20)(combined_factor)
+```
+
+**Use Cases:**
+- Dynamic universe sizing (universe may grow/shrink)
+- Proportional allocation strategies
+- Balanced long-short portfolios
+
+---
+
+### 2. Statistical Analysis
+
+**Purpose:** Measure relationships, normalize metrics, and calculate cross-sectional statistics for factor investing and risk analysis.
+
+#### `cs_zscore` - Cross-Sectional Normalization
+
+At each timestamp, normalizes values across assets: `z_i = (value_i - mean_all) / std_all`
+
+**IMPORTANT:** This is NOT time-series zscore. It normalizes **across assets** at each moment, not over time.
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Calculate sector returns
+sector_returns = roc(period=20)(src.c)
+
+# Normalize returns across sectors at each timestamp
+normalized_returns = cs_zscore()(sector_returns)
+# At timestamp T:
+#   If XLK=+15%, XLF=+8%, XLE=-5%, mean=+6%, std=10%
+#   → XLK_zscore = (15-6)/10 = +0.9
+#   → XLE_zscore = (-5-6)/10 = -1.1
+
+# Identify outliers (>2 std devs from peer mean)
+outliers = normalized_returns > 2.0
+```
+
+**Use Cases:**
+- **Factor combination**: Normalize multiple factors (momentum, value, quality) to same scale before combining
+- **Outlier detection**: Find assets significantly above/below peer group
+- **Mean reversion**: Long bottom zscore, short top zscore
+- **Cross-sectional comparison**: Compare metrics with different units (P/E ratios, volatility, returns)
+
+---
+
+#### `cs_rolling_corr` - Asset vs Benchmark Correlation
+
+Calculates rolling correlation between each asset and a benchmark (e.g., S&P 500, sector index).
+
+```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")  # S&P 500 index
+
+# Calculate returns
+sector_returns = roc(period=20)(src.c)  # 11 sector ETFs
+spx_returns = roc(period=20)(spx.c)     # Market benchmark
+
+# 60-day rolling correlation with S&P 500
+correlations = cs_rolling_corr(window=60)(sector_returns, spx_returns)
+# Result: DataFrame with correlation for each sector vs SPX
+#   XLK: 0.85 (high correlation with market)
+#   XLU: 0.45 (low correlation - defensive)
+#   XLE: 0.60 (moderate correlation)
+```
+
+**Use Cases:**
+- **Factor analysis**: Which assets correlate most with market/sector?
+- **Beta calculation**: Combine with `cs_rolling_cov` for rolling beta
+- **Pairs trading**: Find assets with low correlation for diversification
+- **Correlation breakdown**: Identify when historical correlations break down
+- **Sector leadership**: Which sectors lead vs lag the market?
+
+---
+
+#### `cs_rolling_cov` - Asset vs Benchmark Covariance
+
+Calculates rolling covariance between each asset and a benchmark.
+
+```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")  # S&P 500 index
+
+# Calculate returns
+asset_returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
+# 60-day rolling covariance
+covariances = cs_rolling_cov(window=60)(asset_returns, spx_returns)
+# Result: DataFrame with covariance for each asset vs SPX
+```
+
+**Use Cases:**
+- **Rolling beta calculation**: Track time-varying market sensitivity
+- **Dynamic hedging**: Adjust hedge ratios as beta changes
+- **Risk decomposition**: Factor-based risk models
+- **Portfolio construction**: Balance high-beta and low-beta assets
+
+---
+
+## Multi-Factor Example
+
+```python
+src = market_data_source(timeframe="1D")
+
+# Calculate and normalize factors
+momentum = cs_zscore()(roc(period=60)(src.c))
+value = cs_zscore()(pe_ratio()(src.c) * -1)
+quality = cs_zscore()(atr(period=14)(src.c) * -1)
+
+# Combine normalized factors
+combined_score = (momentum * 0.5 + value * 0.3 + quality * 0.2)
+
+# Select positions
+long_positions = top_k_percent(k=20)(combined_score)
+short_positions = bottom_k_percent(k=10)(combined_score)
+
+trade_signal_executor()(enter_long=long_positions, enter_short=short_positions)
+```
+
+---
+
+## Technical Notes
+
+**Factor Normalization:**
+- Use `cs_zscore()` before combining factors to normalize to same scale
+- Required when metrics have different units (returns, ratios, volatility)
+
+**Window Sizes:**
+- Correlation/covariance: 60+ periods recommended for stable estimates
+- Smaller windows increase sensitivity but reduce statistical reliability
 
 ---
 
 ## See Also
 
-- [Design Guidelines](../design-guidelines) - Cross-sectional constraints
+- [Design Guidelines](../design-guidelines) - Cross-sectional constraints and universe setup
+- [Timeframes](./timeframes) - Multi-timeframe cross-sectional strategies
+- [Data Sources](./data-sources) - Access fundamental and market data for factor strategies

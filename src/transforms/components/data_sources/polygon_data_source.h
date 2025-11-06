@@ -38,7 +38,6 @@ using PolygonCashFlowTransform = PolygonDataSourceTransform;
 using PolygonFinancialRatiosTransform = PolygonDataSourceTransform;
 using PolygonQuotesTransform = PolygonDataSourceTransform;
 using PolygonTradesTransform = PolygonDataSourceTransform;
-using PolygonAggregatesTransform = PolygonDataSourceTransform;
 using PolygonCommonIndicesTransform = PolygonDataSourceTransform;
 using PolygonIndicesTransform = PolygonDataSourceTransform;
 

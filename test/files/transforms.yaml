@@ -678,6 +678,40 @@ sessions:
   requiresTimeFrame: false
   requiredDataSources: ["o", "h", "l", "c"]
 
+time_of_day:
+  name: Time of Day
+  type: Indicator
+  desc: "Detects when bars fall within a custom UTC time range. Useful for filtering trades to specific intraday periods like morning, midday, or afternoon sessions."
+  usageContext: "Time-based filters for intraday strategies. Define custom time windows in UTC to isolate specific trading periods. Use for strategies that perform better during certain times (e.g., morning momentum, afternoon mean reversion). Combine with other signals for time-gated entries."
+  strategyTypes: ["intraday", "time-of-day", "session-timing", "time-based-entry"]
+  relatedTransforms: ["sessions", "session_time_window", "turn_of_month"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires intraday data. All times are in UTC - user must convert from local timezone. Time ranges don't account for daylight saving time shifts. Best on assets with clear intraday patterns."
+  options:
+    - id: start
+      name: Start Time
+      type: String
+      default: "09:30"
+      desc: "Start time in UTC (HH:MM or HH:MM:SS format)"
+      tuningGuidance: "Specify in 24-hour UTC format. For US market open (9:30 ET), use 13:30 or 14:30 UTC depending on DST. For custom intraday windows, align with asset's liquidity patterns."
+    - id: end
+      name: End Time
+      type: String
+      default: "12:00"
+      desc: "End time in UTC (HH:MM or HH:MM:SS format)"
+      tuningGuidance: "Specify in 24-hour UTC format. Must be after start time (midnight crossing not supported). For multi-hour windows, ensure sufficient bars for strategy logic."
+  outputs:
+    - { type: Boolean, id: "active", name: "Period Active" }
+    - { type: Boolean, id: "opened", name: "Period Opened" }
+    - { type: Boolean, id: "closed", name: "Period Closed" }
+    - { type: Decimal, id: "high", name: "Period High" }
+    - { type: Decimal, id: "low", name: "Period Low" }
+  tags: ["time-based", "intraday", "session", "filter", "timing"]
+  category: PriceAction
+  plotKind: sessions
+  requiresTimeFrame: true
+  requiredDataSources: []
+
 # ======== VOLATILITY TRANSFORMS ======== #
 
 acceleration_bands:
@@ -1114,6 +1148,32 @@ rolling_cov:
   category: Statistical
   plotKind: panel_line
 
+beta:
+  name: Beta (Rolling)
+  desc: "Calculates rolling beta coefficient measuring an asset's sensitivity to market movements. Beta = Cov(asset, market) / Var(market). Beta > 1 indicates higher volatility than market, < 1 lower, = 1 matches market."
+  usageContext: "Essential for risk management, portfolio construction, and hedging. Track time-varying market sensitivity for dynamic allocation. Identify defensive (low beta) vs aggressive (high beta) assets. Use for CAPM-based expected returns, hedge ratio calculation, and sector rotation based on beta regimes."
+  strategyTypes: ["risk-management", "portfolio-optimization", "hedging", "beta-analysis", "factor-analysis"]
+  relatedTransforms: ["rolling_cov", "rolling_corr", "cs_rolling_cov"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "Assumes linear relationship between asset and market. Beta is backward-looking and may not predict future sensitivity. Requires sufficiently long window for stable estimates. Market definition affects results (SPY vs sector index)."
+  inputs:
+    - { type: Decimal, id: "asset_returns", name: "Asset Returns", allowMultipleConnections: false }
+    - { type: Decimal, id: "market_returns", name: "Market Returns", allowMultipleConnections: false }
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 60
+      min: 10
+      max: 500
+      desc: "Rolling window size for beta calculation"
+      tuningGuidance: "Minimum 20-30 bars for stable beta estimates. Use 60-120 for standard equity beta (matches industry practice). Shorter windows (20-40) for tactical trading and rapid regime detection. Longer windows (200-252) for strategic allocation and long-term beta characteristics."
+  outputs:
+    - { type: Decimal, id: "beta", name: "Beta" }
+  tags: ["statistics", "beta", "rolling", "risk", "capm", "sensitivity", "market-exposure"]
+  category: Statistical
+  plotKind: panel_line
+
 ewm_corr:
   name: Exponentially Weighted Moving Correlation
   desc: "Calculates correlation between two series using exponential weighting, giving more weight to recent observations. Adapts faster to regime changes than simple rolling correlation while maintaining stability."
@@ -1347,66 +1407,222 @@ zscore:
 
 # ======== HIDDEN MARKOV MODEL (HMM) REGIME DETECTION ======== #
 
-hmm:
-  name: Hidden Markov Model
-  desc: "Gaussian HMM for regime detection and probabilities over multiple input features."
-  usageContext: "Use for sophisticated regime detection combining multiple market features (volatility, momentum, volume). Automatically discovers hidden market states (e.g., low-vol trending, high-vol ranging, crisis) from data. State output indicates current regime for strategy switching. Transition matrix reveals regime change probabilities. More robust than single-indicator regime detection. Best for adaptive strategies that allocate between sub-strategies based on detected market state."
-  strategyTypes: ["regime-detection", "adaptive-trading", "multi-strategy-allocation", "quantitative-modeling"]
-  relatedTransforms: ["hurst_exponent", "rolling_hurst_exponent", "return_vol", "zscore"]
+hmm_2:
+  name: Hidden Markov Model (2-State)
+  desc: "Gaussian HMM with 2 states for binary regime detection (e.g., bull/bear, high/low volatility)."
+  usageContext: "Use for binary regime classification combining multiple market features. Ideal for bull/bear detection or high/low volatility regimes. Each state probability is available as a scalar column (state_0_prob, state_1_prob) for confidence-based filtering and probability thresholding. Best for strategies that need clear two-regime separation."
+  strategyTypes: ["regime-detection", "adaptive-trading", "binary-classification"]
+  relatedTransforms: ["hmm_3", "hurst_exponent", "return_vol", "zscore"]
   assetRequirements: ["single-asset"]
-  limitations: "Complex statistical model - requires substantial training data (100+ samples minimum). Computationally expensive, may be slow. Regime labels are arbitrary (State 0/1/2) and require interpretation. Model can overfit with too many states or too few samples. No guarantee states remain stable out-of-sample. Needs retraining as market dynamics evolve."
+  limitations: "Requires 100+ training samples. Computationally expensive. State labels (0/1) are arbitrary and need interpretation. Model may not be stable out-of-sample - needs retraining as markets evolve."
   options:
-    - id: n_states
-      name: Number of States
-      type: Integer
-      default: 3
-      min: 1
-      max: 10
-      step_size: 1
-      desc: "Number of hidden market regimes to identify (e.g., 2=bull/bear, 3=low/med/high vol)"
-      tuningGuidance: "Start with 2-3 states for interpretability. 2 states for simple bull/bear or high/low vol. 3 states (default) for low/medium/high volatility or trending/ranging/crisis. More states (4-5) capture nuance but harder to interpret and require more data. Avoid >5 states unless you have very long history."
     - id: max_iterations
       name: Max Iterations
       type: Integer
       default: 1000
       min: 1
       step_size: 1
-      desc: "Maximum EM algorithm iterations for model fitting convergence"
-      tuningGuidance: "1000 (default) sufficient for most cases. Increase to 2000-5000 if model doesn't converge (check logs). Lower to 500 for faster fitting if convergence is quick. More states or features require more iterations."
+      desc: "Maximum EM algorithm iterations for convergence"
+      tuningGuidance: "1000 (default) sufficient for most cases. Increase to 2000-5000 if model doesn't converge. Lower to 500 for faster fitting."
     - id: tolerance
       name: Convergence Tolerance
       type: Decimal
       default: 0.00001
       min: 0.0
-      desc: "Convergence threshold for log-likelihood improvement in EM algorithm"
-      tuningGuidance: "Default 1e-5 provides good balance. Lower values (1e-6, 1e-7) for more precise fit but slower convergence. Higher values (1e-4, 1e-3) for faster fitting with acceptable accuracy. Tighter tolerance with more training data."
+      desc: "Convergence threshold for log-likelihood improvement"
+      tuningGuidance: "Default 1e-5 provides good balance. Lower (1e-6, 1e-7) for more precise fit. Higher (1e-4, 1e-3) for faster fitting."
     - id: compute_zscore
       name: Z-Score Normalize
       type: Boolean
       default: true
-      desc: "Whether to normalize input features using z-score before HMM training"
-      tuningGuidance: "True (default) recommended - puts features on same scale, prevents domination by high-magnitude features. False only if you've pre-normalized inputs or want raw feature values to define regimes. Nearly always use true."
+      desc: "Normalize input features using z-score before training"
+      tuningGuidance: "True (default) recommended - prevents feature domination. False only if pre-normalized."
     - id: min_training_samples
       name: Min Training Samples
       type: Integer
       default: 100
       min: 1
-      desc: "Minimum data points required before starting HMM training"
-      tuningGuidance: "100 (default) is bare minimum for 2-3 states. Use 200+ for stable estimates with 3+ states. Increase to 500-1000 for robust models with multiple features. Insufficient data causes unstable regime assignments."
+      desc: "Minimum data points required before training"
+      tuningGuidance: "100 minimum. Use 200+ for stable 2-state models."
     - id: lookback_window
       name: Lookback Window
       type: Integer
       default: 0
       min: 0
-      desc: "If >0, uses only last N samples for training (rolling HMM); if 0, uses all available data"
-      tuningGuidance: "0 (default) uses all data for most stable model. Set to 252-500 for rolling HMM that adapts to recent market dynamics. Rolling window helps in non-stationary markets but requires more samples and is computationally expensive. Balance between stability (larger/all data) and adaptiveness (rolling)."
+      desc: "If >0, trains on last N samples; if 0, uses all data"
+      tuningGuidance: "0 (default) for stability. Set to 252-500 for rolling HMM that adapts to recent dynamics."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:
     - { type: Integer, id: "state", name: "State" }
-    - { type: List, id: "prob_state", name: "P(State)" }
-    - { type: List, id: "transition_matrix", name: "Transition Matrix" }
-  tags: ["hmm", "regime", "statistical", "state", "volatility"]
+    - { type: Decimal, id: "state_0_prob", name: "State 0 Probability" }
+    - { type: Decimal, id: "state_1_prob", name: "State 1 Probability" }
+  tags: ["hmm", "regime", "statistical", "2-state", "binary"]
+  category: Statistical
+
+hmm_3:
+  name: Hidden Markov Model (3-State)
+  desc: "Gaussian HMM with 3 states for tri-regime detection (e.g., low/medium/high volatility, trending/ranging/crisis)."
+  usageContext: "Use for tri-regime classification. Most common configuration for capturing low/med/high volatility or bull/neutral/bear markets. Each state probability available as scalar (state_0_prob, state_1_prob, state_2_prob) for confidence filtering. Balances interpretability with regime nuance."
+  strategyTypes: ["regime-detection", "adaptive-trading", "multi-regime-allocation"]
+  relatedTransforms: ["hmm_2", "hmm_4", "hurst_exponent", "return_vol"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires 100+ training samples (200+ recommended for 3 states). Computationally expensive. State labels arbitrary - requires interpretation."
+  options:
+    - id: max_iterations
+      name: Max Iterations
+      type: Integer
+      default: 1000
+      min: 1
+      step_size: 1
+      desc: "Maximum EM algorithm iterations for convergence"
+      tuningGuidance: "1000 (default) sufficient. Increase to 2000-5000 if not converging."
+    - id: tolerance
+      name: Convergence Tolerance
+      type: Decimal
+      default: 0.00001
+      min: 0.0
+      desc: "Convergence threshold for log-likelihood"
+      tuningGuidance: "Default 1e-5 balances speed and precision."
+    - id: compute_zscore
+      name: Z-Score Normalize
+      type: Boolean
+      default: true
+      desc: "Normalize inputs before training"
+      tuningGuidance: "True (default) recommended for multi-feature models."
+    - id: min_training_samples
+      name: Min Training Samples
+      type: Integer
+      default: 100
+      min: 1
+      desc: "Minimum samples required"
+      tuningGuidance: "200+ recommended for stable 3-state models."
+    - id: lookback_window
+      name: Lookback Window
+      type: Integer
+      default: 0
+      min: 0
+      desc: "Training window size (0=all data)"
+      tuningGuidance: "0 for stability, 252-500 for adaptive rolling HMM."
+  inputs:
+    - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "state_0_prob", name: "State 0 Probability" }
+    - { type: Decimal, id: "state_1_prob", name: "State 1 Probability" }
+    - { type: Decimal, id: "state_2_prob", name: "State 2 Probability" }
+  tags: ["hmm", "regime", "statistical", "3-state"]
+  category: Statistical
+
+hmm_4:
+  name: Hidden Markov Model (4-State)
+  desc: "Gaussian HMM with 4 states for detailed regime detection with finer granularity."
+  usageContext: "Use for detailed regime classification when 2-3 states insufficient. Captures more nuanced market conditions but harder to interpret. Each state probability available as scalar for confidence-based logic. Requires more training data and computational resources."
+  strategyTypes: ["regime-detection", "adaptive-trading", "quantitative-modeling"]
+  relatedTransforms: ["hmm_3", "hmm_5", "hurst_exponent"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires 200+ samples minimum (500+ recommended). More prone to overfitting. Higher computational cost. State interpretation more complex."
+  options:
+    - id: max_iterations
+      name: Max Iterations
+      type: Integer
+      default: 1000
+      min: 1
+      step_size: 1
+      desc: "Maximum EM iterations"
+      tuningGuidance: "1000 minimum. Often needs 2000+ for 4-state convergence."
+    - id: tolerance
+      name: Convergence Tolerance
+      type: Decimal
+      default: 0.00001
+      min: 0.0
+      desc: "Convergence threshold"
+      tuningGuidance: "Default 1e-5. May need tighter (1e-6) with more data."
+    - id: compute_zscore
+      name: Z-Score Normalize
+      type: Boolean
+      default: true
+      desc: "Normalize inputs"
+      tuningGuidance: "Always true for multi-feature 4-state models."
+    - id: min_training_samples
+      name: Min Training Samples
+      type: Integer
+      default: 100
+      min: 1
+      desc: "Minimum samples"
+      tuningGuidance: "500+ recommended for stable 4-state models."
+    - id: lookback_window
+      name: Lookback Window
+      type: Integer
+      default: 0
+      min: 0
+      desc: "Training window (0=all)"
+      tuningGuidance: "0 default. Rolling window needs 500-1000 samples."
+  inputs:
+    - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "state_0_prob", name: "State 0 Probability" }
+    - { type: Decimal, id: "state_1_prob", name: "State 1 Probability" }
+    - { type: Decimal, id: "state_2_prob", name: "State 2 Probability" }
+    - { type: Decimal, id: "state_3_prob", name: "State 3 Probability" }
+  tags: ["hmm", "regime", "statistical", "4-state"]
+  category: Statistical
+
+hmm_5:
+  name: Hidden Markov Model (5-State)
+  desc: "Gaussian HMM with 5 states for maximum regime granularity. Use only with very long histories."
+  usageContext: "Use for highly detailed regime classification when you have 1000+ samples and need maximum granularity. Very difficult to interpret. Each state probability available as scalar. Highest computational cost. Best for research/exploration, not production strategies."
+  strategyTypes: ["regime-detection", "quantitative-research"]
+  relatedTransforms: ["hmm_4", "hurst_exponent"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires 500+ samples minimum (1000+ recommended). High overfitting risk. Very expensive computationally. State interpretation very challenging. Rarely stable out-of-sample."
+  options:
+    - id: max_iterations
+      name: Max Iterations
+      type: Integer
+      default: 1000
+      min: 1
+      step_size: 1
+      desc: "Maximum EM iterations"
+      tuningGuidance: "2000-5000 often needed for 5-state convergence."
+    - id: tolerance
+      name: Convergence Tolerance
+      type: Decimal
+      default: 0.00001
+      min: 0.0
+      desc: "Convergence threshold"
+      tuningGuidance: "May need 1e-6 or tighter with long histories."
+    - id: compute_zscore
+      name: Z-Score Normalize
+      type: Boolean
+      default: true
+      desc: "Normalize inputs"
+      tuningGuidance: "Always true for 5-state models."
+    - id: min_training_samples
+      name: Min Training Samples
+      type: Integer
+      default: 100
+      min: 1
+      desc: "Minimum samples"
+      tuningGuidance: "1000+ strongly recommended for 5-state stability."
+    - id: lookback_window
+      name: Lookback Window
+      type: Integer
+      default: 0
+      min: 0
+      desc: "Training window (0=all)"
+      tuningGuidance: "0 default. Rolling needs 1000+ samples."
+  inputs:
+    - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
+  outputs:
+    - { type: Integer, id: "state", name: "State" }
+    - { type: Decimal, id: "state_0_prob", name: "State 0 Probability" }
+    - { type: Decimal, id: "state_1_prob", name: "State 1 Probability" }
+    - { type: Decimal, id: "state_2_prob", name: "State 2 Probability" }
+    - { type: Decimal, id: "state_3_prob", name: "State 3 Probability" }
+    - { type: Decimal, id: "state_4_prob", name: "State 4 Probability" }
+  tags: ["hmm", "regime", "statistical", "5-state"]
   category: Statistical
 
 # ======== GAP CLASSIFICATION ======== #
@@ -1478,3 +1694,99 @@ bar_gap:
   category: PriceAction
   plotKind: gap
   requiredDataSources: ["o", "h", "l", "c"]
+
+# ======== INTRADAY RETURNS ======== #
+
+intraday_returns:
+  name: Intraday Returns
+  desc: "Calculates the return from open to close within each bar. Measures intraday price movement and directional bias, capturing how much the price changed during each time period from opening to closing. Essential for analyzing intrabar volatility, identifying directional trends, and comparing open-to-close performance across different timeframes or assets."
+  usageContext: "Use to measure intraday directional bias and volatility. Ideal for analyzing gap vs. intraday follow-through (combine with session_gap or bar_gap). Helps identify periods of high volatility or strong directional movement. Creates features for intraday trading strategies. Compare open-to-close returns across multiple timeframes to identify trend strength. Use log returns for statistical analysis and portfolio calculations; use simple returns for easier interpretation and intuitive understanding."
+  strategyTypes: ["volatility", "mean-reversion", "trend", "statistical-analysis", "intraday"]
+  relatedTransforms: ["forward_returns", "pct_change", "return_vol", "bar_gap", "session_gap"]
+  assetRequirements: ["single-asset"]
+  limitations: "Requires OHLC data with distinct open and close prices. Will return zero for bars where open equals close. Does not account for high/low extremes within the bar - only measures open-to-close movement. For period-to-period returns use pct_change instead. For forward-looking returns use forward_returns."
+  options:
+   - id: return_type
+     name: Return Type
+     type: Select
+     default: "simple"
+     selectOptions:
+       - { label: "Simple", value: "simple" }
+       - { label: "Log", value: "log" }
+     desc: "Type of return calculation: simple or logarithmic"
+     tuningGuidance: "Simple returns: (close - open) / open. Easier to interpret and sum across assets. Log returns: log(close / open). Symmetric, better for statistical analysis, and preferred for portfolio math and machine learning features. Use simple for intuitive understanding and reporting; use log for quantitative analysis and modeling."
+  outputs:
+    - { type: Decimal, id: "result", name: "Intraday Return" }
+  tags: ["indicator", "returns", "intraday", "volatility", "directional", "open-close", "price-action"]
+  category: Trend
+  plotKind: panel_line
+  requiredDataSources: ["o", "c"]
+# ======== CROSS-SECTIONAL STATISTICAL TRANSFORMS ======== #
+
+cs_rolling_corr:
+  name: Cross-Sectional Rolling Correlation
+  desc: "Calculates rolling correlation between each asset and a benchmark (e.g., SPY, sector index). Enables simultaneous correlation analysis across multiple assets to identify relative relationships, beta characteristics, and correlation breakdowns."
+  usageContext: "Essential for factor analysis, beta calculation, and pairs trading. Track how each asset correlates with the market/sector benchmark over time. Identify correlation breakdowns for risk management. Find assets with high correlation for diversification analysis or low correlation for pair trading candidates. Common use: correlate sector ETFs vs SPY to identify which sectors lead/lag the market."
+  strategyTypes: ["factor-analysis", "beta-calculation", "pairs-trading", "risk-management", "correlation-trading", "cross-sectional"]
+  relatedTransforms: ["cs_rolling_cov", "rolling_corr", "ewm_corr", "cs_momentum"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "CRITICAL: Requires multiple assets for cross-sectional analysis. Benchmark must be a single series. Only detects linear relationships. Window size critical for stability vs responsiveness. Correlation doesn't imply causation."
+  isCrossSectional: true
+  inputs:
+    - { type: Decimal, id: "SLOT", name: "Asset Series", allowMultipleConnections: false }
+    - { type: Decimal, id: "benchmark", name: "Benchmark", allowMultipleConnections: false }
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 60
+      min: 10
+      max: 500
+      desc: "Rolling window size for correlation calculation"
+      tuningGuidance: "Minimum 20 bars for stable estimates. Use 20-50 for short-term correlation shifts, 60-120 for medium-term beta analysis, 200+ for long-term relationship analysis. Balance stability vs responsiveness to regime changes."
+  outputs: [DECIMAL_RESULT]
+  tags: ["cross-sectional", "correlation", "beta", "factor-analysis", "multi-asset", "benchmark"]
+  category: Statistical
+  plotKind: panel_line
+
+cs_rolling_cov:
+  name: Cross-Sectional Rolling Covariance
+  desc: "Calculates rolling covariance between each asset and a benchmark. Essential for dynamic beta calculation: beta = cov(asset, market) / var(market). Enables risk decomposition and factor exposure analysis across multiple assets."
+  usageContext: "Primary use: calculate rolling beta for each asset vs market benchmark. Combine with market variance to get time-varying beta for adaptive hedging and dynamic risk management. Track how asset sensitivity to market moves changes over time. Use for portfolio construction and factor-based risk models."
+  strategyTypes: ["beta-calculation", "risk-management", "portfolio-construction", "factor-analysis", "adaptive-hedging", "cross-sectional"]
+  relatedTransforms: ["cs_rolling_corr", "rolling_cov", "ewm_cov", "cs_zscore"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "CRITICAL: Requires multiple assets. Benchmark must be single series. Units depend on input scaling - use with variance for normalized beta. Sensitive to window size selection."
+  isCrossSectional: true
+  inputs:
+    - { type: Decimal, id: "SLOT", name: "Asset Series", allowMultipleConnections: false }
+    - { type: Decimal, id: "benchmark", name: "Benchmark", allowMultipleConnections: false }
+  options:
+    - id: window
+      name: Window Size
+      type: Integer
+      default: 60
+      min: 10
+      max: 500
+      desc: "Rolling window size for covariance calculation"
+      tuningGuidance: "Match window size to correlation analysis (typically 60-120). Use same window for beta calculation: beta = cs_rolling_cov / variance(benchmark). Smaller windows (20-50) for tactical beta, larger (100-200) for strategic allocation."
+  outputs: [DECIMAL_RESULT]
+  tags: ["cross-sectional", "covariance", "beta", "risk", "factor-analysis", "multi-asset"]
+  category: Statistical
+  plotKind: panel_line
+
+cs_zscore:
+  name: Cross-Sectional Z-Score
+  desc: "Normalizes each asset's value ACROSS assets at each timestamp, not over time. At each point in time, calculates: z_i = (value_i - mean_across_assets) / std_across_assets. Essential for cross-sectional comparison and factor scoring when metrics have different scales."
+  usageContext: "Fundamental for cross-sectional strategies and factor investing. Normalize metrics (returns, momentum, P/E ratios, volatility) across assets for fair comparison. Identify statistical outliers: assets >2 std devs from peer mean. Create mean-reversion signals: long bottom zscore, short top zscore. Combine multiple factors with different units into composite scores. Unlike regular zscore which normalizes over TIME, this normalizes across ASSETS at each moment."
+  strategyTypes: ["factor-investing", "statistical-arbitrage", "mean-reversion", "cross-sectional", "pairs-trading", "relative-value"]
+  relatedTransforms: ["zscore", "cs_momentum", "top_k", "bottom_k", "cs_rolling_corr"]
+  assetRequirements: ["multi-asset-required"]
+  limitations: "CRITICAL: Requires multiple assets (minimum 3+, recommended 10+). Different from time-series zscore - normalizes ACROSS assets not over time. Assumes approximately normal distribution of values across assets. Extreme outliers can skew mean/std calculation."
+  isCrossSectional: true
+  inputs:
+    - { type: Decimal, id: "SLOT", name: "Asset Values", allowMultipleConnections: false }
+  outputs: [DECIMAL_RESULT]
+  tags: ["cross-sectional", "normalization", "zscore", "factor-scoring", "statistical", "multi-asset", "outlier-detection"]
+  category: Statistical
+  plotKind: panel_line

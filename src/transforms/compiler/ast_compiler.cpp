@@ -5,6 +5,7 @@
 
 #include "ast_compiler.h"
 #include "parser/python_parser.h"
+#include <epoch_script/transforms/core/transform_registry.h>
 #include <stdexcept>
 #include <queue>
 #include <unordered_map>
@@ -282,6 +283,23 @@ namespace epoch_script
             if (literal_timeframe)
             {
                 algo.timeframe = literal_timeframe;
+            }
+        }
+
+        // Validate that transforms with requiresTimeFrame=true have timeframes
+        for (const auto& algo : context_.algorithms)
+        {
+            auto metadata = transforms::ITransformRegistry::GetInstance().GetMetaData(algo.type);
+            if (metadata)
+            {
+                const auto& transform = metadata->get();
+                if (transform.requiresTimeFrame && !algo.timeframe.has_value())
+                {
+                    throw std::runtime_error(
+                        "Transform '" + algo.type + "' (node: " + algo.id +
+                        ") requires an explicit timeframe parameter. " +
+                        "Please specify timeframe=<value> in the constructor.");
+                }
             }
         }
     }

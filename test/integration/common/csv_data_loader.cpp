@@ -91,8 +91,17 @@ void CsvDataLoader::WriteCsvFile(const epoch_frame::DataFrame& df,
     // Ensure parent directory exists
     std::filesystem::create_directories(csvPath.parent_path());
 
-    // Write CSV using epoch_frame utilities with index labeled as "index"
-    auto status = epoch_frame::write_csv_file(df, csvPath.string());
+    // Optionally exclude an index-like column named "index"
+    epoch_frame::DataFrame toWrite = df;
+    if (!includeIndex) {
+        auto cols = toWrite.column_names();
+        if (!cols.empty() && cols.front() == std::string("index")) {
+            toWrite = toWrite.drop(std::string("index"));
+        }
+    }
+
+    // Write CSV using epoch_frame utilities
+    auto status = epoch_frame::write_csv_file(toWrite, csvPath.string());
 
     if (!status.ok()) {
         throw std::runtime_error("Failed to write CSV: " + status.ToString());

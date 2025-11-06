@@ -1,0 +1,53 @@
+# Source: concepts/price-action.mdx:365
+# Section: Price Action Analysis > Complete Multi-Strategy System
+# Type: partial_example
+
+src = market_data_source(timeframe="15Min")
+
+# SMART MONEY
+swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+ob = order_blocks()(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=true)()
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
+
+# CHART PATTERNS
+ihs = inverse_head_and_shoulders(lookback=50)()
+flag_pattern = flag(lookback=30)()
+box = consolidation_box(lookback=50, min_pivot_points=5)()
+
+# CANDLESTICKS
+hammer_candle = hammer()()
+engulfing = engulfing_bull()()
+
+# GAPS & PIVOTS
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+pivots = pivot_point_sr(timeframe="1D")()
+
+# CONFLUENCE SCORING
+smc_score = ((ob.ob == 1) ? 1 : 0) +
+            ((structure.bos == 1) ? 1 : 0) +
+            ((fvg.fvg == 1) ? 1 : 0) +
+            ((liq.swept != 0)[1:3] ? 1 : 0)
+
+pattern_score = ((ihs.pattern_detected or flag_pattern.bull_flag) ? 2 : 0) +
+                ((hammer_candle or engulfing) ? 1 : 0)
+
+level_score = ((src.c <= pivots.support_1) ? 1 : 0)
+
+total_score = smc_score + pattern_score + level_score
+
+# High-probability entries require 5+ points
+entry = total_score >= 5
+
+# Mark significant patterns on timeline
+event_marker(color_map={
+    Success: ["pattern_detected", "gap_filled"],
+    Warning: ["liquidity_sweep"],
+    Error: ["gap_unfilled"]
+})(
+    pattern_detected=ihs.pattern_detected or flag_pattern.bull_flag,
+    gap_filled=gaps.gap_filled and (gaps.gap_size > 1.0),
+    liquidity_sweep=liq.swept != 0,
+    gap_unfilled=(gaps.gap_size > 1.0) and not gaps.gap_filled
+)

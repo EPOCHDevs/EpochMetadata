@@ -46,6 +46,7 @@ namespace {
   void GapReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
     // Generate the tearsheet using the existing implementation
     m_dashboard = generate_impl(normalizedDf);
+
   }
 
   epoch_tearsheet::DashboardBuilder

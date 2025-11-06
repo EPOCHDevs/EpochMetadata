@@ -35,17 +35,6 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
                           {"FTSE 100", "FTSE"},
                       },
                   .desc = "Select the market index"},
-              MetaDataOption{
-                  .id = "data_type",
-                  .name = "Data Type",
-                  .type = epoch_core::MetaDataOptionType::Select,
-                  .defaultValue = MetaDataOptionDefinition(std::string("eod")),
-                  .selectOption =
-                      {
-                          {"End of Day (Daily)", "eod"},
-                          {"Intraday (1-minute bars)", "intraday"},
-                      },
-                  .desc = "Select whether to fetch end-of-day (daily) or intraday (1-minute) data"},
           },
       .desc =
           "Historical price data for major market indices including S&P 500, Dow Jones, NASDAQ, Russell indices, and VIX. "
@@ -58,7 +47,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
               {epoch_core::IODataType::Decimal, "l", "Low", true},
               {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
-      .requiresTimeFrame = false,
+      .requiresTimeFrame = true,
       .requiredDataSources = {"c"},
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
@@ -83,18 +72,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
                   .name = "Index Ticker",
                   .type = epoch_core::MetaDataOptionType::String,
                   .defaultValue = MetaDataOptionDefinition(std::string("SPX")),
-                  .desc = "Index ticker symbol (e.g., SPX, DJI, NDX)"},
-              MetaDataOption{
-                  .id = "data_type",
-                  .name = "Data Type",
-                  .type = epoch_core::MetaDataOptionType::Select,
-                  .defaultValue = MetaDataOptionDefinition(std::string("eod")),
-                  .selectOption =
-                      {
-                          {"End of Day (Daily)", "eod"},
-                          {"Intraday (1-minute bars)", "intraday"},
-                      },
-                  .desc = "Select whether to fetch end-of-day (daily) or intraday (1-minute) data"},
+                  .desc = "Index ticker symbol (e.g., SPX, DJI, NDX, DAX, FTSE)"},
           },
       .desc =
           "Historical price data for any market index by ticker symbol. "
@@ -107,7 +85,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
               {epoch_core::IODataType::Decimal, "l", "Low", true},
               {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
-      .requiresTimeFrame = false,
+      .requiresTimeFrame = true,
       .requiredDataSources = {"c"},
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},

@@ -88,8 +88,11 @@ int main(int argc, char* argv[]) {
       std::cerr << "METADATA dir: " << metaDir << "\n";
       std::cerr << "Looking for: " << tf << (fs::exists(tf) ? " [exists]" : " [missing]") << "\n";
     }
+    std::cerr << "Registering transform metadata...\n";
     transforms::RegisterTransformMetadata(DEFAULT_YAML_LOADER);
+    std::cerr << "Initializing transforms...\n";
     transform::InitializeTransforms(DEFAULT_YAML_LOADER, {}, {});
+    std::cerr << "Transforms initialized.\n";
 
     fs::path testDir = fs::path(argv[1]);
     fs::path inputScript = testDir / "input.txt";
@@ -104,10 +107,13 @@ int main(int argc, char* argv[]) {
       throw std::runtime_error("Missing input.txt at: " + inputScript.string());
     }
 
+    std::cerr << "Reading input script: " << inputScript << "\n";
     // 1) Compile input.txt → expected/graph.json
     std::string source = ReadFile(inputScript);
+    std::cerr << "Compiling script (" << source.size() << " bytes) ...\n";
     AlgorithmAstCompiler compiler;
     auto result = compiler.compile(source);
+    std::cerr << "Compilation produced " << result.size() << " nodes.\n";
 
     // Preserve original node order for runtime orchestration
     auto nodes_for_runtime = result;
@@ -116,12 +122,14 @@ int main(int argc, char* argv[]) {
     auto nodes_for_json = result;
     std::sort(nodes_for_json.begin(), nodes_for_json.end(), [](const auto& a, const auto& b) { return a.id < b.id; });
 
+    std::cerr << "Serializing graph.json ...\n";
     auto json = glz::write<glz::opts{.prettify = true}>(nodes_for_json);
     if (!json.has_value()) throw std::runtime_error("Failed to serialize compilation result");
     WriteFile(expectedGraph, json.value());
     std::cerr << "✓ Wrote graph.json → " << expectedGraph << "\n";
 
     // 2) Load runtime input data
+    std::cerr << "Loading input data from: " << inputDataDir << "\n";
     auto inputData = runtime::test::CsvDataLoader::LoadFromDirectory(inputDataDir);
     // Normalize timeframe key to compiled graph timeframe if needed
     if (!nodes_for_runtime.empty() && nodes_for_runtime.front().timeframe.has_value()) {
@@ -138,11 +146,14 @@ int main(int argc, char* argv[]) {
     std::cerr << "Assets detected: " << assets.size() << "\n";
 
     // 3) Create orchestrator and execute
+    std::cerr << "Converting nodes to config list...\n";
     auto configList = ToConfigList(nodes_for_runtime);
+    std::cerr << "Creating orchestrator...\n";
     auto orchestrator = runtime::CreateDataFlowRuntimeOrchestrator(assets, configList);
     if (!orchestrator) throw std::runtime_error("Failed to create orchestrator");
-
+    std::cerr << "Executing pipeline...\n";
     auto outputs = orchestrator->ExecutePipeline(inputData);
+    std::cerr << "Pipeline executed. Saving outputs...\n";
     auto reports = orchestrator->GetGeneratedReports();
     auto markers = orchestrator->GetGeneratedEventMarkers();
 
@@ -152,7 +163,8 @@ int main(int argc, char* argv[]) {
       for (const auto& [asset, df] : assetMap) {
         // Filename: {timeframe}_{asset}_result.csv
         fs::path outPath = expectedDfDir / (timeframe + std::string("_") + asset + std::string("_result.csv"));
-        runtime::test::CsvDataLoader::WriteCsvFile(df, outPath, true);
+        // Write without implicit index column to match validator expectations
+        runtime::test::CsvDataLoader::WriteCsvFile(df, outPath, false);
         std::cerr << "✓ Wrote dataframe → " << outPath << "\n";
       }
     }

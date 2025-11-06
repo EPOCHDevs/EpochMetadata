@@ -16,10 +16,10 @@ Quick reference for EpochScript compilation and runtime errors. Each error inclu
 
 <Callout type="tip">
 **For detailed explanations and best practices:**
-- [Types & Literals - Parameter Type Validation](./language/types.md#parameter-type-validation)
-- [Design Guidelines](./design-guidelines.md) - Patterns and common mistakes
-- [Language Limitations](./language/limitations.md) - Python features not supported
-- [Core Concepts](./concepts/index.md) - Timeframes, sessions, cross-sectional
+- [Types & Literals - Parameter Type Validation](./language/types#parameter-type-validation)
+- [Design Guidelines](./design-guidelines) - Patterns and common mistakes
+- [Language Limitations](./language/limitations) - Python features not supported
+- [Core Concepts](./concepts) - Timeframes, sessions, cross-sectional
 </Callout>
 
 ---
@@ -165,7 +165,7 @@ result = is_positive and True
 
 ## Transform Errors
 
-**See also:** [Core Concepts](./concepts/index.md) for timeframes, sessions, and cross-sectional capabilities.
+**See also:** [Core Concepts](./concepts) for timeframes, sessions, and cross-sectional capabilities.
 
 ### Missing Required Option
 
@@ -207,7 +207,7 @@ ema_val = ema(period=20)(src.c)
 
 ```python
 # Incorrect:
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 price = src.result  # market_data_source has no 'result'
 
 # FIX
@@ -406,6 +406,35 @@ bb_upper = bb.bbands_upper  # Access, don't call
 
 ## TimeFrame/Session Errors
 
+### Missing Required Timeframe
+
+**Error:** `Transform 'market_data_source' requires a timeframe`
+
+**Cause:** Transform with `requiresTimeFrame=true` has no explicit timeframe and no inputs to inherit from
+
+```python
+# Incorrect:
+src = market_data_source()  # Missing timeframe
+gaps = session_gap(fill_percent=100)()  # No timeframe, no inputs
+
+# FIX - Option 1: Set explicit timeframe
+src = market_data_source(timeframe="1D")
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# FIX - Option 2: Connect to input with timeframe
+src = market_data_source(timeframe="1D")
+gaps = session_gap(fill_percent=100)(src.c)  # Inherits "1D" from src
+```
+
+**Transforms requiring explicit timeframes:**
+- Data sources: `market_data_source`, `vwap`, `trade_count` (no inputs)
+- Calendar effects: `day_of_week`, `week_of_month`, `holiday` (no inputs)
+- Chart patterns with no inputs: `swing_highs_lows`, `head_and_shoulders`
+
+**See also:** [Timeframes - Timeframe Requirements](./concepts/timeframes.md#timeframe-requirements)
+
+---
+
 ### Invalid TimeFrame
 
 **Error:** `Invalid timeframe 'BAD_TF'`
@@ -422,9 +451,9 @@ daily = ema(period=50, timeframe="1D")(src.c)
 hourly = ema(period=20, timeframe="1H")(src.c)
 ```
 
-**Valid formats:** `"1Min"`, `"5Min"`, `"15Min"`, `"1H"`, `"4H"`, `"1D"`, `"1W"`, `"1M"`
+**Valid formats:** `"1Min"`, `"2Min"`, `"3Min"`, `"5Min"`, `"10Min"`, `"15Min"`, `"30Min"`, `"45Min"`, `"1H"`, `"2H"`, `"3H"`, `"4H"`, `"1D"`, `"1W-MON"`, `"1W-FRI"`, `"1W-SUN"`, `"1ME"`, `"1MS"`, `"1QE"`, `"1QS"`, `"1YE"`, `"1YS"`
 
-**See also:** [Design Guidelines - Valid Timeframe Formats](./design-guidelines.md#valid-timeframe-formats)
+**See also:** [Timeframes - Standard Timeframes](./concepts/timeframes.md#standard-timeframes)
 
 ---
 
@@ -556,7 +585,7 @@ event_marker(color_map={
 )
 ```
 
-**See also:** [Research Dashboards - Gap Report Required Inputs](./visualization/research-dashboards.md#gap-report-required-inputs) and [Research Dashboards - Table Report SQL Patterns](./visualization/research-dashboards.md#table-report-sql-patterns)
+**See also:** [Research Reports](./concepts/research) - Gap Report and Table Report documentation
 
 ---
 
@@ -590,7 +619,8 @@ event_marker(color_map={
 |---------|-------------|-----|
 | `No trade_signal_executor` | Missing executor | See [Design Guidelines](./design-guidelines.md#every-trading-strategy-must-have-exactly-one-executor) |
 | `Multiple executors` | Two `trade_signal_executor` calls | See [Design Guidelines](./design-guidelines.md#anti-pattern-multiple-executors) |
-| `Invalid timeframe` | Wrong format | Use `"1D"`, `"1H"`, etc. |
+| `Transform requires a timeframe` | Data source or no-input transform | Add `timeframe="1D"` parameter |
+| `Invalid timeframe` | Wrong format | Use `"1D"`, `"1H"`, `"1W-MON"`, etc. |
 | `Invalid session` | Wrong name | Use valid session names |
 
 ---
@@ -628,7 +658,7 @@ ema_val = ema(period=20)(src.c)  # TRUE
 
 ```python
 # Wrong handle
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 price = src.result  # FALSE No 'result' handle
 
 # Correct handles
@@ -725,16 +755,14 @@ x = condition  # If you just need True/False
 
 If error persists:
 
-1. **Check design guidelines**: Review [Design Guidelines](./design-guidelines.md) for required patterns
+1. **Check design guidelines**: Review [Design Guidelines](./design-guidelines) for required patterns
 2. **Check transform catalog**: Use the UI Transform Browser to verify transform name, options, inputs, outputs
-3. **Review examples**: See working examples in [Strategy Patterns](../strategies/patterns/index.md)
-4. **Simplify**: Remove parts until error disappears, then add back
-5. **Test incrementally**: Build up strategy step-by-step
+3. **Simplify**: Remove parts until error disappears, then add back
+4. **Test incrementally**: Build up strategy step-by-step
 
 ---
 
 **Related Documentation:**
-- [Design Guidelines](./design-guidelines.md) - Required design patterns and constraints
-- [Language Fundamentals](./language/index.md) - Syntax and types
-- [Core Concepts](./concepts/index.md) - Timeframes, sessions, cross-sectional
-- [Strategy Patterns](../strategies/patterns/index.md) - Complete strategy examples
+- [Design Guidelines](./design-guidelines) - Required design patterns and constraints
+- [Language Fundamentals](./language) - Syntax and types
+- [Core Concepts](./concepts) - Timeframes, sessions, cross-sectional, data sources

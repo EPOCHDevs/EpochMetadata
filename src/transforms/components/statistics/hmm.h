@@ -39,21 +39,22 @@ using HMMGaussian = mlpack::HMM<GaussianDistribution<>>;
  * This transform implements HMM-based regime detection and state prediction
  * for financial markets using Gaussian emission distributions.
  *
+ * Template parameter N_STATES specifies the number of hidden states.
+ * Use specialized versions: hmm_2, hmm_3, hmm_4, hmm_5
+ *
  * Financial Applications:
  * - Market regime detection (bull/bear/sideways)
  * - Volatility state identification (low/medium/high)
  * - Trend change detection
  * - Risk state assessment
  */
+template <size_t N_STATES>
 class HMMTransform final : public ITransform {
 public:
-  explicit HMMTransform(const TransformConfiguration &cfg) : ITransform(cfg) {
-    // Number of states (dynamic)
-    m_n_states = static_cast<size_t>(
-        cfg.GetOptionValue("n_states",
-                           epoch_script::MetaDataOptionDefinition{3.0})
-            .GetInteger());
+  static_assert(N_STATES >= 2 && N_STATES <= 5,
+                "HMM supports 2-5 states");
 
+  explicit HMMTransform(const TransformConfiguration &cfg) : ITransform(cfg) {
     // Core HMM parameters
     m_max_iterations = static_cast<size_t>(
         cfg.GetOptionValue("max_iterations",
@@ -141,9 +142,6 @@ public:
   // Note: GetOutputMetaData() is handled in separate metadata repo
 
 private:
-  // Number of states (dynamic)
-  size_t m_n_states{3};
-
   // Core HMM parameters
   size_t m_max_iterations{1000};
   double m_tolerance{1e-5};
@@ -199,8 +197,8 @@ private:
     // Number of dimensions (features)
     const size_t dimensionality = X.n_cols;
 
-    // Initialize Gaussian HMM with dynamic states and given dimensionality
-    HMMGaussian hmm(m_n_states, GaussianDistribution<>(dimensionality),
+    // Initialize Gaussian HMM with N_STATES and given dimensionality
+    HMMGaussian hmm(N_STATES, GaussianDistribution<>(dimensionality),
                     m_tolerance);
 
     // Prepare sequences (each matrix is dimensionality x T, observations in
@@ -233,9 +231,6 @@ private:
                     logScales);
     arma::mat state_probs = arma::exp(stateLogProb);
 
-    // Get transition matrix
-    arma::mat transition_matrix = hmm.Transition();
-
     // 1. State sequence (Viterbi path)
     std::vector<int64_t> state_vec(T);
     for (size_t i = 0; i < T; ++i) {
@@ -244,68 +239,25 @@ private:
     output_columns.push_back(GetOutputId("state"));
     output_arrays.push_back(epoch_frame::factory::array::make_array(state_vec));
 
-    // 2. State probabilities as list (all states for each timestep)
-    std::vector<std::vector<double>> prob_lists(T);
-    for (size_t i = 0; i < T; ++i) {
-      prob_lists[i].resize(m_n_states);
-      for (size_t s = 0; s < m_n_states; ++s) {
-        prob_lists[i][s] = state_probs(s, i);
+    // 2. Individual state probability columns (state_0_prob, state_1_prob, ...)
+    // Generate N_STATES individual scalar columns at compile time
+    for (size_t s = 0; s < N_STATES; ++s) {
+      std::vector<double> prob_vec(T);
+      for (size_t i = 0; i < T; ++i) {
+        prob_vec[i] = state_probs(s, i);
       }
+      output_columns.push_back(GetOutputId("state_" + std::to_string(s) + "_prob"));
+      output_arrays.push_back(epoch_frame::factory::array::make_array(prob_vec));
     }
-    output_columns.push_back(GetOutputId("prob_state"));
-    output_arrays.push_back(CreateListArray(prob_lists));
-
-    // 3. Transition matrix as flattened list (same for all timesteps)
-    std::vector<double> trans_flat;
-    trans_flat.reserve(m_n_states * m_n_states);
-    for (size_t i = 0; i < m_n_states; ++i) {
-      for (size_t j = 0; j < m_n_states; ++j) {
-        trans_flat.push_back(transition_matrix(i, j));
-      }
-    }
-
-    // Replicate transition matrix for all timesteps
-    std::vector<std::vector<double>> trans_lists(T, trans_flat);
-    output_columns.push_back(GetOutputId("transition_matrix"));
-    output_arrays.push_back(CreateListArray(trans_lists));
 
     return epoch_frame::make_dataframe(index, output_arrays, output_columns);
   }
-
-  arrow::ChunkedArrayPtr
-  CreateListArray(const std::vector<std::vector<double>> &data) const {
-    // Create a list array from vector of vectors
-    arrow::ListBuilder list_builder(arrow::default_memory_pool(),
-                                    std::make_shared<arrow::DoubleBuilder>());
-
-    for (const auto &row : data) {
-      auto status = list_builder.Append();
-      if (!status.ok()) {
-        throw std::runtime_error("Failed to append list: " + status.ToString());
-      }
-
-      auto *value_builder_ptr =
-          static_cast<arrow::DoubleBuilder *>(list_builder.value_builder());
-      status = value_builder_ptr->AppendValues(row);
-      if (!status.ok()) {
-        throw std::runtime_error("Failed to append values: " +
-                                 status.ToString());
-      }
-    }
-
-    // Build array and immediately wrap in ChunkedArray for safety
-    std::shared_ptr<arrow::Array> array_temp;
-    auto status = list_builder.Finish(&array_temp);
-    if (!status.ok()) {
-      throw std::runtime_error("Failed to finish list array: " +
-                               status.ToString());
-    }
-
-    // Immediately wrap in ChunkedArray for safe access
-    return std::make_shared<arrow::ChunkedArray>(array_temp);
-  }
 };
 
-// HMMTransform uses Gaussian distributions by default
+// Specialized HMM transforms for 2-5 states
+using HMM2Transform = HMMTransform<2>;
+using HMM3Transform = HMMTransform<3>;
+using HMM4Transform = HMMTransform<4>;
+using HMM5Transform = HMMTransform<5>;
 
 } // namespace epoch_script::transform

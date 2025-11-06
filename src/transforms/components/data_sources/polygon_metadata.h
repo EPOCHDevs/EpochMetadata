@@ -382,54 +382,7 @@ MakePolygonDataSources() {
               "Extremely high data volume - use narrow date ranges. Nanosecond "
               "timestamps. Historical data access limits based on subscription. "
               "Requires external data loader. Not suitable for daily/weekly "
-              "strategies - use Aggregates instead.",
-      });
-
-  // 7. OHLCV Aggregate Bars
-  metadataList.emplace_back(
-      epoch_script::transforms::TransformsMetaData{
-          .id = "aggregates",
-          .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
-          .name = "Aggregates",
-          .options = {},
-          .isCrossSectional = false,
-          .desc = "Load OHLCV aggregate bars . Provides "
-                  "open/high/low/close prices and volume at various timeframes "
-                  "(1min to daily) for standard price-based technical analysis.",
-          .inputs = {},
-          .outputs =
-              {
-                  {epoch_core::IODataType::String, "ticker", "Ticker", true},
-                  {epoch_core::IODataType::Decimal, "o", "Open", true},
-                  {epoch_core::IODataType::Decimal, "h", "High", true},
-                  {epoch_core::IODataType::Decimal, "l", "Low", true},
-                  {epoch_core::IODataType::Decimal, "c", "Close", true},
-                  {epoch_core::IODataType::Decimal, "v", "Volume", true},
-                  {epoch_core::IODataType::Decimal, "vw", "VWAP", true},
-                  {epoch_core::IODataType::Integer, "n", "Trade Count", true},
-                  {epoch_core::IODataType::Integer, "t", "Timestamp (ms)",
-                   true},
-              },
-          .atLeastOneInputRequired = false,
-          .tags = { "market-data", "ohlcv", "bars", "aggregates",
-                   "price"},
-          .requiresTimeFrame = true,
-          .strategyTypes = {"technical-analysis", "trend-following",
-                            "mean-reversion", "momentum", "any"},
-          .assetRequirements = {"single-asset"},
-          .usageContext =
-              "Primary data source for technical analysis strategies. Use "
-              "for any OHLCV-based indicators and patterns. Supports multiple "
-              "timeframes (1min, 5min, 1hour, 1day). Choose 'adjusted=true' "
-              "for accurate historical comparisons. This is the most commonly "
-              "used Polygon endpoint.",
-          .limitations =
-              "Daily bars only show regular trading hours. Intraday data "
-              "availability depends on subscription tier. Adjust for splits/"
-              "dividends to avoid false signals. Requires external data "
-              "loader. Use market_data_source for basic strategies if Polygon "
-              "not needed.",
+              "strategies - use market_data_source instead.",
       });
 
   return metadataList;

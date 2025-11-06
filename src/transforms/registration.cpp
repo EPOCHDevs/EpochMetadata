@@ -10,6 +10,7 @@
 #include "components/data_sources/fred_metadata.h"
 #include "components/data_sources/sec_metadata.h"
 #include "components/indicators/forward_returns.h"
+#include "components/indicators/intraday_returns.h"
 
 namespace epoch_script::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -29,6 +30,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeScalarMetaData());
   metaDataList.emplace_back(MakeLagMetaData());
   metaDataList.emplace_back(epoch_script::transform::MakeForwardReturnsMetaData());
+  metaDataList.emplace_back(epoch_script::transform::MakeIntradayReturnsMetaData());
   metaDataList.emplace_back(MakeChartFormationMetaData());
   metaDataList.emplace_back(MakeCalendarEffectMetaData());
   metaDataList.emplace_back(MakeStringTransformMetaData());

@@ -24,15 +24,23 @@ Complete reference for all operators in EpochScript including arithmetic, compar
 | `-` | Subtraction | `a - b` |
 | `*` | Multiplication | `a * b` |
 | `/` | Division | `a / b` |
+| `%` | Modulo (remainder) | `a % b` |
+| `**` | Power (exponentiation) | `a ** b` |
 | `-` (unary) | Negation | `-a` |
 
 **Example:**
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 range_val = src.h - src.l
 midpoint = (src.h + src.l) / 2
 momentum = src.c - src.c[5]
+
+# Modulo - useful for detecting periodic patterns
+even_bars = (src.c % 2) == 0
+
+# Power - useful for calculating squared returns or variance
+squared_returns = (src.c / src.c[1] - 1) ** 2
 ```
 
 ---
@@ -51,7 +59,7 @@ momentum = src.c - src.c[5]
 **Example:**
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
 price = src.c
 bb = bbands(period=20, stddev=2)(src.c)
@@ -74,23 +82,31 @@ valid = (rsi > 30) and (rsi < 70)
 
 ## Logical Operators
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `and` | Logical AND | `a and b` |
-| `or` | Logical OR | `a or b` |
-| `not` | Logical NOT | `not a` |
+EpochScript supports both keyword and symbol forms for logical operators:
+
+| Keyword | Symbol | Description | Example |
+|---------|--------|-------------|---------|
+| `and` | `&` | Logical AND | `a and b` or `a & b` |
+| `or` | `\|` | Logical OR | `a or b` or `a \| b` |
+| `not` | `!` | Logical NOT | `not a` or `!a` |
+
+Both forms are equivalent and can be used interchangeably. Use whichever style you prefer, but be consistent within a file.
 
 **Example:**
 
 ```python
-# AND - both conditions must be true
+# Keyword form
 strong_buy = (rsi < 30) and (volume_spike)
-
-# OR - at least one condition must be true
 exit_signal = stop_loss or take_profit
-
-# NOT - negates condition
 not_oversold = not (rsi < 30)
+
+# Symbol form (equivalent)
+strong_buy = (rsi < 30) & (volume_spike)
+exit_signal = stop_loss | take_profit
+not_oversold = !(rsi < 30)
+
+# Can be mixed (though not recommended for readability)
+mixed = (rsi < 30) and volume_spike | !(rsi > 70)
 ```
 
 ---
@@ -110,7 +126,7 @@ result = value_if_true if condition else value_if_false
 **Example:**
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 fast = ema(period=12)(src.c)
 slow = ema(period=26)(src.c)
 rsi = rsi(period=14)(src.c)
@@ -171,7 +187,7 @@ object.attribute
 
 ```python
 # Data source outputs
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 close = src.c
 high = src.h
 low = src.l

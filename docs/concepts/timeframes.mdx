@@ -9,7 +9,6 @@ parent: ./index.md
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # Timeframes
 
@@ -28,7 +27,7 @@ The framework automatically resamples data to the specified timeframe before tra
 **Example:**
 ```python
 # Strategy runs on 15Min bars
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
 # Calculate on daily timeframe (auto-resampled)
 daily_ema = ema(period=50, timeframe="1D")(src.c)
@@ -43,55 +42,50 @@ above_trend = src.c > daily_ema
 
 ### Intraday
 ```python
-"1Min"    # 1 minute
-"5Min"    # 5 minutes
-"15Min"   # 15 minutes
-"30Min"   # 30 minutes
-"1H"      # 1 hour
-"4H"      # 4 hours
+"1Min", "2Min", "3Min"     # 1-3 minutes
+"5Min", "10Min"            # 5-10 minutes
+"15Min", "30Min", "45Min"  # 15-45 minutes
+"1H", "2H", "3H", "4H"     # 1-4 hours
 ```
 
 ### Daily and Above
 ```python
-"1D"      # 1 day
-"1W"      # 1 week
-"1M"      # 1 month
+"1D"                       # 1 day
+"1W-MON", "1W-FRI"        # Week (Monday/Friday start)
+"1ME", "1MS"              # Month end/start
+"1QE", "1QS"              # Quarter end/start
+"1YE", "1YS"              # Year end/start
 ```
 
-<Callout type="warning" title="Use Short Forms Only">
-Use short forms only: `"1D"`, `"1H"`, `"1W"`
-
-Invalid: `"1Day"`, `"1Hour"`, `"1Week"`
+<Callout type="warning" title="Use Exact Format">
+Timeframes are case-insensitive but must use exact units:
+- Valid: `"1D"`, `"1H"`, `"1W-MON"`, `"5Min"`
+- Invalid: `"1Day"`, `"1Hour"`, `"1Week"`
 </Callout>
 
 ---
 
 ## Advanced Timeframes
 
-### Month Anchoring
+### Month/Quarter/Year Anchoring
 ```python
 "1MS"     # Month start
 "1ME"     # Month end
-
-# Example: Month-end closing price
-month_end = market_data_source(timeframe="1ME")().c
+"1QS"     # Quarter start
+"1QE"     # Quarter end
+"1YS"     # Year start
+"1YE"     # Year end
 ```
 
 ### Week Anchoring
 ```python
-"1W-MON"  # Week starting Monday (default)
-"1W-FRI"  # Week starting Friday
-"1W-SUN"  # Week starting Sunday
-
-# Example: Forex weekly (Friday start)
-weekly_fri = ema(period=10, timeframe="1W-FRI")(src.c)
-```
-
-### Business Days
-```python
-"1B"      # 1 business day
-"5B"      # 5 business days (1 week)
-"21B"     # ~1 month of business days
+"1W-MON"         # Week starting Monday
+"1W-FRI"         # Week starting Friday
+"1W-SUN"         # Week starting Sunday
+"1W-MON-1st"     # First Monday of month
+"1W-MON-2nd"     # Second Monday of month
+"1W-MON-3rd"     # Third Monday of month
+"1W-FRI-Last"    # Last Friday of month
 ```
 
 ---
@@ -101,7 +95,7 @@ weekly_fri = ema(period=10, timeframe="1W-FRI")(src.c)
 Higher timeframe for trend, lower timeframe for entry:
 
 ```python
-src = market_data_source()
+src = market_data_source(timeframe="1D")
 
 # Daily trend filter
 daily_trend = ema(period=50, timeframe="1D")(src.c)
@@ -116,6 +110,44 @@ entry = crossover(fast, slow)
 buy = entry and uptrend
 trade_signal_executor()(enter_long=buy)
 ```
+
+---
+
+## Timeframe Requirements
+
+**Some transforms require a timeframe** (flagged with `requiresTimeFrame=true` in metadata):
+
+```python
+src = market_data_source(timeframe="1D")  # ✓ Required - data source needs timeframe
+
+# ✗ Error: Missing timeframe
+gaps = session_gap(fill_percent=100)()
+
+# ✓ Correct: Explicit timeframe
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
+
+# ✓ Also correct: Inherits from src
+gaps = session_gap(fill_percent=100)(src.c)
+```
+
+**Transforms requiring timeframes:**
+- Data sources: `market_data_source`, `vwap`, `trade_count`
+- Chart patterns: `swing_highs_lows`, `head_and_shoulders`, `triangles`, `flags`
+- Calendar effects: `day_of_week`, `week_of_month`, `holiday`
+
+<Callout type="warning" title="When to Set Timeframes">
+**Always explicitly set timeframes for:**
+- Data sources: `market_data_source(timeframe="1D")`
+- Transforms with NO inputs: `day_of_week(timeframe="1D")`
+- Transforms requiring timeframes with only constant inputs
+
+**Timeframe inheritance only works when transforms have inputs:**
+1. **Explicit timeframe wins**: `ema(period=20, timeframe="1D")(src.c)` uses `"1D"`
+2. **Inherits from inputs**: `rsi(period=14)(src.c)` inherits from `src`
+3. **Multiple inputs**: Takes the coarsest resolution (daily > hourly > minute)
+
+If a transform has no inputs to inherit from, you **must** set `timeframe=` explicitly.
+</Callout>
 
 ---
 

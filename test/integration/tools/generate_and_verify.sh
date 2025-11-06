@@ -100,6 +100,12 @@ fi
 echo "\n== Running integration tests =="
 log_out="$repo_root/reports/integration_test.log"
 mkdir -p "$repo_root/reports"
+# Sync updated expected artifacts to runtime test_cases used by the test binary
+if [[ -d "$bin_dir/test_cases" ]]; then
+  echo "Syncing updated test_cases to $bin_dir/test_cases ..."
+  rm -rf "$bin_dir/test_cases" || true
+fi
+cp -R "$repo_root/test/integration/test_cases" "$bin_dir/" >/dev/null 2>&1 || true
 "$bin_dir/epoch_script_test" "[integration]" --order lex | tee "$log_out" >/dev/null || {
   echo "Integration tests failed. See $log_out" >&2
   tail -n 200 "$log_out" || true
