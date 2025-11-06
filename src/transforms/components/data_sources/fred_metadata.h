@@ -79,7 +79,7 @@ MakeFREDDataSource() {
           .tags = {"fred", "macro", "economic-indicators", "inflation",
                    "interest-rates", "gdp", "employment"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"c"},
+          .requiredDataSources = {"observation_date", "value"},
           .strategyTypes = {"macro-analysis", "regime-detection",
                             "economic-calendar", "risk-on-risk-off"},
           .assetRequirements = {},

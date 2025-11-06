@@ -95,9 +95,12 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
     REQUIRE(commonIndices.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to 'c'") {
-    REQUIRE(commonIndices.requiredDataSources.size() == 1);
-    REQUIRE(commonIndices.requiredDataSources[0] == "c");
+  SECTION("Has requiredDataSources set to OHLC") {
+    REQUIRE(commonIndices.requiredDataSources.size() == 4);
+    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "o") != commonIndices.requiredDataSources.end());
+    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "h") != commonIndices.requiredDataSources.end());
+    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "l") != commonIndices.requiredDataSources.end());
+    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "c") != commonIndices.requiredDataSources.end());
   }
 
   SECTION("Has strategy metadata") {
@@ -152,9 +155,12 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(indices.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to 'c'") {
-    REQUIRE(indices.requiredDataSources.size() == 1);
-    REQUIRE(indices.requiredDataSources[0] == "c");
+  SECTION("Has requiredDataSources set to OHLC") {
+    REQUIRE(indices.requiredDataSources.size() == 4);
+    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "o") != indices.requiredDataSources.end());
+    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "h") != indices.requiredDataSources.end());
+    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "l") != indices.requiredDataSources.end());
+    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "c") != indices.requiredDataSources.end());
   }
 
   SECTION("Has comprehensive descriptions") {

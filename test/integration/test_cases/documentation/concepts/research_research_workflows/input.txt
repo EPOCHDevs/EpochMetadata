@@ -1,17 +1,29 @@
-# Source: concepts/research.mdx:247
+# Source: concepts/research.mdx:287
 # Section: Research Reports > Research Workflows
 # Type: complete_code
 
-# Identify gap fill characteristics
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
+src = market_data_source(timeframe="1D", symbols=["AAPL"])
+returns = roc(period=1)(src.c)
 
-# Distribution analysis
-histogram_chart_report(bins=20, title="Gap Size Distribution", category="Research")(gaps.gap_size)
+rsi_val = rsi(period=14)(src.c)
+regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
 
-# Detailed inspection
-gap_report(fill_time_pivot_hour=12)(
-    gaps.gap_filled, gaps.gap_retrace, gaps.gap_size, gaps.psc, gaps.psc_timestamp
-)
+# Proportion analysis
+pie_chart_report(agg="count", title="Market Regime Distribution", category="Research")(regime)
+
+# Performance by regime
+bar_chart_report(agg="mean", title="Avg Return by Regime", category="Research")(regime, returns)
+
+# Detailed regime table
+extreme = (rsi_val < 30) | (rsi_val > 70)
+table_report(schema=TableReportSchema(
+    title="Extreme Conditions",
+    select_key=SLOT0,
+    columns=[
+        TableColumnSchema(column_id=SLOT1, title="Regime"),
+        TableColumnSchema(column_id=SLOT2, title="RSI")
+    ]
+))(extreme, regime, rsi_val)
 
 # Summary card
-numeric_cards_report(agg="count_all", title="Total Gaps", category="Summary", group=0, group_size=1)(gaps.gap_filled)
+numeric_cards_report(agg="mean", title="Avg RSI", category="Summary", group=0, group_size=1)(rsi_val)

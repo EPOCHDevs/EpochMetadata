@@ -100,9 +100,14 @@ TEST_CASE("Form 13F Holdings Configuration", "[sec][form13f]") {
     REQUIRE(form13f.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to 'c'") {
-    REQUIRE(form13f.requiredDataSources.size() == 1);
-    REQUIRE(form13f.requiredDataSources[0] == "c");
+  SECTION("Has requiredDataSources set to output IDs") {
+    REQUIRE(form13f.requiredDataSources.size() == 6);
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "shares") != form13f.requiredDataSources.end());
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "value") != form13f.requiredDataSources.end());
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "security_type") != form13f.requiredDataSources.end());
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "investment_discretion") != form13f.requiredDataSources.end());
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "institution_name") != form13f.requiredDataSources.end());
+    REQUIRE(std::find(form13f.requiredDataSources.begin(), form13f.requiredDataSources.end(), "period_end") != form13f.requiredDataSources.end());
   }
 
   SECTION("Has correct tags") {
@@ -262,9 +267,14 @@ TEST_CASE("Insider Trading Configuration", "[sec][insider]") {
     REQUIRE(insiderTrading.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to 'c'") {
-    REQUIRE(insiderTrading.requiredDataSources.size() == 1);
-    REQUIRE(insiderTrading.requiredDataSources[0] == "c");
+  SECTION("Has requiredDataSources set to output IDs") {
+    REQUIRE(insiderTrading.requiredDataSources.size() == 6);
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "transaction_date") != insiderTrading.requiredDataSources.end());
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "owner_name") != insiderTrading.requiredDataSources.end());
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "transaction_code") != insiderTrading.requiredDataSources.end());
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "shares") != insiderTrading.requiredDataSources.end());
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "price") != insiderTrading.requiredDataSources.end());
+    REQUIRE(std::find(insiderTrading.requiredDataSources.begin(), insiderTrading.requiredDataSources.end(), "ownership_after") != insiderTrading.requiredDataSources.end());
   }
 
   SECTION("Has correct tags") {

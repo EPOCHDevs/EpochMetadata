@@ -48,7 +48,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
               {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
       .requiresTimeFrame = true,
-      .requiredDataSources = {"c"},
+      .requiredDataSources = {"o", "h", "l", "c"},
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =
@@ -86,7 +86,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
               {epoch_core::IODataType::Decimal, "c", "Close", true},
           },
       .requiresTimeFrame = true,
-      .requiredDataSources = {"c"},
+      .requiredDataSources = {"o", "h", "l", "c"},
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =
