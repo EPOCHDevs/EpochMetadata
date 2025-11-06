@@ -146,6 +146,59 @@ event_marker(
 └─ 2024-01-17 11:15  ▼ Sell Signal      [Error]
 ```
 
+### Auto-Serialization in `color_map`
+
+**Non-string values are automatically converted to strings** for `color_map` matching:
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, complexity=medium -->
+```python
+src = market_data_source(timeframe="1Min")
+
+# Status codes: 0=inactive, 1=warning, 2=active
+status_code = number(value=2).result
+
+# Boolean signal
+is_trading = src.c > number(value=100).result
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Trading Status",
+        icon=Signal,
+        select_key=SLOT1,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT0,
+                slot=Hero,
+                render_type=Integer,
+                color_map={
+                    Success: [2],      # Integer 2 → "2"
+                    Warning: [1],      # Integer 1 → "1"
+                    Error: [0]         # Integer 0 → "0"
+                }
+            ),
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=SecondaryBadge,
+                render_type=Badge,
+                color_map={
+                    Info: [True]       # Boolean True → "True"
+                }
+            )
+        ]
+    )
+)(status_code, is_trading)
+```
+
+**Serialization rules:**
+- `True` → `"True"`, `False` → `"False"` (Python capitalization)
+- Integers: `42` → `"42"`
+- Decimals: `3.14` → `"3.14"`
+- Strings: unchanged
+
+<Callout type="info">
+**Match against the serialized value:** If your column contains boolean `True`, use `color_map={Info: [True]}`. If it contains the string `"true"`, use `color_map={Info: ["true"]}`.
+</Callout>
+
 ### Use Cases
 
 **Strategy Development:**

@@ -43,10 +43,20 @@ namespace epoch_script
     std::string column_id;
     epoch_core::CardSlot slot;
     epoch_core::CardRenderType render_type;
-    std::unordered_map<epoch_core::CardColor, std::vector<std::string>> color_map;
+    std::unordered_map<epoch_core::CardColor, std::vector<glz::generic>> color_map;
     std::optional<std::string> label;  // Optional display label - if set, UI shows this instead of column_id
 
-    bool operator==(const CardColumnSchema &) const = default;
+    // Note: Custom equality operator needed because glz::generic doesn't have operator==
+    // We compare color_map by serializing to JSON string
+    bool operator==(const CardColumnSchema& other) const {
+      if (column_id != other.column_id || slot != other.slot ||
+          render_type != other.render_type || label != other.label) {
+        return false;
+      }
+
+      // Compare color_map by serializing to JSON
+      return glz::write_json(color_map) == glz::write_json(other.color_map);
+    }
 
     struct glaze_json_schema {
       glz::schema column_id{
@@ -62,7 +72,7 @@ namespace epoch_script
         .enumeration = std::vector<std::string_view>{"Text", "Integer", "Decimal", "Percent", "Monetary", "Duration", "Badge", "Timestamp", "Boolean"}
       };
       glz::schema color_map{
-        .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default"
+        .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default. Values are automatically serialized to strings (e.g., true -> \"True\", 42 -> \"42\")"
       };
       glz::schema label{
         .description = "Optional display label shown to users. If not set, UI uses column_id. Pattern: only show labels for Details slot (better visual style)"
