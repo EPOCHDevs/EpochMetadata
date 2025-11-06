@@ -1,5 +1,110 @@
-{
-  "TODO": "Fix compilation error",
-  "error": "/home/adesola/EpochLab/EpochScript/cmake-build-debug/bin/generate_graph: error while loading shared libraries: libepoch_script.so.SOVERSION: cannot open shared object file: No such file or directory\n",
-  "status": "NEEDS_FIX"
-}
+[
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "ihs#neckline_level"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "head_and_shoulders",
+      "id": "hs",
+      "options": {
+         "lookback": 50,
+         "head_ratio_before": 1.0002,
+         "head_ratio_after": 1.0002,
+         "neckline_slope_max": 0.0001
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "inverse_head_and_shoulders",
+      "id": "ihs",
+      "options": {
+         "lookback": 50,
+         "head_ratio_before": 1.0002,
+         "head_ratio_after": 1.0002,
+         "neckline_slope_max": 0.0001
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lt_0#result"
+         ],
+         "SLOT0": [
+            "hs#pattern_detected"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gt_0#result"
+         ],
+         "SLOT0": [
+            "ihs#pattern_detected"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "hs#neckline_level"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

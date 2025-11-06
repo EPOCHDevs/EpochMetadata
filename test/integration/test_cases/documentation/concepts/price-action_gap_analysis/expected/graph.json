@@ -1,5 +1,99 @@
-{
-  "TODO": "Fix compilation error",
-  "error": "/home/adesola/EpochLab/EpochScript/cmake-build-debug/bin/generate_graph: error while loading shared libraries: libepoch_script.so.SOVERSION: cannot open shared object file: No such file or directory\n",
-  "status": "NEEDS_FIX"
-}
+[
+   {
+      "type": "session_gap",
+      "id": "gaps",
+      "options": {
+         "fill_percent": 100
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_0#result"
+         ],
+         "SLOT0": [
+            "gaps#gap_size"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gaps#gap_filled"
+         ],
+         "SLOT0": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "gap_report",
+      "id": "node_0",
+      "options": {
+         "fill_time_pivot_hour": 12,
+         "histogram_bins": 15
+      },
+      "inputs": {
+         "psc_timestamp": [
+            "gaps#psc_timestamp"
+         ],
+         "gap_size": [
+            "gaps#gap_size"
+         ],
+         "psc": [
+            "gaps#psc"
+         ],
+         "gap_retrace": [
+            "gaps#gap_retrace"
+         ],
+         "gap_filled": [
+            "gaps#gap_filled"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 1
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "minute"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 5,
+         "type": "minute"
+      }
+   }
+]

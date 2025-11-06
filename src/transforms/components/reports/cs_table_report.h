@@ -80,7 +80,7 @@ template <> struct ReportMetadata<CSTableReport> {
       .isCrossSectional = true,  // KEY: This enables cross-sectional execution
       .desc = "Display assets as rows with metrics as columns. Each asset appears once with aggregated values for each metric.",
       .inputs = {
-        {epoch_core::IODataType::Any, ARG, "Metrics to display (one column per metric)"}
+        transforms::IOMetaData{epoch_core::IODataType::Any, ARG, "Metrics to display (one column per metric)", true}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,

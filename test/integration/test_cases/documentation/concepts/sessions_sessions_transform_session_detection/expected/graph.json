@@ -1,5 +1,124 @@
-{
-  "TODO": "Fix compilation error",
-  "error": "/home/adesola/EpochLab/EpochScript/cmake-build-debug/bin/generate_graph: error while loading shared libraries: libepoch_script.so.SOVERSION: cannot open shared object file: No such file or directory\n",
-  "status": "NEEDS_FIX"
-}
+[
+   {
+      "type": "ema",
+      "id": "fast_ema",
+      "options": {
+         "period": 12
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "slow_ema#result"
+         ],
+         "SLOT0": [
+            "fast_ema#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "gt",
+      "id": "gt_1",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "london#high"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "london#active"
+         ],
+         "SLOT0": [
+            "gt_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "sessions",
+      "id": "london",
+      "options": {
+         "session_type": "London"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "london#low"
+         ],
+         "SLOT0": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "slow_ema",
+      "options": {
+         "period": 26
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

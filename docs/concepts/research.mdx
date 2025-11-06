@@ -252,10 +252,10 @@ spx = common_indices(index="SPX")
 
 # Calculate factors
 momentum = cs_zscore()(roc(period=60)(src.c))
-correlation = cs_rolling_corr(window=60)(roc(period=1)(src.c), roc(period=1)(spx.c))
+volatility = cs_zscore()(atr(period=14)(src.c))
 
 # Compare factors across assets
-cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, correlation)
+cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, volatility)
 
 # Visualize distributions
 histogram_chart_report(bins=20, title="Momentum Distribution")(momentum)

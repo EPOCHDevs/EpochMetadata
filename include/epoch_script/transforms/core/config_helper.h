@@ -1704,24 +1704,6 @@ inline auto string_trim_cfg = [](std::string const &id, std::string const &opera
   return TransformConfiguration{TransformDefinition{std::move(data)}};
 };
 
-inline auto string_pad_cfg = [](std::string const &id, std::string const &operation,
-                                 std::string const &input, int64_t width,
-                                 std::string const &pad_string,
-                                 const epoch_script::TimeFrame &timeframe) {
-  TransformDefinitionData data{
-      .type = "string_pad",
-      .id = id,
-      .options = {
-          {"operation", MetaDataOptionDefinition{operation}},
-          {"width", MetaDataOptionDefinition{static_cast<double>(width)}},
-          {"pad_string", MetaDataOptionDefinition{pad_string}}
-      },
-      .timeframe = timeframe,
-      .inputs = {{"input", std::vector<std::string>{input}}}
-  };
-  return TransformConfiguration{TransformDefinition{std::move(data)}};
-};
-
 inline auto string_contains_cfg = [](std::string const &id, std::string const &operation,
                                       std::string const &input, std::string const &pattern,
                                       const epoch_script::TimeFrame &timeframe) {

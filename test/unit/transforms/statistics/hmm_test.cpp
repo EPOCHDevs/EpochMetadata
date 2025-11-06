@@ -41,13 +41,13 @@ TEST_CASE("HMMTransform basic behavior (2 states)", "[hmm]") {
   for (auto states : {2}) {
     DYNAMIC_SECTION("states=" << states) {
       // Build config for hmm transform with n_states option
-      std::string type = "hmm";
+      std::string type = "hmm_2";
 
       YAML::Node inputs_yaml;
       inputs_yaml[epoch_script::ARG] =
           std::vector<std::string>{"x", "y", "z"};
       YAML::Node options_yaml;
-      options_yaml["n_states"] = states;
+      // Note: n_states is NOT an option for hmm_2 - it's built into the type
       options_yaml["max_iterations"] = 1000;
       options_yaml["tolerance"] = 1e-5;
       options_yaml["compute_zscore"] = true;
@@ -66,11 +66,11 @@ TEST_CASE("HMMTransform basic behavior (2 states)", "[hmm]") {
       // Default lookback=0 -> full length
       REQUIRE(out.num_rows() == df2.num_rows());
 
-      // Expected columns: state + prob (list) + transition_matrix (list)
-      size_t expected_cols = 3; // state, prob, transition_matrix
+      // Expected columns: state + individual state probabilities (state_0_prob, state_1_prob, ...)
+      size_t expected_cols = 1 + states; // state + N probability columns
       REQUIRE(out.num_cols() == expected_cols);
 
-      // Values checks and equality against expected CSV
+      // Values checks
       // 1) state is integer in [0, N-1]
       auto state_col = out[cfg.GetOutputId("state")]
                            .contiguous_array()
@@ -81,22 +81,19 @@ TEST_CASE("HMMTransform basic behavior (2 states)", "[hmm]") {
         REQUIRE(s < states);
       }
 
-      // 2) prob column should exist and contain lists of probabilities
-      auto prob_col_name = cfg.GetOutputId("prob_state");
-      REQUIRE(out.contains(prob_col_name));
-      // Note: Detailed validation of list contents would require Arrow list
-      // array handling
+      // 2) Individual state probability columns should exist (state_0_prob, state_1_prob)
+      for (size_t i = 0; i < states; ++i) {
+        auto prob_col_name = cfg.GetOutputId("state_" + std::to_string(i) + "_prob");
+        REQUIRE(out.contains(prob_col_name));
 
-      // 3) transition_matrix column should exist and contain lists
-      auto trans_col_name = cfg.GetOutputId("transition_matrix");
-      REQUIRE(out.contains(trans_col_name));
-      // Note: Detailed validation of list contents would require Arrow list
-      // array handling
-
-      // 4) Basic structure validation - removed persistence column checks
-      // as it's no longer part of the simplified HMM output
-      // Basic validation - detailed comparison would need to be updated
-      // for the new list-based output format
+        // Verify probabilities are between 0 and 1 (with epsilon tolerance for floating point)
+        constexpr double epsilon = 1e-9;
+        auto prob_vec = out[prob_col_name].contiguous_array().template to_vector<double>();
+        for (auto p : prob_vec) {
+          REQUIRE(p >= -epsilon);
+          REQUIRE(p <= 1.0 + epsilon);
+        }
+      }
       INFO("HMM transform completed successfully with " << states << " states");
       INFO("Output columns: " << out.num_cols());
       for (const auto &col : out.column_names()) {
@@ -126,13 +123,13 @@ TEST_CASE("HMMTransform with lookback window", "[hmm]") {
   inputs_yaml[epoch_script::ARG].push_back("x");
   YAML::Node options_yaml;
   options_yaml["lookback_window"] = 100;
-  options_yaml["n_states"] = 2;
+  // Note: n_states is NOT an option for hmm_2 - it's built into the type
   options_yaml["min_training_samples"] = 100; // satisfy constraint
   options_yaml["max_iterations"] = 1000;
   options_yaml["tolerance"] = 1e-5;
   options_yaml["compute_zscore"] = true;
 
-  auto cfg = run_op("hmm", "hmm_lb", inputs_yaml, options_yaml, tf);
+  auto cfg = run_op("hmm_2", "hmm_lb", inputs_yaml, options_yaml, tf);
   auto tbase = MAKE_TRANSFORM(cfg);
   auto t = dynamic_cast<ITransform *>(tbase.get());
   REQUIRE(t != nullptr);
@@ -156,14 +153,14 @@ TEST_CASE("HMMTransform insufficient samples throws", "[hmm]") {
   YAML::Node inputs_yaml;
   inputs_yaml[epoch_script::ARG].push_back("x");
   YAML::Node options_yaml; // keep defaults
-  options_yaml["n_states"] = 2;
+  // Note: n_states is NOT an option for hmm_2 - it's built into the type
   options_yaml["max_iterations"] = 1000;
   options_yaml["tolerance"] = 1e-5;
   options_yaml["compute_zscore"] = true;
   options_yaml["min_training_samples"] = 100;
   options_yaml["lookback_window"] = 0;
 
-  auto cfg = run_op("hmm", "hmm_small", inputs_yaml, options_yaml, tf);
+  auto cfg = run_op("hmm_2", "hmm_small", inputs_yaml, options_yaml, tf);
 
   auto tbase = MAKE_TRANSFORM(cfg);
   auto t = dynamic_cast<ITransform *>(tbase.get());

@@ -106,45 +106,6 @@ epoch_frame::DataFrame StringTrimTransform::TransformData(
 }
 
 // ============================================================================
-// String Padding
-// ============================================================================
-
-StringPadTransform::StringPadTransform(const TransformConfiguration &config)
-    : ITransform(config),
-      m_operation(config.GetOptionValue("operation").GetSelectOption<epoch_core::StringPadOp>()),
-      m_width(config.GetOptionValue("width").GetInteger()),
-      m_pad_string(config.GetOptionValue("pad_string").GetString()) {
-  AssertFromStream(m_width >= 0, "Pad width must be non-negative");
-}
-
-epoch_frame::DataFrame StringPadTransform::TransformData(
-    epoch_frame::DataFrame const &bars) const {
-
-  using namespace epoch_frame;
-
-  Series input = bars[GetInputId()];
-  arrow::compute::PadOptions options(m_width, m_pad_string);
-  Array result;
-
-  switch (m_operation) {
-    case epoch_core::StringPadOp::pad_left:
-      result = input.str().utf8_lpad(options);
-      break;
-    case epoch_core::StringPadOp::pad_right:
-      result = input.str().utf8_rpad(options);
-      break;
-    case epoch_core::StringPadOp::center:
-      result = input.str().utf8_center(options);
-      break;
-    case epoch_core::StringPadOp::Null:
-      AssertFromStream(false, "Invalid pad operation");
-      break;
-  }
-
-  return make_dataframe(bars.index(), {result.as_chunked_array()}, {GetOutputId()});
-}
-
-// ============================================================================
 // String Containment Checks
 // ============================================================================
 

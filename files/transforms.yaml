@@ -1153,7 +1153,7 @@ beta:
   desc: "Calculates rolling beta coefficient measuring an asset's sensitivity to market movements. Beta = Cov(asset, market) / Var(market). Beta > 1 indicates higher volatility than market, < 1 lower, = 1 matches market."
   usageContext: "Essential for risk management, portfolio construction, and hedging. Track time-varying market sensitivity for dynamic allocation. Identify defensive (low beta) vs aggressive (high beta) assets. Use for CAPM-based expected returns, hedge ratio calculation, and sector rotation based on beta regimes."
   strategyTypes: ["risk-management", "portfolio-optimization", "hedging", "beta-analysis", "factor-analysis"]
-  relatedTransforms: ["rolling_cov", "rolling_corr", "cs_rolling_cov"]
+  relatedTransforms: ["rolling_cov", "rolling_corr"]
   assetRequirements: ["multi-asset-required"]
   limitations: "Assumes linear relationship between asset and market. Beta is backward-looking and may not predict future sensitivity. Requires sufficiently long window for stable estimates. Market definition affects results (SPY vs sector index)."
   inputs:
@@ -1723,64 +1723,12 @@ intraday_returns:
   requiredDataSources: ["o", "c"]
 # ======== CROSS-SECTIONAL STATISTICAL TRANSFORMS ======== #
 
-cs_rolling_corr:
-  name: Cross-Sectional Rolling Correlation
-  desc: "Calculates rolling correlation between each asset and a benchmark (e.g., SPY, sector index). Enables simultaneous correlation analysis across multiple assets to identify relative relationships, beta characteristics, and correlation breakdowns."
-  usageContext: "Essential for factor analysis, beta calculation, and pairs trading. Track how each asset correlates with the market/sector benchmark over time. Identify correlation breakdowns for risk management. Find assets with high correlation for diversification analysis or low correlation for pair trading candidates. Common use: correlate sector ETFs vs SPY to identify which sectors lead/lag the market."
-  strategyTypes: ["factor-analysis", "beta-calculation", "pairs-trading", "risk-management", "correlation-trading", "cross-sectional"]
-  relatedTransforms: ["cs_rolling_cov", "rolling_corr", "ewm_corr", "cs_momentum"]
-  assetRequirements: ["multi-asset-required"]
-  limitations: "CRITICAL: Requires multiple assets for cross-sectional analysis. Benchmark must be a single series. Only detects linear relationships. Window size critical for stability vs responsiveness. Correlation doesn't imply causation."
-  isCrossSectional: true
-  inputs:
-    - { type: Decimal, id: "SLOT", name: "Asset Series", allowMultipleConnections: false }
-    - { type: Decimal, id: "benchmark", name: "Benchmark", allowMultipleConnections: false }
-  options:
-    - id: window
-      name: Window Size
-      type: Integer
-      default: 60
-      min: 10
-      max: 500
-      desc: "Rolling window size for correlation calculation"
-      tuningGuidance: "Minimum 20 bars for stable estimates. Use 20-50 for short-term correlation shifts, 60-120 for medium-term beta analysis, 200+ for long-term relationship analysis. Balance stability vs responsiveness to regime changes."
-  outputs: [DECIMAL_RESULT]
-  tags: ["cross-sectional", "correlation", "beta", "factor-analysis", "multi-asset", "benchmark"]
-  category: Statistical
-  plotKind: panel_line
-
-cs_rolling_cov:
-  name: Cross-Sectional Rolling Covariance
-  desc: "Calculates rolling covariance between each asset and a benchmark. Essential for dynamic beta calculation: beta = cov(asset, market) / var(market). Enables risk decomposition and factor exposure analysis across multiple assets."
-  usageContext: "Primary use: calculate rolling beta for each asset vs market benchmark. Combine with market variance to get time-varying beta for adaptive hedging and dynamic risk management. Track how asset sensitivity to market moves changes over time. Use for portfolio construction and factor-based risk models."
-  strategyTypes: ["beta-calculation", "risk-management", "portfolio-construction", "factor-analysis", "adaptive-hedging", "cross-sectional"]
-  relatedTransforms: ["cs_rolling_corr", "rolling_cov", "ewm_cov", "cs_zscore"]
-  assetRequirements: ["multi-asset-required"]
-  limitations: "CRITICAL: Requires multiple assets. Benchmark must be single series. Units depend on input scaling - use with variance for normalized beta. Sensitive to window size selection."
-  isCrossSectional: true
-  inputs:
-    - { type: Decimal, id: "SLOT", name: "Asset Series", allowMultipleConnections: false }
-    - { type: Decimal, id: "benchmark", name: "Benchmark", allowMultipleConnections: false }
-  options:
-    - id: window
-      name: Window Size
-      type: Integer
-      default: 60
-      min: 10
-      max: 500
-      desc: "Rolling window size for covariance calculation"
-      tuningGuidance: "Match window size to correlation analysis (typically 60-120). Use same window for beta calculation: beta = cs_rolling_cov / variance(benchmark). Smaller windows (20-50) for tactical beta, larger (100-200) for strategic allocation."
-  outputs: [DECIMAL_RESULT]
-  tags: ["cross-sectional", "covariance", "beta", "risk", "factor-analysis", "multi-asset"]
-  category: Statistical
-  plotKind: panel_line
-
 cs_zscore:
   name: Cross-Sectional Z-Score
   desc: "Normalizes each asset's value ACROSS assets at each timestamp, not over time. At each point in time, calculates: z_i = (value_i - mean_across_assets) / std_across_assets. Essential for cross-sectional comparison and factor scoring when metrics have different scales."
   usageContext: "Fundamental for cross-sectional strategies and factor investing. Normalize metrics (returns, momentum, P/E ratios, volatility) across assets for fair comparison. Identify statistical outliers: assets >2 std devs from peer mean. Create mean-reversion signals: long bottom zscore, short top zscore. Combine multiple factors with different units into composite scores. Unlike regular zscore which normalizes over TIME, this normalizes across ASSETS at each moment."
   strategyTypes: ["factor-investing", "statistical-arbitrage", "mean-reversion", "cross-sectional", "pairs-trading", "relative-value"]
-  relatedTransforms: ["zscore", "cs_momentum", "top_k", "bottom_k", "cs_rolling_corr"]
+  relatedTransforms: ["zscore", "cs_momentum", "top_k", "bottom_k"]
   assetRequirements: ["multi-asset-required"]
   limitations: "CRITICAL: Requires multiple assets (minimum 3+, recommended 10+). Different from time-series zscore - normalizes ACROSS assets not over time. Assumes approximately normal distribution of values across assets. Extreme outliers can skew mean/std calculation."
   isCrossSectional: true

@@ -119,7 +119,7 @@ set(METADATA_FILES_DIR ${SCRIPT_METADATA_FILES_DIR})
 
 # Ensure the target directory exists and copy files
 file(MAKE_DIRECTORY ${METADATA_FILES_DIR})
-file(COPY ${PROJECT_SOURCE_DIR}/files/ DESTINATION ${METADATA_FILES_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/files DESTINATION ${METADATA_FILES_DIR})
 
 if (BUILD_TEST)
     add_subdirectory(test)

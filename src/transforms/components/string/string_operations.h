@@ -41,22 +41,6 @@ private:
 };
 
 // ============================================================================
-// String Padding
-// ============================================================================
-class StringPadTransform : public ITransform {
-public:
-  explicit StringPadTransform(const TransformConfiguration &config);
-
-  [[nodiscard]] epoch_frame::DataFrame
-  TransformData(epoch_frame::DataFrame const &bars) const override;
-
-private:
-  epoch_core::StringPadOp m_operation;
-  int64_t m_width;
-  std::string m_pad_string;
-};
-
-// ============================================================================
 // String Containment Checks (returns boolean)
 // ============================================================================
 class StringContainsTransform : public ITransform {

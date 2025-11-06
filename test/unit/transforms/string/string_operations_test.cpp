@@ -88,32 +88,6 @@ TEST_CASE("String Trim Transform", "[string][string_trim]") {
   }
 }
 
-TEST_CASE("String Pad Transform", "[string][string_pad]") {
-  auto input = make_dataframe<std::string>(
-      epoch_frame::factory::index::make_datetime_index(
-          {epoch_frame::DateTime{2020y, std::chrono::January, 1d},
-           epoch_frame::DateTime{2020y, std::chrono::January, 2d}}),
-      {{"abc", "12"}},
-      {"text"});
-
-  auto index = input.index();
-  const auto tf = EpochStratifyXConstants::instance().DAILY_FREQUENCY;
-
-  SECTION("Pad left") {
-    auto config = string_pad_cfg("test_pad", "pad_left", "text", 5, "*", tf);
-    auto transformBase = MAKE_TRANSFORM(config);
-    auto transform = dynamic_cast<ITransform *>(transformBase.get());
-    DataFrame output = transform->TransformData(input);
-
-    DataFrame expected = make_dataframe<std::string>(
-        index,
-        {{"**abc", "***12"}},
-        {config.GetOutputId()});
-
-    REQUIRE(output.equals(expected));
-  }
-}
-
 TEST_CASE("String Contains Transform", "[string][string_contains]") {
   auto input = createStringTestDataFrame();
   auto index = input.index();

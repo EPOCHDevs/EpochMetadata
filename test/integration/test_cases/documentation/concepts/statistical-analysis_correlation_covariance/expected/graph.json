@@ -1,5 +1,94 @@
-{
-  "TODO": "Fix compilation error",
-  "error": "/home/adesola/EpochLab/EpochScript/cmake-build-debug/bin/generate_graph: error while loading shared libraries: libepoch_script.so.SOVERSION: cannot open shared object file: No such file or directory\n",
-  "status": "NEEDS_FIX"
-}
+[
+   {
+      "type": "rolling_corr",
+      "id": "correlation",
+      "options": {
+         "window": 60
+      },
+      "inputs": {
+         "y": [
+            "spx_returns#result"
+         ],
+         "x": [
+            "stock_returns#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ewm_corr",
+      "id": "correlation_ewm",
+      "options": {
+         "span": 30
+      },
+      "inputs": {
+         "y": [
+            "spx_returns#result"
+         ],
+         "x": [
+            "stock_returns#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "common_indices",
+      "id": "spx",
+      "options": {
+         "index": "SPX"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "roc",
+      "id": "spx_returns",
+      "options": {
+         "period": 1
+      },
+      "inputs": {
+         "SLOT": [
+            "spx#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "roc",
+      "id": "stock_returns",
+      "options": {
+         "period": 1
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

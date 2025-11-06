@@ -79,8 +79,6 @@
 
 #include "cross_sectional/rank.h"
 #include "cross_sectional/returns.h"
-#include "cross_sectional/cs_rolling_corr.h"
-#include "cross_sectional/cs_rolling_cov.h"
 #include "cross_sectional/cs_zscore.h"
 #include "cummulative/cum_op.h"
 
@@ -138,7 +136,6 @@ void InitializeTransforms(
   // String Transforms
   REGISTER_TRANSFORM(string_case, StringCaseTransform);
   REGISTER_TRANSFORM(string_trim, StringTrimTransform);
-  REGISTER_TRANSFORM(string_pad, StringPadTransform);
   REGISTER_TRANSFORM(string_contains, StringContainsTransform);
   REGISTER_TRANSFORM(string_check, StringCheckTransform);
   REGISTER_TRANSFORM(string_replace, StringReplaceTransform);
@@ -205,8 +202,6 @@ void InitializeTransforms(
                      CrossSectionalBottomKPercentileOperation);
 
   // Cross-Sectional Statistical Transforms
-  REGISTER_TRANSFORM(cs_rolling_corr, CSRollingCorr);
-  REGISTER_TRANSFORM(cs_rolling_cov, CSRollingCov);
   REGISTER_TRANSFORM(cs_zscore, CSZScore);
 
   REGISTER_TRANSFORM(bband_percent, BollingerBandsPercent);
