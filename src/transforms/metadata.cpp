@@ -1360,51 +1360,6 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
       .limitations = "Only removes from start/end, not middle of string."
   });
 
-  // String Pad Transform
-  metadataList.emplace_back(TransformsMetaData{
-      .id = "string_pad",
-      .category = epoch_core::TransformCategory::Utility,
-      .plotKind = epoch_core::TransformPlotKind::Null,
-      .name = "String Pad",
-      .options = {
-          MetaDataOption{
-              .id = "operation",
-              .name = "Operation",
-              .type = epoch_core::MetaDataOptionType::Select,
-              .defaultValue = MetaDataOptionDefinition("pad_left"),
-              .selectOption = {
-                  {"pad_left", "Pad Left"},
-                  {"pad_right", "Pad Right"},
-                  {"center", "Center"}
-              },
-              .desc = "Where to add padding"
-          },
-          MetaDataOption{
-              .id = "width",
-              .name = "Width",
-              .type = epoch_core::MetaDataOptionType::Integer,
-              .defaultValue = MetaDataOptionDefinition(10.0),
-              .min = 0,
-              .desc = "Target string width"
-          },
-          MetaDataOption{
-              .id = "pad_string",
-              .name = "Pad String",
-              .type = epoch_core::MetaDataOptionType::String,
-              .defaultValue = MetaDataOptionDefinition(" "),
-              .desc = "String to use for padding"
-          }
-      },
-      .desc = "Pad strings to a target width. Useful for fixed-width formatting or alignment.",
-      .inputs = {IOMetaDataConstants::STRING_INPUT_METADATA},
-      .outputs = {IOMetaDataConstants::STRING_OUTPUT_METADATA},
-      .tags = {"string", "text", "pad", "format", "align"},
-      .strategyTypes = {"text-processing", "formatting"},
-      .assetRequirements = {"single-asset"},
-      .usageContext = "Format strings for fixed-width display, add leading zeros, align text.",
-      .limitations = "Strings already longer than width are unchanged."
-  });
-
   // String Contains Transform
   metadataList.emplace_back(TransformsMetaData{
       .id = "string_contains",

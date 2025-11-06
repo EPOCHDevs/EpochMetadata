@@ -220,10 +220,19 @@ TEST_CASE("Transform Metadata Factory") {
                   .GetSelectOption();
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::String) {
-          config["options"][optionId] =
-              optionMetadata.defaultValue
-                  .value_or(epoch_script::MetaDataOptionDefinition{""})
+          std::string defaultStr = "";
+          // For string_pad transform, ensure non-empty padding string
+          if (id == "string_pad" && optionId == "pad_string") {
+            defaultStr = " ";
+          }
+          std::string value = optionMetadata.defaultValue
+                  .value_or(epoch_script::MetaDataOptionDefinition{defaultStr})
                   .GetString();
+          // Ensure pad_string is never empty
+          if (id == "string_pad" && optionId == "pad_string" && value.empty()) {
+            value = " ";
+          }
+          config["options"][optionId] = value;
         } else if (optionMetadata.type ==
                    epoch_core::MetaDataOptionType::EventMarkerSchema) {
           // Generate minimal valid CardSchema JSON for testing
