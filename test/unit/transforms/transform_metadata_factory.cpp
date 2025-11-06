@@ -270,18 +270,8 @@ TEST_CASE("Transform Metadata Factory") {
       }
     }
 
-    // Get required data sources from metadata, with special handling for chart formations
+    // Get required data sources from metadata and provide OHLCV data
     auto requiredDataSources = metadata.requiredDataSources;
-
-    // Skip chart formation transforms - they require h/l columns directly via requiredDataSources
-    // These transforms access bars["h"] and bars["l"] directly, which isn't available in unit test context
-    const std::unordered_set<std::string> chartFormations = {
-      "head_and_shoulders", "inverse_head_and_shoulders", "double_top_bottom",
-      "flag", "triangles", "pennant", "consolidation_box"
-    };
-    if (chartFormations.contains(id)) {
-      continue;  // Skip these transforms in unit test
-    }
 
     for (auto const &[i, dataSource] :
          requiredDataSources | std::views::enumerate) {
