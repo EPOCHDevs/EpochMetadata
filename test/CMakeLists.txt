@@ -12,14 +12,6 @@ target_include_directories(epoch_script_test PRIVATE
     .
 )
 
-# Copy test files and define METADATA_FILES_DIR early
-# Use the configurable SCRIPT_METADATA_FILES_DIR option from main CMakeLists.txt
-set(METADATA_FILES_DIR ${SCRIPT_METADATA_FILES_DIR})
-
-# Ensure the target directory exists and copy files
-file(MAKE_DIRECTORY ${METADATA_FILES_DIR})
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/files/ DESTINATION ${METADATA_FILES_DIR})
-
 # Helper tool to generate graph.json from EpochScript source
 add_executable(generate_graph integration/tools/generate_graph.cpp)
 target_link_libraries(generate_graph PRIVATE epoch_script)

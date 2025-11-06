@@ -123,11 +123,23 @@ TEST_CASE("Transform Metadata Factory") {
       if (metadata.inputs.size() == 1 &&
           metadata.inputs.front().allowMultipleConnections) {
         config["inputs"][epoch_script::ARG] = std::vector{"1#result"};
-      } else {
+        fields_vec = {"1#result"};
+        inputs_vec = {getArrayFromType(metadata.inputs.front().type)};
+      } else if (metadata.inputs.size() == 1) {
         config["inputs"][epoch_script::ARG] = "1#result";
+        fields_vec = {"1#result"};
+        inputs_vec = {getArrayFromType(metadata.inputs.front().type)};
+      } else {
+        // Cross-sectional with multiple inputs (e.g., cs_rolling_corr with SLOT and benchmark)
+        for (auto const &[i, inputMetadata] :
+             metadata.inputs | std::views::enumerate) {
+          // Use consistent naming: "1#result", "2#result", etc.
+          auto fieldName = std::to_string(i + 1) + "#result";
+          config["inputs"][inputMetadata.id] = fieldName;
+          fields_vec.push_back(fieldName);
+          inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
+        }
       }
-      fields_vec = {"1#result"};
-      inputs_vec = {getArrayFromType(metadata.inputs.front().type)};
     } else if (metadata.inputs.size() == 1 &&
                metadata.inputs.front().allowMultipleConnections) {
       config["inputs"][epoch_script::ARG] = std::vector{"1#result"};

@@ -1790,3 +1790,37 @@ cs_zscore:
   tags: ["cross-sectional", "normalization", "zscore", "factor-scoring", "statistical", "multi-asset", "outlier-detection"]
   category: Statistical
   plotKind: panel_line
+
+# ======== MATHEMATICAL OPERATORS ======== #
+
+modulo:
+  name: Modulo
+  desc: "Calculates the modulo (remainder) of division between two values. Returns a % b = a - floor(a/b) * b. Follows Python's modulo behavior for negative numbers."
+  usageContext: "Create cyclic patterns, time-based triggers, and periodic rebalancing logic. Common uses: cycle through strategies (index % N), time-of-day calculations (minutes % 60), periodic rebalancing (bar_number % period == 0). Useful for creating rotating portfolios or cyclical indicators."
+  strategyTypes: ["periodic-rebalancing", "cyclical-patterns", "time-based-logic"]
+  relatedTransforms: ["power_op", "div", "mul"]
+  assetRequirements: ["single-asset"]
+  limitations: "Division by zero will cause errors. Behavior with negative numbers follows Python convention (may differ from other languages). Result always has same sign as divisor."
+  inputs:
+    - { type: Decimal, id: "SLOT0", name: "Dividend", allowMultipleConnections: false }
+    - { type: Decimal, id: "SLOT1", name: "Divisor", allowMultipleConnections: false }
+  outputs: [DECIMAL_RESULT]
+  tags: ["math", "operator", "modulo", "remainder", "arithmetic", "periodic"]
+  category: Math
+  plotKind: panel_line
+
+power_op:
+  name: Power
+  desc: "Raises base to the power of exponent (base ^ exponent). Computes exponential relationships and polynomial transformations."
+  usageContext: "Create non-linear transformations for advanced indicators. Common uses: polynomial features for machine learning (price^2, price^3), exponential weighting (decay^t), compound growth calculations, volatility scaling (vol^2 for variance). Use fractional exponents for roots (x^0.5 = sqrt(x))."
+  strategyTypes: ["mathematical-transformation", "feature-engineering", "non-linear-indicators"]
+  relatedTransforms: ["modulo", "mul", "exp", "log"]
+  assetRequirements: ["single-asset"]
+  limitations: "Negative base with fractional exponent will produce NaN. Large exponents can cause overflow. Zero base with zero or negative exponent is undefined."
+  inputs:
+    - { type: Decimal, id: "SLOT0", name: "Base", allowMultipleConnections: false }
+    - { type: Decimal, id: "SLOT1", name: "Exponent", allowMultipleConnections: false }
+  outputs: [DECIMAL_RESULT]
+  tags: ["math", "operator", "power", "exponent", "arithmetic", "non-linear"]
+  category: Math
+  plotKind: panel_line

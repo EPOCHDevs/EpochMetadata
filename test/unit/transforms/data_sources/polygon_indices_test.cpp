@@ -123,7 +123,7 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(tickerOption.id == "ticker");
     REQUIRE(tickerOption.name == "Index Ticker");
     REQUIRE(tickerOption.type == epoch_core::MetaDataOptionType::String);
-    REQUIRE(tickerOption.desc == "Index ticker symbol (e.g., SPX, DJI, NDX)");
+    REQUIRE(tickerOption.desc == "Index ticker symbol (e.g., SPX, DJI, NDX, DAX, FTSE)");
   }
 
   SECTION("Has same output fields as common_indices") {
