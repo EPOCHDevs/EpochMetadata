@@ -1,12 +1,16 @@
-# Source: concepts/data-sources.mdx:226
+# Source: concepts/data-sources.mdx:262
 # Section: Data Sources > Market Indices
-# Type: partial_example
+# Type: complete_code
 
 src = market_data_source(timeframe="1D")
-vix = common_indices(index="VIX")()
-spx = common_indices(index="SPX")()
+fed_funds = economic_indicator(category="FedFunds")
+vix = indices(ticker="VIX")()
 
-# Market regime detection
-high_fear = vix.c > 30
-rising_fear = vix.c > vix.c[5]
-risk_off = high_fear | rising_fear
+# Risk-on/risk-off regime
+low_rates = fed_funds.value < 2.0
+low_fear = vix.c < 15
+risk_on = low_rates & low_fear
+
+# Only trade in favorable macro conditions
+technical_signal = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
+entry = technical_signal & risk_on

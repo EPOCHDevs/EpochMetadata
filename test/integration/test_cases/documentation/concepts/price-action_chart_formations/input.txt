@@ -1,14 +1,13 @@
-# Source: concepts/price-action.mdx:154
+# Source: concepts/price-action.mdx:218
 # Section: Price Action Analysis > Chart Formations
-# Type: partial_example
+# Type: complete_code
 
 src = market_data_source(timeframe="1D")
 
-# Bearish reversal
-hs = head_and_shoulders(lookback=50, head_ratio_before=1.0002)()
-bearish_signal = hs.pattern_detected and (src.c < hs.neckline_level)
-target = hs.target
+# Double bottom (bullish reversal)
+db = double_top_bottom(lookback=50, pattern_type="bottoms", similarity_tolerance=0.02)()
+bullish_breakout = db.pattern_detected and (src.c > db.breakout_level)
 
-# Bullish reversal (inverse)
-ihs = inverse_head_and_shoulders(lookback=50)()
-bullish_signal = ihs.pattern_detected and (src.c > ihs.neckline_level)
+# Double top (bearish reversal)
+dt = double_top_bottom(lookback=50, pattern_type="tops", similarity_tolerance=0.02)()
+bearish_breakout = dt.pattern_detected and (src.c < dt.breakout_level)

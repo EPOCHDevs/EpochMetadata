@@ -1,11 +1,16 @@
-# Source: concepts/research.mdx:192
+# Source: concepts/research.mdx:220
 # Section: Research Reports > Cross-Sectional Reports
-# Type: partial_example
+# Type: complete_code
 
-momentum = roc(period=60)(src.c)
-volatility = atr(period=14)(src.c)
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")
 
-cs_table_report(agg="last", title="Sector Metrics", category="Analysis")(momentum, volatility)
-# Table: Asset | Momentum | Volatility
-#        XLK  |   +15%   |    0.8
-#        XLF  |    +8%   |    0.6
+# Calculate returns
+returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
+# Calculate beta for each asset
+sector_beta = beta(window=60)(returns, spx_returns)
+
+cs_numeric_cards_report(agg="last", category="Beta Analysis", group=0, group_size=11)(sector_beta)
+# Creates 11 cards showing current beta for each sector

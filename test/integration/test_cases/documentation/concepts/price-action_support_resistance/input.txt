@@ -1,14 +1,14 @@
-# Source: concepts/price-action.mdx:329
+# Source: concepts/price-action.mdx:362
 # Section: Price Action Analysis > Support & Resistance
-# Type: partial_example
+# Type: complete_code
 
-src = market_data_source(timeframe="1H")
+src = market_data_source(timeframe="5Min")
 
-pivots = pivot_point_sr(timeframe="1D")()
+prev_hl = previous_high_low(timeframe="1D")()
 
-# Three support, three resistance levels
-at_s1 = src.c <= pivots.support_1
-at_r1 = src.c >= pivots.resist_1
+# First break of previous day's high
+breakout_high = prev_hl.broken_high and not prev_hl.broken_high[1]
 
-# Reversal at support with confirmation
-reversal = at_s1 and hammer()
+# Range-bound mean reversion
+in_range = not prev_hl.broken_high and not prev_hl.broken_low
+fade_high = in_range and (src.c > prev_hl.previous_high)

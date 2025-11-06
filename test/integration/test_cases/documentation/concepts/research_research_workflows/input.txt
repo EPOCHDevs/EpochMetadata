@@ -1,16 +1,17 @@
-# Source: concepts/research.mdx:249
+# Source: concepts/research.mdx:247
 # Section: Research Reports > Research Workflows
-# Type: partial_example
+# Type: complete_code
 
-src = market_data_source(timeframe="1D")
-spx = common_indices(index="SPX")
+# Identify gap fill characteristics
+gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
-# Calculate factors
-momentum = cs_zscore()(roc(period=60)(src.c))
-volatility = cs_zscore()(atr(period=14)(src.c))
+# Distribution analysis
+histogram_chart_report(bins=20, title="Gap Size Distribution", category="Research")(gaps.gap_size)
 
-# Compare factors across assets
-cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, volatility)
+# Detailed inspection
+gap_report(fill_time_pivot_hour=12)(
+    gaps.gap_filled, gaps.gap_retrace, gaps.gap_size, gaps.psc, gaps.psc_timestamp
+)
 
-# Visualize distributions
-histogram_chart_report(bins=20, title="Momentum Distribution", category="Research")(momentum)
+# Summary card
+numeric_cards_report(agg="count_all", title="Total Gaps", category="Summary", group=0, group_size=1)(gaps.gap_filled)

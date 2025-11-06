@@ -33,6 +33,7 @@ Quick reference for EpochScript compilation and runtime errors. Each error inclu
 
 **Cause:** Attempting to reassign a variable
 
+<!-- snippet: type=error_example, expected_error="Cannot reassign" -->
 ```python
 # Incorrect:
 price = src.c
@@ -53,6 +54,7 @@ open_price = src.o
 
 **Cause:** Using variable before definition
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 signal = ema_val > 100
@@ -71,6 +73,7 @@ signal = ema_val > 100
 
 **Cause:** Using syntax like `a < b < c`
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 valid = 30 < rsi_val < 70
@@ -91,6 +94,7 @@ valid = above_30 and below_70
 
 **Cause:** Using `if`, `for`, `while`, `def`, `class`
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 if price > 100:
@@ -115,6 +119,7 @@ signal = price > 100
 
 **Cause:** Trying to mix incompatible types (e.g., String + Number)
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 label = "PRICE"
@@ -133,6 +138,7 @@ result = value + 100
 
 **Cause:** Wrong type for transform parameter
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 ema_val = ema(period="20")(src.c)  # String instead of Integer
@@ -151,6 +157,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Using `and`/`or`/`not` with non-boolean values incorrectly
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: (if not auto-cast)
 value = 100
@@ -173,6 +180,7 @@ result = is_positive and True
 
 **Cause:** Transform requires an option that wasn't provided
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 ema_val = ema()(src.c)  # Missing period
@@ -189,6 +197,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Typo in option name
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 ema_val = ema(periood=20)(src.c)  # Typo
@@ -205,6 +214,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Accessing wrong output name
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 src = market_data_source(timeframe="1D")
@@ -222,6 +232,7 @@ price = src.c  # Use correct handle: c, h, l, o, v
 
 **Cause:** Typo in transform name or transform doesn't exist
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 ema_val = ema_20()(src.c)  # No such transform
@@ -238,6 +249,7 @@ ema_val = ema(period=20)(src.c)
 
 **Cause:** Transform requires specific number of inputs
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 cross = crossover()(fast)  # Needs 2 inputs
@@ -254,6 +266,7 @@ cross = crossover()(fast, slow)
 
 **Cause:** Passing wrong type to transform input
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 ema_val = ema(period=20)(is_bullish)  # Boolean, not Decimal
@@ -272,6 +285,7 @@ ema_val = ema(period=20)(src.c)  # Decimal
 
 **Cause:** Using `[0]` as lag index
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 current = src.c[0]
@@ -290,6 +304,7 @@ current = src.c  # Omit index for current value
 
 **Cause:** Using float as lag index
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 lag = src.c[1.5]
@@ -306,6 +321,7 @@ lag = src.c[2]  # Use integer
 
 **Cause:** Using negative index (forward-looking)
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 future = src.c[-1]
@@ -327,6 +343,7 @@ future_ret = forward_returns(period=1)(src.c)
 
 **Cause:** Using multi-output transform in expression without specifying which output
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
@@ -351,6 +368,7 @@ signal = upper > 100
 
 **Cause:** Number of variables doesn't match number of outputs
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 lower, upper = bbands(period=20, stddev=2)(src.c)  # 3 outputs, 2 variables
@@ -372,6 +390,7 @@ lower, _, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to unpack something that isn't a transform call
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 bb = bbands(period=20, stddev=2)(src.c)
@@ -391,6 +410,7 @@ lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 **Cause:** Trying to call an output handle
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 bb_upper = bbands(period=20, stddev=2).bbands_upper(src.c)
@@ -412,6 +432,7 @@ bb_upper = bb.bbands_upper  # Access, don't call
 
 **Cause:** Transform with `requiresTimeFrame=true` has no explicit timeframe and no inputs to inherit from
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 src = market_data_source()  # Missing timeframe
@@ -441,6 +462,7 @@ gaps = session_gap(fill_percent=100)(src.c)  # Inherits "1D" from src
 
 **Cause:** Using unsupported timeframe string
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 daily = ema(period=50, timeframe="BAD_TF")(src.c)
@@ -463,6 +485,7 @@ hourly = ema(period=20, timeframe="1H")(src.c)
 
 **Cause:** Using unsupported session name
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 london_ema = ema(period=20, session="BAD_SESSION")(src.c)
@@ -485,6 +508,7 @@ lkz_ema = ema(period=20, session="LondonOpenKillZone")(src.c)
 
 **Cause:** Using session-based transform on daily or higher timeframe
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: (if running on daily data)
 london = sessions(session_type="London")()
@@ -506,6 +530,7 @@ london = sessions(session_type="London")()
 
 **Cause:** Using wrong color name (must be Success, Warning, Error, or Info)
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 event_marker(color_map={
@@ -538,6 +563,7 @@ event_marker(color_map={
 
 **Cause:** Event name in color_map doesn't match any input
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 event_marker(color_map={
@@ -569,6 +595,7 @@ event_marker(color_map={
 
 **Cause:** event_marker inputs must be boolean series
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect:
 event_marker(color_map={
@@ -636,6 +663,7 @@ Error messages tell you:
 
 ### 2. Check Variable Names
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Common typos
 ema_val = ema(period=20)(src.c)
@@ -644,6 +672,7 @@ signal = emv_val > 100  # Typo: emv_val vs ema_val
 
 ### 3. Verify Transform Names and Options
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Check spelling
 rsi_val = rsi(period=14)(src.c)  # TRUE
@@ -656,6 +685,7 @@ ema_val = ema(period=20)(src.c)  # TRUE
 
 ### 4. Check Output Handles
 
+<!-- snippet: type=error_example -->
 ```python
 # Wrong handle
 src = market_data_source(timeframe="1D")
@@ -668,6 +698,7 @@ high = src.h   # High
 
 ### 5. Verify Input/Output Counts
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Crossover needs 2 inputs
 cross = crossover()(fast)  # FALSE Only 1 input
@@ -680,6 +711,7 @@ lower, middle, upper = bbands(period=20, stddev=2)(src.c)  # TRUE
 
 ### 6. Check Data Types
 
+<!-- snippet: type=error_example -->
 ```python
 # Wrong type
 ema_val = ema(period="20")(src.c)  # FALSE String
@@ -696,6 +728,7 @@ result = label + 100  # FALSE String + Number
 
 ### Pattern 1: Variable Reassignment
 
+<!-- snippet: type=error_example, expected_error="# Solution" -->
 ```python
 # Problem
 x = src.c
@@ -708,6 +741,7 @@ open = src.o
 
 ### Pattern 2: Chained Comparison
 
+<!-- snippet: type=error_example, expected_error="# Solution" -->
 ```python
 # Problem
 valid = 30 < rsi < 70  # ERROR
@@ -718,6 +752,7 @@ valid = (rsi > 30) and (rsi < 70)
 
 ### Pattern 3: Multi-Output Access
 
+<!-- snippet: type=error_example, expected_error="# Solution 1: Specific handle" -->
 ```python
 # Problem
 bb = bbands(period=20, stddev=2)(src.c)
@@ -737,6 +772,7 @@ signal = upper > 100
 
 ### Pattern 5: Conditional Logic
 
+<!-- snippet: type=error_example, expected_error="x = 1" -->
 ```python
 # Problem
 if condition:  # ERROR

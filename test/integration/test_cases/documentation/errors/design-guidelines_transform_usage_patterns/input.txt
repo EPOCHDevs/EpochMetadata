@@ -1,0 +1,22 @@
+# Source: design-guidelines.mdx:439
+# Section: EpochScript Design Guidelines > Transform Usage Patterns
+# Type: error_example
+
+# Correct: - Categories and names match
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
+lower, _, upper = bbands(period=20, stddev=2)(src.c)
+
+event_marker(color_map={
+    Success: ["oversold", "support_break"],    # Green
+    Error: ["overbought", "resistance_break"],  # Red
+    Warning: ["neutral"],                       # Yellow
+    Info: ["crossover"]                         # Blue
+})(
+    oversold=rsi_val < 30,
+    overbought=rsi_val > 70,
+    neutral=(rsi_val >= 30) and (rsi_val <= 70),
+    support_break=src.c > lower,
+    resistance_break=src.c > upper,
+    crossover=crossover(src.c, upper)
+)

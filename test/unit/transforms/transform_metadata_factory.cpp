@@ -25,7 +25,7 @@ using namespace epoch_frame;
 // Virtual data generator for creating appropriate test data based on transform requirements
 class VirtualDataGenerator {
 public:
-  static constexpr size_t DEFAULT_NUM_BARS = 50;
+  static constexpr size_t DEFAULT_NUM_BARS = 100;  // Increased for statistical transforms like HMM
   static constexpr size_t DEFAULT_NUM_ASSETS = 5;
 
   // Generate varied price data with realistic patterns
@@ -82,7 +82,7 @@ public:
   // Returns DataFrame with asset symbols as column names
   static DataFrame generateCrossSectionalData(
       IODataType dataType,
-      const arrow::ChunkedArrayPtr& index,
+      const IndexPtr& index,
       size_t numAssets = DEFAULT_NUM_ASSETS,
       size_t numBars = DEFAULT_NUM_BARS) {
 
@@ -131,7 +131,7 @@ public:
   }
 
   // Get array from IODataType for non-cross-sectional transforms
-  static arrow::ChunkedArrayPtr getArrayFromType(IODataType type, size_t numBars = DEFAULT_NUM_BARS) {
+  static arrow::ChunkedArrayPtr getArrayFromType(IODataType type, size_t numBars = DEFAULT_NUM_BARS, int64_t maxValue = -1) {
     switch (type) {
       case IODataType::Any:
       case IODataType::Decimal:
@@ -139,7 +139,13 @@ public:
         return factory::array::make_array(generatePricePattern(numBars, 100.0, 5.0));
       case IODataType::Integer: {
         std::vector<int64_t> values(numBars);
-        for (size_t i = 0; i < numBars; ++i) values[i] = static_cast<int64_t>(i);
+        if (maxValue > 0) {
+          // Generate values in range [0, maxValue] using modulo for select_N transforms
+          for (size_t i = 0; i < numBars; ++i) values[i] = static_cast<int64_t>(i % (maxValue + 1));
+        } else {
+          // Default: sequential values
+          for (size_t i = 0; i < numBars; ++i) values[i] = static_cast<int64_t>(i);
+        }
         return factory::array::make_array(values);
       }
       case IODataType::Boolean: {
@@ -200,8 +206,8 @@ TEST_CASE("Transform Metadata Factory") {
        .offset = factory::offset::hours(6)});
 
   // Use VirtualDataGenerator for creating arrays from types
-  auto getArrayFromType = [&](auto const &type) {
-    return VirtualDataGenerator::getArrayFromType(type, NUM_TEST_BARS);
+  auto getArrayFromType = [&](auto const &type, int64_t maxValue = -1) {
+    return VirtualDataGenerator::getArrayFromType(type, NUM_TEST_BARS, maxValue);
   };
 
   auto makeConfig = [&](auto const &id) {
@@ -225,19 +231,21 @@ TEST_CASE("Transform Metadata Factory") {
           VirtualDataGenerator::DEFAULT_NUM_ASSETS,
           NUM_TEST_BARS);
 
+      auto col_names = cs_data.column_names();
+
       if (metadata.inputs.size() == 1 &&
           metadata.inputs.front().allowMultipleConnections) {
         // Single input accepting multiple connections - provide multi-asset data
-        config["inputs"][epoch_script::ARG] = cs_data.columns();
-        fields_vec = cs_data.columns();
-        for (const auto& col : cs_data.columns()) {
-          inputs_vec.push_back(cs_data[col].chunked_array());
+        config["inputs"][epoch_script::ARG] = col_names;
+        fields_vec = col_names;
+        for (const auto& col : col_names) {
+          inputs_vec.push_back(cs_data[col].array());
         }
       } else if (metadata.inputs.size() == 1) {
         // Single non-multi-connection input (edge case for cross-sectional)
-        config["inputs"][epoch_script::ARG] = cs_data.columns().front();
-        fields_vec = {cs_data.columns().front()};
-        inputs_vec = {cs_data[cs_data.columns().front()].chunked_array()};
+        config["inputs"][epoch_script::ARG] = col_names.front();
+        fields_vec = {col_names.front()};
+        inputs_vec.push_back(cs_data[col_names.front()].array());
       } else {
         // Transforms with multiple inputs (e.g., beta with asset_returns and market_returns)
         // Each input gets its own multi-asset DataFrame
@@ -247,10 +255,11 @@ TEST_CASE("Transform Metadata Factory") {
               inputMetadata.type, index,
               VirtualDataGenerator::DEFAULT_NUM_ASSETS, NUM_TEST_BARS);
 
-          config["inputs"][inputMetadata.id] = input_cs_data.columns();
-          for (const auto& col : input_cs_data.columns()) {
+          auto input_col_names = input_cs_data.column_names();
+          config["inputs"][inputMetadata.id] = input_col_names;
+          for (const auto& col : input_col_names) {
             fields_vec.push_back(col);
-            inputs_vec.push_back(input_cs_data[col].chunked_array());
+            inputs_vec.push_back(input_cs_data[col].array());
           }
         }
       }
@@ -266,7 +275,15 @@ TEST_CASE("Transform Metadata Factory") {
            metadata.inputs | std::views::enumerate) {
         config["inputs"][inputMetadata.id] =
             fields_vec.emplace_back(std::to_string(i));
-        inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
+
+        // Special handling for select_N transforms: limit index values to valid range [0, N-1]
+        if (id.starts_with("select_") && inputMetadata.id == "index") {
+          // Extract N from "select_N" (e.g., "select_2" -> N=2)
+          size_t N = std::stoull(id.substr(7)); // Skip "select_" prefix
+          inputs_vec.emplace_back(getArrayFromType(inputMetadata.type, N - 1));
+        } else {
+          inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
+        }
       }
     }
 
@@ -345,28 +362,41 @@ TEST_CASE("Transform Metadata Factory") {
           }
         }
       }
-    }
 
     return std::tuple{TransformDefinition{config}, std::move(fields_vec),
                       std::move(inputs_vec)};
   };
 
+  // =============================================================================
+  // LEGITIMATE TRANSFORM SKIPS
+  // The following transforms are intentionally skipped from this generic test
+  // because they have special requirements that can't be auto-generated.
+  // Each should have dedicated tests elsewhere in the test suite.
+  // =============================================================================
+
   for (auto const &[id, factory] : transformMap) {
+    // SKIP: Trade signal executor - special execution logic for strategy evaluation
+    // Dedicated test: test/unit/transforms/signals/* (if exists)
     if (id == epoch_script::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
       continue;
     }
 
-    // Skip reporters and selectors - they don't produce column outputs
+    // SKIP: Reporters and selectors - visualization/selection transforms with no column outputs
+    // These transforms produce tearsheets, reports, or UI selections, not data columns
+    // Dedicated test: test/unit/transforms/reports/* or test/integration/
     if (metadataMap.contains(id) && metadataMap.at(id).outputs.empty()) {
       continue;
     }
 
-    // Skip SQL transforms - they require custom SQL queries that can't be auto-generated
+    // SKIP: SQL transforms - deregistered, require custom SQL query strings
+    // All sql_query* transforms have been removed from registration
     if (id.starts_with("sql_query")) {
       continue;
     }
 
-    // Skip external data source transforms - they require external API data that can't be auto-generated
+    // SKIP: External data source transforms - require live API access
+    // These fetch data from Polygon, FRED, SEC, etc. and can't work with synthetic test data
+    // Dedicated test: test/integration/external_data_sources/* (if exists)
     const std::unordered_set<std::string> externalDataSources = {
       "economic_indicator", "form13f_holdings", "insider_trading"
     };
@@ -374,15 +404,25 @@ TEST_CASE("Transform Metadata Factory") {
       continue;
     }
 
-    // Skip conditional_select - requires special configuration with alternating condition/value pairs
+    // SKIP: Conditional select - complex input configuration
+    // Requires alternating condition/value pairs that can't be auto-generated
+    // Dedicated test: test/unit/transforms/conditional_select_test.cpp (if exists)
     if (id == "conditional_select") {
       continue;
     }
 
-    // Skip flexible_pivot_detector - requires runtime orchestrator to provide OHLC columns via requiredDataSources mechanism
+    // SKIP: Flexible pivot detector - requires runtime orchestrator
+    // Needs orchestrator to provide OHLC columns via special requiredDataSources mechanism
+    // Dedicated test: test/unit/transforms/pivot_detector_test.cpp (if exists)
     if (id == "flexible_pivot_detector") {
       continue;
     }
+
+    // =============================================================================
+    // TEST EXECUTION - All other transforms should work with auto-generated config
+    // The test intelligently provides data sources based on metadata.requiredDataSources
+    // If a transform fails here, it indicates a metadata bug that needs fixing.
+    // =============================================================================
 
     INFO("Transform: " << id);
     REQUIRE(metadataMap.contains(id));
@@ -391,41 +431,106 @@ TEST_CASE("Transform Metadata Factory") {
     auto transform = factory(TransformConfiguration(config));
 
     auto df = make_dataframe(index, inputValues, inputIds);
-    auto result = transform->TransformData(df);
 
-    auto outputs = metadataMap.at(id).outputs;
-    REQUIRE(outputs.size() == result.num_cols());
+    // Execute transform - if it fails, the INFO above will show which transform
+    epoch_frame::DataFrame result;
+    try {
+      INFO("DataFrame columns: " << [&]() {
+        std::string cols;
+        for (const auto& col : df.column_names()) cols += col + ", ";
+        return cols;
+      }());
+      result = transform->TransformData(df);
+    } catch (const std::exception& e) {
+      FAIL("Transform '" << id << "' failed with error: " << e.what()
+           << "\nDataFrame had columns: " << [&]() {
+             std::string cols;
+             for (const auto& col : df.column_names()) cols += col + ", ";
+             return cols;
+           }()
+           << "\nThis indicates a metadata bug - either:"
+           << "\n  1. metadata.requiredDataSources is incomplete/incorrect, OR"
+           << "\n  2. transform accesses data in non-standard way not reflected in metadata");
+    }
 
-    for (auto const &output : outputs) {
-      auto outputCol = transform->GetOutputId(output.id);
-      INFO("Output: " << outputCol << "\nresult:\n" << result);
+    const auto& transformMetadata = metadataMap.at(id);
+    auto outputs = transformMetadata.outputs;
 
-      REQUIRE(result.contains(outputCol));
+    // Cross-sectional transforms output one column per asset, not per metadata output
+    if (transformMetadata.isCrossSectional) {
+      // For cross-sectional: result columns should match input asset columns
+      REQUIRE(result.num_cols() > 0);  // At least some columns produced
 
-      auto col = result[outputCol];
-      switch (output.type) {
-      case IODataType::Any:
-        // Any type can be any Arrow type including NULL
-        // No type checking needed for Any
-        break;
-      case IODataType::Decimal:
-      case IODataType::Number:
-        REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
-        break;
-      case IODataType::Integer:
-        // Accept INT32, INT64, and TIMESTAMP (timestamps are stored as int64)
-        REQUIRE((col.dtype()->id() == arrow::Type::INT32 ||
-                 col.dtype()->id() == arrow::Type::INT64 ||
-                 col.dtype()->id() == arrow::Type::TIMESTAMP));
-        break;
-      case IODataType::Boolean:
-        REQUIRE(col.dtype()->id() == arrow::Type::BOOL);
-        break;
-      case IODataType::String:
-        REQUIRE(col.dtype()->id() == arrow::Type::STRING);
-        break;
-      default:
-        break;
+      // Validate each output column has the correct type
+      for (auto const &output : outputs) {
+        for (const auto& col_name : result.column_names()) {
+          auto col = result[col_name];
+          INFO("Cross-sectional Output: " << col_name << " (type from metadata: " << static_cast<int>(output.type) << ")");
+
+          switch (output.type) {
+          case IODataType::Any:
+            // Any type can be any Arrow type including NULL
+            break;
+          case IODataType::Decimal:
+          case IODataType::Number:
+            REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
+            break;
+          case IODataType::Integer:
+            REQUIRE((col.dtype()->id() == arrow::Type::INT32 ||
+                     col.dtype()->id() == arrow::Type::INT64));
+            break;
+          case IODataType::Timestamp:
+            REQUIRE(col.dtype()->id() == arrow::Type::TIMESTAMP);
+            break;
+          case IODataType::Boolean:
+            REQUIRE(col.dtype()->id() == arrow::Type::BOOL);
+            break;
+          case IODataType::String:
+            REQUIRE(col.dtype()->id() == arrow::Type::STRING);
+            break;
+          default:
+            break;
+          }
+        }
+      }
+    } else {
+      // Non-cross-sectional: outputs should match 1:1 with result columns
+      REQUIRE(outputs.size() == result.num_cols());
+
+      for (auto const &output : outputs) {
+        auto outputCol = transform->GetOutputId(output.id);
+        INFO("Output: " << outputCol << "\nresult:\n" << result);
+
+        REQUIRE(result.contains(outputCol));
+
+        auto col = result[outputCol];
+        switch (output.type) {
+        case IODataType::Any:
+          // Any type can be any Arrow type including NULL
+          // No type checking needed for Any
+          break;
+        case IODataType::Decimal:
+        case IODataType::Number:
+          REQUIRE(col.dtype()->id() == arrow::Type::DOUBLE);
+          break;
+        case IODataType::Integer:
+          // Strict integer type checking - should be INT32 or INT64 only
+          REQUIRE((col.dtype()->id() == arrow::Type::INT32 ||
+                   col.dtype()->id() == arrow::Type::INT64));
+          break;
+        case IODataType::Timestamp:
+          // Timestamp type should be TIMESTAMP
+          REQUIRE(col.dtype()->id() == arrow::Type::TIMESTAMP);
+          break;
+        case IODataType::Boolean:
+          REQUIRE(col.dtype()->id() == arrow::Type::BOOL);
+          break;
+        case IODataType::String:
+          REQUIRE(col.dtype()->id() == arrow::Type::STRING);
+          break;
+        default:
+          break;
+        }
       }
     }
   }

@@ -1,19 +1,13 @@
-# Source: concepts/price-action.mdx:229
+# Source: concepts/price-action.mdx:262
 # Section: Price Action Analysis > Candlestick Patterns
-# Type: partial_example
+# Type: complete_code
 
 src = market_data_source(timeframe="1D")
 
-# Bullish reversals at support
-bullish_reversal = hammer() or engulfing_bull() or morning_star() or inverted_hammer()
+# Strong trend continuation
+strong_uptrend = three_white_soldiers() or big_white_candle()
+strong_downtrend = three_black_crows() or big_black_candle()
 
-# Bearish reversals at resistance
-bearish_reversal = shooting_star() or engulfing_bear() or evening_star() or hanging_man()
-
-# Indecision at extremes
-indecision = doji() or long_legged_doji() or spinning_top()
-
-# Combine with RSI extremes
-rsi_val = rsi(period=14)(src.c)
-buy_signal = bullish_reversal and (rsi_val < 30)
-sell_signal = bearish_reversal and (rsi_val > 70)
+# Only enter with-trend when continuation patterns appear
+long_entry = buy_conditions and strong_uptrend
+short_entry = sell_conditions and strong_downtrend

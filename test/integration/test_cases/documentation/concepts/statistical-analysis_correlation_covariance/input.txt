@@ -1,16 +1,9 @@
-# Source: concepts/statistical-analysis.mdx:118
+# Source: concepts/statistical-analysis.mdx:148
 # Section: Statistical Analysis > Correlation & Covariance
-# Type: partial_example
+# Type: complete_code
 
-src = market_data_source(timeframe="1D")
-spx = common_indices(index="SPX")
-
-stock_returns = roc(period=1)(src.c)
-spx_returns = roc(period=1)(spx.c)
-
-# Fixed window
-correlation = rolling_corr(window=60)(stock_returns, spx_returns)
-# Range: -1 (perfect negative) to +1 (perfect positive)
-
-# Exponential weighted (more responsive)
-correlation_ewm = ewm_corr(span=30)(stock_returns, spx_returns)
+# Calculate rolling beta
+beta = beta(window=60)(stock_returns, spx_returns)
+# Beta > 1: More volatile than market
+# Beta < 1: Less volatile than market
+# Beta = 1: Matches market volatility

@@ -24,6 +24,7 @@ Display aggregated metrics as dashboard cards.
 
 #### Numeric Cards
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
 src = market_data_source(timeframe="1D")
 returns = roc(period=1)(src.c)
@@ -41,6 +42,7 @@ numeric_cards_report(agg="max", category="Stats", title="Max Return", group=0, g
 
 #### Boolean Cards
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 signal = crossover(rsi_val, 30)
 boolean_card_report(category="Signals", title="RSI Crossover Count")(signal)
@@ -50,6 +52,7 @@ boolean_card_report(category="Signals", title="RSI Crossover Count")(signal)
 
 Show specific rows by index (first, last, percentiles).
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 high_returns = returns[returns > 0.02]  # Filter high return days
 index_card_report(index="first", category="Top Days", title="First Occurrence")(high_returns)
@@ -59,6 +62,7 @@ index_card_report(index="first", category="Top Days", title="First Occurrence")(
 
 Display quantile values (25th, 50th, 75th percentiles).
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 quantile_card_report(quantile=0.95, category="Risk", title="95th Percentile Return")(returns)
 ```
@@ -71,6 +75,7 @@ quantile_card_report(quantile=0.95, category="Risk", title="95th Percentile Retu
 
 Categorical comparisons and distributions.
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Distribution by regime
 regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
@@ -86,6 +91,7 @@ bar_chart_report(agg="mean", title="Avg Return by Regime", category="Performance
 
 Proportional breakdowns.
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Simple proportion
 pie_chart_report(agg="count", title="Regime Distribution", category="Analysis")(regime)
@@ -99,6 +105,7 @@ nested_pie_chart_report(agg="count", title="Asset Distribution", category="Break
 
 Value distributions and frequency analysis.
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 returns = roc(period=1)(src.c)
 histogram_chart_report(bins=30, title="Return Distribution", category="Stats", vertical=False)(returns)
@@ -110,6 +117,7 @@ histogram_chart_report(bins=30, title="Return Distribution", category="Stats", v
 
 Filtered row-level data with custom columns.
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
 src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
@@ -143,6 +151,7 @@ table_report(schema=TableReportSchema(
 
 Comprehensive gap analysis with cards, histograms, and pivot tables.
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, needs_sessions=true, needs_intraday=true, complexity=medium -->
 ```python
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
@@ -171,6 +180,7 @@ Multi-asset comparison reports for factor strategies.
 
 Compare all assets in one chart.
 
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
 # Sector performance comparison
 src = market_data_source(timeframe="1D")  # 11 sector ETFs
@@ -189,6 +199,7 @@ cs_bar_chart_report(agg="last", title="20-Day Returns by Sector", category="Perf
 
 Asset-by-metric table with aggregation.
 
+<!-- snippet: type=complete_code, needs_data=multi_asset, complexity=complex -->
 ```python
 momentum = roc(period=60)(src.c)
 volatility = atr(period=14)(src.c)
@@ -205,6 +216,7 @@ cs_table_report(agg="last", title="Sector Metrics", category="Analysis")(momentu
 
 Card group with one card per asset.
 
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
 src = market_data_source(timeframe="1D")
 spx = common_indices(index="SPX")
@@ -231,23 +243,28 @@ cs_numeric_cards_report(agg="last", category="Beta Analysis", group=0, group_siz
 
 ### Pattern Discovery
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, needs_sessions=true, needs_intraday=true, complexity=medium -->
 ```python
 # Identify gap fill characteristics
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
 # Distribution analysis
-histogram_chart_report(bins=20, title="Gap Size Distribution")(gaps.gap_size)
+histogram_chart_report(bins=20, title="Gap Size Distribution", category="Research")(gaps.gap_size)
 
 # Detailed inspection
 gap_report(fill_time_pivot_hour=12)(
     gaps.gap_filled, gaps.gap_retrace, gaps.gap_size, gaps.psc, gaps.psc_timestamp
 )
+
+# Summary card
+numeric_cards_report(agg="count_all", title="Total Gaps", category="Summary", group=0, group_size=1)(gaps.gap_filled)
 ```
 
 ### Factor Analysis
 
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
-src = market_data_source(timeframe="1D")
+src = market_data_source(timeframe="1D", symbols=["XLK", "XLF", "XLE", "XLV", "XLI", "XLP", "XLY", "XLB", "XLU", "XLRE", "XLC"])
 spx = common_indices(index="SPX")
 
 # Calculate factors
@@ -258,20 +275,27 @@ volatility = cs_zscore()(atr(period=14)(src.c))
 cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, volatility)
 
 # Visualize distributions
-histogram_chart_report(bins=20, title="Momentum Distribution")(momentum)
+histogram_chart_report(bins=20, title="Momentum Distribution", category="Research")(momentum)
+
+# Summary card
+cs_numeric_cards_report(agg="last", category="Summary", group=0, group_size=11, title="Latest Momentum")(momentum)
 ```
 
 ### Regime Detection
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
+src = market_data_source(timeframe="1D", symbols=["AAPL"])
+returns = roc(period=1)(src.c)
+
 rsi_val = rsi(period=14)(src.c)
 regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
 
 # Proportion analysis
-pie_chart_report(agg="count", title="Market Regime Distribution")(regime)
+pie_chart_report(agg="count", title="Market Regime Distribution", category="Research")(regime)
 
 # Performance by regime
-bar_chart_report(agg="mean", title="Avg Return by Regime")(regime, returns)
+bar_chart_report(agg="mean", title="Avg Return by Regime", category="Research")(regime, returns)
 
 # Detailed regime table
 extreme = (rsi_val < 30) | (rsi_val > 70)
@@ -283,6 +307,9 @@ table_report(schema=TableReportSchema(
         TableColumnSchema(column_id=SLOT2, title="RSI")
     ]
 ))(extreme, regime, rsi_val)
+
+# Summary card
+numeric_cards_report(agg="mean", title="Avg RSI", category="Summary", group=0, group_size=1)(rsi_val)
 ```
 
 ---

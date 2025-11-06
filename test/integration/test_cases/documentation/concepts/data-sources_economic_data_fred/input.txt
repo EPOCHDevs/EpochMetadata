@@ -1,0 +1,25 @@
+# Source: concepts/data-sources.mdx:328
+# Section: Data Sources > Economic Data (FRED)
+# Type: complete_code
+
+# Market data connection (REQUIRED)
+src = market_data_source(timeframe="1D")
+
+# Economic indicators
+gdp = economic_indicator(category="GDP")()
+unemployment = economic_indicator(category="Unemployment")()
+cpi = economic_indicator(category="CPI")()
+
+# Calculate economic surprise
+gdp_ma = sma(period=4)(gdp.value)  # 4 quarters
+gdp_surprise = (gdp.value - gdp_ma) / gdp_ma
+
+# Positive surprise = growth accelerating
+positive_surprise = gdp_surprise > 0.01  # 1% above trend
+
+# Combine with technical signal
+fast = ema(period=20)(src.c)
+slow = ema(period=50)(src.c)
+trend_up = fast > slow
+
+entry = positive_surprise & trend_up

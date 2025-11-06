@@ -1,11 +1,11 @@
 [
    {
-      "type": "gte",
-      "id": "gte_0",
+      "type": "gt",
+      "id": "gt_0",
       "options": {},
       "inputs": {
          "SLOT1": [
-            "pivots#resist_1"
+            "prev_hl#previous_high"
          ],
          "SLOT0": [
             "src#c"
@@ -17,18 +17,16 @@
       }
    },
    {
-      "type": "hammer",
-      "id": "hammer_0",
+      "type": "lag",
+      "id": "lag_0",
       "options": {
-         "period": 10,
-         "near": 0.3,
-         "body_none": 0.05,
-         "body_short": 0.5,
-         "body_long": 1.4,
-         "wick_none": 0.05,
-         "wick_long": 0.6
+         "period": 1
       },
-      "inputs": {},
+      "inputs": {
+         "SLOT": [
+            "prev_hl#broken_high"
+         ]
+      },
       "timeframe": {
          "interval": 1,
          "type": "day"
@@ -40,10 +38,10 @@
       "options": {},
       "inputs": {
          "SLOT1": [
-            "hammer_0#result"
+            "logical_not_0#result"
          ],
          "SLOT0": [
-            "lte_0#result"
+            "prev_hl#broken_high"
          ]
       },
       "timeframe": {
@@ -52,15 +50,15 @@
       }
    },
    {
-      "type": "lte",
-      "id": "lte_0",
+      "type": "logical_and",
+      "id": "logical_and_1",
       "options": {},
       "inputs": {
          "SLOT1": [
-            "pivots#support_1"
+            "logical_not_2#result"
          ],
          "SLOT0": [
-            "src#c"
+            "logical_not_1#result"
          ]
       },
       "timeframe": {
@@ -69,9 +67,71 @@
       }
    },
    {
-      "type": "pivot_point_sr",
-      "id": "pivots",
+      "type": "logical_and",
+      "id": "logical_and_2",
       "options": {},
+      "inputs": {
+         "SLOT1": [
+            "gt_0#result"
+         ],
+         "SLOT0": [
+            "logical_and_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_not",
+      "id": "logical_not_0",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "lag_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_not",
+      "id": "logical_not_1",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "prev_hl#broken_high"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_not",
+      "id": "logical_not_2",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "prev_hl#broken_low"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "previous_high_low",
+      "id": "prev_hl",
+      "options": {
+         "interval": 1,
+         "type": "day"
+      },
       "inputs": {},
       "timeframe": {
          "interval": 1,
@@ -84,8 +144,8 @@
       "options": {},
       "inputs": {},
       "timeframe": {
-         "interval": 1,
-         "type": "hour"
+         "interval": 5,
+         "type": "minute"
       }
    }
 ]

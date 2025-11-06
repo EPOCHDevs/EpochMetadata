@@ -1,19 +1,22 @@
-# Source: concepts/price-action.mdx:41
+# Source: concepts/price-action.mdx:130
 # Section: Price Action Analysis > Smart Money Concepts (ICT)
-# Type: partial_example
+# Type: complete_code
 
 src = market_data_source(timeframe="15Min")
 
-# Detect market structure
 swings = swing_highs_lows(swing_length=5)(src.h, src.l)
+structure = bos_choch(close_break=true)(swings.high_low, swings.level)
+ob = order_blocks(close_mitigation=false)(swings.high_low, swings.level)
+fvg = fair_value_gap(join_consecutive=true)()
 liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
-ob = order_blocks()(swings.high_low, swings.level)
+retr = retracements()(swings.high_low, swings.level)
 
-# Liquidity taken above swing highs
-liquidity_swept = liq.swept != 0
+# Score each confluence factor
+confirmations = (structure.bos == 1 ? 1 : 0) +
+                ((ob.ob == 1 and ob.mitigated_index == 0) ? 1 : 0) +
+                ((fvg.fvg == 1 and src.c >= fvg.bottom) ? 1 : 0) +
+                (liq.swept[1:5] != 0 ? 1 : 0) +
+                (retr.current_retracement >= 50 and retr.current_retracement <= 70 ? 1 : 0)
 
-# Price returns to bullish order block
-at_order_block = (ob.ob == 1) and (src.c >= ob.bottom) and (src.c <= ob.top)
-
-# Entry on bullish reaction at block after sweep
-entry = liquidity_swept[1:3] and at_order_block and (src.c > src.o)
+# Require 3+ confirmations
+entry = confirmations >= 3

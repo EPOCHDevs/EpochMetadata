@@ -1,18 +1,60 @@
 [
    {
-      "type": "market_data_source",
-      "id": "hourly",
+      "type": "gt",
+      "id": "gt_0",
       "options": {},
-      "inputs": {},
+      "inputs": {
+         "SLOT1": [
+            "mul_0#result"
+         ],
+         "SLOT0": [
+            "trades#result"
+         ]
+      },
       "timeframe": {
          "interval": 1,
-         "type": "hour"
+         "type": "day"
       }
    },
    {
-      "type": "market_data_source",
-      "id": "src",
+      "type": "lag",
+      "id": "lag_0",
+      "options": {
+         "period": 20
+      },
+      "inputs": {
+         "SLOT": [
+            "trades#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "mul",
+      "id": "mul_0",
       "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_0#result"
+         ],
+         "SLOT0": [
+            "lag_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 1.5
+      },
       "inputs": {},
       "timeframe": {
          "interval": 1,
@@ -22,16 +64,6 @@
    {
       "type": "trade_count",
       "id": "trades",
-      "options": {},
-      "inputs": {},
-      "timeframe": {
-         "interval": 1,
-         "type": "day"
-      }
-   },
-   {
-      "type": "vwap",
-      "id": "vwap_val",
       "options": {},
       "inputs": {},
       "timeframe": {

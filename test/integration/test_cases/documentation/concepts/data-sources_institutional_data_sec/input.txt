@@ -1,27 +1,27 @@
-# Source: concepts/data-sources.mdx:382
+# Source: concepts/data-sources.mdx:446
 # Section: Data Sources > Institutional Data (SEC)
-# Type: partial_example
+# Type: complete_code
 
-src = market_data_source(timeframe="1D")
-
-# Follow Berkshire Hathaway (CIK: 1067983)
-brk_holdings = form13f_holdings(
-    institution_cik="1067983",
-    min_value=1000000000,  # $1B+ positions
+# Filter for open market purchases (most bullish signal)
+insider = insider_trading(
+    filing_type="4",
+    transaction_code="P",
+    min_value=100000,  # $100K+ purchases
     timeframe="1D"
 )()
 
-# Detect position changes
-shares_now = brk_holdings.shares
-shares_prev = brk_holdings.shares[90]  # ~1 quarter ago
+# Market data for comparison
+src = market_data_source(timeframe="1D")
+current_price = src.c
 
-# 10%+ increase in holdings
-position_increased = shares_now > shares_prev * 1.1
-new_position = (shares_prev == 0) & (shares_now > 0)
+# Price vs insider purchase price
+price_vs_insider = current_price / insider.price
 
-# Bullish signal from smart money
-bullish_13f = position_increased | new_position
+# Signal: insider bought recently near current levels
+insider_buying = (insider.shares > 0) & (price_vs_insider < 1.1)
 
 # Combine with technical
-technical_signal = rsi(period=14)(src.c) < 50
-entry = bullish_13f & technical_signal
+rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
+
+entry = insider_buying & oversold

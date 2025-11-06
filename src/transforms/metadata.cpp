@@ -971,6 +971,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
       },
       .tags = {"reversal", "bullish", "inverse-head-and-shoulders", "chart-pattern", "bottoming-pattern"},
       .requiresTimeFrame = true,
+      .requiredDataSources = {"h", "l"},
       .strategyTypes = {"reversal-trading", "pattern-recognition", "bottom-detection"},
       .assetRequirements = {"single-asset"},
       .usageContext = "Classic bottoming pattern signaling uptrend reversal. Wait for neckline breakout confirmation before entering long. Target = neckline + (neckline - head). Volume should increase on neckline breakout.",

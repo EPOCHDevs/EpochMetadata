@@ -1,0 +1,23 @@
+# Source: concepts/data-sources.mdx:13
+# Section: Data Sources > Quick Start
+# Type: complete_code
+
+# Market OHLC bars
+src = market_data_source(timeframe="1D")
+
+# Fundamental screening
+ratios = financial_ratios()
+income = income_statement()
+quality = (ratios.roe > 0.15) & (income.net_income > 0)
+
+# Economic regime detection
+fed_funds = economic_indicator(category="FedFunds")
+risk_on = fed_funds.value < 2.0
+
+# Insider sentiment
+insider = insider_trading(
+    filing_type="4",
+    transaction_code="P",
+    min_value=100000,
+    timeframe="1D"
+)()

@@ -1,23 +1,11 @@
-# Source: concepts/statistical-analysis.mdx:27
+# Source: concepts/statistical-analysis.mdx:85
 # Section: Statistical Analysis > Hidden Markov Models
-# Type: partial_example
+# Type: complete_code
 
-src = market_data_source(timeframe="1D")
+# 4-state example
+regime = hmm_4(min_training_samples=500)(returns, volatility, volume_ratio, momentum)
+# Access state_0_prob through state_3_prob
 
-# Features for regime detection
-returns = roc(period=1)(src.c)
-volatility = atr(period=14)(src.c)
-
-# Detect 2 regimes (e.g., bull/bear)
-regime = hmm_2()(returns, volatility)
-
-# Access outputs - each state probability is a scalar!
-current_state = regime.state           # Most likely state (0 or 1)
-state_0_prob = regime.state_0_prob    # Probability of state 0
-state_1_prob = regime.state_1_prob    # Probability of state 1
-
-# Example: High-confidence filtering
-high_confidence = state_0_prob > 0.8
-rsi_val = rsi(period=14)(src.c)
-ma_signal = crossover(rsi_val, 30)
-signal = ma_signal & high_confidence
+# 5-state example
+regime = hmm_5(min_training_samples=1000)(returns, volatility, volume, momentum, sentiment)
+# Access state_0_prob through state_4_prob

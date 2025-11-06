@@ -27,6 +27,7 @@ Trading strategies require exactly one `trade_signal_executor()` call. This is n
 
 #### Pattern: Single Executor
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
 # Correct: - One executor with all signals
 src = market_data_source(timeframe="1D")
@@ -45,6 +46,7 @@ trade_signal_executor()(
 
 #### Anti-Pattern: Missing Executor
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - No executor
 src = market_data_source(timeframe="1D")
@@ -56,6 +58,7 @@ signal = src.c > src.c[1]
 
 #### Anti-Pattern: Multiple Executors
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Multiple executors (conflicting logic)
 trade_signal_executor()(enter_long=buy)
@@ -68,6 +71,7 @@ trade_signal_executor()(enter_short=sell)  # Second executor conflicts!
 
 #### Anti-Pattern: Empty Executor
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Executor with no signals
 trade_signal_executor()()  # What should it execute?
@@ -90,6 +94,7 @@ The executor accepts four optional boolean inputs (but requires at least one):
 
 **Example: Long-only strategy with exit logic**
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
 src = market_data_source(timeframe="1D")
 ema_20 = ema(period=20)(src.c)
@@ -128,6 +133,7 @@ EpochScript looks like Python but is **NOT Python**. It's a domain-specific lang
 
 #### Wrong: If Statement
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - if/else not allowed
 if price > 100:
@@ -140,6 +146,7 @@ else:
 
 #### Correct: Boolean Expression or Ternary
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX 1: Direct boolean expression
 signal = price > 100
@@ -163,6 +170,7 @@ Variables are **immutable** (single-assignment only). Once bound, they cannot be
 
 #### Wrong: Reassignment
 
+<!-- snippet: type=error_example, expected_error=! -->
 ```python
 # Incorrect: - Cannot reassign variables
 price = src.c
@@ -173,6 +181,7 @@ price = src.o  # ERROR!
 
 #### Correct: Unique Names
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Use distinct variable names
 close_price = src.c
@@ -187,6 +196,7 @@ Python's chained comparison syntax is not supported.
 
 #### Wrong: Chained Comparison
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Chained comparison not supported
 valid = 30 < rsi_val < 70
@@ -196,6 +206,7 @@ valid = 30 < rsi_val < 70
 
 #### Correct: Explicit Boolean Logic
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Break into explicit conditions
 above_30 = rsi_val > 30
@@ -214,6 +225,7 @@ Python's negative list indexing (`[-1]` for last element) is not supported.
 
 #### Wrong: Negative Index
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Negative lag not allowed
 yesterday = src.c[-1]  # Python lists allow this
@@ -223,6 +235,7 @@ yesterday = src.c[-1]  # Python lists allow this
 
 #### Correct: Positive Lag
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Use positive lag (historical lookback)
 yesterday = src.c[1]  # 1 bar ago
@@ -235,6 +248,7 @@ Python's `[0]` for current element is not needed.
 
 #### Wrong: Zero Index
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Zero lag is redundant
 current = src.c[0]
@@ -244,6 +258,7 @@ current = src.c[0]
 
 #### Correct: Omit Index for Current Value
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Omit index for current value
 current = src.c
@@ -261,6 +276,7 @@ Transforms that return multiple outputs (like `bbands`, `macd`, `stoch`) cannot 
 
 #### Anti-Pattern: Ambiguous Multi-Output
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Which output?
 bb = bbands(period=20, stddev=2)(src.c)
@@ -271,6 +287,7 @@ signal = bb > 100  # bb has 3 outputs: lower, middle, upper
 
 #### Pattern 1: Attribute Access
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Access specific output by name
 bb = bbands(period=20, stddev=2)(src.c)
@@ -281,6 +298,7 @@ support = bb.bbands_lower
 
 #### Pattern 2: Tuple Unpacking
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Unpack all outputs
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
@@ -296,6 +314,7 @@ When unpacking, variable count must match output count exactly (or use `_` for d
 
 #### Wrong: Count Mismatch
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - bbands has 3 outputs, but only 2 variables
 lower, upper = bbands(period=20, stddev=2)(src.c)
@@ -305,6 +324,7 @@ lower, upper = bbands(period=20, stddev=2)(src.c)
 
 #### Correct: Matching Count
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX 1: Match all outputs
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
@@ -324,6 +344,7 @@ You can only unpack direct transform constructor calls, not intermediate variabl
 
 #### Wrong: Unpacking Non-Constructor
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - Cannot unpack variable
 bb = bbands(period=20, stddev=2)(src.c)
@@ -334,6 +355,7 @@ lower, middle, upper = bb  # Not a constructor call!
 
 #### Correct: Unpack Constructor Directly
 
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # FIX - Unpack the constructor call directly
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
@@ -353,6 +375,7 @@ The `event_marker` transform requires a `color_map` dictionary that maps color c
 
 #### Wrong: Color Mismatch
 
+<!-- snippet: type=error_example, expected_error=", not "Red"" -->
 ```python
 # Incorrect: - Using color names instead of categories
 event_marker(color_map={
@@ -365,6 +388,7 @@ event_marker(color_map={
 
 #### Wrong: Name Mismatch
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - 'breakout' in color_map but not in inputs
 event_marker(color_map={
@@ -378,6 +402,7 @@ event_marker(color_map={
 
 #### Wrong: Non-Boolean Input
 
+<!-- snippet: type=error_example, expected_error="Decimal, not Boolean" -->
 ```python
 # Incorrect: Passing numeric values instead of boolean conditions
 rsi_val = rsi(period=14)(src.c)
@@ -392,6 +417,7 @@ event_marker(color_map={
 **Error message:** `event_marker expects Boolean input, got Decimal`
 
 **Correct:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Pass boolean condition, not raw value
 rsi_val = rsi(period=14)(src.c)
@@ -409,6 +435,7 @@ All event_marker inputs must be boolean series (True/False values). If you have 
 
 #### Correct: Proper Color Map
 
+<!-- snippet: type=error_example -->
 ```python
 # Correct: - Categories and names match
 src = market_data_source(timeframe="1D")
@@ -451,6 +478,7 @@ EpochScript uses specific string formats for timeframes. Common abbreviations fr
 
 #### Wrong Formats:
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - These don't work
 daily = ema(period=50, timeframe="1Day")(src.c)   # Use "1D"
@@ -462,6 +490,7 @@ minute = ema(period=10, timeframe="1Minute")(src.c) # Use "1Min"
 
 #### Correct Formats:
 
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_intraday=true, complexity=medium -->
 ```python
 # Correct:
 daily = ema(period=50, timeframe="1D")(src.c)
@@ -486,6 +515,7 @@ Session-based transforms use predefined session names.
 
 #### Wrong Sessions:
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - These don't exist
 london = sessions(session_type="LondonKillZone")()  # Doesn't exist
@@ -496,6 +526,7 @@ ny = sessions(session_type="NY")()                   # Use "NewYork"
 
 #### Correct Sessions:
 
+<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, complexity=medium -->
 ```python
 # Correct:
 london = sessions(session_type="London")()
@@ -511,6 +542,7 @@ Transforms like `sessions()`, `bar_gap()`, and `session_gap()` only work on intr
 
 #### Wrong: Sessions on Daily Data
 
+<!-- snippet: type=error_example -->
 ```python
 # Incorrect: - If strategy runs on daily (1D) timeframe
 london = sessions(session_type="London")()
@@ -520,6 +552,7 @@ london = sessions(session_type="London")()
 
 #### Correct: Sessions on Intraday Data
 
+<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, needs_intraday=true, complexity=medium -->
 ```python
 # Correct: - Strategy configured for intraday (1Min, 5Min, 1H, etc.)
 london = sessions(session_type="London")()
@@ -535,6 +568,7 @@ breakout = src.c > london.high
 ### 1. Trying to Filter Data with If Statements
 
 **Wrong approach:**
+<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, complexity=medium -->
 ```python
 # Users often try this (Python thinking)
 if london_session:
@@ -542,6 +576,7 @@ if london_session:
 ```
 
 **Correct approach:**
+<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, complexity=medium -->
 ```python
 # Use boolean logic
 london = sessions(session_type="London")()
@@ -551,6 +586,7 @@ signal = ema_cross and london.active
 ### 2. Calling Output Attributes as Functions
 
 **Wrong:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Trying to call output handle
 bb = bbands(period=20, stddev=2)(src.c)
@@ -560,6 +596,7 @@ upper_val = bb.bbands_upper()  # Don't call it!
 **Error message:** `Cannot call attribute as function`
 
 **Correct:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Access attribute directly
 bb = bbands(period=20, stddev=2)(src.c)
@@ -569,6 +606,7 @@ upper_val = bb.bbands_upper
 ### 3. Using Transform Name as Variable
 
 **Confusing but allowed:**
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
 # Note: Legal but confusing
 ema = market_data_source(timeframe="1D")
@@ -576,6 +614,7 @@ ema_20 = ema(period=20)(ema.c)  # 'ema' is the source, not the transform!
 ```
 
 **Better:**
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
 # Clear naming
 src = market_data_source(timeframe="1D")
@@ -585,6 +624,7 @@ ema_20 = ema(period=20)(src.c)
 ### 4. Forgetting Data Source
 
 **Wrong:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Where does 'c' come from?
 ema_20 = ema(period=20)(c)
@@ -593,6 +633,7 @@ ema_20 = ema(period=20)(c)
 **Error message:** `Undefined variable 'c'`
 
 **Correct:**
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
 # Explicitly fetch data source
 src = market_data_source(timeframe="1D")
@@ -602,6 +643,7 @@ ema_20 = ema(period=20)(src.c)
 ### 5. Inconsistent Variable Naming in Unpacking
 
 **Confusing:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Note: Legal but confusing naming
 x, y, z = bbands(period=20, stddev=2)(src.c)
@@ -609,6 +651,7 @@ x, y, z = bbands(period=20, stddev=2)(src.c)
 ```
 
 **Better:**
+<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
 # Descriptive names
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
