@@ -212,17 +212,16 @@ cs_bar_chart_report(agg="last", title="20-Day Returns by Sector", category="Perf
 
 ### CS Table
 
-Asset-by-metric table with aggregation.
+Asset-by-metric table with aggregation (assets as columns).
 
 <!-- snippet: type=complete_code, needs_data=multi_asset, complexity=complex -->
 ```python
 momentum = roc(period=60)(src.c)
-volatility = atr(period=14)(src.c)
 
-cs_table_report(agg="last", title="Sector Metrics", category="Analysis")(momentum, volatility)
-# Table: Asset | Momentum | Volatility
-#        XLK  |   +15%   |    0.8
-#        XLF  |    +8%   |    0.6
+cs_table_report(agg="last", title="Sector Momentum", category="Analysis")(momentum)
+# Table:       | XLK  | XLF | XLE  | XLV | ...
+#       -------|------|-----|------|-----|----
+#       Value  | +15% | +8% | -2%  | +5% | ...
 ```
 
 **Aggregations:** `first`, `last`, `mean`, `sum`, `min`, `max`
@@ -286,8 +285,8 @@ spx = common_indices(index="SPX")
 momentum = cs_zscore()(roc(period=60)(src.c))
 volatility = cs_zscore()(atr(period=14)(src.c))
 
-# Compare factors across assets
-cs_table_report(agg="last", title="Factor Scores", category="Cross-Sectional")(momentum, volatility)
+# Compare momentum across assets
+cs_table_report(agg="last", title="Momentum Scores", category="Cross-Sectional")(momentum)
 
 # Visualize distributions
 histogram_chart_report(bins=20, title="Momentum Distribution", category="Research")(momentum)

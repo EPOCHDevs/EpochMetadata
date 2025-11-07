@@ -11,17 +11,15 @@ namespace epoch_script::reports {
 /**
  * Cross-Sectional Table Report
  *
- * Generates a single table with assets as rows and metrics as columns.
+ * Generates a single table with assets as columns and a single metric row.
  *
- * Input: Multi-column DataFrame (one column per asset for each metric)
- * Output: Single table with all assets and their metrics
+ * Input: Multi-column DataFrame (one column per asset for single metric)
+ * Output: Single-row table with all assets as column headers
  *
  * Example:
- *   Asset  | Return % | RSI  | Volatility
- *   -------|----------|------|------------
- *   XLK    | 2.50     | 65   | 0.15
- *   XLF    | 1.20     | 55   | 0.12
- *   XLE    | -0.80    | 45   | 0.20
+ *         | XLK  | XLF  | XLE  | XLV  | ...
+ *   ------|------|------|------|------|----
+ *   Value | 2.50 | 1.20 |-0.80 | 0.95 | ...
  */
 class CSTableReport : public IReporter {
 public:
@@ -78,13 +76,13 @@ template <> struct ReportMetadata<CSTableReport> {
          .desc = "Aggregation function to apply to each asset's time series"}
       },
       .isCrossSectional = true,  // KEY: This enables cross-sectional execution
-      .desc = "Display assets as rows with metrics as columns. Each asset appears once with aggregated values for each metric.",
+      .desc = "Display assets as columns with a single metric row. Each asset appears as a column header with its aggregated value in the row.",
       .inputs = {
-        transforms::IOMetaData{epoch_core::IODataType::Any, ARG, "Metrics to display (one column per metric)", true}
+        transforms::IOMetaData{epoch_core::IODataType::Any, ARG, "Metric to display"}
       },
       .outputs = {},  // Report outputs via TearSheet
       .atLeastOneInputRequired = true,
-      .tags = {"report", "table", "cross-sectional", "comparison", "multi-metric"},
+      .tags = {"report", "table", "cross-sectional", "comparison"},
       .requiresTimeFrame = false,
       .allowNullInputs = false,
       .assetRequirements = {"multi-asset"}

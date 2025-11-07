@@ -18,22 +18,12 @@ void CSTableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf
   }
 
   // Get all input columns
-  // Expected naming: AssetName for single metric, or AssetName_MetricIdx for multiple metrics
-  std::set<std::string> assetNames;
-  std::map<std::string, std::vector<std::string>> assetToMetricColumns;
+  // Expected naming: AssetName for single metric (e.g., "XLK", "XLF", "XLE")
+  // For cross-sectional execution, each column represents one asset
+  std::vector<std::string> assetNames;
 
-  // Parse column names to extract asset names
   for (const auto& colName : normalizedDf.column_names()) {
-    // For cross-sectional execution, columns are named by asset
-    // e.g., "XLK", "XLF", or "XLK_SLOT0", "XLK_SLOT1" for multiple inputs
-    std::string assetName = colName;
-    size_t underscorePos = colName.find('_');
-    if (underscorePos != std::string::npos) {
-      assetName = colName.substr(0, underscorePos);
-    }
-
-    assetNames.insert(assetName);
-    assetToMetricColumns[assetName].push_back(colName);
+    assetNames.push_back(colName);
   }
 
   if (assetNames.empty()) {
@@ -41,66 +31,49 @@ void CSTableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf
     return;
   }
 
-  // Build table structure
-  // Columns: ["Asset", "Metric1", "Metric2", ...]
-  std::vector<std::string> columnNames = {"Asset"};
+  // Build table structure with assets as columns
+  // Each asset becomes a column header
+  std::vector<std::string> columnNames = assetNames;
 
-  // Determine number of metrics from first asset
-  auto firstAsset = *assetNames.begin();
-  int numMetrics = assetToMetricColumns[firstAsset].size();
-
-  for (int i = 0; i < numMetrics; ++i) {
-    std::ostringstream metricName;
-    metricName << "Metric" << (i + 1);
-    columnNames.push_back(metricName.str());
-  }
-
-  // Build table data
-  std::vector<std::vector<std::string>> tableData;
+  // Single row of data with aggregated values for each asset
+  std::vector<std::string> dataRow;
 
   for (const auto& assetName : assetNames) {
-    std::vector<std::string> row;
-    row.push_back(assetName);  // First column is asset name
+    try {
+      auto series = normalizedDf[assetName];
 
-    // Get metric values for this asset
-    const auto& metricColumns = assetToMetricColumns[assetName];
+      // Apply aggregation
+      epoch_frame::Scalar aggregatedValue;
 
-    for (const auto& metricColumn : metricColumns) {
-      try {
-        auto series = normalizedDf[metricColumn];
-
-        // Apply aggregation
-        epoch_frame::Scalar aggregatedValue;
-
-        if (m_agg == "last") {
-          aggregatedValue = series.iloc(series.size() - 1);
-        } else if (m_agg == "first") {
-          aggregatedValue = series.iloc(0);
-        } else if (m_agg == "mean") {
-          aggregatedValue = series.mean();
-        } else if (m_agg == "sum") {
-          aggregatedValue = series.sum();
-        } else if (m_agg == "min") {
-          aggregatedValue = series.min();
-        } else if (m_agg == "max") {
-          aggregatedValue = series.max();
-        } else {
-          // Default to last
-          aggregatedValue = series.iloc(series.size() - 1);
-        }
-
-        // Convert to string for table display
-        row.push_back(aggregatedValue.repr());
-
-      } catch (const std::exception& e) {
-        std::cerr << "Warning: Failed to process metric column '" << metricColumn
-                  << "' for asset '" << assetName << "': " << e.what() << std::endl;
-        row.push_back("N/A");
+      if (m_agg == "last") {
+        aggregatedValue = series.iloc(series.size() - 1);
+      } else if (m_agg == "first") {
+        aggregatedValue = series.iloc(0);
+      } else if (m_agg == "mean") {
+        aggregatedValue = series.mean();
+      } else if (m_agg == "sum") {
+        aggregatedValue = series.sum();
+      } else if (m_agg == "min") {
+        aggregatedValue = series.min();
+      } else if (m_agg == "max") {
+        aggregatedValue = series.max();
+      } else {
+        // Default to last
+        aggregatedValue = series.iloc(series.size() - 1);
       }
-    }
 
-    tableData.push_back(row);
+      // Convert to string for table display
+      dataRow.push_back(aggregatedValue.repr());
+
+    } catch (const std::exception& e) {
+      std::cerr << "Warning: Failed to process asset column '" << assetName
+                << "': " << e.what() << std::endl;
+      dataRow.push_back("N/A");
+    }
   }
+
+  // Table has one row with values for all assets
+  std::vector<std::vector<std::string>> tableData = {dataRow};
 
   // Convert to DataFrame for TableBuilder
   // Create Arrow schema
