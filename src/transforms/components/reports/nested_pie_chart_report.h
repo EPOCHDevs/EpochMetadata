@@ -53,7 +53,7 @@ template <> struct ReportMetadata<NestedPieChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "pie", "nested", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

@@ -100,7 +100,7 @@ template <> struct ReportMetadata<NumericCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "aggregation", "summary", "numeric"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

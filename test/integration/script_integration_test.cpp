@@ -408,6 +408,61 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
             INFO("Generated reports: " << reports.size());
             INFO("Generated event markers: " << event_markers.size());
 
+            // 6.5. Export actual outputs to actual/ directory for review/blessing
+            fs::path actual_dir = test_case.test_dir / "actual";
+            fs::create_directories(actual_dir / "dataframes");
+            fs::create_directories(actual_dir / "tearsheets");
+            fs::create_directories(actual_dir / "event_markers");
+
+            // Export dataframes
+            for (const auto& [timeframe, asset_map] : output_data_map) {
+                for (const auto& [asset, df] : asset_map) {
+                    std::string filename = timeframe + "_" + asset + ".csv";
+                    fs::path output_path = actual_dir / "dataframes" / filename;
+                    runtime::test::CsvDataLoader::WriteCsvFile(df, output_path, true);
+                }
+            }
+
+            // Export reports (tearsheets) - each asset has one TearSheet
+            for (const auto& [asset, report] : reports) {
+                // Save as JSON for human readability
+                std::string json_filename = asset + "_report.json";
+                fs::path json_path = actual_dir / "tearsheets" / json_filename;
+                std::string json_str;
+                google::protobuf::util::JsonPrintOptions options;
+                options.add_whitespace = true;
+                options.always_print_primitive_fields = true;
+                google::protobuf::util::MessageToJsonString(report, &json_str, options);
+                std::ofstream json_ofs(json_path);
+                if (json_ofs) {
+                    json_ofs << json_str;
+                }
+
+                // Also save as binary for exact comparison
+                std::string bin_filename = asset + "_report.bin";
+                fs::path bin_path = actual_dir / "tearsheets" / bin_filename;
+                std::ofstream bin_ofs(bin_path, std::ios::binary);
+                if (bin_ofs) {
+                    report.SerializeToOstream(&bin_ofs);
+                }
+            }
+
+            // Export event markers - each asset has a vector of EventMarkerData
+            for (const auto& [asset, marker_list] : event_markers) {
+                for (size_t i = 0; i < marker_list.size(); ++i) {
+                    std::string filename = asset + "_event_marker_" + std::to_string(i) + ".json";
+                    fs::path output_path = actual_dir / "event_markers" / filename;
+                    std::string json_str;
+                    auto json_result = glz::write_json(marker_list[i], json_str);
+                    if (!json_result) {
+                        std::ofstream ofs(output_path);
+                        if (ofs) {
+                            ofs << json_str;
+                        }
+                    }
+                }
+            }
+
             // 7. Validate output dataframes against expected/dataframes/
             auto df_result = runtime::test::RuntimeOutputValidator::ValidateDataframes(
                 output_data_map, test_case.expected_dataframes_dir);

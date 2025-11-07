@@ -74,7 +74,7 @@ template <> struct ReportMetadata<AnyCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "aggregation", "summary", "generic"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

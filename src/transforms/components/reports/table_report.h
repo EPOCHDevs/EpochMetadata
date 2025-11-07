@@ -54,7 +54,7 @@ template <> struct ReportMetadata<TableReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "table", "filter"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

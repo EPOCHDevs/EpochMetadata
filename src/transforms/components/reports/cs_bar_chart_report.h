@@ -110,7 +110,7 @@ template <> struct ReportMetadata<CSBarChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "bar", "visualization", "cross-sectional", "comparison"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
+      .allowNullInputs = true,
       .assetRequirements = {"multi-asset"}
     };
   }

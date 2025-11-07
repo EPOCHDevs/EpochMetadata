@@ -103,7 +103,7 @@ template <> struct ReportMetadata<QuantileCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "quantile", "percentile", "statistics"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

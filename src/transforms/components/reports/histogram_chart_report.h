@@ -79,7 +79,7 @@ template <> struct ReportMetadata<HistogramChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "histogram", "distribution", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

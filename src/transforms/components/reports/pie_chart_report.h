@@ -52,7 +52,7 @@ namespace epoch_script::reports {
         .atLeastOneInputRequired = true,
         .tags = {"report", "chart", "pie", "donut", "visualization"},
         .requiresTimeFrame = false,
-        .allowNullInputs = false
+        .allowNullInputs = true
       };
     }
   };

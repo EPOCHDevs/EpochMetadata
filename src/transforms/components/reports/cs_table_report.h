@@ -84,7 +84,7 @@ template <> struct ReportMetadata<CSTableReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "table", "cross-sectional", "comparison"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
+      .allowNullInputs = true,
       .assetRequirements = {"multi-asset"}
     };
   }

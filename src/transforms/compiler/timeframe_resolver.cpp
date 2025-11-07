@@ -162,10 +162,9 @@ namespace epoch_script
             return maxTimeframe;
         }
 
-        // No dependents found - use daily timeframe as default
-        epoch_script::TimeFrame defaultTimeframe("1d");
-        nodeTimeframes[nodeId] = defaultTimeframe;
-        return defaultTimeframe;
+        // No dependents found - cannot resolve timeframe
+        // Note: This will be caught during validation for transforms that require explicit timeframes
+        return std::nullopt;
     }
 
 } // namespace epoch_script

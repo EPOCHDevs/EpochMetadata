@@ -126,7 +126,7 @@ template <> struct ReportMetadata<CSNumericCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "aggregation", "summary", "numeric", "cross-sectional", "comparison"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false,
+      .allowNullInputs = true,
       .assetRequirements = {"multi-asset"}
     };
   }

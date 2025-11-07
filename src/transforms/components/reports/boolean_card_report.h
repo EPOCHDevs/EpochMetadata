@@ -74,7 +74,7 @@ template <> struct ReportMetadata<BooleanCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "aggregation", "summary", "boolean"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

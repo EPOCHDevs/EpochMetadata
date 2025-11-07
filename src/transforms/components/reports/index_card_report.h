@@ -91,7 +91,7 @@ template <> struct ReportMetadata<IndexCardReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "cards", "index", "search", "position"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };

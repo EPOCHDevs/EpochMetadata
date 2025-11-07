@@ -103,7 +103,7 @@ template <> struct ReportMetadata<BarChartReport> {
       .atLeastOneInputRequired = true,
       .tags = {"report", "chart", "bar", "visualization"},
       .requiresTimeFrame = false,
-      .allowNullInputs = false
+      .allowNullInputs = true
     };
   }
 };
