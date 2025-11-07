@@ -32,6 +32,14 @@ public:
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
 
+  // Override TransformData to skip column selection/renaming
+  // Cross-sectional execution already renamed columns to asset_ids (AAPL, XLK, etc.)
+  epoch_frame::DataFrame TransformData(const epoch_frame::DataFrame &df) const override {
+    // Pass DataFrame directly to generateTearsheet - columns are already asset_ids
+    generateTearsheet(df);
+    return df;
+  }
+
 private:
   const std::string m_title;
   const std::string m_category;
