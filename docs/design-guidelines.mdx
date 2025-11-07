@@ -115,6 +115,100 @@ trade_signal_executor()(
 
 ---
 
+## Execution Model
+
+### Scripts Execute Per-Asset by Default
+
+EpochScript strategies run in **time-series mode** - your entire script executes once for each asset in your configured universe. You don't specify which assets to analyze inside your script; the framework handles this automatically.
+
+**Key Principle:** Universe configuration is **external** to your script code.
+
+#### Antipattern: Using Non-Existent 'symbols' Parameter
+
+<!-- snippet: type=error_example -->
+```python
+# Incorrect: - 'symbols' parameter does not exist
+src = market_data_source(timeframe="1D", symbols=["AAPL", "MSFT", "GOOG"])
+spx = indices(ticker="SPX", symbols=["SPX"])
+```
+
+**Error message:** `Unknown option 'symbols'`
+
+**Why?** The `symbols` parameter doesn't exist on `market_data_source`, `indices`, or `common_indices`. Your script runs separately for each asset - the framework provides data for the current asset automatically.
+
+#### Correct: Let Framework Handle Asset Iteration
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
+```python
+# Correct: - No symbols needed
+src = market_data_source(timeframe="1D")
+# Framework automatically provides data for current asset (AAPL, MSFT, etc.)
+
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+buy = crossover(fast, slow)
+
+trade_signal_executor()(enter_long=buy)
+```
+
+**How it works:**
+1. Universe configured at backtest/strategy level: ["AAPL", "MSFT", "GOOG"]
+2. Framework runs your script 3 times:
+   - Run 1: `market_data_source` fetches AAPL data
+   - Run 2: `market_data_source` fetches MSFT data
+   - Run 3: `market_data_source` fetches GOOG data
+3. Each run is independent - separate trades, separate state
+
+### Cross-Sectional Operations
+
+To compare or rank assets **across the universe** at each timestamp, use transforms prefixed with `cs_`:
+
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
+```python
+# Cross-sectional ranking strategy
+src = market_data_source(timeframe="1D")
+
+# Calculate 60-day momentum for this asset
+returns = roc(period=60)(src.c)
+
+# cs_momentum compares THIS asset against ALL assets in universe
+# Returns percentile rank (0-100) at each timestamp
+momentum_rank = cs_momentum()(returns)
+
+# Select top 20% across entire universe
+top_performers = top_k_percent(k=20)(momentum_rank)
+
+trade_signal_executor()(enter_long=top_performers)
+```
+
+**Cross-sectional transforms:**
+- `cs_momentum()` - Rank assets by input values (percentile 0-100)
+- `cs_zscore()` - Normalize across assets (z-score at each timestamp)
+- `top_k()` / `bottom_k()` - Select fixed count
+- `top_k_percent()` / `bottom_k_percent()` - Select by percentage
+
+**See also:** [Cross-Sectional Analysis](./concepts/cross-sectional) for detailed examples
+
+### Comparing Against Benchmarks
+
+For comparing each asset against a benchmark (e.g., SPX):
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
+```python
+# Each asset compared to SPX
+src = market_data_source(timeframe="1D")  # Current asset
+spx = common_indices(index="SPX")()       # Benchmark
+
+# Relative strength
+asset_ret = roc(period=20)(src.c)
+spx_ret = roc(period=20)(spx.c)
+outperforming = asset_ret > spx_ret
+
+trade_signal_executor()(enter_long=outperforming)
+```
+
+---
+
 ## Python Features Not Supported
 
 EpochScript looks like Python but is **NOT Python**. It's a domain-specific language for quantitative strategies with strict constraints.
@@ -665,12 +759,14 @@ bb_lower, bb_middle, bb_upper = bbands(period=20, stddev=2)(src.c)
 
 **Key Principles:**
 
-1. **One executor per strategy** - Required design pattern
-2. **No Python control flow** - Use boolean logic and ternary operators
-3. **Immutable variables** - Single assignment only
-4. **Explicit multi-output access** - Unpack or use attribute access
-5. **Strict format strings** - Timeframes and sessions have exact formats
-6. **Intraday-only transforms** - Some transforms require intraday data
+1. **Per-asset execution model** - Scripts run once per asset; universe configured externally
+2. **One executor per strategy** - Required design pattern
+3. **No Python control flow** - Use boolean logic and ternary operators
+4. **Immutable variables** - Single assignment only
+5. **Explicit multi-output access** - Unpack or use attribute access
+6. **Strict format strings** - Timeframes and sessions have exact formats
+7. **Intraday-only transforms** - Some transforms require intraday data
+8. **Cross-sectional with cs_ prefix** - Use `cs_momentum()`, `cs_zscore()` for multi-asset ranking
 
 **When in doubt:**
 - Check [Error Reference](./error-reference) for specific error messages

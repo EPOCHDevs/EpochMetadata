@@ -522,6 +522,100 @@ london = sessions(session_type="London")()
 
 ---
 
+### Unknown Option 'symbols' for Data Sources
+
+**Error:** `Unknown option 'symbols'`
+
+**Cause:** Attempting to use non-existent `symbols` parameter on data source transforms
+
+**Common Antipattern:**
+<!-- snippet: type=error_example -->
+```python
+# Incorrect: - These transforms do NOT have a 'symbols' parameter
+src = market_data_source(timeframe="1Min", symbols=["SPY-Stocks"])
+src = market_data_source(timeframe="1D", symbols=["AAPL", "MSFT", "GOOG"])
+spx = indices(ticker="SPX", symbols=["SPX", "NDX"])  # WRONG
+benchmark = common_indices(index="SPX", symbols=["SPX"])  # WRONG
+```
+
+**Error message:** `Unknown option 'symbols' for transform 'market_data_source'` (or `'indices'`, `'common_indices'`)
+
+**Why This Is Wrong:**
+
+EpochScript strategies execute **per-asset by default** in time-series mode. The framework runs your entire script once for each asset in your configured universe. You don't specify which assets to analyze inside your script - that's configured at the strategy/backtest level.
+
+**Key Concepts:**
+
+1. **Time-Series Execution (Default):** Your script runs independently for each asset in the universe. `market_data_source(timeframe="1D")` automatically fetches data for whatever asset the script is currently processing.
+
+2. **Cross-Sectional Operations:** To compare or rank across multiple assets at once, use transforms prefixed with `cs_` (e.g., `cs_momentum()`, `cs_zscore()`, `top_k()`). These operate across all assets at each timestamp.
+
+**Correct Patterns:**
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
+```python
+# Pattern 1: Single-asset time-series strategy
+# (Script runs once per asset in configured universe)
+src = market_data_source(timeframe="1D")
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+buy = crossover(fast, slow)
+
+trade_signal_executor()(enter_long=buy)
+```
+
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
+```python
+# Pattern 2: Cross-sectional strategy
+# (Script runs per-asset, but cs_ transforms compare across all assets)
+src = market_data_source(timeframe="1D")
+
+# Calculate 60-day returns for each asset
+returns = roc(period=60)(src.c)
+
+# cs_momentum ranks THIS asset against ALL other assets in universe
+# Returns percentile rank (0-100) at each timestamp
+momentum_rank = cs_momentum()(returns)
+
+# Select top 20% of assets by momentum
+top_performers = top_k_percent(k=20)(momentum_rank)
+
+trade_signal_executor()(enter_long=top_performers)
+```
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
+```python
+# Pattern 3: Comparing against a benchmark index (e.g., SPX)
+# Each asset's data automatically provided by market_data_source
+src = market_data_source(timeframe="1D")
+
+# Fetch benchmark separately (not in universe, just for comparison)
+spx = common_indices(index="SPX")()
+# Or: spx = indices(ticker="SPX")()
+
+# Compare asset performance vs SPX
+asset_return = roc(period=20)(src.c)
+spx_return = roc(period=20)(spx.c)
+
+# Relative strength: asset outperforming SPX
+outperforming = asset_return > spx_return
+
+trade_signal_executor()(enter_long=outperforming)
+```
+
+**How Universe Selection Works:**
+
+The asset universe is configured **outside your script**:
+- In backtests: Configure universe in backtest settings (e.g., "S&P 500", custom list)
+- In strategies: Universe defined at strategy configuration level
+- Your script logic is the **same** regardless of universe size
+
+**See also:**
+- [Cross-Sectional Analysis](./concepts/cross-sectional) - Using `cs_` transforms for multi-asset strategies
+- [Design Guidelines - Execution Model](./design-guidelines.md#execution-model) - Per-asset vs cross-sectional execution
+
+---
+
 ## Reporting Errors
 
 ### event_marker: Invalid Color Category
@@ -649,6 +743,7 @@ event_marker(color_map={
 | `Transform requires a timeframe` | Data source or no-input transform | Add `timeframe="1D"` parameter |
 | `Invalid timeframe` | Wrong format | Use `"1D"`, `"1H"`, `"1W-MON"`, etc. |
 | `Invalid session` | Wrong name | Use valid session names |
+| `Unknown option 'symbols'` | Using non-existent parameter | Remove `symbols=` - universe is configured externally |
 
 ---
 
