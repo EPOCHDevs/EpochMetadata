@@ -42,9 +42,7 @@ public:
       : IReporter(std::move(config), true),
         m_agg(config.GetOptionValue("agg").GetSelectOption<epoch_core::CSNumericArrowAggregateFunction>()),
         m_category(config.GetOptionValue("category").GetString()),
-        m_title(config.GetOptionValue("title").GetString()),
-        m_group(static_cast<uint32_t>(config.GetOptionValue("group").GetDecimal())),
-        m_groupSize(static_cast<uint32_t>(config.GetOptionValue("group_size").GetDecimal())) {}
+        m_title(config.GetOptionValue("title").GetString()) {}
 
 protected:
   void generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const override;
@@ -53,8 +51,6 @@ private:
   const epoch_core::CSNumericArrowAggregateFunction m_agg;
   const std::string m_category;
   const std::string m_title;
-  const uint32_t m_group;
-  const uint32_t m_groupSize;
 
   std::string GetAggregation() const;
 };
@@ -101,21 +97,7 @@ template <> struct ReportMetadata<CSNumericCardReport> {
          .type = epoch_core::MetaDataOptionType::String,
          .defaultValue = epoch_script::MetaDataOptionDefinition{std::string("")},
          .isRequired = false,
-         .desc = "Title pattern for cards (empty = asset name)"},
-        {.id = "group",
-         .name = "Group",
-         .type = epoch_core::MetaDataOptionType::Integer,
-         .isRequired = true,
-         .min = 0,
-         .max = 100,
-         .desc = "Group number for these cards (0-based indexing)"},
-        {.id = "group_size",
-         .name = "Group Size",
-         .type = epoch_core::MetaDataOptionType::Integer,
-         .isRequired = true,
-         .min = 1,
-         .max = 100,
-         .desc = "Expected number of cards in this group"}
+         .desc = "Title pattern for cards (empty = asset name)"}
       },
       .isCrossSectional = true,  // KEY: This enables cross-sectional execution
       .desc = "Generate a card group by aggregating each asset's time series. All assets appear as cards in the same group for comparison.",

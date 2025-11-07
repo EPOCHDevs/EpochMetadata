@@ -55,6 +55,8 @@
 #include <epoch_script/transforms/core/transform_definition.h>
 #include "common/csv_data_loader.h"
 #include "common/runtime_output_validator.h"
+#include "common/event_marker_comparator.h"
+#include "common/tearsheet_comparator.h"
 #include "transforms/compiler/ast_compiler.h"
 #include "transforms/runtime/orchestrator.h"
 
@@ -423,22 +425,8 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
                 }
             }
 
-            // Export reports (tearsheets) - each asset has one TearSheet
+            // Export reports (tearsheets) - binary format to avoid protobuf JSON descriptor issues
             for (const auto& [asset, report] : reports) {
-                // Save as JSON for human readability
-                std::string json_filename = asset + "_report.json";
-                fs::path json_path = actual_dir / "tearsheets" / json_filename;
-                std::string json_str;
-                google::protobuf::util::JsonPrintOptions options;
-                options.add_whitespace = true;
-                options.always_print_primitive_fields = true;
-                google::protobuf::util::MessageToJsonString(report, &json_str, options);
-                std::ofstream json_ofs(json_path);
-                if (json_ofs) {
-                    json_ofs << json_str;
-                }
-
-                // Also save as binary for exact comparison
                 std::string bin_filename = asset + "_report.bin";
                 fs::path bin_path = actual_dir / "tearsheets" / bin_filename;
                 std::ofstream bin_ofs(bin_path, std::ios::binary);
@@ -447,20 +435,11 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
                 }
             }
 
-            // Export event markers - each asset has a vector of EventMarkerData
+            // Export event markers - one JSON file per asset containing array of markers
             for (const auto& [asset, marker_list] : event_markers) {
-                for (size_t i = 0; i < marker_list.size(); ++i) {
-                    std::string filename = asset + "_event_marker_" + std::to_string(i) + ".json";
-                    fs::path output_path = actual_dir / "event_markers" / filename;
-                    std::string json_str;
-                    auto json_result = glz::write_json(marker_list[i], json_str);
-                    if (!json_result) {
-                        std::ofstream ofs(output_path);
-                        if (ofs) {
-                            ofs << json_str;
-                        }
-                    }
-                }
+                std::string filename = asset + ".json";
+                fs::path output_path = actual_dir / "event_markers" / filename;
+                runtime::test::SelectorComparator::SaveJson(marker_list, output_path);
             }
 
             // 7. Validate output dataframes against expected/dataframes/
