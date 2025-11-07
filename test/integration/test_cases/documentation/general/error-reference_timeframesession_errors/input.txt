@@ -1,10 +1,20 @@
-# Source: error-reference.mdx:512
+# Source: error-reference.mdx:587
 # Section: Error Reference > TimeFrame/Session Errors
-# Type: error_example
+# Type: complete_code
 
-# Incorrect: (if running on daily data)
-london = sessions(session_type="London")()
+# Pattern 3: Comparing against a benchmark index (e.g., SPX)
+# Each asset's data automatically provided by market_data_source
+src = market_data_source(timeframe="1D")
 
-# FIX
-# Use intraday timeframe (1Min, 5Min, 15Min, etc.)
-# Configure strategy to run on intraday data
+# Fetch benchmark separately (not in universe, just for comparison)
+spx = common_indices(index="SPX")()
+# Or: spx = indices(ticker="SPX")()
+
+# Compare asset performance vs SPX
+asset_return = roc(period=20)(src.c)
+spx_return = roc(period=20)(spx.c)
+
+# Relative strength: asset outperforming SPX
+outperforming = asset_return > spx_return
+
+trade_signal_executor()(enter_long=outperforming)

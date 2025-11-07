@@ -40,11 +40,15 @@ Use boolean expressions or ternary operators instead.
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+price = src.c
+rsi_val = rsi(period=14)(src.c)
+
 # Boolean expression
 signal = price > 100
 
 # Ternary operator
-signal = True if price > 100 else False
+signal_ternary = True if price > 100 else False
 
 # conditional_select for multi-way branching
 regime = conditional_select(
@@ -70,6 +74,10 @@ Use vectorized transforms instead.
 
 <!-- snippet: type=complete_code, needs_data=multi_asset, complexity=complex -->
 ```python
+src = market_data_source(timeframe="1D")
+close = src.c
+momentum = rsi(period=14)(close)
+
 # Transforms work on entire series automatically
 ema_series = ema(period=20)(close)  # Applies to all time points
 
@@ -89,13 +97,22 @@ Variables are **immutable** - single assignment only.
 Use distinct variable names.
 </Callout>
 
-**Example:**
+**Valid Example:**
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Valid - distinct names
 close_price = src.c
 open_price = src.o
+```
+
+**Invalid Example:**
+
+<!-- snippet: type=error_example, needs_data=single_asset, complexity=simple -->
+```python
+src = market_data_source(timeframe="1D")
 
 # NOT ALLOWED
 price = src.c
@@ -140,12 +157,23 @@ Python's `a < b < c` syntax is not supported.
 Use explicit boolean logic.
 </Callout>
 
-**Example:**
+**Invalid Example:**
+
+<!-- snippet: type=error_example, needs_data=single_asset, complexity=simple -->
+```python
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
+
+# NOT ALLOWED
+valid = 30 < rsi_val < 70
+```
+
+**Valid Example:**
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
-# NOT ALLOWED
-valid = 30 < rsi_val < 70
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
 
 # Use instead
 above_30 = rsi_val > 30
@@ -153,7 +181,7 @@ below_70 = rsi_val < 70
 valid = above_30 and below_70
 
 # Or inline
-valid = (rsi_val > 30) and (rsi_val < 70)
+valid_inline = (rsi_val > 30) and (rsi_val < 70)
 ```
 
 ---
@@ -166,12 +194,21 @@ Python's `list[-1]` for last element is not supported.
 Lag operator only accepts positive integers.
 </Callout>
 
-**Example:**
+**Invalid Example:**
+
+<!-- snippet: type=error_example, needs_data=single_asset, complexity=simple -->
+```python
+src = market_data_source(timeframe="1D")
+
+# NOT ALLOWED
+yesterday = src.c[-1]
+```
+
+**Valid Example:**
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
-# NOT ALLOWED
-yesterday = src.c[-1]
+src = market_data_source(timeframe="1D")
 
 # Use instead
 yesterday = src.c[1]  # 1 bar ago
@@ -188,12 +225,21 @@ Using `[0]` is redundant and not allowed.
 Omit the index for current value.
 </Callout>
 
-**Example:**
+**Invalid Example:**
+
+<!-- snippet: type=error_example, needs_data=single_asset, complexity=simple -->
+```python
+src = market_data_source(timeframe="1D")
+
+# NOT ALLOWED
+current = src.c[0]
+```
+
+**Valid Example:**
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
-# NOT ALLOWED
-current = src.c[0]
+src = market_data_source(timeframe="1D")
 
 # Use instead
 current = src.c

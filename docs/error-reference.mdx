@@ -758,8 +758,10 @@ Error messages tell you:
 
 ### 2. Check Variable Names
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=error_example -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Common typos
 ema_val = ema(period=20)(src.c)
 signal = emv_val > 100  # Typo: emv_val vs ema_val
@@ -767,15 +769,17 @@ signal = emv_val > 100  # Typo: emv_val vs ema_val
 
 ### 3. Verify Transform Names and Options
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Check spelling
 rsi_val = rsi(period=14)(src.c)  # TRUE
-rsi_val = rsi(periood=14)(src.c)  # FALSE Typo
+rsi_val2 = rsi(periood=14)(src.c)  # FALSE Typo
 
 # Check required options
 ema_val = ema()(src.c)  # FALSE Missing period
-ema_val = ema(period=20)(src.c)  # TRUE
+ema_val2 = ema(period=20)(src.c)  # TRUE
 ```
 
 ### 4. Check Output Handles
@@ -793,15 +797,19 @@ high = src.h   # High
 
 ### 5. Verify Input/Output Counts
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+
 # Crossover needs 2 inputs
 cross = crossover()(fast)  # FALSE Only 1 input
-cross = crossover()(fast, slow)  # TRUE
+cross2 = crossover()(fast, slow)  # TRUE
 
 # Bollinger Bands returns 3 outputs
 lower, upper = bbands(period=20, stddev=2)(src.c)  # FALSE Only 2 variables
-lower, middle, upper = bbands(period=20, stddev=2)(src.c)  # TRUE
+lower2, middle2, upper2 = bbands(period=20, stddev=2)(src.c)  # TRUE
 ```
 
 ### 6. Check Data Types

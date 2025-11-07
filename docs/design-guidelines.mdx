@@ -240,13 +240,17 @@ else:
 
 #### Correct: Boolean Expression or Ternary
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+price = src.c
+rsi_val = rsi(period=14)(src.c)
+
 # FIX 1: Direct boolean expression
 signal = price > 100
 
 # FIX 2: Ternary operator (for value selection)
-signal = True if price > 100 else False
+signal2 = True if price > 100 else False
 
 # FIX 3: conditional_select for multi-way branching
 regime = conditional_select(
@@ -275,8 +279,10 @@ price = src.o  # ERROR!
 
 #### Correct: Unique Names
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Use distinct variable names
 close_price = src.c
 open_price = src.o
@@ -300,15 +306,18 @@ valid = 30 < rsi_val < 70
 
 #### Correct: Explicit Boolean Logic
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
+
 # FIX - Break into explicit conditions
 above_30 = rsi_val > 30
 below_70 = rsi_val < 70
 valid = above_30 and below_70
 
 # Or inline:
-valid = (rsi_val > 30) and (rsi_val < 70)
+valid2 = (rsi_val > 30) and (rsi_val < 70)
 ```
 
 ### Negative Indexing
@@ -329,8 +338,10 @@ yesterday = src.c[-1]  # Python lists allow this
 
 #### Correct: Positive Lag
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Use positive lag (historical lookback)
 yesterday = src.c[1]  # 1 bar ago
 last_week = src.c[5]  # 5 bars ago
@@ -352,8 +363,10 @@ current = src.c[0]
 
 #### Correct: Omit Index for Current Value
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Omit index for current value
 current = src.c
 ```
@@ -381,8 +394,10 @@ signal = bb > 100  # bb has 3 outputs: lower, middle, upper
 
 #### Pattern 1: Attribute Access
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Access specific output by name
 bb = bbands(period=20, stddev=2)(src.c)
 signal = bb.bbands_upper > 100
@@ -392,14 +407,16 @@ support = bb.bbands_lower
 
 #### Pattern 2: Tuple Unpacking
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Unpack all outputs
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 signal = upper > 100
 
 # Discard unwanted outputs with underscore
-lower, _, upper = bbands(period=20, stddev=2)(src.c)
+lower2, _, upper2 = bbands(period=20, stddev=2)(src.c)
 ```
 
 ### Tuple Unpacking Count Matching
@@ -418,18 +435,20 @@ lower, upper = bbands(period=20, stddev=2)(src.c)
 
 #### Correct: Matching Count
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX 1: Match all outputs
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 
 # FIX 2: Discard unwanted with underscore
-lower, _, upper = bbands(period=20, stddev=2)(src.c)
+lower2, _, upper2 = bbands(period=20, stddev=2)(src.c)
 
 # FIX 3: Use attribute access instead
 bb = bbands(period=20, stddev=2)(src.c)
-lower = bb.bbands_lower
-upper = bb.bbands_upper
+lower3 = bb.bbands_lower
+upper3 = bb.bbands_upper
 ```
 
 ### Only Unpack Transform Calls
@@ -449,8 +468,10 @@ lower, middle, upper = bb  # Not a constructor call!
 
 #### Correct: Unpack Constructor Directly
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # FIX - Unpack the constructor call directly
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 ```
@@ -511,8 +532,10 @@ event_marker(color_map={
 **Error message:** `event_marker expects Boolean input, got Decimal`
 
 **Correct:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Pass boolean condition, not raw value
 rsi_val = rsi(period=14)(src.c)
 
@@ -670,9 +693,14 @@ if london_session:
 ```
 
 **Correct approach:**
-<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, complexity=medium -->
+<!-- snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, needs_intraday=true, complexity=medium -->
 ```python
+src = market_data_source(timeframe="5Min")
+
 # Use boolean logic
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+ema_cross = crossover(fast, slow)
 london = sessions(session_type="London")()
 signal = ema_cross and london.active
 ```
@@ -680,8 +708,10 @@ signal = ema_cross and london.active
 ### 2. Calling Output Attributes as Functions
 
 **Wrong:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Trying to call output handle
 bb = bbands(period=20, stddev=2)(src.c)
 upper_val = bb.bbands_upper()  # Don't call it!
@@ -690,8 +720,10 @@ upper_val = bb.bbands_upper()  # Don't call it!
 **Error message:** `Cannot call attribute as function`
 
 **Correct:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Access attribute directly
 bb = bbands(period=20, stddev=2)(src.c)
 upper_val = bb.bbands_upper
@@ -718,7 +750,7 @@ ema_20 = ema(period=20)(src.c)
 ### 4. Forgetting Data Source
 
 **Wrong:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=error_example -->
 ```python
 # Where does 'c' come from?
 ema_20 = ema(period=20)(c)
@@ -737,16 +769,20 @@ ema_20 = ema(period=20)(src.c)
 ### 5. Inconsistent Variable Naming in Unpacking
 
 **Confusing:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Note: Legal but confusing naming
 x, y, z = bbands(period=20, stddev=2)(src.c)
 # Which is upper? Which is lower?
 ```
 
 **Better:**
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+
 # Descriptive names
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 # Or:

@@ -246,4 +246,58 @@ inline std::unique_ptr<MockTransform> CreateFullyMockedTransform(
     return mock;
 }
 
+/**
+ * @brief Helper to create a reporter/sink mock transform for testing
+ *
+ * Reporter transforms have:
+ * - category = Reporter
+ * - outputs = {} (no outputs - they generate tearsheets instead)
+ * - TransformData() is called but results are not distributed
+ *
+ * @param id Transform ID
+ * @param timeframe Timeframe for the transform
+ * @param inputIds List of input handle IDs
+ * @param outputIds Should be empty {} for reporters
+ * @return Reporter mock transform
+ */
+inline std::unique_ptr<MockTransform> CreateReporterMockTransform(
+    const std::string& id,
+    const epoch_script::TimeFrame& timeframe,
+    const std::vector<std::string>& inputIds = {},
+    const std::vector<std::string>& outputIds = {}) {
+
+    auto mock = std::make_unique<MockTransform>();
+
+    // Populate stub data members
+    mock->m_id = id;
+    mock->m_name = "ReporterMockTransform";
+    mock->m_timeframe = timeframe;
+    mock->m_inputIds = inputIds;
+    mock->m_outputIds = outputIds;
+    mock->m_isCrossSectional = true;  // Most reporters are cross-sectional
+    mock->m_isSelector = false;
+
+    // Reporters have NO output metadata (they generate tearsheets)
+    mock->m_outputMetadata = {};
+
+    // Create configuration with Reporter category
+    std::string yamlStr = std::format(
+        "type: cs_numeric_cards_report\n"
+        "id: {}\n"
+        "timeframe: {{\"interval\":1,\"type\":\"day\"}}\n"
+        "inputs:\n"
+        "  SLOT: {}\n"
+        "options:\n"
+        "  title: Test Report\n",
+        id,
+        inputIds.empty() ? "[]" : "\"" + inputIds[0] + "\""
+    );
+
+    mock->m_cachedConfig = std::make_unique<epoch_script::transform::TransformConfiguration>(
+        epoch_script::TransformDefinition{YAML::Load(yamlStr)}
+    );
+
+    return mock;
+}
+
 } // namespace epoch_script::runtime::test

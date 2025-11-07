@@ -1,4 +1,4 @@
-# Source: concepts/price-action.mdx:382
+# Source: concepts/price-action.mdx:388
 # Section: Price Action Analysis > Complete Multi-Strategy System
 # Type: complete_code
 
@@ -7,7 +7,7 @@ src = market_data_source(timeframe="15Min")
 # SMART MONEY
 swings = swing_highs_lows(swing_length=5)(src.h, src.l)
 ob = order_blocks()(swings.high_low, swings.level)
-fvg = fair_value_gap(join_consecutive=true)()
+fvg = fair_value_gap(join_consecutive=True)()
 structure = bos_choch(close_break=true)(swings.high_low, swings.level)
 liq = liquidity(range_percent=0.02)(swings.high_low, swings.level)
 
@@ -25,15 +25,18 @@ gaps = session_gap(fill_percent=100, timeframe="1Min")()
 pivots = pivot_point_sr(timeframe="1D")()
 
 # CONFLUENCE SCORING
-smc_score = ((ob.ob == 1) ? 1 : 0) +
-            ((structure.bos == 1) ? 1 : 0) +
-            ((fvg.fvg == 1) ? 1 : 0) +
-            ((liq.swept != 0)[1:3] ? 1 : 0)
+ob_signal = 1 if (ob.ob == 1) else 0
+bos_signal = 1 if (structure.bos == 1) else 0
+fvg_signal = 1 if (fvg.fvg == 1) else 0
+liq_swept_recently = liq.swept[1] != 0 or liq.swept[2] != 0 or liq.swept[3] != 0
+liq_signal = 1 if liq_swept_recently else 0
+smc_score = ob_signal + bos_signal + fvg_signal + liq_signal
 
-pattern_score = ((ihs.pattern_detected or flag_pattern.bull_flag) ? 2 : 0) +
-                ((hammer_candle or engulfing) ? 1 : 0)
+pattern_signal = 2 if (ihs.pattern_detected or flag_pattern.bull_flag) else 0
+candle_signal = 1 if (hammer_candle or engulfing) else 0
+pattern_score = pattern_signal + candle_signal
 
-level_score = ((src.c <= pivots.support_1) ? 1 : 0)
+level_score = 1 if (src.c <= pivots.support_1) else 0
 
 total_score = smc_score + pattern_score + level_score
 

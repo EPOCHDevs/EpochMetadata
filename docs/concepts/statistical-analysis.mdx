@@ -81,15 +81,18 @@ signal = ma_signal & not low_confidence
 
 Four and five-state HMMs for detailed regime classification (requires more data).
 
-<!-- snippet: type=complete_code, needs_data=multi_asset, complexity=complex -->
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
+src = market_data_source(timeframe="1D")
+
+returns = roc(period=1)(src.c)
+volatility = stdev(window=20)(returns)
+volume_ratio = src.v / sma(period=20)(src.v)
+momentum = roc(period=20)(src.c)
+
 # 4-state example
 regime = hmm_4(min_training_samples=500)(returns, volatility, volume_ratio, momentum)
 # Access state_0_prob through state_3_prob
-
-# 5-state example
-regime = hmm_5(min_training_samples=1000)(returns, volatility, volume, momentum, sentiment)
-# Access state_0_prob through state_4_prob
 ```
 
 **How It Works:**
@@ -136,18 +139,30 @@ correlation_ewm = ewm_corr(span=30)(stock_returns, spx_returns)
 
 ### `rolling_cov` / `ewm_cov`
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")()
+
+stock_returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
 # Covariance for portfolio variance calculations
 covariance = rolling_cov(window=60)(stock_returns, spx_returns)
 ```
 
 ### `beta` - Market Sensitivity
 
-<!-- snippet: type=complete_code, needs_data=multi_asset, complexity=complex -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+spx = common_indices(index="SPX")()
+
+stock_returns = roc(period=1)(src.c)
+spx_returns = roc(period=1)(spx.c)
+
 # Calculate rolling beta
-beta = beta(window=60)(stock_returns, spx_returns)
+beta_val = beta(window=60)(stock_returns, spx_returns)
 # Beta > 1: More volatile than market
 # Beta < 1: Less volatile than market
 # Beta = 1: Matches market volatility
@@ -166,8 +181,9 @@ beta = beta(window=60)(stock_returns, spx_returns)
 
 Normalize values **over time** for a single asset.
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
 returns = roc(period=1)(src.c)
 
 # Rolling z-score: (value - rolling_mean) / rolling_std
@@ -185,8 +201,9 @@ z = zscore(window=20)(returns)
 
 Measures whether a series exhibits trending or mean-reverting behavior.
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
 returns = roc(period=1)(src.c)
 
 # Calculate Hurst exponent

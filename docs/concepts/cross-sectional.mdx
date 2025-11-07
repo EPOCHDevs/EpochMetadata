@@ -59,8 +59,14 @@ momentum_rank = cs_momentum()(returns)
 
 Select exactly K top or bottom assets.
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
+src = market_data_source(timeframe="1D")
+
+# Calculate momentum rank
+returns = roc(period=20)(src.c)
+momentum_rank = cs_momentum()(returns)
+
 # Select top 10 assets by momentum
 top_performers = top_k(k=10)(momentum_rank)
 # Result: Boolean true for top 10, false for rest
@@ -80,8 +86,15 @@ short_candidates = bottom_k(k=5)(momentum_rank)
 
 Select top/bottom K% of assets (adapts to universe size).
 
-<!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
+<!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
+src = market_data_source(timeframe="1D")
+
+# Calculate momentum rank
+returns = roc(period=20)(src.c)
+momentum_rank = cs_momentum()(returns)
+combined_factor = momentum_rank
+
 # Select top 20% of universe
 top_quintile = top_k_percent(k=20)(momentum_rank)
 # 100 assets → 20 selected, 50 assets → 10 selected
@@ -139,10 +152,11 @@ outliers = normalized_returns > 2.0
 <!-- snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex -->
 ```python
 src = market_data_source(timeframe="1D")
+ratios = financial_ratios()
 
 # Calculate and normalize factors
 momentum = cs_zscore()(roc(period=60)(src.c))
-value = cs_zscore()(pe_ratio()(src.c) * -1)
+value = cs_zscore()(ratios.pe * -1)
 quality = cs_zscore()(atr(period=14)(src.c) * -1)
 
 # Combine normalized factors

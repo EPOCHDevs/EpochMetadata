@@ -126,13 +126,58 @@ void ApplyDefaultTransform(
   tbb::parallel_for_each(asset_ids.begin(), asset_ids.end(), processAsset);
 }
 
+// Distribute cross-sectional results to individual assets
+// Handles both single-column broadcast and per-asset column extraction
+static void DistributeCrossSectionalOutputs(
+    const epoch_script::transform::ITransformBase &transformer,
+    const epoch_frame::DataFrame &crossResult,
+    const std::vector<std::string> &asset_ids,
+    ExecutionContext &msg) {
+  auto outputId = transformer.GetOutputId();
+
+  SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Transform: {}, Output ID: {}",
+               transformer.GetId(), outputId);
+  SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult num_cols: {}, num_rows: {}",
+               crossResult.num_cols(), crossResult.num_rows());
+  SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult contains(outputId={}): {}",
+               outputId, crossResult.contains(outputId));
+  if (!crossResult.empty()) {
+    std::string colNames;
+    for (const auto& col : crossResult.column_names()) {
+      if (!colNames.empty()) colNames += ", ";
+      colNames += col;
+    }
+    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult column names: {}", colNames);
+  }
+
+  if (crossResult.num_cols() == 1 && crossResult.contains(outputId)) {
+    // broadcast single column cross-sectional result across all assets
+    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Broadcasting single column {} to all {} assets",
+                 outputId, asset_ids.size());
+    for (auto &asset_id : asset_ids) {
+      msg.cache->StoreTransformOutput(asset_id, transformer, crossResult);
+    }
+  } else {
+    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Distributing multi-column result by asset ID");
+    for (auto const &asset_id : asset_ids) {
+      epoch_frame::DataFrame assetResult;
+      if (crossResult.contains(asset_id)) {
+        SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Asset {} found in crossResult, extracting column", asset_id);
+        assetResult = crossResult[asset_id].to_frame(outputId);
+      } else {
+        SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Asset {} NOT found in crossResult (empty result)", asset_id);
+      }
+      msg.cache->StoreTransformOutput(asset_id, transformer, assetResult);
+    }
+  }
+}
+
 void ApplyCrossSectionTransform(
     const epoch_script::transform::ITransformBase &transformer,
     ExecutionContext &msg) {
   // Build input list across all symbols in timeframe
   auto timeframe = transformer.GetTimeframe().ToString();
   auto inputId = transformer.GetInputId();
-  auto outputId = transformer.GetOutputId();
   const auto &asset_ids = msg.cache->GetAssetIDs();
 
   // Enforce intradayOnly if metadata requests it
@@ -211,41 +256,19 @@ void ApplyCrossSectionTransform(
                                // Empty result, cache manager will handle
                                : transformer.TransformData(inputDataFrame);
 
-    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Transform: {}, Output ID: {}",
-                 transformer.GetId(), outputId);
-    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult num_cols: {}, num_rows: {}",
-                 crossResult.num_cols(), crossResult.num_rows());
-    SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult contains(outputId={}): {}",
-                 outputId, crossResult.contains(outputId));
-    if (!crossResult.empty()) {
-      std::string colNames;
-      for (const auto& col : crossResult.column_names()) {
-        if (!colNames.empty()) colNames += ", ";
-        colNames += col;
-      }
-      SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - crossResult column names: {}", colNames);
+    // Check if this is a reporter/sink transform (no outputs to distribute)
+    const auto meta =
+        transformer.GetConfiguration().GetTransformDefinition().GetMetadata();
+    if (meta.category == epoch_core::TransformCategory::Reporter) {
+      // Reporter transforms generate tearsheets internally via TransformData()
+      // They don't produce outputs for downstream consumption, so skip distribution
+      SPDLOG_DEBUG("Cross-sectional reporter {} - skipping output distribution",
+                   transformer.GetConfiguration().GetId());
+      return;
     }
 
-    if (crossResult.num_cols() == 1 && crossResult.contains(outputId)) {
-      // broadcast single column cross-sectional result across all assets
-      SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Broadcasting single column {} to all {} assets",
-                   outputId, asset_ids.size());
-      for (auto &asset_id : asset_ids) {
-        msg.cache->StoreTransformOutput(asset_id, transformer, crossResult);
-      }
-    } else {
-      SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Distributing multi-column result by asset ID");
-      for (auto const &asset_id : asset_ids) {
-        epoch_frame::DataFrame assetResult;
-        if (crossResult.contains(asset_id)) {
-          SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Asset {} found in crossResult, extracting column", asset_id);
-          assetResult = crossResult[asset_id].to_frame(outputId);
-        } else {
-          SPDLOG_DEBUG("CROSS-SECTIONAL DEBUG - Asset {} NOT found in crossResult (empty result)", asset_id);
-        }
-        msg.cache->StoreTransformOutput(asset_id, transformer, assetResult);
-      }
-    }
+    // For non-reporter transforms, distribute outputs to individual assets
+    DistributeCrossSectionalOutputs(transformer, crossResult, asset_ids, msg);
 
   } catch (std::exception const &exp) {
     auto error =

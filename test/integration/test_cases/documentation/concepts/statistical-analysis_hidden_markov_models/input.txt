@@ -2,10 +2,13 @@
 # Section: Statistical Analysis > Hidden Markov Models
 # Type: complete_code
 
+src = market_data_source(timeframe="1D")
+
+returns = roc(period=1)(src.c)
+volatility = stdev(window=20)(returns)
+volume_ratio = src.v / sma(period=20)(src.v)
+momentum = roc(period=20)(src.c)
+
 # 4-state example
 regime = hmm_4(min_training_samples=500)(returns, volatility, volume_ratio, momentum)
 # Access state_0_prob through state_3_prob
-
-# 5-state example
-regime = hmm_5(min_training_samples=1000)(returns, volatility, volume, momentum, sentiment)
-# Access state_0_prob through state_4_prob

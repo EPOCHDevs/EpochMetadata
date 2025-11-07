@@ -44,6 +44,8 @@ numeric_cards_report(agg="max", category="Stats", title="Max Return", group=0, g
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
 signal = crossover(rsi_val, 30)
 boolean_card_report(category="Signals", title="RSI Crossover Count")(signal)
 ```
@@ -54,8 +56,11 @@ Show specific rows by index (first, last, percentiles).
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
-high_returns = returns[returns > 0.02]  # Filter high return days
-index_card_report(index="first", category="Top Days", title="First Occurrence")(high_returns)
+src = market_data_source(timeframe="1D")
+returns = roc(period=1)(src.c)
+# Filter high return days
+high_return_signal = returns > 0.02
+index_card_report(index="first", category="Top Days", title="First Occurrence")(returns)
 ```
 
 #### Quantile Cards
@@ -64,7 +69,9 @@ Display quantile values (25th, 50th, 75th percentiles).
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
-quantile_card_report(quantile=0.95, category="Risk", title="95th Percentile Return")(returns)
+src = market_data_source(timeframe="1D")
+returns = roc(period=1)(src.c)
+index_card_report(index="p95", category="Risk", title="95th Percentile Return")(returns)
 ```
 
 ---
@@ -77,6 +84,10 @@ Categorical comparisons and distributions.
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
+rsi_val = rsi(period=14)(src.c)
+returns = roc(period=1)(src.c)
+
 # Distribution by regime
 regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
 bar_chart_report(agg="count", title="Bar Count by Regime", category="Distribution")(regime)
@@ -97,7 +108,8 @@ Proportional breakdowns.
 pie_chart_report(agg="count", title="Regime Distribution", category="Analysis")(regime)
 
 # Nested pie (two-level hierarchy)
-sector = conditional_select(...)  # Sector categorization
+# Sector categorization
+sector = conditional_select(rsi_val < 20, "A", rsi_val < 40, "B", rsi_val < 60, "C", "D")
 nested_pie_chart_report(agg="count", title="Asset Distribution", category="Breakdown")(sector, regime)
 ```
 
@@ -107,6 +119,7 @@ Value distributions and frequency analysis.
 
 <!-- snippet: type=complete_code, needs_data=single_asset, complexity=simple -->
 ```python
+src = market_data_source(timeframe="1D")
 returns = roc(period=1)(src.c)
 histogram_chart_report(bins=30, title="Return Distribution", category="Stats", vertical=False)(returns)
 ```
@@ -127,9 +140,10 @@ returns = roc(period=1)(src.c)
 extreme = (rsi_val < 30) | (rsi_val > 70)
 regime = conditional_select(rsi_val < 30, "Oversold", "Overbought")
 
+# Boolean filter (extreme)
 table_report(schema=TableReportSchema(
     title="RSI Extremes",
-    select_key=SLOT0,  # Boolean filter (extreme)
+    select_key=SLOT0,
     columns=[
         TableColumnSchema(column_id=SLOT1, title="Regime"),
         TableColumnSchema(column_id=SLOT2, title="RSI"),
@@ -155,12 +169,13 @@ Comprehensive gap analysis with cards, histograms, and pivot tables.
 ```python
 gaps = session_gap(fill_percent=100, timeframe="1Min")()
 
+# gap_filled: Boolean, gap_retrace: Boolean, gap_size: Decimal, psc: Decimal, psc_timestamp: Timestamp
 gap_report(fill_time_pivot_hour=12, histogram_bins=20)(
-    gaps.gap_filled,     # Boolean
-    gaps.gap_retrace,    # Boolean
-    gaps.gap_size,       # Decimal
-    gaps.psc,            # Decimal
-    gaps.psc_timestamp   # Timestamp
+    gaps.gap_filled,
+    gaps.gap_retrace,
+    gaps.gap_size,
+    gaps.psc,
+    gaps.psc_timestamp
 )
 ```
 

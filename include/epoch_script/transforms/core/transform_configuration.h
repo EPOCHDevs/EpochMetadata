@@ -86,7 +86,8 @@ public:
 
   std::string GetOutputId() const {
     AssertFromStream(m_globalOutputMapping.size() == 1,
-                     "Expected only one output\n"
+                     "Expected exactly 1 output, but transform has "
+                         << m_globalOutputMapping.size() << " outputs\n"
                          << ToString());
     return m_globalOutputMapping.cbegin()->second;
   }
