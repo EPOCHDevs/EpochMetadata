@@ -66,6 +66,7 @@ template <> struct ReportMetadata<HistogramChartReport> {
         {.id = "category",
          .name = "Category",
          .type = epoch_core::MetaDataOptionType::String,
+         .defaultValue = epoch_script::MetaDataOptionDefinition{std::string("")},
          .isRequired = true,
          .desc = "For grouping in dashboard"}
       },

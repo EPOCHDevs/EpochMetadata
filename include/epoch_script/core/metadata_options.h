@@ -43,7 +43,7 @@ namespace epoch_script
     std::string column_id;
     epoch_core::CardSlot slot;
     epoch_core::CardRenderType render_type;
-    std::unordered_map<epoch_core::CardColor, std::vector<glz::generic>> color_map;
+    std::map<epoch_core::CardColor, std::vector<glz::generic>> color_map;  // Ordered map for deterministic JSON serialization
     std::optional<std::string> label;  // Optional display label - if set, UI shows this instead of column_id
 
     // Note: Custom equality operator needed because glz::generic doesn't have operator==
@@ -72,7 +72,7 @@ namespace epoch_script
         .enumeration = std::vector<std::string_view>{"Text", "Integer", "Decimal", "Percent", "Monetary", "Duration", "Badge", "Timestamp", "Boolean"}
       };
       glz::schema color_map{
-        .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default. Values are automatically serialized to strings (e.g., true -> \"True\", 42 -> \"42\")"
+        .description = "Maps card colors to lists of column values that trigger that color. Keys: Success, Error, Warning, Info, Primary, Default. Values can be any type (string, number, boolean) and are matched by type and value"
       };
       glz::schema label{
         .description = "Optional display label shown to users. If not set, UI uses column_id. Pattern: only show labels for Details slot (better visual style)"

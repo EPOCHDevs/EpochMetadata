@@ -146,9 +146,9 @@ event_marker(
 └─ 2024-01-17 11:15  ▼ Sell Signal      [Error]
 ```
 
-### Auto-Serialization in `color_map`
+### Flexible Types in `color_map`
 
-**Non-string values are automatically converted to strings** for `color_map` matching:
+**`color_map` accepts any value type** - strings, numbers, or booleans:
 
 <!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, complexity=medium -->
 ```python
@@ -189,14 +189,14 @@ event_marker(
 )(status_code, is_trading)
 ```
 
-**Serialization rules:**
-- `True` → `"True"`, `False` → `"False"` (Python capitalization)
-- Integers: `42` → `"42"`
-- Decimals: `3.14` → `"3.14"`
-- Strings: unchanged
+**Type preservation:**
+- Booleans: Use `True`/`False` directly
+- Integers: Use numbers like `0`, `1`, `2`
+- Decimals: Use decimals like `3.14`
+- Strings: Use quoted strings like `"ACTIVE"`
 
 <Callout type="info">
-**Match against the serialized value:** If your column contains boolean `True`, use `color_map={Info: [True]}`. If it contains the string `"true"`, use `color_map={Info: ["true"]}`.
+**Type matching:** The frontend will match values by type and value. Boolean `True` in your data matches `[True]` in color_map. Integer `2` matches `[2]`.
 </Callout>
 
 ### Use Cases

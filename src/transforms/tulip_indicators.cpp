@@ -852,6 +852,10 @@ inline MetaDataOption MakeTulipOptions(std::string const &option) {
     optionMetaData.min =
         1; // Standard deviation multiplier should be at least 1
     optionMetaData.max = 10;
+  } else if (option == "acceleration_factor_step") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{0.02};
+  } else if (option == "acceleration_factor_maximum") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{0.2};
   }
   return optionMetaData;
 };

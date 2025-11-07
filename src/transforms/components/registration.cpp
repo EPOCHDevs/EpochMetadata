@@ -138,9 +138,9 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(string_trim, StringTrimTransform);
   REGISTER_TRANSFORM(string_contains, StringContainsTransform);
   REGISTER_TRANSFORM(string_check, StringCheckTransform);
-  REGISTER_TRANSFORM(string_replace, StringReplaceTransform);
-  REGISTER_TRANSFORM(string_length, StringLengthTransform);
-  REGISTER_TRANSFORM(string_reverse, StringReverseTransform);
+  // REGISTER_TRANSFORM(string_replace, StringReplaceTransform);  // Disabled - causes metadata factory hang
+  // REGISTER_TRANSFORM(string_length, StringLengthTransform);    // Disabled - causes metadata factory hang
+  // REGISTER_TRANSFORM(string_reverse, StringReverseTransform);  // Disabled - causes metadata factory hang
 
   // Vector Transforms
   REGISTER_TRANSFORM(gt, VectorGT);

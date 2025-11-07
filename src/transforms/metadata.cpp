@@ -1278,6 +1278,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
       },
       .tags = {"consolidation", "range", "rectangle", "horizontal", "chart-pattern", "bulkowski", "support-resistance"},
       .requiresTimeFrame = true,
+      .requiredDataSources = {"h", "l", "c"},
       .strategyTypes = {"range-trading", "breakout-trading", "mean-reversion", "fade-strategy", "pattern-recognition"},
       .assetRequirements = {"single-asset"},
       .usageContext = "Consolidation boxes are horizontal ranges with clear support/resistance. Trade strategies: (1) Fade edges - sell resistance, buy support with tight stops. (2) Breakout - enter on confirmed break above/below box with target = box_height. Volume typically declines during consolidation, spikes on breakout. Bulkowski stats: Rectangle Top breaks up 63%, Rectangle Bottom breaks down 63%.",
@@ -1438,7 +1439,8 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
       .limitations = "Checks ALL characters in string. Empty strings may return unexpected results for some checks."
   });
 
-  // String Replace Transform
+  // String Replace Transform - Disabled (causes metadata factory hang)
+  /*
   metadataList.emplace_back(TransformsMetaData{
       .id = "string_replace",
       .category = epoch_core::TransformCategory::Utility,
@@ -1470,7 +1472,7 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
       .limitations = "Replaces ALL occurrences. Case-sensitive matching."
   });
 
-  // String Length Transform
+  // String Length Transform - Disabled (causes metadata factory hang)
   metadataList.emplace_back(TransformsMetaData{
       .id = "string_length",
       .category = epoch_core::TransformCategory::Utility,
@@ -1487,7 +1489,7 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
       .limitations = "Counts UTF-8 codepoints, not bytes. Multi-byte characters count as 1."
   });
 
-  // String Reverse Transform
+  // String Reverse Transform - Disabled (causes metadata factory hang)
   metadataList.emplace_back(TransformsMetaData{
       .id = "string_reverse",
       .category = epoch_core::TransformCategory::Utility,
@@ -1503,6 +1505,7 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
       .usageContext = "Specialized text processing, palindrome detection, string manipulation.",
       .limitations = "Reverses codepoint order. May not preserve grapheme clusters correctly for complex scripts."
   });
+  */
 
   return metadataList;
 }
