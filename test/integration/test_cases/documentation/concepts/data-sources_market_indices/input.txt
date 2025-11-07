@@ -1,16 +1,15 @@
-# Source: concepts/data-sources.mdx:262
+# Source: concepts/data-sources.mdx:289
 # Section: Data Sources > Market Indices
 # Type: complete_code
 
 src = market_data_source(timeframe="1D")
-fed_funds = economic_indicator(category="FedFunds")
-vix = indices(ticker="VIX")()
+spy = us_reference_stocks(ticker="SPY")()
 
-# Risk-on/risk-off regime
-low_rates = fed_funds.value < 2.0
-low_fear = vix.c < 15
-risk_on = low_rates & low_fear
+# Relative strength analysis
+rel_strength = src.c / spy.c
+outperforming = rel_strength > rel_strength[20]
 
-# Only trade in favorable macro conditions
-technical_signal = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
-entry = technical_signal & risk_on
+# Beta calculation
+returns = (src.c / src.c[1]) - 1
+spy_returns = (spy.c / spy.c[1]) - 1
+beta = rolling_cov(period=60)(returns, spy_returns) / rolling_cov(period=60)(spy_returns, spy_returns)

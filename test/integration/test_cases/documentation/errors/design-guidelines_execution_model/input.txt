@@ -1,0 +1,14 @@
+# Source: design-guidelines.mdx:197
+# Section: EpochScript Design Guidelines > Execution Model
+# Type: complete_code
+
+# Each asset compared to SPX
+src = market_data_source(timeframe="1D")  # Current asset
+spx = common_indices(index="SPX")()       # Benchmark
+
+# Relative strength
+asset_ret = roc(period=20)(src.c)
+spx_ret = roc(period=20)(spx.c)
+outperforming = asset_ret > spx_ret
+
+trade_signal_executor()(enter_long=outperforming)

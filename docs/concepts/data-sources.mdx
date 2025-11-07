@@ -281,6 +281,36 @@ entry = technical_signal & risk_on
 
 **Use Cases:** International indices, custom benchmarks, correlation studies
 
+### us_reference_stocks
+
+Load OHLCV data for US reference stocks/ETFs to compare against your main asset.
+
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
+```python
+src = market_data_source(timeframe="1D")
+spy = us_reference_stocks(ticker="SPY")()
+
+# Relative strength analysis
+rel_strength = src.c / spy.c
+outperforming = rel_strength > rel_strength[20]
+
+# Beta calculation
+returns = (src.c / src.c[1]) - 1
+spy_returns = (spy.c / spy.c[1]) - 1
+beta = rolling_cov(period=60)(returns, spy_returns) / rolling_cov(period=60)(spy_returns, spy_returns)
+```
+
+**Parameters:**
+- `ticker`: Reference stock ticker (e.g., "SPY", "QQQ", "DIA", "IWM")
+
+**Outputs:** `o`, `h`, `l`, `c`, `v`, `vw` (volume-weighted price), `n` (trade count)
+
+**Date Range:** Automatically aligns with main `market_data_source`
+
+**Use Cases:** Pairs trading, beta hedging, relative strength, market correlation, benchmark comparison
+
+**Note:** Unlike `market_data_source` (for your strategy's primary asset), this node is for loading comparison/reference data. The `is_eod` parameter is automatically determined from the timeframe.
+
 ## Microstructure Data (Polygon)
 
 ### quotes
@@ -604,6 +634,7 @@ FRED economic indicators appear **only on publication dates** and are **not forw
 | `financial_ratios` | Fundamental | Quarterly | 45+ days | No |
 | `common_indices` | Index | Daily/Intraday | None | Yes (to market_data_source) |
 | `indices` | Index | Daily/Intraday | None | Yes (to market_data_source) |
+| `us_reference_stocks` | Reference | Daily/Intraday | None | Yes (to market_data_source) |
 | `quotes` | Microstructure | Tick | None | No |
 | `trades` | Microstructure | Tick | None | No |
 | `economic_indicator` | Macro | Varies | Varies | Yes (to market_data_source) |

@@ -1,33 +1,39 @@
-# Source: concepts/core-features.mdx:109
+# Source: concepts/core-features.mdx:154
 # Section: Core Visualization Features > Event Marker System
 # Type: complete_code
 
-src = market_data_source(timeframe="1D")
-fast = ema(period=12)(src.c)
-slow = ema(period=26)(src.c)
+src = market_data_source(timeframe="1Min")
 
-# Entry/exit signals
-buy_signal = crossover(fast, slow)
-sell_signal = crossover(slow, fast)
-signal = buy_signal or sell_signal
+# Status codes: 0=inactive, 1=warning, 2=active
+status_code = number(value=2).result
 
-# Event markers for signals with colored badges
-signal_type = conditional_select(
-    buy_signal, "BUY",
-    sell_signal, "SELL")
+# Boolean signal
+is_trading = src.c > number(value=100).result
 
 event_marker(
     event_marker_schema=EventMarkerSchema(
-        title="MA Crossover Signals",
+        title="Trading Status",
         icon=Signal,
-        select_key=SLOT0,
+        select_key=SLOT1,
         schemas=[
             CardColumnSchema(
-                column_id=SLOT1,
+                column_id=SLOT0,
                 slot=Hero,
+                render_type=Integer,
+                color_map={
+                    Success: [2],      # Integer 2 → "2"
+                    Warning: [1],      # Integer 1 → "1"
+                    Error: [0]         # Integer 0 → "0"
+                }
+            ),
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=SecondaryBadge,
                 render_type=Badge,
-                color_map={Success: ["BUY"], Error: ["SELL"]}
+                color_map={
+                    Info: [True]       # Boolean True → "True"
+                }
             )
         ]
     )
-)(signal, signal_type)
+)(status_code, is_trading)

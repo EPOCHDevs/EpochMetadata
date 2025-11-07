@@ -9,6 +9,7 @@
 #include "components/data_sources/polygon_indices_metadata.h"
 #include "components/data_sources/fred_metadata.h"
 #include "components/data_sources/sec_metadata.h"
+#include "components/data_sources/reference_stocks_metadata.h"
 #include "components/indicators/forward_returns.h"
 #include "components/indicators/intraday_returns.h"
 
@@ -39,6 +40,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(epoch_script::transform::MakePolygonIndicesDataSources());
   metaDataList.emplace_back(epoch_script::transform::MakeFREDDataSource());
   metaDataList.emplace_back(epoch_script::transform::MakeSECDataSources());
+  metaDataList.emplace_back(epoch_script::transform::MakeReferenceStocksDataSources());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

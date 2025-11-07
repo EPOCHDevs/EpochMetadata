@@ -279,6 +279,8 @@ namespace epoch_script::transform {
 std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonDataSources();
 std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndicesDataSources();
 std::vector<epoch_script::transforms::TransformsMetaData> MakeFREDDataSource();
+std::vector<epoch_script::transforms::TransformsMetaData> MakeSECDataSources();
+std::vector<epoch_script::transforms::TransformsMetaData> MakeReferenceStocksDataSources();
 } // namespace epoch_script::transform
 
 namespace YAML {

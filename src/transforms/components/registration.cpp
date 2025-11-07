@@ -54,6 +54,7 @@
 #include "data_sources/fred_transform.h"
 #include "data_sources/sec_data_source.h"
 #include "data_sources/sec_metadata.h"
+#include "data_sources/reference_stocks_metadata.h"
 
 // EventMarker includes
 #include <epoch_script/transforms/components/event_markers/event_marker.h>
@@ -337,6 +338,9 @@ void InitializeTransforms(
   // SEC Data Source Transforms
   REGISTER_TRANSFORM(form13f_holdings, Form13FHoldingsTransform);
   REGISTER_TRANSFORM(insider_trading, InsiderTradingTransform);
+
+  // Reference Stock Data Source Transforms
+  REGISTER_TRANSFORM(us_reference_stocks, DataSourceTransform);
 
   // Register EventMarkers
   REGISTER_TRANSFORM(event_marker, EventMarker);
