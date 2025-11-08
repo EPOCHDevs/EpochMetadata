@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
         std::string source = readFile(input_path);
 
         // Compile (skip sink validation to allow partial test scripts)
+        // Note: Orphan removal still runs for scripts with sinks
         epoch_script::AlgorithmAstCompiler compiler;
         auto result = compiler.compile(source, true);
 

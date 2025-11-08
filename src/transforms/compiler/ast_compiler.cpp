@@ -333,15 +333,7 @@ namespace epoch_script
         // These nodes are dead code and should be removed before timeframe resolution
         // to avoid trying to resolve timeframes for nodes that will never execute
 
-        // If validation is skipped (e.g., for tests), skip orphan removal entirely
-        // because orphan removal requires sink nodes as starting points for BFS
-        if (skip_sink_validation)
-        {
-            return;  // Skip orphan removal for test scenarios with partial scripts
-        }
-
         // First, check if at least one sink node exists
-        // Scripts without any output (reports/executors) are invalid
         bool has_sink = false;
         for (const auto& node : context_.algorithms)
         {
@@ -352,14 +344,20 @@ namespace epoch_script
             }
         }
 
-        // If no sinks exist, the script has no output - this is a compilation error
+        // If no sinks exist:
+        // - In strict mode (skip_sink_validation=false): Error - scripts must have output
+        // - In permissive mode (skip_sink_validation=true): Skip orphan removal and continue
         if (!has_sink)
         {
-            throw std::runtime_error(
-                "Script has no output. Add at least one report or executor node. "
-                "Reports: table_report, gap_report, numeric_cards_report, bar_chart_report, "
-                "pie_chart_report, lines_chart_report, candles_chart_report, etc. "
-                "Executors: trade_signal_executor, trade_manager_executor, portfolio_executor.");
+            if (!skip_sink_validation)
+            {
+                throw std::runtime_error(
+                    "Script has no output. Add at least one report or executor node. "
+                    "Reports: table_report, gap_report, numeric_cards_report, bar_chart_report, "
+                    "pie_chart_report, lines_chart_report, candles_chart_report, etc. "
+                    "Executors: trade_signal_executor, trade_manager_executor, portfolio_executor.");
+            }
+            return;  // Skip orphan removal for test scenarios without sinks
         }
 
         // Build reverse dependency graph using BFS from sink nodes
