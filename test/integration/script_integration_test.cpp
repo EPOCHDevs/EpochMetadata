@@ -327,9 +327,13 @@ TEST_CASE("EpochScript Integration Tests - Compilation + Runtime", "[integration
             AlgorithmAstCompiler compiler;
             CompilationResult actual_result;
 
+            // For compilation-only tests (no input_data/), skip sink validation
+            // This allows testing language features without requiring executors/reports
+            bool is_compilation_only = !test_case.has_runtime_test();
+
             try
             {
-                actual_result = compiler.compile(source);
+                actual_result = compiler.compile(source, is_compilation_only);
             }
             catch (const std::exception &e)
             {

@@ -580,6 +580,62 @@ namespace epoch_script
                     }
                 }
             }
+            // Handle TableReportSchema
+            else if (auto* table_ptr = std::get_if<epoch_script::TableReportSchema>(&value))
+            {
+                auto& table = *table_ptr;
+
+                // Resolve select_key
+                if (table.select_key.rfind("SLOT", 0) == 0)
+                {
+                    std::string slot_suffix = table.select_key.substr(4);
+                    size_t slot_idx = 0;
+                    if (!slot_suffix.empty())
+                    {
+                        try {
+                            slot_idx = std::stoull(slot_suffix);
+                        } catch (...) {
+                            // Not a valid slot reference, skip
+                            return;
+                        }
+                    }
+
+                    if (slot_idx >= args.size())
+                    {
+                        ThrowError("SLOT" + slot_suffix + " reference in select_key out of range");
+                    }
+
+                    const auto& arg_handle = args[slot_idx];
+                    table.select_key = JoinId(arg_handle.node_id, arg_handle.handle);
+                }
+
+                // Resolve column_id in columns
+                for (auto& column : table.columns)
+                {
+                    if (column.column_id.rfind("SLOT", 0) == 0)
+                    {
+                        std::string slot_suffix = column.column_id.substr(4);
+                        size_t slot_idx = 0;
+                        if (!slot_suffix.empty())
+                        {
+                            try {
+                                slot_idx = std::stoull(slot_suffix);
+                            } catch (...) {
+                                // Not a valid slot reference, skip
+                                continue;
+                            }
+                        }
+
+                        if (slot_idx >= args.size())
+                        {
+                            ThrowError("SLOT" + slot_suffix + " reference in column_id out of range");
+                        }
+
+                        const auto& arg_handle = args[slot_idx];
+                        column.column_id = JoinId(arg_handle.node_id, arg_handle.handle);
+                    }
+                }
+            }
         };
 
         // Iterate through all options and resolve SLOT references
