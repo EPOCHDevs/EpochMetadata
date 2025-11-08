@@ -476,102 +476,179 @@ src = market_data_source(timeframe="1D")
 lower, middle, upper = bbands(period=20, stddev=2)(src.c)
 ```
 
-### event_marker Color Map Pattern
+### event_marker Schema Pattern
 
 > **See also:** [Event Marker System](./concepts/core-features#event-marker-system) for conceptual overview and usage examples
 
-The `event_marker` transform requires a `color_map` dictionary that maps color categories to event names.
+The `event_marker` transform uses `EventMarkerSchema` to configure how events are displayed.
 
 #### Requirements:
 
-1. **Color categories** must be: `Success` (green), `Warning` (yellow), `Error` (red), or `Info` (blue)
-2. **Event names** in color_map must match input parameter names
-3. **All inputs** must be boolean series
+1. **Color categories** in `color_map` must be: `Success` (green), `Warning` (yellow), `Error` (red), or `Info` (blue)
+2. **Values** in color_map must match the actual column values being displayed
+3. **select_key** (filter column) must be boolean
+4. Use **SLOT references** for column_id to connect inputs
 
-#### Wrong: Color Mismatch
+#### Wrong: Color Name Instead of Category
 
-<!-- snippet: type=error_example, expected_error=", not "Red"" -->
+<!-- snippet: type=error_example, expected_error="Unknown color category" -->
 ```python
 # Incorrect: - Using color names instead of categories
-event_marker(color_map={
-    "Green": ["oversold"],   # Should be Success, not "Green"
-    "Red": ["overbought"]    # Should be Error, not "Red"
-})(oversold=rsi_val < 30, overbought=rsi_val > 70)
+event_type = conditional_select(
+    rsi_val < 30, "oversold",
+    rsi_val > 70, "overbought")
+any_event = (rsi_val < 30) | (rsi_val > 70)
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="RSI Signals",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    "Green": ["oversold"],   # Wrong: Should be Success
+                    "Red": ["overbought"]    # Wrong: Should be Error
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 ```
 
 **Error message:** `Unknown color category 'Green'`
 
-#### Wrong: Name Mismatch
+#### Wrong: Value Not in color_map
 
 <!-- snippet: type=error_example -->
 ```python
-# Incorrect: - 'breakout' in color_map but not in inputs
-event_marker(color_map={
-    Success: ["breakout"]
-})(
-    signal=src.c > upper  # Input name doesn't match!
-)
+# Incorrect: - Column value doesn't match color_map values
+event_type = "breakout"  # This string not in color_map
+signal = src.c > upper
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Breakout Signals",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["upper_break"]  # Expects "upper_break", not "breakout"
+                }
+            )
+        ]
+    )
+)(signal, event_type)
 ```
 
-**Error message:** `Event 'breakout' referenced in color_map but not provided as input`
+**Error message:** `Value 'breakout' not found in color_map`
 
-#### Wrong: Non-Boolean Input
+#### Wrong: Non-Boolean Filter
 
-<!-- snippet: type=error_example, expected_error="Decimal, not Boolean" -->
+<!-- snippet: type=error_example, expected_error="Expected Boolean for select_key" -->
 ```python
-# Incorrect: Passing numeric values instead of boolean conditions
+# Incorrect: Passing non-boolean to select_key (SLOT0)
 rsi_val = rsi(period=14)(src.c)
 
-event_marker(color_map={
-    Success: ["signal"]
-})(
-    signal=rsi_val  # ERROR: Decimal, not Boolean
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="RSI Values",
+        select_key=SLOT0,  # Receives rsi_val (Decimal)
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(rsi_val, rsi_val)  # ERROR: SLOT0 is Decimal, not Boolean
 ```
 
-**Error message:** `event_marker expects Boolean input, got Decimal`
+**Error message:** `event_marker select_key expects Boolean input, got Decimal`
 
 **Correct:**
 <!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple -->
 ```python
 src = market_data_source(timeframe="1D")
 
-# Pass boolean condition, not raw value
+# Create boolean filter condition
 rsi_val = rsi(period=14)(src.c)
+oversold = rsi_val < 30
 
-event_marker(color_map={
-    Success: ["oversold"]
-})(
-    oversold=rsi_val < 30  # ✅ Boolean condition
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Oversold Events",
+        select_key=SLOT0,  # Boolean filter
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(oversold, rsi_val)  # ✅ SLOT0 is Boolean
 ```
 
 <Callout type="note">
-All event_marker inputs must be boolean series (True/False values). If you have a numeric indicator, convert it to a condition using comparison operators (`<`, `>`, `==`, etc.).
+The `select_key` parameter specifies which input (by SLOT number) acts as the boolean filter. Only rows where this column is True will show as event markers. Other columns display additional data about each event.
 </Callout>
 
-#### Correct: Proper Color Map
+#### Correct: Complete EventMarker with Multiple Event Types
 
-<!-- snippet: type=error_example -->
+<!-- snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium -->
 ```python
-# Correct: - Categories and names match
+# Correct: - Color-coded events with proper schema
 src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
 lower, _, upper = bbands(period=20, stddev=2)(src.c)
 
-event_marker(color_map={
-    Success: ["oversold", "support_break"],    # Green
-    Error: ["overbought", "resistance_break"],  # Red
-    Warning: ["neutral"],                       # Yellow
-    Info: ["crossover"]                         # Blue
-})(
-    oversold=rsi_val < 30,
-    overbought=rsi_val > 70,
-    neutral=(rsi_val >= 30) and (rsi_val <= 70),
-    support_break=src.c > lower,
-    resistance_break=src.c > upper,
-    crossover=crossover(src.c, upper)
-)
+# Create event type string
+event_type = conditional_select(
+    rsi_val < 30, "oversold",
+    rsi_val > 70, "overbought",
+    src.c < lower, "support_break",
+    src.c > upper, "resistance_break",
+    crossover(src.c, upper), "crossover")
+
+# Filter: any event occurred
+any_event = (rsi_val < 30) | (rsi_val > 70) | (src.c < lower) | (src.c > upper) | crossover(src.c, upper)
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Trading Signals",
+        select_key=SLOT0,  # Boolean filter
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,  # Event type string
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["oversold", "support_break"],    # Green
+                    Error: ["overbought", "resistance_break"],  # Red
+                    Warning: ["neutral"],                       # Yellow
+                    Info: ["crossover"]                         # Blue
+                }
+            ),
+            CardColumnSchema(
+                column_id=SLOT2,  # RSI value
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(any_event, event_type, rsi_val)
 ```
 
 ---

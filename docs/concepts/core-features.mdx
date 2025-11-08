@@ -78,14 +78,30 @@ src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
 oversold_event = rsi_val < 30
 overbought_event = rsi_val > 70
+any_event = oversold_event | overbought_event
 
-event_marker(color_map={
-    Success: ["oversold_event"],
-    Error: ["overbought_event"]
-})(
-    oversold_event=oversold_event,
-    overbought_event=overbought_event
-)
+event_type = conditional_select(
+    oversold_event, "oversold_event",
+    overbought_event, "overbought_event")
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="RSI Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["oversold_event"],
+                    Error: ["overbought_event"]
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 ```
 
 **Creates interactive timeline** (click to jump to timestamp):

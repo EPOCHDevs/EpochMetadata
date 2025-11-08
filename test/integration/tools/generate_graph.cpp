@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         // Read source code
         std::string source = readFile(input_path);
 
-        // Compile (skip sink validation for partial test scripts)
+        // Compile (skip sink validation to allow partial test scripts)
         epoch_script::AlgorithmAstCompiler compiler;
         auto result = compiler.compile(source, true);
 

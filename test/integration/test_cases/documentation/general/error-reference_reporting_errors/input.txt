@@ -1,17 +1,36 @@
-# Source: error-reference.mdx:693
-# Section: Error Reference > Reporting Errors
+# Source: error-reference.mdx:756
+# Section: Error Reference > Reporting Errors > event_marker: Non-Boolean Filter Input
 # Type: error_example
 
 # Incorrect:
-event_marker(color_map={
-    Success: ["price"]
-})(
-    price=src.c  # Decimal, not Boolean
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Price Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(src.c, src.c)  # SLOT0 is Decimal, not Boolean
 
 # FIX
-event_marker(color_map={
-    Success: ["high_price"]
-})(
-    high_price=src.c > 100  # Boolean condition
-)
+high_price_event = src.c > 100  # Boolean condition
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="High Price Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(high_price_event, src.c)  # SLOT0 is Boolean filter

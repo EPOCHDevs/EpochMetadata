@@ -314,26 +314,17 @@ namespace epoch_script
 
     bool AlgorithmAstCompiler::isSinkNode(const std::string& type) const
     {
-        // Sink nodes are outputs (reports, executors) that form the "roots" of the graph
-        // These are the nodes that have side effects or produce final outputs
-        static const std::unordered_set<std::string> sink_types = {
-            // Executors (trade execution)
-            "trade_signal_executor",
-            "trade_manager_executor",
-            "portfolio_executor",
-            // Reports (output generation)
-            "table_report",
-            "gap_report",
-            "numeric_cards_report",
-            "bar_chart_report",
-            "pie_chart_report",
-            "lines_chart_report",
-            "candles_chart_report",
-            "cs_numeric_cards_report",
-            "heatmap_report",
-            "scatter_plot_report"
-        };
-        return sink_types.count(type) > 0;
+        // Sink nodes are transforms with 0 outputs (terminal nodes)
+        // These are outputs (reports, executors, event markers) that don't feed into other nodes
+        // Using metadata-based check instead of hardcoded list for maintainability
+        auto metadata = transforms::ITransformRegistry::GetInstance().GetMetaData(type);
+        if (!metadata)
+        {
+            return false;  // Unknown transform, assume not a sink
+        }
+
+        const auto& transform = metadata->get();
+        return transform.outputs.empty();  // Sink if no outputs
     }
 
     void AlgorithmAstCompiler::removeOrphanNodes(bool skip_sink_validation)

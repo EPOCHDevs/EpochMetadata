@@ -1,22 +1,45 @@
-# Source: design-guidelines.mdx:556
-# Section: EpochScript Design Guidelines > Transform Usage Patterns
-# Type: error_example
+# Source: design-guidelines.mdx:610
+# Section: EpochScript Design Guidelines > event_marker Schema Pattern > Correct: Complete EventMarker
+# Type: complete_code
 
-# Correct: - Categories and names match
+# Correct: - Color-coded events with proper schema
 src = market_data_source(timeframe="1D")
 rsi_val = rsi(period=14)(src.c)
 lower, _, upper = bbands(period=20, stddev=2)(src.c)
 
-event_marker(color_map={
-    Success: ["oversold", "support_break"],    # Green
-    Error: ["overbought", "resistance_break"],  # Red
-    Warning: ["neutral"],                       # Yellow
-    Info: ["crossover"]                         # Blue
-})(
-    oversold=rsi_val < 30,
-    overbought=rsi_val > 70,
-    neutral=(rsi_val >= 30) and (rsi_val <= 70),
-    support_break=src.c > lower,
-    resistance_break=src.c > upper,
-    crossover=crossover(src.c, upper)
-)
+# Create event type string
+event_type = conditional_select(
+    rsi_val < 30, "oversold",
+    rsi_val > 70, "overbought",
+    src.c < lower, "support_break",
+    src.c > upper, "resistance_break",
+    crossover(src.c, upper), "crossover")
+
+# Filter: any event occurred
+any_event = (rsi_val < 30) | (rsi_val > 70) | (src.c < lower) | (src.c > upper) | crossover(src.c, upper)
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Trading Signals",
+        select_key=SLOT0,  # Boolean filter
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,  # Event type string
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["oversold", "support_break"],    # Green
+                    Error: ["overbought", "resistance_break"],  # Red
+                    Warning: ["neutral"],                       # Yellow
+                    Info: ["crossover"]                         # Blue
+                }
+            ),
+            CardColumnSchema(
+                column_id=SLOT2,  # RSI value
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(any_event, event_type, rsi_val)

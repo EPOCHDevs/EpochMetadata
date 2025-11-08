@@ -627,22 +627,49 @@ The asset universe is configured **outside your script**:
 <!-- snippet: type=error_example -->
 ```python
 # Incorrect:
-event_marker(color_map={
-    Green: ["oversold"],     # Wrong: 'Green' not valid
-    Red: ["overbought"]      # Wrong: 'Red' not valid
-})(
-    oversold=oversold,
-    overbought=overbought
-)
+event_type = conditional_select(
+    oversold, "oversold",
+    overbought, "overbought")
+any_event = oversold | overbought
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="RSI Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Green: ["oversold"],     # Wrong: 'Green' not valid
+                    Red: ["overbought"]      # Wrong: 'Red' not valid
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 
 # FIX
-event_marker(color_map={
-    Success: ["oversold"],   # Green color
-    Error: ["overbought"]    # Red color
-})(
-    oversold=oversold,
-    overbought=overbought
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="RSI Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["oversold"],   # Green color
+                    Error: ["overbought"]    # Red color
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 ```
 
 **Valid color categories:** `Success` (green), `Warning` (yellow), `Error` (red), `Info` (blue)
@@ -651,59 +678,121 @@ event_marker(color_map={
 
 ---
 
-### event_marker: Event Name Not in Inputs
+### event_marker: Column Value Not in color_map
 
-**Error:** `Event 'breakout' referenced in color_map but not provided as input`
+**Error:** `Value 'breakout' not found in color_map`
 
-**Cause:** Event name in color_map doesn't match any input
+**Cause:** Column value doesn't match any values in color_map arrays
 
 <!-- snippet: type=error_example -->
 ```python
 # Incorrect:
-event_marker(color_map={
-    Success: ["breakout"]  # 'breakout' not in inputs
-})(
-    upper_break=src.c > upper  # Named 'upper_break', not 'breakout'
-)
+event_type = "breakout"  # This value not in color_map
+any_event = src.c > upper
 
-# FIX - Option 1: Match input name
-event_marker(color_map={
-    Success: ["upper_break"]  # Matches input name
-})(
-    upper_break=src.c > upper
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Breakout Signals",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["upper_break"],  # Expects "upper_break", not "breakout"
+                    Error: ["lower_break"]
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 
-# FIX - Option 2: Rename input
-event_marker(color_map={
-    Success: ["breakout"]
-})(
-    breakout=src.c > upper  # Renamed to match
-)
+# FIX - Option 1: Match the value in color_map
+event_type = "upper_break"  # Matches color_map value
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Breakout Signals",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["upper_break"],
+                    Error: ["lower_break"]
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
+
+# FIX - Option 2: Update color_map to match value
+event_type = "breakout"
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Breakout Signals",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["breakout"]  # Now matches
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
 ```
 
 ---
 
-### event_marker: Non-Boolean Input
+### event_marker: Non-Boolean Filter Input
 
-**Error:** `Expected Boolean input for 'price', got Decimal`
+**Error:** `Expected Boolean input for select_key, got Decimal`
 
-**Cause:** event_marker inputs must be boolean series
+**Cause:** The select_key (filter column) must be boolean
 
 <!-- snippet: type=error_example -->
 ```python
 # Incorrect:
-event_marker(color_map={
-    Success: ["price"]
-})(
-    price=src.c  # Decimal, not Boolean
-)
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Price Events",
+        select_key=SLOT0,  # This slot receives src.c (Decimal)
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(src.c, src.c)  # SLOT0 is Decimal, not Boolean
 
 # FIX
-event_marker(color_map={
-    Success: ["high_price"]
-})(
-    high_price=src.c > 100  # Boolean condition
-)
+high_price_event = src.c > 100  # Boolean condition
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="High Price Events",
+        select_key=SLOT0,  # Now receives boolean
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=Hero,
+                render_type=Decimal
+            )
+        ]
+    )
+)(high_price_event, src.c)  # SLOT0 is Boolean filter
 ```
 
 **See also:** [Research Reports](./concepts/research) - Gap Report and Table Report documentation

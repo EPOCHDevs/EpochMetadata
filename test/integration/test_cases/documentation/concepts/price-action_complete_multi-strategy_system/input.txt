@@ -44,13 +44,34 @@ total_score = smc_score + pattern_score + level_score
 entry = total_score >= 5
 
 # Mark significant patterns on timeline
-event_marker(color_map={
-    Success: ["pattern_detected", "gap_filled"],
-    Warning: ["liquidity_sweep"],
-    Error: ["gap_unfilled"]
-})(
-    pattern_detected=ihs.pattern_detected or flag_pattern.bull_flag,
-    gap_filled=gaps.gap_filled and (gaps.gap_size > 1.0),
-    liquidity_sweep=liq.swept != 0,
-    gap_unfilled=(gaps.gap_size > 1.0) and not gaps.gap_filled
-)
+pattern_event = ihs.pattern_detected or flag_pattern.bull_flag
+gap_fill_event = gaps.gap_filled and (gaps.gap_size > 1.0)
+liq_sweep_event = liq.swept != 0
+gap_unfill_event = (gaps.gap_size > 1.0) and not gaps.gap_filled
+any_event = pattern_event | gap_fill_event | liq_sweep_event | gap_unfill_event
+
+event_type = conditional_select(
+    pattern_event, "pattern_detected",
+    gap_fill_event, "gap_filled",
+    liq_sweep_event, "liquidity_sweep",
+    gap_unfill_event, "gap_unfilled")
+
+event_marker(
+    event_marker_schema=EventMarkerSchema(
+        title="Price Action Events",
+        select_key=SLOT0,
+        icon=Signal,
+        schemas=[
+            CardColumnSchema(
+                column_id=SLOT1,
+                slot=PrimaryBadge,
+                render_type=Badge,
+                color_map={
+                    Success: ["pattern_detected", "gap_filled"],
+                    Warning: ["liquidity_sweep"],
+                    Error: ["gap_unfilled"]
+                }
+            )
+        ]
+    )
+)(any_event, event_type)
