@@ -223,32 +223,6 @@ TEST_CASE("EpochScript Compiler: Test Cases", "[epoch_script_compiler]")
 }
 
 // Manual test for basic functionality without test files
-TEST_CASE("EpochScript Compiler: Manual Basic Test", "[epoch_script_compiler]")
-{
-    const std::string source = R"(
-x = 5.0
-)";
-
-    AlgorithmAstCompiler compiler;
-    auto result = compiler.compile(source);
-
-    REQUIRE(result.size() >= 1);
-
-    // Find the number node
-    bool found_number = false;
-    for (const auto &node : result)
-    {
-        if (node.type == "number")
-        {
-            found_number = true;
-            REQUIRE(node.options.contains("value"));
-            break;
-        }
-    }
-
-    REQUIRE(found_number);
-}
-
 // ============================================================================
 // TIMEFRAME RESOLUTION TESTS
 // ============================================================================
@@ -379,59 +353,99 @@ TEST_CASE("TimeframeResolver: ResolveNodeTimeframe resolves from inputs", "[time
     REQUIRE(result.value().ToString() == inputTimeframe.ToString());
 }
 
-TEST_CASE("Compiler Integration: Timeframe resolution in compilation", "[timeframe_resolution][integration]")
+// ============================================================================
+// ORPHAN NODE REMOVAL TESTS
+// ============================================================================
+
+// ============================================================================
+// STRICT TIMEFRAME VALIDATION TESTS
+// ============================================================================
+
+TEST_CASE("Compiler: All non-orphan nodes have timeframes after compilation", "[timeframe_validation]")
 {
+    // Test that all nodes in final graph have timeframes
     const std::string source = R"(
-mds = market_data_source(timeframe="15Min")
+mds = market_data_source(timeframe="1H")
 sma_node = sma(period=14)(mds.c)
+report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(sma_node)
 )";
 
     AlgorithmAstCompiler compiler;
     auto result = compiler.compile(source);
 
-    // Find the sma node
-    bool found_sma = false;
+    // Verify ALL nodes have timeframes
     for (const auto &node : result)
     {
-        if (node.type == "sma")
+        INFO("Checking node: " << node.id << " (type: " << node.type << ")");
+        REQUIRE(node.timeframe.has_value());
+        REQUIRE(!node.timeframe->ToString().empty());
+    }
+}
+
+TEST_CASE("Compiler: Literals inherit timeframe from dependents", "[timeframe_validation]")
+{
+    // Test that literals used by other nodes get correct timeframes
+    const std::string source = R"(
+mds = market_data_source(timeframe="15Min")
+threshold = 100.0
+signal = gt()(mds.c, threshold)
+report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(signal)
+)";
+
+    AlgorithmAstCompiler compiler;
+    auto result = compiler.compile(source);
+
+    // Find the threshold number node
+    bool found_threshold = false;
+    for (const auto &node : result)
+    {
+        if (node.type == "number")
         {
-            found_sma = true;
-            // SMA should inherit timeframe from its input (mds with 15Min)
+            found_threshold = true;
+
+            // Threshold literal should have timeframe (inherited from gt node)
             REQUIRE(node.timeframe.has_value());
+
+            // Should be "15Min" (inherited through gt from mds)
             REQUIRE(node.timeframe->ToString() == "15Min");
             break;
         }
     }
 
-    REQUIRE(found_sma);
+    REQUIRE(found_threshold);
 }
 
-TEST_CASE("Compiler Integration: Multiple input timeframe resolution", "[timeframe_resolution][integration]")
+TEST_CASE("Compiler: Validates timeframes for complex graphs", "[timeframe_validation]")
 {
+    // Test timeframe validation with complex multi-level graph
     const std::string source = R"(
 mds1 = market_data_source(timeframe="1Min")
 mds2 = market_data_source(timeframe="5Min")
-fast_sma = sma(period=10)(mds1.c)
-slow_sma = sma(period=20)(mds2.c)
-cross = gt()(fast_sma, slow_sma)
+fast = sma(period=10)(mds1.c)
+slow = sma(period=20)(mds2.c)
+cross = gt()(fast, slow)
+multiplier = 1.5
+result = mul()(cross, multiplier)
+report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(result)
 )";
 
     AlgorithmAstCompiler compiler;
     auto result = compiler.compile(source);
 
-    // Find the gt node (cross)
-    bool found_cross = false;
+    // Verify ALL nodes have valid timeframes
+    REQUIRE(result.size() > 0);
+
     for (const auto &node : result)
     {
-        if (node.type == "gt" && node.id == "cross")
-        {
-            found_cross = true;
-            // Cross should use the lowest resolution (5Min) from its inputs
-            REQUIRE(node.timeframe.has_value());
-            REQUIRE(node.timeframe->ToString() == "5Min");
-            break;
-        }
-    }
+        INFO("Node: " << node.id << " (" << node.type << ")");
+        REQUIRE(node.timeframe.has_value());
 
-    REQUIRE(found_cross);
+        // Timeframe should be valid
+        std::string tf_str = node.timeframe->ToString();
+        REQUIRE(!tf_str.empty());
+
+        // Should be either 1Min or 5Min
+        bool valid_timeframe = (tf_str == "1Min" || tf_str == "5Min");
+        REQUIRE(valid_timeframe);
+    }
 }

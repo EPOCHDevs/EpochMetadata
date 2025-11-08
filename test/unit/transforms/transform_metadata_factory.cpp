@@ -65,7 +65,7 @@ public:
 
     std::vector<double> volume(numBars, 1000000.0);
     std::vector<double> vwap(numBars, 100.0);
-    std::vector<double> tradeCount(numBars, 500.0);
+    std::vector<int64_t> tradeCount(numBars, 500);  // Integer type for trade count
 
     return {
       {"o", factory::array::make_array(openPrices)},
@@ -74,7 +74,7 @@ public:
       {"l", factory::array::make_array(lowPrices)},
       {"v", factory::array::make_array(volume)},
       {"vw", factory::array::make_array(vwap)},
-      {"n", factory::array::make_array(tradeCount)}
+      {"n", factory::array::make_array(tradeCount)}  // Now produces INT64 Arrow type
     };
   }
 

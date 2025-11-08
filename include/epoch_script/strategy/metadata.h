@@ -32,7 +32,7 @@ namespace epoch_script::strategy
     PythonSource() = default;
 
     // Constructor that compiles source and extracts metadata
-    explicit PythonSource(std::string src);
+    explicit PythonSource(std::string src, bool skip_sink_validation = false);
 
     // Const getters
     const std::string &GetSource() const { return source_; }

@@ -64,9 +64,9 @@ int main(int argc, char* argv[]) {
         // Read source code
         std::string source = readFile(input_path);
 
-        // Compile
+        // Compile (skip sink validation for partial test scripts)
         epoch_script::AlgorithmAstCompiler compiler;
-        auto result = compiler.compile(source);
+        auto result = compiler.compile(source, true);
 
         // Sort by id for consistency
         std::sort(result.begin(), result.end(),

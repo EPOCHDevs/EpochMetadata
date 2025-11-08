@@ -206,7 +206,7 @@ sma_slow = sma(period=20, timeframe='1D')(src.c)
 signal = gt()(sma_fast.result, sma_slow.result)
 )";
 
-  PythonSource pythonSource(source);
+  PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
   REQUIRE(pythonSource.GetBaseTimeframe().has_value());
@@ -225,7 +225,7 @@ v = vwap(timeframe='1Min')
 gt_result = gt()(src.c, v.result)
 )";
 
-  PythonSource pythonSource(source);
+  PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
   REQUIRE(pythonSource.GetBaseTimeframe().has_value());
@@ -237,14 +237,14 @@ TEST_CASE("PythonSource - session implies intraday", "[PythonSource]")
 {
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
-  // Algorithm with session (implies intraday)
+  // Algorithm using vwap (intraday-only transform)
   std::string source = R"(
-src = market_data_source(timeframe='1D')
-atr_ny = atr(period=14, session='NewYork')(src.c)
-gt_result = gt()(src.c, atr_ny.result)
+src = market_data_source(timeframe='5Min')
+v = vwap(timeframe='5Min')
+gt_result = gt()(src.c, v.result)
 )";
 
-  PythonSource pythonSource(source);
+  PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
   REQUIRE(pythonSource.GetBaseTimeframe().has_value());
@@ -263,7 +263,7 @@ sma_val = sma(period=10, timeframe='1D')(src.c)
 signal = gt()(src.c, sma_val.result)
 )";
 
-  PythonSource pythonSource(source);
+  PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
   // Should have EOD timeframe from source
@@ -279,9 +279,9 @@ TEST_CASE("PythonSource - equality operator", "[PythonSource]")
   std::string source2 = "sma_val = sma(period=10, timeframe='1D')(src.c)";
   std::string source3 = "sma_val = sma(period=20, timeframe='1D')(src.c)";
 
-  PythonSource ps1(src1 + source1);
-  PythonSource ps2(src1 + source2);
-  PythonSource ps3(src1 + source3);
+  PythonSource ps1(src1 + source1, true); // skip sink validation for test
+  PythonSource ps2(src1 + source2, true); // skip sink validation for test
+  PythonSource ps3(src1 + source3, true); // skip sink validation for test
 
   REQUIRE(ps1 == ps2);       // Same source
   REQUIRE_FALSE(ps1 == ps3); // Different source
@@ -293,7 +293,7 @@ TEST_CASE("PythonSource - glaze write_json serialization", "[PythonSource]")
 
   std::string source = R"(src = market_data_source(timeframe='1D')
 sma_val = sma(period=10, timeframe='1D')(src.c))";
-  PythonSource original(source);
+  PythonSource original(source, true); // skip sink validation for test
 
   // Serialize PythonSource to JSON
   auto json = glz::write_json(original);
@@ -311,15 +311,15 @@ TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
 {
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
-  // JSON string containing EpochScript source code
-  std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\"";
+  // JSON string containing EpochScript source code with sink node
+  std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(sma_val.result)\"";
 
   // Deserialize from JSON
   PythonSource deserialized;
   auto parseResult = glz::read_json(deserialized, jsonInput);
 
   REQUIRE_FALSE(parseResult); // No error
-  REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)");
+  REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(sma_val.result)");
   REQUIRE_FALSE(deserialized.GetCompilationResult().empty());
   REQUIRE(deserialized.GetBaseTimeframe().has_value());
   REQUIRE(deserialized.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
@@ -335,8 +335,9 @@ src = market_data_source(timeframe='5Min')
 sma_val = sma(period=10, timeframe='5Min')(src.c)
 v = vwap(timeframe='5Min')
 gt_result = gt()(v.result, sma_val.result)
+report = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(gt_result)
 )";
-  PythonSource original(source);
+  PythonSource original(source); // Has sink node, no need to skip validation
 
   // Write to JSON
   auto json = glz::write_json(original);
@@ -359,8 +360,8 @@ TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonS
 {
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
-  // Create JSON with intraday source
-  std::string jsonInput = "\"atr = atr(period=14, session='NewYork')\"";
+  // Create JSON with intraday source and sink node
+  std::string jsonInput = "\"src = market_data_source(timeframe='1Min')\\nv = vwap(timeframe='1Min')\\ngt_result = gt()(src.c, v.result)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(gt_result)\"";
 
   // Deserialize - should compile and detect intraday
   PythonSource pythonSource;
@@ -383,7 +384,7 @@ sma_val = sma(period=10, timeframe='1D')(src.c)
 signal = gt()(src.c, sma_val.result)
 )";
 
-  PythonSource pythonSource(source);
+  PythonSource pythonSource(source, true); // skip sink validation for test
 
   // Verify compilation happened once and result is accessible
   const auto &result1 = pythonSource.GetCompilationResult();

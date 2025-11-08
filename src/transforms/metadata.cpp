@@ -578,7 +578,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
       .name = "Trade Count",
       .options = {},
       .desc = "Number of trades per bar (provider 'n').",
-      .outputs = {IOMetaDataConstants::NUMBER_OUTPUT_METADATA},
+      .outputs = {IOMetaDataConstants::INTEGER_OUTPUT_METADATA},  // Trade counts are integers
       .tags = {"volume", "microstructure", "trades"},
       .requiresTimeFrame = true,
       .requiredDataSources = {"n"},

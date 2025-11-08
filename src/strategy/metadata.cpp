@@ -59,7 +59,7 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
 }
 
 // PythonSource constructor implementation
-PythonSource::PythonSource(std::string src) : source_(std::move(src))
+PythonSource::PythonSource(std::string src, bool skip_sink_validation) : source_(std::move(src))
 {
   if (source_.empty())
   {
@@ -68,7 +68,7 @@ PythonSource::PythonSource(std::string src) : source_(std::move(src))
 
   // Compile Python source to get algorithm nodes
   epoch_script::AlgorithmAstCompiler compiler;
-  compilationResult_ = compiler.compile(source_);
+  compilationResult_ = compiler.compile(source_, skip_sink_validation);
   m_executor_count = compiler.getExecutorCount();
 
   // Determine base timeframe from compilation result

@@ -39,10 +39,10 @@ namespace epoch_script
         AlgorithmAstCompiler();
 
         // Main compilation entry point - returns topologically sorted algorithms
-        CompilationResult compile(const std::string& source);
+        CompilationResult compile(const std::string& source, bool skip_sink_validation = false);
 
         // Direct AST compilation (for testing)
-        CompilationResult compileAST(ModulePtr module);
+        CompilationResult compileAST(ModulePtr module, bool skip_sink_validation = false);
 
         size_t getExecutorCount() const { return context_.executor_count; }
 
@@ -67,7 +67,9 @@ namespace epoch_script
 
         // Post-compilation steps
         void verifySessionDependencies();
-        void resolveTimeframes(const TimeFrame& base_timeframe);
+        void resolveTimeframes(const TimeFrame& base_timeframe, bool skip_sink_validation);
+        void removeOrphanNodes(bool skip_sink_validation);
+        bool isSinkNode(const std::string& type) const;
     };
 
     // Convenience function (mirrors Python's compile_algorithm)

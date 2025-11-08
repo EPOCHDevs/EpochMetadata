@@ -175,17 +175,17 @@ namespace epoch_script
         cse_optimizer_ = std::make_unique<CSEOptimizer>();
     }
 
-    CompilationResult AlgorithmAstCompiler::compile(const std::string& source)
+    CompilationResult AlgorithmAstCompiler::compile(const std::string& source, bool skip_sink_validation)
     {
         // Parse Python source to AST
         PythonParser parser;
         auto module = parser.parse(source);
 
         // Compile AST directly to AlgorithmNode structures
-        return compileAST(std::move(module));
+        return compileAST(std::move(module), skip_sink_validation);
     }
 
-    CompilationResult AlgorithmAstCompiler::compileAST(ModulePtr module)
+    CompilationResult AlgorithmAstCompiler::compileAST(ModulePtr module, bool skip_sink_validation)
     {
         // Clear state for fresh compilation
         context_.algorithms.clear();
@@ -213,6 +213,11 @@ namespace epoch_script
         // Runs before topological sort so we can modify the graph structure
         cse_optimizer_->Optimize(context_.algorithms, context_);
 
+        // Remove orphan nodes (nodes not used by any sink/executor)
+        // Must run BEFORE timeframe resolution to avoid resolving timeframes for dead code
+        // Orphans occur when users write unused variables: x = 5.0 (never used)
+        removeOrphanNodes(skip_sink_validation);
+
         // Sort algorithms in topological order: dependencies before dependents
         // This ensures handles are registered before they're referenced
         // IMPORTANT: Must sort BEFORE resolving timeframes so input nodes are cached first
@@ -232,7 +237,7 @@ namespace epoch_script
 
         // Resolve timeframes for all nodes using TimeframeResolver utility
         // This runs AFTER topological sort so input timeframes are available
-        resolveTimeframes(base_timeframe.value());
+        resolveTimeframes(base_timeframe.value(), skip_sink_validation);
 
         // Update node_lookup indices after reordering
         context_.node_lookup.clear();
@@ -250,7 +255,7 @@ namespace epoch_script
         special_param_handler_->VerifySessionDependencies();
     }
 
-    void AlgorithmAstCompiler::resolveTimeframes(const epoch_script::TimeFrame& /*base_timeframe*/)
+    void AlgorithmAstCompiler::resolveTimeframes(const epoch_script::TimeFrame& /*base_timeframe*/, bool skip_sink_validation)
     {
         // Use TimeframeResolver utility to resolve timeframes for all nodes
         // Create fresh resolver instance to avoid stale cache from previous compilations
@@ -286,21 +291,156 @@ namespace epoch_script
             }
         }
 
-        // Validate that transforms with requiresTimeFrame=true have timeframes
-        for (const auto& algo : context_.algorithms)
+        // Validate that ALL nodes have timeframes after resolution
+        // No node should leave compilation with timeframe=null
+        // This is a strict check - if we can't resolve a timeframe, compilation fails
+        // EXCEPT when skip_sink_validation=true (test scenarios with partial scripts)
+        if (!skip_sink_validation)
         {
-            auto metadata = transforms::ITransformRegistry::GetInstance().GetMetaData(algo.type);
-            if (metadata)
+            for (const auto& algo : context_.algorithms)
             {
-                const auto& transform = metadata->get();
-                if (transform.requiresTimeFrame && !algo.timeframe.has_value())
+                if (!algo.timeframe.has_value())
                 {
                     throw std::runtime_error(
-                        "Transform '" + algo.type + "' (node: " + algo.id +
-                        ") requires an explicit timeframe parameter. " +
-                        "Please specify timeframe=<value> in the constructor.");
+                        "Could not resolve timeframe for node '" + algo.id +
+                        "' (type: " + algo.type + "). " +
+                        "This indicates the node has no inputs and no dependents. " +
+                        "If this node should be executed, ensure it's connected to a sink (report/executor). " +
+                        "If it's unused, it should have been removed as an orphan node.");
                 }
             }
+        }
+    }
+
+    bool AlgorithmAstCompiler::isSinkNode(const std::string& type) const
+    {
+        // Sink nodes are outputs (reports, executors) that form the "roots" of the graph
+        // These are the nodes that have side effects or produce final outputs
+        static const std::unordered_set<std::string> sink_types = {
+            // Executors (trade execution)
+            "trade_signal_executor",
+            "trade_manager_executor",
+            "portfolio_executor",
+            // Reports (output generation)
+            "table_report",
+            "gap_report",
+            "numeric_cards_report",
+            "bar_chart_report",
+            "pie_chart_report",
+            "lines_chart_report",
+            "candles_chart_report",
+            "cs_numeric_cards_report",
+            "heatmap_report",
+            "scatter_plot_report"
+        };
+        return sink_types.count(type) > 0;
+    }
+
+    void AlgorithmAstCompiler::removeOrphanNodes(bool skip_sink_validation)
+    {
+        // Orphan nodes are nodes that are not used by any sink (report/executor)
+        // These nodes are dead code and should be removed before timeframe resolution
+        // to avoid trying to resolve timeframes for nodes that will never execute
+
+        // If validation is skipped (e.g., for tests), skip orphan removal entirely
+        // because orphan removal requires sink nodes as starting points for BFS
+        if (skip_sink_validation)
+        {
+            return;  // Skip orphan removal for test scenarios with partial scripts
+        }
+
+        // First, check if at least one sink node exists
+        // Scripts without any output (reports/executors) are invalid
+        bool has_sink = false;
+        for (const auto& node : context_.algorithms)
+        {
+            if (isSinkNode(node.type))
+            {
+                has_sink = true;
+                break;
+            }
+        }
+
+        // If no sinks exist, the script has no output - this is a compilation error
+        if (!has_sink)
+        {
+            throw std::runtime_error(
+                "Script has no output. Add at least one report or executor node. "
+                "Reports: table_report, gap_report, numeric_cards_report, bar_chart_report, "
+                "pie_chart_report, lines_chart_report, candles_chart_report, etc. "
+                "Executors: trade_signal_executor, trade_manager_executor, portfolio_executor.");
+        }
+
+        // Build reverse dependency graph using BFS from sink nodes
+        std::unordered_set<std::string> reachable_nodes;
+        std::queue<std::string> queue;
+
+        // Phase 1: Find all sink nodes (starting points for BFS)
+        for (const auto& node : context_.algorithms)
+        {
+            if (isSinkNode(node.type))
+            {
+                queue.push(node.id);
+                reachable_nodes.insert(node.id);
+            }
+        }
+
+        // Phase 2: BFS backwards through dependencies to mark all reachable nodes
+        while (!queue.empty())
+        {
+            std::string node_id = queue.front();
+            queue.pop();
+
+            // Find the node in algorithms vector
+            auto it = std::find_if(context_.algorithms.begin(), context_.algorithms.end(),
+                [&node_id](const auto& n) { return n.id == node_id; });
+
+            if (it != context_.algorithms.end())
+            {
+                // Mark all input dependencies as reachable
+                for (const auto& [input_name, refs] : it->inputs)
+                {
+                    for (const auto& ref : refs)
+                    {
+                        // Extract node_id from "node_id#handle" format
+                        std::string dep_id = extractNodeId(ref);
+
+                        // Only process if not already marked reachable
+                        if (reachable_nodes.find(dep_id) == reachable_nodes.end())
+                        {
+                            reachable_nodes.insert(dep_id);
+                            queue.push(dep_id);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Phase 3: Remove unreachable (orphan) nodes
+        size_t original_count = context_.algorithms.size();
+        context_.algorithms.erase(
+            std::remove_if(context_.algorithms.begin(), context_.algorithms.end(),
+                [&reachable_nodes](const auto& node) {
+                    return reachable_nodes.find(node.id) == reachable_nodes.end();
+                }),
+            context_.algorithms.end()
+        );
+
+        // Phase 4: Update context.used_node_ids to remove deleted IDs
+        for (const auto& node : context_.algorithms)
+        {
+            if (reachable_nodes.find(node.id) == reachable_nodes.end())
+            {
+                context_.used_node_ids.erase(node.id);
+            }
+        }
+
+        // Log if orphans were removed (useful for debugging)
+        size_t removed_count = original_count - context_.algorithms.size();
+        if (removed_count > 0)
+        {
+            // Orphan removal is expected behavior, not an error
+            // Users may write unused variables like: x = 5.0 (never used)
         }
     }
 
