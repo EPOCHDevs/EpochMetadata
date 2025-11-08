@@ -744,8 +744,8 @@ TransformsMetaData MakeCalendarEffectMetaData(
                        .name = "Quarter",
                        .type = epoch_core::MetaDataOptionType::Select,
                        .defaultValue = MetaDataOptionDefinition(std::string("Q1")),
-                       .selectOption = {{"Q1", "Q1 (Jan-Mar)"}, {"Q2", "Q2 (Apr-Jun)"},
-                                       {"Q3", "Q3 (Jul-Sep)"}, {"Q4", "Q4 (Oct-Dec)"}},
+                       .selectOption = {{"Q1 (Jan-Mar)", "Q1"}, {"Q2 (Apr-Jun)", "Q2"},
+                                       {"Q3 (Jul-Sep)", "Q3"}, {"Q4 (Oct-Dec)", "Q4"}},
                        .desc = "The specific quarter to detect"}
     };
   } else if (effect_type == "holiday") {
@@ -774,7 +774,7 @@ TransformsMetaData MakeCalendarEffectMetaData(
                        .name = "Holiday Calendar",
                        .type = epoch_core::MetaDataOptionType::Select,
                        .defaultValue = MetaDataOptionDefinition(std::string("USFederalHolidayCalendar")),
-                       .selectOption = {{"USFederalHolidayCalendar", "US Federal Holidays"}},
+                       .selectOption = {{"US Federal Holidays", "USFederalHolidayCalendar"}},
                        .desc = "Holiday calendar to use for detecting holidays"}
     };
   } else if (effect_type == "week_of_month") {
@@ -789,9 +789,9 @@ TransformsMetaData MakeCalendarEffectMetaData(
                        .name = "Week of Month",
                        .type = epoch_core::MetaDataOptionType::Select,
                        .defaultValue = MetaDataOptionDefinition(std::string("First")),
-                       .selectOption = {{"First", "First Week"}, {"Second", "Second Week"},
-                                       {"Third", "Third Week"}, {"Fourth", "Fourth Week"},
-                                       {"Last", "Last Week"}},
+                       .selectOption = {{"First Week", "First"}, {"Second Week", "Second"},
+                                       {"Third Week", "Third"}, {"Fourth Week", "Fourth"},
+                                       {"Last Week", "Last"}},
                        .desc = "Which week of the month to detect"}
     };
   }
@@ -996,7 +996,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
                          .name = "Pattern Type",
                          .type = epoch_core::MetaDataOptionType::Select,
                          .defaultValue = MetaDataOptionDefinition(std::string("both")),
-                         .selectOption = {{"tops", "Double Top Only"}, {"bottoms", "Double Bottom Only"}, {"both", "Both Patterns"}},
+                         .selectOption = {{"Double Top Only", "tops"}, {"Double Bottom Only", "bottoms"}, {"Both Patterns", "both"}},
                          .desc = "Which pattern type to detect"},
           MetaDataOption{.id = "similarity_tolerance",
                          .name = "Peak/Trough Similarity Tolerance",
@@ -1097,7 +1097,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
                          .name = "Triangle Type",
                          .type = epoch_core::MetaDataOptionType::Select,
                          .defaultValue = MetaDataOptionDefinition(std::string("all")),
-                         .selectOption = {{"ascending", "Ascending (Bullish)"}, {"descending", "Descending (Bearish)"}, {"symmetrical", "Symmetrical (Neutral)"}, {"all", "All Types"}},
+                         .selectOption = {{"Ascending (Bullish)", "ascending"}, {"Descending (Bearish)", "descending"}, {"Symmetrical (Neutral)", "symmetrical"}, {"All Types", "all"}},
                          .desc = "Which triangle pattern type to detect"},
           MetaDataOption{.id = "r_squared_min",
                          .name = "Minimum R-Squared",
@@ -1303,11 +1303,11 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
               .type = epoch_core::MetaDataOptionType::Select,
               .defaultValue = MetaDataOptionDefinition("upper"),
               .selectOption = {
-                  {"upper", "Uppercase"},
-                  {"lower", "Lowercase"},
-                  {"capitalize", "Capitalize First"},
-                  {"title", "Title Case"},
-                  {"swapcase", "Swap Case"}
+                  {"Uppercase", "upper"},
+                  {"Lowercase", "lower"},
+                  {"Capitalize First", "capitalize"},
+                  {"Title Case", "title"},
+                  {"Swap Case", "swapcase"}
               },
               .desc = "Case transformation to apply"
           }
@@ -1337,9 +1337,9 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
               .type = epoch_core::MetaDataOptionType::Select,
               .defaultValue = MetaDataOptionDefinition("trim"),
               .selectOption = {
-                  {"trim", "Trim Both"},
-                  {"trim_left", "Trim Left"},
-                  {"trim_right", "Trim Right"}
+                  {"Trim Both", "trim"},
+                  {"Trim Left", "trim_left"},
+                  {"Trim Right", "trim_right"}
               },
               .desc = "Which side to trim"
           },
@@ -1375,9 +1375,9 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
               .type = epoch_core::MetaDataOptionType::Select,
               .defaultValue = MetaDataOptionDefinition("contains"),
               .selectOption = {
-                  {"starts_with", "Starts With"},
-                  {"ends_with", "Ends With"},
-                  {"contains", "Contains"}
+                  {"Starts With", "starts_with"},
+                  {"Ends With", "ends_with"},
+                  {"Contains", "contains"}
               },
               .desc = "Type of containment check"
           },
@@ -1413,17 +1413,17 @@ std::vector<TransformsMetaData> MakeStringTransformMetaData() {
               .type = epoch_core::MetaDataOptionType::Select,
               .defaultValue = MetaDataOptionDefinition("is_alpha"),
               .selectOption = {
-                  {"is_alpha", "Is Alphabetic"},
-                  {"is_digit", "Is Digit"},
-                  {"is_alnum", "Is Alphanumeric"},
-                  {"is_numeric", "Is Numeric"},
-                  {"is_decimal", "Is Decimal"},
-                  {"is_upper", "Is Uppercase"},
-                  {"is_lower", "Is Lowercase"},
-                  {"is_title", "Is Title Case"},
-                  {"is_space", "Is Whitespace"},
-                  {"is_printable", "Is Printable"},
-                  {"is_ascii", "Is ASCII"}
+                  {"Is Alphabetic", "is_alpha"},
+                  {"Is Digit", "is_digit"},
+                  {"Is Alphanumeric", "is_alnum"},
+                  {"Is Numeric", "is_numeric"},
+                  {"Is Decimal", "is_decimal"},
+                  {"Is Uppercase", "is_upper"},
+                  {"Is Lowercase", "is_lower"},
+                  {"Is Title Case", "is_title"},
+                  {"Is Whitespace", "is_space"},
+                  {"Is Printable", "is_printable"},
+                  {"Is ASCII", "is_ascii"}
               },
               .desc = "Character type to check"
           }

@@ -250,14 +250,14 @@ struct IOMetaDataConstants {
 struct MetaDataOptionConstants {
   // SessionType select options matching epoch_core::SessionType enum
   inline static std::vector<epoch_script::SelectOption> SESSION_TYPE_OPTIONS = {
-      {"Sydney", "Sydney"},
-      {"Tokyo", "Tokyo"},
-      {"London", "London"},
-      {"NewYork", "NewYork"},
-      {"AsianKillZone", "AsianKillZone"},
-      {"LondonOpenKillZone", "LondonOpenKillZone"},
-      {"NewYorkKillZone", "NewYorkKillZone"},
-      {"LondonCloseKillZone", "LondonCloseKillZone"}
+      {"Sydney (08:00-17:00 AEDT/AEST)", "Sydney"},
+      {"Tokyo (09:00-18:00 JST)", "Tokyo"},
+      {"London (08:00-17:00 GMT/BST)", "London"},
+      {"New York (09:30-16:00 ET)", "NewYork"},
+      {"Asian Kill Zone (19:00-23:00 ET)", "AsianKillZone"},
+      {"London Open Kill Zone (02:00-05:00 ET)", "LondonOpenKillZone"},
+      {"New York Kill Zone (07:00-10:00 ET)", "NewYorkKillZone"},
+      {"London Close Kill Zone (10:00-12:00 ET)", "LondonCloseKillZone"}
   };
 };
 
