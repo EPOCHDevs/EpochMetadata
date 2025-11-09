@@ -10,10 +10,10 @@ rsi_val = rsi(period=14)(src.c)
 oversold = rsi_val < 30
 
 # Fundamental quality filters
-bs = balance_sheet()
-income = income_statement()
-cf = cash_flow()
-ratios = financial_ratios()
+bs = balance_sheet(timeframe="1Q")
+income = income_statement(timeframe="1Q")
+cf = cash_flow(timeframe="1Q")
+ratios = financial_ratios(timeframe="1Q")
 
 # Balance sheet quality
 low_debt = ratios.debt_equity < 0.7
@@ -34,7 +34,7 @@ reasonable_pe = (pe < 25) & (pe > 5)
 fundamentals_ok = low_debt & liquid & profitable & high_roe & positive_fcf & reasonable_pe
 
 # Macro regime
-fed_funds = economic_indicator(category="FedFunds")
+fed_funds = economic_indicator(category="FedFunds", timeframe="1D")
 low_rates = fed_funds.value < 2.5
 
 # Insider activity

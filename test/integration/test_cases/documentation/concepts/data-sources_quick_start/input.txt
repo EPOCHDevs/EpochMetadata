@@ -6,12 +6,12 @@
 src = market_data_source(timeframe="1D")
 
 # Fundamental screening
-ratios = financial_ratios()
-income = income_statement()
+ratios = financial_ratios(timeframe="1Q")
+income = income_statement(timeframe="1Q")
 quality = (ratios.roe > 0.15) & (income.net_income > 0)
 
 # Economic regime detection
-fed_funds = economic_indicator(category="FedFunds")
+fed_funds = economic_indicator(category="FedFunds", timeframe="1D")
 risk_on = fed_funds.value < 2.0
 
 # Insider sentiment
@@ -21,5 +21,7 @@ insider = insider_trading(
     timeframe="1D"
 )()
 
+# Combined signal
+signal = quality & risk_on & insider
 
-trade_signal_executor()(enter_long=timeframe)
+trade_signal_executor()(enter_long=signal)
