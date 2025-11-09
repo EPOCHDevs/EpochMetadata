@@ -74,6 +74,16 @@ namespace epoch_script
             }
         }
 
+        // 2b. Validate timeframe is present for transforms that require it
+        if (comp_meta.requiresTimeFrame && !kwargs.contains("timeframe"))
+        {
+            ThrowError(
+                std::format("Data source '{}' (type '{}') requires a 'timeframe' parameter. "
+                            "Add timeframe option, e.g. timeframe=\"1D\"",
+                            node_id, comp_meta.name),
+                call.lineno, call.col_offset);
+        }
+
         // 3. Parse and validate all kwargs based on metadata types
         for (auto& [option_id, option_value] : kwargs)
         {
