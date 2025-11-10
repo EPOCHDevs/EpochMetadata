@@ -30,7 +30,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeForwardRetu
   metadataList.emplace_back(TransformsMetaData{
       .id = "forward_returns",
       .category = epoch_core::TransformCategory::Trend,
-      .plotKind = epoch_core::TransformPlotKind::line,
+      .plotKind = epoch_core::TransformPlotKind::panel_line,
       .name = "Forward Returns",
       .options = {
           MetaDataOption{

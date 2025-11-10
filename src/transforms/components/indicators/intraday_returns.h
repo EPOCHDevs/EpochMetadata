@@ -29,7 +29,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeIntradayRet
   metadataList.emplace_back(TransformsMetaData{
       .id = "intraday_returns",
       .category = epoch_core::TransformCategory::Trend,
-      .plotKind = epoch_core::TransformPlotKind::line,
+      .plotKind = epoch_core::TransformPlotKind::panel_line,
       .name = "Intraday Returns",
       .options = {
           MetaDataOption{
