@@ -1,0 +1,49 @@
+# Market data for AAPL
+src = market_data_source(timeframe="1D")
+
+# Technical: EMA crossover strategy
+fast = ema(period=12)(src.c)
+slow = ema(period=26)(src.c)
+bullish_cross = crossover(fast, slow)
+
+# Macro filter: Low interest rates (accommodative policy)
+fed_funds = economic_indicator(category="FedFunds",timeframe="1D")()
+low_rates = fed_funds.value < 2.5
+
+# Combined signals
+technical_only = bullish_cross
+macro_confirmed = bullish_cross & low_rates
+
+# Create signal labels for analysis
+technical_signal = conditional_select(technical_only, "Technical", "")
+macro_signal = conditional_select(macro_confirmed, "Macro Confirmed", "")
+
+# Report: Signal comparison
+numeric_cards_report(agg="count_all", category="Signal Count", title="Technical Signals", group=0, group_size=2)(technical_only)
+numeric_cards_report(agg="count_all", category="Signal Count", title="Macro Confirmed Signals", group=1, group_size=2)(macro_confirmed)
+
+# Report: Performance by signal type
+forward_ret = forward_returns(period=5, return_type="simple")(src.c)
+numeric_cards_report(agg="mean", category="5-Day Forward Returns", title="Technical Only", group=0, group_size=2)(forward_ret if technical_only else 0)
+numeric_cards_report(agg="mean", category="5-Day Forward Returns", title="Macro Confirmed", group=1, group_size=2)(forward_ret if macro_confirmed else 0)
+
+# Report: Fed Funds rate over time
+numeric_cards_report(agg="mean", category="Macro Context", title="Avg Fed Funds Rate", group=0, group_size=3)(fed_funds.value)
+numeric_cards_report(agg="min", category="Macro Context", title="Min Rate", group=1, group_size=3)(fed_funds.value)
+numeric_cards_report(agg="max", category="Macro Context", title="Max Rate", group=2, group_size=3)(fed_funds.value)
+
+# Report: Signal table
+table_report(schema=TableReportSchema(
+    title="EMA Crossover Signals",
+    select_key="SLOT0",
+    columns=[
+        TableColumnSchema(column_id="SLOT1", title="Signal Type"),
+        TableColumnSchema(column_id="SLOT2", title="Fed Funds Rate"),
+        TableColumnSchema(column_id="SLOT3", title="Price"),
+        TableColumnSchema(column_id="SLOT4", title="5-Day Return %")
+    ]
+))(technical_only | macro_confirmed,
+   conditional_select(macro_confirmed, "Macro Confirmed", "Technical Only"),
+   fed_funds.value,
+   src.c,
+   forward_ret * 100)

@@ -12,12 +12,13 @@
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_script/time_frame.h>
-#include <model/asset/asset.h>
+#include <epoch_data_sdk/model/asset/asset.hpp>
 #include <epoch_script/core/constants.h>
 
 using namespace epoch_script;
 using namespace epoch_script::transform;
 using namespace epoch_frame;
+namespace asset = data_sdk::asset;
 
 namespace {
 

@@ -1,0 +1,507 @@
+[
+   {
+      "type": "boolean_select",
+      "id": "bool_to_num_cast_0",
+      "options": {},
+      "inputs": {
+         "false": [
+            "number_2#result"
+         ],
+         "true": [
+            "number_1#result"
+         ],
+         "condition": [
+            "bullish_cross#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "boolean_select",
+      "id": "bool_to_num_cast_1",
+      "options": {},
+      "inputs": {
+         "false": [
+            "number_2#result"
+         ],
+         "true": [
+            "number_1#result"
+         ],
+         "condition": [
+            "logical_and_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "crossover",
+      "id": "bullish_cross",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "slow#result"
+         ],
+         "SLOT0": [
+            "fast#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "conditional_select",
+      "id": "conditional_select_0",
+      "options": {},
+      "inputs": {
+         "SLOT": [
+            "logical_and_0#result",
+            "text_2#result",
+            "text_5#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "fast",
+      "options": {
+         "period": 12
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "economic_indicator",
+      "id": "fed_funds",
+      "options": {
+         "category": "FedFunds"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "forward_returns",
+      "id": "forward_ret",
+      "options": {
+         "period": 5,
+         "return_type": "simple"
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "boolean_select",
+      "id": "ifexp_0",
+      "options": {},
+      "inputs": {
+         "false": [
+            "number_2#result"
+         ],
+         "true": [
+            "forward_ret#result"
+         ],
+         "condition": [
+            "bullish_cross#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "boolean_select",
+      "id": "ifexp_1",
+      "options": {},
+      "inputs": {
+         "false": [
+            "number_2#result"
+         ],
+         "true": [
+            "forward_ret#result"
+         ],
+         "condition": [
+            "logical_and_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_and",
+      "id": "logical_and_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "lt_0#result"
+         ],
+         "SLOT0": [
+            "bullish_cross#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "logical_or",
+      "id": "logical_or_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "logical_and_0#result"
+         ],
+         "SLOT0": [
+            "bullish_cross#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "lt",
+      "id": "lt_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_0#result"
+         ],
+         "SLOT0": [
+            "fed_funds#value"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "mul",
+      "id": "mul_0",
+      "options": {},
+      "inputs": {
+         "SLOT1": [
+            "number_7#result"
+         ],
+         "SLOT0": [
+            "forward_ret#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_0",
+      "options": {
+         "agg": "count_all",
+         "category": "Signal Count",
+         "title": "Technical Signals",
+         "group": 0,
+         "group_size": 2
+      },
+      "inputs": {
+         "SLOT": [
+            "bool_to_num_cast_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_1",
+      "options": {
+         "agg": "count_all",
+         "category": "Signal Count",
+         "title": "Macro Confirmed Signals",
+         "group": 1,
+         "group_size": 2
+      },
+      "inputs": {
+         "SLOT": [
+            "bool_to_num_cast_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_2",
+      "options": {
+         "agg": "mean",
+         "category": "5-Day Forward Returns",
+         "title": "Technical Only",
+         "group": 0,
+         "group_size": 2
+      },
+      "inputs": {
+         "SLOT": [
+            "ifexp_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_3",
+      "options": {
+         "agg": "mean",
+         "category": "5-Day Forward Returns",
+         "title": "Macro Confirmed",
+         "group": 1,
+         "group_size": 2
+      },
+      "inputs": {
+         "SLOT": [
+            "ifexp_1#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_4",
+      "options": {
+         "agg": "mean",
+         "category": "Macro Context",
+         "title": "Avg Fed Funds Rate",
+         "group": 0,
+         "group_size": 3
+      },
+      "inputs": {
+         "SLOT": [
+            "fed_funds#value"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_5",
+      "options": {
+         "agg": "min",
+         "category": "Macro Context",
+         "title": "Min Rate",
+         "group": 1,
+         "group_size": 3
+      },
+      "inputs": {
+         "SLOT": [
+            "fed_funds#value"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "numeric_cards_report",
+      "id": "node_6",
+      "options": {
+         "agg": "max",
+         "category": "Macro Context",
+         "title": "Max Rate",
+         "group": 2,
+         "group_size": 3
+      },
+      "inputs": {
+         "SLOT": [
+            "fed_funds#value"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "table_report",
+      "id": "node_7",
+      "options": {
+         "schema": {
+            "title": "EMA Crossover Signals",
+            "select_key": "logical_or_0#result",
+            "columns": [
+               {
+                  "column_id": "conditional_select_0#result",
+                  "title": "Signal Type"
+               },
+               {
+                  "column_id": "fed_funds#value",
+                  "title": "Fed Funds Rate"
+               },
+               {
+                  "column_id": "src#c",
+                  "title": "Price"
+               },
+               {
+                  "column_id": "mul_0#result",
+                  "title": "5-Day Return %"
+               }
+            ]
+         }
+      },
+      "inputs": {
+         "SLOT": [
+            "logical_or_0#result",
+            "conditional_select_0#result",
+            "fed_funds#value",
+            "src#c",
+            "mul_0#result"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_0",
+      "options": {
+         "value": 2.5
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_1",
+      "options": {
+         "value": 1
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_2",
+      "options": {
+         "value": 0
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "number",
+      "id": "number_7",
+      "options": {
+         "value": 100
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "ema",
+      "id": "slow",
+      "options": {
+         "period": 26
+      },
+      "inputs": {
+         "SLOT": [
+            "src#c"
+         ]
+      },
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "market_data_source",
+      "id": "src",
+      "options": {},
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "text",
+      "id": "text_2",
+      "options": {
+         "value": "Macro Confirmed"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   },
+   {
+      "type": "text",
+      "id": "text_5",
+      "options": {
+         "value": "Technical Only"
+      },
+      "inputs": {},
+      "timeframe": {
+         "interval": 1,
+         "type": "day"
+      }
+   }
+]

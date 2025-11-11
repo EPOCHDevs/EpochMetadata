@@ -8,12 +8,12 @@ using epoch_script::transform::TransformConfiguration;
 
 #define MAKE_GETTER_IMPL(Name, fieldName, Type)                                \
   inline Type Get##Name(const strategy::Context &ctx,                          \
-                        const epoch_stratifyx::asset::Asset &asset) const {    \
+                        const data_sdk::asset::Asset &asset) const {           \
     return ctx.GetValue<Type>(this->GetTimeframe(), asset,                     \
                               this->GetOutputId(#fieldName));                  \
   }                                                                            \
   inline bool Has##Name(const strategy::Context &ctx,                          \
-                        const epoch_stratifyx::asset::Asset &asset) const {    \
+                        const data_sdk::asset::Asset &asset) const {           \
     return ctx.Contains(this->GetTimeframe(), asset,                           \
                         this->GetOutputId(#fieldName));                        \
   }
