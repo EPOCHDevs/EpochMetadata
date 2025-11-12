@@ -1,654 +1,96 @@
 ---
 title: Data Sources
 description: Access market data, fundamentals, economic indicators, and institutional data
+icon: Database
 ---
 
 # Data Sources
 
-EpochScript provides diverse data source nodes to access market prices, fundamental metrics, economic indicators, and institutional trading data. Each data source connects external data to your strategy graph.
+EpochScript connects to diverse data sources for building quantitative strategies. Access market prices, fundamental metrics, economic indicators, and institutional trading activity.
 
-## Quick Start
+## Market Data
 
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex */}
-```python
-# Market OHLC bars
-src = market_data_source(timeframe="1D")
+### Price and Volume
 
-# Fundamental screening
-ratios = financial_ratios()
-income = income_statement()
-quality = (ratios.roe > 0.15) & (income.net_income > 0)
+**`market_data_source`** - Core OHLCV bar data. Requires `timeframe` or `session` parameter to define the bar interval.
 
-# Economic regime detection
-fed_funds = economic_indicator(category="FedFunds")
-risk_on = fed_funds.value < 2.0
+**Per-asset execution:** Scripts run once per asset. Universe is configured externally, not in code.
 
-# Insider sentiment
-insider = insider_trading(
-    transaction_code="P",
-    min_value=100000,
-    timeframe="1D"
-)()
-```
+❌ Wrong: `market_data_source(timeframe="1D", symbols=["AAPL", "MSFT"])`
+✅ Correct: `market_data_source(timeframe="1D")`
 
-## Market Data Sources
+Error `Unknown option 'symbols'` - No `symbols` parameter; framework iterates assets for you.
 
-### market_data_source
+**`vwap`, `trade_count`** - Supplemental bar-level metrics for execution analysis and liquidity measurement.
 
-The primary node for accessing OHLC bar data at your strategy's timeframe.
+### Indices and Benchmarks
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_intraday=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-prices = src.c
-highs = src.h
-lows = src.l
-volume = src.v
+**`common_indices`, `indices`** - Market indices for regime detection and correlation analysis.
 
-# Multi-timeframe analysis
-daily = market_data_source(timeframe="1D")
-hourly = market_data_source(timeframe="1H")
+**`us_reference_stocks`** - Reference securities for relative strength, beta calculations, and pairs trading.
 
-# For VWAP and trade count, use separate nodes
-vwap_val = vwap(timeframe="1D")()
-trades = trade_count(timeframe="1D")()
-```
+**Applications:** Regime filtering, benchmark comparison, relative performance strategies.
 
-**Outputs:** `open`, `high`, `low`, `close`, `volume`
+## Fundamental Data
 
-**Use Cases:** Base market data connection, technical analysis, trend following
+Access financial statement data and pre-calculated metrics:
 
-**Note:** VWAP and trade count are separate nodes - see `vwap()` and `trade_count()` below.
+**`balance_sheet`** - Assets, liabilities, debt, cash positions
 
-### vwap
+**`income_statement`** - Revenue, margins, earnings, EPS
 
-Volume-weighted average price per bar from data provider.
+**`cash_flow`** - Operating cash flow, capex, free cash flow
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
+**`financial_ratios`** - Valuation (P/E, P/B), profitability (ROE, ROA), liquidity ratios
 
-# Requires data provider to supply 'vw' field
-vwap_val = vwap(timeframe="1D")()
+**Applications:** Value screens, quality filters, multi-factor models, fundamental momentum.
 
-# Use for execution benchmarking
-above_vwap = src.c > vwap_val
-```
+## Economic Indicators
 
-**Outputs:** Volume-weighted average price (single decimal output)
+**`economic_indicator`** - Macro data including inflation, interest rates, employment, growth, and sentiment indicators.
 
-**Parameters:**
-- `timeframe`: Required
+**Key characteristics:** Sparse publication dates, variable frequency (daily to quarterly), requires connection to market data for date alignment.
 
-**Requires:** Data provider must supply `vw` field
+**Applications:** Economic regime detection, macro filters, risk-on/risk-off signals.
 
-**Use Cases:** Intraday execution, mean reversion, trend confirmation
+## Institutional Activity
 
-### trade_count
+Track institutional and insider trading through regulatory filings:
 
-Number of trades per bar from data provider.
+**`form13f_holdings`** - Institutional ownership and position changes
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
+**`insider_trading`** - Corporate insider buy/sell transactions
 
-# Requires data provider to supply 'n' field
-trades = trade_count(timeframe="1D")()
+**Applications:** Smart money tracking, crowding detection, sentiment signals.
 
-# Gauge liquidity
-high_activity = trades > trades[20] * 1.5
-```
+## Market Microstructure
 
-**Outputs:** Trade count (single integer output)
+**`quotes`, `trades`** - High-frequency bid/ask and trade execution data for intraday analysis.
 
-**Parameters:**
-- `timeframe`: Required
+**Applications:** Spread analysis, liquidity measurement, volume profiles, execution studies.
 
-**Requires:** Data provider must supply `n` field
+## Strategy Patterns
 
-**Use Cases:** Liquidity analysis, volume confirmation, market microstructure
+### Multi-Source Integration
 
-## Fundamental Data (Polygon)
+**Technical + Fundamental** - Screen for quality fundamentals, time entries with price action
 
-### balance_sheet
+**Macro + Technical** - Filter by economic regime, execute on technical signals
 
-Balance sheet metrics for leverage and liquidity analysis.
+**Institutional + Value** - Track smart money activity in undervalued names
 
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-bs = balance_sheet()
-cf = cash_flow()
-ratios = financial_ratios()
+**Cross-Sectional + Fundamental** - Rank universe by fundamental factors. For universe-wide ranking/selection, see [Cross-Sectional Analysis](./cross-sectional). Transforms marked with `isCrossSectional` flag operate across asset universe
 
-# Leverage analysis
-leverage = bs.long_term_debt / ratios.market_cap
-high_debt = ratios.debt_equity > 1.5
+### Frequency Alignment
 
-# Liquidity analysis
-liquid = ratios.current_ratio > 1.3
-```
+Match data frequency to strategy timeframe:
+- Daily/weekly: Fundamentals, economic data, institutional filings
+- Intraday: OHLCV, VWAP, microstructure data
 
-**Key Outputs:**
-- `cash`, `current_debt`, `long_term_debt`
-- `receivables`, `inventories`, `ppe_net`
-- `accounts_payable`, `accrued_liabilities`
-- `retained_earnings`, `aoci`
-- `fiscal_year`, `fiscal_quarter`, `period_end`, `cik`, `timeframe`
-
-**Frequency:** Quarterly/Annual
-**Lag:** 45+ days after quarter end
-
-### income_statement
-
-Revenue, earnings, and profitability metrics.
-
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-income = income_statement()
-ratios = financial_ratios()
-
-# Margin analysis
-gross_margin = income.gross_profit / income.revenue
-operating_margin = income.operating_income / income.revenue
-
-# Growth screening
-profitable = income.net_income > 0
-eps = income.diluted_eps
-```
-
-**Key Outputs:**
-- `revenue`, `cogs`, `gross_profit`
-- `operating_income`, `net_income`
-- `basic_eps`, `diluted_eps`
-- `basic_shares`, `diluted_shares`
-- `rnd`, `sga`, `other_opex`
-- `ebt`, `income_tax`, `other_income`
-- `fiscal_year`, `fiscal_quarter`, `period_end`, `cik`, `timeframe`
-
-**Use Cases:** Earnings momentum, margin analysis, growth screening
-
-### cash_flow
-
-Operating, investing, and financing cash flows.
-
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-cf = cash_flow()
-income = income_statement()
-ratios = financial_ratios()
-
-# Free cash flow analysis
-fcf = cf.cfo_cont - cf.capex
-positive_fcf = fcf > 0
-fcf_yield = fcf / ratios.market_cap
-
-# Capital allocation
-capex_intensity = cf.capex / cf.cfo_cont
-```
-
-**Key Outputs:**
-- `cfo`, `cfi`, `cff` - Net cash from operating/investing/financing
-- `cfo_cont`, `cfi_cont`, `cff_cont` - Continuing operations
-- `capex`, `dividends`, `change_in_cash`
-- `net_income`, `dna` (D&A), `change_in_wc`
-- `lt_debt_net`, `st_debt_net` - Debt issuances/repayments
-- `other_cfo`, `other_cfi`, `other_cff`
-- `fiscal_year`, `fiscal_quarter`, `period_end`, `cik`, `timeframe`
-
-**Use Cases:** Quality investing, capital allocation assessment, liquidity analysis
-
-### financial_ratios
-
-Pre-calculated valuation and operational ratios.
-
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-ratios = financial_ratios()
-income = income_statement()
-
-# Value screening
-value = (ratios.pe < 15) & (ratios.pb < 2)
-
-# Quality screening
-quality = (ratios.roe > 0.15) & (ratios.debt_equity < 1)
-
-# Yield screening
-high_yield = ratios.div_yield > 0.03
-
-# Combined filter
-quality_value = value & quality & (income.net_income > 0)
-```
-
-**Key Outputs:**
-- **Valuation:** `pe`, `pb`, `ps`, `ev_ebitda`, `ev_sales`, `pcf`, `pfcf`
-- **Profitability:** `roe`, `roa`, `eps`, `fcf`
-- **Liquidity:** `current_ratio`, `quick_ratio`, `debt_equity`
-- **Other:** `market_cap`, `ev`, `price`, `div_yield`, `avg_volume`, `cash`
-- **Meta:** `date`, `cik`, `ticker`
-
-**Use Cases:** Factor strategies, screening, valuation analysis, quality filtering
-
-## Market Indices
-
-### common_indices
-
-Major market indices with preset selection.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-vix = common_indices(index="VIX")()
-spx = common_indices(index="SPX")()
-
-# Market regime detection
-high_fear = vix.c > 30
-rising_fear = vix.c > vix.c[5]
-risk_off = high_fear | rising_fear
-```
-
-**Available Indices:**
-- **US Equity:** SPX (S&P 500), DJI (Dow Jones), NDX (NASDAQ 100)
-- **Size:** RUT (Russell 2000), RUI (Russell 1000), RUA (Russell 3000)
-- **International:** FTSE (FTSE 100)
-- **Other:** VIX (Volatility), NYA (NYSE Composite), XAU (Gold & Silver)
-
-**Parameters:**
-- `index`: Dropdown selection from above
-
-**Outputs:** `o`, `h`, `l`, `c`
-
-### indices
-
-Access any market index by ticker symbol.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-fed_funds = economic_indicator(category="FedFunds")
-vix = indices(ticker="VIX")()
-
-# Risk-on/risk-off regime
-low_rates = fed_funds.value < 2.0
-low_fear = vix.c < 15
-risk_on = low_rates & low_fear
-
-# Only trade in favorable macro conditions
-technical_signal = crossover(ema(period=20)(src.c), ema(period=50)(src.c))
-entry = technical_signal & risk_on
-```
-
-**Parameters:**
-- `ticker`: Index ticker symbol (e.g., "VIX", "SPX", "DAX")
-
-**Outputs:** `o`, `h`, `l`, `c`
-
-**Use Cases:** International indices, custom benchmarks, correlation studies
-
-### us_reference_stocks
-
-Load OHLCV data for US reference stocks/ETFs to compare against your main asset.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-spy = us_reference_stocks(ticker="SPY")()
-
-# Relative strength analysis
-rel_strength = src.c / spy.c
-outperforming = rel_strength > rel_strength[20]
-
-# Beta calculation
-returns = (src.c / src.c[1]) - 1
-spy_returns = (spy.c / spy.c[1]) - 1
-beta = rolling_cov(window=60)(returns, spy_returns) / rolling_cov(window=60)(spy_returns, spy_returns)
-```
-
-**Parameters:**
-- `ticker`: Reference stock ticker (e.g., "SPY", "QQQ", "DIA", "IWM")
-
-**Outputs:** `o`, `h`, `l`, `c`, `v`, `vw` (volume-weighted price), `n` (trade count)
-
-**Date Range:** Automatically aligns with main `market_data_source`
-
-**Use Cases:** Pairs trading, beta hedging, relative strength, market correlation, benchmark comparison
-
-**Note:** Unlike `market_data_source` (for your strategy's primary asset), this node is for loading comparison/reference data. The `is_eod` parameter is automatically determined from the timeframe.
-
-## Microstructure Data (Polygon)
-
-### quotes
-
-Best bid/ask prices with microsecond timestamps (NBBO).
-
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1Min, needs_intraday=true, complexity=complex */}
-```python
-q = quotes(timeframe="1Min")()
-spread = q.ask - q.bid
-spread_bps = (spread / q.bid) * 10000
-mid = (q.bid + q.ask) / 2
-```
-
-**Outputs:** `ticker`, `bid`, `ask`, `bid_size`, `ask_size`, `timestamp`
-
-**Warning:** Very high data volume. Use narrow date ranges. Nanosecond timestamps.
-
-**Use Cases:** Spread analysis, market microstructure, liquidity measurement
-
-### trades
-
-Individual trade executions for volume analysis.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, needs_intraday=true, complexity=medium */}
-```python
-t = trades(timeframe="1Min")()
-dollar_volume = t.price * t.size
-# Aggregate for VWAP calculations, volume profiles
-```
-
-**Outputs:** `ticker`, `price`, `size`, `exchange_id`, `timestamp`
-
-**Warning:** Extremely high data volume. Use narrow date ranges.
-
-**Use Cases:** Volume profile, VWAP analysis, market microstructure, trade flow
-
-## Economic Data (FRED)
-
-### economic_indicator
-
-Federal Reserve Economic Data for macro analysis. **Requires connection to market data source** for date range.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-# Market data connection (REQUIRED)
-src = market_data_source(timeframe="1D")
-
-# Economic indicators
-gdp = economic_indicator(category="GDP")()
-unemployment = economic_indicator(category="Unemployment")()
-cpi = economic_indicator(category="CPI")()
-
-# Calculate economic surprise
-gdp_ma = sma(period=4)(gdp.value)  # 4 quarters
-gdp_surprise = (gdp.value - gdp_ma) / gdp_ma
-
-# Positive surprise = growth accelerating
-positive_surprise = gdp_surprise > 0.01  # 1% above trend
-
-# Combine with technical signal
-fast = ema(period=20)(src.c)
-slow = ema(period=50)(src.c)
-trend_up = fast > slow
-
-entry = positive_surprise & trend_up
-```
-
-**Available Categories:**
-
-**Inflation:**
-- CPI - Consumer Price Index
-- CoreCPI - Core CPI (ex Food & Energy)
-- PCE - Personal Consumption Expenditures Price Index
-- CorePCE - Core PCE (Fed's preferred measure)
-
-**Interest Rates:**
-- FedFunds - Federal Funds Effective Rate
-- Treasury3M, Treasury2Y, Treasury5Y, Treasury10Y, Treasury30Y
-
-**Employment:**
-- Unemployment - Unemployment Rate
-- NonfarmPayrolls - Nonfarm Payrolls
-- InitialClaims - Initial Jobless Claims (Weekly)
-
-**Growth:**
-- GDP - Real Gross Domestic Product
-- IndustrialProduction - Industrial Production Index
-- RetailSales - Retail Sales
-- HousingStarts - Housing Starts
-
-**Sentiment:**
-- ConsumerSentiment - University of Michigan Consumer Sentiment
-- M2 - M2 Money Supply
-
-**Outputs:** `observation_date`, `value`
-
-**Important:**
-- Values appear **ONLY on publication dates** (not forward-filled)
-- Frequency varies by series (daily to quarterly)
-- Significant publication lag
-- Must connect to `market_data_source` for date range
-
-**Use Cases:** Regime detection, macro-driven strategies, risk-on/risk-off, economic calendar
-
-## Institutional Data (SEC)
-
-### form13f_holdings
-
-Track institutional ownership from SEC Form 13F filings.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# Follow Berkshire Hathaway (CIK: 1067983)
-# Filter for $1B+ positions
-brk_holdings = form13f_holdings(
-    institution_cik="1067983",
-    min_value=1000000000,
-    timeframe="1D"
-)()
-
-# Detect position changes
-shares_now = brk_holdings.shares
-# ~1 quarter ago
-shares_prev = brk_holdings.shares[90]
-
-# 10%+ increase in holdings
-position_increased = shares_now > shares_prev * 1.1
-new_position = (shares_prev == 0) & (shares_now > 0)
-
-# Bullish signal from smart money
-bullish_13f = position_increased | new_position
-
-# Combine with technical
-technical_signal = rsi(period=14)(src.c) < 50
-entry = bullish_13f & technical_signal
-```
-
-**Parameters:**
-- `filing_type`: "13F-HR", "10-K", "10-Q", "8-K" (optional)
-- `institution_cik`: Filter by specific institution CIK (optional)
-- `min_value`: Minimum position value in USD (default: 0.0)
-- `timeframe`: Required
-
-**Outputs:** `shares`, `value`, `security_type`, `investment_discretion`, `institution_name`, `period_end`
-
-**Notable CIKs:**
-- 1067983 - Berkshire Hathaway
-- 1324404 - Citadel Advisors
-- 1649339 - Renaissance Technologies
-
-**Limitations:**
-- Quarterly filings only
-- 45-day lag after quarter end
-- Long positions only (shorts excluded)
-- $100M+ AUM threshold
-
-### insider_trading
-
-Track insider transactions from SEC Forms 3, 4, 5, and 144.
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-# Filter for open market purchases (most bullish signal)
-# $100K+ purchases
-insider = insider_trading(
-    filing_type=4,
-    transaction_code="P",
-    min_value=100000,
-    timeframe="1D"
-)()
-
-# Market data for comparison
-src = market_data_source(timeframe="1D")
-current_price = src.c
-
-# Price vs insider purchase price
-price_vs_insider = current_price / insider.price
-
-# Signal: insider bought recently near current levels
-insider_buying = (insider.shares > 0) & (price_vs_insider < 1.1)
-
-# Combine with technical
-rsi_val = rsi(period=14)(src.c)
-oversold = rsi_val < 30
-
-entry = insider_buying & oversold
-```
-
-**Transaction Codes:**
-- **P** - Open Market Purchase (bullish signal)
-- **S** - Open Market Sale (bearish, but check context)
-- **A** - Award/Grant (compensation)
-- **M** - Exercise/Conversion
-- **D** - Disposition to Issuer
-- **F** - Payment of Tax Liability
-- **C** - Conversion of Derivative
-- **G** - Gift
-- **J** - Other
-- **V** - Voluntary Early Report
-
-**Parameters:**
-- `filing_type`: "3", "4", "5", "144" (optional)
-- `transaction_code`: "P", "S", "A", "M", etc. (optional)
-- `min_value`: Minimum transaction value USD (default: 0.0)
-- `owner_name`: Filter by insider name (optional)
-- `timeframe`: Required
-
-**Outputs:** `transaction_date`, `owner_name`, `transaction_code`, `shares`, `price`, `ownership_after`
-
-**Limitations:**
-- 2-day reporting lag
-- Pre-arranged trading plans (10b5-1) dilute signal
-- Sales may be for diversification, not bearish conviction
-
-## Multi-Source Strategy Example
-
-Comprehensive strategy combining multiple data sources:
-
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex */}
-```python
-# Price data
-src = market_data_source(timeframe="1D")
-
-# Technical indicator
-rsi_val = rsi(period=14)(src.c)
-oversold = rsi_val < 30
-
-# Fundamental quality filters
-bs = balance_sheet()
-income = income_statement()
-cf = cash_flow()
-ratios = financial_ratios()
-
-# Balance sheet quality
-low_debt = ratios.debt_equity < 0.7
-liquid = ratios.current_ratio > 1.3
-
-# Profitability
-profitable = income.net_income > 0
-high_roe = ratios.roe > 0.15
-
-# Cash generation
-positive_fcf = (cf.cfo_cont - cf.capex) > 0
-
-# Valuation
-pe = src.c / income.basic_eps
-reasonable_pe = (pe < 25) & (pe > 5)
-
-# Combined quality filter
-fundamentals_ok = low_debt & liquid & profitable & high_roe & positive_fcf & reasonable_pe
-
-# Macro regime
-fed_funds = economic_indicator(category="FedFunds")
-low_rates = fed_funds.value < 2.5
-
-# Insider activity
-insider = insider_trading(
-    transaction_code="P",
-    min_value=100000,
-    timeframe="1D"
-)()
-insider_buying = insider.shares > 0
-
-# Combined multi-factor signal
-entry = oversold & fundamentals_ok & low_rates & insider_buying
-```
-
-## Best Practices
-
-### Data Frequency Matching
-
-- **Daily/Weekly strategies:** Fundamental data, economic indicators, institutional data
-- **Intraday strategies:** Aggregates, quotes, trades
-- **Avoid mixing:** Don't use tick data with quarterly fundamentals
-
-### Data Lag Awareness
-
-- **Fundamental data:** 45+ days after quarter end
-- **Form 13F:** 45 days after quarter end
-- **Insider trading:** 2 business days after transaction
-- **Economic indicators:** Varies by series (check FRED publication schedule)
-
-### Performance Considerations
-
-- **Tick data (quotes/trades):** Use narrow date ranges, very high memory usage
-- **Fundamental data:** Low frequency, small datasets, minimal performance impact
-- **FRED data:** Values only on publication dates (sparse), minimal impact
-
-### Data Availability
-
-- **Balance sheet, income, cash flow:** US equities with SEC filings
-- **Insider trading:** US equities, officers/directors/10%+ owners
-- **Form 13F:** Institutions with $100M+ AUM
-- **FRED:** US economic data, some international series
-- **Polygon data:** Depends on subscription tier
-
-### Connection Requirements
-
-- **economic_indicator:** Must connect to `market_data_source` for date range
-- **form13f_holdings, insider_trading:** Require `timeframe` parameter
-- **Polygon sources (balance_sheet, income_statement, etc.):** Independent, no connection required
-
-### FRED Data Special Considerations
-
-FRED economic indicators appear **only on publication dates** and are **not forward-filled**. This means:
-- Values will be null/missing on most days
-- You need to handle missing data in your strategy
-- Use lag operators or lookback to access last published value
-- Be aware of publication schedules (monthly CPI, quarterly GDP, etc.)
-
-## Summary Table
-
-| Data Source | Type | Frequency | Lag | Connection Required |
-|-------------|------|-----------|-----|---------------------|
-| `market_data_source` | Price | Any | None | No |
-| `vwap` | Price | Any | None | No (requires 'vw' from provider) |
-| `trade_count` | Volume | Any | None | No (requires 'n' from provider) |
-| `balance_sheet` | Fundamental | Quarterly | 45+ days | No |
-| `income_statement` | Fundamental | Quarterly | 45+ days | No |
-| `cash_flow` | Fundamental | Quarterly | 45+ days | No |
-| `financial_ratios` | Fundamental | Quarterly | 45+ days | No |
-| `common_indices` | Index | Daily/Intraday | None | Yes (to market_data_source) |
-| `indices` | Index | Daily/Intraday | None | Yes (to market_data_source) |
-| `us_reference_stocks` | Reference | Daily/Intraday | None | Yes (to market_data_source) |
-| `quotes` | Microstructure | Tick | None | No |
-| `trades` | Microstructure | Tick | None | No |
-| `economic_indicator` | Macro | Varies | Varies | Yes (to market_data_source) |
-| `form13f_holdings` | Institutional | Quarterly | 45 days | No (but needs timeframe) |
-| `insider_trading` | Insider | Transaction | 2 days | No (but needs timeframe) |
+Be aware that different data types have varying publication delays.
 
 ## See Also
 
-- [Timeframes](/docs/concepts/timeframes) - Multi-timeframe analysis
-- [Cross-Sectional](/docs/concepts/cross-sectional) - Factor strategies across universes
-- [Research](/docs/concepts/research) - Analyzing data sources
+- [Timeframes](/docs/concepts/timeframes) - Multi-timeframe strategies
+- [Cross-Sectional](/docs/concepts/cross-sectional) - Factor strategies
+- [Research](/docs/concepts/research) - Data exploration

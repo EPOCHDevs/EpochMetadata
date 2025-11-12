@@ -1,334 +1,132 @@
 ---
 title: Research Reports
-page_type: implementation
-layout: default
-order: 3
-category: Concepts
-description: Interactive dashboards for strategy analysis and discovery
-parent: ./index.md
+description: Interactive dashboards for strategy analysis, pattern discovery, and hypothesis validation
+icon: ChartBar
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
 # Research Reports
 
-Generate interactive dashboards to analyze strategy behavior, detect patterns, and validate hypotheses.
+Generate interactive dashboards to analyze strategy behavior, discover patterns, validate hypotheses, and visualize multi-asset performance. Reports provide aggregated metrics, distributions, filtered views, and comparative analysis across assets.
 
 ---
 
-## Report Categories
+## Research Objectives
 
-### Card Reports
+**Pattern Discovery** - Identify recurring market behaviors, event characteristics, and statistical relationships in historical data.
 
-Display aggregated metrics as dashboard cards.
+**Hypothesis Validation** - Test trading assumptions by examining metric distributions, regime-specific performance, and conditional outcomes.
 
-#### Numeric Cards
+**Strategy Analysis** - Evaluate strategy behavior through performance cards, risk metrics, signal frequency, and execution characteristics.
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-returns = roc(period=1)(src.c)
-
-# Single metric card
-numeric_cards_report(agg="mean", category="Performance", title="Avg Daily Return")(returns)
-
-# Multiple metrics in one category
-numeric_cards_report(agg="mean", category="Stats", title="Mean", group=0, group_size=3)(returns)
-numeric_cards_report(agg="stddev", category="Stats", title="Volatility", group=0, group_size=3)(returns)
-numeric_cards_report(agg="max", category="Stats", title="Max Return", group=0, group_size=3)(returns)
-```
-
-**Aggregations:** `mean`, `sum`, `min`, `max`, `stddev`, `variance`, `first`, `last`, `count`, `median`, `skew`, `kurtosis`
-
-#### Boolean Cards
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-signal = crossover(rsi_val, 30)
-boolean_card_report(category="Signals", title="RSI Crossover Count")(signal)
-```
-
-#### Index Cards
-
-Show specific rows by index (first, last, percentiles).
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-returns = roc(period=1)(src.c)
-# Filter high return days
-high_return_signal = returns > 0.02
-index_card_report(index="first", category="Top Days", title="First Occurrence")(returns)
-```
-
-#### Quantile Cards
-
-Display quantile values (25th, 50th, 75th percentiles).
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-returns = roc(period=1)(src.c)
-index_card_report(index="p95", category="Risk", title="95th Percentile Return")(returns)
-```
+**Factor Research** - Compare asset rankings, analyze cross-sectional relationships, and validate factor exposures across universes.
 
 ---
 
-### Chart Reports
+## Card Reports
 
-#### Bar Charts
+Display aggregated metrics as dashboard cards for quick insights.
 
-Categorical comparisons and distributions.
+**Numeric Cards** - Aggregate time-series data into summary statistics (mean, sum, min, max, stddev, first, last, median, skew, kurtosis). Use for performance metrics, risk measures, and strategy characteristics.
 
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-returns = roc(period=1)(src.c)
+**Boolean Cards** - Count signal occurrences and event frequency. Use for trade counts, pattern detections, and condition triggers.
 
-# Distribution by regime
-regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
-bar_chart_report(agg="count", title="Bar Count by Regime", category="Distribution")(regime)
+**Index Cards** - Show specific rows by position (first, last) or percentile. Use for extreme value analysis and temporal bookmarks.
 
-# Aggregate metrics by category
-bar_chart_report(agg="mean", title="Avg Return by Regime", category="Performance")(regime, returns)
-```
+**Quantile Cards** - Display distribution percentiles (25th, 50th, 75th). Use for risk profiling and distribution summaries.
 
-**Aggregations:** `count`, `sum`, `mean`, `first`, `last`, `min`, `max`
-
-#### Pie Charts
-
-Proportional breakdowns.
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Simple proportion
-pie_chart_report(agg="count", title="Regime Distribution", category="Analysis")(regime)
-
-# Nested pie (two-level hierarchy)
-# Sector categorization
-sector = conditional_select(rsi_val < 20, "A", rsi_val < 40, "B", rsi_val < 60, "C", "D")
-nested_pie_chart_report(agg="count", title="Asset Distribution", category="Breakdown")(sector, regime)
-```
-
-#### Histograms
-
-Value distributions and frequency analysis.
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-returns = roc(period=1)(src.c)
-histogram_chart_report(bins=30, title="Return Distribution", category="Stats", vertical=False)(returns)
-```
+**Applications:** Performance dashboards, risk summaries, signal frequency tracking, distribution analysis.
 
 ---
 
-### Table Reports
+## Chart Reports
 
-Filtered row-level data with custom columns.
+Visualize distributions, proportions, and categorical breakdowns.
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-returns = roc(period=1)(src.c)
+**Bar Charts** - Compare categories with aggregated values (count, sum, mean, min, max). Use for regime-based performance, categorical distributions, and grouped comparisons.
 
-# Filter extreme conditions
-extreme = (rsi_val < 30) | (rsi_val > 70)
-regime = conditional_select(rsi_val < 30, "Oversold", "Overbought")
+**Pie Charts** - Show proportional breakdowns and composition. Nested pie charts support two-level hierarchies. Use for allocation views, regime distribution, and category proportions.
 
-# Boolean filter (extreme)
-table_report(schema=TableReportSchema(
-    title="RSI Extremes",
-    select_key=SLOT0,
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="Regime"),
-        TableColumnSchema(column_id=SLOT2, title="RSI"),
-        TableColumnSchema(column_id=SLOT3, title="Return %")
-    ]
-))(extreme, regime, rsi_val, returns)
-```
+**Histograms** - Display value distributions and frequency analysis. Configurable bin counts. Use for return distributions, indicator ranges, and statistical profiles.
 
-**Key Points:**
-- `select_key`: Boolean column for row filtering
-- Inputs map to `SLOT0`, `SLOT1`, `SLOT2`, etc. by position
-- Only rows where `select_key` is `true` appear in table
+**Applications:** Regime analysis, performance by category, distribution profiling, allocation visualization.
 
 ---
 
-### Specialized Reports
+## Table Reports
 
-#### Gap Report
+Filtered row-level data with custom columns for detailed inspection.
 
-Comprehensive gap analysis with cards, histograms, and pivot tables.
+**Key Features:**
+- Boolean filter column (`select_key`) determines which rows appear
+- Multiple data columns with custom titles
+- Direct timestamp-level detail for pattern investigation
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, needs_sessions=true, needs_intraday=true, complexity=medium */}
-```python
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
+**Applications:** Extreme condition analysis, signal detail inspection, filtered event views, pattern characteristic examination.
 
-# gap_filled: Boolean, gap_retrace: Boolean, gap_size: Decimal, psc: Decimal, psc_timestamp: Timestamp
-gap_report(fill_time_pivot_hour=12, histogram_bins=20)(
-    gaps.gap_filled,
-    gaps.gap_retrace,
-    gaps.gap_size,
-    gaps.psc,
-    gaps.psc_timestamp
-)
-```
+---
 
-**Output:**
-- Summary cards: fill rate, avg gap size, median fill time, total gaps
-- Histograms: gap size distribution, fill time distribution
-- Pivot tables: gaps by hour, by day of week, by size bucket
-- Detail table: timestamp, size, fill time, filled status
+## Specialized Reports
+
+**Gap Report** - Comprehensive gap analysis combining cards, histograms, and pivot tables. Provides fill rate metrics, size distributions, timing analysis, and detailed gap characteristics. Use for session gap research and intraday pattern analysis.
+
+**Applications:** Session gap behavior, fill time analysis, gap size distributions, hourly/daily pattern detection.
 
 ---
 
 ## Cross-Sectional Reports
 
-Multi-asset comparison reports for factor strategies.
+Multi-asset comparison reports for factor strategies and universe analysis.
 
-### CS Bar Chart
+**CS Bar Chart** - Compare all assets in a single chart with one bar per asset. Use for sector rankings, factor score comparisons, and side-by-side performance.
 
-Compare all assets in one chart.
+**CS Table** - Asset-by-metric table showing aggregated values across the universe (assets as columns). Aggregations: first, last, mean, sum, min, max. Use for factor snapshots and multi-asset metric views.
 
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex */}
-```python
-# Sector performance comparison
-src = market_data_source(timeframe="1D")  # 11 sector ETFs
-returns = roc(period=20)(src.c)
+**CS Numeric Cards** - Card group with one card per asset showing current values. Use for multi-asset dashboards, factor exposure visualization, and comparative metric cards.
 
-cs_bar_chart_report(agg="last", title="20-Day Returns by Sector", category="Performance")(returns)
-# One bar per sector: XLK, XLF, XLE, etc.
-```
+**Applications:** Sector performance rankings, factor analysis, cross-sectional momentum, multi-asset risk metrics, universe screening.
 
-**Use Cases:**
-- Sector performance rankings
-- Factor score comparisons
-- Multi-asset metrics side-by-side
+---
 
-### CS Table
+## Event Markers
 
-Asset-by-metric table with aggregation (assets as columns).
+Mark important timestamps for timeline navigation and visual pattern identification.
 
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-momentum = roc(period=60)(src.c)
+**Event markers create interactive timelines** that allow clicking to jump directly to specific timestamps. Each event displays with a title, timestamp, and color-coded badge.
 
-cs_table_report(agg="last", title="Sector Momentum", category="Analysis")(momentum)
-# Table:       | XLK  | XLF | XLE  | XLV | ...
-#       -------|------|-----|------|-----|----
-#       Value  | +15% | +8% | -2%  | +5% | ...
-```
+**Color Categories:**
+- **Success (Green)**: Bullish signals, long entries, confirmations, positive pattern detections
+- **Error (Red)**: Bearish signals, exits, warnings, negative conditions
+- **Warning (Yellow)**: Neutral events, regime changes, pattern formations, informational markers
 
-**Aggregations:** `first`, `last`, `mean`, `sum`, `min`, `max`
+**Event Marker Schema** requires:
+- Boolean filter determining when events occur
+- Event classification column mapping to color categories
+- Icon and title for the timeline
+- Badge configuration with color mappings
 
-### CS Numeric Cards
+**Applications:** Signal timeline visualization, regime change markers, pattern occurrence tracking, strategy entry/exit annotation, extreme condition identification.
 
-Card group with one card per asset.
-
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex */}
-```python
-src = market_data_source(timeframe="1D")
-spx = common_indices(index="SPX")
-
-# Calculate returns
-returns = roc(period=1)(src.c)
-spx_returns = roc(period=1)(spx.c)
-
-# Calculate beta for each asset
-sector_beta = beta(window=60)(returns, spx_returns)
-
-cs_numeric_cards_report(agg="last", category="Beta Analysis")(sector_beta)
-# Creates 11 cards showing current beta for each sector
-```
-
-**Use Cases:**
-- Multi-asset metric dashboards
-- Factor exposure visualization
-- Comparative performance cards
+<Callout type="info">
+</Callout>
 
 ---
 
 ## Research Workflows
 
 ### Pattern Discovery
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1Min, needs_sessions=true, needs_intraday=true, complexity=medium */}
-```python
-# Identify gap fill characteristics
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
-
-# Distribution analysis
-histogram_chart_report(bins=20, title="Gap Size Distribution", category="Research")(gaps.gap_size)
-
-# Detailed inspection
-gap_report(fill_time_pivot_hour=12)(
-    gaps.gap_filled, gaps.gap_retrace, gaps.gap_size, gaps.psc, gaps.psc_timestamp
-)
-
-# Summary card
-numeric_cards_report(agg="count_all", title="Total Gaps", category="Summary", group=0, group_size=1)(gaps.gap_filled)
-```
+Combine histograms for distributions, specialized reports for comprehensive analysis, and summary cards for key metrics. Use to identify gap characteristics, indicator ranges, return profiles, and event frequency.
 
 ### Factor Analysis
-
-{/* snippet: type=complete_code, needs_data=multi_asset, timeframe=1D, complexity=complex */}
-```python
-src = market_data_source(timeframe="1D", symbols=["XLK", "XLF", "XLE", "XLV", "XLI", "XLP", "XLY", "XLB", "XLU", "XLRE", "XLC"])
-spx = common_indices(index="SPX")
-
-# Calculate factors
-momentum = cs_zscore()(roc(period=60)(src.c))
-volatility = cs_zscore()(atr(period=14)(src.c))
-
-# Compare momentum across assets
-cs_table_report(agg="last", title="Momentum Scores", category="Cross-Sectional")(momentum)
-
-# Visualize distributions
-histogram_chart_report(bins=20, title="Momentum Distribution", category="Research")(momentum)
-
-# Summary card
-cs_numeric_cards_report(agg="last", category="Summary", title="Latest Momentum")(momentum)
-```
+Use cross-sectional reports (cs_table, cs_bar_chart, cs_numeric_cards) to compare factor values across assets. Combine with histograms to visualize factor distributions and cards for summary statistics. Apply to momentum scoring, volatility comparison, beta analysis, and multi-factor models.
 
 ### Regime Detection
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D", symbols=["AAPL"])
-returns = roc(period=1)(src.c)
-
-rsi_val = rsi(period=14)(src.c)
-regime = conditional_select(rsi_val < 30, "Oversold", rsi_val > 70, "Overbought", "Neutral")
-
-# Proportion analysis
-pie_chart_report(agg="count", title="Market Regime Distribution", category="Research")(regime)
-
-# Performance by regime
-bar_chart_report(agg="mean", title="Avg Return by Regime", category="Research")(regime, returns)
-
-# Detailed regime table
-extreme = (rsi_val < 30) | (rsi_val > 70)
-table_report(schema=TableReportSchema(
-    title="Extreme Conditions",
-    select_key=SLOT0,
-    columns=[
-        TableColumnSchema(column_id=SLOT1, title="Regime"),
-        TableColumnSchema(column_id=SLOT2, title="RSI")
-    ]
-))(extreme, regime, rsi_val)
-
-# Summary card
-numeric_cards_report(agg="mean", title="Avg RSI", category="Summary", group=0, group_size=1)(rsi_val)
-```
+Use pie charts for regime proportions, bar charts for performance by regime, table reports for detailed regime conditions, and cards for summary metrics. Apply to market state analysis, conditional performance, and regime-based strategy evaluation.
 
 ---
 
 ## See Also
 
-- [Core Features](./core-features) - Auto-plotting and event markers
-- [Cross-Sectional Analysis](./cross-sectional) - Multi-asset strategies
+- [Core Features](./core-features) - Auto-plotting and transform visualization
+- [Cross-Sectional Analysis](./cross-sectional) - Multi-asset strategies and universe operations

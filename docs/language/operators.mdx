@@ -1,254 +1,41 @@
 ---
 title: Operators
-page_type: concept
-layout: default
-order: 5
-category: Language
-description: Arithmetic, comparison, logical, and lag operators in EpochScript
-parent: ./index.md
+description: Arithmetic, comparison, logical, and lag operators
+icon: Settings
 ---
-
-import { Callout } from 'fumadocs-ui/components/callout';
 
 # Operators
 
-Complete reference for all operators in EpochScript including arithmetic, comparison, logical, and the lag operator.
+EpochScript supports standard operators for arithmetic, comparison, and logic, plus a special lag operator `[N]` for historical data access.
 
 ---
 
-## Arithmetic Operators
+## All Operators
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `+` | Addition | `a + b` |
-| `-` | Subtraction | `a - b` |
-| `*` | Multiplication | `a * b` |
-| `/` | Division | `a / b` |
-| `%` | Modulo (remainder) | `a % b` |
-| `**` | Power (exponentiation) | `a ** b` |
-| `-` (unary) | Negation | `-a` |
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-range_val = src.h - src.l
-midpoint = (src.h + src.l) / 2
-momentum = src.c - src.c[5]
-
-# Modulo - useful for detecting periodic patterns
-even_bars = (src.c % 2) == 0
-
-# Power - useful for calculating squared returns or variance
-squared_returns = (src.c / src.c[1] - 1) ** 2
-```
-
----
-
-## Comparison Operators
-
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `>` | Greater than | `a > b` |
-| `<` | Less than | `a < b` |
-| `>=` | Greater or equal | `a >= b` |
-| `<=` | Less or equal | `a <= b` |
-| `==` | Equal to | `a == b` |
-| `!=` | Not equal to | `a != b` |
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-price = src.c
-bb = bbands(period=20, stddev=2)(src.c)
-upper_band = bb.bbands_upper
-
-above_20 = rsi_val > 20
-below_80 = rsi_val < 80
-at_threshold = price == 100.0
-breakout = src.c > upper_band
-```
-
-<Callout type="warning">
-Chained comparisons like `30 < rsi < 70` are not supported. Use explicit `and`:
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-valid = (rsi > 30) and (rsi < 70)
-```
-</Callout>
-
----
-
-## Logical Operators
-
-EpochScript supports both keyword and symbol forms for logical operators:
-
-| Keyword | Symbol | Description | Example |
-|---------|--------|-------------|---------|
-| `and` | `&` | Logical AND | `a and b` or `a & b` |
-| `or` | `\|` | Logical OR | `a or b` or `a \| b` |
-| `not` | `!` | Logical NOT | `not a` or `!a` |
-
-Both forms are equivalent and can be used interchangeably. Use whichever style you prefer, but be consistent within a file.
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Keyword form
-strong_buy = (rsi < 30) and (volume_spike)
-exit_signal = stop_loss or take_profit
-not_oversold = not (rsi < 30)
-
-# Symbol form (equivalent)
-strong_buy = (rsi < 30) & (volume_spike)
-exit_signal = stop_loss | take_profit
-not_oversold = !(rsi < 30)
-
-# Can be mixed (though not recommended for readability)
-mixed = (rsi < 30) and volume_spike | !(rsi > 70)
-```
-
----
-
-## Ternary Operator
-
-Conditional expression for value selection:
-
-<Callout type="tip" title="Syntax Template">
-This shows the ternary operator syntax. See example below for usage in context.
-</Callout>
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-result = value_if_true if condition else value_if_false
-```
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-fast = ema(period=12)(src.c)
-slow = ema(period=26)(src.c)
-rsi = rsi(period=14)(src.c)
-high_confidence = rsi > 70
-
-direction = "UP" if fast > slow else "DOWN"
-size = 2.0 if high_confidence else 1.0
-label = "OVERSOLD" if rsi < 30 else ("OVERBOUGHT" if rsi > 70 else "NEUTRAL")
-```
-
----
-
-## Lag Operator
-
-Access historical values using `[N]` where N is bars ago:
-
-<Callout type="tip" title="Syntax Template">
-This shows the lag operator syntax. See example below for usage in context.
-</Callout>
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-value[N]  # Value from N bars ago
-```
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-yesterday = src.c[1]      # 1 bar ago
-last_week = src.c[5]      # 5 bars ago
-momentum = src.c - src.c[10]  # Current vs 10 bars ago
-```
-
-**Rules:**
-- **Must be positive integer**: `src.c[1]` is valid
-- **No zero lag**: `src.c[0]` is redundant (just use `src.c`)
-- **No negative lag**: `src.c[-1]` is not supported (future values)
-- **No decimal lag**: `src.c[1.5]` is invalid
-
-<Callout type="note">
-The lag operator `[N]` is the ONLY form of indexing in EpochScript. There are no Python-style lists or arrays with arbitrary indexing.
-</Callout>
-
----
-
-## Attribute Access
-
-Access outputs from transforms or data sources:
-
-<Callout type="tip" title="Syntax Template">
-This shows the attribute access syntax. See example below for usage in context.
-</Callout>
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-object.attribute
-```
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-# Data source outputs
-src = market_data_source(timeframe="1D")
-close = src.c
-high = src.h
-low = src.l
-volume = src.v
-
-# Multi-output transform
-bb = bbands(period=20, stddev=2)(close)
-upper = bb.bbands_upper
-lower = bb.bbands_lower
-middle = bb.bbands_middle
-```
+| Category | Operator | Description | Example |
+|----------|----------|-------------|---------|
+| **Arithmetic** | `+` | Addition | `a + b` |
+| | `-` | Subtraction | `a - b` |
+| | `*` | Multiplication | `a * b` |
+| | `/` | Division | `a / b` |
+| | `%` | Modulo | `a % b` |
+| | `**` | Power | `a ** b` |
+| | `-` (unary) | Negation | `-a` |
+| **Comparison** | `>` | Greater than | `a > b` |
+| | `<` | Less than | `a < b` |
+| | `>=` | Greater or equal | `a >= b` |
+| | `<=` | Less or equal | `a <= b` |
+| | `==` | Equal | `a == b` |
+| | `!=` | Not equal | `a != b` |
+| **Logical** | `and` or `&` | Logical AND | `a and b` |
+| | `or` or `\|` | Logical OR | `a or b` |
+| | `not` or `!` | Logical NOT | `not a` |
+| **Ternary** | `if...else` | Conditional | `x if cond else y` |
+| **Lag** | `[N]` | N bars ago (N > 0) | `price[5]` |
+| **Access** | `.` | Attribute access | `src.c` |
 
 ---
 
 ## Operator Precedence
 
-From highest to lowest priority:
-
-1. **Attribute access**: `.`
-2. **Function call**: `()`
-3. **Unary**: `-`, `not`
-4. **Multiplicative**: `*`, `/`
-5. **Additive**: `+`, `-`
-6. **Comparison**: `>`, `<`, `>=`, `<=`, `==`, `!=`
-7. **Logical AND**: `and`
-8. **Logical OR**: `or`
-9. **Ternary**: `if ... else`
-
-**Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Explicit precedence with parentheses (recommended)
-result = (fast - slow) > (atr * 2)
-
-# Without parentheses (relies on precedence rules)
-result = fast - slow > atr * 2  # Same as above, but less clear
-```
-
-<Callout type="tip">
-Use parentheses to make precedence explicit, even when not strictly required. It improves readability.
-</Callout>
-
----
-
-## Summary
-
-**Key operators:**
-- Arithmetic: `+`, `-`, `*`, `/`, `-` (unary)
-- Comparison: `>`, `<`, `>=`, `<=`, `==`, `!=`
-- Logical: `and`, `or`, `not`
-- Ternary: `value1 if condition else value2`
-- Lag: `[N]` (historical lookback)
-- Attribute: `.` (access transform outputs)
+Follows [Python's operator precedence](https://docs.python.org/3/reference/expressions.html#operator-precedence) exactly.

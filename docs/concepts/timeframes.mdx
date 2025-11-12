@@ -1,11 +1,7 @@
 ---
 title: Timeframes
-page_type: concept
-layout: default
-order: 1
-category: Core Concepts
 description: Multi-timeframe analysis with automatic data resampling
-parent: ./index.md
+icon: Clock
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -16,145 +12,106 @@ Multi-timeframe analysis through automatic data resampling. Execute transforms o
 
 ---
 
-## Syntax
+## Overview
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=TF, complexity=simple */}
-```python
-transform(period=N, timeframe="TF")(input)
-```
+**Timeframe parameters enable multi-timeframe strategies** by automatically resampling data to the specified resolution before transform execution. This allows combining trend analysis on higher timeframes with entry signals on lower timeframes, or vice versa.
 
-The framework automatically resamples data to the specified timeframe before transform execution.
-
-**Example:**
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_intraday=true, complexity=medium */}
-```python
-# Strategy runs on 15Min bars
-src = market_data_source(timeframe="1D")
-
-# Calculate on daily timeframe (auto-resampled)
-daily_ema = ema(period=50, timeframe="1D")(src.c)
-
-# Compare intraday price vs daily trend
-above_trend = src.c > daily_ema
-```
+**Key Capability:** Any transform can operate on any timeframe. The framework handles all resampling automatically - you simply specify the desired timeframe parameter.
 
 ---
 
 ## Standard Timeframes
 
 ### Intraday
-{/* snippet: type=complete_code, needs_data=single_asset, needs_intraday=true, complexity=medium */}
-```python
-"1Min", "2Min", "3Min"     # 1-3 minutes
-"5Min", "10Min"            # 5-10 minutes
-"15Min", "30Min", "45Min"  # 15-45 minutes
-"1H", "2H", "3H", "4H"     # 1-4 hours
-```
+Minutes and hours for intraday trading:
+- **Minutes**: 1Min, 2Min, 3Min, 5Min, 10Min, 15Min, 30Min, 45Min
+- **Hours**: 1H, 2H, 3H, 4H
 
 ### Daily and Above
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-"1D"                       # 1 day
-"1W-MON", "1W-FRI"        # Week (Monday/Friday start)
-"1ME", "1MS"              # Month end/start
-"1QE", "1QS"              # Quarter end/start
-"1YE", "1YS"              # Year end/start
-```
+Daily, weekly, monthly, quarterly, and yearly resolutions:
+- **Daily**: 1D
+- **Weekly**: 1W-MON, 1W-FRI (Monday or Friday start)
+- **Monthly**: 1ME (end), 1MS (start)
+- **Quarterly**: 1QE (end), 1QS (start)
+- **Yearly**: 1YE (end), 1YS (start)
 
 <Callout type="warning" title="Use Exact Format">
-Timeframes are case-insensitive but must use exact units:
-- Valid: `"1D"`, `"1H"`, `"1W-MON"`, `"5Min"`
-- Invalid: `"1Day"`, `"1Hour"`, `"1Week"`
+Timeframes are case-insensitive but must use exact units. Valid: `"1D"`, `"1H"`, `"1W-MON"`, `"5Min"`. Invalid: `"1Day"`, `"1Hour"`, `"1Week"`.
 </Callout>
 
 ---
 
 ## Advanced Timeframes
 
-### Month/Quarter/Year Anchoring
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-"1MS"     # Month start
-"1ME"     # Month end
-"1QS"     # Quarter start
-"1QE"     # Quarter end
-"1YS"     # Year start
-"1YE"     # Year end
-```
-
 ### Week Anchoring
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-"1W-MON"         # Week starting Monday
-"1W-FRI"         # Week starting Friday
-"1W-SUN"         # Week starting Sunday
-"1W-MON-1st"     # First Monday of month
-"1W-MON-2nd"     # Second Monday of month
-"1W-MON-3rd"     # Third Monday of month
-"1W-FRI-Last"    # Last Friday of month
-```
+Weekly bars can start on specific weekdays or specific occurrences within a month:
+- **Day anchoring**: 1W-MON, 1W-FRI, 1W-SUN
+- **Month-relative anchoring**: 1W-MON-1st (first Monday), 1W-MON-2nd (second Monday), 1W-FRI-Last (last Friday)
+
+### Month/Quarter/Year Anchoring
+Period-end vs period-start conventions:
+- **Month**: 1MS (start), 1ME (end)
+- **Quarter**: 1QS (start), 1QE (end)
+- **Year**: 1YS (start), 1YE (end)
+
+**Applications:** Align with fundamental data releases, earnings calendars, or specific trading schedules.
 
 ---
 
-## Multi-Timeframe Pattern
+## Multi-Timeframe Strategies
 
-Higher timeframe for trend, lower timeframe for entry:
+**Common Pattern:** Use higher timeframe for trend filtering and lower timeframe for precise entry timing.
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
+**Strategy Types:**
+- **Trend + Entry**: Daily trend direction filters intraday signals
+- **Multiple Confirmations**: Weekly regime + daily momentum + hourly execution
+- **Adaptive Resolution**: Switch timeframes based on volatility or market conditions
 
-# Daily trend filter
-daily_trend = ema(period=50, timeframe="1D")(src.c)
-uptrend = src.c > daily_trend
-
-# Intraday entry signals
-fast = ema(period=12)(src.c)
-slow = ema(period=26)(src.c)
-entry = crossover(fast, slow)
-
-# Trade only with daily trend
-buy = entry and uptrend
-trade_signal_executor()(enter_long=buy)
-```
+**Applications:** Reduce false signals by confirming lower timeframe signals against higher timeframe context, improve entry timing without losing trend perspective, build hierarchical signal systems.
 
 ---
 
 ## Timeframe Requirements
 
-**Some transforms require a timeframe** (flagged with `requiresTimeFrame=true` in metadata):
+**Transforms flagged with `requiresTimeFrame=true` must have an explicit timeframe specified** when they have no inputs or only constant inputs.
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_sessions=true, needs_intraday=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")  # ✓ Required - data source needs timeframe
+### Data Sources
+All data sources require explicit timeframes:
+- `market_data_source` - Primary OHLCV data
+- `vwap`, `trade_count` - Supplemental bar metrics
+- Other data source transforms
 
-# ✗ Error: Missing timeframe
-gaps = session_gap(fill_percent=100)()
+### Pattern Detection
+Chart pattern transforms require timeframes:
+- `swing_highs_lows`, `head_and_shoulders`, `triangles`, `flags`
 
-# ✓ Correct: Explicit timeframe
-gaps = session_gap(fill_percent=100, timeframe="1Min")()
+### Calendar Effects
+Time-based transforms require timeframes:
+- `day_of_week`, `week_of_month`, `holiday`
 
-# ✓ Also correct: Inherits from src
-gaps = session_gap(fill_percent=100)(src.c)
-```
+### Session Transforms
+Session-based transforms require timeframes:
+- `session_gap`, `sessions`, `time_of_day`
 
-**Transforms requiring timeframes:**
-- Data sources: `market_data_source`, `vwap`, `trade_count`
-- Chart patterns: `swing_highs_lows`, `head_and_shoulders`, `triangles`, `flags`
-- Calendar effects: `day_of_week`, `week_of_month`, `holiday`
+---
+
+## Timeframe Inheritance
+
+**Transforms automatically inherit timeframes from their inputs** when:
+1. Transform has at least one input
+2. No explicit timeframe parameter is set
+3. Input has a known timeframe
+
+**Explicit timeframes always override inherited timeframes.** When transforms have multiple inputs with different timeframes, the coarsest resolution is used (daily > hourly > minute).
+
+**When inheritance fails:** Transforms with no inputs or only constant inputs cannot inherit timeframes and will fail validation if `requiresTimeFrame=true`. Always set explicit timeframes for data sources and transforms with no inputs.
 
 <Callout type="warning" title="When to Set Timeframes">
 **Always explicitly set timeframes for:**
 - Data sources: `market_data_source(timeframe="1D")`
 - Transforms with NO inputs: `day_of_week(timeframe="1D")`
-- Transforms requiring timeframes with only constant inputs
 
-**Timeframe inheritance only works when transforms have inputs:**
-1. **Explicit timeframe wins**: `ema(period=20, timeframe="1D")(src.c)` uses `"1D"`
-2. **Inherits from inputs**: `rsi(period=14)(src.c)` inherits from `src`
-3. **Multiple inputs**: Takes the coarsest resolution (daily > hourly > minute)
-
-If a transform has no inputs to inherit from, you **must** set `timeframe=` explicitly.
+**Timeframe inheritance only works when transforms receive inputs from other transforms with known timeframes. If a transform has no inputs or cannot determine a timeframe from its inputs, you must set the timeframe explicitly.**
 </Callout>
 
 ---
@@ -162,4 +119,4 @@ If a transform has no inputs to inherit from, you **must** set `timeframe=` expl
 ## See Also
 
 - [Sessions](./sessions) - Combine timeframes with session filtering
-- [Design Guidelines](../design-guidelines) - Timeframe validation errors
+- [Data Sources](./data-sources) - Data source timeframe requirements

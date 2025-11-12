@@ -20,12 +20,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Option to specify where script metadata files (transforms.yaml, etc.) should be copied
-# Defaults to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files but can be overridden
-set(SCRIPT_METADATA_FILES_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files" CACHE PATH
-    "Directory where script metadata files (transforms.yaml, commission.yaml, etc.) will be copied")
-message(STATUS "Script metadata files will be copied to: ${SCRIPT_METADATA_FILES_DIR}")
-
 # Enable vcpkg manifest mode (uses vcpkg.json)
 set(DEPENDENCY_DIR "/usr/local" CACHE STRING "Dependency directory")
 set(CMAKE_TOOLCHAIN_FILE $ENV{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
@@ -114,18 +108,10 @@ add_subdirectory(src)
 
 # Copy test files and define METADATA_FILES_DIR early
 # Use the configurable SCRIPT_METADATA_FILES_DIR option from main CMakeLists.txt
-set(METADATA_FILES_DIR ${SCRIPT_METADATA_FILES_DIR})
-
-# Ensure the target directory exists and copy files
-file(MAKE_DIRECTORY ${METADATA_FILES_DIR})
-file(COPY ${PROJECT_SOURCE_DIR}/files DESTINATION ${METADATA_FILES_DIR})
+set(METADATA_FILES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files)
+file(COPY ${PROJECT_SOURCE_DIR}/files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 if (BUILD_TEST)
     add_subdirectory(test)
     add_subdirectory(benchmark)
 endif()
-
-# Utility: Dump transform metadata to JSON for documentation verification
-add_executable(dump_transform_metadata scripts/dump_transform_metadata.cpp)
-target_link_libraries(dump_transform_metadata PRIVATE epoch::script)
-target_include_directories(dump_transform_metadata PRIVATE ${PROJECT_SOURCE_DIR}/include)

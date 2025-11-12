@@ -1,270 +1,97 @@
 ---
-title: Types & Literals
-page_type: concept
-layout: default
-order: 4
-category: Language
-description: Data types, literals, type system, and type compatibility in EpochScript
-parent: ./index.md
+title: Types & Syntax
+description: Type system, variables, parameters, and casting rules
+icon: Package
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Types & Literals
+# Types & Syntax
 
-EpochScript's type system including built-in types, literals, and type compatibility rules.
-
----
-
-## Data Types
-
-| Type | Description | Examples |
-|------|-------------|----------|
-| `Boolean` | True/False | `True`, `False` |
-| `Integer` | Whole numbers | `42`, `-5`, `0`, `1000` |
-| `Decimal` | Floating-point | `3.14`, `0.5`, `-1.23`, `1.5e-3` |
-| `Number` | Integer or Decimal | Any numeric value |
-| `String` | Text | `"BULLISH"`, `'AAPL'` |
-| `Timestamp` | Date/time | Implicit from data source |
-| `Any` | Generic type | Used for flexible inputs |
+EpochScript type system, variable assignment, and parameter syntax fundamentals.
 
 ---
 
-## Type Compatibility
+## Supported Types
 
-### Numbers Mix Freely
+`Boolean`, `Integer`, `Decimal`, `String`, `None`
 
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-int_val = 10
-dec_val = 3.14
-result = int_val + dec_val  # 13.14 (Decimal)
-```
-
-### Boolean ↔ Number Casting
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Boolean → Number (automatic)
-is_up = True
-score = is_up + 10  # 11 (True = 1)
-
-# Number → Boolean (automatic)
-volume = 1000
-has_volume = volume and True  # True (non-zero = True)
-```
-
-### Strings Are Isolated
-
-Strings can only be used for labels and conditional selection.
+**Type aliases:** `Number` (Integer or Decimal), `Timestamp` (from data source), `Any` (generic)
 
 <Callout type="warning">
-Cannot mix strings with numbers in arithmetic operations.
+**Strings are isolated** - can only be used for labels and conditional selection, not arithmetic operations.
 </Callout>
 
-**Valid uses:**
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-fast = ema(period=12)(src.c)
-slow = ema(period=26)(src.c)
-bullish = fast > slow
-rsi = rsi(period=14)(src.c)
+---
 
-direction = "UP" if bullish else "DOWN"
-label = conditional_select(rsi < 30, "OVERSOLD", rsi > 70, "OVERBOUGHT", "NEUTRAL")
+## Variables
+
+**Assignment:** Single assignment only - variables are immutable.
+
+**Naming rules:**
+- Must start with letter or underscore: `ema_20`, `_temp`, `Signal`
+- Can contain letters, numbers, underscores: `fast_ema_12`, `rsi_14`
+- Case-sensitive: `Price` ≠ `price`
+- Cannot use Python reserved keywords: `True`, `False`, `None`, `and`, `or`, `not`, `if`, `else`
+
+**Reassignment is prohibited:**
+```python
+price = src.c
+price = src.o  # ERROR: Variable 'price' already bound
 ```
 
 ---
 
-## Literals
+## Transform Parameters (Options)
 
-### Number Literals
+**Parameter typing is strict for String and Boolean types.** Numeric types (Integer, Decimal, Number) are flexible and interchangeable.
 
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-# Integers
-count = 42
-lookback = 20
-negative = -10
-
-# Decimals
-ratio = 3.14
-threshold = 0.618
-scientific = 1.5e-3  # 0.0015
-```
-
-### Boolean Literals
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-enabled = True
-disabled = False
-```
-
-### String Literals
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Single or double quotes
-label = "BULLISH"
-symbol = 'AAPL'
-
-# Triple-quoted (for JSON configs)
-config = """
-{
-    "strategy": "momentum",
-    "version": "1.0"
-}
-"""
-```
-
-### None Literal
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-no_value = None
-fallback = signal if condition else None
-```
-
-### List Literals
-
-Used in certain transform parameters:
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-colors = [0xFF0000, 0x00FF00, 0x0000FF]
-labels = ["Buy", "Sell", "Hold"]
-```
-
----
-
-## Type System
-
-### Automatic Type Inference
-
-Types are inferred automatically:
-
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-price = src.c          # Inferred: Decimal series
-fast = ema(period=20)(price)  # Inferred: Decimal series
-slow = ema(period=50)(price)
-signal = fast > slow   # Inferred: Boolean series
-```
-
-### Type Checking
-
-The compiler validates type compatibility:
-
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-# Type safe
-ratio = fast / slow    # Decimal / Decimal → Decimal
-condition = fast > slow  # Decimal > Decimal → Boolean
-
-# Will NOT compile - type mismatch
-text = "PRICE"
-result = text + 10     # ERROR: String + Number incompatible
-```
+| Type       | Valid                      | Invalid (causes error)        |
+|------------|----------------------------|-------------------------------|
+| `Integer`  | `20`, `-5`, `20.0`         | `"20"`, `True`                |
+| `Decimal`  | `3.14`, `0.5`, `20`        | `"3.14"`, `False`             |
+| `Number`   | `20`, `3.14`, `-5.0`       | `"42"`, `True`                |
+| `Boolean`  | `True`, `False`            | `1`, `0`, `"true"`            |
+| `String`   | `"1D"`, `"AAPL"`           | `1D` (missing quotes)         |
 
 <Callout type="note">
-Type errors are caught at compile time, before execution.
+**Automatic type compatibility:**
+- **Numeric types are interchangeable**: Integer ↔ Decimal ↔ Number
+- **Strings must be quoted**: Bare identifiers cause errors
+- **Booleans are strict**: Use `True`/`False`, not `1`/`0`
 </Callout>
 
 ---
 
-## Parameter Type Validation
+## Type Casting
 
-When passing options (parameters) to transforms, the type must match exactly what the transform expects.
+EpochScript automatically casts between compatible types in expressions:
 
-### Transform Option Types
+**Numeric Compatibility:**
+- `Integer`, `Decimal`, and `Number` are mutually compatible
+- Operations mix types freely: `20 + 3.14` works without explicit casting
 
-Each transform option has a specific type requirement:
+**Boolean ↔ Numeric Casting:**
+- Boolean → Numeric: `True` becomes `1.0`, `False` becomes `0.0`
+- Numeric → Boolean: Non-zero values become `True`, zero becomes `False`
 
-{/* snippet: type=error_example, expected_error="String passed to Integer option" */}
-```python
-# Integer option - must be whole number
-ema_result = ema(period=20)(src.c)  # ✅ Correct
-
-# ERROR: String passed to Integer option
-ema_result = ema(period="20")(src.c)  # ❌ Type mismatch
-```
-
-### Common Option Types
-
-| Option Type | Valid Values | Invalid Values |
-|-------------|--------------|----------------|
-| **Integer** | `20`, `-5`, `0`, `100` | `"20"`, `20.5`, `True` |
-| **Decimal** | `0.5`, `3.14`, `1.5e-3` | `"0.5"`, `True` |
-| **Boolean** | `True`, `False` | `1`, `0`, `"true"` |
-| **String** | `"AAPL"`, `"1D"`, `"London"` | `AAPL` (no quotes), numbers |
-
-### Type Mismatch Examples
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# ERROR: String where Integer expected
-rsi_val = rsi(period="14")(src.c)
-
-# ERROR: Decimal where Integer expected
-ma = sma(period=20.5)(src.c)
-
-# ERROR: Boolean where String expected
-src = market_data_source(timeframe=True)
-```
-
-<Callout type="warning" title="Type Mismatch for Option">
-When you see this error, check:
-1. Is the value in quotes when it shouldn't be? (`"20"` → `20`)
-2. Is the value missing quotes when it should have them? (`1D` → `"1D"`)
-3. Does the number have decimals when it should be whole? (`20.5` → `20`)
-4. Are you passing a variable of the wrong type?
-</Callout>
-
-### Boolean Operation Type Casting
-
-EpochScript automatically casts between booleans and numbers in some contexts:
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-# Boolean → Number (automatic)
-is_up = True
-score = is_up + 10  # ✅ 11 (True = 1, False = 0)
-
-# Number → Boolean (automatic in logical context)
-volume = 1000
-has_volume = volume and True  # ✅ True (non-zero = True)
-```
-
-However, boolean operations expect boolean inputs:
-
-{/* snippet: type=error_example, expected_error="String in boolean operation" */}
-```python
-# ✅ Correct: Boolean operands
-condition = (price > 100) and (volume > 1000)
-
-# ⚠️ Auto-cast: Non-zero numbers treated as True
-result = 5 and 10  # Works, but unclear
-
-# ❌ ERROR: String in boolean operation
-result = "text" and True  # Type error
-```
-
-<Callout type="note" title="Best Practice">
-Use explicit comparisons for clarity:
-- Write `volume > 0` instead of just `volume`
-- Write `price == target` instead of relying on auto-casting
-</Callout>
+**String Isolation:**
+- Strings cannot be cast to other types
+- Use only for labels, conditional selection, and metadata
 
 ---
 
-## Summary
+## Multi-Output Transforms
 
-**Key points:**
-- Seven built-in types (Boolean, Integer, Decimal, Number, String, Timestamp, Any)
-- Automatic type inference from expressions
-- Numbers mix freely, booleans cast to/from numbers
-- Strings isolated (labels only)
-- Type checking at compile time
+Transforms with multiple outputs (like `bbands`, `macd`, `stoch`) require explicit output selection.
+
+| Method | Example |
+|--------|---------|
+| **Attribute access** | `bb.bbands_upper` |
+| **Tuple unpacking** | `lower, middle, upper = bbands(...)` |
+| **Discard unwanted** | `lower, _, upper = bbands(...)` |
+
+**Rules:**
+- Unpacking count must match output count exactly (or use `_`)
+- Can only unpack direct transform calls, not variables
+- Error: `ambiguous_multi_output` means you need to specify which output

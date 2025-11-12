@@ -37,6 +37,15 @@ target_sources(dump_expected PRIVATE
 target_compile_definitions(dump_expected PUBLIC
     -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
 
+# Helper tool to dump transform metadata to JSON for test coverage
+add_executable(dump_transform_metadata dump_transform_metadata.cpp)
+target_link_libraries(dump_transform_metadata PRIVATE epoch_script)
+target_include_directories(dump_transform_metadata PRIVATE ../src .)
+set_target_properties(dump_transform_metadata PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+target_compile_definitions(dump_transform_metadata PUBLIC
+    -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
+
 # Set runtime output directory to bin (where test resources are copied)
 set_target_properties(epoch_script_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

@@ -17,4 +17,3 @@ add_subdirectory(statistics)
 
 
 target_compile_definitions(epoch_script_test PUBLIC -DMETADATA_FILES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/files")
-MESSAGE("METADATA_FILES_DIR ${METADATA_FILES_DIR}")

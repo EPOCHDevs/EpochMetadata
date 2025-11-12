@@ -64,8 +64,7 @@ CREATE_ENUM(
     vortex,             // Vortex Indicator
     trade_signal);      // Trade Signal Executor
 
-CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any, List,
-            Struct);
+CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any);
 
 // Note: CardRenderType, CardSlot, CardColor enums are defined in constants.h
 // Note: Use TransformCategory to distinguish between transform types:
@@ -212,18 +211,6 @@ struct IOMetaDataConstants {
   inline static IOMetaData INTEGER_OUTPUT_METADATA{
       epoch_core::IODataType::Integer, "result", "", true};
 
-  inline static IOMetaData LIST_INPUT_METADATA{epoch_core::IODataType::List,
-                                               ARG, "", false};
-
-  inline static IOMetaData LIST_OUTPUT_METADATA{epoch_core::IODataType::List,
-                                                "result", "", true};
-
-  inline static IOMetaData STRUCT_INPUT_METADATA{epoch_core::IODataType::Struct,
-                                                 ARG, "", false};
-
-  inline static IOMetaData STRUCT_OUTPUT_METADATA{
-      epoch_core::IODataType::Struct, "result", "", true};
-
   inline static std::unordered_map<std::string, IOMetaData> MAP{
       {"CLOSE", CLOSE_PRICE_METADATA},
       {"OPEN", OPEN_PRICE_METADATA},
@@ -239,11 +226,7 @@ struct IOMetaDataConstants {
       {"NUMBER_RESULT", NUMBER_OUTPUT_METADATA},
       {"ANY_RESULT", ANY_OUTPUT_METADATA},
       {"BOOLEAN", BOOLEAN_INPUT_METADATA},
-      {"BOOLEAN_RESULT", BOOLEAN_OUTPUT_METADATA},
-      {"LIST", LIST_INPUT_METADATA},
-      {"LIST_RESULT", LIST_OUTPUT_METADATA},
-      {"STRUCT", STRUCT_INPUT_METADATA},
-      {"STRUCT_RESULT", STRUCT_OUTPUT_METADATA}};
+      {"BOOLEAN_RESULT", BOOLEAN_OUTPUT_METADATA}};
 };
 
 // Shared constants for MetaDataOption select options

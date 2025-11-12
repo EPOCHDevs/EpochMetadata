@@ -1,11 +1,7 @@
 ---
 title: Limitations
-page_type: concept
-layout: default
-order: 6
-category: Language
-description: Python features not supported and critical design constraints in EpochScript
-parent: ./index.md
+description: Python features not supported and design constraints in EpochScript
+icon: AlertCircle
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -28,114 +24,47 @@ EpochScript is NOT Python. Many Python features are intentionally excluded to en
 
 ## No Control Flow
 
-`if`/`elif`/`else` statements are not allowed.
+**Limitation:** `if`/`elif`/`else` statements are not allowed.
 
 **Reason:** Operations must work vectorized across all time points simultaneously.
 
-<Callout type="warning" title="If statements not supported">
-Use boolean expressions or ternary operators instead.
-</Callout>
-
-**Use instead:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-price = src.c
-rsi_val = rsi(period=14)(src.c)
-
-# Boolean expression
-signal = price > 100
-
-# Ternary operator
-signal_ternary = True if price > 100 else False
-
-# conditional_select for multi-way branching
-regime = conditional_select(
-    rsi_val < 30, "oversold",
-    rsi_val > 70, "overbought",
-    "neutral"
-)
-```
+**Use instead:** Boolean expressions, ternary operators, or `conditional_select()` for multi-way branching.
 
 ---
 
 ## No Loops
 
-`for` and `while` loops are not allowed.
+**Limitation:** `for` and `while` loops are not allowed.
 
 **Reason:** Transforms operate on entire series vectorized.
 
-<Callout type="warning" title="Loops not supported">
-Use vectorized transforms instead.
-</Callout>
-
-**Use instead:**
-
-{/* snippet: type=complete_code, needs_data=multi_asset, complexity=complex */}
-```python
-src = market_data_source(timeframe="1D")
-close = src.c
-momentum = rsi(period=14)(close)
-
-# Transforms work on entire series automatically
-ema_series = ema(period=20)(close)  # Applies to all time points
-
-# Cross-sectional operations
-top_stocks = top_k(k=10)(momentum)  # Selects top 10 across universe
-```
+**Use instead:** Vectorized transforms that automatically apply to all time points. Cross-sectional operations like `top_k()` work across entire universes.
 
 ---
 
 ## No Variable Reassignment
 
-Variables are **immutable** - single assignment only.
+**Limitation:** Variables are **immutable** - single assignment only.
 
 **Reason:** Prevents temporal logic bugs and enables parallel evaluation.
 
-<Callout type="warning" title="Variable already bound">
-Use distinct variable names.
-</Callout>
-
-**Valid Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# Valid - distinct names
-close_price = src.c
-open_price = src.o
-```
-
-**Invalid Example:**
-
-{/* snippet: type=error_example, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# NOT ALLOWED
-price = src.c
-price = src.o  # ERROR: Variable 'price' already bound
-```
+**Use instead:** Distinct variable names for each value.
 
 ---
 
 ## No Function Definitions
 
-`def` keyword is not allowed. Cannot define custom functions.
+**Limitation:** `def` keyword is not allowed. Cannot define custom functions.
 
 **Reason:** All transforms must be registered in the system for metadata and visualization.
 
-<Callout type="note">
-Use built-in transforms only. If you need custom logic, request a new transform to be added to the system.
-</Callout>
+**Use instead:** Built-in transforms only. Request new transforms to be added to the system if custom logic is needed.
 
 ---
 
 ## No Class Definitions
 
-`class` keyword is not allowed.
+**Limitation:** `class` keyword is not allowed.
 
 **Reason:** EpochScript is a pure functional language for time-series operations.
 
@@ -143,7 +72,7 @@ Use built-in transforms only. If you need custom logic, request a new transform 
 
 ## No Exception Handling
 
-`try`/`except` blocks are not allowed.
+**Limitation:** `try`/`except` blocks are not allowed.
 
 **Reason:** All errors are compile-time errors, not runtime exceptions.
 
@@ -151,115 +80,31 @@ Use built-in transforms only. If you need custom logic, request a new transform 
 
 ## No Chained Comparisons
 
-Python's `a < b < c` syntax is not supported.
+**Limitation:** Python's `a < b < c` syntax is not supported.
 
-<Callout type="warning" title="Chained comparison not supported">
-Use explicit boolean logic.
-</Callout>
+**Reason:** Explicit boolean logic is clearer for vectorized operations.
 
-**Invalid Example:**
-
-{/* snippet: type=error_example, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-
-# NOT ALLOWED
-valid = 30 < rsi_val < 70
-```
-
-**Valid Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-rsi_val = rsi(period=14)(src.c)
-
-# Use instead
-above_30 = rsi_val > 30
-below_70 = rsi_val < 70
-valid = above_30 and below_70
-
-# Or inline
-valid_inline = (rsi_val > 30) and (rsi_val < 70)
-```
+**Use instead:** Explicit `and`/`or` with separate comparisons: `(rsi_val > 30) and (rsi_val < 70)`.
 
 ---
 
 ## No Negative Indexing
 
-Python's `list[-1]` for last element is not supported.
+**Limitation:** Python's `list[-1]` for last element is not supported.
 
-<Callout type="warning" title="Negative lag indices not supported">
-Lag operator only accepts positive integers.
-</Callout>
+**Reason:** Lag operator only accepts positive integers for historical lookback.
 
-**Invalid Example:**
-
-{/* snippet: type=error_example, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# NOT ALLOWED
-yesterday = src.c[-1]
-```
-
-**Valid Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# Use instead
-yesterday = src.c[1]  # 1 bar ago
-last_week = src.c[5]  # 5 bars ago
-```
+**Use instead:** Positive lag indices: `src.c[1]` for 1 bar ago, `src.c[5]` for 5 bars ago.
 
 ---
 
 ## No Zero Indexing
 
-Using `[0]` is redundant and not allowed.
+**Limitation:** Using `[0]` is redundant and not allowed.
 
-<Callout type="warning" title="Zero lag not allowed">
-Omit the index for current value.
-</Callout>
+**Reason:** Current value is the default without any index.
 
-**Invalid Example:**
-
-{/* snippet: type=error_example, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# NOT ALLOWED
-current = src.c[0]
-```
-
-**Valid Example:**
-
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-src = market_data_source(timeframe="1D")
-
-# Use instead
-current = src.c
-```
-
----
-
-## Summary Table
-
-| Python Feature | Supported? | Alternative |
-|----------------|------------|-------------|
-| `if`/`else` | No | Ternary, `conditional_select()` |
-| `for`/`while` | No | Vectorized transforms |
-| Variable reassignment | No | Use distinct names |
-| `def` functions | No | Use built-in transforms |
-| `class` | No | N/A |
-| `try`/`except` | No | Compile-time error checking |
-| Chained comparisons | No | Explicit `and`/`or` |
-| Negative indexing | No | Positive lag only `[N]` |
-| Zero indexing | No | Omit index |
+**Use instead:** Omit the index for current value: `src.c` instead of `src.c[0]`.
 
 ---
 
@@ -279,5 +124,4 @@ The limitations aren't arbitrary - they're essential for EpochScript's design go
 
 ## See Also
 
-- [Design Guidelines](../design-guidelines) - Required patterns and common mistakes
 - [Error Reference](../error-reference) - Specific error messages and fixes

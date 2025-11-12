@@ -1,0 +1,50 @@
+---
+title: Executors
+description: Strategy execution nodes that generate trading signals and manage positions
+icon: Play
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Executors
+
+Executors are required terminal nodes that convert strategy logic into actionable trading signals. Every strategy must include at least one `trade_signal_executor` to be valid.
+
+---
+
+## Overview
+
+**Executors serve as the final output layer** of a strategy, transforming indicator values and conditions into concrete trading actions. Without an executor, a strategy is incomplete - it may calculate indicators and conditions but produces no tradeable output.
+
+**Visual Output:** Executor signals automatically appear as flags on candlestick charts:
+- **L** - Enter long position
+- **XL** - Exit long position
+- **S** - Enter short position
+- **XS** - Exit short position
+
+These visual markers make it easy to see strategy behavior and validate signal timing during research and backtesting.
+
+<Callout type="warning" title="Executor Required">
+**Every strategy must include at least one executor.** Strategies without executors will fail validation. The `trade_signal_executor` must be connected to boolean values that define entry and exit conditions.
+</Callout>
+
+---
+
+## Requirements
+
+| Rule | Why |
+|------|-----|
+| **Must have exactly 1** `trade_signal_executor()` | Bridge between logic and execution |
+| **At least 1 signal** required | `enter_long`, `enter_short`, `exit_long`, or `exit_short` |
+| **Exits process before entries** | On same bar |
+
+**Common errors:**
+- `No trade_signal_executor found` → Add one
+- `Multiple trade_signal_executor calls` → Combine into one
+- `Requires at least one input` → Provide signals
+
+---
+
+## See Also
+
+- [Cross-Sectional Analysis](./cross-sectional) - Multi-asset strategies

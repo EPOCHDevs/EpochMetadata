@@ -1,187 +1,127 @@
 ---
 title: Sessions
-page_type: concept
-layout: default
-order: 2
-category: Core Concepts
 description: Intraday session filtering and boundary detection
-parent: ./index.md
+icon: Calendar
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 # Sessions
 
-Intraday session filtering and detection. Two modes: filter data to specific sessions or detect session boundaries.
+Intraday session filtering and boundary detection. Two modes: filter data to specific trading sessions or detect session boundaries for range-based strategies.
 
 ---
 
-## Session Features
+## Overview
 
-| Feature | Purpose | Usage |
-|---------|---------|-------|
-| **`session` parameter** | Filter data to specific session | `ema(period=20, session="London")(src.c)` |
-| **`sessions()` transform** | Detect predefined session boundaries | `london = sessions(session_type="London")()` |
-| **`time_of_day()` transform** | Detect custom time ranges | `morning = time_of_day(start="09:00", end="12:00")()` |
+**Sessions enable intraday strategies** that focus on specific trading periods with distinct liquidity and volatility characteristics. Use session parameters to isolate analysis to high-activity periods, or use session detection transforms to identify boundaries and track session ranges.
+
+**Two Approaches:**
+- **Session Parameter**: Filter transform inputs to specific session bars
+- **Session Detection**: Mark boundaries and track high/low ranges
 
 ---
 
 ## Session Parameter (Data Filtering)
 
-Execute transform on ONLY the bars within a specific trading session.
+**Execute transforms on only the bars within a specific trading session** by adding a `session` parameter to any transform. The framework automatically filters input data to the specified session before calculation.
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_sessions=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-
-# EMA calculated ONLY on London session bars
-london_ema = ema(period=20, session="London")(src.c)
-
-# RSI calculated ONLY on New York session bars
-ny_rsi = rsi(period=14, session="NewYork")(src.c)
-
-# Gap detection for Asian session only
-asian_gaps = session_gap(fill_percent=100, session="AsianKillZone")()
-```
-
-**Use cases:**
-- Session-specific indicators (London volatility, NY volume)
+**Applications:**
+- Session-specific indicators (London volatility, New York volume patterns)
 - Isolate trading to high-liquidity periods
-- Compare behavior across sessions
+- Compare indicator behavior across different sessions
+- Build session-dependent entry rules
+
+**Available with:** Any transform that accepts a session parameter can filter to predefined sessions like London, NewYork, Tokyo, Sydney, or ICT Kill Zones.
 
 ---
 
 ## sessions() Transform (Session Detection)
 
-Mark session boundaries and track session high/low.
-
-**Syntax:**
-{/* snippet: type=complete_code, needs_data=single_asset, needs_sessions=true, complexity=medium */}
-```python
-session = sessions(session_type="session_name")()
-```
+**Mark session boundaries and track session price ranges** for breakout strategies and range analysis.
 
 **Outputs:**
-- `active` - Boolean: True during session
-- `high` - Decimal: Session high price
-- `low` - Decimal: Session low price
-- `opened` - Boolean: True on session open bar
-- `closed` - Boolean: True on session close bar
+- `active` - Boolean indicating when session is active
+- `high` - Session high price (updated during session)
+- `low` - Session low price (updated during session)
+- `opened` - Boolean true on session open bar
+- `closed` - Boolean true on session close bar
 
-**Example:**
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_sessions=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
-london = sessions(session_type="London")()
-
-# Define bullish condition
-fast_ema = ema(period=12)(src.c)
-slow_ema = ema(period=26)(src.c)
-bullish_condition = fast_ema > slow_ema
-
-# Trade only during London session
-in_session = london.active
-entry = bullish_condition and in_session
-
-# Breakout from session range
-breakout_high = src.c > london.high
-breakout_low = src.c < london.low
-
-# Exit at session close
-exit_signal = london.closed
-```
+**Applications:**
+- Trade only during specific sessions using `active` flag
+- Breakout strategies based on session `high`/`low`
+- Exit positions at session close
+- Session range analysis and statistics
 
 ---
 
 ## time_of_day() Transform (Custom Time Ranges)
 
-Define custom UTC time ranges for intraday filtering.
+**Define custom UTC time ranges** for intraday filtering beyond predefined sessions.
 
-**Syntax:**
-{/* snippet: type=complete_code, needs_data=single_asset, complexity=simple */}
-```python
-period = time_of_day(start="HH:MM", end="HH:MM")()
-```
+**Key Features:**
+- Custom start/end times in HH:MM format
+- All times in UTC (no automatic DST handling)
+- Same 5 outputs as `sessions()`: active, opened, closed, high, low
 
-**Example:**
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1H, needs_sessions=true, needs_intraday=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1H")
+**Applications:**
+- Custom trading hours for specific strategies
+- Market open/close periods
+- Lunch break filtering
+- Custom ICT-style time windows
 
-# Morning period: 09:00-12:00 UTC
-morning = time_of_day(start="09:00", end="12:00")()
-
-# Use same outputs as sessions()
-is_morning = morning.active
-morning_high = morning.high
-morning_low = morning.low
-```
-
-**Key differences from `sessions()`:**
-- Custom time ranges (not predefined)
-- All times in UTC (no DST handling)
-- Same 5 outputs: `active`, `opened`, `closed`, `high`, `low`
+**Differences from sessions():**
+- Not restricted to predefined session names
+- Requires manual UTC time specification
+- No automatic daylight saving time adjustments
 
 ---
 
 ## Available Sessions
 
 ### Geographic Sessions
-```text
-"Sydney"    # Sydney, Australia (5 PM - 2 AM ET*)
-"Tokyo"     # Tokyo, Japan (7 PM - 4 AM ET*)
-"London"    # London, UK (3 AM - 12 PM ET*)
-"NewYork"   # New York, USA (8 AM - 5 PM ET*)
+Major global trading sessions with automatic DST handling:
+- **Sydney** - Sydney, Australia (5 PM - 2 AM ET)
+- **Tokyo** - Tokyo, Japan (7 PM - 4 AM ET)
+- **London** - London, UK (3 AM - 12 PM ET)
+- **NewYork** - New York, USA (8 AM - 5 PM ET)
 
-* Times in EST; add 1 hour during EDT (daylight saving)
-```
+Times shown in EST; add 1 hour during EDT (daylight saving).
 
 ### Kill Zones (ICT - High Liquidity Periods)
-```text
-"AsianKillZone"         # 19:00-23:00 ET
-"LondonOpenKillZone"    # 02:00-05:00 ET
-"NewYorkKillZone"       # 07:00-10:00 ET
-"LondonCloseKillZone"   # 10:00-12:00 ET
-```
+Institutional order flow windows:
+- **AsianKillZone** - 19:00-23:00 ET
+- **LondonOpenKillZone** - 02:00-05:00 ET
+- **NewYorkKillZone** - 07:00-10:00 ET
+- **LondonCloseKillZone** - 10:00-12:00 ET
+
+**Applications:** Target periods of highest institutional activity, liquidity imbalances, and smart money movement.
 
 ---
 
-## Combined Session + TimeFrame
+## Combined Session + Timeframe
 
-{/* snippet: type=complete_code, needs_data=single_asset, timeframe=1D, needs_sessions=true, needs_intraday=true, complexity=medium */}
-```python
-src = market_data_source(timeframe="1D")
+**Session and timeframe parameters work together** with a specific execution order:
 
-# Daily bars, but only from New York session data
-daily_ny_src = market_data_source(
-    timeframe="1D",
-    session="NewYork"
-)()
-daily_ny = daily_ny_src.c
+**Processing Order:**
+1. Filter by `session` (if specified) - Removes all bars outside session
+2. Resample to `timeframe` (if specified) - Aggregates filtered bars
+3. Execute transform - Calculates on processed data
 
-# Hourly EMA, London session only
-hourly_london = ema(
-    period=20,
-    timeframe="1H",
-    session="London"
-)(src.c)
-```
-
-**Execution order:**
-1. Filter by `session` (if specified)
-2. Resample to `timeframe` (if specified)
-3. Execute transform
+**Applications:**
+- Daily bars constructed only from New York session data
+- Hourly EMAs calculated only on London session bars
+- Weekly indicators from Asian session data
+- Multi-timeframe session-filtered analysis
 
 ---
 
 ## Requirements
 
 <Callout type="warning" title="Intraday Data Required">
-Session transforms require intraday data.
+Session transforms require intraday data. The `isIntraday` flag in transform metadata automatically signals the orchestrator to provision intraday data and tag strategies with intraday requirements.
 
-If strategy runs on daily (1D) timeframe, session transforms will fail with:
-`Transform 'sessions' requires intraday data`
+If strategy runs on daily (1D) timeframe, session transforms will fail with: `Transform 'sessions' requires intraday data`
 
 Ensure strategy is configured for intraday timeframe (1Min, 5Min, 1H, etc.)
 </Callout>
@@ -191,4 +131,3 @@ Ensure strategy is configured for intraday timeframe (1Min, 5Min, 1H, etc.)
 ## See Also
 
 - [Timeframes](./timeframes) - Combine sessions with multi-timeframe analysis
-- [Design Guidelines](../design-guidelines) - Session validation errors
