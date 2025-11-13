@@ -46,7 +46,7 @@ target_link_libraries(migrate_to_json PRIVATE
 set_target_properties(migrate_to_json PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-
-# Copy integration test cases to runtime output directory
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/test_cases_json
-     DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+#
+## Copy integration test cases to runtime output directory
+#file(COPY ${CMAKE_CURRENT_LIST_DIR}/test_cases_json
+#     DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

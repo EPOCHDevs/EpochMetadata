@@ -42,7 +42,10 @@ struct AssetConfiguration {
 
 static std::vector<AssetConfiguration> GetAssetConfigurations() {
   return {
-      {"single_asset", {"AAPL-Stocks"}}
+      {"single_stock", {"AAPL-Stocks"}},
+{"small_index", {"DJIA30"}},
+{"large_index", {"SP500"}}
+
   };
 }
 
@@ -52,6 +55,7 @@ struct MetadataJson {
   std::string description;
   std::string role;
   std::string category;
+  std::string asset_config;
 };
 
 // Helper: Normalize CompilationResult by sorting nodes by ID
@@ -156,7 +160,7 @@ void SaveTransformedDataAsParquet(
 }
 
 // Run test on EpochScript source with output directory
-void RunTest(const std::string& source, const std::string& output_dir) {
+void RunTest(const std::string& source, const std::string& output_dir, const std::string& selected_asset_config) {
   // Compile EpochScript source
   auto compiler = std::make_unique<epoch_script::strategy::PythonSource>(source, false);
 
@@ -169,52 +173,62 @@ void RunTest(const std::string& source, const std::string& output_dir) {
   // Save graph.json to output directory
   SaveGraph(normalized, output_dir);
 
-  // Runtime execution with multiple asset configurations
-  auto asset_configs = GetAssetConfigurations();
+  // Runtime execution with selected asset configuration
+  auto all_asset_configs = GetAssetConfigurations();
 
-  for (const auto& asset_config : asset_configs) {
-    // 1. Create StrategyConfig from test input
-    epoch_script::strategy::StrategyConfig strategyConfig;
-    strategyConfig.trade_signal.source = *compiler;
-    strategyConfig.data.assets = asset_config.assets;
+  // Find the selected asset config
+  auto it = std::ranges::find_if(all_asset_configs, [&](const auto& config) {
+    return config.name == selected_asset_config;
+  });
 
-    // Determine date range based on timeframe (10 years for daily, 1 year for intraday)
-    bool is_intraday = epoch_script::strategy::IsIntradayCampaign(strategyConfig);
-
-    auto start_date = is_intraday
-        ? epoch_frame::DateTime::from_str("2024-01-01", "UTC", "%Y-%m-%d").date()
-        : epoch_frame::DateTime::from_str("2015-01-01", "UTC", "%Y-%m-%d").date();
-
-    auto end_date = epoch_frame::DateTime::from_str("2025-01-01", "UTC", "%Y-%m-%d").date();
-
-    // 2. Create database using strategy-aware factory
-    auto dataModuleOption = epoch_script::data::factory::MakeDataModuleOptionFromStrategy(
-        epoch_core::CountryCurrency::USD,
-        epoch_script::strategy::DatePeriodConfig{start_date, end_date},
-        strategyConfig
-    );
-
-    auto factory = epoch_script::data::factory::DataModuleFactory(dataModuleOption);
-    auto database = factory.CreateDatabase();
-
-    // 3. Run database pipeline (load + transform data)
-    database->RunPipeline();
-
-    // 4. Get outputs directly from database
-    auto db_output_data = database->GetTransformedData();
-    auto reports = database->GetGeneratedReports();
-    auto event_markers = database->GetGeneratedEventMarkers();
-
-    // 5. Validate that at least one output was generated
-    bool has_output = !db_output_data.empty() || !reports.empty() || !event_markers.empty();
-
-    if (!has_output) {
-      throw std::runtime_error("Runtime execution produced no outputs for asset config: " + asset_config.name);
-    }
-
-    // 6. Save transformed data as parquet files
-    SaveTransformedDataAsParquet(output_dir, asset_config.name, db_output_data);
+  if (it == all_asset_configs.end()) {
+    throw std::runtime_error("Invalid asset_config: " + selected_asset_config +
+                             ". Must be one of: single_stock, small_index, large_index");
   }
+
+  const auto& asset_config = *it;
+
+  // 1. Create StrategyConfig from test input
+  epoch_script::strategy::StrategyConfig strategyConfig;
+  strategyConfig.trade_signal.source = *compiler;
+  strategyConfig.data.assets = asset_config.assets;
+
+  // Determine date range based on timeframe (10 years for daily, 1 year for intraday)
+  bool is_intraday = epoch_script::strategy::IsIntradayCampaign(strategyConfig);
+
+  auto start_date = is_intraday
+      ? epoch_frame::DateTime::from_str("2024-01-01", "UTC", "%Y-%m-%d").date()
+      : epoch_frame::DateTime::from_str("2015-01-01", "UTC", "%Y-%m-%d").date();
+
+  auto end_date = epoch_frame::DateTime::from_str("2025-01-01", "UTC", "%Y-%m-%d").date();
+
+  // 2. Create database using strategy-aware factory
+  auto dataModuleOption = epoch_script::data::factory::MakeDataModuleOptionFromStrategy(
+      epoch_core::CountryCurrency::USD,
+      epoch_script::strategy::DatePeriodConfig{start_date, end_date},
+      strategyConfig
+  );
+
+  auto factory = epoch_script::data::factory::DataModuleFactory(dataModuleOption);
+  auto database = factory.CreateDatabase();
+
+  // 3. Run database pipeline (load + transform data)
+  database->RunPipeline();
+
+  // 4. Get outputs directly from database
+  auto db_output_data = database->GetTransformedData();
+  auto reports = database->GetGeneratedReports();
+  auto event_markers = database->GetGeneratedEventMarkers();
+
+  // 5. Validate that at least one output was generated
+  bool has_output = !db_output_data.empty() || !reports.empty() || !event_markers.empty();
+
+  if (!has_output) {
+    throw std::runtime_error("Runtime execution produced no outputs for asset config: " + asset_config.name);
+  }
+
+  // 6. Save transformed data as parquet files
+  SaveTransformedDataAsParquet(output_dir, asset_config.name, db_output_data);
 }
 
 // Read code from code.epochscript file
@@ -257,11 +271,27 @@ int main(int argc, char* argv[]) {
     // Read EpochScript code from code.epochscript file
     std::string epochscript_code = ReadCodeFromFile(output_dir);
 
+    // Read metadata.json to get asset_config
+    std::string metadata_path = output_dir + "/metadata.json";
+    std::ifstream metadata_file(metadata_path);
+    if (!metadata_file.is_open()) {
+      throw std::runtime_error("Failed to open metadata.json: " + metadata_path);
+    }
+
+    std::string metadata_json_str((std::istreambuf_iterator<char>(metadata_file)),
+                                   std::istreambuf_iterator<char>());
+
+    MetadataJson metadata;
+    auto parse_error = glz::read_json(metadata, metadata_json_str);
+    if (parse_error) {
+      throw std::runtime_error("Failed to parse metadata.json: " + glz::format_error(parse_error, metadata_json_str));
+    }
+
     // Initialize runtime
     InitializeRuntime();
 
-    // Run test with output directory (throws on error)
-    RunTest(epochscript_code, output_dir);
+    // Run test with output directory and selected asset config (throws on error)
+    RunTest(epochscript_code, output_dir, metadata.asset_config);
 
     // Cleanup runtime
     ShutdownRuntime();

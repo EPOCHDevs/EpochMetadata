@@ -14,18 +14,28 @@ EpochScript type system, variable assignment, and parameter syntax fundamentals.
 
 ## Function Call Syntax
 
-**Two-phase constructor pattern:** `transform(options)(inputs)`
+**Strict two-phase pattern:** `transform(options)(inputs)`
 
 - **Phase 1**: Options (keyword-only) - `sma(period=20)`
 - **Phase 2**: Inputs (positional or keyword) - `(src.c)`
+
+**Always use both `()` calls** - even if one is empty:
+```python
+# Data source with options, no inputs
+src = market_data_source(timeframe="1H")()
+
+# Transform with options and inputs
+result = sma(period=20)(src.c)
+
+# Transform with no options, but still needs both calls
+result = first_non_null()(val1, val2, val3)
+```
 
 **Common mistake:**
 ```python
 rolling_corr(x, y, window=20)   # WRONG: Mixing inputs and options
 rolling_corr(window=20)(x, y)   # CORRECT: Options first, inputs second
 ```
-
-**Shorthand:** When no options needed, omit first `()` - `transform(input)` instead of `transform()(input)`
 
 **VARARGS:** Some transforms accept variable number of inputs - `first_non_null()(a, b, c, d)` takes any number of arguments
 
@@ -35,7 +45,7 @@ rolling_corr(window=20)(x, y)   # CORRECT: Options first, inputs second
 
 **timeframe** - String, pandas format (`"1Min"`, `"1H"`, `"1D"`). Required for data sources, optional for transforms (inherits from inputs).
 
-**session** - Identifier or string (`London`, `NewYork`, `Tokyo`, `Sydney`).
+**session** - Identifier or string (`London`, `NewYork`, `Tokyo`, `Sydney`). Note: Session parameter is NOP (no operation) when using stocks data - stock data is already in NewYork session.
 
 ---
 
