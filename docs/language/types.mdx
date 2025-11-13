@@ -12,6 +12,33 @@ EpochScript type system, variable assignment, and parameter syntax fundamentals.
 
 ---
 
+## Function Call Syntax
+
+**Two-phase constructor pattern:** `transform(options)(inputs)`
+
+- **Phase 1**: Options (keyword-only) - `sma(period=20)`
+- **Phase 2**: Inputs (positional or keyword) - `(src.c)`
+
+**Common mistake:**
+```python
+rolling_corr(x, y, window=20)   # WRONG: Mixing inputs and options
+rolling_corr(window=20)(x, y)   # CORRECT: Options first, inputs second
+```
+
+**Shorthand:** When no options needed, omit first `()` - `transform(input)` instead of `transform()(input)`
+
+**VARARGS:** Some transforms accept variable number of inputs - `first_non_null()(a, b, c, d)` takes any number of arguments
+
+---
+
+## Special Parameters
+
+**timeframe** - String, pandas format (`"1Min"`, `"1H"`, `"1D"`). Required for data sources, optional for transforms (inherits from inputs).
+
+**session** - Identifier or string (`London`, `NewYork`, `Tokyo`, `Sydney`).
+
+---
+
 ## Supported Types
 
 `Boolean`, `Integer`, `Decimal`, `String`, `None`

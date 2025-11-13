@@ -46,6 +46,15 @@ set_target_properties(dump_transform_metadata PROPERTIES
 target_compile_definitions(dump_transform_metadata PUBLIC
     -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
 
+# Standalone test runner for coverage agent
+add_executable(epoch_test_runner epoch_test_runner.cpp)
+target_link_libraries(epoch_test_runner PRIVATE epoch_script)
+target_include_directories(epoch_test_runner PRIVATE ../src .)
+set_target_properties(epoch_test_runner PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+target_compile_definitions(epoch_test_runner PUBLIC
+    -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
+
 # Set runtime output directory to bin (where test resources are copied)
 set_target_properties(epoch_script_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
