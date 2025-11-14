@@ -12,6 +12,7 @@
 #include "components/data_sources/reference_stocks_metadata.h"
 #include "components/indicators/forward_returns.h"
 #include "components/indicators/intraday_returns.h"
+#include "components/datetime/datetime_metadata.h"
 
 namespace epoch_script::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -41,6 +42,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(epoch_script::transform::MakeFREDDataSource());
   metaDataList.emplace_back(epoch_script::transform::MakeSECDataSources());
   metaDataList.emplace_back(epoch_script::transform::MakeReferenceStocksDataSources());
+  metaDataList.emplace_back(epoch_script::transform::MakeDatetimeTransforms());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

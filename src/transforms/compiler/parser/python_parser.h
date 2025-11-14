@@ -42,6 +42,8 @@ public:
     ModulePtr parse(const std::string& source);
 
 private:
+    // Preprocess source to fix common syntax errors
+    std::string preprocessSource(const std::string& source);
     std::optional<ts::Parser> parser_;
 
     // Convert tree-sitter nodes to our AST

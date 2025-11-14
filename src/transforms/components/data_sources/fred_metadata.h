@@ -2,6 +2,7 @@
 
 #include <epoch_script/transforms/core/metadata.h>
 #include "../data_source.h"
+#include <epoch_data_sdk/dataloader/options.hpp>
 
 namespace epoch_script::transform {
 
@@ -70,7 +71,7 @@ MakeFREDDataSource() {
           .inputs = {},
           .outputs =
               {
-                  {epoch_core::IODataType::String, "observation_date",
+                  {epoch_core::IODataType::Timestamp, "observation_date",
                    "Economic Period", true},
                   {epoch_core::IODataType::Decimal, "value", "Indicator Value",
                    true},

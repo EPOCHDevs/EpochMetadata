@@ -3,11 +3,22 @@
 // Created by dewe on 4/14/23.
 //
 #include "epoch_frame/factory/array_factory.h"
+#include "epoch_frame/factory/index_factory.h"
 #include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <numbers>
 
 namespace epoch_script::transform {
+
+// Helper function to create single-row index from input bars (DRY principle)
+// SRP: Responsible only for creating the scalar's timestamp
+inline epoch_frame::IndexPtr CreateScalarIndex(const epoch_frame::DataFrame& bars) {
+    // Use last timestamp from input bars as the scalar's timestamp
+    // iat() returns IndexPtr with single element at the specified position
+    const auto last_idx = static_cast<int64_t>(bars.size()) - 1;
+    return bars.index()->iat(last_idx);
+}
+
 template <typename T> struct ScalarDataFrameTransform : ITransform {
   explicit ScalarDataFrameTransform(const TransformConfiguration &config)
       : ITransform(config),
@@ -17,25 +28,27 @@ template <typename T> struct ScalarDataFrameTransform : ITransform {
                                     T constant)
       : ITransform(config), m_value(constant) {}
 
+  // SRP: TransformData's responsibility is to create a single-row DataFrame with the scalar value
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
+      auto singleRowIndex = CreateScalarIndex(bars);
+
       if constexpr (std::is_same_v<T, std::nullopt_t>) {
-          // Build null array and immediately wrap safely
-          auto arrowArray_temp = arrow::MakeArrayOfNull(arrow::null(), bars.size()).MoveValueUnsafe();
+          // Build single-element null array
+          auto arrowArray_temp = arrow::MakeArrayOfNull(arrow::null(), 1).MoveValueUnsafe();
           auto chunkedArray = std::make_shared<arrow::ChunkedArray>(arrowArray_temp);
-          return make_dataframe(bars.index(), {chunkedArray},
-                                             {GetOutputId()});
+          return make_dataframe(singleRowIndex, {chunkedArray}, {GetOutputId()});
       }
       else {
-          // Use factory which already returns ChunkedArray safely
+          // Build single-element array with the scalar value
           auto arrowArray = epoch_frame::factory::array::make_array(
-    std::vector<T>(bars.size(), m_value));
-          return epoch_frame::make_dataframe(bars.index(), {arrowArray},
-                                             {GetOutputId()});
+              std::vector<T>(1, m_value));  // Single value, not bars.size()
+          return epoch_frame::make_dataframe(singleRowIndex, {arrowArray}, {GetOutputId()});
       }
   }
 
 private:
+  // SRP: GetValueFromConfig's responsibility is to extract the value from config
   static T GetValueFromConfig(const TransformConfiguration &config) {
     if constexpr (std::is_same_v<T, double>) {
       return config.GetOptionValue("value").GetDecimal();

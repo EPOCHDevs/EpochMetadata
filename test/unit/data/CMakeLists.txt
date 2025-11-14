@@ -1,4 +1,6 @@
-# Data module unit tests
+target_sources(epoch_script_test PRIVATE auxiliary_category_detection_test.cpp factory_index_expansion_test.cpp)
+
 
 # Add database test subdirectory
 add_subdirectory(database)
+add_subdirectory(futures_continuation)

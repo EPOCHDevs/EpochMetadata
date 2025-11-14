@@ -25,6 +25,20 @@ namespace epoch_script
         return ref;
     }
 
+    // Helper function to check if a node type is a scalar/constant
+    // Scalars are timeframe-agnostic and should not require timeframe resolution
+    // This checks the metadata's category field to determine if it's a Scalar type
+    static bool isScalarType(const std::string& type,
+                            const std::unordered_map<std::string, epoch_script::transforms::TransformsMetaData>& metadata_map)
+    {
+        auto it = metadata_map.find(type);
+        if (it == metadata_map.end())
+        {
+            throw std::runtime_error("Transform type '" + type + "' not found in metadata map");
+        }
+        return it->second.category == epoch_core::TransformCategory::Scalar;
+    }
+
     // Topological sort using Kahn's algorithm (BFS-based)
     // Returns nodes in dependency order: dependencies before dependents
     static std::vector<epoch_script::strategy::AlgorithmNode> TopologicalSort(
@@ -274,11 +288,18 @@ namespace epoch_script
 
         // PASS 2: Resolve literal timeframes by finding nodes that use them
         // Literals inherit timeframes from their dependent nodes
-        // Fallback to "1d" if no usage found
+        // Skip scalar/constant types as they are timeframe-agnostic
+        const auto& metadata_map_pass2 = context_.GetRegistry().GetMetaData();
         for (auto& algo : context_.algorithms)
         {
             // Skip if already resolved
             if (algo.timeframe)
+            {
+                continue;
+            }
+
+            // Skip scalar types - they don't need timeframes
+            if (isScalarType(algo.type, metadata_map_pass2))
             {
                 continue;
             }
@@ -295,10 +316,18 @@ namespace epoch_script
         // No node should leave compilation with timeframe=null
         // This is a strict check - if we can't resolve a timeframe, compilation fails
         // EXCEPT when skip_sink_validation=true (test scenarios with partial scripts)
+        // ALSO EXCEPT for scalar/constant nodes which are timeframe-agnostic
         if (!skip_sink_validation)
         {
+            const auto& metadata_map = context_.GetRegistry().GetMetaData();
             for (const auto& algo : context_.algorithms)
             {
+                // Skip validation for scalar types - they don't need timeframes
+                if (isScalarType(algo.type, metadata_map))
+                {
+                    continue;
+                }
+
                 if (!algo.timeframe.has_value())
                 {
                     throw std::runtime_error(

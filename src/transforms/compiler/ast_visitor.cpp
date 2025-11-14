@@ -88,7 +88,9 @@ namespace epoch_script
             }
         }
 
-        ThrowError("Unsupported expression statement", expr_stmt.lineno, expr_stmt.col_offset);
+        ThrowError("Unsupported expression statement. Only function calls can be used as standalone statements. "
+                   "If you're trying to use a value, assign it to a variable first (e.g., result = expression).",
+                   expr_stmt.lineno, expr_stmt.col_offset);
     }
 
     void AstVisitor::ThrowError(const std::string& msg, int line, int col)

@@ -4,6 +4,7 @@
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/index_factory.h>
+#include <epoch_data_sdk/dataloader/options.hpp>
 #include <unordered_map>
 
 namespace epoch_script::transform {
@@ -14,11 +15,17 @@ namespace epoch_script::transform {
 class FREDTransform final : public ITransform {
 public:
   explicit FREDTransform(const TransformConfiguration &config)
-      : ITransform(config) {
+      : ITransform(config),
+        m_indicator(config.GetOptionValue("category")
+                        .GetSelectOption<epoch_core::MacroEconomicsIndicator>()) {
     // Build column rename mapping from FRED API field names to output IDs
     for (auto const &outputMetaData : config.GetOutputs()) {
       m_replacements[outputMetaData.id] = config.GetOutputId(outputMetaData.id);
     }
+  }
+
+  [[nodiscard]] epoch_core::MacroEconomicsIndicator GetIndicator() const {
+    return m_indicator;
   }
 
   [[nodiscard]] epoch_frame::DataFrame
@@ -34,6 +41,7 @@ public:
   }
 
 private:
+  epoch_core::MacroEconomicsIndicator m_indicator;
   std::unordered_map<std::string, std::string> m_replacements;
 };
 

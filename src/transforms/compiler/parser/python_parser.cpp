@@ -5,6 +5,8 @@
 
 #include "python_parser.h"
 #include <tree_sitter/api.h>
+#include <functional>
+#include <regex>
 
 // Declare the tree-sitter-python language function
 extern "C" {
@@ -19,7 +21,11 @@ PythonParser::PythonParser() {
 }
 
 ModulePtr PythonParser::parse(const std::string& source) {
-    ts::Tree tree = parser_->parseString(source);
+    // Preprocess source: convert backticks to double quotes
+    // Backticks are not valid Python string delimiters and cause syntax errors
+    std::string preprocessed_source = preprocessSource(source);
+
+    ts::Tree tree = parser_->parseString(preprocessed_source);
 
     ts::Node root = tree.getRootNode();
 
@@ -28,7 +34,25 @@ ModulePtr PythonParser::parse(const std::string& source) {
         throw PythonParseError("Syntax error in Python source", 0, 0);
     }
 
-    return parseModule(root, source);
+    return parseModule(root, preprocessed_source);
+}
+
+std::string PythonParser::preprocessSource(const std::string& source) {
+    std::string result = source;
+
+    // Fix 1: Replace backticks with double quotes
+    // Pattern: `some string content` -> "some string content"
+    // Avoid backticks with nested quotes to prevent creating invalid syntax
+    std::regex backtick_pattern(R"(`([^`"']*)`)", std::regex_constants::ECMAScript);
+    result = std::regex_replace(result, backtick_pattern, "\"$1\"");
+
+    // Fix 2: Fix mismatched quotes - opening double quote with closing single quote
+    // Pattern: "...' followed by ), ], }, *, or comma -> "..."
+    // Combined pattern to handle all common closing contexts
+    std::regex mismatch_pattern(R"("([^"']*)'([),\]*\}]))", std::regex_constants::ECMAScript);
+    result = std::regex_replace(result, mismatch_pattern, "\"$1\"$2");
+
+    return result;
 }
 
 // Helper functions

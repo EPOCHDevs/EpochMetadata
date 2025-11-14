@@ -12,6 +12,14 @@
 #include <vector>
 
 namespace epoch_script::runtime {
+
+// Helper function to broadcast a scalar value to a target index size (DRY principle)
+// SRP: Responsible only for creating a broadcasted array from a scalar
+static arrow::ChunkedArrayPtr BroadcastScalar(const epoch_frame::Scalar& scalar, size_t target_size) {
+    auto broadcastedArray = arrow::MakeArrayFromScalar(*scalar.value(), target_size).ValueOrDie();
+    return std::make_shared<arrow::ChunkedArray>(broadcastedArray);
+}
+
 epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
     const AssetID &asset_id,
     const epoch_script::transform::ITransformBase &transformer) const {
@@ -31,10 +39,11 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
     return epoch_core::lookup(epoch_core::lookup(m_baseData, targetTimeframe), asset_id);
   }
 
-  // Acquire read locks for both cache and baseData
+  // Acquire read locks for all relevant caches
   std::shared_lock cacheLock(m_cacheMutex);
   std::shared_lock baseDataLock(m_baseDataMutex);
   std::shared_lock transformMapLock(m_transformMapMutex);
+  std::shared_lock scalarLock(m_scalarCacheMutex);  // Also lock scalar cache for reading
 
   auto targetIndex =
       epoch_core::lookup(epoch_core::lookup(m_baseData, targetTimeframe,
@@ -51,6 +60,19 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
       continue;
     }
 
+    // Check if this input is a scalar (SRP: decision point for scalar vs regular path)
+    if (m_scalarOutputs.contains(inputId)) {
+      // Scalar path: Broadcast from global scalar cache
+      const auto& scalarValue = m_scalarCache.at(inputId);
+      arrayList.emplace_back(BroadcastScalar(scalarValue, targetIndex->size()));
+      columns.emplace_back(inputId);
+      columIdSet.emplace(inputId);
+      SPDLOG_DEBUG("Broadcasting scalar {} to {} rows for asset: {}, timeframe {}",
+                   inputId, targetIndex->size(), asset_id, targetTimeframe);
+      continue;
+    }
+
+    // Regular (non-scalar) path: Retrieve from timeframe-specific cache
     auto transform = m_ioIdToTransform.find(inputId);
     if (transform == m_ioIdToTransform.end()) {
       throw std::runtime_error("Cannot find transform for input: " +
@@ -128,6 +150,7 @@ TimeFrameAssetDataFrameMap IntermediateResultStorage::BuildFinalOutput() {
   std::shared_lock baseDataLock(m_baseDataMutex);
   std::shared_lock transformMapLock(m_transformMapMutex);
   std::shared_lock assetsLock(m_assetIDsMutex);
+  std::shared_lock scalarLock(m_scalarCacheMutex);  // Also lock scalar cache
 
   TimeFrameAssetDataFrameMap result = m_baseData; // Copy instead of move for thread safety
 
@@ -135,6 +158,7 @@ TimeFrameAssetDataFrameMap IntermediateResultStorage::BuildFinalOutput() {
       std::string, std::unordered_map<AssetID, std::vector<epoch_frame::FrameOrSeries>>>
       concatFrames;
 
+  // Process regular (non-scalar) transforms
   for (const auto &asset_id : m_asset_ids) {
     for (const auto &[ioId, transform] : m_ioIdToTransform) {
       if (transform->GetConfiguration().GetTransformDefinition().GetMetadata().category ==
@@ -162,7 +186,9 @@ TimeFrameAssetDataFrameMap IntermediateResultStorage::BuildFinalOutput() {
   baseDataLock.unlock();
   transformMapLock.unlock();
   assetsLock.unlock();
+  scalarLock.unlock();
 
+  // First, concatenate regular data
   for (const auto &[timeframe, assetMap] : result) {
     for (const auto &[asset_id, dataFrame] : assetMap) {
       auto &entry = concatFrames[timeframe][asset_id];
@@ -175,6 +201,40 @@ TimeFrameAssetDataFrameMap IntermediateResultStorage::BuildFinalOutput() {
                                .joinType = epoch_frame::JoinType::Outer,
                                .axis = epoch_frame::AxisType::Column});
       result[timeframe][asset_id] = std::move(concated);
+    }
+  }
+
+  // Second, broadcast scalars to all (timeframe, asset) combinations
+  // SRP: Broadcasting scalars is a separate concern from regular data concatenation
+  if (!m_scalarOutputs.empty()) {
+    std::shared_lock scalarReadLock(m_scalarCacheMutex);  // Re-acquire for scalar broadcasting
+
+    for (auto &[timeframe, assetMap] : result) {
+      for (auto &[asset_id, dataFrame] : assetMap) {
+        auto index = dataFrame.index();
+        std::vector<epoch_frame::FrameOrSeries> scalarSeries;
+
+        // Broadcast each scalar to this (timeframe, asset) combination
+        for (const auto &scalarOutputId : m_scalarOutputs) {
+          const auto& scalarValue = m_scalarCache.at(scalarOutputId);
+          auto broadcastedArray = BroadcastScalar(scalarValue, index->size());
+
+          epoch_frame::Series series(index, broadcastedArray, scalarOutputId);
+          scalarSeries.emplace_back(std::move(series));
+        }
+
+        // Concatenate scalars with existing data
+        if (!scalarSeries.empty()) {
+          scalarSeries.emplace_back(dataFrame);
+          result[timeframe][asset_id] = epoch_frame::concat({
+              .frames = scalarSeries,
+              .joinType = epoch_frame::JoinType::Outer,
+              .axis = epoch_frame::AxisType::Column
+          });
+          SPDLOG_DEBUG("Broadcasted {} scalars to asset: {}, timeframe {}",
+                       m_scalarOutputs.size(), asset_id, timeframe);
+        }
+      }
     }
   }
 
@@ -208,6 +268,36 @@ void IntermediateResultStorage::StoreTransformOutput(
     const epoch_frame::DataFrame &data) {
   const auto timeframe = transformer.GetTimeframe().ToString();
 
+  // Check if this is a scalar transform
+  const auto metadata = transformer.GetConfiguration().GetTransformDefinition().GetMetadata();
+  const bool isScalar = (metadata.category == epoch_core::TransformCategory::Scalar);
+
+  if (isScalar) {
+    // Scalar optimization: Store once globally, not per (timeframe, asset)
+    std::unique_lock scalarLock(m_scalarCacheMutex);
+
+    for (const auto &outputMetaData : transformer.GetOutputMetaData()) {
+      auto outputId = transformer.GetOutputId(outputMetaData.id);
+
+      // Only store if not already cached (scalars are executed once)
+      if (!m_scalarCache.contains(outputId)) {
+        if (data.contains(outputId) && data[outputId].size() > 0) {
+          // Extract scalar value from first element of the Series
+          m_scalarCache[outputId] = epoch_frame::Scalar(data[outputId].array()->GetScalar(0).ValueOrDie());
+          SPDLOG_DEBUG("Stored scalar {} globally (single copy, no timeframe/asset)", outputId);
+        } else {
+          // Store null scalar
+          m_scalarCache[outputId] = epoch_frame::Scalar(
+              arrow::MakeNullScalar(GetArrowTypeFromIODataType(outputMetaData.type)));
+          SPDLOG_DEBUG("Stored NULL scalar {} globally", outputId);
+        }
+        m_scalarOutputs.insert(outputId);
+      }
+    }
+    return; // Early exit - scalars don't use the regular cache
+  }
+
+  // Regular (non-scalar) storage path
   // Read lock for baseData, write lock for cache (this is the hot path)
   std::shared_lock baseDataLock(m_baseDataMutex);
   std::unique_lock cacheLock(m_cacheMutex);

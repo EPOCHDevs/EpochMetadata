@@ -10,6 +10,74 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Generate interactive dashboards to analyze strategy behavior, discover patterns, validate hypotheses, and visualize multi-asset performance. Reports provide aggregated metrics, distributions, filtered views, and comparative analysis across assets.
 
+<Callout type="warning" title="String Syntax Rule">
+**Always use double quotes `"` for strings in EpochScript.** Backticks `` ` `` are not valid string delimiters and will cause syntax errors.
+
+✅ Correct: `agg="sum"`, `title="My Title"`
+❌ Wrong: `` agg=`sum` ``, `agg='sum'` (backticks not allowed, single quotes discouraged)
+</Callout>
+
+---
+
+## The SLOT Paradigm
+
+Advanced reporters (`event_marker`, `table_report`) accept multiple input columns and use the **SLOT paradigm** to reference them.
+
+### How SLOT Works
+
+When you pass arguments to a reporter, they're indexed starting from 0:
+
+```python
+event_marker(
+    event_marker_schema=EventMarkerSchema({
+        "select_key": "SLOT0",  # References first argument
+        "schemas": [{
+            "column_id": "SLOT1",  # References second argument
+            ...
+        }]
+    })
+)(signal, price, volume)
+#  ^^^^^^  ^^^^^  ^^^^^^
+#  SLOT0   SLOT1  SLOT2
+```
+
+### Why SLOT Instead of Column Names?
+
+**SLOT references are resolved at compile-time**, creating direct data connections. Column names don't exist at compile-time - they're runtime metadata.
+
+```python
+# ❌ WRONG - Column names don't work
+event_marker(
+    event_marker_schema={"select_key": "my_signal", ...}
+)(my_signal)
+
+# ✅ CORRECT - SLOT references work
+event_marker(
+    event_marker_schema=EventMarkerSchema({"select_key": "SLOT0", ...})
+)(my_signal)
+```
+
+### Required: Constructor Syntax
+
+Schema options must use constructor calls, not inline dicts:
+
+```python
+# ❌ WRONG - Inline dict
+event_marker(event_marker_schema={...})(signal)
+
+# ✅ CORRECT - Constructor call
+event_marker(event_marker_schema=EventMarkerSchema({...}))(signal)
+
+# ✅ CORRECT - Constructor call for table
+table_report(table_report_schema=TableReportSchema({...}))(col1, col2)
+```
+
+<Callout type="info" title="Which Reports Use SLOT?">
+- **event_marker**: Uses SLOT for `select_key` and `column_id` fields
+- **table_report**: Uses SLOT for `select_key` and `column_id` fields
+- **Standard reporters** (numeric_cards, histogram, etc.): Don't use SLOT - they accept single inputs directly
+</Callout>
+
 ---
 
 ## Research Objectives
@@ -58,9 +126,40 @@ Visualize distributions, proportions, and categorical breakdowns.
 
 Filtered row-level data with custom columns for detailed inspection.
 
+### Basic Usage
+
+Table reports also use the **SLOT paradigm**:
+
+```python
+extreme_signal = abs(returns) > 0.05
+returns_val = returns
+volume_val = volume
+
+# Create table showing extreme return days
+table_report(
+    table_report_schema=TableReportSchema({
+        "title": "Extreme Return Days",
+        "select_key": "SLOT0",  # Filter by extreme_signal
+        "columns": [
+            {"column_id": "SLOT0", "title": "Is Extreme"},     # extreme_signal
+            {"column_id": "SLOT1", "title": "Return %"},       # returns_val
+            {"column_id": "SLOT2", "title": "Volume"}          # volume_val
+        ]
+    })
+)(extreme_signal, returns_val, volume_val)
+```
+
+<Callout type="info" title="SLOT Paradigm for Table Reports">
+Like `event_marker`, table reports use `SLOT0`, `SLOT1`, etc. to reference input columns, not column names.
+
+- `select_key`: SLOT reference for boolean filter
+- `column_id`: SLOT reference for each column to display
+- Arguments passed to `table_report()` are referenced by SLOT index
+</Callout>
+
 **Key Features:**
 - Boolean filter column (`select_key`) determines which rows appear
-- Multiple data columns with custom titles
+- Multiple data columns with custom titles via SLOT references
 - Direct timestamp-level detail for pattern investigation
 
 **Applications:** Extreme condition analysis, signal detail inspection, filtered event views, pattern characteristic examination.
@@ -95,21 +194,103 @@ Mark important timestamps for timeline navigation and visual pattern identificat
 
 **Event markers create interactive timelines** that allow clicking to jump directly to specific timestamps. Each event displays with a title, timestamp, and color-coded badge.
 
-**Color Categories:**
-- **Success (Green)**: Bullish signals, long entries, confirmations, positive pattern detections
-- **Error (Red)**: Bearish signals, exits, warnings, negative conditions
-- **Warning (Yellow)**: Neutral events, regime changes, pattern formations, informational markers
+### Basic Usage
 
-**Event Marker Schema** requires:
-- Boolean filter determining when events occur
-- Event classification column mapping to color categories
-- Icon and title for the timeline
-- Badge configuration with color mappings
+Event markers use the **SLOT paradigm** to reference input columns:
+
+```python
+# Create a boolean signal
+signal = crossover()(fast_ma, slow_ma)
+
+# Create event marker - use SLOT0 to reference the first input
+event_marker(
+    event_marker_schema=EventMarkerSchema({
+        "icon": "Signal",
+        "title": "MA Crossover Events",
+        "select_key": "SLOT0",  # References signal (first argument)
+        "schemas": [{
+            "column_id": "SLOT0",  # References signal
+            "slot": "PrimaryBadge",
+            "render_type": "Badge"
+        }]
+    })
+)(signal)
+```
+
+<Callout type="warning" title="IMPORTANT: Use SLOT Syntax, Not Column Names">
+**Always use `"SLOT0"`, `"SLOT1"`, etc. to reference input columns.**
+
+❌ **WRONG:**
+```python
+event_marker(event_marker_schema={"select_key": "signal", ...})(signal)
+```
+
+✅ **CORRECT:**
+```python
+event_marker(event_marker_schema=EventMarkerSchema({"select_key": "SLOT0", ...}))(signal)
+```
+
+The SLOT references are resolved at compile-time to actual data connections. Column names don't work because they're not available at compile-time.
+</Callout>
+
+### Multiple Input Columns
+
+Pass multiple columns and reference them by index:
+
+```python
+long_signal = rsi < 30
+short_signal = rsi > 70
+price = src.c
+
+event_marker(
+    event_marker_schema=EventMarkerSchema({
+        "icon": "Trade",
+        "title": "RSI Signals",
+        "select_key": "SLOT0",  # Filter by long_signal
+        "schemas": [
+            {"column_id": "SLOT0", "slot": "PrimaryBadge", "render_type": "Badge"},    # long_signal
+            {"column_id": "SLOT1", "slot": "SecondaryBadge", "render_type": "Badge"},  # short_signal
+            {"column_id": "SLOT2", "slot": "Hero", "render_type": "Decimal"}           # price
+        ]
+    })
+)(long_signal, short_signal, price)
+# SLOT0 = first arg (long_signal)
+# SLOT1 = second arg (short_signal)
+# SLOT2 = third arg (price)
+```
+
+### Color Mapping
+
+Map badge colors based on column values:
+
+```python
+event_marker(
+    event_marker_schema=EventMarkerSchema({
+        "icon": "Signal",
+        "title": "Trade Signals",
+        "select_key": "SLOT0",
+        "schemas": [{
+            "column_id": "SLOT1",  # Signal type column
+            "slot": "PrimaryBadge",
+            "render_type": "Badge",
+            "color_map": {
+                "Success": [1, "BUY"],    # Green for buy signals
+                "Error": [-1, "SELL"],    # Red for sell signals
+                "Warning": [0, "NEUTRAL"] # Yellow for neutral
+            }
+        }]
+    })
+)(any_signal, signal_type)
+```
+
+**Color Categories:**
+- **Success (Green)**: Bullish signals, long entries, confirmations
+- **Error (Red)**: Bearish signals, exits, warnings
+- **Warning (Yellow)**: Neutral events, regime changes
+- **Info (Blue)**: Informational markers
+- **Primary/Default (Gray)**: Default fallback
 
 **Applications:** Signal timeline visualization, regime change markers, pattern occurrence tracking, strategy entry/exit annotation, extreme condition identification.
-
-<Callout type="info">
-</Callout>
 
 ---
 

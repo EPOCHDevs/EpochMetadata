@@ -157,7 +157,15 @@ namespace epoch_script
             const auto& outputs = comp_meta.outputs;
             if (outputs.size() != names.size())
             {
-                ThrowError("Expected " + std::to_string(outputs.size()) + " outputs, got " + std::to_string(names.size()),
+                std::string output_names;
+                for (size_t i = 0; i < outputs.size(); ++i) {
+                    if (i > 0) output_names += ", ";
+                    output_names += outputs[i].id;
+                }
+                ThrowError("Component '" + parse_result.ctor_name + "()' returns " + std::to_string(outputs.size()) +
+                           " output" + (outputs.size() == 1 ? "" : "s") + " (" + output_names + "), " +
+                           "but you're trying to unpack into " + std::to_string(names.size()) + " variable" +
+                           (names.size() == 1 ? "" : "s"),
                            assign.lineno, assign.col_offset);
             }
 
@@ -351,9 +359,12 @@ namespace epoch_script
                 }
                 else
                 {
-                    // Incompatible types - throw error
-                    ThrowError("Type mismatch for input '" + name + "' of '" + target_node_id + "': expected " +
-                               TypeChecker::DataTypeToString(target_type) + ", got " + TypeChecker::DataTypeToString(source_type));
+                    // Incompatible types - throw error with detailed context
+                    std::string error_msg = "Type error calling '" + component_name + "()': ";
+                    error_msg += "keyword argument '" + name + "' must be " + TypeChecker::DataTypeToString(target_type);
+                    error_msg += ", but received " + TypeChecker::DataTypeToString(source_type);
+                    error_msg += " from '" + handle.node_id + "." + handle.handle + "'";
+                    ThrowError(error_msg);
                 }
             }
             else
@@ -431,9 +442,12 @@ namespace epoch_script
                     }
                     else
                     {
-                        // Incompatible types - throw error
-                        ThrowError("Type mismatch for positional input " + std::to_string(i) + " of '" + target_node_id + "': expected " +
-                                   TypeChecker::DataTypeToString(target_type) + ", got " + TypeChecker::DataTypeToString(source_type));
+                        // Incompatible types - throw error with clear guidance
+                        std::string error_msg = "Type error calling '" + component_name + "()': ";
+                        error_msg += "argument " + std::to_string(i + 1) + " ('" + dst_handle + "') must be " + TypeChecker::DataTypeToString(target_type);
+                        error_msg += ", but received " + TypeChecker::DataTypeToString(source_type);
+                        error_msg += " from '" + handle.node_id + "." + handle.handle + "'";
+                        ThrowError(error_msg);
                     }
                 }
                 else
@@ -525,7 +539,12 @@ namespace epoch_script
             {
                 auto& filter = *filter_ptr;
 
-                // Resolve select_key
+                // Validate and resolve select_key
+                if (filter.select_key.empty())
+                {
+                    ThrowError("EventMarkerSchema 'select_key' cannot be empty. It must reference a boolean column using 'SLOT' syntax (e.g., 'SLOT' or 'SLOT0' for first argument).");
+                }
+
                 if (filter.select_key.rfind("SLOT", 0) == 0)
                 {
                     std::string slot_suffix = filter.select_key.substr(4);
@@ -535,18 +554,30 @@ namespace epoch_script
                         try {
                             slot_idx = std::stoull(slot_suffix);
                         } catch (...) {
-                            // Not a valid slot reference, skip
-                            return;
+                            ThrowError("Invalid SLOT reference '" + filter.select_key + "' in select_key. Use 'SLOT' for first argument, 'SLOT0', 'SLOT1', etc. for subsequent arguments.");
                         }
+                    }
+
+                    if (args.empty())
+                    {
+                        ThrowError("EventMarkerSchema references '" + filter.select_key + "' but no input arguments were provided to event_marker(). Pass at least one boolean column as an argument.");
                     }
 
                     if (slot_idx >= args.size())
                     {
-                        ThrowError("SLOT" + slot_suffix + " reference in select_key out of range");
+                        ThrowError("EventMarkerSchema references '" + filter.select_key + "' but only " + std::to_string(args.size()) + " argument(s) were provided. SLOT indices are 0-based: use 'SLOT' or 'SLOT0' for first argument, 'SLOT1' for second, etc.");
                     }
 
                     const auto& arg_handle = args[slot_idx];
                     filter.select_key = JoinId(arg_handle.node_id, arg_handle.handle);
+                }
+                else
+                {
+                    // select_key doesn't start with "SLOT" - this is a common user error
+                    ThrowError("EventMarkerSchema 'select_key' must use 'SLOT' syntax, not column names. "
+                               "Got '" + filter.select_key + "'. "
+                               "Use 'SLOT0' to reference the first argument passed to event_marker(), 'SLOT1' for the second, etc. "
+                               "Example: event_marker(event_marker_schema={\"select_key\":\"SLOT0\", \"schemas\":[{\"column_id\":\"SLOT0\", ...}]})(my_boolean_column)");
                 }
 
                 // Resolve column_id in schemas

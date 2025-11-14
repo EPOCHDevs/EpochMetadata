@@ -1,6 +1,7 @@
 #pragma once
 #include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/dataframe.h>
+#include <epoch_frame/scalar.h>
 #include <string>
 #include <tbb/concurrent_unordered_map.h>
 #include <unordered_map>
@@ -22,5 +23,9 @@ using AssetCache = std::unordered_map<AssetID, TransformCache>;
 
 // Timeframe-level cache
 using TimeFrameCache = tbb::concurrent_unordered_map<std::string, AssetCache>;
+
+// Scalar cache: stores constant values globally (no timeframe/asset dimensions)
+// Scalars are timeframe-agnostic and asset-independent, so we store them once
+using ScalarCache = std::unordered_map<std::string, epoch_frame::Scalar>;
 
 } // namespace epoch_script::runtime

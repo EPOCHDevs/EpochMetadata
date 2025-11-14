@@ -43,6 +43,11 @@
 #include "calendar/calendar_effect.h"
 #include "calendar/time_of_day.h"
 
+// Datetime Operations
+#include "datetime/index_datetime_extract.h"
+#include "datetime/timestamp_scalar.h"
+#include "datetime/datetime_diff.h"
+
 // String Operations
 #include "string/string_operations.h"
 
@@ -321,6 +326,12 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(holiday, HolidayEffect);
   REGISTER_TRANSFORM(week_of_month, WeekOfMonthEffect);
   REGISTER_TRANSFORM(time_of_day, TimeOfDay);
+
+  // Datetime Operations
+  REGISTER_TRANSFORM(index_datetime_extract, IndexDatetimeExtract);
+  REGISTER_TRANSFORM(column_datetime_extract, ColumnDatetimeExtract);
+  REGISTER_TRANSFORM(timestamp_scalar, TimestampScalar);
+  REGISTER_TRANSFORM(datetime_diff, DatetimeDiff);
 
   // Fundamental & Market Data Source Transforms
   REGISTER_TRANSFORM(balance_sheet, PolygonBalanceSheetTransform);

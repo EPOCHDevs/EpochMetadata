@@ -57,7 +57,12 @@ namespace epoch_script
             return VisitSubscript(*subscript);
         }
 
-        ThrowError("Unsupported expression type", expr.lineno, expr.col_offset);
+        // Determine what type of unsupported expression this is
+        std::string expr_type_name = typeid(expr).name(); // C++ type name
+        ThrowError("Unsupported expression type. This expression cannot be used in this context. "
+                   "Supported: function calls, variables, constants, arithmetic (+,-,*,/), comparisons (>,<,==), "
+                   "boolean logic (and,or), conditionals (if/else), subscripts. (Internal type: " + expr_type_name + ")",
+                   expr.lineno, expr.col_offset);
         return {"", ""};
     }
 
@@ -176,7 +181,9 @@ namespace epoch_script
         auto it = context_.var_to_binding.find(name.id);
         if (it == context_.var_to_binding.end())
         {
-            ThrowError("Unknown variable '" + name.id + "'", name.lineno, name.col_offset);
+            ThrowError("Unknown variable '" + name.id + "'. Variable has not been defined or assigned. "
+                       "Make sure to define the variable before using it (e.g., " + name.id + " = some_value).",
+                       name.lineno, name.col_offset);
         }
 
         const std::string& ref = it->second;
@@ -299,7 +306,8 @@ namespace epoch_script
             comp_name = "power_op";
             break;
         default:
-            ThrowError("Unsupported binary operator", bin_op.lineno, bin_op.col_offset);
+            ThrowError("Unsupported binary operator. Supported operators: +, -, *, /, %, ** (power), "
+                       "<, >, <=, >=, ==, !=, and, or", bin_op.lineno, bin_op.col_offset);
         }
 
         // Validate component exists
@@ -385,8 +393,10 @@ namespace epoch_script
             }
             else
             {
-                ThrowError("Type mismatch for " + left_input_name + " of '" + node_id + "': expected " +
-                           TypeChecker::DataTypeToString(left_target_type) + ", got " + TypeChecker::DataTypeToString(left_source_type),
+                ThrowError("Type error in binary operation '" + comp_name + "': " +
+                           "left operand ('" + left_input_name + "') must be " + TypeChecker::DataTypeToString(left_target_type) +
+                           ", but received " + TypeChecker::DataTypeToString(left_source_type) +
+                           " from '" + left.node_id + "." + left.handle + "'",
                            bin_op.lineno, bin_op.col_offset);
             }
         }
@@ -404,8 +414,10 @@ namespace epoch_script
             }
             else
             {
-                ThrowError("Type mismatch for " + right_input_name + " of '" + node_id + "': expected " +
-                           TypeChecker::DataTypeToString(right_target_type) + ", got " + TypeChecker::DataTypeToString(right_source_type),
+                ThrowError("Type error in binary operation '" + comp_name + "': " +
+                           "right operand ('" + right_input_name + "') must be " + TypeChecker::DataTypeToString(right_target_type) +
+                           ", but received " + TypeChecker::DataTypeToString(right_source_type) +
+                           " from '" + right.node_id + "." + right.handle + "'",
                            bin_op.lineno, bin_op.col_offset);
             }
         }
@@ -521,7 +533,8 @@ namespace epoch_script
             return {node_id, out_handle};
         }
 
-        ThrowError("Unsupported unary operator", unary_op.lineno, unary_op.col_offset);
+        ThrowError("Unsupported unary operator. Supported unary operators: - (negation), + (identity), not (logical negation)",
+                   unary_op.lineno, unary_op.col_offset);
         return {"", ""};
     }
 
@@ -556,7 +569,8 @@ namespace epoch_script
             comp_name = "neq";
             break;
         default:
-            ThrowError("Unsupported comparison operator", compare.lineno, compare.col_offset);
+            ThrowError("Unsupported comparison operator. Supported: <, >, <=, >=, ==, !=",
+                       compare.lineno, compare.col_offset);
         }
 
         // Validate component exists
@@ -636,8 +650,10 @@ namespace epoch_script
             }
             else
             {
-                ThrowError("Type mismatch for " + left_input_name + " of '" + node_id + "': expected " +
-                           TypeChecker::DataTypeToString(left_target_type) + ", got " + TypeChecker::DataTypeToString(left_source_type),
+                ThrowError("Type error in comparison '" + comp_name + "': " +
+                           "left operand ('" + left_input_name + "') must be " + TypeChecker::DataTypeToString(left_target_type) +
+                           ", but received " + TypeChecker::DataTypeToString(left_source_type) +
+                           " from '" + left.node_id + "." + left.handle + "'",
                            compare.lineno, compare.col_offset);
             }
         }
@@ -655,8 +671,10 @@ namespace epoch_script
             }
             else
             {
-                ThrowError("Type mismatch for " + right_input_name + " of '" + node_id + "': expected " +
-                           TypeChecker::DataTypeToString(right_target_type) + ", got " + TypeChecker::DataTypeToString(right_source_type),
+                ThrowError("Type error in comparison '" + comp_name + "': " +
+                           "right operand ('" + right_input_name + "') must be " + TypeChecker::DataTypeToString(right_target_type) +
+                           ", but received " + TypeChecker::DataTypeToString(right_source_type) +
+                           " from '" + right.node_id + "." + right.handle + "'",
                            compare.lineno, compare.col_offset);
             }
         }
@@ -693,11 +711,31 @@ namespace epoch_script
             ThrowError("Boolean operation needs at least 2 operands", bool_op.lineno, bool_op.col_offset);
         }
 
-        // Evaluate all operands
+        // Evaluate all operands and cast to Boolean if needed
         std::vector<ValueHandle> handles;
         for (const auto& value : bool_op.values)
         {
-            handles.push_back(VisitExpr(*value));
+            ValueHandle handle = VisitExpr(*value);
+
+            // Type check and cast to Boolean if needed
+            DataType source_type = type_checker_.GetNodeOutputType(handle.node_id, handle.handle);
+            DataType target_type = DataType::Boolean;
+
+            if (!type_checker_.IsTypeCompatible(source_type, target_type))
+            {
+                auto cast_result = type_checker_.NeedsTypeCast(source_type, target_type);
+                if (cast_result.has_value() && cast_result.value() != "incompatible")
+                {
+                    handle = type_checker_.InsertTypeCast(handle, source_type, target_type);
+                }
+                else
+                {
+                    ThrowError("Cannot use type " + type_checker_.DataTypeToString(source_type) +
+                              " in boolean operation (and/or)", bool_op.lineno, bool_op.col_offset);
+                }
+            }
+
+            handles.push_back(handle);
         }
 
         // Build nested structure: (a and b and c) -> logical_and_0(a, logical_and_1(b, c))
@@ -1180,8 +1218,10 @@ namespace epoch_script
                 else
                 {
                     // Incompatible types - throw error
-                    ThrowError("Type mismatch for input '" + name + "' of '" + target_node_id + "': expected " +
-                               TypeChecker::DataTypeToString(target_type) + ", got " + TypeChecker::DataTypeToString(source_type));
+                    ThrowError("Type error calling '" + component_name + "()': " +
+                               "named argument '" + name + "' must be " + TypeChecker::DataTypeToString(target_type) +
+                               ", but received " + TypeChecker::DataTypeToString(source_type) +
+                               " from '" + handle.node_id + "." + handle.handle + "'");
                 }
             }
             else
@@ -1245,9 +1285,12 @@ namespace epoch_script
                     }
                     else
                     {
-                        // Incompatible types - throw error
-                        ThrowError("Type mismatch for positional input " + std::to_string(i) + " of '" + target_node_id + "': expected " +
-                                   TypeChecker::DataTypeToString(target_type) + ", got " + TypeChecker::DataTypeToString(source_type));
+                        // Incompatible types - throw error with clear guidance
+                        std::string error_msg = "Type error calling '" + component_name + "()': ";
+                        error_msg += "argument " + std::to_string(i + 1) + " ('" + dst_handle + "') must be " + TypeChecker::DataTypeToString(target_type);
+                        error_msg += ", but received " + TypeChecker::DataTypeToString(source_type);
+                        error_msg += " from '" + handle.node_id + "." + handle.handle + "'";
+                        ThrowError(error_msg);
                     }
                 }
                 else

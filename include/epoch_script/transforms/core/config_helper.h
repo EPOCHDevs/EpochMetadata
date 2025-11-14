@@ -1771,4 +1771,75 @@ inline auto string_reverse_cfg = [](std::string const &id, std::string const &in
   return TransformConfiguration{TransformDefinition{std::move(data)}};
 };
 
+// =========================
+// Datetime operation helpers
+// =========================
+
+// Index Datetime Extract - Extract datetime component from bar index
+inline auto index_datetime_extract_cfg =
+    [](std::string const &id, std::string const &component,
+       const epoch_script::TimeFrame &timeframe) {
+      return TransformConfiguration{TransformDefinition{
+          YAML::Load(std::format(R"(
+type: index_datetime_extract
+id: {}
+options:
+  component: "{}"
+timeframe: {}
+)",
+                                 id, component, timeframe.Serialize()))}};
+    };
+
+// Column Datetime Extract - Extract datetime component from timestamp column
+inline auto column_datetime_extract_cfg =
+    [](std::string const &id, std::string const &input,
+       std::string const &component, const epoch_script::TimeFrame &timeframe) {
+      return TransformConfiguration{TransformDefinition{
+          YAML::Load(std::format(R"(
+type: column_datetime_extract
+id: {}
+inputs:
+  SLOT: "{}"
+options:
+  component: "{}"
+timeframe: {}
+)",
+                                 id, input, component, timeframe.Serialize()))}};
+    };
+
+// Datetime Diff - Calculate time difference between two timestamps
+inline auto datetime_diff_cfg =
+    [](std::string const &id, std::string const &start_input,
+       std::string const &end_input, std::string const &unit,
+       const epoch_script::TimeFrame &timeframe) {
+      return TransformConfiguration{TransformDefinition{
+          YAML::Load(std::format(R"(
+type: datetime_diff
+id: {}
+inputs:
+  SLOT0: "{}"
+  SLOT1: "{}"
+options:
+  unit: "{}"
+timeframe: {}
+)",
+                                 id, start_input, end_input, unit,
+                                 timeframe.Serialize()))}};
+    };
+
+// Timestamp Scalar - Create constant timestamp value
+inline auto timestamp_scalar_cfg =
+    [](std::string const &id, std::string const &value,
+       const epoch_script::TimeFrame &timeframe) {
+      return TransformConfiguration{TransformDefinition{
+          YAML::Load(std::format(R"(
+type: timestamp_scalar
+id: {}
+options:
+  value: "{}"
+timeframe: {}
+)",
+                                 id, value, timeframe.Serialize()))}};
+    };
+
 } // namespace epoch_script::transform

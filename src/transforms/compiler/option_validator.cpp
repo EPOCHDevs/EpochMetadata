@@ -75,7 +75,8 @@ namespace epoch_script
         }
 
         // 2b. Validate timeframe is present for transforms that require it
-        if (comp_meta.requiresTimeFrame && !kwargs.contains("timeframe"))
+        // Skip enforcement for intradayOnly nodes (they will default to 1Min)
+        if (comp_meta.requiresTimeFrame && !comp_meta.intradayOnly && !kwargs.contains("timeframe"))
         {
             ThrowError(
                 std::format("Data source '{}' (type '{}') requires a 'timeframe' parameter. "

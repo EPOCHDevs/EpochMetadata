@@ -98,6 +98,15 @@ namespace epoch_script
                 ThrowError("Parameter 'timeframe' must be a string (pandas offset)");
             }
         }
+        else
+        {
+            // Default to 1Min for intradayOnly nodes when no explicit timeframe is provided
+            const auto& comp_meta = context_.GetComponentMetadata(algo.type);
+            if (comp_meta.intradayOnly)
+            {
+                algo.timeframe = epoch_script::TimeFrame("1Min");
+            }
+        }
 
         // Handle session as special field (store as SessionType enum for now)
         if (params.contains("session"))

@@ -241,7 +241,7 @@ namespace epoch_script
                         }
                         else
                         {
-                            ThrowError("Number node missing value option");
+                            ThrowError("Internal error: Number node '" + node_id + "' is missing value option. This should not happen.");
                         }
                     }
                     else if (algo.type == "bool_true")
@@ -254,12 +254,12 @@ namespace epoch_script
                     }
                     else
                     {
-                        ThrowError("Only literal values supported for options");
+                        ThrowError("Option '" + meta_option.id + "' in '" + comp_meta.id + "()' requires a literal value (number, string, boolean), but got variable '" + name->id + "' bound to non-literal node type '" + algo.type + "'");
                     }
                 }
                 else
                 {
-                    ThrowError("Only literal values supported for options");
+                    ThrowError("Option '" + meta_option.id + "' in '" + comp_meta.id + "()' requires a literal value (number, string, boolean), but got unbound variable '" + name->id + "'");
                 }
             }
             else
@@ -268,9 +268,39 @@ namespace epoch_script
                 raw_value = name->id;
             }
         }
+        else if ([[maybe_unused]] auto* dict = dynamic_cast<const Dict*>(&expr))
+        {
+            // Dictionary literals are NOT supported - must use constructor call
+            ThrowError("Option '" + meta_option.id + "' in '" + comp_meta.id + "()' cannot accept inline dictionary literals {...}. "
+                       "You must use a constructor call instead. "
+                       "For example: " + comp_meta.id + "(" + meta_option.id + "=EventMarkerSchema({\"select_key\":\"SLOT0\", ...})) "
+                       "instead of " + comp_meta.id + "(" + meta_option.id + "={...})");
+        }
+        else if ([[maybe_unused]] auto* list = dynamic_cast<const List*>(&expr))
+        {
+            // List literals are supported - this shouldn't happen in normal flow
+            ThrowError("Option '" + meta_option.id + "' in '" + comp_meta.id + "()' received a list literal. "
+                       "Lists are supported, but this case shouldn't be reached. This may be an internal compiler issue.");
+        }
         else
         {
-            ThrowError("Only literal keyword values supported");
+            // Determine what type of expression was provided for better error message
+            std::string expr_type = "unknown expression";
+            if (dynamic_cast<const BinOp*>(&expr)) {
+                expr_type = "arithmetic expression (e.g., a + b)";
+            } else if (dynamic_cast<const UnaryOp*>(&expr)) {
+                expr_type = "unary expression (e.g., -x)";
+            } else if (dynamic_cast<const Compare*>(&expr)) {
+                expr_type = "comparison expression (e.g., a > b)";
+            } else if (dynamic_cast<const Attribute*>(&expr)) {
+                expr_type = "attribute access (e.g., obj.attr)";
+            } else if (dynamic_cast<const Subscript*>(&expr)) {
+                expr_type = "subscript expression (e.g., arr[0])";
+            }
+
+            ThrowError("Option '" + meta_option.id + "' in '" + comp_meta.id + "()' requires a compile-time constant. "
+                       "Got " + expr_type + ". "
+                       "Supported: literals (number, string, boolean), dictionaries {...}, lists [...], or constructor calls like EventMarkerSchema({...}).");
         }
 
         // Delegate to OptionValidator for type-aware parsing
@@ -465,7 +495,9 @@ namespace epoch_script
             }
             else
             {
-                ThrowError("Unsupported expression type in constructor", call.lineno, call.col_offset);
+                ThrowError("Unsupported expression type in constructor argument '" + key + "'. "
+                           "Constructor arguments must be literals (strings, numbers, booleans), lists, or dictionaries. "
+                           "Complex expressions are not supported.", call.lineno, call.col_offset);
             }
         }
 

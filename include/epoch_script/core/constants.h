@@ -85,6 +85,28 @@ inline const std::unordered_set<std::string> ALL_POLYGON_TRANSFORMS = {
 };
 } // namespace polygon
 
+// FRED (Federal Reserve Economic Data) transform IDs
+namespace fred {
+constexpr auto ECONOMIC_INDICATOR = "economic_indicator";
+
+// Set of all FRED transform IDs for easy contains checks
+inline const std::unordered_set<std::string> ALL_FRED_TRANSFORMS = {
+    ECONOMIC_INDICATOR
+};
+} // namespace fred
+
+// SEC (Securities and Exchange Commission) transform IDs
+namespace sec {
+constexpr auto FORM_13F_HOLDINGS = "form13f_holdings";
+constexpr auto INSIDER_TRADING = "insider_trading";
+
+// Set of all SEC transform IDs for easy contains checks
+inline const std::unordered_set<std::string> ALL_SEC_TRANSFORMS = {
+    FORM_13F_HOLDINGS,
+    INSIDER_TRADING
+};
+} // namespace sec
+
 using FileLoaderInterface = std::function<YAML::Node(std::string const &)>;
 using AIGeneratedStrategiesLoader = std::function<std::vector<std::string>()>;
 } // namespace epoch_script

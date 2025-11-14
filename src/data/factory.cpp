@@ -229,6 +229,46 @@ std::optional<FuturesContinuation::Input> MakeContinuations(
     return continuationOption;
 }
 
+// Helper functions to create typed configs for auxiliary categories
+data_sdk::FinancialsConfig CreateFinancialsConfig(std::string const& transformType) {
+  using namespace epoch_script::polygon;
+  data_sdk::FinancialsConfig config;
+
+  if (transformType == BALANCE_SHEET)
+    config.type = data_sdk::FinancialsStatementType::BalanceSheet;
+  else if (transformType == INCOME_STATEMENT)
+    config.type = data_sdk::FinancialsStatementType::IncomeStatement;
+  else if (transformType == CASH_FLOW)
+    config.type = data_sdk::FinancialsStatementType::CashFlow;
+  else if (transformType == FINANCIAL_RATIOS)
+    config.type = data_sdk::FinancialsStatementType::FinancialRatios;
+
+  return config;
+}
+
+data_sdk::MacroEconomicsConfig CreateMacroEconomicsConfig(
+    epoch_script::transform::TransformConfiguration const& config) {
+  data_sdk::MacroEconomicsConfig macro_config;
+
+  // Extract the indicator enum from the transform's "category" option
+  macro_config.indicator = config.GetOptionValue("category")
+      .GetSelectOption<epoch_core::MacroEconomicsIndicator>();
+
+  return macro_config;
+}
+
+data_sdk::AlternativeDataConfig CreateAlternativeDataConfig(std::string const& transformType) {
+  using namespace epoch_script::sec;
+  data_sdk::AlternativeDataConfig config;
+
+  if (transformType == FORM_13F_HOLDINGS)
+    config.source = data_sdk::AlternativeDataSource::SEC_Form13F;
+  else if (transformType == INSIDER_TRADING)
+    config.source = data_sdk::AlternativeDataSource::SEC_InsiderTrading;
+
+  return config;
+}
+
 std::optional<DataCategory>
 MapPolygonTransformToDataCategory(std::string const &transformType) {
   using namespace epoch_script::polygon;
@@ -240,12 +280,42 @@ MapPolygonTransformToDataCategory(std::string const &transformType) {
     return DataCategory::Financials;
   }
 
-  // Note: quotes and trades are tick-level data that may need special handling
-  // For now, we don't map them as they might require different infrastructure
-  // than the existing auxiliary category system
+  // Tick-level market microstructure data
+  // if (transformType == QUOTES || transformType == TRADES) {
+  //   return DataCategory::TickData;
+  // }
+
+  // Indices (common_indices, indices) are NOT mapped here
+  // They are loaded internally and are not asset-specific
 
   // Other potential mappings can be added here as needed
   // e.g., news → DataCategory::News (when available)
+
+  return std::nullopt;
+}
+
+std::optional<DataCategory>
+MapFREDTransformToDataCategory(std::string const &transformType) {
+  using namespace epoch_script::fred;
+
+  // Map FRED transform IDs to DataCategory
+  // All economic indicators map to MacroEconomics category
+  if (transformType == ECONOMIC_INDICATOR) {
+    return DataCategory::MacroEconomics;
+  }
+
+  return std::nullopt;
+}
+
+std::optional<DataCategory>
+MapSECTransformToDataCategory(std::string const &transformType) {
+  using namespace epoch_script::sec;
+
+  // Map SEC transform IDs to DataCategory
+  // Institutional holdings and insider trading are alternative data
+  if (transformType == FORM_13F_HOLDINGS || transformType == INSIDER_TRADING) {
+    return DataCategory::AlternativeData;
+  }
 
   return std::nullopt;
 }
@@ -268,29 +338,38 @@ ExtractAuxiliaryCategoriesFromTransforms(
     // Get the transform type/id
     std::string transformType = config.GetTransformName();
 
-    // Check if this is a known Polygon data source
+    std::optional<DataCategory> category;
+
+    // Check which data provider this transform belongs to
     if (epoch_script::polygon::ALL_POLYGON_TRANSFORMS.contains(transformType)) {
-      auto category = MapPolygonTransformToDataCategory(transformType);
-      if (category.has_value()) {
-        // Skip if it's a time-series category (those are primary, not auxiliary)
-        if (!IsTimeSeriesCategory(*category)) {
-          // Create config with transform ID as parameter
-          AuxiliaryCategoryConfig auxConfig(*category);
-          auxConfig.parameters["_transform_id"] = transformType;
+      category = MapPolygonTransformToDataCategory(transformType);
+    } else if (epoch_script::fred::ALL_FRED_TRANSFORMS.contains(transformType)) {
+      category = MapFREDTransformToDataCategory(transformType);
+    } else if (epoch_script::sec::ALL_SEC_TRANSFORMS.contains(transformType)) {
+      category = MapSECTransformToDataCategory(transformType);
+    }
 
-          // Note: All Polygon financial transforms (balance_sheet, income_statement,
-          // cash_flow, financial_ratios) have zero options defined in their metadata.
-          // They are differentiated purely by _transform_id.
-          // If options are added in the future, extract them here based on metadata.
+    if (category.has_value()) {
+      // Skip if it's a time-series category (those are primary, not auxiliary)
+      if (!IsTimeSeriesCategory(*category)) {
+        // Create config with typed configuration based on category
+        AuxiliaryCategoryConfig auxConfig(*category);
 
-          categoryMap[*category].push_back(auxConfig);
+        if (*category == DataCategory::Financials) {
+          auxConfig.config = CreateFinancialsConfig(transformType);
+        } else if (*category == DataCategory::MacroEconomics) {
+          auxConfig.config = CreateMacroEconomicsConfig(config);
+        } else if (*category == DataCategory::AlternativeData) {
+          auxConfig.config = CreateAlternativeDataConfig(transformType);
         }
+        // Other categories (News, Dividends, Splits, etc.) use std::monostate (no specific config)
+
+        categoryMap[*category].push_back(auxConfig);
       }
     }
   }
 
-  // Flatten to vector (for now, take first config per category)
-  // TODO: Handle multiple configs per category if needed
+  // Flatten to vector - preserve all configs, including multiple per category
   std::vector<AuxiliaryCategoryConfig> result;
   for (auto &[category, configs] : categoryMap) {
     result.insert(result.end(), configs.begin(), configs.end());
@@ -331,24 +410,21 @@ void ProcessConfigurations(
 #endif
 
   // Merge with existing auxiliary category configs
-  // Use category as key to avoid duplicates, but preserve parameters
-  std::unordered_map<DataCategory, AuxiliaryCategoryConfig> configMap;
+  // Keep all configs, including multiple instances of the same category
+  std::vector<AuxiliaryCategoryConfig> allConfigs;
 
   // Add existing configs
   for (const auto& config : dataModuleOption.loader.auxiliaryCategories) {
-    configMap[config.category] = config;
+    allConfigs.push_back(config);
   }
 
-  // Add detected configs (may override existing)
+  // Add detected configs (preserve all instances)
   for (const auto& config : detectedConfigs) {
-    configMap[config.category] = config;
+    allConfigs.push_back(config);
   }
 
-  // Update the dataModuleOption with the merged configs
-  dataModuleOption.loader.auxiliaryCategories.clear();
-  for (const auto& [category, config] : configMap) {
-    dataModuleOption.loader.auxiliaryCategories.push_back(config);
-  }
+  // Update the dataModuleOption with all configs
+  dataModuleOption.loader.auxiliaryCategories = std::move(allConfigs);
 
   // DEPRECATED: Old code reference (removed)
   // OLD: dataModuleOption.loader.auxiliaryCategories = categorySet;
