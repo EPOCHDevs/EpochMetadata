@@ -13,6 +13,12 @@ public:
   GatherInputs(const AssetID &asset_id,
                const epoch_script::transform::ITransformBase &transformer) const = 0;
 
+  // Validate that all inputs are available for a transform before gathering
+  // Returns true if all inputs exist, false if any are missing
+  [[nodiscard]] virtual bool
+  ValidateInputsAvailable(const AssetID &asset_id,
+                         const epoch_script::transform::ITransformBase &transformer) const = 0;
+
   virtual TimeFrameAssetDataFrameMap BuildFinalOutput() = 0;
 
   // Initialize base data (OHLCV)

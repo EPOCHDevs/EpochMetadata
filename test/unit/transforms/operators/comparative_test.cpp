@@ -263,15 +263,25 @@ TEST_CASE("Comparative Transforms") {
                           arrow::field("value_if_true", arrow::float64()),
                           arrow::field("value_if_false", arrow::float64())});
 
-      TransformConfiguration config = boolean_select(
-          20, "condition", "value_if_true", "value_if_false",
-          epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+      // Use typed variant directly - values are numeric (float64)
+      const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+      TransformConfiguration config{TransformDefinition{YAML::Load(std::format(
+          R"(
+type: boolean_select_number
+id: 20
+inputs:
+  "condition": "condition"
+  "true": "value_if_true"
+  "false": "value_if_false"
+timeframe: {}
+)",
+          timeframe.Serialize()))}};
       auto transformBase = MAKE_TRANSFORM(config);
       auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
       epoch_frame::DataFrame output = transform->TransformData(input);
       epoch_frame::DataFrame expected = make_dataframe<double>(
-          input.index(), {{100.0, 20.0, 300.0, 40.0}}, {"20#result"});
+          input.index(), {{100.0, 20.0, 300.0, 40.0}}, {"20#value"});
 
       INFO("Comparing output with expected values\n"
            << output << "\n!=\n"
@@ -290,7 +300,7 @@ TEST_CASE("Comparative Transforms") {
       epoch_frame::DataFrame output = transform->TransformData(input);
 
       epoch_frame::DataFrame expected = make_dataframe<double>(
-          input.index(), {{10.0, 200.0, 30.0, 400.0}}, {"21#result"});
+          input.index(), {{10.0, 200.0, 30.0, 400.0}}, {"21#value"});
 
       INFO("Comparing output with expected values\n"
            << output << "\n!=\n"
@@ -331,7 +341,7 @@ TEST_CASE("Comparative Transforms") {
       epoch_frame::DataFrame output = transform->TransformData(input);
 
       epoch_frame::DataFrame expected = make_dataframe<double>(
-          input.index(), {{10.0, 200.0, 3000.0, 400.0, 50.0}}, {"22#result"});
+          input.index(), {{10.0, 200.0, 3000.0, 400.0, 50.0}}, {"22#value"});
 
       INFO("Comparing output with expected values\n"
            << output << "\n!=\n"
@@ -380,7 +390,7 @@ TEST_CASE("Comparative Transforms") {
       // row2 => idx=2 => 3000
       // row3 => idx=3 => -4
       epoch_frame::DataFrame expected = make_dataframe<double>(
-          input.index(), {{10.0, 200.0, 3000.0, -4.0}}, {"23#result"});
+          input.index(), {{10.0, 200.0, 3000.0, -4.0}}, {"23#value"});
 
       INFO("Comparing output with expected values\n"
            << output << "\n!=\n"
@@ -429,7 +439,7 @@ TEST_CASE("Comparative Transforms") {
       epoch_frame::DataFrame output = transform->TransformData(input);
 
       epoch_frame::DataFrame expected = make_dataframe<double>(
-          input.index(), {{10.0, 200.0, 777.0, -4.0}}, {"24#result"});
+          input.index(), {{10.0, 200.0, 777.0, -4.0}}, {"24#value"});
 
       INFO("Comparing output with expected values\n"
            << output << "\n!=\n"
@@ -500,10 +510,23 @@ TEST_CASE("Additional Comparative Transforms") {
                         arrow::field("high", arrow::float64()),
                         arrow::field("low", arrow::float64())});
 
-    // Use the helper function instead of direct YAML
-    TransformConfiguration config = percentile_select(
-        "30", "value", "high", "low", 3, 50,
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed variant directly
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config{TransformDefinition{YAML::Load(std::format(
+        R"(
+type: percentile_select_number
+id: 30
+inputs:
+  "value": value
+  "high": high
+  "low": low
+options:
+  lookback: 3
+  percentile: 50
+timeframe: {}
+)",
+        timeframe.Serialize()))}};
+
 
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
@@ -523,7 +546,7 @@ TEST_CASE("Additional Comparative Transforms") {
 
     epoch_frame::DataFrame expected = make_dataframe<double>(
         input.index(), {{std::nan(""), std::nan(""), 0.8, 200.0, 120, 250.0}},
-        {"30#result"});
+        {"30#value"});
 
     INFO("Comparing output with expected values\n"
          << output << "\n!=\n"
@@ -970,9 +993,11 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
     };
     epoch_frame::DataFrame input = make_dataframe<double>(index, data, {"SLOT0", "SLOT1", "SLOT2"});
 
-    TransformConfiguration config = first_non_null(
-        200, {"SLOT0", "SLOT1", "SLOT2"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed first_non_null_number helper
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_first_non_null("first_non_null_number", 200,
+                                                         {"SLOT0", "SLOT1", "SLOT2"},
+                                                         timeframe);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -984,7 +1009,7 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
     // Row 2: SLOT0=null, SLOT1=10.0, ... => 10.0
     // Row 3: SLOT0=null, SLOT1=15.0, ... => 15.0
     epoch_frame::DataFrame expected = make_dataframe<double>(
-        index, {{20.0, 5.0, 10.0, 15.0}}, {"200#result"});
+        index, {{20.0, 5.0, 10.0, 15.0}}, {"200#value"});
 
     INFO("First non-null test:\n" << output << "\n!=\n" << expected);
     REQUIRE(output.equals(expected));
@@ -998,16 +1023,18 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
     };
     epoch_frame::DataFrame input = make_dataframe<double>(index, data, {"SLOT0", "SLOT1", "SLOT2"});
 
-    TransformConfiguration config = first_non_null(
-        201, {"SLOT0", "SLOT1", "SLOT2"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed first_non_null_number helper
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_first_non_null("first_non_null_number", 201,
+                                                         {"SLOT0", "SLOT1", "SLOT2"},
+                                                         timeframe);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
     epoch_frame::DataFrame output = transform->TransformData(input);
 
     // All nulls => result should be null
-    auto result_series = output["201#result"];
+    auto result_series = output["201#value"];
     REQUIRE(result_series.array()->null_count() == 4);
   }
 
@@ -1021,9 +1048,11 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
         },
         {"SLOT0", "SLOT1", "SLOT2"});
 
-    TransformConfiguration config = first_non_null(
-        202, {"SLOT0", "SLOT1", "SLOT2"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed first_non_null_number helper
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_first_non_null("first_non_null_number", 202,
+                                                         {"SLOT0", "SLOT1", "SLOT2"},
+                                                         timeframe);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1031,7 +1060,7 @@ TEST_CASE("FirstNonNull Transform (Coalesce)") {
 
     // All values in SLOT0 are non-null, so should return SLOT0
     epoch_frame::DataFrame expected = make_dataframe<double>(
-        index, {{1.0, 2.0, 3.0, 4.0}}, {"202#result"});
+        index, {{1.0, 2.0, 3.0, 4.0}}, {"202#value"});
 
     INFO("First column values:\n" << output << "\n!=\n" << expected);
     REQUIRE(output.equals(expected));
@@ -1060,9 +1089,11 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
          arrow::field("SLOT2", arrow::boolean()),
          arrow::field("SLOT3", arrow::float64())});
 
-    TransformConfiguration config = conditional_select(
-        300, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed conditional_select_number - values are numeric (float64)
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_conditional_select("conditional_select_number", 300,
+                                                             {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
+                                                             timeframe);
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1071,7 +1102,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
     // Row 0: condition1=true => value1=10.0
     // Rows 1-3: both conditions false => null (no default)
     std::vector<std::vector<double>> expected_data = {{10.0, std::nan(""), std::nan(""), std::nan("")}};
-    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"300#result"});
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"300#value"});
 
     INFO("First condition matches:\n" << output << "\n!=\n" << expected);
     REQUIRE(output.equals(expected));
@@ -1092,9 +1123,12 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
          arrow::field("SLOT2", arrow::boolean()),
          arrow::field("SLOT3", arrow::float64())});
 
-    TransformConfiguration config = conditional_select(
-        301, {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed conditional_select_number helper
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_conditional_select("conditional_select_number", 301,
+                                                             {"SLOT0", "SLOT1", "SLOT2", "SLOT3"},
+                                                             timeframe);
+
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1105,7 +1139,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
     // Row 2: condition1=true => value1=30.0 (first match wins)
     // Row 3: condition2=true => value2=400.0
     std::vector<std::vector<double>> expected_data = {{std::nan(""), 200.0, 30.0, 400.0}};
-    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"301#result"});
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"301#value"});
 
     INFO("Second condition matches:\n" << output << "\n!=\n" << expected);
     REQUIRE(output.equals(expected));
@@ -1128,9 +1162,12 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
          arrow::field("SLOT3", arrow::float64()),
          arrow::field("SLOT4", arrow::float64())});
 
-    TransformConfiguration config = conditional_select(
-        302, {"SLOT0", "SLOT1", "SLOT2", "SLOT3", "SLOT4"},
-        epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY);
+    // Use typed conditional_select_number helper with default value (odd number of inputs)
+    const auto &timeframe = epoch_script::EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+    TransformConfiguration config = typed_conditional_select("conditional_select_number", 302,
+                                                             {"SLOT0", "SLOT1", "SLOT2", "SLOT3", "SLOT4"},
+                                                             timeframe);
+
     auto transformBase = MAKE_TRANSFORM(config);
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
@@ -1141,7 +1178,7 @@ TEST_CASE("ConditionalSelect Transform (Case When)") {
     // Row 2: condition2=true => value2=300.0
     // Row 3: both false => default=999.0
     std::vector<std::vector<double>> expected_data = {{999.0, 20.0, 300.0, 999.0}};
-    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"302#result"});
+    epoch_frame::DataFrame expected = make_dataframe<double>(index, expected_data, {"302#value"});
 
     INFO("With default value:\n" << output << "\n!=\n" << expected);
     REQUIRE(output.equals(expected));

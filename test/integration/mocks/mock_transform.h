@@ -147,8 +147,9 @@ public:
         return *m_cachedConfig;
     }
 
-    // Storage for expectations (only for TransformData and GetTearSheet)
-    std::vector<std::unique_ptr<trompeloeil::expectation>> m_expectations;
+    // Storage for expectations - needs to be able to hold any expectation type
+    // We use a type-erased container by storing pointers to the abstract base
+    std::vector<std::shared_ptr<void>> m_expectations;
 
     // Stub data storage - populated by helper functions
     std::string m_id;
@@ -202,6 +203,15 @@ inline std::unique_ptr<MockTransform> CreateSimpleMockTransform(
         mock->m_outputMetadata.push_back({epoch_core::IODataType::Decimal, outId, outId, false, false});
     }
 
+    // Set default expectation for GetEventMarkerData - orchestrator always calls this
+    // Store the expectation in the mock to keep it alive (type-erased with shared_ptr<void>)
+    mock->m_expectations.push_back(
+        std::make_shared<decltype(NAMED_ALLOW_CALL(*mock, GetEventMarkerData()).RETURN(epoch_script::transform::EventMarkerData()))>(
+            NAMED_ALLOW_CALL(*mock, GetEventMarkerData())
+                .RETURN(epoch_script::transform::EventMarkerData())
+        )
+    );
+
     return mock;
 }
 
@@ -242,6 +252,15 @@ inline std::unique_ptr<MockTransform> CreateFullyMockedTransform(
     for (const auto& outId : outputIds) {
         mock->m_outputMetadata.push_back({epoch_core::IODataType::Decimal, outId, outId, false, false});
     }
+
+    // Set default expectation for GetEventMarkerData - orchestrator always calls this
+    // Store the expectation in the mock to keep it alive (type-erased with shared_ptr<void>)
+    mock->m_expectations.push_back(
+        std::make_shared<decltype(NAMED_ALLOW_CALL(*mock, GetEventMarkerData()).RETURN(epoch_script::transform::EventMarkerData()))>(
+            NAMED_ALLOW_CALL(*mock, GetEventMarkerData())
+                .RETURN(epoch_script::transform::EventMarkerData())
+        )
+    );
 
     return mock;
 }
@@ -295,6 +314,15 @@ inline std::unique_ptr<MockTransform> CreateReporterMockTransform(
 
     mock->m_cachedConfig = std::make_unique<epoch_script::transform::TransformConfiguration>(
         epoch_script::TransformDefinition{YAML::Load(yamlStr)}
+    );
+
+    // Set default expectation for GetEventMarkerData - orchestrator always calls this
+    // Store the expectation in the mock to keep it alive (type-erased with shared_ptr<void>)
+    mock->m_expectations.push_back(
+        std::make_shared<decltype(NAMED_ALLOW_CALL(*mock, GetEventMarkerData()).RETURN(epoch_script::transform::EventMarkerData()))>(
+            NAMED_ALLOW_CALL(*mock, GetEventMarkerData())
+                .RETURN(epoch_script::transform::EventMarkerData())
+        )
     );
 
     return mock;

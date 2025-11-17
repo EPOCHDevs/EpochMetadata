@@ -25,11 +25,12 @@ result = 1.0 and True
             AlgorithmAstCompiler compiler;
             auto result = compiler.compile(python_code, true);  // skip_sink_validation=true
 
-            // Should succeed and contain a cast node (bool_to_num_cast or num_to_bool_cast)
+            // Should succeed and contain a cast node (static_cast_to_boolean)
             bool has_cast_node = false;
             for (const auto& node : result)
             {
-                if (node.type == "neq" || node.type == "boolean_select")
+                if (node.type == "static_cast_to_boolean" || node.type == "static_cast_to_decimal" ||
+                    node.type == "static_cast_to_integer")
                 {
                     has_cast_node = true;
                     break;
@@ -57,11 +58,12 @@ result = 5 or False
             AlgorithmAstCompiler compiler;
             auto result = compiler.compile(python_code, true);  // skip_sink_validation=true
 
-            // Should succeed and contain a cast node
+            // Should succeed and contain a cast node (static_cast_to_boolean)
             bool has_cast_node = false;
             for (const auto& node : result)
             {
-                if (node.type == "neq" || node.type == "boolean_select")
+                if (node.type == "static_cast_to_boolean" || node.type == "static_cast_to_decimal" ||
+                    node.type == "static_cast_to_integer")
                 {
                     has_cast_node = true;
                     break;
@@ -94,7 +96,8 @@ result = True and 1
             bool has_cast_node = false;
             for (const auto& node : result)
             {
-                if (node.type == "neq" || node.type == "boolean_select")
+                if (node.type == "static_cast_to_boolean" || node.type == "static_cast_to_decimal" ||
+                    node.type == "static_cast_to_integer")
                 {
                     has_cast_node = true;
                     break;
@@ -126,7 +129,8 @@ result = 1 or 2 or 3
             int cast_count = 0;
             for (const auto& node : result)
             {
-                if (node.type == "neq" || node.type == "boolean_select")
+                if (node.type == "static_cast_to_boolean" || node.type == "static_cast_to_decimal" ||
+                    node.type == "static_cast_to_integer")
                 {
                     cast_count++;
                 }

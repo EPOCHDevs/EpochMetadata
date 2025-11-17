@@ -4,15 +4,15 @@
 TEST_CASE("Scalars do not require timeframe resolution", "[compiler][scalars]")
 {
 
-    SECTION("Literal in boolean_select should compile without timeframe error")
+    SECTION("Literal in boolean_select_number should compile without timeframe error")
     {
         std::string code = R"(
 src = market_data_source(timeframe="1d")()
 ret = intraday_returns(timeframe="1d", return_type="simple")()
 cond = src.c > src.o
 
-# boolean_select with literal 0 - this previously failed
-result = boolean_select()(cond, ret, 0)
+# boolean_select_number with literal 0 - this previously failed
+result = boolean_select_number()(cond, ret, 0)
 
 numeric_cards_report(agg="mean", category="Test", title="Result", group=0, group_size=1)(result)
 )";
@@ -44,8 +44,8 @@ numeric_cards_report(agg="mean", category="Test", title="Result", group=0, group
     {
         std::string code = R"(
 src = market_data_source(timeframe="1h")()
-result1 = boolean_select()(src.c > src.o, 1, 0)
-result2 = boolean_select()(src.h > src.l, 100, -100)
+result1 = boolean_select_number()(src.c > src.o, 1, 0)
+result2 = boolean_select_number()(src.h > src.l, 100, -100)
 numeric_cards_report(agg="sum", category="Test", title="R1", group=0, group_size=2)(result1)
 numeric_cards_report(agg="sum", category="Test", title="R2", group=1, group_size=2)(result2)
 )";

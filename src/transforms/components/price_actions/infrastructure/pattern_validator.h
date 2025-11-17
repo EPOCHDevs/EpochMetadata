@@ -26,7 +26,8 @@ struct LinearRegressionResult {
 class PatternValidator {
 public:
   /**
-   * Calculate linear regression using Hosseinmoein DataFrame library
+   * Calculate linear regression using LinearFitVisitor directly
+   * Thread-safe - avoids DataFrame's static data structures
    * Returns slope, intercept, R-squared, and standard error
    */
   static LinearRegressionResult
@@ -39,14 +40,16 @@ public:
     const size_t n = x.size();
     const double n_double = static_cast<double>(n);
 
-    // Use Hosseinmoein DataFrame linfit_v visitor for linear regression
-    hmdf::StdDataFrame<int64_t> df;
-    df.load_index(hmdf::StdDataFrame<int64_t>::gen_sequence_index(0, n, 1));
-    df.load_column("x", x);
-    df.load_column("y", y);
+    // Use LinearFitVisitor directly with iterators (thread-safe)
+    // Dummy index - visitor uses size, not actual index values
+    std::vector<int64_t> dummy_index(n);
 
     hmdf::linfit_v<double, int64_t> visitor;
-    df.single_act_visit<double, double>("x", "y", visitor);
+    visitor.pre();
+    visitor(dummy_index.begin(), dummy_index.end(),
+            x.begin(), x.end(),
+            y.begin(), y.end());
+    visitor.post();
 
     const double slope = visitor.get_slope();
     const double intercept = visitor.get_intercept();

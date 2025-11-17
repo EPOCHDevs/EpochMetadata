@@ -5,12 +5,14 @@
 
 #include "ast_compiler.h"
 #include "parser/python_parser.h"
+#include "validators/boolean_select_validator.h"
 #include <epoch_script/transforms/core/transform_registry.h>
 #include <stdexcept>
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <format>
 
 namespace epoch_script
 {
@@ -150,6 +152,9 @@ namespace epoch_script
 
     void AlgorithmAstCompiler::initializeComponents()
     {
+        // Register validators
+        RegisterBooleanSelectValidator();
+
         // Initialize all components in dependency order
         type_checker_ = std::make_unique<TypeChecker>(context_);
         option_validator_ = std::make_unique<OptionValidator>(context_);
@@ -288,8 +293,8 @@ namespace epoch_script
 
         // PASS 2: Resolve literal timeframes by finding nodes that use them
         // Literals inherit timeframes from their dependent nodes
-        // Skip scalar/constant types as they are timeframe-agnostic
-        const auto& metadata_map_pass2 = context_.GetRegistry().GetMetaData();
+        // EXCEPT scalar types which don't need timeframes (runtime handles them)
+        const auto& metadata_map = context_.GetRegistry().GetMetaData();
         for (auto& algo : context_.algorithms)
         {
             // Skip if already resolved
@@ -298,13 +303,13 @@ namespace epoch_script
                 continue;
             }
 
-            // Skip scalar types - they don't need timeframes
-            if (isScalarType(algo.type, metadata_map_pass2))
+            // Skip scalar types - they don't need timeframes (runtime handles them)
+            if (isScalarType(algo.type, metadata_map))
             {
                 continue;
             }
 
-            // Resolve literal timeframe based on usage
+            // Resolve literal timeframe based on usage (for non-scalar literals)
             auto literal_timeframe = resolver.ResolveLiteralTimeframe(algo.id, context_.algorithms);
             if (literal_timeframe)
             {
@@ -326,6 +331,25 @@ namespace epoch_script
                 if (isScalarType(algo.type, metadata_map))
                 {
                     continue;
+                }
+
+                // DEFERRED VALIDATION: Check if this transform requires a timeframe (moved from option_validator.cpp)
+                // This validation now occurs AFTER timeframe inheritance has been attempted,
+                // allowing transforms to inherit timeframes from their inputs as documented.
+                auto meta_it = metadata_map.find(algo.type);
+                if (meta_it != metadata_map.end())
+                {
+                    const auto& comp_meta = meta_it->second;
+
+                    // Skip intradayOnly nodes (they default to 1Min at runtime)
+                    if (comp_meta.requiresTimeFrame && !comp_meta.intradayOnly && !algo.timeframe.has_value())
+                    {
+                        throw std::runtime_error(
+                            std::format("Data source '{}' (type '{}') requires a 'timeframe' parameter. "
+                                      "Timeframe inheritance failed - the node has no inputs with resolved timeframes. "
+                                      "Add an explicit timeframe option, e.g. timeframe=\"1D\"",
+                                      algo.id, comp_meta.name));
+                    }
                 }
 
                 if (!algo.timeframe.has_value())

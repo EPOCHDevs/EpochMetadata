@@ -22,3 +22,4 @@ target_sources(epoch_script PRIVATE
 # Add subdirectories
 add_subdirectory(parser)
 add_subdirectory(validators)
+add_subdirectory(error_formatting)

@@ -87,24 +87,30 @@ inputs:
   REQUIRE_FALSE(algoNode.session.has_value());
 }
 
-TEST_CASE("AlgorithmNode decode - missing required option throws",
+TEST_CASE("AlgorithmNode decode - missing optional option uses default",
           "[AlgorithmNode]")
 {
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
-  // Attempt to load an 'atr' transform node but omit the required 'period'
-  // option:
+  // Load an 'atr' transform node but omit the optional 'period' option
+  // which has a default value of 14
   std::string yaml_str = R"(
 type: atr
-options: {}   # 'period' is not provided
+options: {}   # 'period' is not provided, should use default
 inputs:
   ARG: "c"
 )";
 
   YAML::Node node = YAML::Load(yaml_str);
 
-  // Expecting a std::runtime_error about a missing required field.
-  REQUIRE_THROWS_AS(node.as<AlgorithmNode>(), std::runtime_error);
+  // Should not throw since period has a default value
+  auto algoNode = node.as<AlgorithmNode>();
+  REQUIRE(algoNode.type == "atr");
+
+  // Verify that period option was set to default value (14.0)
+  REQUIRE(algoNode.options.count("period") == 1);
+  REQUIRE(algoNode.options.at("period").IsType<double>());
+  REQUIRE(algoNode.options.at("period").GetInteger() == 14);
 }
 
 TEST_CASE("AlgorithmNode decode - unknown transform type throws",

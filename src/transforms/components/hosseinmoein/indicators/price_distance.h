@@ -14,21 +14,21 @@ namespace epoch_script::transform {
 class PriceDistance : public ITransform {
 public:
   explicit PriceDistance(const TransformConfiguration &config)
-      : ITransform(config), m_visitor() {}
+      : ITransform(config) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    hmdf::pdist_v<double, int64_t> visitor;
+
     CloseSpan closeSpan{df};
     HighSpan highSpan{df};
     LowSpan lowSpan{df};
     OpenSpan openSpan{df};
 
-    run_visit(df, m_visitor, lowSpan, highSpan, openSpan, closeSpan);
-    return make_dataframe<double>(df.index(), {m_visitor.get_result()},
+    run_visit(df, visitor, lowSpan, highSpan, openSpan, closeSpan);
+    return make_dataframe<double>(df.index(), {visitor.get_result()},
                                   std::vector{GetOutputId()});
   }
-
-private:
-  mutable hmdf::pdist_v<double, int64_t> m_visitor;
 };
 } // namespace epoch_script::transform

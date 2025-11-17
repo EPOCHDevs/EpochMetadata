@@ -474,7 +474,7 @@ TEST_CASE("SMC Test") {
 
     // Verify output exists and is boolean type
     REQUIRE(result_start.num_rows() == df.num_rows());
-    auto in_window_col = result_start[stw_start->GetOutputId("in_window")];
+    auto in_window_col = result_start[stw_start->GetOutputId("value")];
     REQUIRE(in_window_col.dtype()->id() == arrow::Type::BOOL);
 
     // Count true values (should be at least 1 if we have 15M data covering session start)
@@ -488,7 +488,7 @@ TEST_CASE("SMC Test") {
 
     auto result_end = stw_end->TransformData(df);
     REQUIRE(result_end.num_rows() == df.num_rows());
-    auto in_window_end_col = result_end[stw_end->GetOutputId("in_window")];
+    auto in_window_end_col = result_end[stw_end->GetOutputId("value")];
     REQUIRE(in_window_end_col.dtype()->id() == arrow::Type::BOOL);
 
     auto true_count_end = in_window_end_col.cast(arrow::int64()).sum().value();
@@ -499,7 +499,7 @@ TEST_CASE("SMC Test") {
                                    SMC_TEST_DATA_DIR,
                                    test_instrument);
     auto renamed_result_start = result_start.rename(
-        {{stw_start->GetOutputId("in_window"), "InWindow"}});
+        {{stw_start->GetOutputId("value"), "InWindow"}});
     auto status_ok = epoch_frame::write_csv_file(renamed_result_start.reset_index(), output_path_start).ok();
     if (status_ok) {
       std::cout << "Wrote session_time_window start output to: " << output_path_start << std::endl;
@@ -509,7 +509,7 @@ TEST_CASE("SMC Test") {
                                    SMC_TEST_DATA_DIR,
                                    test_instrument);
     auto renamed_result_end = result_end.rename(
-        {{stw_end->GetOutputId("in_window"), "InWindow"}});
+        {{stw_end->GetOutputId("value"), "InWindow"}});
     status_ok = epoch_frame::write_csv_file(renamed_result_end.reset_index(), output_path_end).ok();
     if (status_ok) {
       std::cout << "Wrote session_time_window end output to: " << output_path_end << std::endl;

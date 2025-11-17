@@ -137,19 +137,22 @@ class SingleResultHMDFTransform : public ITransform {
 public:
   SingleResultHMDFTransform(TransformConfiguration const &config,
                             Visitor visitor)
-      : ITransform(config), m_visitor(std::move(visitor)) {}
+      : ITransform(config), m_visitor_template(std::move(visitor)) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
-    run_visit(df, m_visitor, Spans{df}...);
+    // Create local visitor copy to avoid state accumulation across assets
+    Visitor visitor = m_visitor_template;
+
+    run_visit(df, visitor, Spans{df}...);
 
     return make_dataframe(df.index(),
                           std::vector{epoch_frame::factory::array::make_array(
-                              m_visitor.get_result())},
+                              visitor.get_result())},
                           {GetOutputId("result")});
   }
 
 private:
-  mutable Visitor m_visitor;
+  Visitor m_visitor_template;  // Template visitor, copied for each transform call
 };
 } // namespace epoch_script::transform

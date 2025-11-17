@@ -37,11 +37,22 @@ namespace epoch_script
         // Convert DataType enum to human-readable string
         static std::string DataTypeToString(DataType type);
 
+        // Resolve Any output types based on node inputs
+        // For nodes with Any output type, this infers the actual output type from inputs
+        void ResolveAnyOutputType(const std::string& node_id, const std::string& node_type);
+
+        // Insert a static_cast node to materialize resolved Any types
+        // Returns the new node ID of the inserted static_cast node
+        std::string InsertStaticCast(const std::string& source_node_id, const std::string& source_handle, DataType resolved_type);
+
     private:
         CompilationContext& context_;
 
         // Helper to create number literal nodes for casting
         ValueHandle MaterializeNumber(double value);
+
+        // Helper to create string literal nodes for casting
+        ValueHandle MaterializeString(const std::string& value);
 
         // Helper to generate unique node ID
         std::string UniqueNodeId(const std::string& base);

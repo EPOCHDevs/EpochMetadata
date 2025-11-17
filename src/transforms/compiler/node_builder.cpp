@@ -5,6 +5,7 @@
 
 #include "node_builder.h"
 #include "validators/special_node_validator.h"
+#include "error_formatting/all_errors.h"
 #include <epoch_core/enum_wrapper.h>
 #include <algorithm>
 
@@ -385,20 +386,6 @@ namespace epoch_script
             last_input_allows_multi = inputs.back().allowMultipleConnections;
         }
 
-        // Special node validation (VARARGS-specific rules)
-        // Run even when args is empty - validators check minimum requirements
-        if (last_input_allows_multi) {
-            try {
-                ValidationContext val_ctx{
-                    args, kwargs, target_node_id, component_name,
-                    type_checker_, context_
-                };
-                SpecialNodeValidatorRegistry::Instance().ValidateIfNeeded(val_ctx);
-            } catch (const std::exception& e) {
-                ThrowError(e.what());
-            }
-        }
-
         // Wire positional arguments to inputs map
         if (!args.empty())
         {
@@ -411,7 +398,11 @@ namespace epoch_script
             // Validate positional args count (allow multiple args if last input is variadic)
             if (args.size() > input_ids.size() && !last_input_allows_multi)
             {
-                ThrowError("Too many positional inputs for '" + target_node_id + "'");
+                ThrowError(error_formatting::ArgumentCountError(
+                    target_node_id, component_name,
+                    input_ids.size(), args.size(),
+                    input_ids, args
+                ));
             }
 
             for (size_t i = 0; i < args.size(); ++i)
@@ -461,6 +452,21 @@ namespace epoch_script
                 }
             }
         }
+
+        // Run special node validation if validator exists (even for non-variadic transforms)
+        // This allows validators to check type compatibility and other constraints
+        try {
+            ValidationContext val_ctx{
+                args, kwargs, target_node_id, component_name,
+                type_checker_, context_
+            };
+            SpecialNodeValidatorRegistry::Instance().ValidateIfNeeded(val_ctx);
+        } catch (const std::exception& e) {
+            ThrowError(e.what());
+        }
+
+        // After wiring inputs, resolve Any output types based on actual inputs
+        type_checker_.ResolveAnyOutputType(target_node_id, component_name);
     }
 
     // Private helper methods
@@ -577,7 +583,7 @@ namespace epoch_script
                     ThrowError("EventMarkerSchema 'select_key' must use 'SLOT' syntax, not column names. "
                                "Got '" + filter.select_key + "'. "
                                "Use 'SLOT0' to reference the first argument passed to event_marker(), 'SLOT1' for the second, etc. "
-                               "Example: event_marker(event_marker_schema={\"select_key\":\"SLOT0\", \"schemas\":[{\"column_id\":\"SLOT0\", ...}]})(my_boolean_column)");
+                               "Example: event_marker(schema=EventMarkerSchema(select_key=\"SLOT0\", schemas=[{\"column_id\":\"SLOT0\", ...}]))(my_boolean_column)");
                 }
 
                 // Resolve column_id in schemas

@@ -9,12 +9,9 @@ namespace epoch_script::reports {
 
 void TableReport::generateTearsheet(const epoch_frame::DataFrame &normalizedDf) const {
   try {
-    // Build input rename mapping (SLOT0, SLOT1, SLOT2, ...)
-    auto inputRenameMap = BuildVARGInputRenameMapping();
-    epoch_frame::DataFrame inputDf = normalizedDf.rename(inputRenameMap);
-
     // Filter by boolean column specified in select_key (like event_marker)
-    epoch_frame::DataFrame filteredDf = inputDf.loc(inputDf[m_schema.select_key]);
+    // Note: select_key is already resolved to node_id#handle by compiler
+    epoch_frame::DataFrame filteredDf = normalizedDf.loc(normalizedDf[m_schema.select_key]);
 
     // Select and rename columns based on schema
     std::unordered_map<std::string, std::string> columnRenameMap;

@@ -23,9 +23,9 @@ PythonParser::PythonParser() {
 ModulePtr PythonParser::parse(const std::string& source) {
     // Preprocess source: convert backticks to double quotes
     // Backticks are not valid Python string delimiters and cause syntax errors
-    std::string preprocessed_source = preprocessSource(source);
+    // std::string preprocessed_source = preprocessSource(source);
 
-    ts::Tree tree = parser_->parseString(preprocessed_source);
+    ts::Tree tree = parser_->parseString(source);
 
     ts::Node root = tree.getRootNode();
 
@@ -34,7 +34,7 @@ ModulePtr PythonParser::parse(const std::string& source) {
         throw PythonParseError("Syntax error in Python source", 0, 0);
     }
 
-    return parseModule(root, preprocessed_source);
+    return parseModule(root, source);
 }
 
 std::string PythonParser::preprocessSource(const std::string& source) {
@@ -46,10 +46,15 @@ std::string PythonParser::preprocessSource(const std::string& source) {
     std::regex backtick_pattern(R"(`([^`"']*)`)", std::regex_constants::ECMAScript);
     result = std::regex_replace(result, backtick_pattern, "\"$1\"");
 
-    // Fix 2: Fix mismatched quotes - opening double quote with closing single quote
-    // Pattern: "...' followed by ), ], }, *, or comma -> "..."
+    // Fix 2a: Special case - move trailing asterisk(s) inside string before closing quote
+    // Pattern: "content'* -> "content*" (preserves content, makes valid syntax)
+    std::regex asterisk_inside(R"("([^"']*)'(\*+))", std::regex_constants::ECMAScript);
+    result = std::regex_replace(result, asterisk_inside, "\"$1$2\"");
+
+    // Fix 2b: Fix mismatched quotes - opening double quote with closing single quote
+    // Pattern: "...' followed by ), ], }, or comma -> "..."
     // Combined pattern to handle all common closing contexts
-    std::regex mismatch_pattern(R"("([^"']*)'([),\]*\}]))", std::regex_constants::ECMAScript);
+    std::regex mismatch_pattern(R"("([^"']*)'([),\]\}]))", std::regex_constants::ECMAScript);
     result = std::regex_replace(result, mismatch_pattern, "\"$1\"$2");
 
     return result;

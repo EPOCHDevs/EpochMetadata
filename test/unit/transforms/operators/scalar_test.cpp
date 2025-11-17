@@ -51,8 +51,11 @@ timeframe: {}
   auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
   DataFrame output = transform->TransformData(input);
+  // Scalars produce single-row output with the last timestamp
+  auto expectedIndex = epoch_frame::factory::index::make_datetime_index(
+      {epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
   DataFrame expected = make_dataframe<double>(
-      index, {{expectedValue, expectedValue, expectedValue}},
+      expectedIndex, {{expectedValue}},
       {config.GetOutputId()});
 
   INFO("Comparing " << transformType << " values\n"
@@ -83,8 +86,11 @@ timeframe: {}
   auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
   DataFrame output = transform->TransformData(input);
+  // Scalars produce single-row output with the last timestamp
+  auto expectedIndex = epoch_frame::factory::index::make_datetime_index(
+      {epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
   DataFrame expected =
-      make_dataframe<double>(index, {{5.0, 5.0, 5.0}}, {config.GetOutputId()});
+      make_dataframe<double>(expectedIndex, {{5.0}}, {config.GetOutputId()});
 
   INFO("Comparing numeric scalar values\n" << output << "\n!=\n" << expected);
   REQUIRE(output.equals(expected));
@@ -129,7 +135,10 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
     DataFrame output = transform->TransformData(input);
-    DataFrame expected = make_dataframe<double>(index, {{42.0, 42.0, 42.0}},
+    // Scalars produce single-row output with the last timestamp
+    auto expectedIndex = epoch_frame::factory::index::make_datetime_index(
+        {epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
+    DataFrame expected = make_dataframe<double>(expectedIndex, {{42.0}},
                                                 {config.GetOutputId()});
 
     INFO("Testing numeric helper function\n" << output << "\n!=\n" << expected);
@@ -144,8 +153,11 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
     DataFrame output = transform->TransformData(input);
+    // Scalars produce single-row output with the last timestamp
+    auto expectedIndex = epoch_frame::factory::index::make_datetime_index(
+        {epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
     DataFrame expected = make_dataframe<double>(
-        index, {{std::numbers::pi, std::numbers::pi, std::numbers::pi}},
+        expectedIndex, {{std::numbers::pi}},
         {config.GetOutputId()});
 
     INFO("Testing pi helper function\n" << output << "\n!=\n" << expected);
@@ -158,7 +170,7 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
 
     output = transform->TransformData(input);
     expected = make_dataframe<double>(
-        index, {{std::numbers::e, std::numbers::e, std::numbers::e}},
+        expectedIndex, {{std::numbers::e}},
         {config.GetOutputId()});
 
     INFO("Testing e helper function\n" << output << "\n!=\n" << expected);
@@ -173,7 +185,10 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
     auto transform = dynamic_cast<ITransform *>(transformBase.get());
 
     DataFrame output = transform->TransformData(input);
-    DataFrame expected = make_dataframe<double>(index, {{0.0, 0.0, 0.0}},
+    // Scalars produce single-row output with the last timestamp
+    auto expectedIndex = epoch_frame::factory::index::make_datetime_index(
+        {epoch_frame::DateTime{2020y, std::chrono::January, 3d}});
+    DataFrame expected = make_dataframe<double>(expectedIndex, {{0.0}},
                                                 {config.GetOutputId()});
 
     INFO("Testing zero helper function\n" << output << "\n!=\n" << expected);
@@ -185,7 +200,7 @@ TEST_CASE("Using Helper Functions", "[scalar]") {
     transform = dynamic_cast<ITransform *>(transformBase.get());
 
     output = transform->TransformData(input);
-    expected = make_dataframe<double>(index, {{1.0, 1.0, 1.0}},
+    expected = make_dataframe<double>(expectedIndex, {{1.0}},
                                       {config.GetOutputId()});
 
     INFO("Testing one helper function\n" << output << "\n!=\n" << expected);

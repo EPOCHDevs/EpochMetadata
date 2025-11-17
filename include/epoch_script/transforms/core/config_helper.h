@@ -398,16 +398,6 @@ inline auto cum_prod = [](auto &&...args) {
   return single_input_op("cum_prod", args...);
 };
 
-inline auto gap_returns = [](auto &&...args) {
-  return no_input_op("gap_returns", args...);
-};
-
-// Helper for gap_classify (no explicit inputs; uses OHLC from bars)
-inline auto make_gap_classify_cfg =
-    [](auto &&id, const epoch_script::TimeFrame &timeframe) {
-      return no_input_op("gap_classify", id, timeframe);
-    };
-
 inline auto lag = [](auto &&...args) {
   return single_operand_period_op("lag", args...);
 };
@@ -454,61 +444,57 @@ timeframe: {}
 
 inline auto sma = [](auto &&...args) { return ma("sma", args...); };
 
-inline auto boolean_select = [](int64_t id, const std::string &condition,
-                                const std::string &true_val,
-                                const std::string &false_val,
-                                const epoch_script::TimeFrame &timeframe) {
-  return TransformConfiguration{TransformDefinition{YAML::Load(std::format(
-      R"(
-type: boolean_select
-id: {}
-inputs:
-  "condition": "{}"
-  "true": "{}"
-  "false": "{}"
-timeframe: {}
-)",
-      id, condition, true_val, false_val, timeframe.Serialize()))}};
-};
+// NOTE: boolean_select helper removed - use typed variants:
+// boolean_select_string, boolean_select_number, boolean_select_boolean, boolean_select_timestamp
 
 inline auto select_n = [](int64_t id, int n, std::string const &index,
                           const std::vector<std::string> &options,
                           const epoch_script::TimeFrame &timeframe) {
-  // Assuming options are labeled as option_0, option_1, ..., option_{n-1}
+  // Updated for typed switch transforms: switch{N}_number
   YAML::Node inputs_yaml;
-  inputs_yaml["type"] = "select_" + std::to_string(n);
+  inputs_yaml["type"] = "switch" + std::to_string(n) + "_number";
   inputs_yaml["id"] = id;
   inputs_yaml["timeframe"] = YAML::Load(timeframe.Serialize());
 
   inputs_yaml["inputs"]["index"] = index;
   for (int i = 0; i < n; ++i) {
-    inputs_yaml["inputs"]["*" + std::to_string(i)] = options[i];
+    inputs_yaml["inputs"]["SLOT" + std::to_string(i)] = options[i];
   }
 
   return TransformConfiguration{TransformDefinition{inputs_yaml}};
 };
 
-inline auto first_non_null = [](int64_t id, const std::vector<std::string> &inputs,
-                                 const epoch_script::TimeFrame &timeframe) {
+// NOTE: first_non_null helper removed - use typed variants:
+// first_non_null_string, first_non_null_number, first_non_null_boolean, first_non_null_timestamp
+
+// NOTE: conditional_select untyped helper removed - use typed variants with this helper:
+// Helper for typed conditional_select variants (conditional_select_number, etc.)
+// inputs: vector of input IDs in order [cond0, val0, cond1, val1, ..., optional_default]
+inline auto typed_conditional_select = [](const std::string &type, int64_t id,
+                                          const std::vector<std::string> &inputs,
+                                          const epoch_script::TimeFrame &timeframe) {
   YAML::Node inputs_yaml;
-  inputs_yaml["type"] = "first_non_null";
+  inputs_yaml["type"] = type;  // e.g., "conditional_select_number"
   inputs_yaml["id"] = id;
   inputs_yaml["timeframe"] = YAML::Load(timeframe.Serialize());
 
-  // VARARGS inputs
+  // VARARGS inputs - use ARG key with vector value
   inputs_yaml["inputs"][epoch_script::ARG] = inputs;
 
   return TransformConfiguration{TransformDefinition{inputs_yaml}};
 };
 
-inline auto conditional_select = [](int64_t id, const std::vector<std::string> &inputs,
-                                    const epoch_script::TimeFrame &timeframe) {
+// Helper for typed first_non_null variants (first_non_null_number, etc.)
+// inputs: vector of input IDs to check in order
+inline auto typed_first_non_null = [](const std::string &type, int64_t id,
+                                      const std::vector<std::string> &inputs,
+                                      const epoch_script::TimeFrame &timeframe) {
   YAML::Node inputs_yaml;
-  inputs_yaml["type"] = "conditional_select";
+  inputs_yaml["type"] = type;  // e.g., "first_non_null_number"
   inputs_yaml["id"] = id;
   inputs_yaml["timeframe"] = YAML::Load(timeframe.Serialize());
 
-  // VARARGS inputs (alternating conditions and values)
+  // VARARGS inputs - use ARG key with vector value
   inputs_yaml["inputs"][epoch_script::ARG] = inputs;
 
   return TransformConfiguration{TransformDefinition{inputs_yaml}};
@@ -696,25 +682,8 @@ timeframe: {}
                              id, interval, type, timeframe.Serialize()))}};
 };
 
-inline auto percentile_select =
-    [](std::string const &id, std::string const &value, std::string const &high,
-       std::string const &low, int64_t lookback, double percentile,
-       const epoch_script::TimeFrame &timeframe) {
-      return TransformConfiguration{TransformDefinition{YAML::Load(std::format(
-          R"(
-type: percentile_select
-id: {}
-inputs:
-  "value": {}
-  "high": {}
-  "low": {}
-options:
-  lookback: {}
-  percentile: {}
-timeframe: {}
-)",
-          id, value, high, low, lookback, percentile, timeframe.Serialize()))}};
-    };
+// NOTE: percentile_select helper removed - use typed variants:
+// percentile_select_string, percentile_select_number, percentile_select_boolean, percentile_select_timestamp
 
 inline auto boolean_branch = [](std::string const &id,
                                 std::string const &condition,
@@ -1657,13 +1626,13 @@ inline auto consolidation_box_cfg =
 // Event Marker with Filter - Uses boolean column to filter rows
 // Accepts EventMarkerSchema object directly - NO YAML!
 inline auto event_marker_cfg =
-    [](std::string const &id, epoch_script::EventMarkerSchema const &event_marker_schema,
+    [](std::string const &id, epoch_script::EventMarkerSchema const &schema,
        const std::vector<std::string> &inputs,
        const epoch_script::TimeFrame &timeframe) {
       TransformDefinitionData data{
         .type = "event_marker",
         .id = id,
-        .options = {{"event_marker_schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{event_marker_schema}}}},
+        .options = {{"schema", epoch_script::MetaDataOptionDefinition{epoch_script::MetaDataOptionDefinition::T{schema}}}},
         .timeframe = timeframe,
         .inputs = {{"SLOT", inputs}}
       };
@@ -1841,5 +1810,185 @@ timeframe: {}
 )",
                                  id, value, timeframe.Serialize()))}};
     };
+
+// Validation transform helpers
+inline auto is_null_cfg = [](std::string const &id, std::string const &input,
+                              const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("is_null", id, input, timeframe);
+};
+
+inline auto is_valid_cfg = [](std::string const &id, std::string const &input,
+                               const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("is_valid", id, input, timeframe);
+};
+
+inline auto is_zero_cfg = [](std::string const &id, std::string const &input,
+                              const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("is_zero", id, input, timeframe);
+};
+
+inline auto is_one_cfg = [](std::string const &id, std::string const &input,
+                             const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("is_one", id, input, timeframe);
+};
+
+// Static cast transform helpers (compiler-inserted type materializers)
+inline auto static_cast_to_integer_cfg = [](std::string const &id, std::string const &input,
+                                              const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("static_cast_to_integer", id, input, timeframe);
+};
+
+inline auto static_cast_to_decimal_cfg = [](std::string const &id, std::string const &input,
+                                              const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("static_cast_to_decimal", id, input, timeframe);
+};
+
+inline auto static_cast_to_boolean_cfg = [](std::string const &id, std::string const &input,
+                                              const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("static_cast_to_boolean", id, input, timeframe);
+};
+
+inline auto static_cast_to_string_cfg = [](std::string const &id, std::string const &input,
+                                             const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("static_cast_to_string", id, input, timeframe);
+};
+
+inline auto static_cast_to_timestamp_cfg = [](std::string const &id, std::string const &input,
+                                                const epoch_script::TimeFrame &timeframe) {
+  return single_input_op("static_cast_to_timestamp", id, input, timeframe);
+};
+
+// GroupBy aggregate transform helpers
+inline auto groupby_numeric_agg = [](std::string const &id,
+                                      std::string const &agg_type,
+                                      std::string const &group_key,
+                                      std::string const &value,
+                                      epoch_script::TimeFrame const &timeframe) {
+  YAML::Node inputs_yaml;
+  inputs_yaml["group_key"] = group_key;
+  inputs_yaml["value"] = value;
+
+  YAML::Node options_yaml;
+  options_yaml["agg"] = agg_type;
+
+  return run_op("groupby_numeric_agg", id, inputs_yaml, options_yaml, timeframe);
+};
+
+inline auto groupby_boolean_agg = [](std::string const &id,
+                                      std::string const &agg_type,
+                                      std::string const &group_key,
+                                      std::string const &value,
+                                      epoch_script::TimeFrame const &timeframe) {
+  YAML::Node inputs_yaml;
+  inputs_yaml["group_key"] = group_key;
+  inputs_yaml["value"] = value;
+
+  YAML::Node options_yaml;
+  options_yaml["agg"] = agg_type;
+
+  return run_op("groupby_boolean_agg", id, inputs_yaml, options_yaml, timeframe);
+};
+
+inline auto groupby_any_agg = [](std::string const &id,
+                                  std::string const &agg_type,
+                                  std::string const &group_key,
+                                  std::string const &value,
+                                  epoch_script::TimeFrame const &timeframe) {
+  YAML::Node inputs_yaml;
+  inputs_yaml["group_key"] = group_key;
+  inputs_yaml["value"] = value;
+
+  YAML::Node options_yaml;
+  options_yaml["agg"] = agg_type;
+
+  return run_op("groupby_any_agg", id, inputs_yaml, options_yaml, timeframe);
+};
+
+// Convenience helpers for specific numeric aggregations
+inline auto groupby_sum = [](std::string const &id,
+                              std::string const &group_key,
+                              std::string const &value,
+                              epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "sum", group_key, value, timeframe);
+};
+
+inline auto groupby_mean = [](std::string const &id,
+                               std::string const &group_key,
+                               std::string const &value,
+                               epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "mean", group_key, value, timeframe);
+};
+
+inline auto groupby_count = [](std::string const &id,
+                                std::string const &group_key,
+                                std::string const &value,
+                                epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "count", group_key, value, timeframe);
+};
+
+inline auto groupby_first = [](std::string const &id,
+                                std::string const &group_key,
+                                std::string const &value,
+                                epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "first", group_key, value, timeframe);
+};
+
+inline auto groupby_last = [](std::string const &id,
+                               std::string const &group_key,
+                               std::string const &value,
+                               epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "last", group_key, value, timeframe);
+};
+
+inline auto groupby_min = [](std::string const &id,
+                              std::string const &group_key,
+                              std::string const &value,
+                              epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "min", group_key, value, timeframe);
+};
+
+inline auto groupby_max = [](std::string const &id,
+                              std::string const &group_key,
+                              std::string const &value,
+                              epoch_script::TimeFrame const &timeframe) {
+  return groupby_numeric_agg(id, "max", group_key, value, timeframe);
+};
+
+// Convenience helpers for boolean aggregations
+inline auto groupby_allof = [](std::string const &id,
+                                std::string const &group_key,
+                                std::string const &value,
+                                epoch_script::TimeFrame const &timeframe) {
+  return groupby_boolean_agg(id, "AllOf", group_key, value, timeframe);
+};
+
+inline auto groupby_anyof = [](std::string const &id,
+                                std::string const &group_key,
+                                std::string const &value,
+                                epoch_script::TimeFrame const &timeframe) {
+  return groupby_boolean_agg(id, "AnyOf", group_key, value, timeframe);
+};
+
+inline auto groupby_noneof = [](std::string const &id,
+                                 std::string const &group_key,
+                                 std::string const &value,
+                                 epoch_script::TimeFrame const &timeframe) {
+  return groupby_boolean_agg(id, "NoneOf", group_key, value, timeframe);
+};
+
+// Convenience helpers for any aggregations
+inline auto groupby_isequal = [](std::string const &id,
+                                  std::string const &group_key,
+                                  std::string const &value,
+                                  epoch_script::TimeFrame const &timeframe) {
+  return groupby_any_agg(id, "IsEqual", group_key, value, timeframe);
+};
+
+inline auto groupby_isunique = [](std::string const &id,
+                                   std::string const &group_key,
+                                   std::string const &value,
+                                   epoch_script::TimeFrame const &timeframe) {
+  return groupby_any_agg(id, "IsUnique", group_key, value, timeframe);
+};
 
 } // namespace epoch_script::transform

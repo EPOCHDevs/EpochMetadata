@@ -2,12 +2,21 @@
 #define EPOCH_METADATA_REFERENCE_STOCKS_METADATA_H
 
 #include <epoch_script/transforms/core/metadata.h>
+#include <epoch_data_sdk/dataloader/metadata_registry.hpp>
+#include "data_category_mapper.h"
+#include "metadata_helper.h"
 
 namespace epoch_script::transform {
 
 inline std::vector<epoch_script::transforms::TransformsMetaData> MakeReferenceStocksDataSources() {
+  using namespace epoch_script::data_sources;
   std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
+  // Get metadata from MetadataRegistry for market bars (reference stocks use same schema)
+  // Note: Reference stocks can be either DailyBars or MinuteBars depending on timeframe
+  auto dailyBarsMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::DailyBars);
+
+  // Note: Uses DailyBars metadata by default, but actual category is determined at runtime based on timeframe
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "us_reference_stocks",
       .category = epoch_core::TransformCategory::DataSource,
@@ -23,26 +32,15 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeReferenceSt
                   .desc = "Reference stock ticker symbol (e.g., SPY, QQQ, DIA, IWM)"},
           },
       .isCrossSectional = false,
-      .desc =
-          "Load OHLCV pricing data for US reference stocks (ETFs and equities) to use as "
-          "benchmarks or comparison assets against the main strategy asset. "
-          "Provides open, high, low, close, volume, volume-weighted price, and trade count. "
-          "Commonly used for pairs trading, relative strength, or beta-hedging strategies.",
+      .desc = dailyBarsMeta.description,
       .inputs = {},
-      .outputs =
-          {
-              {epoch_core::IODataType::Decimal, "o", "Open", true},
-              {epoch_core::IODataType::Decimal, "h", "High", true},
-              {epoch_core::IODataType::Decimal, "l", "Low", true},
-              {epoch_core::IODataType::Decimal, "c", "Close", true},
-              {epoch_core::IODataType::Decimal, "v", "Volume", true},
-              {epoch_core::IODataType::Decimal, "vw", "Volume Weighted Price", true},
-              {epoch_core::IODataType::Integer, "n", "Trade Count", true},
-          },
+      .outputs = BuildOutputsFromSDKMetadata(dailyBarsMeta),
       .atLeastOneInputRequired = false,
       .tags = {"reference", "comparison", "benchmark", "data", "source", "etf"},
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"},
+      .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(dailyBarsMeta),
+      .intradayOnly = false,
+      .allowNullInputs = true,
       .strategyTypes = {"pairs-trading", "relative-strength", "beta-hedging", "correlation"},
       .assetRequirements = {"multi-asset"},
       .usageContext =

@@ -7,16 +7,16 @@
 #include <epoch_script/transforms/core/itransform.h>
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <numbers>
+#include "type_tags.h"
 
 namespace epoch_script::transform {
 
-// Helper function to create single-row index from input bars (DRY principle)
-// SRP: Responsible only for creating the scalar's timestamp
+// Helper function to get the index from input bars (DRY principle)
+// SRP: Responsible only for extracting the last timestamp for scalar output
 inline epoch_frame::IndexPtr CreateScalarIndex(const epoch_frame::DataFrame& bars) {
-    // Use last timestamp from input bars as the scalar's timestamp
-    // iat() returns IndexPtr with single element at the specified position
-    const auto last_idx = static_cast<int64_t>(bars.size()) - 1;
-    return bars.index()->iat(last_idx);
+    // Return single-element index with the last timestamp from input bars
+    // iat(-1) returns IndexPtr with the last element (Python-style negative indexing)
+    return bars.index()->iat(-1);
 }
 
 template <typename T> struct ScalarDataFrameTransform : ITransform {
@@ -31,19 +31,19 @@ template <typename T> struct ScalarDataFrameTransform : ITransform {
   // SRP: TransformData's responsibility is to create a single-row DataFrame with the scalar value
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override {
-      auto singleRowIndex = CreateScalarIndex(bars);
+      auto index = CreateScalarIndex(bars);
 
       if constexpr (std::is_same_v<T, std::nullopt_t>) {
-          // Build single-element null array
+          // Build null array with single element
           auto arrowArray_temp = arrow::MakeArrayOfNull(arrow::null(), 1).MoveValueUnsafe();
           auto chunkedArray = std::make_shared<arrow::ChunkedArray>(arrowArray_temp);
-          return make_dataframe(singleRowIndex, {chunkedArray}, {GetOutputId()});
+          return make_dataframe(index, {chunkedArray}, {GetOutputId()});
       }
       else {
           // Build single-element array with the scalar value
           auto arrowArray = epoch_frame::factory::array::make_array(
-              std::vector<T>(1, m_value));  // Single value, not bars.size()
-          return epoch_frame::make_dataframe(singleRowIndex, {arrowArray}, {GetOutputId()});
+              std::vector<T>{m_value});
+          return epoch_frame::make_dataframe(index, {arrowArray}, {GetOutputId()});
       }
   }
 
@@ -67,10 +67,45 @@ private:
   T m_value;
 };
 
-    struct NullScalar : ScalarDataFrameTransform<std::nullopt_t> {
-        explicit NullScalar(const TransformConfiguration &config)
-            : ScalarDataFrameTransform(config, std::nullopt) {}
+    // Typed null scalars - DRY template implementation
+    // Helper to get Arrow type for each type tag
+    template <typename TypeTag>
+    struct ArrowTypeMapper;
+
+    template<> struct ArrowTypeMapper<StringType> {
+        static std::shared_ptr<arrow::DataType> get() { return arrow::utf8(); }
     };
+    template<> struct ArrowTypeMapper<NumberType> {
+        static std::shared_ptr<arrow::DataType> get() { return arrow::float64(); }
+    };
+    template<> struct ArrowTypeMapper<BooleanType> {
+        static std::shared_ptr<arrow::DataType> get() { return arrow::boolean(); }
+    };
+    template<> struct ArrowTypeMapper<TimestampType> {
+        static std::shared_ptr<arrow::DataType> get() { return arrow::timestamp(arrow::TimeUnit::NANO); }
+    };
+
+    // Generic typed null scalar template
+    template <typename TypeTag>
+    struct TypedNullScalar : ITransform {
+        explicit TypedNullScalar(const TransformConfiguration &config)
+            : ITransform(config) {}
+
+        [[nodiscard]] epoch_frame::DataFrame
+        TransformData(epoch_frame::DataFrame const &bars) const override {
+            auto index = CreateScalarIndex(bars);
+            auto arrowType = ArrowTypeMapper<TypeTag>::get();
+            auto arrowArray_temp = arrow::MakeArrayOfNull(arrowType, 1).MoveValueUnsafe();
+            auto chunkedArray = std::make_shared<arrow::ChunkedArray>(arrowArray_temp);
+            return epoch_frame::make_dataframe(index, {chunkedArray}, {GetOutputId()});
+        }
+    };
+
+    // Type aliases using clear naming convention: null_{type}
+    using NullStringScalar = TypedNullScalar<StringType>;
+    using NullNumberScalar = TypedNullScalar<NumberType>;
+    using NullBooleanScalar = TypedNullScalar<BooleanType>;
+    using NullTimestampScalar = TypedNullScalar<TimestampType>;
 
 
 struct ZeroScalar : ScalarDataFrameTransform<double> {

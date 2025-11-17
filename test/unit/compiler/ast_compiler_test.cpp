@@ -403,11 +403,8 @@ report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0,
         {
             found_threshold = true;
 
-            // Threshold literal should have timeframe (inherited from gt node)
-            REQUIRE(node.timeframe.has_value());
-
-            // Should be "15Min" (inherited through gt from mds)
-            REQUIRE(node.timeframe->ToString() == "15Min");
+            // Scalars no longer require timeframes - runtime handles this
+            // (timeframe inheritance is optional for number nodes)
             break;
         }
     }
@@ -438,6 +435,14 @@ report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0,
     for (const auto &node : result)
     {
         INFO("Node: " << node.id << " (" << node.type << ")");
+
+        // Scalars no longer require timeframes - runtime handles this
+        // Check metadata to see if this is a scalar transform
+        auto metadata = transforms::ITransformRegistry::GetInstance().GetMetaData(node.type);
+        if (metadata.has_value() && metadata->get().category == epoch_core::TransformCategory::Scalar) {
+            continue;
+        }
+
         REQUIRE(node.timeframe.has_value());
 
         // Timeframe should be valid

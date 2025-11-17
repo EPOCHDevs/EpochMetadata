@@ -26,6 +26,7 @@ namespace epoch_script
         Decimal, // D
         Number,  // N (accepts Integer or Decimal)
         String,  // S
+        Timestamp, // T
         Any      // A
     };
 

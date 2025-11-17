@@ -134,12 +134,13 @@ timeframe: {}
 TEST_CASE("timestamp_scalar - Invalid format throws error", "[datetime][scalar]") {
   auto input = createTimestampScalarTestDataFrame();
 
-  SECTION("Missing time component") {
+  SECTION("Date-only format (supported)") {
+    // Test that date-only format (YYYY-MM-DD) is automatically converted to YYYY-MM-DD 00:00:00
     TransformConfiguration config =
         TransformConfiguration{TransformDefinition{YAML::Load(std::format(
             R"(
 type: timestamp_scalar
-id: bad_date
+id: date_only
 options:
   value: "2020-01-01"
 timeframe: {}
@@ -147,12 +148,24 @@ timeframe: {}
             epoch_script::EpochStratifyXConstants::instance()
                 .DAILY_FREQUENCY.Serialize()))}};
 
-    // Should throw during construction when parsing the timestamp
-    REQUIRE_THROWS_WITH(
-        MAKE_TRANSFORM(config),
-        Catch::Matchers::ContainsSubstring("Invalid timestamp format") &&
-        Catch::Matchers::ContainsSubstring("YYYY-MM-DD HH:MM:SS")
-    );
+    // Should NOT throw - date-only format is supported
+    REQUIRE_NOTHROW(MAKE_TRANSFORM(config));
+
+    // Verify it produces correct timestamp value (2020-01-01 00:00:00 UTC)
+    auto transform = MAKE_TRANSFORM(config);
+    auto output = transform->TransformData(createTimestampScalarTestDataFrame());
+    REQUIRE(output.size() == 1);
+    REQUIRE(output.contains(config.GetOutputId()));
+
+    // Get the timestamp value and verify it's 2020-01-01 00:00:00 UTC
+    auto column_name = output.column_names().at(0);
+    Series series = output[column_name];
+    auto timestamp_scalar = series.iloc(0);
+
+    // Expected: 2020-01-01 00:00:00 UTC in nanoseconds
+    auto expected_nanos = epoch_frame::DateTime::from_str("2020-01-01 00:00:00", "UTC").m_nanoseconds.count();
+    auto ts = timestamp_scalar.timestamp();
+    REQUIRE(ts.value == expected_nanos);
   }
 
   SECTION("Wrong separator (T instead of space)") {

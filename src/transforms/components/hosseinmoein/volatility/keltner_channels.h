@@ -12,22 +12,26 @@ class KeltnerChannels : public ITransform {
 public:
   explicit KeltnerChannels(const TransformConfiguration &config)
       : ITransform(config),
-        m_visitor(config.GetOptionValue("roll_period").GetInteger(),
-                  config.GetOptionValue("band_multiplier").GetDecimal()) {}
+        m_roll_period(config.GetOptionValue("roll_period").GetInteger()),
+        m_band_multiplier(config.GetOptionValue("band_multiplier").GetDecimal()) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    keltner_channels_v visitor(m_roll_period, m_band_multiplier);
+
     LowSpan lowSpan{df};
     HighSpan highSpan{df};
     CloseSpan closeSpan{df};
-    run_visit(df, m_visitor, lowSpan, highSpan, closeSpan);
+    run_visit(df, visitor, lowSpan, highSpan, closeSpan);
     return make_dataframe(
         df.index(),
-        std::vector{m_visitor.get_upper_band(), m_visitor.get_lower_band()},
+        std::vector{visitor.get_upper_band(), visitor.get_lower_band()},
         {GetOutputId("upper_band"), GetOutputId("lower_band")});
   }
 
 private:
-  mutable keltner_channels_v m_visitor;
+  int64_t m_roll_period;
+  double m_band_multiplier;
 };
 } // namespace epoch_script::transform

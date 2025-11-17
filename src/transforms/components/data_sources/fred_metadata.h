@@ -2,14 +2,25 @@
 
 #include <epoch_script/transforms/core/metadata.h>
 #include "../data_source.h"
-#include <epoch_data_sdk/dataloader/options.hpp>
+#include "metadata_helper.h"
+#include <epoch_data_sdk/dataloader/metadata_registry.hpp>
 
 namespace epoch_script::transform {
 
 // Factory function to create metadata for FRED economic data source
 inline std::vector<epoch_script::transforms::TransformsMetaData>
 MakeFREDDataSource() {
+  using namespace epoch_script::data_sources;
   std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
+
+  // Get metadata from MetadataRegistry for ALFRED (FRED with revision tracking)
+  auto sdkMetadata = data_sdk::dataloader::MetadataRegistry::GetAlfredMetadata();
+
+  // Build outputs from SDK metadata
+  auto outputs = BuildOutputsFromSDKMetadata(sdkMetadata);
+
+  // Build required data sources from SDK metadata
+  auto requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(sdkMetadata);
 
   // Single FRED transform with category SelectOption
   metadataList.emplace_back(
@@ -69,26 +80,23 @@ MakeFREDDataSource() {
               "GDP, employment data, and market indices. Non-asset-specific - "
               "applies globally to strategy.",
           .inputs = {},
-          .outputs =
-              {
-                  {epoch_core::IODataType::Timestamp, "observation_date",
-                   "Economic Period", true},
-                  {epoch_core::IODataType::Decimal, "value", "Indicator Value",
-                   true},
-              },
+          .outputs = outputs,
           .atLeastOneInputRequired = false,
           .tags = {"fred", "macro", "economic-indicators", "inflation",
                    "interest-rates", "gdp", "employment"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"c"},
+          .requiredDataSources = requiredDataSources,
+          .intradayOnly = false,
+          .allowNullInputs = true,
           .strategyTypes = {"macro-analysis", "regime-detection",
                             "economic-calendar", "risk-on-risk-off"},
           .assetRequirements = {},
           .usageContext =
               "Access Federal Reserve economic data for macro-driven "
               "strategies. Date range auto-derived from connected market data. "
-              "Returns publication events (non-null only on release dates) - "
-              "strategy decides how to use (compare, trigger, lag, etc.). "
+              "Returns publication events with revision tracking - includes "
+              "published_at timestamp to avoid look-ahead bias. Each observation "
+              "date may have multiple rows showing how data was revised over time. "
               "Use for economic cycle identification, monetary policy regime "
               "detection, and risk-on/risk-off switching. Combine inflation + "
               "rates for policy stance, unemployment + GDP for cycle phase. "
@@ -98,9 +106,9 @@ MakeFREDDataSource() {
               "monthly (CPI/employment), quarterly (GDP). Significant lag between "
               "period end and publication (weeks to months). Values appear ONLY "
               "on publication dates (not forward-filled). FRED data is US-centric. "
-              "External loader must implement ALFRED point-in-time filtering to "
-              "avoid look-ahead bias from data revisions. Requires external FRED "
-              "data loader with API key.",
+              "Uses ALFRED API for point-in-time data with revision tracking - "
+              "each observation_date may have multiple revisions over time. "
+              "Requires external FRED data loader with API key.",
       });
 
   return metadataList;

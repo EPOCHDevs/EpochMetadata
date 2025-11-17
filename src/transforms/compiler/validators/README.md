@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Special Node Validator system provides compile-time validation for transforms with special requirements (e.g., VARARGS transforms like `first_non_null` and `conditional_select`). This modular system allows validators to be registered per-transform without modifying the core compiler logic.
+The Special Node Validator system provides compile-time validation for transforms with special requirements (e.g., VARARGS transforms like `first_non_null_*` (specialized by type) and `conditional_select`). This modular system allows validators to be registered per-transform without modifying the core compiler logic.
+
+**Note:** Transforms like `first_non_null`, `boolean_select`, and `percentile_select` have been specialized by type (e.g., `first_non_null_number`, `boolean_select_string`, etc.). The generic versions are deprecated.
 
 ## Architecture
 
@@ -64,7 +66,7 @@ class SpecialNodeValidatorRegistry {
 
 Each validator implements `ISpecialNodeValidator`:
 
-- **FirstNonNullValidator**: Validates at least 1 input for `first_non_null`
+- **FirstNonNullValidator**: Validates at least 1 input for `first_non_null_*` transforms (number, string, boolean, timestamp)
 - **ConditionalSelectValidator**: Validates at least 2 inputs and boolean conditions for `conditional_select`
 
 ## Adding a New Validator
@@ -148,13 +150,13 @@ struct ValidationContext {
 
 ### FirstNonNullValidator
 
-Validates that `first_non_null` has at least 1 input:
+Validates that `first_non_null_*` transforms have at least 1 input (applies to all specialized versions: `first_non_null_number`, `first_non_null_string`, `first_non_null_boolean`, `first_non_null_timestamp`):
 
 ```cpp
 void FirstNonNullValidator::ValidateInputs(const ValidationContext& ctx) const {
     if (ctx.args.empty()) {
         throw std::runtime_error(
-            "'first_non_null' requires at least 1 input for node '" +
+            "'" + ctx.component_name + "' requires at least 1 input for node '" +
             ctx.target_node_id + "'");
     }
 }
@@ -197,12 +199,12 @@ void ConditionalSelectValidator::ValidateInputs(const ValidationContext& ctx) co
 Test cases are in `test/epoch_script/compiler/test_cases/`:
 
 ### Error Cases (Should Fail Compilation)
-- `first_non_null_no_inputs` - No inputs provided
+- `first_non_null_*_no_inputs` - No inputs provided (applies to all specialized versions)
 - `conditional_select_insufficient_inputs` - Only 1 input (need at least 2)
 - `conditional_select_invalid_condition_type` - Non-boolean condition
 
 ### Valid Cases (Should Compile Successfully)
-- `first_non_null_valid` - 3 compatible inputs
+- `first_non_null_*_valid` - 3 compatible inputs (applies to all specialized versions: number, string, boolean, timestamp)
 - `conditional_select_valid` - Multiple condition/value pairs with default
 
 ## Running Tests

@@ -833,30 +833,118 @@ MakeTulipIndicatorMetaData() {
   return indicatorMetaData;
 }
 
-inline MetaDataOption MakeTulipOptions(std::string const &option) {
+inline MetaDataOption MakeTulipOptions(std::string const &option, std::string const &indicatorName = "") {
   static std::unordered_set<std::string> skip{"open", "high", "low", "close",
                                               "volume"};
   MetaDataOption optionMetaData{.id = option,
                                 .name = beautify(option),
                                 .type = epoch_core::MetaDataOptionType::Decimal,
                                 .defaultValue = std::nullopt,
-                                .isRequired = true,
+                                .isRequired = true, // Default to required; set to false when we add a default
                                 .selectOption = {}};
 
-  if (option.starts_with("period") || option.ends_with("period")) {
+  // Contextual defaults based on indicator type and option name
+  // Note: Tulip library uses "short period" but beautify() converts to "short_period"
+
+  // MACD: short_period=12, long_period=26, signal_period=9
+  if (indicatorName == "macd" && option == "short_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{12.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  else if (indicatorName == "macd" && option == "long_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{26.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  else if (indicatorName == "macd" && option == "signal_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{9.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Stochastic: k_period=14, k_slowing_period=3, d_period=3
+  else if ((indicatorName == "stoch" || indicatorName == "stochf") && option == "k_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{14.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  else if ((indicatorName == "stoch" || indicatorName == "stochf") && option == "k_slowing_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{3.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  else if ((indicatorName == "stoch" || indicatorName == "stochf") && option == "d_period") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{3.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Generic period parameters - default to 14 for most indicators
+  else if (option.find("period") != std::string::npos) {
     optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
     optionMetaData.min = 1; // Period must be at least 1
     optionMetaData.max = 10000;
-  } else if (option == "stddev") {
-    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
-    optionMetaData.min =
-        1; // Standard deviation multiplier should be at least 1
-    optionMetaData.max = 10;
-  } else if (option == "acceleration_factor_step") {
-    optionMetaData.defaultValue = MetaDataOptionDefinition{0.02};
-  } else if (option == "acceleration_factor_maximum") {
-    optionMetaData.defaultValue = MetaDataOptionDefinition{0.2};
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{14.0}}; // Default 14 for most indicators
+    optionMetaData.isRequired = false; // Has default
   }
+  // Standard deviation multiplier (used in Bollinger Bands, etc.)
+  else if (option == "stddev") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{2.0}}; // Standard 2 std dev
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Parabolic SAR parameters
+  else if (option == "acceleration_factor_step") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{0.02}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  else if (option == "acceleration_factor_maximum") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{0.2}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Multiplier/factor parameters (typically decimal)
+  else if (option == "multiplier" || option == "factor") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{2.0}}; // Common for bands
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Smoothing parameters
+  else if (option == "smoothing") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::Integer;
+    optionMetaData.min = 1;
+    optionMetaData.max = 10000;
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{3.0}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Volume factor (for volume-based indicators)
+  else if (option == "volume_factor") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{0.7}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Cutoff/threshold parameters
+  else if (option == "cutoff") {
+    optionMetaData.defaultValue = MetaDataOptionDefinition{MetaDataOptionDefinition::T{0.5}};
+    optionMetaData.isRequired = false; // Has default
+  }
+  // Moving average type parameters remain as strings with no default
+  else if (option == "ma_type") {
+    optionMetaData.type = epoch_core::MetaDataOptionType::String;
+    optionMetaData.isRequired = true; // These must be specified
+    optionMetaData.defaultValue = std::nullopt;
+  }
+
   return optionMetaData;
 };
 
@@ -950,7 +1038,9 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             .plotKind = metadata.plotKind,
             .name = tiIndicatorInfo.full_name,
             .options = epoch_core::ranges::to<std::vector>(
-                optionSpan | std::views::transform(MakeTulipOptions)),
+                optionSpan | std::views::transform([&](const auto& opt) {
+                    return MakeTulipOptions(opt, tiIndicatorInfo.name);
+                })),
             .isCrossSectional = false,
             .desc = metadata.desc,
             .inputs = MakeTulipInputs(inputSpan),

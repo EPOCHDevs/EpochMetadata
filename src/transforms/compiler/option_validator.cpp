@@ -75,15 +75,20 @@ namespace epoch_script
         }
 
         // 2b. Validate timeframe is present for transforms that require it
+        // NOTE: This validation has been DEFERRED to ast_compiler.cpp after timeframe resolution.
+        // This allows transforms to inherit timeframes from their inputs (as documented in docs/concepts/timeframes.mdx)
+        // rather than requiring explicit timeframe parameters in all cases.
+        // The validation now occurs in ast_compiler.cpp after resolveTimeframes() completes.
+        //
         // Skip enforcement for intradayOnly nodes (they will default to 1Min)
-        if (comp_meta.requiresTimeFrame && !comp_meta.intradayOnly && !kwargs.contains("timeframe"))
-        {
-            ThrowError(
-                std::format("Data source '{}' (type '{}') requires a 'timeframe' parameter. "
-                            "Add timeframe option, e.g. timeframe=\"1D\"",
-                            node_id, comp_meta.name),
-                call.lineno, call.col_offset);
-        }
+        // if (comp_meta.requiresTimeFrame && !comp_meta.intradayOnly && !kwargs.contains("timeframe"))
+        // {
+        //     ThrowError(
+        //         std::format("Data source '{}' (type '{}') requires a 'timeframe' parameter. "
+        //                     "Add timeframe option, e.g. timeframe=\"1D\"",
+        //                     node_id, comp_meta.name),
+        //         call.lineno, call.col_offset);
+        // }
 
         // 3. Parse and validate all kwargs based on metadata types
         for (auto& [option_id, option_value] : kwargs)

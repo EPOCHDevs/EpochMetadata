@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../../../../cmake-build-debug/_deps/epochframe-src/include/epoch_frame/factory/index_factory.h"
+
 // TODO: Watch out for throwing excePtion in these functions -> causes deadlock
 namespace epoch_script::runtime {
 // Best-effort intraday detection from timeframe string (e.g., 1Min, 5Min, 1H)
@@ -26,6 +28,58 @@ static inline bool IsIntradayString(std::string const &tf) {
   if (!tf.empty() && tf.back() == 'H')
     return true;
   return false;
+}
+
+// Create an empty DataFrame with proper column schema from transform outputs
+static inline epoch_frame::DataFrame CreateEmptyOutputDataFrame(
+    const epoch_script::transform::ITransformBase& transformer) {
+  const auto& outputs = transformer.GetOutputMetaData();
+
+  if (outputs.empty()) {
+    return epoch_frame::DataFrame{};
+  }
+
+  // Create empty index
+  auto empty_index = epoch_frame::factory::index::make_datetime_index(std::vector<epoch_frame::DateTime>{});
+
+  // Create empty arrays for each output column
+  std::vector<arrow::ChunkedArrayPtr> empty_columns;
+  std::vector<std::string> fields;
+  for (const auto& output : outputs) {
+    std::string column_name = transformer.GetOutputId(output.id);
+    fields.emplace_back(column_name);
+
+    // Create empty array based on output type
+    std::shared_ptr<arrow::ChunkedArray> empty_array;
+    switch (output.type) {
+      case epoch_core::IODataType::Decimal:
+        empty_array = epoch_frame::factory::array::make_array(std::vector<double>{});
+        break;
+      case epoch_core::IODataType::Integer:
+        empty_array = epoch_frame::factory::array::make_array(std::vector<int64_t>{});
+        break;
+      case epoch_core::IODataType::Boolean:
+        empty_array = epoch_frame::factory::array::make_array(std::vector<bool>{});
+        break;
+      case epoch_core::IODataType::String:
+        empty_array = epoch_frame::factory::array::make_array(std::vector<std::string>{});
+        break;
+      case epoch_core::IODataType::Timestamp:
+        empty_array = epoch_frame::factory::array::make_array(std::vector<epoch_frame::DateTime>{});
+        break;
+      case epoch_core::IODataType::Any:
+      default:
+        // For Any type or unknown types, use null array
+        auto null_array = arrow::MakeArrayOfNull(arrow::null(), 0).ValueOrDie();
+        empty_array = std::make_shared<arrow::ChunkedArray>(null_array);
+        break;
+    }
+
+    empty_columns.emplace_back(std::move(empty_array));
+  }
+
+
+  return epoch_frame::make_dataframe(empty_index, empty_columns, fields);
 }
 
 // Delegate to shared utils (UTC-aware)
@@ -52,7 +106,7 @@ void ApplyDefaultTransform(
       for (auto const &asset_id : msg.cache->GetAssetIDs()) {
         try {
           msg.cache->StoreTransformOutput(asset_id, transformer,
-                                          epoch_frame::DataFrame{});
+                                          CreateEmptyOutputDataFrame(transformer));
         } catch (std::exception const &exp) {
           msg.logger->log(std::format(
               "Asset: {}, Transform: {}, Error: {}.", asset_id,
@@ -68,6 +122,16 @@ void ApplyDefaultTransform(
   // Lambda for processing a single asset
   auto processAsset = [&](auto const &asset_id) {
     try {
+      // Validate inputs before gathering - if any input is missing, return empty DataFrame
+      if (!msg.cache->ValidateInputsAvailable(asset_id, transformer)) {
+        SPDLOG_WARN(
+            "Asset({}): Inputs not available for {}. Returning empty DataFrame with correct schema.",
+            asset_id, name);
+        auto empty_result = CreateEmptyOutputDataFrame(transformer);
+        msg.cache->StoreTransformOutput(asset_id, transformer, empty_result);
+        return;
+      }
+
       auto result = msg.cache->GatherInputs(asset_id, transformer);
       result = transformer.GetConfiguration()
                        .GetTransformDefinition()
@@ -108,8 +172,9 @@ void ApplyDefaultTransform(
         SPDLOG_WARN(
             "Asset({}): Empty DataFrame provided to {}. Skipping transform",
             asset_id, name);
-        result = epoch_frame::DataFrame{}; // Empty result, cache manager will
-        // handle
+        // Create empty DataFrame with proper column schema from output metadata
+        // This ensures cached entries exist even when transforms are skipped
+        result = CreateEmptyOutputDataFrame(transformer);
       }
 
       msg.cache->StoreTransformOutput(asset_id, transformer, result);
@@ -212,6 +277,14 @@ void ApplyCrossSectionTransform(
     tbb::concurrent_vector<epoch_frame::FrameOrSeries> concurrentInputs;
 
     tbb::parallel_for_each(asset_ids.begin(), asset_ids.end(), [&](auto const &asset_id) {
+      // Validate inputs before gathering - skip asset if inputs not available
+      if (!msg.cache->ValidateInputsAvailable(asset_id, transformer)) {
+        SPDLOG_WARN(
+            "Asset({}): Inputs not available for cross-sectional transform {}. Skipping asset.",
+            asset_id, transformer.GetConfiguration().GetId());
+        return;  // Skip this asset, don't add to concurrentInputs
+      }
+
       auto assetDataFrame =
           msg.cache->GatherInputs(asset_id, transformer).drop_null();
       // Apply session slicing if required

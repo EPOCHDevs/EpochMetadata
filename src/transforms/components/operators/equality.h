@@ -31,14 +31,40 @@ struct EqualityTransform : ITransform {
       // If types differ, cast to a common comparable type
       if (!lhs_type->Equals(rhs_type)) {
         // Strategy: If either type is bool, cast both to bool
+        // If either type is string-like, cast both to utf8
+        // If either type is timestamp, cast both to timestamp(ns)
         // Otherwise, cast both to double for numeric comparisons
         std::shared_ptr<arrow::DataType> target_type;
 
-        if (lhs_type->id() == arrow::Type::BOOL ||
+        if (lhs_type->id() == arrow::Type::NA ||
+            rhs_type->id() == arrow::Type::NA) {
+          // If either side is null, comparison should work but result in null/false
+          // Keep the non-null type, or default to boolean if both null
+          target_type = (lhs_type->id() != arrow::Type::NA) ? lhs_type :
+                        (rhs_type->id() != arrow::Type::NA) ? rhs_type : arrow::boolean();
+        } else if (lhs_type->id() == arrow::Type::BOOL ||
             rhs_type->id() == arrow::Type::BOOL) {
           target_type = arrow::boolean();
-        } else {
+        } else if (arrow::is_base_binary_like(lhs_type->id()) ||
+                   arrow::is_base_binary_like(rhs_type->id()) ||
+                   lhs_type->id() == arrow::Type::DICTIONARY ||
+                   rhs_type->id() == arrow::Type::DICTIONARY) {
+          // Handle string type variants (utf8, large_utf8, dictionary<utf8>, etc.)
+          target_type = arrow::utf8();
+        } else if (arrow::is_temporal(lhs_type->id()) ||
+                   arrow::is_temporal(rhs_type->id())) {
+          // Handle timestamp variants (timestamp with different units)
+          target_type = arrow::timestamp(arrow::TimeUnit::NANO);
+        } else if (arrow::is_numeric(lhs_type->id()) ||
+                   arrow::is_numeric(rhs_type->id())) {
+          // Numeric types - cast to double
           target_type = arrow::float64();
+        } else {
+          // Unsupported type combination - fail with clear error
+          AssertFromStream(false,
+                          "Cannot compare incompatible types: "
+                          << lhs_type->ToString() << " and " << rhs_type->ToString()
+                          << ". Both types must be comparable (boolean, string, temporal, or numeric).");
         }
 
         if (!lhs_type->Equals(target_type)) {

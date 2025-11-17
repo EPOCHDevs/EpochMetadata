@@ -73,14 +73,14 @@ template <> struct ReportMetadata<IndexCardReport> {
          .isRequired = true,
          .min = 0,
          .max = 100,
-         .desc = "Group number for this card (0-based indexing)"},
+         .desc = "Card position index in the row (0-based). Use sequential values: 0 for first card, 1 for second, 2 for third, etc. Within the same category, each card must have a unique group value."},
         {.id = "group_size",
          .name = "Group Size",
          .type = epoch_core::MetaDataOptionType::Integer,
          .isRequired = true,
          .min = 1,
          .max = 10,
-         .desc = "Number of cards in this group (1-indexed)"}
+         .desc = "Total number of cards to display in the row. All cards in the same category row must have the same group_size."}
       },
       .isCrossSectional = false,
       .desc = "Find the index position of a specific value in the input series.",

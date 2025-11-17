@@ -15,25 +15,30 @@ class ChandeKrollStop : public ITransform {
 public:
   explicit ChandeKrollStop(const TransformConfiguration &config)
       : ITransform(config),
-        m_visitor(config.GetOptionValue("p_period").GetInteger(),
-                  config.GetOptionValue("q_period").GetInteger(),
-                  config.GetOptionValue("multiplier").GetDecimal()) {}
+        m_p_period(config.GetOptionValue("p_period").GetInteger()),
+        m_q_period(config.GetOptionValue("q_period").GetInteger()),
+        m_multiplier(config.GetOptionValue("multiplier").GetDecimal()) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    hmdf::cksp_v<double, int64_t> visitor(m_p_period, m_q_period, m_multiplier);
+
     HighSpan highSpan{df};
     LowSpan lowSpan{df};
     CloseSpan closeSpan{df};
 
-    run_visit(df, m_visitor, lowSpan, highSpan, closeSpan);
+    run_visit(df, visitor, lowSpan, highSpan, closeSpan);
 
     return make_dataframe(
         df.index(),
-        std::vector{m_visitor.get_long_stop(), m_visitor.get_short_stop()},
+        std::vector{visitor.get_long_stop(), visitor.get_short_stop()},
         {GetOutputId("long_stop"), GetOutputId("short_stop")});
   }
 
 private:
-  mutable hmdf::cksp_v<double, int64_t> m_visitor;
+  int64_t m_p_period;
+  int64_t m_q_period;
+  double m_multiplier;
 };
 } // namespace epoch_script::transform

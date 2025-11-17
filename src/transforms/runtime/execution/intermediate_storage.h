@@ -11,6 +11,12 @@ namespace epoch_script::runtime {
         GatherInputs(const AssetID &asset_id,
                      const epoch_script::transform::ITransformBase &transformer) const override;
 
+        // Validate that all inputs are available for an asset before gathering
+        // Returns true if all inputs exist, false if any are missing
+        bool ValidateInputsAvailable(
+            const AssetID &asset_id,
+            const epoch_script::transform::ITransformBase &transformer) const override;
+
         void InitializeBaseData(TimeFrameAssetDataFrameMap data, const std::unordered_set<AssetID> &allowed_asset_ids) override;
 
         // Additional method to convert cache back to DataFrame format

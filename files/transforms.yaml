@@ -24,7 +24,7 @@ bband_percent:
   tags: ["indicator", "bollinger", "bands", "oscillator", "normalized", "mean-reversion"]
   category: Volatility
   plotKind: bb_percent_b
-  requiresTimeFrame: true
+  requiresTimeFrame: false
   requiredDataSources: [ "c" ]
 
 bband_width:
@@ -43,6 +43,7 @@ bband_width:
   tags: ["indicator", "bollinger", "bands", "volatility", "squeeze", "breakout"]
   category: Volatility
   plotKind: panel_line
+  requiresTimeFrame: false
 
 cs_momentum:
   name: Cross-Sectional Momentum
@@ -372,38 +373,6 @@ agg_all_unique:
 
 # ======== SELECTION & BRANCHING NODES ======== #
 # These nodes route signals based on conditions
-
-percentile_select:
-  name: Percentile-Based Select
-  desc: "Selects between 'high' and 'low' inputs based on whether a value is above or below a percentile threshold within a lookback period."
-  usageContext: "Adaptive thresholding based on historical distribution. Route different strategies/parameters when indicator in extreme vs normal ranges. More robust than fixed thresholds since adapts to changing volatility/levels. Example: aggressive position size when RSI in top 20th percentile of recent values."
-  strategyTypes: ["adaptive-thresholding", "regime-dependent", "dynamic-allocation"]
-  relatedTransforms: ["boolean_branch", "boolean_select", "percentile_select"]
-  assetRequirements: ["single-asset"]
-  limitations: "Requires lookback period of historical data. Thresholds shift with market conditions (feature, not bug). Can lag regime changes if lookback too long. Percentile calculation sensitive to outliers in small samples."
-  options:
-    - id: lookback
-      name: Lookback Period
-      type: Integer
-      default: 14
-      desc: "Number of historical bars to calculate percentile from"
-      tuningGuidance: "Shorter lookback (10-20) for responsive adaptation to recent conditions. Longer lookback (50-100) for stable thresholds. Match to your strategy timeframe."
-    - id: percentile
-      name: Percentile Threshold
-      type: Integer
-      default: 80
-      min: 0
-      max: 100
-      step_size: 1
-      desc: "Percentile cutoff (0-100) - above triggers 'high' path, below triggers 'low' path"
-      tuningGuidance: "80th percentile = top 20% gets 'high' treatment. Use 50 for median split. Higher percentiles (80-90) for extreme/rare events. Lower (20-30) for more frequent triggering."
-  inputs:
-    - { type: Number, id: "value", name: "Value", allowMultipleConnections: false }
-    - { type: Any, id: "high", name: "When Above Percentile", allowMultipleConnections: false }
-    - { type: Any, id: "low", name: "When Below Percentile", allowMultipleConnections: false }
-  outputs: [ANY_RESULT]
-  tags: ["selection", "percentile", "statistics", "conditional", "flow-control", "adaptive"]
-  category: ControlFlow
 
 boolean_branch:
   name: Boolean Branch
@@ -1463,6 +1432,15 @@ hmm_2:
       min: 0
       desc: "If >0, trains on last N samples; if 0, uses all data"
       tuningGuidance: "0 (default) for stability. Set to 252-500 for rolling HMM that adapts to recent dynamics."
+    - id: min_covar
+      name: Minimum Covariance
+      type: Decimal
+      default: 0.001
+      min: 0.0
+      max: 1.0
+      step_size: 0.0001
+      desc: "Regularization added to covariance diagonal to prevent numerical instability (follows Python hmmlearn/scikit-learn standard)"
+      tuningGuidance: "Default 1e-3 works for most cases. Reduce to 1e-6 for high-quality data. Increase to 1e-2 if experiencing Cholesky decomposition failures."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:
@@ -1516,6 +1494,15 @@ hmm_3:
       min: 0
       desc: "Training window size (0=all data)"
       tuningGuidance: "0 for stability, 252-500 for adaptive rolling HMM."
+    - id: min_covar
+      name: Minimum Covariance
+      type: Decimal
+      default: 0.001
+      min: 0.0
+      max: 1.0
+      step_size: 0.0001
+      desc: "Regularization added to covariance diagonal to prevent numerical instability (follows Python hmmlearn/scikit-learn standard)"
+      tuningGuidance: "Default 1e-3 works for most cases. Reduce to 1e-6 for high-quality data. Increase to 1e-2 if experiencing Cholesky decomposition failures."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:
@@ -1570,6 +1557,15 @@ hmm_4:
       min: 0
       desc: "Training window (0=all)"
       tuningGuidance: "0 default. Rolling window needs 500-1000 samples."
+    - id: min_covar
+      name: Minimum Covariance
+      type: Decimal
+      default: 0.001
+      min: 0.0
+      max: 1.0
+      step_size: 0.0001
+      desc: "Regularization added to covariance diagonal to prevent numerical instability (follows Python hmmlearn/scikit-learn standard)"
+      tuningGuidance: "Default 1e-3 works for most cases. Reduce to 1e-6 for high-quality data. Increase to 1e-2 if experiencing Cholesky decomposition failures."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:
@@ -1625,6 +1621,15 @@ hmm_5:
       min: 0
       desc: "Training window (0=all)"
       tuningGuidance: "0 default. Rolling needs 1000+ samples."
+    - id: min_covar
+      name: Minimum Covariance
+      type: Decimal
+      default: 0.001
+      min: 0.0
+      max: 1.0
+      step_size: 0.0001
+      desc: "Regularization added to covariance diagonal to prevent numerical instability (follows Python hmmlearn/scikit-learn standard)"
+      tuningGuidance: "Default 1e-3 works for most cases. Reduce to 1e-6 for high-quality data. Increase to 1e-2 if experiencing Cholesky decomposition failures."
   inputs:
     - { type: Number, id: "SLOT", name: "Features", allowMultipleConnections: true }
   outputs:

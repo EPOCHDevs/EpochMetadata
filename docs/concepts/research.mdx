@@ -29,13 +29,13 @@ When you pass arguments to a reporter, they're indexed starting from 0:
 
 ```python
 event_marker(
-    event_marker_schema=EventMarkerSchema({
-        "select_key": "SLOT0",  # References first argument
-        "schemas": [{
+    schema=EventMarkerSchema(
+        select_key="SLOT0",  # References first argument
+        schemas=[{
             "column_id": "SLOT1",  # References second argument
             ...
         }]
-    })
+    )
 )(signal, price, volume)
 #  ^^^^^^  ^^^^^  ^^^^^^
 #  SLOT0   SLOT1  SLOT2
@@ -48,12 +48,12 @@ event_marker(
 ```python
 # ❌ WRONG - Column names don't work
 event_marker(
-    event_marker_schema={"select_key": "my_signal", ...}
+    schema={"select_key": "my_signal", ...}
 )(my_signal)
 
 # ✅ CORRECT - SLOT references work
 event_marker(
-    event_marker_schema=EventMarkerSchema({"select_key": "SLOT0", ...})
+    schema=EventMarkerSchema(select_key="SLOT0", ...)
 )(my_signal)
 ```
 
@@ -63,13 +63,13 @@ Schema options must use constructor calls, not inline dicts:
 
 ```python
 # ❌ WRONG - Inline dict
-event_marker(event_marker_schema={...})(signal)
+event_marker(schema={...})(signal)
 
 # ✅ CORRECT - Constructor call
-event_marker(event_marker_schema=EventMarkerSchema({...}))(signal)
+event_marker(schema=EventMarkerSchema(...))(signal)
 
 # ✅ CORRECT - Constructor call for table
-table_report(table_report_schema=TableReportSchema({...}))(col1, col2)
+table_report(schema=TableReportSchema(...))(col1, col2)
 ```
 
 <Callout type="info" title="Which Reports Use SLOT?">
@@ -137,15 +137,15 @@ volume_val = volume
 
 # Create table showing extreme return days
 table_report(
-    table_report_schema=TableReportSchema({
-        "title": "Extreme Return Days",
-        "select_key": "SLOT0",  # Filter by extreme_signal
-        "columns": [
+    schema=TableReportSchema(
+        title="Extreme Return Days",
+        select_key="SLOT0",  # Filter by extreme_signal
+        columns=[
             {"column_id": "SLOT0", "title": "Is Extreme"},     # extreme_signal
             {"column_id": "SLOT1", "title": "Return %"},       # returns_val
             {"column_id": "SLOT2", "title": "Volume"}          # volume_val
         ]
-    })
+    )
 )(extreme_signal, returns_val, volume_val)
 ```
 
@@ -204,16 +204,16 @@ signal = crossover()(fast_ma, slow_ma)
 
 # Create event marker - use SLOT0 to reference the first input
 event_marker(
-    event_marker_schema=EventMarkerSchema({
-        "icon": "Signal",
-        "title": "MA Crossover Events",
-        "select_key": "SLOT0",  # References signal (first argument)
-        "schemas": [{
+    schema=EventMarkerSchema(
+        icon="Signal",
+        title="MA Crossover Events",
+        select_key="SLOT0",  # References signal (first argument)
+        schemas=[{
             "column_id": "SLOT0",  # References signal
             "slot": "PrimaryBadge",
             "render_type": "Badge"
         }]
-    })
+    )
 )(signal)
 ```
 
@@ -222,12 +222,12 @@ event_marker(
 
 ❌ **WRONG:**
 ```python
-event_marker(event_marker_schema={"select_key": "signal", ...})(signal)
+event_marker(schema={"select_key": "signal", ...})(signal)
 ```
 
 ✅ **CORRECT:**
 ```python
-event_marker(event_marker_schema=EventMarkerSchema({"select_key": "SLOT0", ...}))(signal)
+event_marker(schema=EventMarkerSchema(select_key="SLOT0", ...))(signal)
 ```
 
 The SLOT references are resolved at compile-time to actual data connections. Column names don't work because they're not available at compile-time.
@@ -243,16 +243,16 @@ short_signal = rsi > 70
 price = src.c
 
 event_marker(
-    event_marker_schema=EventMarkerSchema({
-        "icon": "Trade",
-        "title": "RSI Signals",
-        "select_key": "SLOT0",  # Filter by long_signal
-        "schemas": [
+    schema=EventMarkerSchema(
+        icon="Trade",
+        title="RSI Signals",
+        select_key="SLOT0",  # Filter by long_signal
+        schemas=[
             {"column_id": "SLOT0", "slot": "PrimaryBadge", "render_type": "Badge"},    # long_signal
             {"column_id": "SLOT1", "slot": "SecondaryBadge", "render_type": "Badge"},  # short_signal
             {"column_id": "SLOT2", "slot": "Hero", "render_type": "Decimal"}           # price
         ]
-    })
+    )
 )(long_signal, short_signal, price)
 # SLOT0 = first arg (long_signal)
 # SLOT1 = second arg (short_signal)
@@ -265,11 +265,11 @@ Map badge colors based on column values:
 
 ```python
 event_marker(
-    event_marker_schema=EventMarkerSchema({
-        "icon": "Signal",
-        "title": "Trade Signals",
-        "select_key": "SLOT0",
-        "schemas": [{
+    schema=EventMarkerSchema(
+        icon="Signal",
+        title="Trade Signals",
+        select_key="SLOT0",
+        schemas=[{
             "column_id": "SLOT1",  # Signal type column
             "slot": "PrimaryBadge",
             "render_type": "Badge",
@@ -279,7 +279,7 @@ event_marker(
                 "Warning": [0, "NEUTRAL"] # Yellow for neutral
             }
         }]
-    })
+    )
 )(any_signal, signal_type)
 ```
 

@@ -58,7 +58,7 @@ TEST_CASE("EventMarker - Basic Functionality", "[event_markers][event_marker]") 
   }
 
 
-  SECTION("Card selector filter has required event_marker_schema option") {
+  SECTION("Card selector filter has required schema option") {
     auto& registry = transforms::ITransformRegistry::GetInstance();
     auto metadataMap = registry.GetMetaData();
 
@@ -67,7 +67,7 @@ TEST_CASE("EventMarker - Basic Functionality", "[event_markers][event_marker]") 
 
     bool hasCardSchemaOption = false;
     for (const auto& option : metadata.options) {
-      if (option.id == "event_marker_schema") {
+      if (option.id == "schema") {
         hasCardSchemaOption = true;
         REQUIRE(option.isRequired == true);
         REQUIRE(option.type == epoch_core::MetaDataOptionType::EventMarkerSchema);

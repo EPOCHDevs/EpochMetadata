@@ -2,6 +2,7 @@
 #include "common/asserts.h"
 #include "epoch_frame/common.h"
 #include "epoch_frame/factory/dataframe_factory.h"
+#include "epoch_frame/factory/index_factory.h"
 #include <epoch_script/transforms/core/metadata.h>
 #include "storage_types.h"
 #include <algorithm>
@@ -10,6 +11,7 @@
 #include <arrow/type_fwd.h>
 #include <ranges>
 #include <vector>
+#include <numeric>
 
 namespace epoch_script::runtime {
 
@@ -36,7 +38,22 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
         "Gathering base data for asset: {}, timeframe {}, transform: {}.",
         asset_id, targetTimeframe, transformer.GetId());
     std::shared_lock lock(m_baseDataMutex);
-    return epoch_core::lookup(epoch_core::lookup(m_baseData, targetTimeframe), asset_id);
+    auto result = epoch_core::lookup(epoch_core::lookup(m_baseData, targetTimeframe), asset_id);
+
+    // If requiredDataSources is specified, filter to only those columns
+    if (!dataSources.empty()) {
+      std::vector<std::string> availableCols;
+      for (const auto& col : dataSources) {
+        if (result.contains(col)) {
+          availableCols.push_back(col);
+        }
+      }
+      if (!availableCols.empty()) {
+        result = result[availableCols];
+      }
+    }
+
+    return result;
   }
 
   // Acquire read locks for all relevant caches
@@ -63,7 +80,14 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
     // Check if this input is a scalar (SRP: decision point for scalar vs regular path)
     if (m_scalarOutputs.contains(inputId)) {
       // Scalar path: Broadcast from global scalar cache
-      const auto& scalarValue = m_scalarCache.at(inputId);
+      auto scalarIt = m_scalarCache.find(inputId);
+      if (scalarIt == m_scalarCache.end()) {
+        throw std::runtime_error(
+            "Scalar cache missing entry for '" + inputId +
+            "'. Asset: " + asset_id + ", Timeframe: " + targetTimeframe +
+            ". This indicates the scalar was registered but never populated.");
+      }
+      const auto& scalarValue = scalarIt->second;
       arrayList.emplace_back(BroadcastScalar(scalarValue, targetIndex->size()));
       columns.emplace_back(inputId);
       columIdSet.emplace(inputId);
@@ -83,7 +107,27 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
         "Gathering input {} for transform {}, asset: {}, timeframe {}. from {}",
         inputId, transform->second->GetId(), asset_id, tf,
         transformer.GetId());
-    auto result = m_cache.at(tf).at(asset_id).at(inputId);
+
+    // Defensive cache access with clear error messages
+    auto tfIt = m_cache.find(tf);
+    if (tfIt == m_cache.end()) {
+      throw std::runtime_error(
+          "Cache missing timeframe '" + tf + "' for input '" + inputId +
+          "'. Asset: " + asset_id);
+    }
+    auto assetIt = tfIt->second.find(asset_id);
+    if (assetIt == tfIt->second.end()) {
+      throw std::runtime_error(
+          "Cache missing asset '" + asset_id + "' for input '" + inputId +
+          "'. Timeframe: " + tf);
+    }
+    auto inputIt = assetIt->second.find(inputId);
+    if (inputIt == assetIt->second.end()) {
+      throw std::runtime_error(
+          "Cache missing input '" + inputId + "' for asset '" + asset_id +
+          "'. Timeframe: " + tf);
+    }
+    auto result = inputIt->second;
     arrayList.emplace_back(tf == targetTimeframe
                                ? result.array()
                                : result.reindex(targetIndex).array());
@@ -95,12 +139,141 @@ epoch_frame::DataFrame IntermediateResultStorage::GatherInputs(
     if (columIdSet.contains(dataSource)) {
       continue;
     }
-    auto column = m_baseData.at(targetTimeframe).at(asset_id)[dataSource];
+
+    // Defensive base data access with clear error messages
+    auto tfIt = m_baseData.find(targetTimeframe);
+    if (tfIt == m_baseData.end()) {
+      throw std::runtime_error(
+          "Base data missing timeframe '" + targetTimeframe +
+          "' for data source '" + dataSource + "'. Asset: " + asset_id);
+    }
+    auto assetIt = tfIt->second.find(asset_id);
+    if (assetIt == tfIt->second.end()) {
+      throw std::runtime_error(
+          "Base data missing asset '" + asset_id +
+          "' for data source '" + dataSource + "'. Timeframe: " + targetTimeframe);
+    }
+    auto& assetData = assetIt->second;
+
+    if (!assetData.contains(dataSource)) {
+      continue; // Skip missing columns entirely - don't waste space with full null columns
+    }
+
+    auto column = assetData[dataSource];
     arrayList.emplace_back(column.array());
     columns.emplace_back(dataSource);
   }
 
   return epoch_frame::make_dataframe(targetIndex, arrayList, columns);
+}
+
+bool IntermediateResultStorage::ValidateInputsAvailable(
+    const AssetID &asset_id,
+    const epoch_script::transform::ITransformBase &transformer) const {
+  const auto targetTimeframe = transformer.GetTimeframe().ToString();
+  const auto dataSources = transformer.GetConfiguration()
+                               .GetTransformDefinition()
+                               .GetMetadata()
+                               .requiredDataSources;
+  const auto transformInputs = transformer.GetInputIds();
+
+  // If no inputs required, validation passes
+  if (transformInputs.empty() && dataSources.empty()) {
+    return true;
+  }
+
+  // Acquire read locks
+  std::shared_lock cacheLock(m_cacheMutex);
+  std::shared_lock baseDataLock(m_baseDataMutex);
+  std::shared_lock transformMapLock(m_transformMapMutex);
+  std::shared_lock scalarLock(m_scalarCacheMutex);
+
+  // Check if base data exists for this asset/timeframe (needed for target index)
+  if (!transformInputs.empty()) {
+    auto baseDataTfIt = m_baseData.find(targetTimeframe);
+    if (baseDataTfIt == m_baseData.end()) {
+      SPDLOG_DEBUG("Validation failed: base data missing timeframe '{}' for asset '{}'",
+                   targetTimeframe, asset_id);
+      return false;
+    }
+    auto baseDataAssetIt = baseDataTfIt->second.find(asset_id);
+    if (baseDataAssetIt == baseDataTfIt->second.end()) {
+      SPDLOG_DEBUG("Validation failed: base data missing asset '{}' for timeframe '{}'",
+                   asset_id, targetTimeframe);
+      return false;
+    }
+  }
+
+  // Validate all transform inputs are available
+  for (const auto &inputId : transformInputs) {
+    // Check if this is a scalar (always available globally)
+    if (m_scalarOutputs.contains(inputId)) {
+      auto scalarIt = m_scalarCache.find(inputId);
+      if (scalarIt == m_scalarCache.end()) {
+        SPDLOG_DEBUG("Validation failed: scalar cache missing '{}' for asset '{}'",
+                     inputId, asset_id);
+        return false;
+      }
+      continue;
+    }
+
+    // Check regular (non-scalar) input
+    auto transform = m_ioIdToTransform.find(inputId);
+    if (transform == m_ioIdToTransform.end()) {
+      SPDLOG_DEBUG("Validation failed: cannot find transform for input '{}', asset '{}'",
+                   inputId, asset_id);
+      return false;
+    }
+
+    auto tf = transform->second->GetTimeframe().ToString();
+    auto tfIt = m_cache.find(tf);
+    if (tfIt == m_cache.end()) {
+      SPDLOG_DEBUG("Validation failed: cache missing timeframe '{}' for input '{}', asset '{}'",
+                   tf, inputId, asset_id);
+      return false;
+    }
+
+    auto assetIt = tfIt->second.find(asset_id);
+    if (assetIt == tfIt->second.end()) {
+      SPDLOG_DEBUG("Validation failed: cache missing asset '{}' for input '{}', timeframe '{}'",
+                   asset_id, inputId, tf);
+      return false;
+    }
+
+    auto inputIt = assetIt->second.find(inputId);
+    if (inputIt == assetIt->second.end()) {
+      SPDLOG_DEBUG("Validation failed: cache missing input '{}' for asset '{}', timeframe '{}'",
+                   inputId, asset_id, tf);
+      return false;
+    }
+  }
+
+  // Validate all required data sources are available
+  for (const auto &dataSource : dataSources) {
+    auto tfIt = m_baseData.find(targetTimeframe);
+    if (tfIt == m_baseData.end()) {
+      SPDLOG_DEBUG("Validation failed: base data missing timeframe '{}' for data source '{}', asset '{}'",
+                   targetTimeframe, dataSource, asset_id);
+      return false;
+    }
+
+    auto assetIt = tfIt->second.find(asset_id);
+    if (assetIt == tfIt->second.end()) {
+      SPDLOG_DEBUG("Validation failed: base data missing asset '{}' for data source '{}', timeframe '{}'",
+                   asset_id, dataSource, targetTimeframe);
+      return false;
+    }
+
+    auto& assetData = assetIt->second;
+    if (!assetData.contains(dataSource)) {
+      SPDLOG_DEBUG("Validation failed: base data missing column '{}' for asset '{}', timeframe '{}'",
+                   dataSource, asset_id, targetTimeframe);
+      return false;
+    }
+  }
+
+  // All inputs are available
+  return true;
 }
 
 void IntermediateResultStorage::InitializeBaseData(
@@ -216,7 +389,14 @@ TimeFrameAssetDataFrameMap IntermediateResultStorage::BuildFinalOutput() {
 
         // Broadcast each scalar to this (timeframe, asset) combination
         for (const auto &scalarOutputId : m_scalarOutputs) {
-          const auto& scalarValue = m_scalarCache.at(scalarOutputId);
+          // Defensive scalar cache access
+          auto scalarIt = m_scalarCache.find(scalarOutputId);
+          if (scalarIt == m_scalarCache.end()) {
+            throw std::runtime_error(
+                "Scalar cache missing entry for '" + scalarOutputId +
+                "' during final output build. This indicates the scalar was registered but never populated.");
+          }
+          const auto& scalarValue = scalarIt->second;
           auto broadcastedArray = BroadcastScalar(scalarValue, index->size());
 
           epoch_frame::Series series(index, broadcastedArray, scalarOutputId);
@@ -253,13 +433,21 @@ GetArrowTypeFromIODataType(epoch_core::IODataType dataType) {
   case IODataType::Number:
     return arrow::float64();
   case IODataType::String:
-    return arrow::binary();
+    return arrow::utf8();
+  case IODataType::Timestamp:
+    return arrow::timestamp(arrow::TimeUnit::NANO, "UTC");
+  case IODataType::Any:
+    // Any type typically appears for polymorphic outputs (e.g., percentile_select labels)
+    // Default to nullable utf8 string since most Any-typed outputs are label columns
+    // Note: utf8 is used instead of binary because it's a valid Index type in epochframe
+    SPDLOG_WARN("IODataType::Any encountered - defaulting to nullable utf8 (string) type");
+    return arrow::utf8();
   default:
     break;
   }
-  SPDLOG_WARN("Invalid IODataType: {}. using null scalar",
+  SPDLOG_WARN("Unknown IODataType: {}. defaulting to nullable utf8 (string) type",
               epoch_core::IODataTypeWrapper::ToString(dataType));
-  return arrow::null();
+  return arrow::utf8();
 }
 
 void IntermediateResultStorage::StoreTransformOutput(
@@ -302,23 +490,49 @@ void IntermediateResultStorage::StoreTransformOutput(
   std::shared_lock baseDataLock(m_baseDataMutex);
   std::unique_lock cacheLock(m_cacheMutex);
 
+  // Check if base data exists for this timeframe and asset to get the index
+  // If not available (e.g., in tests), use the data's own index
+  epoch_frame::IndexPtr targetIndex;
+  auto tfIt = m_baseData.find(timeframe);
+  if (tfIt != m_baseData.end()) {
+    auto assetIt = tfIt->second.find(asset_id);
+    if (assetIt != tfIt->second.end()) {
+      targetIndex = assetIt->second.index();
+    }
+  }
+
+  // If we don't have base data index, use the data's index (or empty index for empty data)
+  if (!targetIndex) {
+    if (!data.empty()) {
+      targetIndex = data.index();
+    } else {
+      // Create empty index for completely empty data
+      targetIndex = epoch_frame::factory::index::make_datetime_index(std::vector<epoch_frame::DateTime>{});
+    }
+    SPDLOG_DEBUG("No base data for transform {} asset {} timeframe {} - using data's own index",
+                 transformer.GetId(), asset_id, timeframe);
+  }
+
   for (const auto &outputMetaData : transformer.GetOutputMetaData()) {
     auto outputId = transformer.GetOutputId(outputMetaData.id);
-    auto index = m_baseData[timeframe][asset_id].index();
 
     if (data.contains(outputId)) {
       SPDLOG_DEBUG("Storing output {} for asset: {}, timeframe {}", outputId,
                    asset_id, timeframe);
       // TODO: Save guide for duplicate index(Futures)
-      m_cache[timeframe][asset_id][outputId] = data[outputId].reindex(index);
+      m_cache[timeframe][asset_id][outputId] = data[outputId].reindex(targetIndex);
       continue;
     }
     SPDLOG_DEBUG("Storing NULL   output {} for asset: {}, timeframe {}",
                  outputId, asset_id, timeframe);
 
+    size_t index_size = targetIndex->size();
+    auto null_array_result = arrow::MakeArrayOfNull(GetArrowTypeFromIODataType(outputMetaData.type), index_size);
+    auto null_array = null_array_result.ValueOrDie();
     m_cache[timeframe][asset_id][outputId] = epoch_frame::Series(
-        arrow::MakeNullScalar(GetArrowTypeFromIODataType(outputMetaData.type)),
-        index, outputId);
+        targetIndex,
+        std::make_shared<arrow::ChunkedArray>(null_array),
+        std::optional<std::string>(outputId));
   }
 }
 } // namespace epoch_script::runtime

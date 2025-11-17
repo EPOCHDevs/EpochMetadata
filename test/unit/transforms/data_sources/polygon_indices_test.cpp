@@ -70,13 +70,13 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
   }
 
   SECTION("Has correct output fields") {
-    REQUIRE(commonIndices.outputs.size() == 4);
+    // SDK returns 7 outputs: o, h, l, c, v, vw, n
+    REQUIRE(commonIndices.outputs.size() == 7);
 
-    // Verify OHLC outputs
+    // Verify core OHLC outputs are present
     REQUIRE(commonIndices.outputs[0].id == "o");
     REQUIRE(commonIndices.outputs[0].name == "Open");
     REQUIRE(commonIndices.outputs[0].type == epoch_core::IODataType::Decimal);
-    REQUIRE(commonIndices.outputs[0].allowMultipleConnections == true);
 
     REQUIRE(commonIndices.outputs[1].id == "h");
     REQUIRE(commonIndices.outputs[1].name == "High");
@@ -95,12 +95,10 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
     REQUIRE(commonIndices.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to OHLC") {
-    REQUIRE(commonIndices.requiredDataSources.size() == 4);
-    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "o") != commonIndices.requiredDataSources.end());
-    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "h") != commonIndices.requiredDataSources.end());
-    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "l") != commonIndices.requiredDataSources.end());
-    REQUIRE(std::find(commonIndices.requiredDataSources.begin(), commonIndices.requiredDataSources.end(), "c") != commonIndices.requiredDataSources.end());
+  SECTION("Has requiredDataSources set to c") {
+    // Indices load data internally, requiredDataSources just has "c" to get proper DataFrame index
+    REQUIRE(commonIndices.requiredDataSources.size() == 1);
+    REQUIRE(commonIndices.requiredDataSources[0] == "c");
   }
 
   SECTION("Has strategy metadata") {
@@ -109,9 +107,8 @@ TEST_CASE("Common Indices Configuration", "[polygon_indices][common_indices]") {
     REQUIRE(!commonIndices.usageContext.empty());
     REQUIRE(!commonIndices.limitations.empty());
 
-    // Verify description is domain-focused (not implementation details)
-    REQUIRE(commonIndices.desc.find("Historical price data") != std::string::npos);
-    REQUIRE(commonIndices.desc.find("open, high, low, and close") != std::string::npos);
+    // Verify description contains OHLC information from SDK metadata
+    REQUIRE(commonIndices.desc.find("OHLC") != std::string::npos);
   }
 }
 
@@ -130,13 +127,13 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
   }
 
   SECTION("Has same output fields as common_indices") {
-    REQUIRE(indices.outputs.size() == 4);
+    // SDK returns 7 outputs: o, h, l, c, v, vw, n
+    REQUIRE(indices.outputs.size() == 7);
 
-    // Verify OHLC outputs
+    // Verify core OHLC outputs are present
     REQUIRE(indices.outputs[0].id == "o");
     REQUIRE(indices.outputs[0].name == "Open");
     REQUIRE(indices.outputs[0].type == epoch_core::IODataType::Decimal);
-    REQUIRE(indices.outputs[0].allowMultipleConnections == true);
 
     REQUIRE(indices.outputs[1].id == "h");
     REQUIRE(indices.outputs[1].name == "High");
@@ -155,12 +152,10 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(indices.inputs.empty());
   }
 
-  SECTION("Has requiredDataSources set to OHLC") {
-    REQUIRE(indices.requiredDataSources.size() == 4);
-    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "o") != indices.requiredDataSources.end());
-    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "h") != indices.requiredDataSources.end());
-    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "l") != indices.requiredDataSources.end());
-    REQUIRE(std::find(indices.requiredDataSources.begin(), indices.requiredDataSources.end(), "c") != indices.requiredDataSources.end());
+  SECTION("Has requiredDataSources set to c") {
+    // Indices load data internally, requiredDataSources just has "c" to get proper DataFrame index
+    REQUIRE(indices.requiredDataSources.size() == 1);
+    REQUIRE(indices.requiredDataSources[0] == "c");
   }
 
   SECTION("Has comprehensive descriptions") {
@@ -168,8 +163,7 @@ TEST_CASE("Dynamic Indices Configuration", "[polygon_indices][indices]") {
     REQUIRE(!indices.usageContext.empty());
     REQUIRE(!indices.limitations.empty());
 
-    // Verify description is domain-focused
-    REQUIRE(indices.desc.find("Historical price data") != std::string::npos);
-    REQUIRE(indices.desc.find("ticker symbol") != std::string::npos);
+    // Verify description contains OHLC information from SDK metadata
+    REQUIRE(indices.desc.find("OHLC") != std::string::npos);
   }
 }

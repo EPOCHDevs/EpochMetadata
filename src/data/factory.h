@@ -23,7 +23,6 @@ namespace epoch_script::data {
 using IDataLoader = data_sdk::IDataLoader;
 using IDataLoaderPtr = std::shared_ptr<IDataLoader>;
 using DataloaderOption = data_sdk::DataLoaderOptions;
-using AuxiliaryCategoryConfig = data_sdk::AuxiliaryCategoryConfig;
 
 class WebSocketManagerSingleton {
 public:
@@ -85,26 +84,9 @@ using DataModuleFactoryPtr = std::unique_ptr<DataModuleFactory>;
 } // namespace factory
 
 namespace factory {
-// Helper functions to create typed configs for auxiliary categories
-data_sdk::FinancialsConfig CreateFinancialsConfig(std::string const& transformType);
-
-data_sdk::MacroEconomicsConfig CreateMacroEconomicsConfig(
-    epoch_script::transform::TransformConfiguration const& config);
-
-data_sdk::AlternativeDataConfig CreateAlternativeDataConfig(std::string const& transformType);
-
-// Helper functions to map transform IDs to DataCategories
-std::optional<DataCategory>
-MapPolygonTransformToDataCategory(std::string const &transformType);
-
-std::optional<DataCategory>
-MapFREDTransformToDataCategory(std::string const &transformType);
-
-std::optional<DataCategory>
-MapSECTransformToDataCategory(std::string const &transformType);
-
 // Extract auxiliary data categories from transform configurations
-std::vector<AuxiliaryCategoryConfig>
+// Uses central GetDataCategoryForTransform() from data_category_mapper
+std::vector<DataCategory>
 ExtractAuxiliaryCategoriesFromTransforms(
     epoch_script::transform::TransformConfigurationList const &configs);
 

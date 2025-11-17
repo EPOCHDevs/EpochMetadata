@@ -36,7 +36,7 @@ public:
 
 private:
   static EventMarkerSchema GetSchemaFromConfig(const epoch_script::transform::TransformConfiguration& config) {
-    EventMarkerSchema schema = config.GetOptionValue("event_marker_schema").GetCardSchemaList();
+    EventMarkerSchema schema = config.GetOptionValue("schema").GetCardSchemaList();
 
     // Automatically add index column as timestamp for chart navigation
     schema.schemas.emplace_back(CardColumnSchema{
@@ -62,7 +62,7 @@ struct EventMarkerMetadata {
       .category = epoch_core::TransformCategory::EventMarker,
       .name = "Event Marker",
       .options = {
-        {.id = "event_marker_schema",
+        {.id = "schema",
          .name = "Card Schema",
          .type = epoch_core::MetaDataOptionType::EventMarkerSchema,
          .isRequired = true,

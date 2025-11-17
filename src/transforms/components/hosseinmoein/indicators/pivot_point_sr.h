@@ -18,27 +18,27 @@ public:
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    hmdf::PivotPointSRVisitor<double, int64_t> visitor;
+
     LowSpan lowSpan{df};
     HighSpan highSpan{df};
     CloseSpan closeSpan{df};
 
     // Use run_visit for consistency with other visitors
-    run_visit(df, m_visitor, lowSpan, highSpan, closeSpan);
+    run_visit(df, visitor, lowSpan, highSpan, closeSpan);
 
     // Return all 7 vectors from the visitor
     return make_dataframe(
         df.index(),
-        std::vector{m_visitor.get_result(), m_visitor.get_resist_1(),
-                    m_visitor.get_support_1(), m_visitor.get_resist_2(),
-                    m_visitor.get_support_2(), m_visitor.get_resist_3(),
-                    m_visitor.get_support_3()},
+        std::vector{visitor.get_result(), visitor.get_resist_1(),
+                    visitor.get_support_1(), visitor.get_resist_2(),
+                    visitor.get_support_2(), visitor.get_resist_3(),
+                    visitor.get_support_3()},
         {GetOutputId("pivot"), GetOutputId("resist_1"),
          GetOutputId("support_1"), GetOutputId("resist_2"),
          GetOutputId("support_2"), GetOutputId("resist_3"),
          GetOutputId("support_3")});
   }
-
-private:
-  mutable hmdf::PivotPointSRVisitor<double, int64_t> m_visitor;
 };
 } // namespace epoch_script::transform

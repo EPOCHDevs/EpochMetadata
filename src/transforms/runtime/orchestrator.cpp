@@ -247,17 +247,17 @@ void DataFlowRuntimeOrchestrator::CacheReportFromTransform(
         // Check if we already have a report for this asset
         if (m_reportCache.contains(asset)) {
           SPDLOG_DEBUG("Merging report from transform {} with existing report for asset {}",
-                       transformId, asset.GetSymbolStr());
+                       transformId, asset);
 
           // Merge the new report with the existing one
           auto& existingReport = m_reportCache[asset];
           MergeReportInPlace(existingReport, report, transformId);
 
           SPDLOG_DEBUG("Successfully merged report from transform {} into existing report for asset {} (final size: {} bytes)",
-                       transformId, asset.GetSymbolStr(), existingReport.ByteSizeLong());
+                       transformId, asset, existingReport.ByteSizeLong());
         } else {
           SPDLOG_DEBUG("Cached first report from transform {} for asset {} ({} bytes)",
-                 transformId, asset.GetSymbolStr(), report.ByteSizeLong());
+                 transformId, asset, report.ByteSizeLong());
           m_reportCache.emplace(asset, report);
         }
       }
@@ -336,7 +336,7 @@ void DataFlowRuntimeOrchestrator::CacheEventMarkerFromTransform(
         // Append to existing vector of event markers
         m_eventMarkerCache[asset].push_back(eventMarkerData);
         SPDLOG_DEBUG("Appended event marker from transform {} for asset {} (title: '{}', {} schemas, total event markers: {})",
-               transformId, asset.GetSymbolStr(), eventMarkerData.title,
+               transformId, asset, eventMarkerData.title,
                eventMarkerData.schemas.size(), m_eventMarkerCache[asset].size());
       } else {
         // Create new vector with this event marker
@@ -344,7 +344,7 @@ void DataFlowRuntimeOrchestrator::CacheEventMarkerFromTransform(
         newVector.push_back(eventMarkerData);
         m_eventMarkerCache.emplace(asset, std::move(newVector));
         SPDLOG_DEBUG("Cached first event marker from transform {} for asset {} (title: '{}', {} schemas)",
-               transformId, asset.GetSymbolStr(), eventMarkerData.title,
+               transformId, asset, eventMarkerData.title,
                eventMarkerData.schemas.size());
       }
     });

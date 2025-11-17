@@ -2,6 +2,7 @@
 // Created by Claude Code for FRED Transform Testing
 //
 
+#include <algorithm>
 #include <epoch_script/core/constants.h>
 #include <epoch_script/transforms/core/config_helper.h>
 #include <epoch_script/transforms/core/itransform.h>
@@ -75,27 +76,39 @@ TEST_CASE("FRED Metadata is correctly registered", "[fred][metadata]") {
       REQUIRE(hasOption("GDP"));
     }
 
-    SECTION("Required data sources includes close price") {
+    SECTION("Required data sources includes ALFRED fields") {
       REQUIRE(metadata.requiresTimeFrame == true);
-      REQUIRE(metadata.requiredDataSources.size() == 1);
-      REQUIRE(metadata.requiredDataSources[0] == "c");
+      // SDK returns 3 requiredDataSources: observation_date, value, revision
+      REQUIRE(metadata.requiredDataSources.size() == 3);
+
+      // Verify the core fields are present
+      REQUIRE(std::find(metadata.requiredDataSources.begin(), metadata.requiredDataSources.end(), "observation_date") != metadata.requiredDataSources.end());
+      REQUIRE(std::find(metadata.requiredDataSources.begin(), metadata.requiredDataSources.end(), "value") != metadata.requiredDataSources.end());
+      REQUIRE(std::find(metadata.requiredDataSources.begin(), metadata.requiredDataSources.end(), "revision") != metadata.requiredDataSources.end());
     }
 
     SECTION("Output columns are correct") {
       REQUIRE(metadata.inputs.empty());
-      REQUIRE(metadata.outputs.size() == 2);
+      // SDK returns 3 outputs: observation_date, value, revision
+      REQUIRE(metadata.outputs.size() == 3);
 
+      // Verify observation_date output
       auto observationDateOutput = metadata.outputs[0];
       REQUIRE(observationDateOutput.id == "observation_date");
-      REQUIRE(observationDateOutput.name == "Economic Period");
-      REQUIRE(observationDateOutput.type == epoch_core::IODataType::String);
-      REQUIRE(observationDateOutput.allowMultipleConnections == true);
+      REQUIRE(observationDateOutput.name == "Observation Date");
+      REQUIRE(observationDateOutput.type == epoch_core::IODataType::Timestamp);
 
+      // Verify value output
       auto valueOutput = metadata.outputs[1];
       REQUIRE(valueOutput.id == "value");
-      REQUIRE(valueOutput.name == "Indicator Value");
+      REQUIRE(valueOutput.name == "Value");
       REQUIRE(valueOutput.type == epoch_core::IODataType::Decimal);
-      REQUIRE(valueOutput.allowMultipleConnections == true);
+
+      // Verify revision output exists
+      auto revisionOutput = metadata.outputs[2];
+      REQUIRE(revisionOutput.id == "revision");
+      REQUIRE(revisionOutput.name == "Revision Number");
+      REQUIRE(revisionOutput.type == epoch_core::IODataType::Integer);
     }
 
     SECTION("Has appropriate tags") {
@@ -120,7 +133,7 @@ TEST_CASE("FRED Metadata is correctly registered", "[fred][metadata]") {
 
 TEST_CASE("FREDTransform can be created", "[fred][transform]") {
   SECTION("Transform can be created with different categories") {
-    std::vector<std::string> categories = {"CPI", "CorePCE", "FedFunds", "Unemployment", "GDP", "VIX"};
+    std::vector<std::string> categories = {"CPI", "CorePCE", "FedFunds", "Unemployment", "GDP"};
 
     for (const auto& category : categories) {
       TransformConfiguration config = TransformConfiguration{

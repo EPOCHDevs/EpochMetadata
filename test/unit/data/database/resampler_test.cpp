@@ -27,7 +27,8 @@ using namespace epoch_frame;
 using namespace std::chrono_literals;
 
 // Helper functions to create test data
-DataFrame createTestOHLCVData(const std::vector<DateTime> &dates) {
+DataFrame createTestOHLCVData(const std::vector<DateTime> &dates,
+                               const std::string &tz = "UTC") {
   // Create OHLCV data with increasing values
   std::vector<double> open, high, low, close, volume;
   for (size_t i = 0; i < dates.size(); i++) {
@@ -41,7 +42,7 @@ DataFrame createTestOHLCVData(const std::vector<DateTime> &dates) {
 
   // Create a DataFrame with the test data
   return epoch_frame::make_dataframe<double>(
-      factory::index::make_datetime_index(dates),
+      factory::index::make_datetime_index(dates, "", tz),
       {open, high, low, close, volume}, BarsConstants::instance().all);
 }
 
@@ -283,14 +284,14 @@ TEST_CASE("Resampler handles edge cases correctly") {
   }
 
   SECTION("Multiple data points && tz") {
-    auto tz = GENERATE("", "US/Eastern");
+    auto tz = GENERATE("America/New_York", "Europe/London");
     DYNAMIC_SECTION("Timezone: " << tz) {
-      // Create test data with mixed timezones
+      // Create test data with non-UTC timezones
       std::vector dates = {"2022-01-01 10:00:00"__dt.replace_tz(tz),
                            "2022-01-01 10:01:00"__dt.replace_tz(tz),
                            "2022-01-01 10:02:00"__dt.replace_tz(tz)};
 
-      auto df = createTestOHLCVData(dates);
+      auto df = createTestOHLCVData(dates, tz);
 
       // Setup asset and data
       Asset asset = EpochScriptAssetConstants::instance().AAPL;
@@ -304,7 +305,7 @@ TEST_CASE("Resampler handles edge cases correctly") {
 
       Resampler resampler(timeframes, true);
 
-      // Build the resampled data
+      // Build the resampled data - should throw because only UTC is supported
       REQUIRE_THROWS(resampler.Build(assetData));
     }
   }
@@ -363,8 +364,8 @@ TEST_CASE("Resampling to Calendar Offsets") {
   std::vector<IndexPtr> expectedIndex(timeframes.size());
   for (bool isIntraday : {true, false}) {
     std::string fullPath =
-        std::filesystem::path(isIntraday ? "../test/data/database/resample_test_files/intraday"
-                                         : "../test/data/database/resample_test_files/daily")
+        std::filesystem::path(isIntraday ? std::string{RESAMPLE_FILES} + "/intraday"
+                                         : std::string{RESAMPLE_FILES} + "/daily")
             .string();
     for (const auto &file : std::filesystem::directory_iterator(fullPath)) {
       std::ifstream f(file.path());
@@ -385,7 +386,11 @@ TEST_CASE("Resampling to Calendar Offsets") {
     }
 
     if (!isIntraday) {
-      intraday = expectedIndex[0]->array().to_vector<DateTime>();
+      auto timestamps_vec = expectedIndex[0]->array().to_vector<DateTime>();
+      intraday.clear();
+      for (auto& dt : timestamps_vec) {
+        intraday.push_back(dt.replace_tz("UTC"));
+      }
     }
 
     auto dataFrame = createTestOHLCVData(intraday);
@@ -410,6 +415,132 @@ TEST_CASE("Resampling to Calendar Offsets") {
                                 << expected->repr());
         REQUIRE(df.index()->equals(expected));
       }
+    }
+  }
+}
+
+TEST_CASE("Generic Resampler handles different column types correctly", "[Resampler]") {
+  // Create test data with various column types
+  std::vector<DateTime> dates;
+  for (int i = 0; i < 10; i++) {
+    dates.push_back(
+        DateTime::from_str(std::format("2022-01-01 10:{:02d}:00", i))
+            .replace_tz("UTC"));
+  }
+
+  // Create OHLCV data
+  std::vector<double> open, high, low, close, volume;
+  std::vector<double> vw;    // volume-weighted price (float)
+  std::vector<int64_t> n;    // trade count (integer)
+  std::vector<double> custom_float;  // custom float column
+  std::vector<int64_t> custom_int;   // custom integer column
+  std::vector<std::string> custom_str; // custom string column
+
+  for (size_t i = 0; i < dates.size(); i++) {
+    double base = static_cast<double>(i);
+    open.push_back(100.0 + base);
+    high.push_back(105.0 + base);
+    low.push_back(95.0 + base);
+    close.push_back(102.0 + base);
+    volume.push_back(1000.0 + base * 100);
+    vw.push_back(101.0 + base);  // volume-weighted average price
+    n.push_back(10 + i);         // trade count
+    custom_float.push_back(50.0 + base);
+    custom_int.push_back(200 + i);
+    custom_str.push_back("val" + std::to_string(i));
+  }
+
+  // Create DataFrame with all columns
+  auto index = factory::index::make_datetime_index(dates);
+
+  // Build schema with various types
+  arrow::FieldVector fields = {
+      arrow::field("o", arrow::float64()),
+      arrow::field("h", arrow::float64()),
+      arrow::field("l", arrow::float64()),
+      arrow::field("c", arrow::float64()),
+      arrow::field("v", arrow::float64()),
+      arrow::field("vw", arrow::float64()),
+      arrow::field("n", arrow::int64()),
+      arrow::field("custom_float", arrow::float64()),
+      arrow::field("custom_int", arrow::int64()),
+      arrow::field("custom_str", arrow::utf8())
+  };
+
+  arrow::ArrayVector arrays;
+  arrays.push_back(factory::array::make_array(open)->chunk(0));
+  arrays.push_back(factory::array::make_array(high)->chunk(0));
+  arrays.push_back(factory::array::make_array(low)->chunk(0));
+  arrays.push_back(factory::array::make_array(close)->chunk(0));
+  arrays.push_back(factory::array::make_array(volume)->chunk(0));
+  arrays.push_back(factory::array::make_array(vw)->chunk(0));
+  arrays.push_back(factory::array::make_array(n)->chunk(0));
+  arrays.push_back(factory::array::make_array(custom_float)->chunk(0));
+  arrays.push_back(factory::array::make_array(custom_int)->chunk(0));
+  arrays.push_back(factory::array::make_array(custom_str)->chunk(0));
+
+  auto table = arrow::Table::Make(arrow::schema(fields), arrays);
+  auto df = DataFrame(index, table);
+
+  SECTION("Resample to 5-minute intervals") {
+    Asset asset = EpochScriptAssetConstants::instance().AAPL;
+    AssetDataFrameMap assetData;
+    assetData[asset] = df;
+
+    std::vector<epoch_script::TimeFrame> timeframes = {
+        epoch_script::TimeFrame(factory::offset::minutes(5))};
+
+    Resampler resampler(timeframes, true);
+    auto result = resampler.Build(assetData);
+
+    REQUIRE(result.size() == 1);
+    auto [timeframe, resultAsset, resultDf] = result[0];
+
+    INFO(resultDf);
+
+    // Should have 3 rows: (minute 0 at 10:00, minutes 1-5 at 10:05, minutes 6-9 at 10:10)
+    REQUIRE(resultDf.num_rows() == 3);
+
+    // Check OHLCV aggregation - test the second bar (minutes 1-5)
+    SECTION("OHLCV columns are correctly aggregated") {
+      // Second bar (minutes 1-5 at index 1): 5 rows
+      // Open should be first value (101.0)
+      REQUIRE(resultDf.iloc(1, "o").as_double() == Catch::Approx(101.0));
+      // High should be max (110.0 = 105+5)
+      REQUIRE(resultDf.iloc(1, "h").as_double() == Catch::Approx(110.0));
+      // Low should be min (96.0 = 95+1)
+      REQUIRE(resultDf.iloc(1, "l").as_double() == Catch::Approx(96.0));
+      // Close should be last value (105.0)
+      REQUIRE(resultDf.iloc(1, "c").as_double() == Catch::Approx(107.0));
+      // Volume should be sum (1100 + 1200 + 1300 + 1400 + 1500 = 6500)
+      REQUIRE(resultDf.iloc(1, "v").as_double() == Catch::Approx(6500.0));
+    }
+
+    SECTION("vw column is averaged") {
+      // vw should be average: (102 + 103 + 104 + 105 + 106) / 5 = 104
+      REQUIRE(resultDf.iloc(1, "vw").as_double() == Catch::Approx(104.0));
+    }
+
+    SECTION("n column is summed") {
+      // n should be sum: 11 + 12 + 13 + 14 + 15 = 65
+      REQUIRE(resultDf.iloc(1, "n").as_int64() == 65);
+    }
+
+    SECTION("Custom float column is averaged") {
+      // custom_float should be average: (51 + 52 + 53 + 54 + 55) / 5 = 53
+      REQUIRE(resultDf.iloc(1, "custom_float").as_double() ==
+              Catch::Approx(53.0));
+    }
+
+    SECTION("Custom integer column is summed") {
+      // custom_int should be sum: 201 + 202 + 203 + 204 + 205 = 1015
+      REQUIRE(resultDf.iloc(1, "custom_int").as_int64() == 1015);
+    }
+
+    SECTION("Custom string column is concatenated") {
+      // custom_str should be concatenated: "val1,val2,val3,val4,val5"
+      auto str_value = resultDf.iloc(1, "custom_str").value<std::string>().value();
+      REQUIRE(str_value == "val1,val2,val3,val4,val5");
     }
   }
 }

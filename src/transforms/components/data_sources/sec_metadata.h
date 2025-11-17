@@ -72,6 +72,8 @@ MakeSECDataSources() {
                    "fundamentals"},
           .requiresTimeFrame = true,
           .requiredDataSources = {"shares", "value", "security_type", "investment_discretion", "institution_name", "period_end"},
+          .intradayOnly = false,
+          .allowNullInputs = true,
           .strategyTypes = {"fundamental-analysis", "follow-smart-money",
                             "institutional-flow", "ownership-analysis"},
           .assetRequirements = {"single-asset"},

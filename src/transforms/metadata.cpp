@@ -145,11 +145,11 @@ TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
   metadata.limitations = "Index must be integer 0 to " + std::to_string(N-1) + ". Out-of-range indices may cause errors. For binary choice, use boolean_branch instead.";
   metadata.tags = {"flow-control", "selector", "switch", "conditional"};
 
-  // Inputs: "index", "option_0", "option_1", ..., "option_{N-1}"
+  // Inputs: "index", "SLOT0", "SLOT1", ..., "SLOT{N-1}"
   std::vector<IOMetaData> inputs;
   inputs.emplace_back(epoch_core::IODataType::Integer, "index", "Index");
   for (size_t i = 0; i < N; ++i) {
-    inputs.emplace_back(epoch_core::IODataType::Any, std::format("*{}", i),
+    inputs.emplace_back(epoch_core::IODataType::Any, std::format("SLOT{}", i),
                         std::to_string(i), false);
   }
   metadata.inputs = inputs;
@@ -368,13 +368,143 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
     metadataList.emplace_back(MakeEqualityTransformMetaData(id, name));
   }
 
-  // Boolean select (if/else)
-  metadataList.emplace_back(
-      MakeBooleanSelectMetaData("boolean_select", "If Else"));
+  // Typed BooleanSelect transforms
+  for (auto const &[type, typeName] :
+       std::initializer_list<std::array<std::string, 2>>{
+           {"string", "String"},
+           {"number", "Number"},
+           {"boolean", "Boolean"},
+           {"timestamp", "Timestamp"}}) {
+    std::string id = std::format("boolean_select_{}", type);
+    std::string name = std::format("If Else ({})", typeName);
+
+    TransformsMetaData metadata;
+    metadata.id = id;
+    metadata.name = name;
+    metadata.category = epoch_core::TransformCategory::ControlFlow;
+    metadata.plotKind = epoch_core::TransformPlotKind::Null;
+    metadata.isCrossSectional = false;
+    metadata.options = {};
+    metadata.desc = std::format("Typed conditional selection between two {} values based on boolean condition. Type-safe if-else ensuring condition is Boolean and both branches are {}.", typeName, typeName);
+    metadata.usageContext = std::format("Conditional routing for typed {} values. Select between two alternatives based on boolean signal. Common use: switch between aggressive/conservative values based on regime detection.", typeName);
+    metadata.strategyTypes = {"conditional-logic", "binary-choice", "if-else"};
+    metadata.assetRequirements = {"single-asset"};
+    metadata.limitations = std::format("Binary choice only - use switch transforms for more than 2 options. Condition must be Boolean, both branches must be {} type.", typeName);
+    metadata.tags = {"flow-control", "conditional", "if-else", "typed"};
+
+    // Inputs: "condition" (Boolean), "true", "false" (both typed)
+    metadata.inputs = {
+        IOMetaData{.type = epoch_core::IODataType::Boolean, .id = "condition", .name = "Condition"},
+        IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName), .id = "true", .name = "True Value"},
+        IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName), .id = "false", .name = "False Value"}
+    };
+
+    // Output: typed value
+    metadata.outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName),
+                                   .id = "value",
+                                   .name = "Selected Value"}};
+    metadata.allowNullInputs = true;
+
+    metadataList.emplace_back(metadata);
+  }
 
   // N-way selectors (select_2, select_3, etc.)
   for (size_t i = 2; i <= 5; ++i) {
     metadataList.emplace_back(MakeZeroIndexSelectMetaData(i));
+  }
+
+  // Typed Switch transforms
+  for (size_t N = 2; N <= 5; ++N) {
+    for (auto const &[type, typeName] :
+         std::initializer_list<std::array<std::string, 2>>{
+             {"string", "String"},
+             {"number", "Number"},
+             {"boolean", "Boolean"},
+             {"timestamp", "Timestamp"}}) {
+      std::string id = std::format("switch{}_{}", N, type);
+      std::string name = std::format("Switch {} ({}) ", N, typeName);
+
+      TransformsMetaData metadata;
+      metadata.id = id;
+      metadata.name = name;
+      metadata.category = epoch_core::TransformCategory::ControlFlow;
+      metadata.plotKind = epoch_core::TransformPlotKind::Null;
+      metadata.isCrossSectional = false;
+      metadata.options = {};
+      metadata.desc = std::format("Typed switch selecting one of {} {} inputs based on zero-indexed selector. Type-safe variant ensuring all inputs and output are {}.", N, typeName, typeName);
+      metadata.usageContext = std::format("Multi-way routing for typed {} values. Use integer index to select between {} different values/signals. Ensures type safety throughout selection.", typeName, N);
+      metadata.strategyTypes = {"multi-strategy-selection", "regime-switching", "conditional-routing"};
+      metadata.assetRequirements = {"single-asset"};
+      metadata.limitations = std::format("Index must be integer 0 to {}. All inputs must be {} type. Out-of-range indices may cause errors.", N-1, typeName);
+      metadata.tags = {"flow-control", "selector", "switch", "conditional", "typed"};
+
+      // Inputs: "index" (Integer), "SLOT0", "SLOT1", ..., "SLOT{N-1}" (all typed)
+      std::vector<IOMetaData> inputs;
+      inputs.emplace_back(epoch_core::IODataType::Integer, "index", "Index");
+      for (size_t i = 0; i < N; ++i) {
+        inputs.emplace_back(epoch_core::IODataTypeWrapper::FromString(typeName),
+                           std::format("SLOT{}", i), std::to_string(i), false);
+      }
+      metadata.inputs = inputs;
+
+      // Output: typed value
+      metadata.outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName),
+                                     .id = "value",
+                                     .name = "Selected Value"}};
+      metadata.allowNullInputs = true;
+
+      metadataList.emplace_back(metadata);
+    }
+  }
+
+  // Typed PercentileSelect transforms
+  for (auto const &[type, typeName] :
+       std::initializer_list<std::array<std::string, 2>>{
+           {"string", "String"},
+           {"number", "Number"},
+           {"boolean", "Boolean"},
+           {"timestamp", "Timestamp"}}) {
+    TransformsMetaData metadata{
+        .id = std::format("percentile_select_{}", type),
+        .category = epoch_core::TransformCategory::ControlFlow,
+        .plotKind = epoch_core::TransformPlotKind::Null,
+        .name = std::format("Percentile Select ({})", typeName),
+        .options = {
+            MetaDataOption{.id = "lookback",
+                           .name = "Lookback Period",
+                           .type = epoch_core::MetaDataOptionType::Integer,
+                           .defaultValue = MetaDataOptionDefinition(static_cast<double>(14)),
+                           .min = 0,
+                           .max = 10000,
+                           .desc = "Number of historical bars to calculate percentile from",
+                           .tuningGuidance = "Shorter lookback (10-20) for responsive adaptation. Longer (50-100) for stable thresholds."},
+            MetaDataOption{.id = "percentile",
+                           .name = "Percentile Threshold",
+                           .type = epoch_core::MetaDataOptionType::Integer,
+                           .defaultValue = MetaDataOptionDefinition(static_cast<double>(80)),
+                           .min = 0,
+                           .max = 100,
+                           .desc = "Percentile cutoff (0-100) - above triggers 'high' path, below triggers 'low' path",
+                           .tuningGuidance = "80th percentile = top 20% gets 'high' treatment. Higher (80-90) for extreme events."}
+        },
+        .desc = std::format("Typed percentile-based selection between two {} values. Type-safe adaptive thresholding ensuring all inputs and output are {}.", typeName, typeName),
+        .inputs = {
+            IOMetaData{.type = epoch_core::IODataType::Number, .id = "value", .name = "Value"},
+            IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName), .id = "high", .name = "When Above Percentile"},
+            IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName), .id = "low", .name = "When Below Percentile"}
+        },
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName),
+                               .id = "value",
+                               .name = "Selected Value"}},
+        .tags = {"selection", "percentile", "statistics", "conditional", "flow-control", "adaptive", "typed"},
+        .requiresTimeFrame = false,
+        .allowNullInputs = false,
+        .strategyTypes = {"adaptive-thresholding", "regime-dependent", "dynamic-allocation"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = std::format("Adaptive thresholding for typed {} values based on historical distribution. Type-safe routing between extreme vs normal ranges.", typeName),
+        .limitations = std::format("Requires lookback period of historical data. High and low branches must be {} type. Thresholds shift with market conditions.", typeName)
+    };
+    metadataList.emplace_back(metadata);
   }
 
   // Logical operators
@@ -398,9 +528,63 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
     metadataList.emplace_back(MakeValueCompareMetaData("lowest", op, 14));
   }
 
-  // Selecting/multiplexing functions
-  metadataList.emplace_back(MakeFirstNonNullMetaData());
-  metadataList.emplace_back(MakeConditionalSelectMetaData());
+  // Typed FirstNonNull transforms
+  for (auto const &[type, typeName] :
+       std::initializer_list<std::array<std::string, 2>>{
+           {"string", "String"},
+           {"number", "Number"},
+           {"boolean", "Boolean"},
+           {"timestamp", "Timestamp"}}) {
+    TransformsMetaData metadata{
+        .id = std::format("first_non_null_{}", type),
+        .category = epoch_core::TransformCategory::ControlFlow,
+        .plotKind = epoch_core::TransformPlotKind::Null,
+        .name = std::format("Coalesce ({})", typeName),
+        .options = {},
+        .desc = std::format("Typed coalesce returning first non-null {} value from inputs. Type-safe variant ensuring all inputs and output are {}.", typeName, typeName),
+        .inputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName), .id = ARG, .name = "", .allowMultipleConnections = true}}, // VARARG with typed inputs
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName),
+                               .id = "value",
+                               .name = "First Non-Null Value"}},
+        .tags = {"null-handling", "coalesce", "fallback", "typed"},
+        .requiresTimeFrame = false,
+        .allowNullInputs = true,
+        .strategyTypes = {"data-quality", "fallback-logic"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = std::format("Handle missing {} data by falling back to alternative values. Type-safe coalescing for {} inputs.", typeName, typeName),
+        .limitations = std::format("All inputs must be {} type. Evaluates all inputs even after finding non-null value.", typeName)
+    };
+    metadataList.emplace_back(metadata);
+  }
+
+  // Typed ConditionalSelect transforms
+  for (auto const &[type, typeName] :
+       std::initializer_list<std::array<std::string, 2>>{
+           {"string", "String"},
+           {"number", "Number"},
+           {"boolean", "Boolean"},
+           {"timestamp", "Timestamp"}}) {
+    TransformsMetaData metadata{
+        .id = std::format("conditional_select_{}", type),
+        .category = epoch_core::TransformCategory::ControlFlow,
+        .plotKind = epoch_core::TransformPlotKind::Null,
+        .name = std::format("Case When ({})", typeName),
+        .options = {},
+        .desc = std::format("Typed SQL-style case-when selection for {} values. Type-safe multi-condition selector ensuring all value branches are {}.", typeName, typeName),
+        .inputs = {IOMetaData{.type = epoch_core::IODataType::Any, .id = ARG, .name = "", .allowMultipleConnections = true}}, // VARARG - alternating boolean conditions and typed values
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(typeName),
+                               .id = "value",
+                               .name = "Selected Value"}},
+        .tags = {"flow-control", "case-when", "multi-condition", "typed"},
+        .requiresTimeFrame = false,
+        .allowNullInputs = true,
+        .strategyTypes = {"multi-condition-logic", "complex-routing"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = std::format("Multi-way conditional logic for typed {} values. Use when you have 3+ conditions requiring type safety.", typeName),
+        .limitations = std::format("Inputs must alternate Boolean conditions and {} values. All value branches must be {} type.", typeName, typeName)
+    };
+    metadataList.emplace_back(metadata);
+  }
 
   return metadataList;
 }
@@ -433,6 +617,39 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
       .assetRequirements = {"single-asset"},
       .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",
       .limitations = "Shifts data backward, so first N bars will be null/undefined. Not a predictive transform - only accesses past data."});
+
+  // Typed lag variants
+  for (auto const &[id, name, inputType, outputType] :
+       std::initializer_list<std::array<std::string, 4>>{
+           {"lag_string", "Lag (String)", "String", "String"},
+           {"lag_number", "Lag (Number)", "Number", "Number"},
+           {"lag_boolean", "Lag (Boolean)", "Boolean", "Boolean"},
+           {"lag_timestamp", "Lag (Timestamp)", "Timestamp", "Timestamp"}}) {
+    metadataList.emplace_back(TransformsMetaData{
+        .id = id,
+        .category = epoch_core::TransformCategory::Trend,
+        .plotKind = epoch_core::TransformPlotKind::line,
+        .name = name,
+        .options = {
+            MetaDataOption{.id = "period",
+                           .name = "Period",
+                           .type = epoch_core::MetaDataOptionType::Integer,
+                           .defaultValue = MetaDataOptionDefinition(static_cast<double>(1)),
+                           .min = 1,
+                           .desc = "Number of periods to shift the data backward",
+                           .tuningGuidance = "Lag 1 for previous bar comparison. Larger lags for detecting longer-term patterns or creating features for machine learning models. Common: 1 (prev bar), 5 (prev week on daily), 20 (prev month)."}
+        },
+        .desc = std::string("Shifts each element in the input by the specified period, creating a lagged series. Typed variant for ") + inputType + " data.",
+        .inputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(inputType), .id = "SLOT", .name = ""}},
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(outputType), .id = "value", .name = "Lagged Value"}},
+        .tags = {"math", "lag", "delay", "shift", "temporal", "typed"},
+        .requiresTimeFrame = false,
+        .allowNullInputs = true,
+        .strategyTypes = {"feature-engineering", "temporal-comparison"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",
+        .limitations = "Shifts data backward, so first N bars will be null/undefined. Not a predictive transform - only accesses past data."});
+  }
 
   return metadataList;
 }
@@ -524,6 +741,28 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
                         ? IOMetaDataConstants::ANY_OUTPUT_METADATA
                         : IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
         .tags = {"scalar", "constant", "math", "number"}});
+  }
+
+  // Typed null scalar variants
+  for (auto const &[id, name, outputType] :
+       std::initializer_list<std::array<std::string, 3>>{
+           {"null_string", "Null (String)", "String"},
+           {"null_number", "Null (Number)", "Number"},
+           {"null_boolean", "Null (Boolean)", "Boolean"},
+           {"null_timestamp", "Null (Timestamp)", "Timestamp"}}) {
+    metadataList.emplace_back(TransformsMetaData{
+        .id = id,
+        .category = epoch_core::TransformCategory::Scalar,
+        .plotKind = epoch_core::TransformPlotKind::Null,
+        .name = name,
+        .options = {},
+        .desc = std::string("Outputs a typed null value of type ") + outputType + ". Used for placeholder or null handling in typed contexts.",
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(outputType), .id = "value", .name = "Null Value"}},
+        .tags = {"scalar", "constant", "null", "typed"},
+        .strategyTypes = {"placeholder", "null-handling"},
+        .assetRequirements = {"single-asset"},
+        .usageContext = "Provide typed null values for initialization, placeholder logic, or null coalescing operations.",
+        .limitations = "Always returns null - use for placeholders only. Not suitable for actual data values."});
   }
 
   return metadataList;
@@ -1213,7 +1452,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
       .desc = "Detects when bars occur exactly X minutes from session start or end. Useful for timing entries/exits around session boundaries.",
       .inputs = {},
       .outputs = {
-          {epoch_core::IODataType::Boolean, "in_window", "In Time Window"}
+          {epoch_core::IODataType::Boolean, "value", "In Time Window"}
       },
       .tags = {"session", "time", "timing", "smc", "session-boundary"},
       .requiresTimeFrame = true,

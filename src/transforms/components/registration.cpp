@@ -60,6 +60,12 @@
 #include "data_sources/sec_data_source.h"
 #include "data_sources/sec_metadata.h"
 #include "data_sources/reference_stocks_metadata.h"
+#include "data_sources/news_metadata.h"
+#include "data_sources/dividends_metadata.h"
+#include "data_sources/splits_metadata.h"
+#include "data_sources/ticker_events_metadata.h"
+#include "data_sources/short_interest_metadata.h"
+#include "data_sources/short_volume_metadata.h"
 
 // EventMarker includes
 #include <epoch_script/transforms/components/event_markers/event_marker.h>
@@ -67,6 +73,8 @@
 // SQL and Report includes
 #include "sql/sql_query_transform.h"
 #include "sql/sql_query_metadata.h"
+#include "operators/validation_metadata.h"
+#include "operators/static_cast_metadata.h"
 #include "reports/numeric_card_report.h"
 #include "reports/boolean_card_report.h"
 #include "reports/any_card_report.h"
@@ -101,9 +109,11 @@
 #include "indicators/trade_count.h"
 #include "operators/equality.h"
 #include "operators/logical.h"
+#include "operators/validation.h"
 #include "operators/select.h"
 #include "operators/modulo.h"
 #include "operators/power.h"
+#include "operators/groupby_agg.h"
 #include "scalar.h"
 #include "tulip/tulip_model.h"
 #include "volatility/volatility.h"
@@ -137,7 +147,11 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(ln10, Ln10Scalar);
   REGISTER_TRANSFORM(log2e, Log2EScalar);
   REGISTER_TRANSFORM(log10e, Log10EScalar);
-  REGISTER_TRANSFORM(null, NullScalar);
+  // Typed null variants (no untyped null)
+  REGISTER_TRANSFORM(null_string, NullStringScalar);
+  REGISTER_TRANSFORM(null_number, NullNumberScalar);
+  REGISTER_TRANSFORM(null_boolean, NullBooleanScalar);
+  REGISTER_TRANSFORM(null_timestamp, NullTimestampScalar);
 
   // String Transforms
   REGISTER_TRANSFORM(string_case, StringCaseTransform);
@@ -162,16 +176,60 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(logical_and_not, LogicalAND_NOT);
   REGISTER_TRANSFORM(logical_not, LogicalNot);
 
+  // Validation Transforms
+  REGISTER_TRANSFORM(is_null, IsNull);
+  REGISTER_TRANSFORM(is_valid, IsValid);
+  REGISTER_TRANSFORM(is_zero, IsZero);
+  REGISTER_TRANSFORM(is_one, IsOne);
+
+  // Static Cast Transforms (compiler-inserted type materializers)
+  REGISTER_TRANSFORM(static_cast_to_integer, StaticCastToInteger);
+  REGISTER_TRANSFORM(static_cast_to_decimal, StaticCastToDecimal);
+  REGISTER_TRANSFORM(static_cast_to_boolean, StaticCastToBoolean);
+  REGISTER_TRANSFORM(static_cast_to_string, StaticCastToString);
+  REGISTER_TRANSFORM(static_cast_to_timestamp, StaticCastToTimestamp);
+
   REGISTER_TRANSFORM(modulo, ModuloTransform);
   REGISTER_TRANSFORM(power_op, PowerTransform);
 
-  REGISTER_TRANSFORM(boolean_select, BooleanSelectTransform);
-  REGISTER_TRANSFORM(select_2, Select2);
-  REGISTER_TRANSFORM(select_3, Select3);
-  REGISTER_TRANSFORM(select_4, Select4);
-  REGISTER_TRANSFORM(select_5, Select5);
-  REGISTER_TRANSFORM(first_non_null, FirstNonNullTransform);
-  REGISTER_TRANSFORM(conditional_select, ConditionalSelectTransform);
+  // Typed BooleanSelect transforms
+  REGISTER_TRANSFORM(boolean_select_string, BooleanSelectString);
+  REGISTER_TRANSFORM(boolean_select_number, BooleanSelectNumber);
+  REGISTER_TRANSFORM(boolean_select_boolean, BooleanSelectBoolean);
+  REGISTER_TRANSFORM(boolean_select_timestamp, BooleanSelectTimestamp);
+
+  // Typed Switch transforms
+  REGISTER_TRANSFORM(switch2_string, Switch2String);
+  REGISTER_TRANSFORM(switch2_number, Switch2Number);
+  REGISTER_TRANSFORM(switch2_boolean, Switch2Boolean);
+  REGISTER_TRANSFORM(switch2_timestamp, Switch2Timestamp);
+
+  REGISTER_TRANSFORM(switch3_string, Switch3String);
+  REGISTER_TRANSFORM(switch3_number, Switch3Number);
+  REGISTER_TRANSFORM(switch3_boolean, Switch3Boolean);
+  REGISTER_TRANSFORM(switch3_timestamp, Switch3Timestamp);
+
+  REGISTER_TRANSFORM(switch4_string, Switch4String);
+  REGISTER_TRANSFORM(switch4_number, Switch4Number);
+  REGISTER_TRANSFORM(switch4_boolean, Switch4Boolean);
+  REGISTER_TRANSFORM(switch4_timestamp, Switch4Timestamp);
+
+  REGISTER_TRANSFORM(switch5_string, Switch5String);
+  REGISTER_TRANSFORM(switch5_number, Switch5Number);
+  REGISTER_TRANSFORM(switch5_boolean, Switch5Boolean);
+  REGISTER_TRANSFORM(switch5_timestamp, Switch5Timestamp);
+
+  // Typed FirstNonNull transforms
+  REGISTER_TRANSFORM(first_non_null_string, FirstNonNullString);
+  REGISTER_TRANSFORM(first_non_null_number, FirstNonNullNumber);
+  REGISTER_TRANSFORM(first_non_null_boolean, FirstNonNullBoolean);
+  REGISTER_TRANSFORM(first_non_null_timestamp, FirstNonNullTimestamp);
+
+  // Typed ConditionalSelect transforms
+  REGISTER_TRANSFORM(conditional_select_string, ConditionalSelectString);
+  REGISTER_TRANSFORM(conditional_select_number, ConditionalSelectNumber);
+  REGISTER_TRANSFORM(conditional_select_boolean, ConditionalSelectBoolean);
+  REGISTER_TRANSFORM(conditional_select_timestamp, ConditionalSelectTimestamp);
 
   REGISTER_TRANSFORM(previous_gt, GreaterThanPrevious);
   REGISTER_TRANSFORM(previous_gte, GreaterThanOrEqualsPrevious);
@@ -195,7 +253,13 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(lowest_neq, NotEqualsLowest);
 
   REGISTER_TRANSFORM(market_data_source, DataSourceTransform);
-  REGISTER_TRANSFORM(percentile_select, PercentileSelect);
+
+  // Typed PercentileSelect transforms
+  REGISTER_TRANSFORM(percentile_select_string, PercentileSelectString);
+  REGISTER_TRANSFORM(percentile_select_number, PercentileSelectNumber);
+  REGISTER_TRANSFORM(percentile_select_boolean, PercentileSelectBoolean);
+  REGISTER_TRANSFORM(percentile_select_timestamp, PercentileSelectTimestamp);
+
   REGISTER_TRANSFORM(boolean_branch, BooleanBranch);
   REGISTER_TRANSFORM(ratio_branch, RatioBranch);
 
@@ -219,7 +283,11 @@ void InitializeTransforms(
 
   REGISTER_TRANSFORM(forward_returns, ForwardReturns);
   REGISTER_TRANSFORM(intraday_returns, IntradayReturns);
-  REGISTER_TRANSFORM(lag, Lag);
+  // Typed lag variants (no untyped lag)
+  REGISTER_TRANSFORM(lag_string, LagString);
+  REGISTER_TRANSFORM(lag_number, LagNumber);
+  REGISTER_TRANSFORM(lag_boolean, LagBoolean);
+  REGISTER_TRANSFORM(lag_timestamp, LagTimestamp);
   REGISTER_TRANSFORM(ma, MovingAverage);
   // Market-data derived single-series transforms
   REGISTER_TRANSFORM(vwap, VWAPTransform);
@@ -261,6 +329,11 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(agg_none_of, NoneOfAggregateTransform);
   REGISTER_TRANSFORM(agg_all_equal, AllEqualAggregateTransform);
   REGISTER_TRANSFORM(agg_all_unique, AllUniqueAggregateTransform);
+
+  // GroupBy Aggregate Transforms
+  REGISTER_TRANSFORM(groupby_numeric_agg, GroupByNumericAggTransform);
+  REGISTER_TRANSFORM(groupby_boolean_agg, GroupByBooleanAggTransform);
+  REGISTER_TRANSFORM(groupby_any_agg, GroupByAnyAggTransform);
 
   std::unordered_set<std::string> tiToSkip{"lag"};
   for (auto const &metaData :
@@ -338,17 +411,26 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(income_statement, PolygonIncomeStatementTransform);
   REGISTER_TRANSFORM(cash_flow, PolygonCashFlowTransform);
   REGISTER_TRANSFORM(financial_ratios, PolygonFinancialRatiosTransform);
-  REGISTER_TRANSFORM(quotes, PolygonQuotesTransform);
-  REGISTER_TRANSFORM(trades, PolygonTradesTransform);
+  // NOTE: quotes and trades are not yet fully implemented - backend data loading disabled
+  // REGISTER_TRANSFORM(quotes, PolygonQuotesTransform);
+  // REGISTER_TRANSFORM(trades, PolygonTradesTransform);
   REGISTER_TRANSFORM(common_indices, PolygonCommonIndicesTransform);
   REGISTER_TRANSFORM(indices, PolygonIndicesTransform);
+
+  // Corporate Actions & Event Data Sources (using MetadataRegistry)
+  REGISTER_TRANSFORM(news, PolygonNewsTransform);
+  REGISTER_TRANSFORM(dividends, PolygonDividendsTransform);
+  REGISTER_TRANSFORM(splits, PolygonSplitsTransform);
+  REGISTER_TRANSFORM(ticker_events, PolygonTickerEventsTransform);
+  REGISTER_TRANSFORM(short_interest, PolygonShortInterestTransform);
+  REGISTER_TRANSFORM(short_volume, PolygonShortVolumeTransform);
 
   // Economic Data Source Transforms
   REGISTER_TRANSFORM(economic_indicator, FREDTransform);
 
   // SEC Data Source Transforms
-  REGISTER_TRANSFORM(form13f_holdings, Form13FHoldingsTransform);
-  REGISTER_TRANSFORM(insider_trading, InsiderTradingTransform);
+  // REGISTER_TRANSFORM(form13f_holdings, Form13FHoldingsTransform);
+  // REGISTER_TRANSFORM(insider_trading, InsiderTradingTransform);
 
   // Reference Stock Data Source Transforms
   REGISTER_TRANSFORM(us_reference_stocks, DataSourceTransform);

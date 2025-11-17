@@ -59,23 +59,16 @@ int main(int argc, char* argv[]) {
     }
 
     // Serialize to JSON
-    std::string json = glz::write_json(metadataList).value_or("{}");
+    std::string json;
+    auto err = glz::write_file_json(metadataList, outputFile, json);
 
-    // Write to file
-    std::filesystem::path outputPath(outputFile);
-    if (outputPath.has_parent_path()) {
-      std::filesystem::create_directories(outputPath.parent_path());
+    if (!err) {
+      std::cout << "✓ Dumped " << metadataList.size() << " transforms to " << outputFile << std::endl;
+    }
+    else {
+      std::cerr << "Failed: " << glz::format_error(err, json) << std::endl;
     }
 
-    std::ofstream outFile(outputFile);
-    if (!outFile) {
-      std::cerr << "Failed to open output file: " << outputFile << std::endl;
-      google::protobuf::ShutdownProtobufLibrary();
-      return 1;
-    }
-    outFile << json;
-
-    std::cout << "✓ Dumped " << metadataList.size() << " transforms to " << outputFile << std::endl;
 
     // Cleanup
     google::protobuf::ShutdownProtobufLibrary();

@@ -11,9 +11,10 @@
       RegisterStrategyMetaData(#FactoryMetaData, FactoryMetaDataCreator)
 
 namespace epoch_script::transforms {
-// Define transforms that are intraday-only (e.g., gap-related nodes)
+// Define transforms that are intraday-only
+// These transforms default to 1Min timeframe when no explicit timeframe is provided
 static const std::unordered_set<std::string> kIntradayOnlyIds = {
-    "gap_returns", "gap_classify"};
+    "session_time_window"};
 
 void RegisterStrategyMetaData(const std::string &name,
                               const TransformsMetaDataCreator &metaData);

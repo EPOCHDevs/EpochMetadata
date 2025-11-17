@@ -15,24 +15,27 @@ class Vortex : public ITransform {
 public:
   explicit Vortex(const TransformConfiguration &config)
       : ITransform(config),
-        m_visitor(config.GetOptionValue("period").GetInteger()) {}
+        m_period(config.GetOptionValue("period").GetInteger()) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    hmdf::vtx_v<double, int64_t> visitor(m_period);
+
     HighSpan highSpan{df};
     LowSpan lowSpan{df};
     CloseSpan closeSpan{df};
 
-    run_visit(df, m_visitor, lowSpan, highSpan, closeSpan);
+    run_visit(df, visitor, lowSpan, highSpan, closeSpan);
 
     return make_dataframe(
         df.index(),
-        std::vector{m_visitor.get_plus_indicator(),
-                    m_visitor.get_minus_indicator()},
+        std::vector{visitor.get_plus_indicator(),
+                    visitor.get_minus_indicator()},
         {GetOutputId("plus_indicator"), GetOutputId("minus_indicator")});
   }
 
 private:
-  mutable hmdf::vtx_v<double, int64_t> m_visitor;
+  int64_t m_period;
 };
 } // namespace epoch_script::transform

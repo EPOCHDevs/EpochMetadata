@@ -5,15 +5,10 @@
 
 namespace epoch_script::transform {
 
-Lag::Lag(const TransformConfiguration &config)
-    : ITransform(config),
-      m_period(config.GetOptionValue("period").GetInteger()) {}
-
-[[nodiscard]] epoch_frame::DataFrame
-Lag::TransformData(epoch_frame::DataFrame const &bars) const {
-  epoch_frame::Series input = bars[GetInputId()];
-  epoch_frame::Series result = input.shift(m_period);
-  return MakeResult(result);
-}
+// Explicit template instantiations - single implementation for all types
+template class TypedLag<StringType>;
+template class TypedLag<NumberType>;
+template class TypedLag<BooleanType>;
+template class TypedLag<TimestampType>;
 
 } // namespace epoch_script::transform

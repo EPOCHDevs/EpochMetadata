@@ -82,6 +82,12 @@ public:
         cfg.GetOptionValue("lookback_window",
                            epoch_script::MetaDataOptionDefinition{0.0})
             .GetInteger());
+
+    // Covariance regularization
+    m_min_covar =
+        cfg.GetOptionValue("min_covar",
+                           epoch_script::MetaDataOptionDefinition{1e-3})
+            .GetDecimal();
   }
 
   [[nodiscard]] epoch_frame::DataFrame
@@ -153,6 +159,10 @@ private:
   size_t m_min_training_samples{100};
   size_t m_lookback_window{0}; // 0 = use all available data
 
+  // Covariance regularization (follows Python hmmlearn/scikit-learn standard)
+  // Adds to diagonal to prevent Cholesky decomposition failures
+  double m_min_covar{1e-3};
+
   // Preprocessing parameters structure
   struct PreprocessParams {
     std::vector<double> means;
@@ -208,6 +218,19 @@ private:
 
     // Unsupervised training (Baum-Welch)
     hmm.Train(sequences);
+
+    // Apply min_covar regularization to prevent Cholesky decomposition failures
+    // This follows the Python hmmlearn/scikit-learn standard approach
+    // Adds regularization to diagonal of covariance matrices for all states
+    if (m_min_covar > 0) {
+      for (size_t s = 0; s < N_STATES; ++s) {
+        // Get a copy of the covariance, modify it, and set it back
+        arma::mat cov_copy = hmm.Emission()[s].Covariance();
+        cov_copy.diag() += m_min_covar;
+        hmm.Emission()[s].Covariance(std::move(cov_copy));
+      }
+    }
+
     return hmm;
   }
 

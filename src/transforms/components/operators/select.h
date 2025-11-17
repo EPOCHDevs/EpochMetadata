@@ -6,6 +6,7 @@
 #include "epoch_frame/array.h"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include <epoch_script/transforms/core/itransform.h>
+#include "../type_tags.h"
 
 namespace epoch_script::transform {
 class BooleanSelectTransform : public ITransform {
@@ -16,6 +17,29 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override;
 };
+
+// Typed BooleanSelect - DRY template pattern
+template <typename TypeTag>
+class TypedBooleanSelect : public ITransform {
+public:
+  explicit TypedBooleanSelect(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
+// Type aliases using clear naming convention: boolean_select_{type}
+using BooleanSelectString = TypedBooleanSelect<StringType>;
+using BooleanSelectNumber = TypedBooleanSelect<NumberType>;
+using BooleanSelectBoolean = TypedBooleanSelect<BooleanType>;
+using BooleanSelectTimestamp = TypedBooleanSelect<TimestampType>;
+
+// Extern template declarations to reduce compilation time
+extern template class TypedBooleanSelect<StringType>;
+extern template class TypedBooleanSelect<NumberType>;
+extern template class TypedBooleanSelect<BooleanType>;
+extern template class TypedBooleanSelect<TimestampType>;
 
 template <size_t N> class ZeroIndexSelectTransform : public ITransform {
 public:
@@ -38,6 +62,59 @@ using Select2 = ZeroIndexSelectTransform<2>;
 using Select3 = ZeroIndexSelectTransform<3>;
 using Select4 = ZeroIndexSelectTransform<4>;
 using Select5 = ZeroIndexSelectTransform<5>;
+
+// Typed Switch transforms - DRY template pattern
+template <size_t N, typename TypeTag>
+class TypedZeroIndexSelect : public ITransform {
+public:
+  explicit TypedZeroIndexSelect(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
+// Type aliases using clear naming convention: switch{N}_{type}
+using Switch2String = TypedZeroIndexSelect<2, StringType>;
+using Switch2Number = TypedZeroIndexSelect<2, NumberType>;
+using Switch2Boolean = TypedZeroIndexSelect<2, BooleanType>;
+using Switch2Timestamp = TypedZeroIndexSelect<2, TimestampType>;
+
+using Switch3String = TypedZeroIndexSelect<3, StringType>;
+using Switch3Number = TypedZeroIndexSelect<3, NumberType>;
+using Switch3Boolean = TypedZeroIndexSelect<3, BooleanType>;
+using Switch3Timestamp = TypedZeroIndexSelect<3, TimestampType>;
+
+using Switch4String = TypedZeroIndexSelect<4, StringType>;
+using Switch4Number = TypedZeroIndexSelect<4, NumberType>;
+using Switch4Boolean = TypedZeroIndexSelect<4, BooleanType>;
+using Switch4Timestamp = TypedZeroIndexSelect<4, TimestampType>;
+
+using Switch5String = TypedZeroIndexSelect<5, StringType>;
+using Switch5Number = TypedZeroIndexSelect<5, NumberType>;
+using Switch5Boolean = TypedZeroIndexSelect<5, BooleanType>;
+using Switch5Timestamp = TypedZeroIndexSelect<5, TimestampType>;
+
+// Extern template declarations to reduce compilation time
+extern template class TypedZeroIndexSelect<2, StringType>;
+extern template class TypedZeroIndexSelect<2, NumberType>;
+extern template class TypedZeroIndexSelect<2, BooleanType>;
+extern template class TypedZeroIndexSelect<2, TimestampType>;
+
+extern template class TypedZeroIndexSelect<3, StringType>;
+extern template class TypedZeroIndexSelect<3, NumberType>;
+extern template class TypedZeroIndexSelect<3, BooleanType>;
+extern template class TypedZeroIndexSelect<3, TimestampType>;
+
+extern template class TypedZeroIndexSelect<4, StringType>;
+extern template class TypedZeroIndexSelect<4, NumberType>;
+extern template class TypedZeroIndexSelect<4, BooleanType>;
+extern template class TypedZeroIndexSelect<4, TimestampType>;
+
+extern template class TypedZeroIndexSelect<5, StringType>;
+extern template class TypedZeroIndexSelect<5, NumberType>;
+extern template class TypedZeroIndexSelect<5, BooleanType>;
+extern template class TypedZeroIndexSelect<5, TimestampType>;
 
 // Advanced Selection classes
 class PercentileSelect : public ITransform {
@@ -76,6 +153,39 @@ private:
   int m_lookback;
   double m_percentile;
 };
+
+// Typed PercentileSelect - DRY template pattern
+template <typename TypeTag>
+class TypedPercentileSelect : public ITransform {
+public:
+  explicit TypedPercentileSelect(const TransformConfiguration &config)
+      : ITransform(config),
+        m_lookback(config.GetOptionValue("lookback").GetInteger()),
+        m_percentile(config.GetOptionValue("percentile").GetInteger()) {
+    AssertFromStream(m_lookback > 0, "Lookback must be greater than 0");
+    AssertFromStream(m_percentile >= 0 && m_percentile <= 100,
+                     "Percentile must be between 0 and 100");
+  }
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+
+private:
+  int m_lookback;
+  double m_percentile;
+};
+
+// Type aliases using clear naming convention: percentile_select_{type}
+using PercentileSelectString = TypedPercentileSelect<StringType>;
+using PercentileSelectNumber = TypedPercentileSelect<NumberType>;
+using PercentileSelectBoolean = TypedPercentileSelect<BooleanType>;
+using PercentileSelectTimestamp = TypedPercentileSelect<TimestampType>;
+
+// Extern template declarations to reduce compilation time
+extern template class TypedPercentileSelect<StringType>;
+extern template class TypedPercentileSelect<NumberType>;
+extern template class TypedPercentileSelect<BooleanType>;
+extern template class TypedPercentileSelect<TimestampType>;
 
 // BooleanBranch takes a single boolean input and splits data into two outputs
 class BooleanBranch : public ITransform {
@@ -144,6 +254,29 @@ public:
   TransformData(epoch_frame::DataFrame const &bars) const override;
 };
 
+// Typed FirstNonNull - DRY template pattern
+template <typename TypeTag>
+class TypedFirstNonNull : public ITransform {
+public:
+  explicit TypedFirstNonNull(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
+// Type aliases using clear naming convention: first_non_null_{type}
+using FirstNonNullString = TypedFirstNonNull<StringType>;
+using FirstNonNullNumber = TypedFirstNonNull<NumberType>;
+using FirstNonNullBoolean = TypedFirstNonNull<BooleanType>;
+using FirstNonNullTimestamp = TypedFirstNonNull<TimestampType>;
+
+// Extern template declarations to reduce compilation time
+extern template class TypedFirstNonNull<StringType>;
+extern template class TypedFirstNonNull<NumberType>;
+extern template class TypedFirstNonNull<BooleanType>;
+extern template class TypedFirstNonNull<TimestampType>;
+
 // ConditionalSelect (Case When) - SQL-style multi-condition selector
 class ConditionalSelectTransform : public ITransform {
 public:
@@ -153,5 +286,28 @@ public:
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &bars) const override;
 };
+
+// Typed ConditionalSelect - DRY template pattern
+template <typename TypeTag>
+class TypedConditionalSelect : public ITransform {
+public:
+  explicit TypedConditionalSelect(const TransformConfiguration &config)
+      : ITransform(config) {}
+
+  [[nodiscard]] epoch_frame::DataFrame
+  TransformData(epoch_frame::DataFrame const &bars) const override;
+};
+
+// Type aliases using clear naming convention: conditional_select_{type}
+using ConditionalSelectString = TypedConditionalSelect<StringType>;
+using ConditionalSelectNumber = TypedConditionalSelect<NumberType>;
+using ConditionalSelectBoolean = TypedConditionalSelect<BooleanType>;
+using ConditionalSelectTimestamp = TypedConditionalSelect<TimestampType>;
+
+// Extern template declarations to reduce compilation time
+extern template class TypedConditionalSelect<StringType>;
+extern template class TypedConditionalSelect<NumberType>;
+extern template class TypedConditionalSelect<BooleanType>;
+extern template class TypedConditionalSelect<TimestampType>;
 
 } // namespace epoch_script::transform

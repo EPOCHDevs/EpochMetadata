@@ -1,6 +1,6 @@
 target_sources(epoch_script_test PRIVATE
 transform_metadata_factory.cpp
-transforms_test.cpp trade_executor_test.cpp)
+transforms_test.cpp trade_executor_test.cpp typed_transforms_test.cpp)
 
 
 add_subdirectory(cummulative)

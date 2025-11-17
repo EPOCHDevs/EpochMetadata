@@ -2,13 +2,26 @@
 #define EPOCH_METADATA_POLYGON_INDICES_METADATA_H
 
 #include <epoch_script/transforms/core/metadata.h>
+#include <epoch_data_sdk/dataloader/metadata_registry.hpp>
+#include "data_category_mapper.h"
+#include "metadata_helper.h"
 
 namespace epoch_script::transform {
 
 inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndicesDataSources() {
+  using namespace epoch_script::data_sources;
   std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
 
+  // Get metadata from MetadataRegistry for market bars (indices use same schema as stocks)
+  // Note: Indices can be either DailyBars or MinuteBars depending on timeframe
+  auto dailyBarsMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::DailyBars);
+  auto minuteBarsMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::MinuteBars);
+
+  // Build outputs from SDK metadata
+  auto outputs = BuildOutputsFromSDKMetadata(dailyBarsMeta);
+
   // Common Indices with SelectOption dropdown
+  // Note: Uses DailyBars metadata by default, but actual category is determined at runtime based on timeframe
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "common_indices",
       .category = epoch_core::TransformCategory::DataSource,
@@ -22,7 +35,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
                   .type = epoch_core::MetaDataOptionType::Select,
                   .defaultValue = MetaDataOptionDefinition(std::string("SPX")),
                   .selectOption =
-                      {
+                          {
                           {"S&P 500", "SPX"},
                           {"Dow Jones Industrial Average", "DJI"},
                           {"NASDAQ 100", "NDX"},
@@ -36,19 +49,13 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
                       },
                   .desc = "Select the market index"},
           },
-      .desc =
-          "Historical price data for major market indices including S&P 500, Dow Jones, NASDAQ, Russell indices, and VIX. "
-          "Provides open, high, low, and close prices for the selected index.",
+      .desc = dailyBarsMeta.description,
       .inputs = {},
-      .outputs =
-          {
-              {epoch_core::IODataType::Decimal, "o", "Open", true},
-              {epoch_core::IODataType::Decimal, "h", "High", true},
-              {epoch_core::IODataType::Decimal, "l", "Low", true},
-              {epoch_core::IODataType::Decimal, "c", "Close", true},
-          },
+      .outputs = outputs,
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c"},
+      .requiredDataSources = {"c"},  // Indices load data internally, "c" is just to get proper index
+      .intradayOnly = false,
+      .allowNullInputs = true,
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =
@@ -60,6 +67,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
   });
 
   // Dynamic Indices with ticker parameter
+  // Note: Uses DailyBars metadata by default, but actual category is determined at runtime based on timeframe
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "indices",
       .category = epoch_core::TransformCategory::DataSource,
@@ -74,19 +82,13 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
                   .defaultValue = MetaDataOptionDefinition(std::string("SPX")),
                   .desc = "Index ticker symbol (e.g., SPX, DJI, NDX, DAX, FTSE)"},
           },
-      .desc =
-          "Historical price data for any market index by ticker symbol. "
-          "Provides open, high, low, and close prices for the specified index ticker.",
+      .desc = dailyBarsMeta.description,
       .inputs = {},
-      .outputs =
-          {
-              {epoch_core::IODataType::Decimal, "o", "Open", true},
-              {epoch_core::IODataType::Decimal, "h", "High", true},
-              {epoch_core::IODataType::Decimal, "l", "Low", true},
-              {epoch_core::IODataType::Decimal, "c", "Close", true},
-          },
+      .outputs = outputs,
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c"},
+      .requiredDataSources = {"c"},  // Indices load data internally, "c" is just to get proper index
+      .intradayOnly = false,
+      .allowNullInputs = true,
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =

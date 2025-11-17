@@ -4,6 +4,7 @@
 #include <epoch_frame/index.h>
 #include <epoch_frame/factory/index_factory.h>
 #include <epoch_frame/factory/series_factory.h>
+#include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_dashboard/tearsheet/chart_types.h>
 #include <string>
 #include <unordered_map>
@@ -17,6 +18,33 @@ namespace epoch_script::reports {
 // Shared utility functions for all report types
 class ReportUtils {
 public:
+  // Replace null values in a column with "null" string for chart visibility
+  // Returns a new DataFrame with the filled column
+  static epoch_frame::DataFrame fillNullLabels(
+      const epoch_frame::DataFrame& df,
+      const std::string& labelColumn) {
+    auto label_array = df[labelColumn].contiguous_array();
+    auto filled_label_array = label_array.fill_null(epoch_frame::Scalar(std::string("null")));
+
+    // Get column names from schema
+    auto schema = df.table()->schema();
+    std::vector<std::string> column_names;
+    for (int i = 0; i < schema->num_fields(); ++i) {
+      column_names.push_back(schema->field(i)->name());
+    }
+
+    // Create new dataframe with the filled label column
+    std::vector<arrow::ChunkedArrayPtr> arrays;
+    for (const auto& col : column_names) {
+      if (col == labelColumn) {
+        arrays.push_back(filled_label_array.as_chunked_array());
+      } else {
+        arrays.push_back(df[col].array());
+      }
+    }
+    return epoch_frame::make_dataframe(df.index(), arrays, column_names);
+  }
+
   // Convert a Series to vector of PieData for pie chart rendering
   static std::vector<epoch_proto::PieData> createPieDataFromSeries(const epoch_frame::Series& series) {
     std::vector<epoch_proto::PieData> pieData;
@@ -35,9 +63,15 @@ public:
       const epoch_frame::DataFrame& df,
       const std::string& groupColumn,
       const std::string& valueColumn) {
+    // TODO: Ideally we want to fill null labels with "null" string for visibility in charts
+    // (Option A from original design), but this causes type casting errors downstream.
+    // For now, drop null rows. See bar_chart_report.cpp for detailed explanation.
+    // Note: drop_null() doesn't support subset parameter, so we drop rows with ANY nulls
+    auto temp_df = df[{groupColumn, valueColumn}];
+    auto non_null_df = temp_df.drop_null();
+
     // First, aggregate using group_by (this will sort alphabetically)
-    auto grouped = df[{groupColumn, valueColumn}]
-                      .group_by_agg(groupColumn)
+    auto grouped = non_null_df.group_by_agg(groupColumn)
                       .sum()
                       .to_series();
     auto total = df[valueColumn].sum();
@@ -49,12 +83,12 @@ public:
       label_to_percentage[percentage_series.index()->at(i).repr()] = percentage_series.iloc(i).as_double();
     }
 
-    // Now iterate through original DataFrame to preserve order
+    // Now iterate through non-null DataFrame to preserve order
     std::vector<std::string> ordered_labels;
     std::vector<double> ordered_values;
     std::set<std::string> seen_labels;
 
-    auto label_series = df[groupColumn];
+    auto label_series = non_null_df[groupColumn];
     for (int64_t i = 0; i < static_cast<int64_t>(label_series.size()); ++i) {
       std::string label = label_series.iloc(i).repr();
       if (seen_labels.find(label) == seen_labels.end()) {

@@ -1,13 +1,7 @@
 ---
 title: Operators
-description: Arithmetic, comparison, logical, and lag operators
+description: EpochScript supports standard operators for arithmetic, comparison, and logic, plus a special lag operator `[N]` for historical data access.
 icon: Settings
----
-
-# Operators
-
-EpochScript supports standard operators for arithmetic, comparison, and logic, plus a special lag operator `[N]` for historical data access.
-
 ---
 
 ## All Operators
@@ -33,6 +27,38 @@ EpochScript supports standard operators for arithmetic, comparison, and logic, p
 | **Ternary** | `if...else` | Conditional | `x if cond else y` |
 | **Lag** | `[N]` | N bars ago (N > 0) | `price[5]` |
 | **Access** | `.` | Attribute access | `src.c` |
+
+---
+
+## Conditional (Ternary) Operator
+
+The ternary `if...else` operator selects between two values based on a condition.
+
+**Syntax:** `value_if_true if condition else value_if_false`
+
+**Type Safety:** Both branches must have compatible types. Supports Number, String, Boolean, and Timestamp. Numeric types (Integer/Decimal/Number) are mutually compatible.
+
+**Examples:**
+
+```python
+# Select between string labels based on condition
+label = "High" if price > threshold else "Low"
+
+# Select between numeric values
+signal = 1 if buy_condition else -1
+
+# Nested conditionals for multi-level logic
+regime = "Bull" if momentum > 0.5 else "Bear" if momentum < -0.5 else "Neutral"
+```
+
+**Type Compatibility:**
+- ✅ Compatible: `"High" if cond else "Low"` (both strings)
+- ✅ Compatible: `1 if cond else 0` (both numbers)
+- ✅ Compatible: `1.5 if cond else 2` (Decimal and Integer are compatible)
+- ❌ Incompatible: `"High" if cond else 0` (String and Number - compiler error)
+- ❌ Incompatible: `"Label" if cond else boolean_var` (String and Boolean - compiler error)
+
+**Best Practice:** Use the ternary operator for simple two-way conditional selection. For multi-way branching with multiple conditions, use `conditional_select_*()` transforms or nested ternary expressions. The compiler automatically selects the appropriate type-specialized implementation.
 
 ---
 

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <epoch_script/transforms/core/metadata.h>
+#include <epoch_data_sdk/dataloader/metadata_registry.hpp>
+#include "data_category_mapper.h"
+#include "metadata_helper.h"
 #include "polygon_data_source.h"
 
 namespace epoch_script::transform {
@@ -8,7 +11,14 @@ namespace epoch_script::transform {
 // Factory function to create metadata for all Polygon data source transforms
 inline std::vector<epoch_script::transforms::TransformsMetaData>
 MakePolygonDataSources() {
+  using namespace epoch_script::data_sources;
   std::vector<epoch_script::transforms::TransformsMetaData> metadataList;
+
+  // Get metadata from MetadataRegistry for financial statements
+  auto balanceSheetMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::BalanceSheets);
+  auto incomeStatementMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::IncomeStatements);
+  auto cashFlowMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::CashFlowStatements);
+  auto ratiosMeta = data_sdk::dataloader::MetadataRegistry::GetMetadataForCategory(DataCategory::Ratios);
 
   // 1. Balance Sheet Data
   metadataList.emplace_back(
@@ -64,7 +74,9 @@ MakePolygonDataSources() {
           .atLeastOneInputRequired = false,
           .tags = {"fundamentals", "balance-sheet", "financial-statements"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"accounts_payable", "accrued_liabilities", "aoci", "cash", "cik", "current_debt", "deferred_revenue", "fiscal_quarter", "fiscal_year", "inventories", "long_term_debt", "other_current_assets", "other_ltl", "period_end", "ppe_net", "receivables", "retained_earnings", "timeframe"},
+          .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(balanceSheetMeta),
+          .intradayOnly = IsIntradayOnlyCategory(DataCategory::BalanceSheets),
+          .allowNullInputs = true,
           .strategyTypes = {"fundamental-analysis", "value-investing"},
           .assetRequirements = {"single-asset"},
           .usageContext =
@@ -138,7 +150,9 @@ MakePolygonDataSources() {
           .tags = { "fundamentals", "income-statement", "earnings",
                    "financial-statements"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"basic_eps", "basic_shares", "cik", "net_income", "cogs", "diluted_eps", "diluted_shares", "fiscal_quarter", "fiscal_year", "gross_profit", "ebt", "income_tax", "ni_common", "operating_income", "other_income", "other_opex", "period_end", "rnd", "revenue", "sga", "timeframe"},
+          .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(incomeStatementMeta),
+          .intradayOnly = IsIntradayOnlyCategory(DataCategory::IncomeStatements),
+          .allowNullInputs = true,
           .strategyTypes = {"fundamental-analysis", "growth-investing",
                             "earnings-momentum"},
           .assetRequirements = {"single-asset"},
@@ -215,7 +229,9 @@ MakePolygonDataSources() {
           .atLeastOneInputRequired = false,
           .tags = { "fundamentals", "cash-flow", "financial-statements"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"cfo_cont", "change_in_cash", "change_in_wc", "cik", "dna", "dividends", "fiscal_quarter", "fiscal_year", "lt_debt_net", "cff", "cff_cont", "cfi", "cfi_cont", "cfo", "net_income", "other_cff", "other_cfi", "other_cfo", "period_end", "capex", "st_debt_net", "timeframe"},
+          .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(cashFlowMeta),
+          .intradayOnly = IsIntradayOnlyCategory(DataCategory::CashFlowStatements),
+          .allowNullInputs = true,
           .strategyTypes = {"fundamental-analysis", "cash-flow-analysis",
                             "quality-investing"},
           .assetRequirements = {"single-asset"},
@@ -287,7 +303,9 @@ MakePolygonDataSources() {
           .atLeastOneInputRequired = false,
           .tags = { "fundamentals", "ratios", "valuation", "screening"},
           .requiresTimeFrame = true,
-          .requiredDataSources = {"avg_volume", "cash", "cik", "current_ratio", "date", "debt_equity", "div_yield", "eps", "ev", "ev_ebitda", "ev_sales", "fcf", "market_cap", "price", "pb", "pcf", "pe", "pfcf", "ps", "quick_ratio", "roa", "roe", "ticker"},
+          .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(ratiosMeta),
+          .intradayOnly = IsIntradayOnlyCategory(DataCategory::Ratios),
+          .allowNullInputs = true,
           .strategyTypes = {"fundamental-analysis", "value-investing",
                             "screening", "factor-investing"},
           .assetRequirements = {"single-asset"},
@@ -303,93 +321,10 @@ MakePolygonDataSources() {
               "require multiple node instances. Requires external data loader.",
       });
 
-  // 5. Quote Data (NBBO)
-  metadataList.emplace_back(
-      epoch_script::transforms::TransformsMetaData{
-          .id = "quotes",
-          .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
-          .name = "Quotes",
-          .options = {},
-          .isCrossSectional = false,
-          .desc = "Load quote (NBBO) tick data . Provides "
-                  "best bid/ask prices and sizes with microsecond timestamps "
-                  "for market microstructure analysis.",
-          .inputs = {},
-          .outputs =
-              {
-                  {epoch_core::IODataType::String, "ticker", "Ticker", true},
-                  {epoch_core::IODataType::Decimal, "ask", "Ask Price", true},
-                  {epoch_core::IODataType::Decimal, "bid", "Bid Price", true},
-                  {epoch_core::IODataType::Integer, "ask_size", "Ask Size", true},
-                  {epoch_core::IODataType::Integer, "bid_size", "Bid Size", true},
-                  {epoch_core::IODataType::Integer, "timestamp",
-                   "Timestamp (ns)", true},
-              },
-          .atLeastOneInputRequired = false,
-          .tags = { "market-data", "quotes", "nbbo", "bid-ask",
-                   "microstructure"},
-          .requiresTimeFrame = true,
-          .requiredDataSources = {"ticker", "ask", "bid", "ask_size", "bid_size", "timestamp"},
-          .strategyTypes = {"market-microstructure", "execution-analysis",
-                            "liquidity-analysis"},
-          .assetRequirements = {"single-asset"},
-          .usageContext =
-              "Access NBBO quote data for microstructure analysis, spread "
-              "analysis, and execution quality measurement. Use to analyze "
-              "bid-ask spread patterns, liquidity dynamics, and market depth. "
-              "High-frequency data suitable for intraday analysis.",
-          .limitations =
-              "Very high data volume - use date ranges carefully. Nanosecond "
-              "timestamps require careful handling. Historical data access "
-              "limits based on subscription tier. Requires external "
-              "data loader. Not suitable for daily/weekly strategies.",
-      });
-
-  // 6. Trade Tick Data
-  metadataList.emplace_back(
-      epoch_script::transforms::TransformsMetaData{
-          .id = "trades",
-          .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
-          .name = "Trades",
-          .options = {},
-          .isCrossSectional = false,
-          .desc = "Load trade tick data . Provides individual "
-                  "trade executions with price, size, and exchange information "
-                  "for market microstructure and volume analysis.",
-          .inputs = {},
-          .outputs =
-              {
-                  {epoch_core::IODataType::String, "ticker", "Ticker", true},
-                  {epoch_core::IODataType::Decimal, "price", "Trade Price",
-                   true},
-                  {epoch_core::IODataType::Integer, "size", "Trade Size", true},
-                  {epoch_core::IODataType::Integer, "exchange_id",
-                   "Exchange ID", true},
-                  {epoch_core::IODataType::Integer, "timestamp",
-                   "Timestamp (ns)", true},
-
-              },
-          .atLeastOneInputRequired = false,
-          .tags = { "market-data", "trades", "tick-data",
-                   "microstructure"},
-          .requiresTimeFrame = true,
-          .requiredDataSources = {"ticker", "price", "size", "exchange_id", "timestamp"},
-          .strategyTypes = {"market-microstructure", "volume-analysis",
-                            "vwap-execution"},
-          .assetRequirements = {"single-asset"},
-          .usageContext =
-              "Access individual trade executions for volume profile "
-              "analysis, VWAP calculations, and trade flow studies. Use to "
-              "analyze buying/selling pressure, large block trades, and "
-              "intraday volume patterns. Aggregate to custom bars.",
-          .limitations =
-              "Extremely high data volume - use narrow date ranges. Nanosecond "
-              "timestamps. Historical data access limits based on subscription. "
-              "Requires external data loader. Not suitable for daily/weekly "
-              "strategies - use market_data_source instead.",
-      });
+  // NOTE: Quotes and Trades transforms are not yet fully implemented
+  // Backend data loading infrastructure (DataCategory, MetadataRegistry, clients)
+  // needs to be completed before these can be enabled.
+  // See: EpochDataSDK/include/epoch_data_sdk/common/enums.hpp (TickData category)
 
   return metadataList;
 }

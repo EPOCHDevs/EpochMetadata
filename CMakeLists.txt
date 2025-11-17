@@ -105,6 +105,7 @@ target_link_libraries(epoch_script PUBLIC
 
 
 add_subdirectory(src)
+add_subdirectory(tools)
 
 # Copy test files and define METADATA_FILES_DIR early
 # Use the configurable SCRIPT_METADATA_FILES_DIR option from main CMakeLists.txt

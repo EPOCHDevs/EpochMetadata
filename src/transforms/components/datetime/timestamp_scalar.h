@@ -74,14 +74,20 @@ private:
    */
   static int64_t ParseTimestampString(const std::string& timestamp_str) {
     try {
+      std::string normalized_str = timestamp_str;
+
+      // If date-only format (YYYY-MM-DD), append time component
+      if (timestamp_str.length() == 10 && timestamp_str[4] == '-' && timestamp_str[7] == '-') {
+        normalized_str = timestamp_str + " 00:00:00";
+      }
+
       // from_str expects strict "YYYY-MM-DD HH:MM:SS" format in UTC
-      epoch_frame::DateTime dt = epoch_frame::DateTime::from_str(timestamp_str, "UTC");
+      epoch_frame::DateTime dt = epoch_frame::DateTime::from_str(normalized_str, "UTC");
       return dt.m_nanoseconds.count();
     } catch (const std::exception& e) {
       throw std::runtime_error(
           "Invalid timestamp format: '" + timestamp_str + "'. " +
-         "Expected formats: 'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS', or 'YYYY-MM-DDTHH:MM:SS'" +
-        "Expected strict format: 'YYYY-MM-DD HH:MM:SS' (e.g., '2020-01-01 00:00:00'). " +
+         "Expected formats: 'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS', or 'YYYY-MM-DDTHH:MM:SS'. " +
      "Error: " + e.what());
     }
   }

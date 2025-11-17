@@ -20,6 +20,31 @@ namespace epoch_script
             auto handle_it = tracked_it->second.find(handle);
             if (handle_it != tracked_it->second.end())
             {
+                // If type is still Any, try to resolve it recursively
+                if (handle_it->second == DataType::Any)
+                {
+                    // Get node type to attempt resolution
+                    auto node_it = context_.node_lookup.find(node_id);
+                    if (node_it != context_.node_lookup.end())
+                    {
+                        const auto& algo = context_.algorithms[node_it->second];
+                        const std::string node_type = algo.type;
+
+                        // Try to resolve it now
+                        ResolveAnyOutputType(node_id, node_type);
+
+                        // Check if it was resolved
+                        auto updated_it = context_.node_output_types.find(node_id);
+                        if (updated_it != context_.node_output_types.end())
+                        {
+                            auto updated_handle_it = updated_it->second.find(handle);
+                            if (updated_handle_it != updated_it->second.end())
+                            {
+                                return updated_handle_it->second;
+                            }
+                        }
+                    }
+                }
                 return handle_it->second;
             }
         }
@@ -64,6 +89,8 @@ namespace epoch_script
                 node_type == "gte" || node_type == "eq" || node_type == "neq" ||
                 node_type == "logical_and" || node_type == "logical_or" || node_type == "logical_not")
             {
+                // Debug: Log that we're returning Boolean for comparison operators
+                // std::cerr << "DEBUG: GetNodeOutputType returning Boolean for node_id=" << node_id << ", type=" << node_type << std::endl;
                 return DataType::Boolean;
             }
             else if (node_type == "add" || node_type == "sub" ||
@@ -141,12 +168,24 @@ namespace epoch_script
             return "num_to_bool";
         }
 
+        // Boolean to String
+        if (source == DataType::Boolean && target == DataType::String)
+        {
+            return "bool_to_string";
+        }
+
         // Incompatible types that can't be cast
         return "incompatible";
     }
 
     ValueHandle TypeChecker::InsertTypeCast(const ValueHandle& source, DataType source_type, DataType target_type)
     {
+        // Don't insert static_cast if target type is Any - there's nothing to cast to
+        if (target_type == DataType::Any)
+        {
+            return source;
+        }
+
         // Check if casting is needed
         auto cast_method = NeedsTypeCast(source_type, target_type);
 
@@ -156,69 +195,17 @@ namespace epoch_script
             return source;
         }
 
-        if (cast_method.value() == "bool_to_num")
-        {
-            // Use boolean_select to convert boolean to number
-            // boolean_select(condition, true_value, false_value)
-            std::string cast_node_id = UniqueNodeId("bool_to_num_cast");
-
-            epoch_script::strategy::AlgorithmNode cast_algo;
-            cast_algo.id = cast_node_id;
-            cast_algo.type = "boolean_select";
-
-            // Wire the boolean to condition
-            cast_algo.inputs["condition"].push_back(JoinId(source.node_id, source.handle));
-
-            // Create number nodes for true (1) and false (0)
-            ValueHandle true_node = MaterializeNumber(1.0);
-            ValueHandle false_node = MaterializeNumber(0.0);
-
-            // Wire the numbers to true and false inputs
-            cast_algo.inputs["true"].push_back(JoinId(true_node.node_id, true_node.handle));
-            cast_algo.inputs["false"].push_back(JoinId(false_node.node_id, false_node.handle));
-
-            // Add to algorithms list
-            context_.algorithms.push_back(std::move(cast_algo));
-            context_.node_lookup[cast_node_id] = context_.algorithms.size() - 1;
-
-            // Track output type
-            context_.node_output_types[cast_node_id]["result"] = DataType::Number;
-
-            return {cast_node_id, "result"};
-        }
-        else if (cast_method.value() == "num_to_bool")
-        {
-            // Use neq (not equal) to convert number to boolean (num != 0)
-            std::string cast_node_id = UniqueNodeId("num_to_bool_cast");
-
-            epoch_script::strategy::AlgorithmNode cast_algo;
-            cast_algo.id = cast_node_id;
-            cast_algo.type = "neq";
-
-            // Wire the number to SLOT0
-            cast_algo.inputs["SLOT0"].push_back(JoinId(source.node_id, source.handle));
-
-            // Create zero node
-            ValueHandle zero_node = MaterializeNumber(0.0);
-
-            // Wire zero to SLOT1
-            cast_algo.inputs["SLOT1"].push_back(JoinId(zero_node.node_id, zero_node.handle));
-
-            // Add to algorithms list
-            context_.algorithms.push_back(std::move(cast_algo));
-            context_.node_lookup[cast_node_id] = context_.algorithms.size() - 1;
-
-            // Track output type
-            context_.node_output_types[cast_node_id]["result"] = DataType::Boolean;
-
-            return {cast_node_id, "result"};
-        }
-        else
+        if (cast_method.value() == "incompatible")
         {
             // Incompatible types that can't be cast
             throw std::runtime_error("Type mismatch: Cannot convert " + DataTypeToString(source_type) +
                                      " to " + DataTypeToString(target_type));
         }
+
+        // All other casts use static_cast transforms
+        // Insert static_cast node for the target type
+        std::string cast_node_id = InsertStaticCast(source.node_id, source.handle, target_type);
+        return {cast_node_id, "result"};
     }
 
     std::string TypeChecker::DataTypeToString(DataType type)
@@ -237,9 +224,30 @@ namespace epoch_script
             return "String";
         case DataType::Any:
             return "Any";
+        case DataType::Timestamp:
+            return "Timestamp";
         default:
             return "Unknown";
         }
+    }
+
+    void TypeChecker::ResolveAnyOutputType(const std::string& node_id, const std::string& /* node_type */)
+    {
+        // Only resolve if the output type is currently Any
+        auto it = context_.node_output_types.find(node_id);
+        if (it != context_.node_output_types.end())
+        {
+            auto handle_it = it->second.find("result");
+            if (handle_it != it->second.end() && handle_it->second != DataType::Any)
+            {
+                // Already resolved or not Any
+                return;
+            }
+        }
+
+        // Type-specialized transforms (boolean_select_*, conditional_select_*, etc.)
+        // have explicit output types in metadata, so no special handling needed.
+        // Add special cases here only for transforms with genuine Any output that needs inference.
     }
 
     // Private helpers
@@ -257,6 +265,23 @@ namespace epoch_script
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
         context_.var_to_binding[node_id] = "number";
         context_.node_output_types[node_id]["result"] = DataType::Decimal;
+
+        return {node_id, "result"};
+    }
+
+    ValueHandle TypeChecker::MaterializeString(const std::string& value)
+    {
+        std::string node_id = UniqueNodeId("text");
+
+        epoch_script::strategy::AlgorithmNode algo;
+        algo.id = node_id;
+        algo.type = "text";
+        algo.options["value"] = epoch_script::MetaDataOptionDefinition{value};
+
+        context_.algorithms.push_back(std::move(algo));
+        context_.node_lookup[node_id] = context_.algorithms.size() - 1;
+        context_.var_to_binding[node_id] = "text";
+        context_.node_output_types[node_id]["result"] = DataType::String;
 
         return {node_id, "result"};
     }
@@ -280,6 +305,62 @@ namespace epoch_script
     std::string TypeChecker::JoinId(const std::string& node_id, const std::string& handle)
     {
         return node_id + "#" + handle;
+    }
+
+    std::string TypeChecker::InsertStaticCast(const std::string& source_node_id, const std::string& source_handle, DataType resolved_type)
+    {
+        // Determine which static_cast transform to use based on resolved type
+        std::string cast_type;
+        switch (resolved_type)
+        {
+            case DataType::Integer:
+                cast_type = "static_cast_to_integer";
+                break;
+            case DataType::Decimal:
+                cast_type = "static_cast_to_decimal";
+                break;
+            case DataType::Number:
+                // Number is a generic numeric type - cast to Decimal which can hold Integer or Decimal
+                cast_type = "static_cast_to_decimal";
+                break;
+            case DataType::Boolean:
+                cast_type = "static_cast_to_boolean";
+                break;
+            case DataType::String:
+                cast_type = "static_cast_to_string";
+                break;
+            case DataType::Timestamp:
+                cast_type = "static_cast_to_timestamp";
+                break;
+            case DataType::Any:
+            default:
+                // Should not insert static_cast for Any or unknown types
+                // This should be prevented by checks in InsertTypeCast and ResolveAnyOutputType
+                throw std::runtime_error("Cannot insert static_cast for unresolved Any type (node: " +
+                                       source_node_id + ", handle: " + source_handle +
+                                       ", resolved_type: " + DataTypeToString(resolved_type) + ")");
+        }
+
+        // Create unique node ID for the static_cast node
+        std::string cast_node_id = UniqueNodeId("static_cast");
+
+        // Create the static_cast AlgorithmNode
+        epoch_script::strategy::AlgorithmNode cast_node;
+        cast_node.id = cast_node_id;
+        cast_node.type = cast_type;
+
+        // Wire the input from source node (static_cast transforms expect "SLOT" as input key)
+        cast_node.inputs["SLOT"] = {JoinId(source_node_id, source_handle)};
+
+        // Add to algorithms list
+        context_.algorithms.push_back(std::move(cast_node));
+        context_.node_lookup[cast_node_id] = context_.algorithms.size() - 1;
+        context_.var_to_binding[cast_node_id] = cast_type;
+
+        // Register the output type
+        context_.node_output_types[cast_node_id]["result"] = resolved_type;
+
+        return cast_node_id;
     }
 
 } // namespace epoch_script

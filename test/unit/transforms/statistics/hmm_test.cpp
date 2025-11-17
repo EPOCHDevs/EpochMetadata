@@ -53,6 +53,7 @@ TEST_CASE("HMMTransform basic behavior (2 states)", "[hmm]") {
       options_yaml["compute_zscore"] = true;
       options_yaml["min_training_samples"] = 100;
       options_yaml["lookback_window"] = 0;
+      options_yaml["min_covar"] = 1e-3;
       auto cfg = run_op(type, std::string("hmm_test_") + std::to_string(states),
                         inputs_yaml, options_yaml, tf);
 
@@ -128,6 +129,7 @@ TEST_CASE("HMMTransform with lookback window", "[hmm]") {
   options_yaml["max_iterations"] = 1000;
   options_yaml["tolerance"] = 1e-5;
   options_yaml["compute_zscore"] = true;
+  options_yaml["min_covar"] = 1e-3;
 
   auto cfg = run_op("hmm_2", "hmm_lb", inputs_yaml, options_yaml, tf);
   auto tbase = MAKE_TRANSFORM(cfg);
@@ -159,6 +161,7 @@ TEST_CASE("HMMTransform insufficient samples throws", "[hmm]") {
   options_yaml["compute_zscore"] = true;
   options_yaml["min_training_samples"] = 100;
   options_yaml["lookback_window"] = 0;
+  options_yaml["min_covar"] = 1e-3;
 
   auto cfg = run_op("hmm_2", "hmm_small", inputs_yaml, options_yaml, tf);
 

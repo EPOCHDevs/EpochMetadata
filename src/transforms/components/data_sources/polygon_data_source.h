@@ -36,9 +36,18 @@ using PolygonBalanceSheetTransform = PolygonDataSourceTransform;
 using PolygonIncomeStatementTransform = PolygonDataSourceTransform;
 using PolygonCashFlowTransform = PolygonDataSourceTransform;
 using PolygonFinancialRatiosTransform = PolygonDataSourceTransform;
-using PolygonQuotesTransform = PolygonDataSourceTransform;
-using PolygonTradesTransform = PolygonDataSourceTransform;
+// NOTE: Quotes and Trades not yet fully implemented - backend data loading disabled
+// using PolygonQuotesTransform = PolygonDataSourceTransform;
+// using PolygonTradesTransform = PolygonDataSourceTransform;
 using PolygonCommonIndicesTransform = PolygonDataSourceTransform;
 using PolygonIndicesTransform = PolygonDataSourceTransform;
+
+// New data source transforms (using MetadataRegistry)
+using PolygonNewsTransform = PolygonDataSourceTransform;
+using PolygonDividendsTransform = PolygonDataSourceTransform;
+using PolygonSplitsTransform = PolygonDataSourceTransform;
+using PolygonTickerEventsTransform = PolygonDataSourceTransform;
+using PolygonShortInterestTransform = PolygonDataSourceTransform;
+using PolygonShortVolumeTransform = PolygonDataSourceTransform;
 
 } // namespace epoch_script::transform

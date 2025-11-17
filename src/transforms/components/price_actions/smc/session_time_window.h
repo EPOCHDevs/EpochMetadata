@@ -86,7 +86,7 @@ public:
     }
 
     return AssertTableResultIsOk(arrow::Table::Make(
-        arrow::schema({{GetOutputId("in_window"), arrow::boolean()}}),
+        arrow::schema({{GetOutputId("value"), arrow::boolean()}}),
         {factory::array::make_array(in_window)}));
   }
 

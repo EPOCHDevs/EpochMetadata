@@ -3,6 +3,7 @@ target_sources(epoch_script PRIVATE registration.cpp)
 
 add_subdirectory(calendar)
 add_subdirectory(cummulative)
+add_subdirectory(data_sources)
 add_subdirectory(futures)
 add_subdirectory(hosseinmoein)
 add_subdirectory(indicators)

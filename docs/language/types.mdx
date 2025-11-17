@@ -28,7 +28,7 @@ src = market_data_source(timeframe="1H")()
 result = sma(period=20)(src.c)
 
 # Transform with no options, but still needs both calls
-result = first_non_null()(val1, val2, val3)
+result = first_non_null_number()(val1, val2, val3)
 ```
 
 **Common mistake:**
@@ -37,7 +37,7 @@ rolling_corr(x, y, window=20)   # WRONG: Mixing inputs and options
 rolling_corr(window=20)(x, y)   # CORRECT: Options first, inputs second
 ```
 
-**VARARGS:** Some transforms accept variable number of inputs - `first_non_null()(a, b, c, d)` takes any number of arguments
+**VARARGS:** Some transforms accept variable number of inputs - `first_non_null_number()(a, b, c, d)` takes any number of arguments. Type-specialized variants exist: `first_non_null_string()`, `first_non_null_boolean()`, `first_non_null_timestamp()`.
 
 ---
 
@@ -51,20 +51,22 @@ rolling_corr(window=20)(x, y)   # CORRECT: Options first, inputs second
 
 ## Supported Types
 
-`Boolean`, `Integer`, `Decimal`, `String`, `None`
+`Boolean`, `Integer`, `Decimal`, `String`, `Timestamp`, `None`
 
-**Type aliases:** `Number` (Integer or Decimal), `Timestamp` (from data source), `Any` (generic)
+**Type aliases:** `Number` (Integer or Decimal), `Any` (generic)
 
 ### Timestamp Literals
 
 Create constant timestamp values using `timestamp_scalar`:
 
 ```python
-cutoff = timestamp_scalar(value="2020-01-01 00:00:00")
+cutoff = timestamp_scalar(value="2020-01-01")
 event_time = timestamp_scalar(value="2021-03-15 14:30:00")
 ```
 
-**Format:** Strict `"YYYY-MM-DD HH:MM:SS"` (24-hour time, UTC)
+**Formats:** `YYYY-MM-DD`, `YYYY-MM-DD HH:MM:SS`, `YYYY-MM-DDTHH:MM:SS` (UTC)
+
+**Datetime operations:** `datetime_diff`, `column_datetime_extract`, `index_datetime_extract`
 
 <Callout type="warning">
 **Strings are isolated** - can only be used for labels and conditional selection, not arithmetic operations.
@@ -126,6 +128,33 @@ EpochScript automatically casts between compatible types in expressions:
 **String Isolation:**
 - Strings cannot be cast to other types
 - Use only for labels, conditional selection, and metadata
+
+---
+
+## Type-Specialized Transforms
+
+Some control-flow transforms are specialized by output type for type safety and performance:
+
+**Available Specializations:**
+- `conditional_select_string()`, `conditional_select_number()`, `conditional_select_boolean()`, `conditional_select_timestamp()`
+- `first_non_null_string()`, `first_non_null_number()`, `first_non_null_boolean()`, `first_non_null_timestamp()`
+- `percentile_select_string()`, `percentile_select_number()`, `percentile_select_boolean()`, `percentile_select_timestamp()`
+
+**Examples:**
+```python
+# Multi-way conditional selection (strings)
+regime = conditional_select_string()(vol > 0.3, "HighVol", vol < 0.1, "LowVol", "Normal")
+
+# Numeric fallback chain
+value = first_non_null_number()(calculated_signal, backup_signal, 0.0)
+
+# Percentile-based string categorization
+regime = percentile_select_string(lookback=252, percentile=80)(volatility, "High", "Low")
+```
+
+<Callout type="warning">
+**Generic versions are deprecated:** Always use type-specific variants. The compiler will error if types mismatch.
+</Callout>
 
 ---
 

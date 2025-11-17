@@ -70,6 +70,12 @@ constexpr auto TRADES = "trades";
 constexpr auto AGGREGATES = "aggregates";
 constexpr auto COMMON_INDICES = "common_indices";
 constexpr auto INDICES = "indices";
+constexpr auto NEWS = "news";
+constexpr auto DIVIDENDS = "dividends";
+constexpr auto SPLITS = "splits";
+constexpr auto TICKER_EVENTS = "ticker_events";
+constexpr auto SHORT_INTEREST = "short_interest";
+constexpr auto SHORT_VOLUME = "short_volume";
 
 // Set of all Polygon transform IDs for easy contains checks
 inline const std::unordered_set<std::string> ALL_POLYGON_TRANSFORMS = {
@@ -81,7 +87,13 @@ inline const std::unordered_set<std::string> ALL_POLYGON_TRANSFORMS = {
     TRADES,
     AGGREGATES,
     COMMON_INDICES,
-    INDICES
+    INDICES,
+    NEWS,
+    DIVIDENDS,
+    SPLITS,
+    TICKER_EVENTS,
+    SHORT_INTEREST,
+    SHORT_VOLUME
 };
 } // namespace polygon
 
@@ -94,18 +106,6 @@ inline const std::unordered_set<std::string> ALL_FRED_TRANSFORMS = {
     ECONOMIC_INDICATOR
 };
 } // namespace fred
-
-// SEC (Securities and Exchange Commission) transform IDs
-namespace sec {
-constexpr auto FORM_13F_HOLDINGS = "form13f_holdings";
-constexpr auto INSIDER_TRADING = "insider_trading";
-
-// Set of all SEC transform IDs for easy contains checks
-inline const std::unordered_set<std::string> ALL_SEC_TRANSFORMS = {
-    FORM_13F_HOLDINGS,
-    INSIDER_TRADING
-};
-} // namespace sec
 
 using FileLoaderInterface = std::function<YAML::Node(std::string const &)>;
 using AIGeneratedStrategiesLoader = std::function<std::vector<std::string>()>;

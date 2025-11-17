@@ -7,6 +7,7 @@
 #include "constructor_parser.h"
 #include "option_validator.h"
 #include "special_parameter_handler.h"
+#include "error_formatting/all_errors.h"
 #include <epoch_core/enum_wrapper.h>
 #include <algorithm>
 #include <stdexcept>
@@ -177,6 +178,16 @@ namespace epoch_script
 
     ValueHandle ExpressionCompiler::VisitName(const Name& name)
     {
+        // Handle lowercase boolean literals as special keywords
+        if (name.id == "true")
+        {
+            return MaterializeBoolean(true);
+        }
+        else if (name.id == "false")
+        {
+            return MaterializeBoolean(false);
+        }
+
         // Look up variable in bindings
         auto it = context_.var_to_binding.find(name.id);
         if (it == context_.var_to_binding.end())
@@ -794,12 +805,49 @@ namespace epoch_script
         return {node_ids[0], "result"};
     }
 
+    std::string ExpressionCompiler::DetermineBooleanSelectVariant(DataType true_type, DataType false_type)
+    {
+        // Determine the correct type-specialized boolean_select variant based on branch types
+        // Priority order: String > Timestamp > Boolean > Number (default)
+
+        // String has highest priority - if either branch is String, use string variant
+        if (true_type == DataType::String || false_type == DataType::String)
+        {
+            return "boolean_select_string";
+        }
+
+        // Timestamp second priority
+        if (true_type == DataType::Timestamp || false_type == DataType::Timestamp)
+        {
+            return "boolean_select_timestamp";
+        }
+
+        // Boolean third priority - both must be Boolean
+        if (true_type == DataType::Boolean && false_type == DataType::Boolean)
+        {
+            return "boolean_select_boolean";
+        }
+
+        // Default to number for numeric types (Decimal, Integer, Number) and Any
+        return "boolean_select_number";
+    }
+
     ValueHandle ExpressionCompiler::VisitIfExp(const IfExp& if_exp)
     {
         // Ternary expression: test ? body : orelse
-        // Lower to boolean_select(condition, true, false)
+        // Lower to type-specialized boolean_select_* based on branch types
 
-        std::string comp_name = "boolean_select";
+        // Resolve inputs FIRST (child-first/topological ordering required for timeframe resolution)
+        ValueHandle condition = VisitExpr(*if_exp.test);
+        ValueHandle true_val = VisitExpr(*if_exp.body);
+        ValueHandle false_val = VisitExpr(*if_exp.orelse);
+
+        // Infer types from true/false branches
+        DataType true_type = type_checker_.GetNodeOutputType(true_val.node_id, true_val.handle);
+        DataType false_type = type_checker_.GetNodeOutputType(false_val.node_id, false_val.handle);
+
+        // Determine the correct type-specialized variant
+        std::string comp_name = DetermineBooleanSelectVariant(true_type, false_type);
 
         // Validate component exists
         if (!context_.HasComponent(comp_name))
@@ -809,12 +857,7 @@ namespace epoch_script
 
         const auto& comp_meta = context_.GetComponentMetadata(comp_name);
 
-        // Resolve inputs FIRST (child-first/topological ordering required for timeframe resolution)
-        ValueHandle condition = VisitExpr(*if_exp.test);
-        ValueHandle true_val = VisitExpr(*if_exp.body);
-        ValueHandle false_val = VisitExpr(*if_exp.orelse);
-
-        // Create node AFTER resolving inputs
+        // Create node AFTER resolving inputs (inputs already resolved above for type inference)
         std::string node_id = UniqueNodeId("ifexp");
         epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
@@ -1254,7 +1297,11 @@ namespace epoch_script
             // Validate positional args count (allow multiple args if last input is variadic)
             if (args.size() > input_ids.size() && !last_input_allows_multi)
             {
-                ThrowError("Too many positional inputs for '" + target_node_id + "'");
+                ThrowError(error_formatting::ArgumentCountError(
+                    target_node_id, component_name,
+                    input_ids.size(), args.size(),
+                    input_ids, args
+                ));
             }
 
             for (size_t i = 0; i < args.size(); ++i)

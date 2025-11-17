@@ -15,22 +15,25 @@ class PSL : public ITransform {
 public:
   explicit PSL(const TransformConfiguration &config)
       : ITransform(config),
-        m_visitor(config.GetOptionValue("period").GetInteger()) {}
+        m_period(config.GetOptionValue("period").GetInteger()) {}
 
   [[nodiscard]] epoch_frame::DataFrame
   TransformData(epoch_frame::DataFrame const &df) const final {
+    // Create local visitor to avoid state accumulation across assets
+    hmdf::PSLVisitor<double, int64_t> visitor(m_period);
+
     const CloseSpan closeSpan{df};
     const OpenSpan openSpan{df};
 
-    run_visit(df, m_visitor, closeSpan, openSpan);
+    run_visit(df, visitor, closeSpan, openSpan);
 
     return make_dataframe(
         df.index(),
-        std::vector{factory::array::make_array(m_visitor.get_result())},
+        std::vector{factory::array::make_array(visitor.get_result())},
         {GetOutputId("result")});
   }
 
 private:
-  mutable hmdf::PSLVisitor<double, int64_t> m_visitor;
+  int64_t m_period;
 };
 } // namespace epoch_script::transform

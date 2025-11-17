@@ -93,6 +93,51 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
         }
     }
 
+    // Phase 2.5: Update node references in options (schema fields)
+    // Schema fields like select_key can reference node outputs and need to be redirected
+    for (auto& node : algorithms)
+    {
+        // Check if this node has a "schema" option
+        auto schema_it = node.options.find("schema");
+        if (schema_it != node.options.end())
+        {
+            auto& option_def = schema_it->second;
+
+            // Serialize to JSON string
+            std::string json_str = glz::write_json(option_def.GetVariant()).value_or("");
+            if (json_str.empty())
+            {
+                continue;  // Skip if serialization failed
+            }
+
+            // Replace all node references found in redirect_map
+            // Look for patterns like "node_id#handle" in JSON string values
+            for (const auto& [old_id, new_id] : redirect_map)
+            {
+                // Pattern: "old_id# (appears in select_key and other fields)
+                std::string old_pattern = "\"" + old_id + "#";
+                std::string new_pattern = "\"" + new_id + "#";
+
+                size_t pos = 0;
+                while ((pos = json_str.find(old_pattern, pos)) != std::string::npos)
+                {
+                    json_str.replace(pos, old_pattern.length(), new_pattern);
+                    pos += new_pattern.length();
+                }
+            }
+
+            // Deserialize back to the variant
+            auto variant = option_def.GetVariant();
+            auto parse_result = glz::read_json(variant, json_str);
+            if (!parse_result)
+            {
+                // Successfully parsed - update the option
+                option_def = MetaDataOptionDefinition{variant};
+            }
+            // If parse failed, leave option unchanged
+        }
+    }
+
     // Phase 3: Remove duplicate nodes from the algorithms vector
     algorithms.erase(
         std::remove_if(algorithms.begin(), algorithms.end(),

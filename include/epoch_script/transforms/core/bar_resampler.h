@@ -11,19 +11,96 @@
 
 namespace epoch_script::transform
 {
+  // Generic resampler that handles all column types based on name and type
+  inline epoch_frame::DataFrame
+  resample_generic(epoch_frame::DataFrame const &df,
+                   epoch_frame::DateOffsetHandlerPtr const &offset)
+  {
+    const auto C = epoch_script::EpochStratifyXConstants::instance();
+
+    // Create lambda for generic resampling
+    auto generic_resample_fn = [&](epoch_frame::DataFrame const& group_df) {
+      arrow::ArrayVector array_list;
+      std::vector<arrow::FieldPtr> fields;
+
+      // Iterate through all columns in the dataframe
+      auto schema = group_df.column_names();
+      for (const auto& col_name : schema) {
+        auto field = df.table()->schema()->GetFieldByName(col_name);
+        auto type_id = field->type()->id();
+        arrow::ScalarPtr aggregated_value;
+
+        // Priority 1: Check for OHLCV column names (using predefined constants)
+        if (col_name == "o") { // open
+          aggregated_value = group_df[col_name].iloc(0).value(); // first
+        }
+        else if (col_name == "h") { // high
+          aggregated_value = group_df[col_name].max().value(); // max
+        }
+        else if (col_name == "l") { // low
+          aggregated_value = group_df[col_name].min().value(); // min
+        }
+        else if (col_name == "c") { // close
+          aggregated_value = group_df[col_name].iloc(-1).value(); // last
+        }
+        else if (col_name == "v") { // volume
+          aggregated_value = group_df[col_name].sum().value(); // sum
+        }
+        // Priority 2: Check for special column names (only if they exist)
+        else if (col_name == "vw") { // volume-weighted average
+          aggregated_value = group_df[col_name].mean().value(); // average
+        }
+        else if (col_name == "n") { // count/number
+          aggregated_value = group_df[col_name].sum().value(); // sum
+        }
+        // Priority 3: Type-based aggregation for all other columns
+        else if (arrow::is_floating(type_id)) {
+          aggregated_value = group_df[col_name].mean().value(); // float → average
+        }
+        else if (arrow::is_integer(type_id)) {
+          aggregated_value = group_df[col_name].sum().value(); // integer → sum
+        }
+        else if (arrow::is_binary_like(type_id) || arrow::is_large_binary_like(type_id)) {
+          // String → comma-separated concatenation
+          std::string concatenated;
+          auto series = group_df[col_name];
+          for (uint64_t i = 0; i < series.size(); ++i) {
+            auto scalar = series.iloc(i).value();
+            if (!scalar->is_valid) continue;
+            auto str_scalar = std::static_pointer_cast<arrow::StringScalar>(scalar);
+            if (!concatenated.empty()) concatenated += ",";
+            concatenated += str_scalar->ToString();
+          }
+          aggregated_value = arrow::MakeScalar(concatenated);
+        }
+        else if (arrow::is_temporal(type_id)) {
+          aggregated_value = group_df[col_name].max().value(); // timestamp → max
+        }
+        else {
+          // Default: take last value
+          aggregated_value = group_df[col_name].iloc(-1).value();
+        }
+
+        array_list.emplace_back(
+            arrow::MakeArrayFromScalar(*aggregated_value, 1).MoveValueUnsafe());
+        fields.emplace_back(field);
+      }
+
+      return arrow::Table::Make(arrow::schema(fields), array_list, 1);
+    };
+
+    return df.resample_by_apply({.freq = offset,
+                                 .closed = epoch_core::GrouperClosedType::Right,
+                                 .label = epoch_core::GrouperLabelType::Right})
+             .apply(generic_resample_fn);
+  }
+
+  // Legacy function - now calls generic resampler
   inline epoch_frame::DataFrame
   resample_ohlcv(epoch_frame::DataFrame const &df,
                  epoch_frame::DateOffsetHandlerPtr const &offset)
   {
-    const auto C = epoch_script::EpochStratifyXConstants::instance();
-    return df.resample_by_ohlcv({.freq = offset,
-                                 .closed = epoch_core::GrouperClosedType::Right,
-                                 .label = epoch_core::GrouperLabelType::Right},
-                                {{"open", C.OPEN()},
-                                 {"high", C.HIGH()},
-                                 {"low", C.LOW()},
-                                 {"close", C.CLOSE()},
-                                 {"volume", C.VOLUME()}});
+    return resample_generic(df, offset);
   }
 
   // TODO: Accept Option objects

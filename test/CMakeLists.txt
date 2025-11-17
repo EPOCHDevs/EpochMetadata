@@ -55,6 +55,15 @@ set_target_properties(epoch_test_runner PROPERTIES
 target_compile_definitions(epoch_test_runner PUBLIC
     -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
 
+# Standalone repro executable for debugging reindex issues
+add_executable(repro_reindex repro_reindex.cpp)
+target_link_libraries(repro_reindex PRIVATE epoch_script)
+target_include_directories(repro_reindex PRIVATE ../src .)
+set_target_properties(repro_reindex PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+target_compile_definitions(repro_reindex PUBLIC
+    -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}")
+
 # Set runtime output directory to bin (where test resources are copied)
 set_target_properties(epoch_script_test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -67,6 +76,7 @@ add_subdirectory(integration)
 
 target_compile_definitions(epoch_script_test PUBLIC
     -DMETADATA_FILES_DIR="${METADATA_FILES_DIR}"
+    -DRESAMPLE_FILES="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resample_test_files"
     -DTRANSFORMS_TEST_CASES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/transforms_test_cases")
 
 target_compile_definitions(generate_graph PUBLIC
