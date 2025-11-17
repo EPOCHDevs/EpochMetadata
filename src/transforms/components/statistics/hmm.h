@@ -82,12 +82,6 @@ public:
         cfg.GetOptionValue("lookback_window",
                            epoch_script::MetaDataOptionDefinition{0.0})
             .GetInteger());
-
-    // Covariance regularization
-    m_min_covar =
-        cfg.GetOptionValue("min_covar",
-                           epoch_script::MetaDataOptionDefinition{1e-3})
-            .GetDecimal();
   }
 
   [[nodiscard]] epoch_frame::DataFrame
@@ -159,10 +153,6 @@ private:
   size_t m_min_training_samples{100};
   size_t m_lookback_window{0}; // 0 = use all available data
 
-  // Covariance regularization (follows Python hmmlearn/scikit-learn standard)
-  // Adds to diagonal to prevent Cholesky decomposition failures
-  double m_min_covar{1e-3};
-
   // Preprocessing parameters structure
   struct PreprocessParams {
     std::vector<double> means;
@@ -207,6 +197,22 @@ private:
     // Number of dimensions (features)
     const size_t dimensionality = X.n_cols;
 
+    // Check for feature correlation issues before training
+    arma::mat corr_matrix = arma::cor(X);
+    for (size_t i = 0; i < dimensionality; ++i) {
+      for (size_t j = i + 1; j < dimensionality; ++j) {
+        if (std::abs(corr_matrix(i, j)) > 0.95) {
+          throw std::runtime_error(
+              "HMM training failed: Features " + std::to_string(i) + " and " +
+              std::to_string(j) + " are highly correlated (r=" +
+              std::to_string(corr_matrix(i, j)) +
+              "). This causes Cholesky decomposition to fail. "
+              "Solution: Remove one of the correlated features or use orthogonal features. "
+              "Common issue: using both 'returns' and 'abs(returns)' as inputs.");
+        }
+      }
+    }
+
     // Initialize Gaussian HMM with N_STATES and given dimensionality
     HMMGaussian hmm(N_STATES, GaussianDistribution<>(dimensionality),
                     m_tolerance);
@@ -216,19 +222,24 @@ private:
     std::vector<arma::mat> sequences;
     sequences.emplace_back(X.t());
 
-    // Unsupervised training (Baum-Welch)
-    hmm.Train(sequences);
-
-    // Apply min_covar regularization to prevent Cholesky decomposition failures
-    // This follows the Python hmmlearn/scikit-learn standard approach
-    // Adds regularization to diagonal of covariance matrices for all states
-    if (m_min_covar > 0) {
-      for (size_t s = 0; s < N_STATES; ++s) {
-        // Get a copy of the covariance, modify it, and set it back
-        arma::mat cov_copy = hmm.Emission()[s].Covariance();
-        cov_copy.diag() += m_min_covar;
-        hmm.Emission()[s].Covariance(std::move(cov_copy));
+    // Unsupervised training (Baum-Welch) with error handling
+    try {
+      hmm.Train(sequences);
+    } catch (const std::exception &e) {
+      // Provide helpful error message for Cholesky decomposition failures
+      std::string error_msg = std::string(e.what());
+      if (error_msg.find("Cholesky") != std::string::npos) {
+        throw std::runtime_error(
+            "HMM training failed: Cholesky decomposition error during Baum-Welch training. "
+            "This typically indicates: (1) Highly correlated input features, "
+            "(2) Insufficient data variance, or (3) Numerical instability. "
+            "Solutions: (a) Remove correlated features (e.g., don't use both returns and abs(returns)), "
+            "(b) Increase min_training_samples, (c) Reduce number of HMM states, "
+            "(d) Check for constant or near-constant input features. "
+            "Original error: " + error_msg);
       }
+      // Re-throw other exceptions with context
+      throw std::runtime_error("HMM training failed: " + error_msg);
     }
 
     return hmm;

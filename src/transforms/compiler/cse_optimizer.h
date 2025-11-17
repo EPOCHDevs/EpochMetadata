@@ -130,6 +130,18 @@ private:
     bool ShouldExcludeFromCSE(const std::string& type) const;
 
     /**
+     * @brief Checks if a node type is a scalar/literal type.
+     *
+     * Scalar types (text, number, bool_true, bool_false, null_number) are
+     * timeframe and session agnostic. They should be deduplicated purely
+     * based on type, options, and inputs, ignoring timeframe/session differences.
+     *
+     * @param type The node type to check
+     * @return true if the node is a scalar/literal type
+     */
+    bool IsScalarType(const std::string& type) const;
+
+    /**
      * @brief Extracts the node ID from a "node_id#handle" reference.
      *
      * Input references are stored in the format "node_id#handle".

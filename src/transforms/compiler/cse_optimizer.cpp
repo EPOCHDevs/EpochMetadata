@@ -7,6 +7,7 @@
 #include <epoch_core/enum_wrapper.h>
 #include <epoch_frame/datetime.h>
 #include <glaze/glaze.hpp>
+#include <spdlog/spdlog.h>
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
@@ -15,6 +16,19 @@ namespace epoch_script
 {
 
 CSEOptimizer::CSEOptimizer() {}
+
+bool CSEOptimizer::IsScalarType(const std::string& type) const
+{
+    // Scalar/literal types that are timeframe-agnostic
+    static const std::unordered_set<std::string> scalar_types = {
+        "text",
+        "number",
+        "bool_true",
+        "bool_false",
+        "null_number"
+    };
+    return scalar_types.count(type) > 0;
+}
 
 void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
                            CompilationContext& context)
@@ -28,16 +42,37 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
     // Set of node IDs to remove
     std::unordered_set<std::string> nodes_to_remove;
 
+    spdlog::debug("[CSE] Starting optimization on {} nodes", algorithms.size());
+
     // Phase 1: Identify duplicates
     for (const auto& node : algorithms)
     {
         // Skip nodes that should not be deduplicated
         if (ShouldExcludeFromCSE(node.type))
         {
+            spdlog::debug("[CSE] Skipping excluded node: {} (type: {})", node.id, node.type);
             continue;
         }
 
         size_t h = ComputeSemanticHash(node);
+
+        // Extra logging for text nodes to debug deduplication issues
+        if (node.type == "text") {
+            std::string value = "<?>";
+            auto value_it = node.options.find("value");
+            if (value_it != node.options.end()) {
+                // Try to extract the string value
+                auto variant = value_it->second.GetVariant();
+                if (std::holds_alternative<std::string>(variant)) {
+                    value = std::get<std::string>(variant);
+                }
+            }
+            std::string timeframe_str = node.timeframe ? node.timeframe->ToString() : "nullopt";
+            spdlog::info("[CSE] TEXT NODE: {} value='{}' timeframe={} hash={}",
+                         node.id, value, timeframe_str, h);
+        } else {
+            spdlog::debug("[CSE] Node {} (type: {}) hash: {}", node.id, node.type, h);
+        }
 
         auto it = hash_to_canonical.find(h);
         if (it != hash_to_canonical.end())
@@ -45,6 +80,7 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             // Potential duplicate found - verify with full equality check
             // (hash collision is possible, so we need to confirm)
             const std::string& canonical_id = it->second;
+            spdlog::debug("[CSE] Potential duplicate: {} matches hash of canonical {}", node.id, canonical_id);
 
             // Find the canonical node
             auto canonical_it = std::find_if(algorithms.begin(), algorithms.end(),
@@ -55,16 +91,26 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             if (canonical_it != algorithms.end() && SemanticEquals(node, *canonical_it))
             {
                 // True duplicate found
+                spdlog::info("[CSE] DUPLICATE FOUND: {} is duplicate of {} (type: {})",
+                             node.id, canonical_id, node.type);
                 redirect_map[node.id] = canonical_id;
                 nodes_to_remove.insert(node.id);
+            }
+            else
+            {
+                spdlog::debug("[CSE] Hash collision: {} and {} have same hash but different semantics",
+                              node.id, canonical_id);
             }
         }
         else
         {
             // First occurrence - this becomes the canonical node
+            spdlog::debug("[CSE] New canonical node: {} (type: {}, hash: {})", node.id, node.type, h);
             hash_to_canonical[h] = node.id;
         }
     }
+
+    spdlog::info("[CSE] Found {} duplicate nodes to remove", nodes_to_remove.size());
 
     // Phase 2: Rewrite all references to point to canonical nodes
     for (auto& node : algorithms)
@@ -139,6 +185,7 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
     }
 
     // Phase 3: Remove duplicate nodes from the algorithms vector
+    size_t before_size = algorithms.size();
     algorithms.erase(
         std::remove_if(algorithms.begin(), algorithms.end(),
             [&nodes_to_remove](const strategy::AlgorithmNode& node) {
@@ -146,12 +193,16 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             }),
         algorithms.end()
     );
+    size_t after_size = algorithms.size();
+    spdlog::info("[CSE] Removed {} duplicate nodes ({} -> {})", before_size - after_size, before_size, after_size);
 
     // Phase 4: Update context.used_node_ids to remove deleted IDs
     for (const auto& removed_id : nodes_to_remove)
     {
         context.used_node_ids.erase(removed_id);
     }
+
+    spdlog::debug("[CSE] Optimization complete");
 }
 
 size_t CSEOptimizer::ComputeSemanticHash(const strategy::AlgorithmNode& node) const
@@ -198,26 +249,36 @@ size_t CSEOptimizer::ComputeSemanticHash(const strategy::AlgorithmNode& node) co
     }
 
     // Hash the timeframe if present
-    if (node.timeframe)
+    // IMPORTANT: Skip timeframe hashing for scalar/literal types (text, number, bool, null)
+    // These types are timeframe-agnostic and should be deduplicated regardless of timeframe
+    // This fixes bugs where literals get assigned different timeframes based on usage context
+    if (!IsScalarType(node.type))
     {
-        // Use TimeFrame's ToString() method for hashing
-        HashCombine(h, std::hash<std::string>{}(node.timeframe->ToString()));
-    }
-    else
-    {
-        // Hash a sentinel value for "no timeframe"
-        HashCombine(h, 0);
+        if (node.timeframe)
+        {
+            // Use TimeFrame's ToString() method for hashing
+            HashCombine(h, std::hash<std::string>{}(node.timeframe->ToString()));
+        }
+        else
+        {
+            // Hash a sentinel value for "no timeframe"
+            HashCombine(h, 0);
+        }
     }
 
     // Hash the session if present
-    if (node.session)
+    // Scalars are also session-agnostic
+    if (!IsScalarType(node.type))
     {
-        HashCombine(h, HashSession(*node.session));
-    }
-    else
-    {
-        // Hash a sentinel value for "no session"
-        HashCombine(h, 1);
+        if (node.session)
+        {
+            HashCombine(h, HashSession(*node.session));
+        }
+        else
+        {
+            // Hash a sentinel value for "no session"
+            HashCombine(h, 1);
+        }
     }
 
     return h;
@@ -234,31 +295,37 @@ bool CSEOptimizer::SemanticEquals(const strategy::AlgorithmNode& a,
         return false;
     }
 
-    // Compare timeframes
-    if (a.timeframe.has_value() != b.timeframe.has_value())
+    // Compare timeframes (skip for scalar types - they're timeframe-agnostic)
+    if (!IsScalarType(a.type))
     {
-        return false;
-    }
-    if (a.timeframe && b.timeframe)
-    {
-        if (*a.timeframe != *b.timeframe)
+        if (a.timeframe.has_value() != b.timeframe.has_value())
         {
             return false;
         }
+        if (a.timeframe && b.timeframe)
+        {
+            if (*a.timeframe != *b.timeframe)
+            {
+                return false;
+            }
+        }
     }
 
-    // Compare sessions using hash-based comparison (since SessionRange may not have operator==)
-    if (a.session.has_value() != b.session.has_value())
+    // Compare sessions using hash-based comparison (skip for scalar types - they're session-agnostic)
+    if (!IsScalarType(a.type))
     {
-        return false;
-    }
-    if (a.session && b.session)
-    {
-        // Use hash comparison as a proxy for equality
-        // This is safe because hash collisions are extremely rare
-        if (HashSession(*a.session) != HashSession(*b.session))
+        if (a.session.has_value() != b.session.has_value())
         {
             return false;
+        }
+        if (a.session && b.session)
+        {
+            // Use hash comparison as a proxy for equality
+            // This is safe because hash collisions are extremely rare
+            if (HashSession(*a.session) != HashSession(*b.session))
+            {
+                return false;
+            }
         }
     }
 

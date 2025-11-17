@@ -7,6 +7,7 @@
 #include "transforms/compiler/cse_optimizer.h"
 #include "transforms/compiler/compilation_context.h"
 #include <epoch_script/strategy/metadata.h>
+#include <epoch_script/core/time_frame.h>
 
 using namespace epoch_script;
 using namespace epoch_script::strategy;
@@ -403,5 +404,213 @@ TEST_CASE("CSE Optimizer - Hash Collisions", "[cse_optimizer]")
 
         // Should keep both (different types)
         REQUIRE(algorithms.size() == 3);
+    }
+}
+
+TEST_CASE("CSE Optimizer - Text Node Deduplication", "[cse_optimizer]")
+{
+    SECTION("Deduplicates identical text/string literal nodes")
+    {
+        CompilationContext context;
+        CSEOptimizer optimizer;
+
+        // Create multiple identical empty string nodes
+        AlgorithmNode text1, text2, text3;
+
+        text1.id = "text_0";
+        text1.type = "text";
+        text1.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        text2.id = "text_1";
+        text2.type = "text";
+        text2.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        text3.id = "text_2";
+        text3.type = "text";
+        text3.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        std::vector<AlgorithmNode> algorithms = {text1, text2, text3};
+        context.used_node_ids = {"text_0", "text_1", "text_2"};
+
+        optimizer.Optimize(algorithms, context);
+
+        // Should have only 1 text node left
+        REQUIRE(algorithms.size() == 1);
+        REQUIRE(context.used_node_ids.count("text_0") == 1);
+        REQUIRE(context.used_node_ids.count("text_1") == 0);
+        REQUIRE(context.used_node_ids.count("text_2") == 0);
+    }
+
+    SECTION("Preserves text nodes with different values")
+    {
+        CompilationContext context;
+        CSEOptimizer optimizer;
+
+        // Create text nodes with different values
+        AlgorithmNode text_a, text_b, text_empty;
+
+        text_a.id = "text_0";
+        text_a.type = "text";
+        text_a.options["value"] = MetaDataOptionDefinition(std::string("Technical"));
+
+        text_b.id = "text_1";
+        text_b.type = "text";
+        text_b.options["value"] = MetaDataOptionDefinition(std::string("Macro Confirmed"));
+
+        text_empty.id = "text_2";
+        text_empty.type = "text";
+        text_empty.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        std::vector<AlgorithmNode> algorithms = {text_a, text_b, text_empty};
+        context.used_node_ids = {"text_0", "text_1", "text_2"};
+
+        optimizer.Optimize(algorithms, context);
+
+        // Should keep all 3 (different values)
+        REQUIRE(algorithms.size() == 3);
+        REQUIRE(context.used_node_ids.size() == 3);
+    }
+
+    SECTION("Deduplicates multiple empty strings from conditional_select_string pattern")
+    {
+        CompilationContext context;
+        CSEOptimizer optimizer;
+
+        // Simulate pattern from your script:
+        // conditional_select_string(technical_only, "Technical", "")
+        // conditional_select_string(macro_confirmed, "Macro Confirmed", "")
+
+        AlgorithmNode bool_true, bool_false;
+        AlgorithmNode text_technical, text_macro, text_empty1, text_empty2;
+        AlgorithmNode cond1, cond2;
+
+        bool_true.id = "bool_true_0";
+        bool_true.type = "bool_true";
+
+        bool_false.id = "bool_false_0";
+        bool_false.type = "bool_false";
+
+        text_technical.id = "text_0";
+        text_technical.type = "text";
+        text_technical.options["value"] = MetaDataOptionDefinition(std::string("Technical"));
+
+        text_macro.id = "text_1";
+        text_macro.type = "text";
+        text_macro.options["value"] = MetaDataOptionDefinition(std::string("Macro Confirmed"));
+
+        text_empty1.id = "text_2";
+        text_empty1.type = "text";
+        text_empty1.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        text_empty2.id = "text_3";
+        text_empty2.type = "text";
+        text_empty2.options["value"] = MetaDataOptionDefinition(std::string(""));
+
+        cond1.id = "conditional_select_string_0";
+        cond1.type = "conditional_select_string";
+        cond1.inputs["condition"].push_back("bool_true_0#result");
+        cond1.inputs["true_value"].push_back("text_0#result");
+        cond1.inputs["false_value"].push_back("text_2#result");
+
+        cond2.id = "conditional_select_string_1";
+        cond2.type = "conditional_select_string";
+        cond2.inputs["condition"].push_back("bool_false_0#result");
+        cond2.inputs["true_value"].push_back("text_1#result");
+        cond2.inputs["false_value"].push_back("text_3#result");
+
+        std::vector<AlgorithmNode> algorithms = {
+            bool_true, bool_false,
+            text_technical, text_macro, text_empty1, text_empty2,
+            cond1, cond2
+        };
+
+        context.used_node_ids = {
+            "bool_true_0", "bool_false_0",
+            "text_0", "text_1", "text_2", "text_3",
+            "conditional_select_string_0", "conditional_select_string_1"
+        };
+
+        optimizer.Optimize(algorithms, context);
+
+        // Should have 7 nodes (text_3 should be deduplicated to text_2)
+        REQUIRE(algorithms.size() == 7);
+
+        // text_2 should remain, text_3 should be removed
+        REQUIRE(context.used_node_ids.count("text_2") == 1);
+        REQUIRE(context.used_node_ids.count("text_3") == 0);
+
+        // Verify that cond2's reference to text_3 was rewritten to text_2
+        auto cond2_it = std::find_if(algorithms.begin(), algorithms.end(),
+            [](const AlgorithmNode& n) { return n.id == "conditional_select_string_1"; });
+
+        REQUIRE(cond2_it != algorithms.end());
+        REQUIRE(cond2_it->inputs["false_value"][0] == "text_2#result");
+    }
+
+    SECTION("Deduplicates text nodes even with different timeframes")
+    {
+        CompilationContext context;
+        CSEOptimizer optimizer;
+
+        // Create two identical text("") nodes but with different timeframes
+        // This simulates the bug where literals get assigned different timeframes
+        // based on their usage context
+        AlgorithmNode text1, text2, text3;
+
+        text1.id = "text_0";
+        text1.type = "text";
+        text1.options["value"] = MetaDataOptionDefinition(std::string(""));
+        text1.timeframe = TimeFrame("1h");  // Different timeframe
+
+        text2.id = "text_1";
+        text2.type = "text";
+        text2.options["value"] = MetaDataOptionDefinition(std::string(""));
+        text2.timeframe = TimeFrame("1d");  // Different timeframe
+
+        text3.id = "text_2";
+        text3.type = "text";
+        text3.options["value"] = MetaDataOptionDefinition(std::string(""));
+        // No timeframe
+
+        std::vector<AlgorithmNode> algorithms = {text1, text2, text3};
+        context.used_node_ids = {"text_0", "text_1", "text_2"};
+
+        optimizer.Optimize(algorithms, context);
+
+        // Should have only 1 text node left despite different timeframes
+        // Scalars are timeframe-agnostic
+        REQUIRE(algorithms.size() == 1);
+        REQUIRE(context.used_node_ids.count("text_0") == 1);
+        REQUIRE(context.used_node_ids.count("text_1") == 0);
+        REQUIRE(context.used_node_ids.count("text_2") == 0);
+    }
+
+    SECTION("Deduplicates number nodes with different timeframes")
+    {
+        CompilationContext context;
+        CSEOptimizer optimizer;
+
+        // Same test for number literals
+        AlgorithmNode num1, num2;
+
+        num1.id = "number_0";
+        num1.type = "number";
+        num1.options["value"] = MetaDataOptionDefinition(100.0);
+        num1.timeframe = TimeFrame("1h");
+
+        num2.id = "number_1";
+        num2.type = "number";
+        num2.options["value"] = MetaDataOptionDefinition(100.0);
+        num2.timeframe = TimeFrame("1d");
+
+        std::vector<AlgorithmNode> algorithms = {num1, num2};
+        context.used_node_ids = {"number_0", "number_1"};
+
+        optimizer.Optimize(algorithms, context);
+
+        // Should deduplicate despite different timeframes
+        REQUIRE(algorithms.size() == 1);
+        REQUIRE(context.used_node_ids.count("number_0") == 1);
+        REQUIRE(context.used_node_ids.count("number_1") == 0);
     }
 }
