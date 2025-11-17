@@ -1068,6 +1068,8 @@ namespace epoch_script
     {
         std::string node_id = UniqueNodeId("text");
 
+        spdlog::debug("[MaterializeText] Created node_id='{}' for value='{}'", node_id, value);
+
         epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
         algo.type = "text";
