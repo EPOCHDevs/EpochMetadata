@@ -279,9 +279,35 @@ TEST_CASE("Transform Metadata Factory") {
     } else if (metadata.inputs.size() == 1 &&
                metadata.inputs.front().allowMultipleConnections) {
       // Non-cross-sectional transform accepting multiple connections
-      config["inputs"][epoch_script::ARG] = std::vector{"1#result"};
-      fields_vec = {"1#result"};
-      inputs_vec.emplace_back(getArrayFromType(metadata.inputs.front().type));
+
+      // Special handling for conditional_select_* transforms: provide at least 2 inputs (condition + value)
+      // conditional_select requires: condition0, value0, [condition1, value1, ...], [default_value]
+      if (id.starts_with("conditional_select_")) {
+        // Provide 2 inputs: condition (Boolean) + value (type-specific)
+        config["inputs"][epoch_script::ARG] = std::vector{"condition", "value"};
+        fields_vec = {"condition", "value"};
+        inputs_vec.emplace_back(getArrayFromType(IODataType::Boolean));  // condition
+
+        // Determine value type from transform name suffix
+        IODataType valueType = IODataType::Any;
+        if (id == "conditional_select_boolean") {
+          valueType = IODataType::Boolean;
+        } else if (id == "conditional_select_number") {
+          valueType = IODataType::Number;
+        } else if (id == "conditional_select_string") {
+          valueType = IODataType::String;
+        } else if (id == "conditional_select_timestamp") {
+          valueType = IODataType::Timestamp;
+        } else {
+          valueType = metadata.inputs.front().type;  // fallback to metadata type
+        }
+        inputs_vec.emplace_back(getArrayFromType(valueType));
+      } else {
+        // Default: provide single input for other VARARG transforms
+        config["inputs"][epoch_script::ARG] = std::vector{"1#result"};
+        fields_vec = {"1#result"};
+        inputs_vec.emplace_back(getArrayFromType(metadata.inputs.front().type));
+      }
     } else {
       // Regular transforms with one or more single-connection inputs
       for (auto const &[i, inputMetadata] :
@@ -300,6 +326,27 @@ TEST_CASE("Transform Metadata Factory") {
           size_t underscorePos = id.find('_');
           size_t N = std::stoull(id.substr(6, underscorePos - 6)); // Skip "switch" prefix
           inputs_vec.emplace_back(getArrayFromType(inputMetadata.type, N - 1));
+        // Special handling for static_cast_* transforms: provide input matching output type
+        } else if (id == "static_cast_to_integer") {
+          // Provide integer input for integer type materializer
+          inputs_vec.emplace_back(getArrayFromType(IODataType::Integer));
+        } else if (id == "static_cast_to_decimal") {
+          // Provide decimal input for decimal type materializer
+          inputs_vec.emplace_back(getArrayFromType(IODataType::Decimal));
+        } else if (id == "static_cast_to_boolean") {
+          // Provide boolean input for boolean type materializer
+          inputs_vec.emplace_back(getArrayFromType(IODataType::Boolean));
+        } else if (id == "static_cast_to_string") {
+          // Provide string input for string type materializer
+          inputs_vec.emplace_back(getArrayFromType(IODataType::String));
+        } else if (id == "static_cast_to_timestamp") {
+          // Provide timestamp input for timestamp type materializer
+          inputs_vec.emplace_back(getArrayFromType(IODataType::Timestamp));
+        // Special handling for groupby_* transforms: provide String for group_key, proper type for value
+        } else if ((id == "groupby_numeric_agg" || id == "groupby_boolean_agg" || id == "groupby_any_agg")
+                   && inputMetadata.id == "group_key") {
+          // Provide String input for groupby key column (common groupby use case)
+          inputs_vec.emplace_back(getArrayFromType(IODataType::String));
         } else {
           inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
         }
@@ -440,12 +487,8 @@ TEST_CASE("Transform Metadata Factory") {
       continue;
     }
 
-    // SKIP: groupby transforms - require integer/uint64 groupby column
-    // Test data generates float values which cannot be converted to uint64 without truncation
-    // Dedicated test: test/unit/transforms/groupby_test.cpp (if exists)
-    if (id == "groupby_any_agg" || id == "groupby_numeric_agg" || id == "groupby_boolean_agg") {
-      continue;
-    }
+    // NOTE: groupby_* transforms now have special input overrides (lines 320-323)
+    // They receive String input for group_key column instead of default Decimal/Any type
 
     // SKIP: market_data_source - metadata bug: declares 5 outputs but produces 7
     // TODO: Fix the metadata in market_data_source transform to match actual outputs
@@ -453,14 +496,8 @@ TEST_CASE("Transform Metadata Factory") {
       continue;
     }
 
-    // SKIP: static_cast_to_integer - requires integer input but test generates floats
-    // The transform validates input type and rejects floats
-    if (id == "static_cast_to_integer") {
-      continue;
-    }
-
-    // TODO: static_cast_to_string should work if metadata declares String input type
-    // If it's failing, there's a metadata bug that needs fixing
+    // NOTE: static_cast_* transforms now have special input overrides (lines 304-318)
+    // They receive inputs matching their output types instead of Any type
 
     // =============================================================================
     // TEST EXECUTION - All other transforms should work with auto-generated config

@@ -80,13 +80,6 @@ void ProcessConfigurations(
     epoch_script::TimeFrame const &baseTimeframe,
     DataModuleOption &dataModuleOption);
 
-DataModuleOption
-MakeDataModuleOption(CountryCurrency baseCurrency,
-                     epoch_script::strategy::DatePeriodConfig const &period,
-                     epoch_script::strategy::DataOption const &config,
-                     DataCategory primaryCategory,
-                     std::vector<DataCategory> const &auxiliaryCategories = {});
-
 // Strategy-aware factory - auto-detects primaryCategory from StrategyConfig
 // by checking if any component requires intraday data
 DataModuleOption
