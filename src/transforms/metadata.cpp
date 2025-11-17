@@ -60,8 +60,6 @@ void TransformsMetaData::decode(const YAML::Node &element) {
   limitations = element["limitations"].as<std::string>("");
 }
 
-TransformsMetaData MakeZeroIndexSelectMetaData(std::string const &name);
-
 TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
                                              std::string const &name) {
   return {
@@ -120,42 +118,6 @@ TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
 
   // Output
   metadata.outputs = {IOMetaDataConstants::BOOLEAN_OUTPUT_METADATA};
-
-  metadata.allowNullInputs = true;
-
-  return metadata;
-}
-
-TransformsMetaData MakeZeroIndexSelectMetaData(size_t N) {
-  TransformsMetaData metadata;
-  metadata.id = std::format("select_{}", N);
-  metadata.name = std::format("Switch {} Inputs", N);
-  metadata.options = {}; // Add any specific options if needed
-  metadata.category = epoch_core::TransformCategory::ControlFlow;
-
-  // TODO:
-  // https://linear.app/epoch-inc/issue/STR-160/update-switch-to-dynamicselect
-  metadata.plotKind = epoch_core::TransformPlotKind::Null;
-  metadata.isCrossSectional = false;
-  metadata.desc = "Selects one of " + std::to_string(N) +
-                  " inputs based on a zero-indexed selector value";
-  metadata.usageContext = "Multi-way routing for strategy logic. Use integer index to select between " + std::to_string(N) + " different values/signals. Common use: regime-based strategy selection where index comes from market state detection (e.g., 0=trend strategy, 1=mean-reversion, 2=defensive).";
-  metadata.strategyTypes = {"multi-strategy-selection", "regime-switching", "conditional-routing"};
-  metadata.assetRequirements = {"single-asset"};
-  metadata.limitations = "Index must be integer 0 to " + std::to_string(N-1) + ". Out-of-range indices may cause errors. For binary choice, use boolean_branch instead.";
-  metadata.tags = {"flow-control", "selector", "switch", "conditional"};
-
-  // Inputs: "index", "SLOT0", "SLOT1", ..., "SLOT{N-1}"
-  std::vector<IOMetaData> inputs;
-  inputs.emplace_back(epoch_core::IODataType::Integer, "index", "Index");
-  for (size_t i = 0; i < N; ++i) {
-    inputs.emplace_back(epoch_core::IODataType::Any, std::format("SLOT{}", i),
-                        std::to_string(i), false);
-  }
-  metadata.inputs = inputs;
-
-  // Output: "selected"
-  metadata.outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA};
 
   metadata.allowNullInputs = true;
 
@@ -406,11 +368,6 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
     metadata.allowNullInputs = true;
 
     metadataList.emplace_back(metadata);
-  }
-
-  // N-way selectors (select_2, select_3, etc.)
-  for (size_t i = 2; i <= 5; ++i) {
-    metadataList.emplace_back(MakeZeroIndexSelectMetaData(i));
   }
 
   // Typed Switch transforms

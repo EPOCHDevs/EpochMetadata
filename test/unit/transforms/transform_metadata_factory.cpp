@@ -425,10 +425,13 @@ TEST_CASE("Transform Metadata Factory") {
 
     // SKIP: Conditional select - complex input configuration
     // Requires alternating condition/value pairs that can't be auto-generated
-    // Dedicated test: test/unit/transforms/conditional_select_test.cpp (if exists)
+    // Dedicated test: test/unit/transforms/operators/comparative_test.cpp
     if (id == "conditional_select") {
       continue;
     }
+
+    // TODO: Typed conditional_select variants should declare proper metadata
+    // If they fail, it means metadata.inputs doesn't match the transform's requirements
 
     // SKIP: Flexible pivot detector - requires runtime orchestrator
     // Needs orchestrator to provide OHLC columns via special requiredDataSources mechanism
@@ -455,6 +458,9 @@ TEST_CASE("Transform Metadata Factory") {
     if (id == "static_cast_to_integer") {
       continue;
     }
+
+    // TODO: static_cast_to_string should work if metadata declares String input type
+    // If it's failing, there's a metadata bug that needs fixing
 
     // =============================================================================
     // TEST EXECUTION - All other transforms should work with auto-generated config
