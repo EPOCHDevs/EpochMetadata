@@ -500,7 +500,7 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
         },
         .desc = std::string("Shifts each element in the input by the specified period, creating a lagged series. Typed variant for ") + inputType + " data.",
         .inputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(inputType), .id = "SLOT", .name = ""}},
-        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(outputType), .id = "value", .name = "Lagged Value"}},
+        .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(outputType), .id = "result", .name = "Lagged Value"}},
         .tags = {"math", "lag", "delay", "shift", "temporal", "typed"},
         .requiresTimeFrame = false,
         .allowNullInputs = true,
