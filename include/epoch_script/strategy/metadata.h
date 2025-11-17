@@ -24,7 +24,6 @@ namespace epoch_script::strategy
     std::string source_;
     std::vector<AlgorithmNode> compilationResult_;
     bool isIntraday_{false};
-    std::optional<epoch_core::BaseDataTimeFrame> baseTimeframe_;
     size_t m_executor_count{};
 
   public:
@@ -38,7 +37,6 @@ namespace epoch_script::strategy
     const std::string &GetSource() const { return source_; }
     const std::vector<AlgorithmNode> &GetCompilationResult() const { return compilationResult_; }
     bool IsIntraday() const { return isIntraday_; }
-    const std::optional<epoch_core::BaseDataTimeFrame> &GetBaseTimeframe() const { return baseTimeframe_; }
 
     // Equality operator for comparison
     bool operator==(const PythonSource &other) const

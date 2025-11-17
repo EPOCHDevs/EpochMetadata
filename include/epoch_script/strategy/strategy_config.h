@@ -12,8 +12,7 @@ namespace epoch_script::strategy {
 struct StrategyConfigMetaData {
   std::optional<DatePeriodConfig> allowedEODDateRange;
   std::optional<DatePeriodConfig> allowedIntradayDateRange;
-
-  std::optional<epoch_core::BaseDataTimeFrame> baseDataTimeFrame{};
+  bool isIntradayOnly{false};
   bool operator==(const StrategyConfigMetaData &) const = default;
 };
 

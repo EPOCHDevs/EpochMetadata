@@ -15,16 +15,14 @@ namespace epoch_script::strategy
   {
     std::optional<std::string> type{};
     std::optional<epoch_script::MetaDataArgDefinitionMapping> args{};
-    std::optional<epoch_script::TimeFrame> timeframe{};
+    epoch_script::TimeFrame timeframe{"1D"};
     std::optional<PythonSource> source{};
-    glz::generic kwarg{};
 
     bool operator==(const GenericFunction &other) const
     {
       return (type == other.type) && (args == other.args) &&
              (timeframe == other.timeframe) &&
-             (source == other.source) &&
-             (glz::write_json(kwarg) == glz::write_json(other.kwarg));
+             (source == other.source);
     }
   };
 

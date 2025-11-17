@@ -21,13 +21,10 @@
 
 using namespace epoch_script;
 using namespace epoch_script::strategy;
-using epoch_core::BaseDataTimeFrame;
 using epoch_core::EpochOffsetType;
 
 // Helper function to determine base timeframe from compilation result
-static std::optional<BaseDataTimeFrame>
-GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilationResult)
-{
+static bool IsIntraday_(const std::vector<AlgorithmNode> &compilationResult) {
   std::unordered_set<EpochOffsetType> types;
 
   for (const auto &node : compilationResult)
@@ -49,18 +46,15 @@ GetBaseTimeFrameFromCompilationResult(const std::vector<AlgorithmNode> &compilat
 
   if (types.empty())
   {
-    return std::nullopt;
+    return false;
   }
 
   return std::ranges::any_of(types, [](EpochOffsetType t)
-                             { return epoch_script::IsIntraday(t); })
-             ? BaseDataTimeFrame::Minute
-             : BaseDataTimeFrame::EOD;
+                             { return epoch_script::IsIntraday(t); });
 }
 
 // PythonSource constructor implementation
-PythonSource::PythonSource(std::string src, bool skip_sink_validation) : source_(std::move(src))
-{
+PythonSource::PythonSource(std::string src, bool skip_sink_validation) : source_(std::move(src)) {
   if (source_.empty())
   {
     return;
@@ -71,14 +65,7 @@ PythonSource::PythonSource(std::string src, bool skip_sink_validation) : source_
   compilationResult_ = compiler.compile(source_, skip_sink_validation);
   m_executor_count = compiler.getExecutorCount();
 
-  // Determine base timeframe from compilation result
-  baseTimeframe_ = GetBaseTimeFrameFromCompilationResult(compilationResult_);
-
-  // Set isIntraday flag based on baseTimeframe
-  if (baseTimeframe_.has_value())
-  {
-    isIntraday_ = (baseTimeframe_.value() == epoch_core::BaseDataTimeFrame::Minute);
-  }
+  isIntraday_ = IsIntraday_(compilationResult_);
 }
 
 namespace YAML
