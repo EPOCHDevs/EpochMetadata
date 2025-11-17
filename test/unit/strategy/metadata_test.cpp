@@ -196,7 +196,7 @@ TEST_CASE("PythonSource - empty source", "[PythonSource]")
 
   REQUIRE(emptySource.GetSource().empty());
   REQUIRE(emptySource.GetCompilationResult().empty());
-  REQUIRE_FALSE(emptySource.GetBaseTimeframe().has_value());
+  // BaseTimeframe removed - strategies are automatically detected as intraday
   REQUIRE_FALSE(emptySource.IsIntraday());
 }
 
@@ -215,8 +215,7 @@ signal = gt()(sma_fast.result, sma_slow.result)
   PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
-  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
-  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
+  // BaseTimeframe removed - strategies are automatically detected as intraday
   REQUIRE_FALSE(pythonSource.IsIntraday());
 }
 
@@ -234,8 +233,6 @@ gt_result = gt()(src.c, v.result)
   PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
-  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
-  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::Minute);
   REQUIRE(pythonSource.IsIntraday());
 }
 
@@ -253,8 +250,6 @@ gt_result = gt()(src.c, v.result)
   PythonSource pythonSource(source, true); // skip sink validation for test
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
-  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
-  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::Minute);
   REQUIRE(pythonSource.IsIntraday());
 }
 
@@ -273,8 +268,6 @@ signal = gt()(src.c, sma_val.result)
 
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
   // Should have EOD timeframe from source
-  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
-  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
   REQUIRE_FALSE(pythonSource.IsIntraday());
 }
 
@@ -327,8 +320,6 @@ TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
   REQUIRE_FALSE(parseResult); // No error
   REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(sma_val.result)");
   REQUIRE_FALSE(deserialized.GetCompilationResult().empty());
-  REQUIRE(deserialized.GetBaseTimeframe().has_value());
-  REQUIRE(deserialized.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::EOD);
   REQUIRE_FALSE(deserialized.IsIntraday());
 }
 
@@ -357,7 +348,6 @@ report = numeric_cards_report(agg='sum', category='Test', title='Test', group=0,
   // Verify round-trip preserves all data
   REQUIRE(deserialized.GetSource() == original.GetSource());
   REQUIRE(deserialized.GetCompilationResult().size() == original.GetCompilationResult().size());
-  REQUIRE(deserialized.GetBaseTimeframe() == original.GetBaseTimeframe());
   REQUIRE(deserialized.IsIntraday() == original.IsIntraday());
   REQUIRE(deserialized == original); // Test equality operator
 }
@@ -375,8 +365,6 @@ TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonS
 
   REQUIRE_FALSE(parseResult);
   REQUIRE_FALSE(pythonSource.GetCompilationResult().empty());
-  REQUIRE(pythonSource.GetBaseTimeframe().has_value());
-  REQUIRE(pythonSource.GetBaseTimeframe().value() == epoch_core::BaseDataTimeFrame::Minute);
   REQUIRE(pythonSource.IsIntraday());
 }
 

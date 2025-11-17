@@ -10,83 +10,27 @@ namespace epoch_script::runtime {
     return std::make_unique<TransformManager>();
   }
 
-  ITransformManagerPtr CreateTransformManager(TransformManagerOptions const& options) {
-    return std::make_unique<TransformManager>(options);
-  }
-
-  std::optional<epoch_script::TimeFrame> TimeframeResolutionCache::ResolveTimeframe(
-      const std::string &nodeId, const std::vector<std::string> &inputIds,
-      const std::optional<epoch_script::TimeFrame> &baseTimeframe) {
-    // Check cache first
-    if (nodeTimeframes.contains(nodeId)) {
-      return nodeTimeframes[nodeId];
-    }
-
-    std::optional<epoch_script::TimeFrame> resolvedTimeframe;
-
-    // If we have inputs, resolve from them
-    if (!inputIds.empty()) {
-      std::vector<epoch_script::TimeFrame> inputTimeframes;
-      inputTimeframes.reserve(inputIds.size());
-
-      for (const auto &handleId : inputIds) {
-        auto handleNodeId = handleId.substr(0, handleId.find("#"));
-        if (nodeTimeframes.contains(handleNodeId) &&
-            nodeTimeframes[handleNodeId]) {
-          inputTimeframes.push_back(nodeTimeframes[handleNodeId].value());
-            }
-      }
-
-      // Find the lowest resolution (highest timeframe value) using operator<
-      if (!inputTimeframes.empty()) {
-        auto maxTimeframe =
-            *std::max_element(inputTimeframes.begin(), inputTimeframes.end());
-        resolvedTimeframe = maxTimeframe;
-      }
-    }
-
-    // Fall back to base timeframe if no inputs or no input timeframes found
-    if (!resolvedTimeframe) {
-      resolvedTimeframe = baseTimeframe;
-    }
-
-    // Cache the result
-    nodeTimeframes[nodeId] = resolvedTimeframe;
-    return resolvedTimeframe;
-  };
-
-  std::optional<epoch_script::TimeFrame> ResolveNodeTimeframe(
-    const epoch_script::strategy::AlgorithmNode &node,
-    const std::optional<epoch_script::TimeFrame> &baseTimeframe,
-    TimeframeResolutionCache &cache) {
-
-    // If node has explicit timeframe, use it
-    if (node.timeframe) {
-      cache.nodeTimeframes[node.id] = node.timeframe;
-      return node.timeframe;
-    }
-
-    // Extract input IDs from the node
-    std::vector<std::string> inputIds;
-    for (const auto &[key, values] : node.inputs) {
-      inputIds.insert(inputIds.end(), values.begin(), values.end());
-    }
-
-    // Use cache to resolve timeframe
-    return cache.ResolveTimeframe(node.id, inputIds, baseTimeframe);
+  ITransformManagerPtr CreateTransformManager(
+      epoch_script::strategy::PythonSource const& source) {
+    return std::make_unique<TransformManager>(source);
   }
 
   void TransformManager::BuildTransformManager(
-    std::vector<epoch_script::strategy::AlgorithmNode> &algorithms,
-    const std::optional<epoch_script::TimeFrame> &baseTimeframe) {
-    TimeframeResolutionCache cache;
+      std::vector<epoch_script::strategy::AlgorithmNode> const& algorithms) {
+    // Timeframes are already resolved by the compiler (ast_compiler.cpp)
+    // All nodes should have timeframes set, except scalar types which are timeframe-agnostic
+    for (auto const& algorithm : algorithms) {
+      // Assert timeframe is present (compiler should have resolved it)
+      AssertFromFormat(
+          algorithm.timeframe.has_value(),
+          "TransformManager received node '{}' (type: '{}') without timeframe. "
+          "This indicates a compiler bug - all nodes must have timeframes "
+          "resolved during compilation (see ast_compiler.cpp::resolveTimeframes).",
+          algorithm.id, algorithm.type);
 
-    // Process algorithms with timeframe resolution
-    for (auto &algorithm : algorithms) {
-      auto resolvedTimeframe =
-          ResolveNodeTimeframe(algorithm, baseTimeframe, cache);
       this->Insert(
-          epoch_script::TransformDefinition{algorithm, resolvedTimeframe});
+          epoch_script::TransformDefinition{algorithm, algorithm.timeframe.value()});
+
       if (algorithm.type == epoch_script::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
         m_executorId = algorithm.id;
       }
@@ -94,20 +38,8 @@ namespace epoch_script::runtime {
   }
 
   TransformManager::TransformManager(
-    TransformManagerOptions const& options) {
-    auto algorithms = options.source.GetCompilationResult();
-
-    // Only reset node timeframes if strict mode AND a timeframe is set AND not base
-    if (options.strict && options.timeframe && !options.timeframeIsBase) {
-      for (auto &node : algorithms) {
-        if (node.timeframe.has_value()) {
-          node.timeframe = {};
-        }
-      }
-    }
-
-    BuildTransformManager(
-        algorithms, options.timeframe);
+      epoch_script::strategy::PythonSource const& source) {
+    BuildTransformManager(source.GetCompilationResult());
   }
 
   const epoch_script::transform::TransformConfiguration *

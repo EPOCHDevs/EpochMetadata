@@ -15,13 +15,6 @@ namespace epoch_script::transform {
 }
 
 namespace epoch_script::runtime {
-    struct TransformManagerOptions {
-        epoch_script::strategy::PythonSource source;
-        bool strict = true;
-        bool timeframeIsBase = false;
-        std::optional<epoch_script::TimeFrame> timeframe;
-    };
-
     using TransformConfigurationPtr =
         std::unique_ptr<epoch_script::transform::TransformConfiguration>;
 
@@ -58,7 +51,6 @@ namespace epoch_script::runtime {
     ITransformManagerPtr CreateTransformManager();
 
     ITransformManagerPtr CreateTransformManager(
-    const TransformManagerOptions& options
-);
+        epoch_script::strategy::PythonSource const& source);
 
 } // namespace epoch_script::runtime

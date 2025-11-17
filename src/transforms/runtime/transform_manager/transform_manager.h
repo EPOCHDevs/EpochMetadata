@@ -9,20 +9,11 @@
 #include <epoch_script/transforms/core/itransform.h>
 
 namespace epoch_script::runtime {
-  struct TimeframeResolutionCache {
-    std::unordered_map<std::string, std::optional<epoch_script::TimeFrame>>
-        nodeTimeframes;
-
-    std::optional<epoch_script::TimeFrame> ResolveTimeframe(
-        const std::string &nodeId, const std::vector<std::string> &inputIds,
-        const std::optional<epoch_script::TimeFrame> &baseTimeframe);
-  };
-
   class TransformManager : public ITransformManager {
 
   public:
     TransformManager() = default;
-    explicit TransformManager(TransformManagerOptions const&);
+    explicit TransformManager(epoch_script::strategy::PythonSource const& source);
     ~TransformManager() override = default;
 
     const epoch_script::transform::TransformConfiguration *
@@ -105,7 +96,6 @@ namespace epoch_script::runtime {
     std::optional<std::string> m_executorId;
 
     void BuildTransformManager(
-    std::vector<epoch_script::strategy::AlgorithmNode> &algorithms,
-    const std::optional<epoch_script::TimeFrame> &baseTimeframe);
+        std::vector<epoch_script::strategy::AlgorithmNode> const& algorithms);
   };
 } // namespace epoch_script::runtime
