@@ -301,7 +301,7 @@ MakeDataModuleOption(CountryCurrency baseCurrency,
                      epoch_script::strategy::DatePeriodConfig const &period,
                      epoch_script::strategy::DataOption const &config,
                      DataCategory primaryCategory,
-                     std::vector<DataCategory> const &auxiliaryCategories) {
+                     std::vector<DataCategory> const &auxiliaryCategories={}) {
   const auto [dataloaderAssets, strategyAssets, continuationAssets] =
       MakeAssets(baseCurrency, config.assets,
                  config.futures_continuation.has_value());
