@@ -1,8 +1,8 @@
 //
 // Created by dewe on 1/29/23.
 //
-#include "factory.h"
-#include "common/env_loader.h"
+#include <epoch_script/data/factory.h>
+#include <epoch_script/common/env_loader.h>
 #include "data/database/database_impl.h"
 #include "data/database/updates/alpaca_websocket_manager.h"
 

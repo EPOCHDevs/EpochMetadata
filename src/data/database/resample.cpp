@@ -5,7 +5,7 @@
 #include "epoch_frame/market_calendar.h"
 #include "index/datetime_index.h"
 #include "methods/time_grouper.h"
-#include "data/model/exchange_calendar.h"
+#include <epoch_script/data/model/exchange_calendar.h>
 #include <common/epoch_thread_pool.h>
 #include <epoch_frame/series.h>
 #include <epoch_script/transforms/core/bar_resampler.h>

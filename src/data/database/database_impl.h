@@ -8,7 +8,7 @@
 
 #include "data/futures_continuation/continuations.h"
 #include "epoch_frame/datetime.h"
-#include "idatabase_impl.h"
+#include <epoch_script/data/database/idatabase_impl.h>
 #include <epoch_data_sdk/model/asset/asset.hpp>
 #include "resample.h"
 #include <epoch_script/transforms/runtime/iorchestrator.h>

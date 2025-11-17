@@ -2,10 +2,10 @@
 //
 // Created by dewe on 1/29/23.
 //
-#include "database/database.h"
-#include "database/resample.h"
-#include "database/updates/iwebsocket_manager.h"
-#include "futures_continuation/continuations.h"
+#include "data/database/database.h"
+#include "data/database/resample.h"
+#include "data/database/updates/iwebsocket_manager.h"
+#include "data/futures_continuation/continuations.h"
 
 // Use epoch_data_sdk for all dataloader infrastructure
 #include <epoch_data_sdk/dataloader/dataloader.hpp>

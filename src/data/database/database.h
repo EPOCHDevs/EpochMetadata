@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "idatabase_impl.h"
+#include <epoch_script/data/database/idatabase_impl.h>
 #include <epoch_data_sdk/model/asset/asset.hpp>
 #include <string>
 #include <epoch_frame/series.h>

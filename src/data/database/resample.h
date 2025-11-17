@@ -1,6 +1,6 @@
 #pragma once
 
-#include "data/aliases.h"
+#include <epoch_script/data/aliases.h>
 #include "epoch_frame/dataframe.h"
 #include "epoch_script/core/time_frame.h"
 #include <vector>

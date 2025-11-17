@@ -592,32 +592,7 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
 std::vector<TransformsMetaData> MakeLagMetaData() {
   std::vector<TransformsMetaData> metadataList;
 
-  metadataList.emplace_back(TransformsMetaData{
-      .id = "lag",
-      .category = epoch_core::TransformCategory::Trend,
-      .plotKind = epoch_core::TransformPlotKind::line,
-      .name = "Lag",
-      .options = {
-          MetaDataOption{.id = "period",
-                         .name = "Period",
-                         .type = epoch_core::MetaDataOptionType::Integer,
-                         .defaultValue = MetaDataOptionDefinition(static_cast<double>(1)),
-                         .min = 1,
-                         .desc = "Number of periods to shift the data backward",
-                         .tuningGuidance = "Lag 1 for previous bar comparison. Larger lags for detecting longer-term patterns or creating features for machine learning models. Common: 1 (prev bar), 5 (prev week on daily), 20 (prev month)."}
-      },
-      .desc = "Shifts each element in the input by the specified period, "
-              "creating a lagged series. Works with any data type.",
-      .inputs = {IOMetaDataConstants::ANY_INPUT_METADATA},
-      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
-      .tags = {"math", "lag", "delay", "shift", "temporal"},
-      .requiresTimeFrame = false,
-      .allowNullInputs = true,
-      .strategyTypes = {"feature-engineering", "temporal-comparison"},
-      .assetRequirements = {"single-asset"},
-      .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",
-      .limitations = "Shifts data backward, so first N bars will be null/undefined. Not a predictive transform - only accesses past data."});
-
+  // NOTE: Untyped "lag" transform removed - only typed variants (lag_string, lag_number, lag_boolean, lag_timestamp) are implemented
   // Typed lag variants
   for (auto const &[id, name, inputType, outputType] :
        std::initializer_list<std::array<std::string, 4>>{
@@ -714,9 +689,9 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
         .limitations = "Constant value - no dynamic behavior. Mainly for development/testing."});
   }
 
+  // NOTE: Untyped "null" transform removed - only typed variants (null_string, null_number, null_boolean, null_timestamp) are implemented
   for (auto const &[id, name] :
        std::initializer_list<std::array<std::string, 2>>{
-           {"null", "Null"},
            {"one", "1"},
            {"negative_one", "-1"},
            {"zero", "0"},
@@ -737,9 +712,7 @@ std::vector<TransformsMetaData> MakeScalarMetaData() {
         .name = name,
         .options = {},
         .desc = name,
-        .outputs = {id == "null"
-                        ? IOMetaDataConstants::ANY_OUTPUT_METADATA
-                        : IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
+        .outputs = {IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
         .tags = {"scalar", "constant", "math", "number"}});
   }
 

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "data/aliases.h"
+#include <epoch_script/data/aliases.h>
 
 namespace epoch_script::data {
 struct IFuturesContinuationConstructor {

@@ -1,1 +1,1 @@
-target_sources(epoch_stratifyx_data PRIVATE roll_method_impl.cpp)
+target_sources(epoch_script PRIVATE roll_method_impl.cpp)

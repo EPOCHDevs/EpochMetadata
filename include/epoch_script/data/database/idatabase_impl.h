@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "data/aliases.h"
+#include <epoch_script/data/aliases.h>
 #include <epoch_frame/dataframe.h>
 #include <memory>
 #include "epoch_protos/tearsheet.pb.h"

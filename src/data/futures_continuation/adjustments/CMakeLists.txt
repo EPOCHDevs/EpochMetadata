@@ -1,1 +1,1 @@
-target_sources(epoch_stratifyx_data PRIVATE adjustment_base.cpp)
+target_sources(epoch_script PRIVATE adjustment_base.cpp)

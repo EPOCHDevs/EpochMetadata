@@ -2,7 +2,7 @@
 // Created by adesola on 7/20/24.
 //
 
-#include "exchange_calendar.h"
+#include <epoch_script/data/model/exchange_calendar.h>
 
 #include <epoch_data_sdk/common/glaze_custom_types.hpp>
 #include <epoch_script/core/bar_attribute.h>

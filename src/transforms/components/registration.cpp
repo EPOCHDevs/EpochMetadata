@@ -192,6 +192,12 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(modulo, ModuloTransform);
   REGISTER_TRANSFORM(power_op, PowerTransform);
 
+  // Untyped N-way selectors (select_2, select_3, select_4, select_5)
+  REGISTER_TRANSFORM(select_2, Select2);
+  REGISTER_TRANSFORM(select_3, Select3);
+  REGISTER_TRANSFORM(select_4, Select4);
+  REGISTER_TRANSFORM(select_5, Select5);
+
   // Typed BooleanSelect transforms
   REGISTER_TRANSFORM(boolean_select_string, BooleanSelectString);
   REGISTER_TRANSFORM(boolean_select_number, BooleanSelectNumber);

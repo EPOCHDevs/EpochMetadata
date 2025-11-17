@@ -21,7 +21,7 @@
 #include <epoch_script/strategy/metadata.h>
 #include <epoch_script/strategy/introspection.h>
 #include <epoch_script/transforms/core/registration.h>
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 #include <epoch_frame/dataframe.h>
 #include <epoch_frame/serialization.h>
 #include <arrow/compute/initialize.h>

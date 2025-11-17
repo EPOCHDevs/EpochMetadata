@@ -294,6 +294,12 @@ TEST_CASE("Transform Metadata Factory") {
           // Extract N from "select_N" (e.g., "select_2" -> N=2)
           size_t N = std::stoull(id.substr(7)); // Skip "select_" prefix
           inputs_vec.emplace_back(getArrayFromType(inputMetadata.type, N - 1));
+        // Special handling for switchN_* transforms: limit index values to valid range [0, N-1]
+        } else if (id.starts_with("switch") && inputMetadata.id == "index") {
+          // Extract N from "switchN_type" (e.g., "switch3_timestamp" -> N=3)
+          size_t underscorePos = id.find('_');
+          size_t N = std::stoull(id.substr(6, underscorePos - 6)); // Skip "switch" prefix
+          inputs_vec.emplace_back(getArrayFromType(inputMetadata.type, N - 1));
         } else {
           inputs_vec.emplace_back(getArrayFromType(inputMetadata.type));
         }
