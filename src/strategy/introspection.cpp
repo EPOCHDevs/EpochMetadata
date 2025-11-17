@@ -16,7 +16,7 @@ namespace epoch_script::strategy {
     bool IsIntradayCampaign(StrategyConfig const &config) {
         // Check all strategy components - if ANY requires intraday, entire campaign is intraday
         // This is conservative but correct - can't mix minute and daily data without resampling
-        return IsIntraday(config.trade_signal) ||
+        return (config.trade_signal.source && config.trade_signal.source->IsIntraday()) ||
                IsIntraday(config.position_sizer) ||
                IsIntraday(config.take_profit) ||
                IsIntraday(config.stop_loss);
