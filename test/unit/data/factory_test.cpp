@@ -23,175 +23,177 @@ using epoch_script::MetaDataArgDefinitionMapping;
 
 // ============================================================================
 // Tests for MakeDataModuleOption
+// NOTE: MakeDataModuleOption has been removed - only MakeDataModuleOptionFromStrategy
+// is exposed now. These tests are disabled until they can be rewritten for the new API.
 // ============================================================================
 
-TEST_CASE("MakeDataModuleOption sets date periods correctly", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// TEST_CASE("MakeDataModuleOption sets date periods correctly", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   epoch_script::strategy::DatePeriodConfig period{
+//       .from = startDate,
+//       .to = endDate
+//   };
+//
+//   epoch_script::strategy::DataOption dataConfig{
+//       .assets = {"AAPL-Stocks"},
+//       .source = "",
+//       .cache_dir = ""
+//   };
+//
+//   auto result = MakeDataModuleOption(
+//       CountryCurrency::USD,
+//       period,
+//       dataConfig,
+//       DataCategory::DailyBars
+//   );
+//
+//   REQUIRE(result.loader.startDate == startDate);
+//   REQUIRE(result.loader.endDate == endDate);
+// }
 
-  epoch_script::strategy::DatePeriodConfig period{
-      .from = startDate,
-      .to = endDate
-  };
-
-  epoch_script::strategy::DataOption dataConfig{
-      .assets = {"AAPL-Stocks"},
-      .source = "",
-      .cache_dir = ""
-  };
-
-  auto result = MakeDataModuleOption(
-      CountryCurrency::USD,
-      period,
-      dataConfig,
-      DataCategory::DailyBars
-  );
-
-  REQUIRE(result.loader.startDate == startDate);
-  REQUIRE(result.loader.endDate == endDate);
-}
-
-TEST_CASE("MakeDataModuleOption sets primary category", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
-  epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
-
-  auto result = MakeDataModuleOption(
-      CountryCurrency::USD,
-      period,
-      dataConfig,
-      DataCategory::MinuteBars
-  );
-
-  REQUIRE(result.loader.categories.count(DataCategory::MinuteBars) == 1);
-}
-
-TEST_CASE("MakeDataModuleOption includes auxiliary categories", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
-  epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
-
-  std::vector<DataCategory> auxiliaryCategories = {
-      DataCategory::BalanceSheets,
-      DataCategory::News
-  };
-
-  auto result = MakeDataModuleOption(
-      CountryCurrency::USD,
-      period,
-      dataConfig,
-      DataCategory::DailyBars,
-      auxiliaryCategories
-  );
-
-  REQUIRE(result.loader.categories.count(DataCategory::DailyBars) == 1);
-  REQUIRE(result.loader.categories.count(DataCategory::BalanceSheets) == 1);
-  REQUIRE(result.loader.categories.count(DataCategory::News) == 1);
-  REQUIRE(result.loader.categories.size() == 3);
-}
-
-TEST_CASE("MakeDataModuleOption with empty futures continuation", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
-  epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
-
-  auto result = MakeDataModuleOption(
-      CountryCurrency::USD,
-      period,
-      dataConfig,
-      DataCategory::DailyBars
-  );
-
-  // Should not have futures continuation for non-futures assets
-  REQUIRE_FALSE(result.futureContinuation.has_value());
-}
-
-TEST_CASE("MakeDataModuleOption sets source path", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
-
-  SECTION("Uses custom source path when provided") {
-    epoch_script::strategy::DataOption dataConfig{
-        .assets = {"AAPL-Stocks"},
-        .source = "/custom/path"
-    };
-
-    auto result = MakeDataModuleOption(
-        CountryCurrency::USD,
-        period,
-        dataConfig,
-        DataCategory::DailyBars
-    );
-
-    REQUIRE(result.loader.sourcePath.has_value());
-    REQUIRE(result.loader.sourcePath->string() == "/custom/path");
-  }
-
-  SECTION("Uses default path when source is empty") {
-    epoch_script::strategy::DataOption dataConfig{
-        .assets = {"AAPL-Stocks"},
-        .source = ""
-    };
-
-    auto result = MakeDataModuleOption(
-        CountryCurrency::USD,
-        period,
-        dataConfig,
-        DataCategory::DailyBars
-    );
-
-    REQUIRE(result.loader.sourcePath.has_value());
-    REQUIRE(result.loader.sourcePath->string() == DEFAULT_DATABASE_PATH);
-  }
-}
-
-TEST_CASE("MakeDataModuleOption sets cache directory", "[factory][options]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
-
-  SECTION("Sets cache dir when provided") {
-    epoch_script::strategy::DataOption dataConfig{
-        .assets = {"AAPL-Stocks"},
-        .cache_dir = "/cache/dir"
-    };
-
-    auto result = MakeDataModuleOption(
-        CountryCurrency::USD,
-        period,
-        dataConfig,
-        DataCategory::DailyBars
-    );
-
-    REQUIRE(result.loader.cacheDir.has_value());
-    REQUIRE(result.loader.cacheDir->string() == "/cache/dir");
-  }
-
-  SECTION("No cache dir when empty") {
-    epoch_script::strategy::DataOption dataConfig{
-        .assets = {"AAPL-Stocks"},
-        .cache_dir = ""
-    };
-
-    auto result = MakeDataModuleOption(
-        CountryCurrency::USD,
-        period,
-        dataConfig,
-        DataCategory::DailyBars
-    );
-
-    REQUIRE_FALSE(result.loader.cacheDir.has_value());
-  }
-}
+// TEST_CASE("MakeDataModuleOption sets primary category", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// 
+//   epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
+//   epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
+// 
+//   auto result = MakeDataModuleOption(
+//       CountryCurrency::USD,
+//       period,
+//       dataConfig,
+//       DataCategory::MinuteBars
+//   );
+// 
+//   REQUIRE(result.loader.categories.count(DataCategory::MinuteBars) == 1);
+// }
+// 
+// TEST_CASE("MakeDataModuleOption includes auxiliary categories", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// 
+//   epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
+//   epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
+// 
+//   std::vector<DataCategory> auxiliaryCategories = {
+//       DataCategory::BalanceSheets,
+//       DataCategory::News
+//   };
+// 
+//   auto result = MakeDataModuleOption(
+//       CountryCurrency::USD,
+//       period,
+//       dataConfig,
+//       DataCategory::DailyBars,
+//       auxiliaryCategories
+//   );
+// 
+//   REQUIRE(result.loader.categories.count(DataCategory::DailyBars) == 1);
+//   REQUIRE(result.loader.categories.count(DataCategory::BalanceSheets) == 1);
+//   REQUIRE(result.loader.categories.count(DataCategory::News) == 1);
+//   REQUIRE(result.loader.categories.size() == 3);
+// }
+// 
+// TEST_CASE("MakeDataModuleOption with empty futures continuation", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// 
+//   epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
+//   epoch_script::strategy::DataOption dataConfig{.assets = {"AAPL-Stocks"}};
+// 
+//   auto result = MakeDataModuleOption(
+//       CountryCurrency::USD,
+//       period,
+//       dataConfig,
+//       DataCategory::DailyBars
+//   );
+// 
+//   // Should not have futures continuation for non-futures assets
+//   REQUIRE_FALSE(result.futureContinuation.has_value());
+// }
+// 
+// TEST_CASE("MakeDataModuleOption sets source path", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// 
+//   epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
+// 
+//   SECTION("Uses custom source path when provided") {
+//     epoch_script::strategy::DataOption dataConfig{
+//         .assets = {"AAPL-Stocks"},
+//         .source = "/custom/path"
+//     };
+// 
+//     auto result = MakeDataModuleOption(
+//         CountryCurrency::USD,
+//         period,
+//         dataConfig,
+//         DataCategory::DailyBars
+//     );
+// 
+//     REQUIRE(result.loader.sourcePath.has_value());
+//     REQUIRE(result.loader.sourcePath->string() == "/custom/path");
+//   }
+// 
+//   SECTION("Uses default path when source is empty") {
+//     epoch_script::strategy::DataOption dataConfig{
+//         .assets = {"AAPL-Stocks"},
+//         .source = ""
+//     };
+// 
+//     auto result = MakeDataModuleOption(
+//         CountryCurrency::USD,
+//         period,
+//         dataConfig,
+//         DataCategory::DailyBars
+//     );
+// 
+//     REQUIRE(result.loader.sourcePath.has_value());
+//     REQUIRE(result.loader.sourcePath->string() == DEFAULT_DATABASE_PATH);
+//   }
+// }
+// 
+// TEST_CASE("MakeDataModuleOption sets cache directory", "[factory][options]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// 
+//   epoch_script::strategy::DatePeriodConfig period{.from = startDate, .to = endDate};
+// 
+//   SECTION("Sets cache dir when provided") {
+//     epoch_script::strategy::DataOption dataConfig{
+//         .assets = {"AAPL-Stocks"},
+//         .cache_dir = "/cache/dir"
+//     };
+// 
+//     auto result = MakeDataModuleOption(
+//         CountryCurrency::USD,
+//         period,
+//         dataConfig,
+//         DataCategory::DailyBars
+//     );
+// 
+//     REQUIRE(result.loader.cacheDir.has_value());
+//     REQUIRE(result.loader.cacheDir->string() == "/cache/dir");
+//   }
+// 
+//   SECTION("No cache dir when empty") {
+//     epoch_script::strategy::DataOption dataConfig{
+//         .assets = {"AAPL-Stocks"},
+//         .cache_dir = ""
+//     };
+// 
+//     auto result = MakeDataModuleOption(
+//         CountryCurrency::USD,
+//         period,
+//         dataConfig,
+//         DataCategory::DailyBars
+//     );
+// 
+//     REQUIRE_FALSE(result.loader.cacheDir.has_value());
+//   }
+// }
 
 // ============================================================================
 // Tests for DataModuleFactory Create methods

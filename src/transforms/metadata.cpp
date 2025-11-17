@@ -717,7 +717,7 @@ std::vector<TransformsMetaData> MakeDataSource() {
                   IOMetaDataConstants::VOLUME_METADATA},
       .tags = {"data", "source", "price", "ohlcv"},
       .requiresTimeFrame = true,
-      .requiredDataSources = {"o", "h", "l", "c", "v", "vw", "n"},
+      .requiredDataSources = {"o", "h", "l", "c", "v"},
       .strategyTypes = {"data-input"},
       .assetRequirements = {"single-asset"},
       .usageContext = "Foundation node providing raw OHLCV market data to all strategies. Every strategy pipeline starts here. Outputs connect to indicators, comparisons, and calculations.",

@@ -480,21 +480,15 @@ TEST_CASE("Transform Metadata Factory") {
     // TODO: Typed conditional_select variants should declare proper metadata
     // If they fail, it means metadata.inputs doesn't match the transform's requirements
 
-    // SKIP: Flexible pivot detector - requires runtime orchestrator
-    // Needs orchestrator to provide OHLC columns via special requiredDataSources mechanism
-    // Dedicated test: test/unit/transforms/pivot_detector_test.cpp (if exists)
-    if (id == "flexible_pivot_detector") {
-      continue;
-    }
+    // NOTE: flexible_pivot_detector previously skipped - trying without skip now that
+    // requiredDataSources mechanism is working properly. Dedicated test exists at
+    // test/unit/transforms/pivot_detector_test.cpp
 
     // NOTE: groupby_* transforms now have special input overrides (lines 320-323)
     // They receive String input for group_key column instead of default Decimal/Any type
 
-    // SKIP: market_data_source - metadata bug: declares 5 outputs but produces 7
-    // TODO: Fix the metadata in market_data_source transform to match actual outputs
-    if (id == "market_data_source") {
-      continue;
-    }
+    // NOTE: market_data_source requiredDataSources fixed - now only lists {"o", "h", "l", "c", "v"}
+    // to match the 5 outputs. "vw" and "n" moved to separate vwap/trade_count transforms.
 
     // NOTE: static_cast_* transforms now have special input overrides (lines 304-318)
     // They receive inputs matching their output types instead of Any type

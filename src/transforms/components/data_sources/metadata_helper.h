@@ -30,16 +30,11 @@ inline epoch_core::IODataType ConvertArrowTypeToIODataType(data_sdk::ArrowType a
 
 /**
  * Builds IOMetaData outputs from SDK column metadata
- * Filters out 'vw' (volume-weighted) and 'n' (number of trades) columns
  */
 inline std::vector<epoch_script::transforms::IOMetaData>
 BuildOutputsFromSDKMetadata(data_sdk::DataFrameMetadata const& sdkMetadata) {
   std::vector<epoch_script::transforms::IOMetaData> outputs;
   for (const auto& col : sdkMetadata.columns) {
-    // Skip 'vw' and 'n' columns - these are not exposed as transform outputs
-    if (col.id == "vw" || col.id == "n") {
-      continue;
-    }
     epoch_core::IODataType type = ConvertArrowTypeToIODataType(col.type);
     outputs.push_back({type, col.id, col.name});
   }
