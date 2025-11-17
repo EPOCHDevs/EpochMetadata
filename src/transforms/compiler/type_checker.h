@@ -45,6 +45,10 @@ namespace epoch_script
         // Returns the new node ID of the inserted static_cast node
         std::string InsertStaticCast(const std::string& source_node_id, const std::string& source_handle, DataType resolved_type);
 
+        // Insert a stringify node to convert Any type to String
+        // Returns the new node ID of the inserted stringify node
+        std::string InsertStringify(const std::string& source_node_id, const std::string& source_handle);
+
     private:
         CompilationContext& context_;
 

@@ -60,28 +60,6 @@ void TransformsMetaData::decode(const YAML::Node &element) {
   limitations = element["limitations"].as<std::string>("");
 }
 
-TransformsMetaData MakeBooleanSelectMetaData(std::string const &id,
-                                             std::string const &name) {
-  return {
-      .id = id,
-      .category = epoch_core::TransformCategory::ControlFlow,
-      .plotKind = epoch_core::TransformPlotKind::Null,
-      .name = name,
-      .options = {},
-      .isCrossSectional = false,
-      .desc = "Selects between two inputs based on a boolean condition. "
-              "When condition is true, passes through the 'True Value' "
-              "input, otherwise passes through the 'False Value' input.",
-      .inputs = {{epoch_core::IODataType::Boolean, "condition", "Condition"},
-                 {epoch_core::IODataType::Any, "true", "True Value"},
-                 {epoch_core::IODataType::Any, "false", "False Value"}},
-      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
-      .allowNullInputs = true,
-      .strategyTypes = {"conditional-logic"},
-      .assetRequirements = {"single-asset"},
-      .usageContext = "Conditional routing for strategy logic. Route different values based on conditions like time-of-day filters, regime detection, or risk states. Common use: switch between aggressive/conservative position sizing based on volatility regime.",
-      .limitations = "Can only choose between two values. For more options, use select_N transforms (select_2, select_3, etc.)."};
-}
 
 TransformsMetaData MakeEqualityTransformMetaData(std::string const &id,
                                                  std::string const &name) {
@@ -263,57 +241,6 @@ TransformsMetaData MakeValueCompareMetaData(
   return metadata;
 }
 
-TransformsMetaData MakeFirstNonNullMetaData() {
-  return {
-      .id = "first_non_null",
-      .category = epoch_core::TransformCategory::ControlFlow,
-      .plotKind = epoch_core::TransformPlotKind::Null,
-      .name = "First Non-Null",
-      .options = {},
-      .isCrossSectional = false,
-      .desc = "Returns the first non-null value from the input list. "
-              "Evaluates inputs left to right and returns the first value "
-              "that is not null. If all inputs are null, returns null.",
-      .inputs = {IOMetaData{epoch_core::IODataType::Any, ARG, "", true}}, // VARARGS with allowMultipleConnections
-      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
-      .atLeastOneInputRequired = true,
-      .allowNullInputs = false, // Null handling is the purpose, but inputs themselves are valid arrays (can contain nulls)
-      .strategyTypes = {"conditional-logic", "null-handling"},
-      .assetRequirements = {"single-asset"},
-      .usageContext = "Handle missing data by falling back to alternative values. "
-                      "Common pattern: first_non_null(primary_signal, backup_signal, default_value). "
-                      "Useful for data quality: use calculated value if available, otherwise use raw data.",
-      .limitations = "All inputs must be compatible types (or Any). Evaluates all inputs even after finding non-null value (not short-circuit)."
-  };
-}
-
-TransformsMetaData MakeConditionalSelectMetaData() {
-  return {
-      .id = "conditional_select",
-      .category = epoch_core::TransformCategory::ControlFlow,
-      .plotKind = epoch_core::TransformPlotKind::Null,
-      .name = "Conditional Select",
-      .options = {},
-      .isCrossSectional = false,
-      .desc = "SQL-style CASE WHEN selector. Evaluates condition/value pairs "
-              "in order and returns the value for the first true condition. "
-              "Inputs alternate: condition1, value1, condition2, value2, ..., [default]. "
-              "If no conditions match and no default provided, returns null.",
-      .inputs = {IOMetaData{epoch_core::IODataType::Any, ARG, "", true}}, // VARARGS with allowMultipleConnections
-      .outputs = {IOMetaDataConstants::ANY_OUTPUT_METADATA},
-      .atLeastOneInputRequired = true,
-      .allowNullInputs = false, // Inputs are valid arrays (conditions/values), not null connection slots
-      .strategyTypes = {"conditional-logic", "multi-condition-routing", "regime-switching"},
-      .assetRequirements = {"single-asset"},
-      .usageContext = "Multi-way conditional logic. Use when you have 3+ conditions. "
-                      "Example: conditional_select(rsi < 30, 'oversold', rsi > 70, 'overbought', rsi < 50, 'weak', 'strong'). "
-                      "Cleaner than nested ternary expressions for complex logic.",
-      .limitations = "Inputs must alternate boolean conditions and values. "
-                     "Final odd input (if present) is default value. "
-                     "All value inputs must be compatible types. "
-                     "Evaluates conditions sequentially - first match wins."
-  };
-}
 
 std::vector<TransformsMetaData> MakeComparativeMetaData() {
   std::vector<TransformsMetaData> metadataList;

@@ -116,3 +116,21 @@ if (BUILD_TEST)
     add_subdirectory(test)
     add_subdirectory(benchmark)
 endif()
+
+# Installation target for test cases (for use by StratifyX test coverage framework)
+option(INSTALL_TEST_CASES "Install test cases for external usage" OFF)
+if(INSTALL_TEST_CASES)
+    set(TEST_CASES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/epochscript/test_cases" CACHE PATH "Test cases installation directory")
+
+    # Install test cases, excluding those with error.txt
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/scripts/test_coverage/output/test_cases/
+            DESTINATION ${TEST_CASES_INSTALL_DIR}
+            COMPONENT test_cases
+            FILES_MATCHING
+            PATTERN "*.epochscript"
+            PATTERN "*.json"
+            PATTERN "error.txt" EXCLUDE
+            PATTERN "[ATTENTION]*" EXCLUDE)
+
+    message(STATUS "Test cases will be installed to: ${TEST_CASES_INSTALL_DIR}")
+endif()

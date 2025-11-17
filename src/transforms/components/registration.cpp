@@ -75,6 +75,7 @@
 #include "sql/sql_query_metadata.h"
 #include "operators/validation_metadata.h"
 #include "operators/static_cast_metadata.h"
+#include "operators/stringify_metadata.h"
 #include "reports/numeric_card_report.h"
 #include "reports/boolean_card_report.h"
 #include "reports/any_card_report.h"
@@ -181,6 +182,9 @@ void InitializeTransforms(
   REGISTER_TRANSFORM(is_valid, IsValid);
   REGISTER_TRANSFORM(is_zero, IsZero);
   REGISTER_TRANSFORM(is_one, IsOne);
+
+  // Type Conversion Transforms
+  REGISTER_TRANSFORM(stringify, Stringify);
 
   // Static Cast Transforms (compiler-inserted type materializers)
   REGISTER_TRANSFORM(static_cast_to_integer, StaticCastToInteger);

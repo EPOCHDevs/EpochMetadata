@@ -7,6 +7,7 @@
 #include "components/sql/sql_query_metadata.h"
 #include "components/operators/validation_metadata.h"
 #include "components/operators/static_cast_metadata.h"
+#include "components/operators/stringify_metadata.h"
 #include "components/operators/groupby_agg_metadata.h"
 #include "components/data_sources/polygon_metadata.h"
 #include "components/data_sources/polygon_indices_metadata.h"
@@ -47,6 +48,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(MakeStringTransformMetaData());
   metaDataList.emplace_back(epoch_script::transform::MakeValidationMetaData());
   metaDataList.emplace_back(epoch_script::transform::MakeStaticCastMetaData());
+  metaDataList.emplace_back(epoch_script::transform::MakeStringifyMetaData());
   // metaDataList.emplace_back(epoch_script::transform::MakeSQLQueryMetaData()); // DISABLED
   metaDataList.emplace_back(epoch_script::transform::MakeGroupByNumericAggMetaData());
   metaDataList.emplace_back(epoch_script::transform::MakeGroupByBooleanAggMetaData());

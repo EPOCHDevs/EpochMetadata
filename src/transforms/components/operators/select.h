@@ -58,11 +58,6 @@ extern template class ZeroIndexSelectTransform<4>;
 
 extern template class ZeroIndexSelectTransform<5>;
 
-using Select2 = ZeroIndexSelectTransform<2>;
-using Select3 = ZeroIndexSelectTransform<3>;
-using Select4 = ZeroIndexSelectTransform<4>;
-using Select5 = ZeroIndexSelectTransform<5>;
-
 // Typed Switch transforms - DRY template pattern
 template <size_t N, typename TypeTag>
 class TypedZeroIndexSelect : public ITransform {

@@ -832,6 +832,58 @@ namespace epoch_script
         return "boolean_select_number";
     }
 
+    std::string ExpressionCompiler::DetermineLagVariant(DataType input_type)
+    {
+        // Determine the correct type-specialized lag variant based on input type
+        // Maps DataType to lag_string, lag_number, lag_boolean, or lag_timestamp
+
+        switch (input_type)
+        {
+            case DataType::String:
+                return "lag_string";
+
+            case DataType::Boolean:
+                return "lag_boolean";
+
+            case DataType::Timestamp:
+                return "lag_timestamp";
+
+            case DataType::Integer:
+            case DataType::Decimal:
+            case DataType::Number:
+            case DataType::Any:
+            default:
+                // Default to lag_number for numeric types and Any
+                return "lag_number";
+        }
+    }
+
+    std::string ExpressionCompiler::DetermineNullVariant(DataType expected_type)
+    {
+        // Determine the correct type-specialized null variant based on expected type
+        // Maps DataType to null_string, null_number, null_boolean, or null_timestamp
+
+        switch (expected_type)
+        {
+            case DataType::String:
+                return "null_string";
+
+            case DataType::Boolean:
+                return "null_boolean";
+
+            case DataType::Timestamp:
+                return "null_timestamp";
+
+            case DataType::Integer:
+            case DataType::Decimal:
+            case DataType::Number:
+            case DataType::Any:
+            default:
+                // Default to null_number for numeric types and Any
+                return "null_number";
+        }
+    }
+
     ValueHandle ExpressionCompiler::VisitIfExp(const IfExp& if_exp)
     {
         // Ternary expression: test ? body : orelse
@@ -941,11 +993,22 @@ namespace epoch_script
         // Resolve the value being lagged
         ValueHandle value = VisitExpr(*subscript.value);
 
-        // Create AlgorithmNode for lag
+        // Infer input type to determine the correct typed lag variant
+        DataType input_type = type_checker_.GetNodeOutputType(value.node_id, value.handle);
+        std::string comp_name = DetermineLagVariant(input_type);
+
+        // Validate component exists
+        if (!context_.HasComponent(comp_name))
+        {
+            ThrowError("Unknown lag variant '" + comp_name + "' for type " +
+                       TypeChecker::DataTypeToString(input_type), subscript.lineno, subscript.col_offset);
+        }
+
+        // Create AlgorithmNode for typed lag variant
         std::string node_id = UniqueNodeId("lag");
         epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
-        algo.type = "lag";
+        algo.type = comp_name;  // Use type-specialized variant (lag_number, lag_string, etc.)
 
         // Add period option
         algo.options["period"] = epoch_script::MetaDataOptionDefinition{static_cast<double>(lag_period)};
@@ -956,10 +1019,10 @@ namespace epoch_script
         // Add to algorithms list
         context_.algorithms.push_back(std::move(algo));
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
-        context_.var_to_binding[node_id] = "lag";
+        context_.var_to_binding[node_id] = comp_name;
 
-        // Track output type (lag always returns Decimal)
-        context_.node_output_types[node_id]["result"] = DataType::Decimal;
+        // Track output type (lag preserves input type)
+        context_.node_output_types[node_id]["result"] = input_type;
 
         return {node_id, "result"};
     }
@@ -1020,17 +1083,20 @@ namespace epoch_script
 
     ValueHandle ExpressionCompiler::MaterializeNull()
     {
+        // Use null_number as the default typed null variant
+        // Most common use case for None/null literals is numeric contexts
+        std::string comp_name = "null_number";
         std::string node_id = UniqueNodeId("null");
 
         epoch_script::strategy::AlgorithmNode algo;
         algo.id = node_id;
-        algo.type = "null";
+        algo.type = comp_name;
         // No options needed for null node
 
         context_.algorithms.push_back(std::move(algo));
         context_.node_lookup[node_id] = context_.algorithms.size() - 1;
-        context_.var_to_binding[node_id] = "null";
-        context_.node_output_types[node_id]["result"] = DataType::Any;
+        context_.var_to_binding[node_id] = comp_name;
+        context_.node_output_types[node_id]["result"] = DataType::Number;
 
         return {node_id, "result"};
     }

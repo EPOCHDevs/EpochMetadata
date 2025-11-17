@@ -79,8 +79,10 @@ namespace epoch_script
             const std::vector<ValueHandle>& args,
             const std::unordered_map<std::string, ValueHandle>& kwargs);
 
-        // Type specialization helper for ternary operators
+        // Type specialization helpers
         std::string DetermineBooleanSelectVariant(DataType true_type, DataType false_type);
+        std::string DetermineLagVariant(DataType input_type);
+        std::string DetermineNullVariant(DataType expected_type);
 
         // Error reporting helper
         [[noreturn]] void ThrowError(const std::string& msg, int line = 0, int col = 0);

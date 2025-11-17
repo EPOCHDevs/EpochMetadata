@@ -20,16 +20,28 @@ namespace epoch_script::runtime {
     // Timeframes are already resolved by the compiler (ast_compiler.cpp)
     // All nodes should have timeframes set, except scalar types which are timeframe-agnostic
     for (auto const& algorithm : algorithms) {
+      // Check if this node is a scalar type (constants, literals)
+      // Scalars are timeframe-agnostic and don't require timeframes
+      auto metadata = epoch_script::transforms::ITransformRegistry::GetInstance().GetMetaData(algorithm.type);
+      bool isScalar = metadata.has_value() &&
+                      metadata->get().category == epoch_core::TransformCategory::Scalar;
+
       // Assert timeframe is present (compiler should have resolved it)
+      // EXCEPT for scalar types which are timeframe-agnostic
       AssertFromFormat(
-          algorithm.timeframe.has_value(),
+          algorithm.timeframe.has_value() || isScalar,
           "TransformManager received node '{}' (type: '{}') without timeframe. "
-          "This indicates a compiler bug - all nodes must have timeframes "
+          "This indicates a compiler bug - all non-scalar nodes must have timeframes "
           "resolved during compilation (see ast_compiler.cpp::resolveTimeframes).",
           algorithm.id, algorithm.type);
 
+      // For scalar types without timeframes, use a dummy timeframe (won't be used at runtime)
+      auto timeframe = algorithm.timeframe.has_value()
+          ? algorithm.timeframe.value()
+          : epoch_script::TimeFrame("1d");
+
       this->Insert(
-          epoch_script::TransformDefinition{algorithm, algorithm.timeframe.value()});
+          epoch_script::TransformDefinition{algorithm, timeframe});
 
       if (algorithm.type == epoch_script::transforms::TRADE_SIGNAL_EXECUTOR_ID) {
         m_executorId = algorithm.id;

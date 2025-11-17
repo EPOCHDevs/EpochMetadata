@@ -202,6 +202,13 @@ namespace epoch_script
                                      " to " + DataTypeToString(target_type));
         }
 
+        // Special case: Boolean to String uses stringify instead of static_cast
+        if (cast_method.value() == "bool_to_string")
+        {
+            std::string cast_node_id = InsertStringify(source.node_id, source.handle);
+            return {cast_node_id, "result"};
+        }
+
         // All other casts use static_cast transforms
         // Insert static_cast node for the target type
         std::string cast_node_id = InsertStaticCast(source.node_id, source.handle, target_type);
@@ -361,6 +368,30 @@ namespace epoch_script
         context_.node_output_types[cast_node_id]["result"] = resolved_type;
 
         return cast_node_id;
+    }
+
+    std::string TypeChecker::InsertStringify(const std::string& source_node_id, const std::string& source_handle)
+    {
+        // Create unique node ID for the stringify node
+        std::string stringify_node_id = UniqueNodeId("stringify");
+
+        // Create the stringify AlgorithmNode
+        epoch_script::strategy::AlgorithmNode stringify_node;
+        stringify_node.id = stringify_node_id;
+        stringify_node.type = "stringify";
+
+        // Wire the input from source node (stringify expects "SLOT" as input key)
+        stringify_node.inputs["SLOT"] = {JoinId(source_node_id, source_handle)};
+
+        // Add to algorithms list
+        context_.algorithms.push_back(std::move(stringify_node));
+        context_.node_lookup[stringify_node_id] = context_.algorithms.size() - 1;
+        context_.var_to_binding[stringify_node_id] = "stringify";
+
+        // Register the output type as String
+        context_.node_output_types[stringify_node_id]["result"] = DataType::String;
+
+        return stringify_node_id;
     }
 
 } // namespace epoch_script
