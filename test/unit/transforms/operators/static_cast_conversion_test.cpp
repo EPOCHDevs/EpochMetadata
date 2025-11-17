@@ -61,9 +61,9 @@ TEST_CASE("[static_cast_conversion] Boolean to Decimal with nulls", "[operators]
 
   // Create boolean array with nulls
   arrow::BooleanBuilder builder;
-  builder.Append(true);
-  builder.AppendNull();
-  builder.Append(false);
+  (void)builder.Append(true);
+  (void)builder.AppendNull();
+  (void)builder.Append(false);
   auto bool_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(bool_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});
@@ -119,9 +119,9 @@ TEST_CASE("[static_cast_conversion] Decimal to Boolean with nulls", "[operators]
 
   // Create double array with nulls
   arrow::DoubleBuilder builder;
-  builder.Append(1.5);
-  builder.AppendNull();
-  builder.Append(0.0);
+  (void)builder.Append(1.5);
+  (void)builder.AppendNull();
+  (void)builder.Append(0.0);
   auto double_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(double_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});
@@ -177,9 +177,9 @@ TEST_CASE("[static_cast_conversion] Integer to Boolean with nulls", "[operators]
 
   // Create int64 array with nulls
   arrow::Int64Builder builder;
-  builder.Append(42);
-  builder.AppendNull();
-  builder.Append(0);
+  (void)builder.Append(42);
+  (void)builder.AppendNull();
+  (void)builder.Append(0);
   auto int_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(int_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});
@@ -272,7 +272,7 @@ TEST_CASE("[static_cast_conversion] String to Integer should throw", "[operators
   });
 
   arrow::StringBuilder builder;
-  builder.Append("hello");
+  (void)builder.Append("hello");
   auto string_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(string_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});
@@ -292,7 +292,7 @@ TEST_CASE("[static_cast_conversion] String to Boolean should throw", "[operators
   });
 
   arrow::StringBuilder builder;
-  builder.Append("true");
+  (void)builder.Append("true");
   auto string_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(string_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});
@@ -312,7 +312,7 @@ TEST_CASE("[static_cast_conversion] String to Decimal should throw", "[operators
   });
 
   arrow::StringBuilder builder;
-  builder.Append("123.45");
+  (void)builder.Append("123.45");
   auto string_array = builder.Finish().ValueOrDie();
   auto chunked = std::make_shared<arrow::ChunkedArray>(string_array);
   auto input_df = epoch_frame::make_dataframe(index, {chunked}, {"input"});

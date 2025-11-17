@@ -1,0 +1,1 @@
+target_sources(epoch_script PRIVATE alpaca_websocket_manager.cpp)

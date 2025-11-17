@@ -1,9 +1,9 @@
-#include "data/database/database.h"
+#include "../../../../include/epoch_script/data/database/database.h"
 #include "epoch_frame/datetime.h"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
 #include "mocks.h"
-#include "data/model/common/constants.h"
+#include <epoch_script/data/common/constants.h>
 #include <catch2/catch_test_macros.hpp>
 #include <trompeloeil/mock.hpp>
 

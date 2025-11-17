@@ -5,8 +5,8 @@
 #include <common/epoch_thread_pool.h>
 #include <data/database/updates/alpaca_websocket_manager.h>
 #include <drogon/HttpAppFramework.h>
-#include "data/model/common/constants.h"
-#include "data/factory.h"
+#include <epoch_script/data/common/constants.h>
+#include <epoch_script/data/factory.h>
 
 
 using namespace epoch_script::data;

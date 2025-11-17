@@ -1,6 +1,10 @@
 //
 // Created by dewe on 1/29/23.
 //
+#include "../../include/epoch_script/data/database/database.h"
+#include "data/database/resample.h"
+#include "../../include/epoch_script/data/database/updates/iwebsocket_manager.h"
+#include "data/futures_continuation/continuations.h"
 #include <epoch_script/data/factory.h>
 #include <epoch_script/common/env_loader.h>
 #include "data/database/database_impl.h"
@@ -62,16 +66,15 @@ namespace factory {
 // NOTE: CreateDataStreamer removed for EpochScript - not needed for backtesting
 // DataStreamer was only needed for StratifyX's campaign runner
 
-IDataLoaderPtr DataModuleFactory::CreateDataloader() {
+IDataLoaderPtr CreateDataloader(DataModuleOption const& option) {
   // Use epoch_data_sdk factory to create API+cache dataloader
   SPDLOG_INFO("Creating API+cache dataloader from epoch_data_sdk");
   return data_sdk::dataloader::CreateApiCacheDataLoader(
-      m_option.loader, EPOCH_DB_S3);
+      option.loader, EPOCH_DB_S3);
 }
 
-IFuturesContinuationConstructor::Ptr
-DataModuleFactory::CreateFutureContinuations() {
-  auto futuresContinuation = m_option.futureContinuation;
+IFuturesContinuationConstructor::Ptr CreateFutureContinuations(DataModuleOption const& option) {
+  auto futuresContinuation = option.futureContinuation;
   if (!futuresContinuation) {
     return {};
   }
@@ -83,30 +86,29 @@ DataModuleFactory::CreateFutureContinuations() {
           MakeAdjustmentMethod(futuresContinuation->type)));
 }
 
-epoch_script::runtime::IDataFlowOrchestrator::Ptr DataModuleFactory::CreateTransforms() {
+epoch_script::runtime::IDataFlowOrchestrator::Ptr CreateTransforms(DataModuleOption const& option) {
   // Extract asset IDs from strategy assets
   std::set<std::string> assetIds;
-  for (const auto& asset : m_option.loader.strategyAssets) {
+  for (const auto& asset : option.loader.strategyAssets) {
     assetIds.insert(asset.GetID());
   }
 
   return epoch_script::runtime::CreateDataFlowRuntimeOrchestrator(
       assetIds,
-      m_option.transformsConfigList);
+      option.transformsConfigList);
 }
 
-IResamplerPtr DataModuleFactory::CreateResampler() {
-    if (m_option.barResampleTimeFrames.empty()) {
+IResamplerPtr CreateResampler(DataModuleOption const& option) {
+    if (option.barResampleTimeFrames.empty()) {
         return {};
     }
 
-    return std::make_unique<Resampler>(m_option.barResampleTimeFrames,
-                                       m_option.loader.GetDataCategory() ==
+    return std::make_unique<Resampler>(option.barResampleTimeFrames,
+                                       option.loader.GetDataCategory() ==
                                            DataCategory::MinuteBars);
 }
 
-asset::AssetClassMap<IWebSocketManagerPtr>
-DataModuleFactory::CreateWebSocketManager() {
+asset::AssetClassMap<IWebSocketManagerPtr> CreateWebSocketManager() {
   // if (!m_option.liveUpdates) {
     return {};
   // }
@@ -122,13 +124,19 @@ DataModuleFactory::CreateWebSocketManager() {
   // return result;
 }
 
+    DataModuleFactory::DataModuleFactory(DataModuleOption option)
+    : m_option(std::move(option)) {}
+
+    DataModuleOption DataModuleFactory::GetOption() const { return m_option; }
+
+
 std::unique_ptr<Database> DataModuleFactory::CreateDatabase() {
   return std::make_unique<Database>(
       std::make_unique<DatabaseImpl>(DatabaseImplOptions{
-          .dataloader = CreateDataloader(),
-          .dataTransform = CreateTransforms(),
-          .futuresContinuationConstructor = CreateFutureContinuations(),
-          .resampler = CreateResampler(),
+          .dataloader = CreateDataloader(m_option),
+          .dataTransform = CreateTransforms(m_option),
+          .futuresContinuationConstructor = CreateFutureContinuations(m_option),
+          .resampler = CreateResampler(m_option),
           .websocketManager = CreateWebSocketManager()}));
 }
 
@@ -201,7 +209,7 @@ MakeAssets(epoch_core::CountryCurrency baseCurrency,
   return {dataloaderAssets, strategyAssets, continuationAssets};
 }
 
-std::optional<FuturesContinuation::Input> MakeContinuations(
+std::optional<FuturesContinuationInput> MakeContinuations(
     asset::AssetHashSet const &assets,
     std::optional<epoch_script::strategy::TemplatedGenericFunction<
         epoch_core::RolloverType>> const &config) {
@@ -210,7 +218,7 @@ std::optional<FuturesContinuation::Input> MakeContinuations(
         return std::nullopt;
         }
 
-    FuturesContinuation::Input continuationOption{
+    FuturesContinuationInput continuationOption{
         .rollover = config->type,
         .type = epoch_core::lookupDefault(config->args, "adjustment", epoch_script::MetaDataOptionDefinition{"BackwardRatio"})
                     .GetSelectOption<AdjustmentType>(),

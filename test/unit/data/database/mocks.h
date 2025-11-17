@@ -3,12 +3,12 @@
 //
 
 #pragma once
-#include "data/database/database.h"
+#include "../../../../include/epoch_script/data/database/database.h"
 #include <trompeloeil.hpp>
 #include <trompeloeil/mock.hpp>
 
 #include "data/database/resample.h"
-#include "data/database/updates/iwebsocket_manager.h"
+#include "../../../../include/epoch_script/data/database/updates/iwebsocket_manager.h"
 #include "data/futures_continuation/icontinuations.h"
 #include "epoch_script/transforms/core/itransform.h"
 #include <epoch_script/transforms/runtime/iorchestrator.h>

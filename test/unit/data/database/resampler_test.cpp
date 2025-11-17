@@ -7,7 +7,7 @@
 #include "epoch_frame/day_of_week.h"
 #include "epoch_frame/factory/dataframe_factory.h"
 #include "epoch_frame/factory/index_factory.h"
-#include "data/model/common/constants.h"
+#include <epoch_script/data/common/constants.h>
 #include <catch2/generators/catch_generators.hpp>
 #include <epoch_core/catch_defs.h>
 #include <epoch_frame/datetime.h>

@@ -2,7 +2,7 @@
 // Created by adesola on 8/2/24.
 //
 #include "data/futures_continuation/adjustments/adjustments.h"
-#include "data/model/common/constants.h"
+#include <epoch_script/data/common/constants.h>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <epoch_frame/factory/array_factory.h>

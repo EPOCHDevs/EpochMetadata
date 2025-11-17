@@ -2,20 +2,18 @@
 //
 // Created by dewe on 1/29/23.
 //
-#include "data/database/database.h"
-#include "data/database/resample.h"
-#include "data/database/updates/iwebsocket_manager.h"
-#include "data/futures_continuation/continuations.h"
 
-// Use epoch_data_sdk for all dataloader infrastructure
 #include <epoch_data_sdk/dataloader/dataloader.hpp>
 #include <epoch_data_sdk/dataloader/options.hpp>
+#include <epoch_data_sdk/model/asset/asset.hpp>
 
 #include <epoch_script/strategy/data_options.h>
 #include <epoch_script/strategy/date_period_config.h>
 #include <epoch_script/strategy/strategy_config.h>
 #include <epoch_script/transforms/runtime/iorchestrator.h>
-#include <utility>
+#include <epoch_script/data/database/updates/iwebsocket_manager.h>
+#include <epoch_script/core/futures_continuation_input.h>
+#include <epoch_script/data/database/database.h>
 
 namespace epoch_script::data {
 
@@ -42,7 +40,7 @@ private:
 struct DataModuleOption {
   DataloaderOption loader;
 
-  std::optional<FuturesContinuation::Input> futureContinuation = {};
+  std::optional<FuturesContinuationInput> futureContinuation = {};
 
   std::vector<epoch_script::TimeFrame> barResampleTimeFrames = {};
 
@@ -54,25 +52,11 @@ struct DataModuleOption {
 namespace factory {
 class DataModuleFactory {
 public:
-  explicit DataModuleFactory(DataModuleOption option)
-      : m_option(std::move(option)) {}
-
-  // NOTE: CreateDataStreamer removed for EpochScript - not needed for backtesting
-  // Only Database is needed for test framework
+  explicit DataModuleFactory(DataModuleOption option);
 
   std::unique_ptr<Database> CreateDatabase();
 
-  IDataLoaderPtr CreateDataloader();
-
-  asset::AssetClassMap<IWebSocketManagerPtr> CreateWebSocketManager();
-
-  epoch_script::runtime::IDataFlowOrchestrator::Ptr CreateTransforms();
-
-  IFuturesContinuationConstructor::Ptr CreateFutureContinuations();
-
-  IResamplerPtr CreateResampler();
-
-  [[nodiscard]] DataModuleOption GetOption() const { return m_option; }
+  [[nodiscard]] DataModuleOption GetOption() const;
 
   ~DataModuleFactory() = default;
 

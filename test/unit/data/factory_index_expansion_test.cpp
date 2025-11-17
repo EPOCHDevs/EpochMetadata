@@ -1,7 +1,7 @@
 //
 // Created by adesola on 1/30/25.
 //
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 #include <epoch_data_sdk/model/asset/asset.hpp>
 #include <epoch_data_sdk/model/asset/asset_specification.hpp>
 #include <epoch_data_sdk/model/asset/index_constituents.hpp>

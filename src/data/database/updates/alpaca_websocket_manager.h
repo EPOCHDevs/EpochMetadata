@@ -1,5 +1,5 @@
 #pragma once
-#include "iwebsocket_manager.h"
+#include "../../../../include/epoch_script/data/database/updates/iwebsocket_manager.h"
 #include <epoch_data_sdk/model/asset/asset.hpp>
 #include <atomic>
 #include <drogon/WebSocketClient.h>

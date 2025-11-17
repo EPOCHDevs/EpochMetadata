@@ -2,7 +2,7 @@
 // Test for auto-detection of auxiliary data categories from transforms
 //
 #include "catch.hpp"
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 #include "epoch_script/core/constants.h"
 #include <epoch_script/transforms/core/transform_definition.h>
 #include <epoch_data_sdk/dataloader/options.hpp>

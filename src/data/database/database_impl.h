@@ -13,7 +13,7 @@
 #include "resample.h"
 #include <epoch_script/transforms/runtime/iorchestrator.h>
 #include <epoch_script/transforms/runtime/types.h>
-#include "updates/iwebsocket_manager.h"
+#include "../../../include/epoch_script/data/database/updates/iwebsocket_manager.h"
 
 
 namespace epoch_proto {

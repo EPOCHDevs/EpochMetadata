@@ -5,8 +5,8 @@
 #include <epoch_frame/factory/scalar_factory.h>
 
 #include "epoch_frame/common.h"
-#include "data/model/common/frame_utils.h"
-#include "data/model/common/constants.h"
+#include <epoch_script/data/common/frame_utils.h>
+#include <epoch_script/data/common/constants.h>
 
 using namespace epoch_script::data;
 using namespace epoch_script;

@@ -4,7 +4,6 @@
 //
 #include "adjustments/adjustments.h"
 #include "epoch_frame/scalar.h"
-#include <epoch_script/strategy/enums.h>
 #include "icontinuations.h"
 #include "roll_method/last_trading_day.h"
 
@@ -41,13 +40,9 @@ struct IFuturesContinuation {
 };
 using IFuturesContinuationPtr = std::unique_ptr<IFuturesContinuation>;
 
+
 class FuturesContinuation : public IFuturesContinuation {
 public:
-  struct Input {
-    RolloverType rollover{RolloverType::Null};
-    AdjustmentType type{AdjustmentType::Null};
-    int arg = 0;
-  };
 
   ADD_MAKER(FuturesContinuation)
 

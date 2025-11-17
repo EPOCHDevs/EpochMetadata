@@ -43,7 +43,7 @@
 #include "common/csv_data_loader.h"
 #include "transforms/compiler/ast_compiler.h"
 #include "transforms/runtime/orchestrator.h"
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 #include "epoch_script/strategy/introspection.h"
 #include "epoch_script/strategy/algorithm_node_ostream.h"
 

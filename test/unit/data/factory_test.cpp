@@ -3,7 +3,7 @@
 // Tests public API functions for full coverage
 //
 #include "catch.hpp"
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 #include "epoch_script/core/constants.h"
 #include "epoch_script/strategy/data_options.h"
 #include "epoch_script/strategy/date_period_config.h"
@@ -196,135 +196,138 @@ TEST_CASE("MakeDataModuleOption sets cache directory", "[factory][options]") {
 // ============================================================================
 // Tests for DataModuleFactory Create methods
 // ============================================================================
+// NOTE: CreateResampler, CreateFutureContinuations, CreateTransforms, and
+// CreateWebSocketManager are now private implementation details (free functions
+// in factory namespace). They are tested indirectly through CreateDatabase().
 
-TEST_CASE("DataModuleFactory::CreateResampler with empty timeframes", "[factory][resampler]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+// TEST_CASE("DataModuleFactory::CreateResampler with empty timeframes", "[factory][resampler]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   DataModuleOption option{
+//       .loader = {
+//           .startDate = startDate,
+//           .endDate = endDate,
+//           .categories = {DataCategory::DailyBars}
+//       },
+//       .barResampleTimeFrames = {}
+//   };
+//
+//   factory::DataModuleFactory factory_obj(option);
+//   auto resampler = factory_obj.CreateResampler();
+//
+//   REQUIRE_FALSE(resampler);  // Should return empty ptr
+// }
 
-  DataModuleOption option{
-      .loader = {
-          .startDate = startDate,
-          .endDate = endDate,
-          .categories = {DataCategory::DailyBars}
-      },
-      .barResampleTimeFrames = {}
-  };
-
-  factory::DataModuleFactory factory_obj(option);
-  auto resampler = factory_obj.CreateResampler();
-
-  REQUIRE_FALSE(resampler);  // Should return empty ptr
-}
-
-TEST_CASE("DataModuleFactory::CreateResampler with timeframes", "[factory][resampler]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  std::vector<epoch_script::TimeFrame> timeframes = {
-      epoch_script::TimeFrame{"5min"},
-      epoch_script::TimeFrame{"1h"}
-  };
-
-  DataModuleOption option{
-      .loader = {
-          .startDate = startDate,
-          .endDate = endDate,
-          .categories = {DataCategory::MinuteBars}
-      },
-      .barResampleTimeFrames = timeframes
-  };
-
-  factory::DataModuleFactory factory_obj(option);
-  auto resampler = factory_obj.CreateResampler();
-
-  REQUIRE(resampler);  // Should return valid resampler
-}
-
-TEST_CASE("DataModuleFactory::CreateFutureContinuations", "[factory][continuations]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  SECTION("Returns empty when no continuation config") {
-    DataModuleOption option{
-        .loader = {
-            .startDate = startDate,
-            .endDate = endDate,
-            .categories = {DataCategory::DailyBars}
-        },
-        .futureContinuation = std::nullopt
-    };
-
-    factory::DataModuleFactory factory_obj(option);
-    auto continuation = factory_obj.CreateFutureContinuations();
-
-    REQUIRE_FALSE(continuation);
-  }
-
-  SECTION("Creates continuation constructor when config provided") {
-    FuturesContinuation::Input input{
-        .rollover = epoch_core::RolloverType::LastTradingDay,
-        .type = AdjustmentType::BackwardRatio,
-        .arg = 5
-    };
-
-    DataModuleOption option{
-        .loader = {
-            .startDate = startDate,
-            .endDate = endDate,
-            .categories = {DataCategory::DailyBars}
-        },
-        .futureContinuation = input
-    };
-
-    factory::DataModuleFactory factory_obj(option);
-    auto continuation = factory_obj.CreateFutureContinuations();
-
-    REQUIRE(continuation);
-  }
-}
-
-TEST_CASE("DataModuleFactory::CreateTransforms", "[factory][transforms]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  AssetHashSet strategyAssets;
-  strategyAssets.insert(MakeAsset(AssetSpecificationQuery{"AAPL-Stocks"}));
-  strategyAssets.insert(MakeAsset(AssetSpecificationQuery{"MSFT-Stocks"}));
-
-  DataModuleOption option{
-      .loader = {
-          .startDate = startDate,
-          .endDate = endDate,
-          .categories = {DataCategory::DailyBars},
-          .strategyAssets = strategyAssets
-      }
-  };
-
-  factory::DataModuleFactory factory_obj(option);
-  auto orchestrator = factory_obj.CreateTransforms();
-
-  REQUIRE(orchestrator);
-}
-
-TEST_CASE("DataModuleFactory::CreateWebSocketManager always returns empty", "[factory][websocket]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  DataModuleOption option{
-      .loader = {
-          .startDate = startDate,
-          .endDate = endDate,
-          .categories = {DataCategory::DailyBars}
-      },
-      .liveUpdates = true
-  };
-
-  factory::DataModuleFactory factory_obj(option);
-  auto wsManager = factory_obj.CreateWebSocketManager();
-
-  // Currently disabled, should return empty
-  REQUIRE(wsManager.empty());
-}
+// TEST_CASE("DataModuleFactory::CreateResampler with timeframes", "[factory][resampler]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   std::vector<epoch_script::TimeFrame> timeframes = {
+//       epoch_script::TimeFrame{"5min"},
+//       epoch_script::TimeFrame{"1h"}
+//   };
+//
+//   DataModuleOption option{
+//       .loader = {
+//           .startDate = startDate,
+//           .endDate = endDate,
+//           .categories = {DataCategory::MinuteBars}
+//       },
+//       .barResampleTimeFrames = timeframes
+//   };
+//
+//   factory::DataModuleFactory factory_obj(option);
+//   auto resampler = factory_obj.CreateResampler();
+//
+//   REQUIRE(resampler);  // Should return valid resampler
+// }
+//
+// TEST_CASE("DataModuleFactory::CreateFutureContinuations", "[factory][continuations]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   SECTION("Returns empty when no continuation config") {
+//     DataModuleOption option{
+//         .loader = {
+//             .startDate = startDate,
+//             .endDate = endDate,
+//             .categories = {DataCategory::DailyBars}
+//         },
+//         .futureContinuation = std::nullopt
+//     };
+//
+//     factory::DataModuleFactory factory_obj(option);
+//     auto continuation = factory_obj.CreateFutureContinuations();
+//
+//     REQUIRE_FALSE(continuation);
+//   }
+//
+//   SECTION("Creates continuation constructor when config provided") {
+//     FuturesContinuationInput input{
+//         .rollover = epoch_core::RolloverType::LastTradingDay,
+//         .type = AdjustmentType::BackwardRatio,
+//         .arg = 5
+//     };
+//
+//     DataModuleOption option{
+//         .loader = {
+//             .startDate = startDate,
+//             .endDate = endDate,
+//             .categories = {DataCategory::DailyBars}
+//         },
+//         .futureContinuation = input
+//     };
+//
+//     factory::DataModuleFactory factory_obj(option);
+//     auto continuation = factory_obj.CreateFutureContinuations();
+//
+//     REQUIRE(continuation);
+//   }
+// }
+//
+// TEST_CASE("DataModuleFactory::CreateTransforms", "[factory][transforms]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   AssetHashSet strategyAssets;
+//   strategyAssets.insert(MakeAsset(AssetSpecificationQuery{"AAPL-Stocks"}));
+//   strategyAssets.insert(MakeAsset(AssetSpecificationQuery{"MSFT-Stocks"}));
+//
+//   DataModuleOption option{
+//       .loader = {
+//           .startDate = startDate,
+//           .endDate = endDate,
+//           .categories = {DataCategory::DailyBars},
+//           .strategyAssets = strategyAssets
+//       }
+//   };
+//
+//   factory::DataModuleFactory factory_obj(option);
+//   auto orchestrator = factory_obj.CreateTransforms();
+//
+//   REQUIRE(orchestrator);
+// }
+//
+// TEST_CASE("DataModuleFactory::CreateWebSocketManager always returns empty", "[factory][websocket]") {
+//   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
+//   auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
+//
+//   DataModuleOption option{
+//       .loader = {
+//           .startDate = startDate,
+//           .endDate = endDate,
+//           .categories = {DataCategory::DailyBars}
+//       },
+//       .liveUpdates = true
+//   };
+//
+//   factory::DataModuleFactory factory_obj(option);
+//   auto wsManager = factory_obj.CreateWebSocketManager();
+//
+//   // Currently disabled, should return empty
+//   REQUIRE(wsManager.empty());
+// }
 
 TEST_CASE("DataModuleFactory::CreateDatabase integrates all components", "[factory][database]") {
   auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();

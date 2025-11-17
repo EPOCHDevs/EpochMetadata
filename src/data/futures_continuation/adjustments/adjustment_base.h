@@ -9,8 +9,8 @@
 #include "vector"
 #include <epoch_core/enum_wrapper.h>
 
-CREATE_ENUM(AdjustmentType, BackwardPanamaCanal, BackwardRatio,
-            ForwardPanamaCanal, ForwardRatio);
+#include "epoch_script/core/futures_continuation_input.h"
+
 
 namespace epoch_script::futures {
 struct AdjustmentMethodBase {
