@@ -64,8 +64,10 @@ template <typename I, typename C, typename T, typename... Args>
 epoch_frame::DataFrame
 make_single_row_dataframe(I const &date, std::vector<T> const &values,
                           std::vector<C> const &columns, Args &&...args) {
+  // Force UTC for all single-row datetime indices
+  (void)std::initializer_list<int>{(static_cast<void>(args), 0)...};
   auto index = epoch_frame::factory::index::make_datetime_index(
-      std::vector<I>{date}, std::forward<Args>(args)...);
+      std::vector<I>{date}, "", "UTC");
 
   std::vector<std::vector<T>> data;
   for (auto const &value : values) {

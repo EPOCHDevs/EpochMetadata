@@ -40,7 +40,8 @@ static inline epoch_frame::DataFrame CreateEmptyOutputDataFrame(
   }
 
   // Create empty index
-  auto empty_index = epoch_frame::factory::index::make_datetime_index(std::vector<epoch_frame::DateTime>{});
+  auto empty_index = epoch_frame::factory::index::make_datetime_index(
+      std::vector<epoch_frame::DateTime>{}, "", "UTC");
 
   // Create empty arrays for each output column
   std::vector<arrow::ChunkedArrayPtr> empty_columns;

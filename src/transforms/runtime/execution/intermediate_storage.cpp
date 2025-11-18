@@ -572,7 +572,8 @@ void IntermediateResultStorage::StoreTransformOutput(
       targetIndex = data.index();
     } else {
       // Create empty index for completely empty data
-      targetIndex = epoch_frame::factory::index::make_datetime_index(std::vector<epoch_frame::DateTime>{});
+      targetIndex = epoch_frame::factory::index::make_datetime_index(
+          std::vector<epoch_frame::DateTime>{}, "", "UTC");
     }
     SPDLOG_DEBUG("No base data for transform {} asset {} timeframe {} - using data's own index",
                  transformer.GetId(), asset_id, timeframe);

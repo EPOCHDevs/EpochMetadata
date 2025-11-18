@@ -52,11 +52,11 @@ public:
           return Scalar{visitor.get_slope()};
         });
 
-    auto residualInterceptDF =
-        make_dataframe(factory::index::make_datetime_index(index),
-                       {factory::array::make_array(residuals),
-                        factory::array::make_array(intercepts)},
-                       {GetOutputId("residual"), GetOutputId("intercept")});
+    auto residualInterceptDF = make_dataframe(
+        factory::index::make_datetime_index(index, "", "UTC"),
+        {factory::array::make_array(residuals),
+         factory::array::make_array(intercepts)},
+        {GetOutputId("residual"), GetOutputId("intercept")});
 
     return epoch_frame::concat(ConcatOptions{
         .frames = {residualInterceptDF, fitted.to_frame(GetOutputId("slope"))},
