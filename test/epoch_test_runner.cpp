@@ -209,7 +209,7 @@ void RunTest(const std::string& source, const std::string& output_dir, const std
       strategyConfig
   );
 
-  auto factory = epoch_script::data::factory::DataModuleFactory(dataModuleOption);
+  auto factory = epoch_script::data::factory::DataModuleFactory(std::move(dataModuleOption));
   auto database = factory.CreateDatabase();
 
   // 3. Run database pipeline (load + transform data)

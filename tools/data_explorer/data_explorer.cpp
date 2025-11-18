@@ -26,7 +26,7 @@
 #include <epoch_script/core/constants.h>
 
 #include "transforms/compiler/ast_compiler.h"
-#include "data/factory.h"
+#include <epoch_script/data/factory.h>
 
 namespace fs = std::filesystem;
 namespace asset = data_sdk::asset;
@@ -310,7 +310,7 @@ news_data = news(timeframe="1D")
             strategyConfig
         );
 
-        auto factory = epoch_script::data::factory::DataModuleFactory(dataModuleOption);
+        auto factory = epoch_script::data::factory::DataModuleFactory(std::move(dataModuleOption));
         auto database = factory.CreateDatabase();
 
         // 6. Run database pipeline (load + transform data)

@@ -24,6 +24,7 @@
 #include <epoch_script/strategy/registration.h>
 #include <epoch_script/transforms/runtime/types.h>
 #include "transforms/runtime/orchestrator.h"
+#include "transforms/runtime/transform_manager/transform_manager.h"
 
 #include "../common/csv_data_loader.h"
 #include "../common/tearsheet_comparator.h"
@@ -146,10 +147,14 @@ int main(int argc, char* argv[]) {
     std::cerr << "Assets detected: " << assets.size() << "\n";
 
     // 3) Create orchestrator and execute
-    std::cerr << "Converting nodes to config list...\n";
-    auto configList = ToConfigList(nodes_for_runtime);
+    std::cerr << "Building TransformManager from nodes...\n";
+    auto transformManager = std::make_unique<runtime::TransformManager>();
+    for (const auto& node : nodes_for_runtime) {
+        TransformDefinition def(node, node.timeframe);
+        transformManager->Insert(transform::TransformConfiguration{def});
+    }
     std::cerr << "Creating orchestrator...\n";
-    auto orchestrator = runtime::CreateDataFlowRuntimeOrchestrator(assets, configList);
+    auto orchestrator = runtime::CreateDataFlowRuntimeOrchestrator(assets, std::move(transformManager));
     if (!orchestrator) throw std::runtime_error("Failed to create orchestrator");
     std::cerr << "Executing pipeline...\n";
     auto outputs = orchestrator->ExecutePipeline(inputData);

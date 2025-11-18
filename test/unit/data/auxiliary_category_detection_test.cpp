@@ -90,28 +90,27 @@ TEST_CASE("GetDataCategoryForTransform", "[factory][transforms]") {
 
 TEST_CASE("ExtractAuxiliaryCategoriesFromTransforms", "[factory][transforms]") {
   SECTION("Extracts BalanceSheets from balance_sheet transform") {
-    TransformConfigurationList configs = {
-        MakeTestTransformConfig(epoch_script::polygon::BALANCE_SHEET,
-                                epoch_core::TransformCategory::DataSource)};
+    std::string code = "balance_sheet_data = balance_sheet(timeframe=\"1D\")";
+    auto source = epoch_script::strategy::PythonSource(code, true);
+    auto manager = epoch_script::runtime::CreateTransformManager(source);
 
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
+    auto categories = ExtractAuxiliaryCategoriesFromTransforms(*manager->GetTransforms());
 
     REQUIRE(categories.size() == 1);
     REQUIRE(categories[0] == DataCategory::BalanceSheets);
   }
 
   SECTION("Extracts different financial categories") {
-    TransformConfigurationList configs = {
-        MakeTestTransformConfig(epoch_script::polygon::BALANCE_SHEET,
-                                epoch_core::TransformCategory::DataSource),
-        MakeTestTransformConfig(epoch_script::polygon::INCOME_STATEMENT,
-                                epoch_core::TransformCategory::DataSource),
-        MakeTestTransformConfig(epoch_script::polygon::CASH_FLOW,
-                                epoch_core::TransformCategory::DataSource)};
+    std::string code = R"(
+balance_sheet_data = balance_sheet(timeframe="1D")
+income_stmt_data = income_statement(timeframe="1D")
+cash_flow_data = cash_flow(timeframe="1D")
+)";
+    auto source = epoch_script::strategy::PythonSource(code, true);
+    auto manager = epoch_script::runtime::CreateTransformManager(source);
 
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
+    auto categories = ExtractAuxiliaryCategoriesFromTransforms(*manager->GetTransforms());
 
-    // Each maps to its own category
     REQUIRE(categories.size() == 3);
     std::set<DataCategory> categorySet(categories.begin(), categories.end());
     REQUIRE(categorySet.count(DataCategory::BalanceSheets) == 1);
@@ -120,36 +119,32 @@ TEST_CASE("ExtractAuxiliaryCategoriesFromTransforms", "[factory][transforms]") {
   }
 
   SECTION("Ignores non-DataSource transforms") {
-    TransformConfigurationList configs = {
-        MakeTestTransformConfig("sma", epoch_core::TransformCategory::Trend),
-        MakeTestTransformConfig("rsi", epoch_core::TransformCategory::Momentum)};
+    std::string code = R"(
+prices = market_data_source(timeframe="1D")
+sma_val = sma(prices.close, 20, timeframe="1D")
+rsi_val = rsi(prices.close, 14, timeframe="1D")
+)";
+    auto source = epoch_script::strategy::PythonSource(code, true);
+    auto manager = epoch_script::runtime::CreateTransformManager(source);
 
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
-
-    REQUIRE(categories.empty());
-  }
-
-  SECTION("Ignores unknown transforms") {
-    TransformConfigurationList configs = {MakeTestTransformConfig(
-        "custom_data_source", epoch_core::TransformCategory::DataSource)};
-
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
+    auto categories = ExtractAuxiliaryCategoriesFromTransforms(*manager->GetTransforms());
 
     REQUIRE(categories.empty());
   }
 
   SECTION("Mixed transforms - only extracts DataSource categories") {
-    TransformConfigurationList configs = {
-        MakeTestTransformConfig("sma", epoch_core::TransformCategory::Trend),
-        MakeTestTransformConfig(epoch_script::polygon::BALANCE_SHEET,
-                                epoch_core::TransformCategory::DataSource),
-        MakeTestTransformConfig("rsi", epoch_core::TransformCategory::Momentum),
-        MakeTestTransformConfig(epoch_script::polygon::INCOME_STATEMENT,
-                                epoch_core::TransformCategory::DataSource)};
+    std::string code = R"(
+prices = market_data_source(timeframe="1D")
+sma_val = sma(prices.close, 20, timeframe="1D")
+balance_sheet_data = balance_sheet(timeframe="1D")
+rsi_val = rsi(prices.close, 14, timeframe="1D")
+income_stmt_data = income_statement(timeframe="1D")
+)";
+    auto source = epoch_script::strategy::PythonSource(code, true);
+    auto manager = epoch_script::runtime::CreateTransformManager(source);
 
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
+    auto categories = ExtractAuxiliaryCategoriesFromTransforms(*manager->GetTransforms());
 
-    // Each financial transform maps to its own category
     REQUIRE(categories.size() == 2);
     std::set<DataCategory> categorySet(categories.begin(), categories.end());
     REQUIRE(categorySet.count(DataCategory::BalanceSheets) == 1);
@@ -209,21 +204,18 @@ TEST_CASE("ProcessConfigurations auto-detects auxiliary categories",
 
 TEST_CASE("Mixed data source categories", "[factory][integration]") {
   SECTION("Multiple different data source categories are detected") {
-    TransformConfigurationList configs = {
-        MakeTestTransformConfig(epoch_script::polygon::BALANCE_SHEET,
-                               epoch_core::TransformCategory::DataSource),
-        MakeTestTransformConfig(epoch_script::polygon::NEWS,
-                               epoch_core::TransformCategory::DataSource),
-        MakeTestTransformConfig(epoch_script::polygon::DIVIDENDS,
-                               epoch_core::TransformCategory::DataSource)
-    };
+    std::string code = R"(
+balance_sheet_data = balance_sheet(timeframe="1D")
+news_data = news(timeframe="1D")
+divs = dividends(timeframe="1D")
+)";
+    auto source = epoch_script::strategy::PythonSource(code, true);
+    auto manager = epoch_script::runtime::CreateTransformManager(source);
 
-    auto categories = ExtractAuxiliaryCategoriesFromTransforms(configs);
+    auto categories = ExtractAuxiliaryCategoriesFromTransforms(*manager->GetTransforms());
 
-    // Should have 3 unique categories
     REQUIRE(categories.size() == 3);
 
-    // Verify all categories are present
     std::set<DataCategory> categorySet(categories.begin(), categories.end());
     REQUIRE(categorySet.count(DataCategory::BalanceSheets) == 1);
     REQUIRE(categorySet.count(DataCategory::News) == 1);

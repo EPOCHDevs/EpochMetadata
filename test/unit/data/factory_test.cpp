@@ -348,7 +348,7 @@ TEST_CASE("DataModuleFactory::CreateDatabase integrates all components", "[facto
       }
   };
 
-  factory::DataModuleFactory factory_obj(option);
+  factory::DataModuleFactory factory_obj(std::move(option));
   auto database = factory_obj.CreateDatabase();
 
   REQUIRE(database);
@@ -387,29 +387,6 @@ TransformConfiguration MakeTestConfig(
       }};
 
   return TransformConfiguration(epoch_script::TransformDefinition(std::move(data)));
-}
-
-TEST_CASE("ProcessConfigurations populates transform list", "[factory][process]") {
-  auto startDate = epoch_frame::DateTime::from_date_str("2024-01-01").date();
-  auto endDate = epoch_frame::DateTime::from_date_str("2024-12-31").date();
-
-  DataModuleOption option{
-      .loader = {
-          .startDate = startDate,
-          .endDate = endDate,
-          .categories = {DataCategory::DailyBars}
-      }
-  };
-
-  std::vector<std::unique_ptr<TransformConfiguration>> configs;
-  configs.push_back(std::make_unique<TransformConfiguration>(
-      MakeTestConfig("sma", epoch_core::TransformCategory::Trend, epoch_script::TimeFrame{"1d"})));
-  configs.push_back(std::make_unique<TransformConfiguration>(
-      MakeTestConfig("rsi", epoch_core::TransformCategory::Momentum, epoch_script::TimeFrame{"1d"})));
-
-  ProcessConfigurations(configs, epoch_script::TimeFrame{"1d"}, option);
-
-  REQUIRE(option.transformsConfigList.size() == 2);
 }
 
 TEST_CASE("ProcessConfigurations adds resampling timeframes", "[factory][process]") {

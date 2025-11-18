@@ -5,6 +5,7 @@
 #include <epoch_script/transforms/runtime/types.h>
 #include <epoch_script/transforms/components/event_markers/event_marker.h>
 #include <epoch_script/transforms/core/itransform.h>
+#include <epoch_script/transforms/runtime/transform_manager/itransform_manager.h>
 #include "epoch_protos/tearsheet.pb.h"
 
 namespace epoch_script::runtime {
@@ -23,5 +24,5 @@ namespace epoch_script::runtime {
 
     std::unique_ptr<IDataFlowOrchestrator> CreateDataFlowRuntimeOrchestrator(
         const std::set<std::string>& assetIdList,
-        const epoch_script::transform::TransformConfigurationList &configList);
+        epoch_script::runtime::ITransformManagerPtr transformManager);
 } // namespace epoch_script::runtime

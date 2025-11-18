@@ -25,16 +25,14 @@ namespace {
 }
 
 namespace epoch_script::runtime {
-  std::unique_ptr<IDataFlowOrchestrator> CreateDataFlowRuntimeOrchestrator(
+
+std::unique_ptr<IDataFlowOrchestrator> CreateDataFlowRuntimeOrchestrator(
   const std::set<std::string>& assetIdList,
-    const epoch_script::transform::TransformConfigurationList &configList) {
-    auto transformManager = std::make_unique<TransformManager>();
-    for (const auto& config :configList) {
-      transformManager->Insert(config);
-    }
-    return std::make_unique<DataFlowRuntimeOrchestrator>(std::vector<std::string>(assetIdList.begin(), assetIdList.end()),
-      std::move(transformManager), nullptr, nullptr);
-  }
+  ITransformManagerPtr transformManager) {
+    return std::make_unique<DataFlowRuntimeOrchestrator>(
+        std::vector<std::string>(assetIdList.begin(), assetIdList.end()),
+        std::move(transformManager), nullptr, nullptr);
+}
 
 DataFlowRuntimeOrchestrator::DataFlowRuntimeOrchestrator(
     std::vector<std::string> asset_ids,

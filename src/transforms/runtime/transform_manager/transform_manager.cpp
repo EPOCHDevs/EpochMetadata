@@ -17,30 +17,6 @@ namespace epoch_script::runtime {
 
   void TransformManager::BuildTransformManager(
       std::vector<epoch_script::strategy::AlgorithmNode> const& algorithms) {
-    // Timeframes are already resolved by the compiler (ast_compiler.cpp)
-    // All nodes should have timeframes set, except scalar types which are timeframe-agnostic
-
-    // Debug: Check for duplicate IDs in input (this should never happen after CSE)
-    std::unordered_set<std::string> seen_ids;
-    std::unordered_map<std::string, int> type_counts;
-
-    for (auto const& algorithm : algorithms) {
-      type_counts[algorithm.type]++;
-
-      if (!seen_ids.insert(algorithm.id).second) {
-        spdlog::error("[BuildTransformManager] DUPLICATE ID '{}' (type: {}) found in compilation result! "
-                      "This indicates a bug in CSE optimizer or topological sort.",
-                      algorithm.id, algorithm.type);
-      }
-    }
-
-    spdlog::info("[BuildTransformManager] Received {} nodes from compilation. Type breakdown:", algorithms.size());
-    for (auto const& [type, count] : type_counts) {
-      if (type == "text" || type == "number" || type.find("bool") != std::string::npos) {
-        spdlog::info("  - {}: {} nodes", type, count);
-      }
-    }
-
     for (auto const& algorithm : algorithms) {
       // Check if this node is a scalar type (constants, literals)
       // Scalars are timeframe-agnostic and don't require timeframes
@@ -79,6 +55,11 @@ namespace epoch_script::runtime {
   const epoch_script::transform::TransformConfiguration *
   TransformManager::Insert(TransformConfigurationPtr info) {
     const auto name = info->GetId();
+
+    if (m_configurationsById.contains(name)) {
+      return m_configurationsById[name];
+    }
+
     auto ptr =
         m_configurationsById
             .emplace(name, m_configurations.emplace_back(std::move(info)).get())
@@ -93,15 +74,8 @@ namespace epoch_script::runtime {
   const epoch_script::transform::TransformConfiguration *
   TransformManager::Insert(const std::string &name,
                            TransformConfigurationPtr info) {
-    if (m_configurationsById.contains(name)) {
-      spdlog::error("[TransformManager] Duplicate registration attempt for '{}'. "
-                    "Current transform count: {}. This may indicate the same AlgorithmNode "
-                    "appears multiple times in the compilation result.",
-                    name, m_configurations.size());
-    }
     AssertFromStream(!m_configurationsById.contains(name),
                      "Transform is already registered as " << name << ".");
-    //        info->Rename(name);
     return Insert(std::move(info));
   }
 

@@ -21,6 +21,8 @@
 #include <epoch_data_sdk/model/asset/index_constituents.hpp>
 #include <epoch_data_sdk/model/builder/asset_builder.hpp>
 #include <epoch_script/transforms/runtime/iorchestrator.h>
+#include <epoch_script/transforms/runtime/transform_manager/itransform_manager.h>
+#include "transforms/runtime/transform_manager/transform_manager.h"
 #include "transforms/components/data_sources/data_category_mapper.h"
 #include <cctype>
 #include <cstring>
@@ -87,15 +89,21 @@ IFuturesContinuationConstructor::Ptr CreateFutureContinuations(DataModuleOption 
 }
 
 epoch_script::runtime::IDataFlowOrchestrator::Ptr CreateTransforms(DataModuleOption const& option) {
-  // Extract asset IDs from strategy assets
   std::set<std::string> assetIds;
   for (const auto& asset : option.loader.strategyAssets) {
     assetIds.insert(asset.GetID());
   }
 
+  AssertFromStream(option.transformManager, "TransformManager is not initialized");
+
+  auto managerCopy = std::make_unique<epoch_script::runtime::TransformManager>();
+  for (const auto& config : *option.transformManager->GetTransforms()) {
+    managerCopy->Insert(*config);
+  }
+
   return epoch_script::runtime::CreateDataFlowRuntimeOrchestrator(
       assetIds,
-      option.transformsConfigList);
+      std::move(managerCopy));
 }
 
 IResamplerPtr CreateResampler(DataModuleOption const& option) {
@@ -127,7 +135,7 @@ asset::AssetClassMap<IWebSocketManagerPtr> CreateWebSocketManager() {
     DataModuleFactory::DataModuleFactory(DataModuleOption option)
     : m_option(std::move(option)) {}
 
-    DataModuleOption DataModuleFactory::GetOption() const { return m_option; }
+    const DataModuleOption& DataModuleFactory::GetOption() const { return m_option; }
 
 
 std::unique_ptr<Database> DataModuleFactory::CreateDatabase() {
@@ -244,13 +252,13 @@ std::optional<FuturesContinuationInput> MakeContinuations(
 
 std::vector<DataCategory>
 ExtractAuxiliaryCategoriesFromTransforms(
-    epoch_script::transform::TransformConfigurationList const &configs) {
+    epoch_script::transform::TransformConfigurationPtrList const &configs) {
 
   // Use a set to deduplicate categories
   std::set<DataCategory> categorySet;
 
   for (auto const &config : configs) {
-    auto const &metadata = config.GetTransformDefinition().GetMetadata();
+    auto const &metadata = config->GetTransformDefinition().GetMetadata();
 
     // Only process DataSource transforms
     if (metadata.category != epoch_core::TransformCategory::DataSource) {
@@ -258,7 +266,7 @@ ExtractAuxiliaryCategoriesFromTransforms(
     }
 
     // Get the transform type/id and map to DataCategory using central mapper
-    std::string transformType = config.GetTransformName();
+    std::string transformType = config->GetTransformName();
     auto category = epoch_script::data_sources::GetDataCategoryForTransform(transformType);
 
     if (category.has_value()) {
@@ -281,18 +289,13 @@ void ProcessConfigurations(
     DataModuleOption &dataModuleOption) {
 
   for (auto const &definition : configurations) {
-    dataModuleOption.transformsConfigList.emplace_back(*definition);
     auto timeframe = definition->GetTimeframe();
     if (timeframe != baseTimeframe) {
       dataModuleOption.barResampleTimeFrames.emplace_back(timeframe);
     }
   }
 
-  // Auto-detect and add auxiliary categories from DataSource transforms
-  auto detectedCategories = ExtractAuxiliaryCategoriesFromTransforms(
-      dataModuleOption.transformsConfigList);
-
-  // Add detected auxiliary categories to the existing categories set
+  auto detectedCategories = ExtractAuxiliaryCategoriesFromTransforms(configurations);
   dataModuleOption.loader.categories.insert(detectedCategories.begin(), detectedCategories.end());
 }
 
@@ -328,7 +331,6 @@ MakeDataModuleOption(CountryCurrency baseCurrency,
       .futureContinuation =
           MakeContinuations(continuationAssets, config.futures_continuation),
       .barResampleTimeFrames = {},
-      .transformsConfigList = {},
       .liveUpdates = today >= period.from && today <= period.to};
 
   return dataModuleConfig;
@@ -339,38 +341,35 @@ DataModuleOption MakeDataModuleOptionFromStrategy(
     epoch_script::strategy::DatePeriodConfig const &period,
     epoch_script::strategy::StrategyConfig const &strategyConfig
 ) {
-    // Auto-detect primary category by checking if strategy needs intraday data
+    AssertFromStream(strategyConfig.trade_signal.source.has_value(),
+                     "StrategyConfig must have trade_signal.source");
+
     auto primaryCategory = strategy::IsIntradayCampaign(strategyConfig)
                          ? DataCategory::MinuteBars
                          : DataCategory::DailyBars;
 
-    // Create base DataModuleOption
     auto dataModuleOption = MakeDataModuleOption(baseCurrency, period,
                                                  strategyConfig.data, primaryCategory);
 
-    // Extract and process transforms from trade_signal if present
     if (strategyConfig.trade_signal.source.has_value()) {
         const auto& source = strategyConfig.trade_signal.source.value();
-        auto compilationResult = source.GetCompilationResult();
-
-        // Convert to TransformConfigurationPtrList for ProcessConfigurations
-        epoch_script::transform::TransformConfigurationPtrList configPtrs;
-
-        // Determine base timeframe from primary category
         auto baseTimeframe = primaryCategory == DataCategory::MinuteBars
             ? TimeFrame(std::string(epoch_script::tf_str::k1Min))
             : TimeFrame(std::string(epoch_script::tf_str::k1D));
 
-        for (const auto& node : compilationResult) {
-            auto timeframe = node.timeframe.value_or(baseTimeframe);
-            auto config = std::make_unique<transform::TransformConfiguration>(
-                TransformDefinition(node, timeframe)
-            );
-            configPtrs.push_back(std::move(config));
+        dataModuleOption.transformManager = epoch_script::runtime::CreateTransformManager(source);
+
+        for (const auto& config : *dataModuleOption.transformManager->GetTransforms()) {
+            auto timeframe = config->GetTimeframe();
+            if (timeframe != baseTimeframe) {
+                dataModuleOption.barResampleTimeFrames.emplace_back(timeframe);
+            }
         }
 
-        // Process configurations (adds transforms + resampling + auxiliary categories)
-        ProcessConfigurations(configPtrs, baseTimeframe, dataModuleOption);
+        auto detectedCategories = ExtractAuxiliaryCategoriesFromTransforms(
+            *dataModuleOption.transformManager->GetTransforms());
+        dataModuleOption.loader.categories.insert(detectedCategories.begin(),
+                                                  detectedCategories.end());
     }
 
     return dataModuleOption;

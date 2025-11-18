@@ -232,15 +232,39 @@ namespace epoch_script
         // Runs before topological sort so we can modify the graph structure
         cse_optimizer_->Optimize(context_.algorithms, context_);
 
+        // Debug: Check for duplicate IDs after CSE
+        std::unordered_set<std::string> ids_after_cse;
+        for (const auto& algo : context_.algorithms) {
+            if (!ids_after_cse.insert(algo.id).second) {
+                spdlog::error("[AST Compiler] DUPLICATE ID after CSE: '{}' (type: {})", algo.id, algo.type);
+            }
+        }
+
         // Remove orphan nodes (nodes not used by any sink/executor)
         // Must run BEFORE timeframe resolution to avoid resolving timeframes for dead code
         // Orphans occur when users write unused variables: x = 5.0 (never used)
         removeOrphanNodes(skip_sink_validation);
 
+        // Debug: Check for duplicate IDs after orphan removal
+        std::unordered_set<std::string> ids_after_orphan;
+        for (const auto& algo : context_.algorithms) {
+            if (!ids_after_orphan.insert(algo.id).second) {
+                spdlog::error("[AST Compiler] DUPLICATE ID after orphan removal: '{}' (type: {})", algo.id, algo.type);
+            }
+        }
+
         // Sort algorithms in topological order: dependencies before dependents
         // This ensures handles are registered before they're referenced
         // IMPORTANT: Must sort BEFORE resolving timeframes so input nodes are cached first
         context_.algorithms = TopologicalSort(std::move(context_.algorithms));
+
+        // Debug: Check for duplicate IDs after topological sort
+        std::unordered_set<std::string> ids_after_topo;
+        for (const auto& algo : context_.algorithms) {
+            if (!ids_after_topo.insert(algo.id).second) {
+                spdlog::error("[AST Compiler] DUPLICATE ID after topological sort: '{}' (type: {})", algo.id, algo.type);
+            }
+        }
 
         // Extract base timeframe from market_data_source if present, else use 1d default
         std::optional<epoch_script::TimeFrame> base_timeframe;

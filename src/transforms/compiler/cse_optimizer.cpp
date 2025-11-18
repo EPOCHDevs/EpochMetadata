@@ -42,7 +42,6 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
     // Set of node IDs to remove
     std::unordered_set<std::string> nodes_to_remove;
 
-    spdlog::debug("[CSE] Starting optimization on {} nodes", algorithms.size());
 
     // Phase 1: Identify duplicates
     for (const auto& node : algorithms)
@@ -50,29 +49,10 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
         // Skip nodes that should not be deduplicated
         if (ShouldExcludeFromCSE(node.type))
         {
-            spdlog::debug("[CSE] Skipping excluded node: {} (type: {})", node.id, node.type);
             continue;
         }
 
         size_t h = ComputeSemanticHash(node);
-
-        // Extra logging for text nodes to debug deduplication issues
-        if (node.type == "text") {
-            std::string value = "<?>";
-            auto value_it = node.options.find("value");
-            if (value_it != node.options.end()) {
-                // Try to extract the string value
-                auto variant = value_it->second.GetVariant();
-                if (std::holds_alternative<std::string>(variant)) {
-                    value = std::get<std::string>(variant);
-                }
-            }
-            std::string timeframe_str = node.timeframe ? node.timeframe->ToString() : "nullopt";
-            spdlog::info("[CSE] TEXT NODE: {} value='{}' timeframe={} hash={}",
-                         node.id, value, timeframe_str, h);
-        } else {
-            spdlog::debug("[CSE] Node {} (type: {}) hash: {}", node.id, node.type, h);
-        }
 
         auto it = hash_to_canonical.find(h);
         if (it != hash_to_canonical.end())
@@ -80,7 +60,6 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             // Potential duplicate found - verify with full equality check
             // (hash collision is possible, so we need to confirm)
             const std::string& canonical_id = it->second;
-            spdlog::debug("[CSE] Potential duplicate: {} matches hash of canonical {}", node.id, canonical_id);
 
             // Find the canonical node
             auto canonical_it = std::find_if(algorithms.begin(), algorithms.end(),
@@ -91,26 +70,16 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             if (canonical_it != algorithms.end() && SemanticEquals(node, *canonical_it))
             {
                 // True duplicate found
-                spdlog::info("[CSE] DUPLICATE FOUND: {} is duplicate of {} (type: {})",
-                             node.id, canonical_id, node.type);
                 redirect_map[node.id] = canonical_id;
                 nodes_to_remove.insert(node.id);
-            }
-            else
-            {
-                spdlog::debug("[CSE] Hash collision: {} and {} have same hash but different semantics",
-                              node.id, canonical_id);
             }
         }
         else
         {
             // First occurrence - this becomes the canonical node
-            spdlog::debug("[CSE] New canonical node: {} (type: {}, hash: {})", node.id, node.type, h);
             hash_to_canonical[h] = node.id;
         }
     }
-
-    spdlog::info("[CSE] Found {} duplicate nodes to remove", nodes_to_remove.size());
 
     // Phase 2: Rewrite all references to point to canonical nodes
     for (auto& node : algorithms)
@@ -185,7 +154,6 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
     }
 
     // Phase 3: Remove duplicate nodes from the algorithms vector
-    size_t before_size = algorithms.size();
     algorithms.erase(
         std::remove_if(algorithms.begin(), algorithms.end(),
             [&nodes_to_remove](const strategy::AlgorithmNode& node) {
@@ -193,16 +161,12 @@ void CSEOptimizer::Optimize(std::vector<strategy::AlgorithmNode>& algorithms,
             }),
         algorithms.end()
     );
-    size_t after_size = algorithms.size();
-    spdlog::info("[CSE] Removed {} duplicate nodes ({} -> {})", before_size - after_size, before_size, after_size);
 
     // Phase 4: Update context.used_node_ids to remove deleted IDs
     for (const auto& removed_id : nodes_to_remove)
     {
         context.used_node_ids.erase(removed_id);
     }
-
-    spdlog::debug("[CSE] Optimization complete");
 }
 
 size_t CSEOptimizer::ComputeSemanticHash(const strategy::AlgorithmNode& node) const

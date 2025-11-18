@@ -298,6 +298,44 @@ void IntermediateResultStorage::InitializeBaseData(
       }
       SPDLOG_DEBUG("Initializing base data for asset: {}, timeframe {}",
                    asset_id, timeframe);
+
+      // Debug: Check for duplicates in base data index
+      if (asset_id == "AAPL-Stocks" && timeframe == "1D") {
+        auto index = dataFrame.index();
+        if (index) {
+          auto index_array = index->as_chunked_array();
+          auto vc_result = arrow::compute::ValueCounts(index_array);
+          if (vc_result.ok()) {
+            auto vc_struct = vc_result.ValueOrDie();
+            auto counts = std::static_pointer_cast<arrow::Int64Array>(
+                vc_struct->GetFieldByName("counts"));
+
+            int64_t dup_count = 0;
+            for (int64_t i = 0; i < counts->length(); i++) {
+              if (counts->Value(i) > 1) {
+                dup_count++;
+              }
+            }
+
+            if (dup_count > 0) {
+              SPDLOG_INFO("DUPLICATE_FOUND: InitializeBaseData: base data index has {} duplicate timestamps for asset: {}, timeframe: {}",
+                           dup_count, asset_id, timeframe);
+              auto col_names = dataFrame.column_names();
+              std::string cols_str = "";
+              for (size_t i = 0; i < col_names.size(); i++) {
+                if (i > 0) cols_str += ", ";
+                cols_str += col_names[i];
+              }
+              SPDLOG_INFO("Base data columns: {}", cols_str);
+              SPDLOG_INFO("Base data index:\n{}", index->repr());
+            } else {
+              SPDLOG_INFO("NO_DUPLICATES: InitializeBaseData: base data index has NO duplicates for asset: {}, timeframe: {} ({} rows)",
+                          asset_id, timeframe, index->size());
+            }
+          }
+        }
+      }
+
       for (const auto &colName : dataFrame.column_names()) {
         m_cache[timeframe][asset_id][colName] = dataFrame[colName];
       }
@@ -498,6 +536,33 @@ void IntermediateResultStorage::StoreTransformOutput(
     auto assetIt = tfIt->second.find(asset_id);
     if (assetIt != tfIt->second.end()) {
       targetIndex = assetIt->second.index();
+
+      // Debug: Check for duplicates in targetIndex
+      if (asset_id == "AAPL-Stocks" && timeframe == "1D") {
+        auto index_array = targetIndex->as_chunked_array();
+        auto vc_result = arrow::compute::ValueCounts(index_array);
+        if (vc_result.ok()) {
+          auto vc_struct = vc_result.ValueOrDie();
+          auto counts = std::static_pointer_cast<arrow::Int64Array>(
+              vc_struct->GetFieldByName("counts"));
+
+          int64_t dup_count = 0;
+          for (int64_t i = 0; i < counts->length(); i++) {
+            if (counts->Value(i) > 1) {
+              dup_count++;
+            }
+          }
+
+          if (dup_count > 0) {
+            SPDLOG_INFO("DUPLICATE_FOUND: targetIndex has {} duplicate timestamps for asset: {}, timeframe: {}, transform: {}",
+                         dup_count, asset_id, timeframe, transformer.GetId());
+            SPDLOG_INFO("targetIndex details:\n{}", targetIndex->repr());
+          } else {
+            SPDLOG_INFO("NO_DUPLICATES: targetIndex has NO duplicates for asset: {}, timeframe: {}, transform: {}",
+                        asset_id, timeframe, transformer.GetId());
+          }
+        }
+      }
     }
   }
 
@@ -520,6 +585,11 @@ void IntermediateResultStorage::StoreTransformOutput(
       SPDLOG_DEBUG("Storing output {} for asset: {}, timeframe {}", outputId,
                    asset_id, timeframe);
       // TODO: Save guide for duplicate index(Futures)
+      if (outputId == "ret_d#result" && asset_id == "AAPL-Stocks") {
+        SPDLOG_INFO("data[outputId]:\n{}", data[outputId].repr());
+        SPDLOG_INFO("targetIndex:\n{}", targetIndex->repr());
+      }
+
       m_cache[timeframe][asset_id][outputId] = data[outputId].reindex(targetIndex);
       continue;
     }

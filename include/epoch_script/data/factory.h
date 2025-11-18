@@ -44,7 +44,7 @@ struct DataModuleOption {
 
   std::vector<epoch_script::TimeFrame> barResampleTimeFrames = {};
 
-  epoch_script::transform::TransformConfigurationList transformsConfigList{};
+  epoch_script::runtime::ITransformManagerPtr transformManager = nullptr;
 
   bool liveUpdates = false;
 };
@@ -56,7 +56,7 @@ public:
 
   std::unique_ptr<Database> CreateDatabase();
 
-  [[nodiscard]] DataModuleOption GetOption() const;
+  [[nodiscard]] const DataModuleOption& GetOption() const;
 
   ~DataModuleFactory() = default;
 
@@ -72,7 +72,7 @@ namespace factory {
 // Uses central GetDataCategoryForTransform() from data_category_mapper
 std::vector<DataCategory>
 ExtractAuxiliaryCategoriesFromTransforms(
-    epoch_script::transform::TransformConfigurationList const &configs);
+    epoch_script::transform::TransformConfigurationPtrList const &configs);
 
 void ProcessConfigurations(
     std::vector<std::unique_ptr<
