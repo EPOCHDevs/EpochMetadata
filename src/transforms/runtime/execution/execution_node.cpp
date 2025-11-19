@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../../../cmake-build-debug/_deps/epochframe-src/include/epoch_frame/factory/index_factory.h"
+#include "epoch_frame/factory/index_factory.h"
 
 // TODO: Watch out for throwing excePtion in these functions -> causes deadlock
 namespace epoch_script::runtime {
