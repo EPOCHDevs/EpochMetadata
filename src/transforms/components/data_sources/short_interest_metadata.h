@@ -39,7 +39,7 @@ MakeShortInterestDataSource() {
           .requiresTimeFrame = false,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"short-squeeze", "sentiment", "contrarian"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track short interest levels for short squeeze detection, sentiment analysis, and contrarian strategies. Monitor days-to-cover ratios and short position changes.",

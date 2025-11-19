@@ -57,7 +57,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeForwardRetu
       .outputs = {IOMetaDataConstants::DECIMAL_OUTPUT_METADATA},
       .tags = {"forward-looking", "returns", "prediction", "target", "machine-learning"},
       .requiresTimeFrame = false,
-      .allowNullInputs = true,
+      .allowNullInputs = false,
       .strategyTypes = {"machine-learning", "prediction", "feature-engineering"},
       .relatedTransforms = {"lag", "return_vol", "pct_change"},
       .assetRequirements = {"single-asset"},

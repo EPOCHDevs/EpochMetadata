@@ -39,7 +39,7 @@ MakeTickerEventsDataSource() {
           .requiresTimeFrame = false,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"event-driven", "corporate-actions"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access ticker-level corporate events including name changes, ticker symbol changes, delistings, and other ticker lifecycle events.",

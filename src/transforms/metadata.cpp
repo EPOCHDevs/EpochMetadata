@@ -382,7 +382,7 @@ std::vector<TransformsMetaData> MakeComparativeMetaData() {
                                .name = "Selected Value"}},
         .tags = {"selection", "percentile", "statistics", "conditional", "flow-control", "adaptive", "typed"},
         .requiresTimeFrame = false,
-        .allowNullInputs = false,
+        .allowNullInputs = true, // TODO: Explicitly guard against null percentile/value inputs inside the transform
         .strategyTypes = {"adaptive-thresholding", "regime-dependent", "dynamic-allocation"},
         .assetRequirements = {"single-asset"},
         .usageContext = std::format("Adaptive thresholding for typed {} values based on historical distribution. Type-safe routing between extreme vs normal ranges.", typeName),
@@ -503,7 +503,7 @@ std::vector<TransformsMetaData> MakeLagMetaData() {
         .outputs = {IOMetaData{.type = epoch_core::IODataTypeWrapper::FromString(outputType), .id = "result", .name = "Lagged Value"}},
         .tags = {"math", "lag", "delay", "shift", "temporal", "typed"},
         .requiresTimeFrame = false,
-        .allowNullInputs = true,
+        .allowNullInputs = false,
         .strategyTypes = {"feature-engineering", "temporal-comparison"},
         .assetRequirements = {"single-asset"},
         .usageContext = "Access historical values for comparison or feature creation. Use lag(1) to compare current vs previous bar. Combine multiple lags for pattern detection or ML features.",

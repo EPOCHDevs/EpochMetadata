@@ -39,7 +39,7 @@ MakeShortVolumeDataSource() {
           .requiresTimeFrame = false,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"sentiment", "volume-analysis", "microstructure"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track daily short volume as a percentage of total volume for sentiment analysis and order flow studies. High short volume may indicate bearish sentiment or market making activity.",

@@ -39,7 +39,7 @@ MakeDividendsDataSource() {
           .requiresTimeFrame = false,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"dividend-capture", "income", "fundamental"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access dividend distribution records for dividend capture strategies, income investing, or fundamental analysis. Track ex-dividend dates, payment dates, and dividend amounts.",

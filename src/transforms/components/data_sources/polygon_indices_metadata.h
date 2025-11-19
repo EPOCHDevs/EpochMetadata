@@ -55,7 +55,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
       .requiresTimeFrame = true,
       .requiredDataSources = {"c"},  // Indices load data internally, "c" is just to get proper index
       .intradayOnly = false,
-      .allowNullInputs = true,
+      .allowNullInputs = false,
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =
@@ -88,7 +88,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
       .requiresTimeFrame = true,
       .requiredDataSources = {"c"},  // Indices load data internally, "c" is just to get proper index
       .intradayOnly = false,
-      .allowNullInputs = true,
+      .allowNullInputs = false,
       .strategyTypes = {"market-regime", "index-analysis", "correlation", "hedge"},
       .assetRequirements = {"single-asset", "multi-asset"},
       .usageContext =

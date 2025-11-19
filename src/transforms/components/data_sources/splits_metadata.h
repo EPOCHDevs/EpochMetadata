@@ -39,7 +39,7 @@ MakeSplitsDataSource() {
           .requiresTimeFrame = false,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"corporate-actions", "event-driven"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track stock split events for price adjustment awareness and corporate action strategies. Monitor split ratios and execution dates.",

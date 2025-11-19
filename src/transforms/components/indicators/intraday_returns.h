@@ -48,7 +48,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeIntradayRet
       .tags = {"intraday", "returns", "volatility", "directional", "open-close"},
       .requiresTimeFrame = false,
       .requiredDataSources = {"o", "c"},
-      .allowNullInputs = true,
+      .allowNullInputs = false,
       .strategyTypes = {"volatility", "mean-reversion", "trend", "statistical-analysis"},
       .relatedTransforms = {"forward_returns", "pct_change", "return_vol", "bar_gap"},
       .assetRequirements = {"single-asset"},

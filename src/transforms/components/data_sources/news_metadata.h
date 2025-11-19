@@ -39,7 +39,7 @@ MakeNewsDataSource() {
           .requiresTimeFrame = false,  // News doesn't require explicit timeframe
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"event-driven", "sentiment", "news-based"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access news articles for sentiment analysis, event detection, or news-driven strategies. Use for monitoring corporate announcements, earnings, or market-moving events.",

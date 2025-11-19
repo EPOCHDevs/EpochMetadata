@@ -15,6 +15,7 @@
 #include <epoch_frame/factory/dataframe_factory.h>
 #include <epoch_frame/factory/array_factory.h>
 #include <epoch_frame/factory/index_factory.h>
+#include <limits>
 
 using namespace epoch_core;
 using namespace epoch_frame;
@@ -368,6 +369,53 @@ timeframe: {}
     // First few values may be null/low due to rolling window
     // Later values should select high since value is increasing above median
     REQUIRE(result_vec[4] == 100.0);  // Last value should be high
+}
+
+TEST_CASE("Typed PercentileSelect - propagates null inputs", "[typed][percentile_select][null-handling]") {
+    const auto &timeframe = EpochStratifyXConstants::instance().DAILY_FREQUENCY;
+
+    auto index = factory::index::make_datetime_index({
+        DateTime{2020y, std::chrono::January, 1d},
+        DateTime{2020y, std::chrono::January, 2d},
+        DateTime{2020y, std::chrono::January, 3d}
+    });
+
+    const double kNaN = std::numeric_limits<double>::quiet_NaN();
+
+    auto input_df = make_dataframe<double>(
+        index,
+        {
+            {10.0, kNaN, 30.0},   // value (middle row is null)
+            {100.0, 100.0, 100.0}, // high
+            {1.0, 1.0, 1.0}        // low
+        },
+        {"value", "high", "low"});
+
+    TransformConfiguration config = TransformConfiguration{TransformDefinition{YAML::Load(std::format(
+        R"(
+type: percentile_select_number
+id: 8
+inputs:
+  "value": "value"
+  "high": "high"
+  "low": "low"
+options:
+  lookback: 1
+  percentile: 50.0
+timeframe: {}
+)",
+        timeframe.Serialize()))}};
+
+    auto transformBase = MAKE_TRANSFORM(config);
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+
+    DataFrame result = transform->TransformData(input_df);
+    auto result_vec = result[config.GetOutputId()].contiguous_array().to_vector<double>();
+
+    REQUIRE(result_vec.size() == 3);
+    REQUIRE(result_vec[0] == 100.0);
+    REQUIRE(std::isnan(result_vec[1]));  // Null input row should stay null
+    REQUIRE(result_vec[2] == 100.0);
 }
 
 // ==================== REMOVAL VERIFICATION ====================

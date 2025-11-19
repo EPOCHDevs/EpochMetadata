@@ -5,7 +5,9 @@
 #include "select.h"
 #include "epoch_frame/array.h"
 #include "epoch_frame/factory/dataframe_factory.h"
+#include "epoch_frame/scalar.h"
 #include <arrow/chunked_array.h>
+#include <arrow/scalar.h>
 #include <memory>
 
 namespace epoch_script::transform {
@@ -149,22 +151,31 @@ epoch_frame::DataFrame FirstNonNullTransform::TransformData(
 template <typename TypeTag>
 epoch_frame::DataFrame TypedPercentileSelect<TypeTag>::TransformData(
     epoch_frame::DataFrame const &bars) const {
-  epoch_frame::Series value = bars[GetInputId("value")];
+  epoch_frame::Series value_series = bars[GetInputId("value")];
+  epoch_frame::Array value_array = value_series.contiguous_array();
   epoch_frame::Array high_output =
       bars[GetInputId("high")].contiguous_array();
   epoch_frame::Array low_output = bars[GetInputId("low")].contiguous_array();
 
   // Calculate the rolling percentile
   epoch_frame::Array percentile_value =
-      value.rolling_agg({.window_size = m_lookback})
+      value_series.rolling_agg({.window_size = m_lookback})
           .quantile(m_percentile / 100.0)
           .contiguous_array();
 
+  // Core selection (Arrow handles null propagation in if_else)
+  auto selection =
+      high_output.where(value_array >= percentile_value, low_output);
+
+  // Enforce null output whenever inputs for the decision are null by masking.
+  auto valid_mask =
+      value_array.is_not_null() && percentile_value.is_not_null();
+  auto null_scalar =
+      epoch_frame::Scalar(arrow::MakeNullScalar(selection.type()));
+  auto sanitized_selection = selection.where(valid_mask, null_scalar);
+
   return epoch_frame::make_dataframe(
-      bars.index(),
-      {high_output
-           .where(value.contiguous_array() >= percentile_value, low_output)
-           .as_chunked_array()},
+      bars.index(), {sanitized_selection.as_chunked_array()},
       {GetOutputId()});
 }
 

@@ -87,7 +87,7 @@ MakeFREDDataSource() {
           .requiresTimeFrame = true,
           .requiredDataSources = requiredDataSources,
           .intradayOnly = false,
-          .allowNullInputs = true,
+          .allowNullInputs = false,
           .strategyTypes = {"macro-analysis", "regime-detection",
                             "economic-calendar", "risk-on-risk-off"},
           .assetRequirements = {},
