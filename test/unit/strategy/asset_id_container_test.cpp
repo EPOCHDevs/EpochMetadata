@@ -215,13 +215,15 @@ TEST_CASE("AssetIDContainer serialization with glaze", "[asset_id_container]") {
     std::string json = json_result.value();
     CHECK_FALSE(json.empty());
 
-    // Should contain the asset IDs
+    // Should serialize as a string array, not an object
+    CHECK(json.starts_with("["));
+    CHECK(json.ends_with("]"));
     CHECK(json.find("AAPL-Stocks") != std::string::npos);
     CHECK(json.find("MSFT-Stocks") != std::string::npos);
   }
 
   SECTION("Deserialize from JSON") {
-    std::string json = R"({"raw_asset_ids":["AAPL-Stocks","MSFT-Stocks"]})";
+    std::string json = R"(["AAPL-Stocks","MSFT-Stocks"])";
 
     AssetIDContainer container;
     auto result = glz::read_json(container, json);

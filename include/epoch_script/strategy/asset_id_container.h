@@ -119,8 +119,9 @@ private:
 } // namespace epoch_script::strategy
 
 // Glaze serialization for AssetIDContainer
+// Serialize directly as a string array instead of an object
 template <>
 struct glz::meta<epoch_script::strategy::AssetIDContainer> {
   using T = epoch_script::strategy::AssetIDContainer;
-  static constexpr auto value = object(&T::raw_asset_ids);
+  static constexpr auto value = &T::raw_asset_ids;
 };
