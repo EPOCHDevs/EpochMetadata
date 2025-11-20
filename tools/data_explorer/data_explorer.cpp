@@ -295,7 +295,7 @@ news_data = news(timeframe="1D")
         // 3. Create StrategyConfig from PythonSource
         epoch_script::strategy::StrategyConfig strategyConfig;
         strategyConfig.trade_signal.source = *compiler;
-        strategyConfig.data.assets = {asset_string};
+        strategyConfig.data.assets = epoch_script::strategy::AssetIDContainer({asset_string});
 
         // 4. Determine date range (use config dates)
         auto start_date = epoch_frame::DateTime::from_str(

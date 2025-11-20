@@ -191,7 +191,7 @@ void RunTest(const std::string& source, const std::string& output_dir, const std
   // 1. Create StrategyConfig from test input
   epoch_script::strategy::StrategyConfig strategyConfig;
   strategyConfig.trade_signal.source = *compiler;
-  strategyConfig.data.assets = asset_config.assets;
+  strategyConfig.data.assets = epoch_script::strategy::AssetIDContainer(asset_config.assets);
 
   // Determine date range based on timeframe (10 years for daily, 1 year for intraday)
   bool is_intraday = epoch_script::strategy::IsIntradayCampaign(strategyConfig);

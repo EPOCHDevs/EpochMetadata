@@ -245,7 +245,7 @@ TEST_CASE("EpochScript Integration Tests - JSON-Based", "[integration][epoch_scr
             // This allows auto-detection of intraday vs daily timeframe
             strategy::StrategyConfig strategyConfig;
             strategyConfig.trade_signal.source = *compiler;
-            strategyConfig.data.assets = asset_config.assets;
+            strategyConfig.data.assets = strategy::AssetIDContainer(asset_config.assets);
 
             // Determine date range based on timeframe (10 years for daily, 1 year for intraday)
             bool is_intraday = strategy::IsIntradayCampaign(strategyConfig);

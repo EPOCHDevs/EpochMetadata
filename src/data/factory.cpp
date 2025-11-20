@@ -152,33 +152,13 @@ std::array<asset::AssetHashSet, 3>
 MakeAssets(epoch_core::CountryCurrency baseCurrency,
            std::vector<std::string> const &assetIds, bool hasContinuation) {
   asset::AssetHashSet dataloaderAssets, strategyAssets, continuationAssets;
+
+  // Note: Asset IDs are now pre-resolved and validated by AssetIDContainer
+  // Index expansion and FX/Crypto prefix handling is done before this function
   for (auto id : assetIds) {
     using namespace asset;
 
-    // Check if asset ID is an index that needs constituent expansion
-    // Only check for indices if the ID does not contain a dash (-)
-    if (id.find('-') == std::string::npos) {
-      const auto &indexDB = asset::IndexConstituentsDatabase::GetInstance();
-      auto constituentsOpt = indexDB.GetConstituents(id);
-
-      if (constituentsOpt.has_value()) {
-        const auto &constituents = constituentsOpt.value();
-        SPDLOG_INFO("Expanding index {} to {} constituents", id, constituents.size());
-
-        for (const auto &constituentId : constituents) {
-          try {
-            const auto constituentAsset = MakeAsset(AssetSpecificationQuery{constituentId});
-            dataloaderAssets.insert(constituentAsset);
-            strategyAssets.insert(constituentAsset);
-          } catch (const std::exception &e) {
-            SPDLOG_WARN("Failed to create asset for constituent {}: {}", constituentId, e.what());
-          }
-        }
-        continue; // Skip adding the index itself
-      }
-    }
-
-    // Not an index, create asset normally
+    // Create asset from the resolved ID
     const auto asset = MakeAsset(AssetSpecificationQuery{id});
 
     if (asset.IsFuturesContract()) {
@@ -305,8 +285,11 @@ MakeDataModuleOption(CountryCurrency baseCurrency,
                      epoch_script::strategy::DataOption const &config,
                      DataCategory primaryCategory,
                      std::vector<DataCategory> const &auxiliaryCategories={}) {
+  // Resolve and validate asset IDs using AssetIDContainer
+  const auto resolvedAssetIds = config.assets.Resolve();
+
   const auto [dataloaderAssets, strategyAssets, continuationAssets] =
-      MakeAssets(baseCurrency, config.assets,
+      MakeAssets(baseCurrency, resolvedAssetIds,
                  config.futures_continuation.has_value());
   const auto today = epoch_frame::DateTime::now().date();
 

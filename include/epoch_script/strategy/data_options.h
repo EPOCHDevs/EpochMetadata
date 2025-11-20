@@ -5,6 +5,7 @@
 #pragma once
 #include "epoch_script/strategy/enums.h"
 #include "epoch_script/strategy/generic_function.h"
+#include "epoch_script/strategy/asset_id_container.h"
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ inline std::filesystem::path GetDefaultCacheDir() {
 }
 
 struct DataOption {
-  std::vector<std::string> assets;
+  AssetIDContainer assets;
   std::string source;
   std::optional<TemplatedGenericFunction<epoch_core::RolloverType>>
       futures_continuation;
