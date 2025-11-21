@@ -894,7 +894,8 @@ TransformsMetaData MakeCalendarEffectMetaData(
 
   // Common metadata for all calendar effects
   metadata.category = epoch_core::TransformCategory::Statistical;
-  metadata.plotKind = epoch_core::TransformPlotKind::Null;
+  // Visualize boolean seasonality signals as flags on the price chart
+  metadata.plotKind = epoch_core::TransformPlotKind::flag;
   metadata.isCrossSectional = false;
   metadata.requiresTimeFrame = true;
   metadata.assetRequirements = {"single-asset"};
@@ -928,7 +929,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "flexible_pivot_detector",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::pivot_point_detector,
       .name = "Pivot Point Detector",
       .options = {
           MetaDataOption{.id = "left_count",
@@ -967,7 +968,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "head_and_shoulders",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::head_and_shoulders,
       .name = "Head and Shoulders",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1022,7 +1023,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "inverse_head_and_shoulders",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::inverse_head_and_shoulders,
       .name = "Inverse Head and Shoulders",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1077,7 +1078,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "double_top_bottom",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::double_top_bottom,
       .name = "Double Top/Bottom",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1122,7 +1123,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "flag",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::flag_pattern,
       .name = "Flag Pattern",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1178,7 +1179,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "triangles",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::triangle_patterns,
       .name = "Triangle Patterns",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1224,7 +1225,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "pennant",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::pennant_pattern,
       .name = "Pennant Pattern",
       .options = {
           MetaDataOption{.id = "lookback",
@@ -1280,7 +1281,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "session_time_window",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::flag,
       .name = "Session Time Window",
       .options = {
           MetaDataOption{.id = "session_type",
@@ -1323,7 +1324,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "consolidation_box",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::consolidation_box,
       .name = "Consolidation Box",
       .options = {
           MetaDataOption{.id = "lookback",

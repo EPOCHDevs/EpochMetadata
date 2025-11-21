@@ -25,7 +25,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "common_indices",
       .category = epoch_core::TransformCategory::DataSource,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::close_line,
       .name = "Common Indices",
       .options =
           {
@@ -71,7 +71,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakePolygonIndi
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "indices",
       .category = epoch_core::TransformCategory::DataSource,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::close_line,
       .name = "Indices",
       .options =
           {

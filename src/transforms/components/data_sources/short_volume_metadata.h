@@ -28,7 +28,7 @@ MakeShortVolumeDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = SHORT_VOLUME,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
+          .plotKind = epoch_core::TransformPlotKind::short_volume,
           .name = "Short Volume",
           .options = {},
           .isCrossSectional = false,

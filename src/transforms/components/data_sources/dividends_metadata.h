@@ -28,7 +28,7 @@ MakeDividendsDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = DIVIDENDS,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
+          .plotKind = epoch_core::TransformPlotKind::dividends,
           .name = "Dividends",
           .options = {},
           .isCrossSectional = false,

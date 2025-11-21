@@ -28,7 +28,7 @@ MakeSplitsDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = SPLITS,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
+          .plotKind = epoch_core::TransformPlotKind::splits,
           .name = "Stock Splits",
           .options = {},
           .isCrossSectional = false,

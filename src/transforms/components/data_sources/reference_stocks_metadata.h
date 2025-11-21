@@ -20,7 +20,7 @@ inline std::vector<epoch_script::transforms::TransformsMetaData> MakeReferenceSt
   metadataList.emplace_back(epoch_script::transforms::TransformsMetaData{
       .id = "us_reference_stocks",
       .category = epoch_core::TransformCategory::DataSource,
-      .plotKind = epoch_core::TransformPlotKind::Null,
+      .plotKind = epoch_core::TransformPlotKind::close_line,
       .name = "US Reference Stocks",
       .options =
           {

@@ -40,6 +40,7 @@ CREATE_ENUM(
     h_line,             // horizontal line
     ichimoku,           // Ichimoku Cloud
     line,               // generic overlay
+    close_line,         // OHLCV close overlay from bar data sources
     gap,                // Gap indicator
     panel_line,         // generic overlay, but not on top of the main plot,
     panel_line_percent, // generic overlay, but not on top of the main plot,
@@ -60,9 +61,36 @@ CREATE_ENUM(
     stoch,              // Stochastic oscillator
     previous_high_low,  // Previous High and Low
     pivot_point_sr,     // Pivot Point Support/Resistance
+    pivot_point_detector, // Pivot Point Detector infrastructure
     vwap,               // VWAP overlay
     vortex,             // Vortex Indicator
-    trade_signal);      // Trade Signal Executor
+    trade_signal,       // Trade Signal Executor
+    // Data source specific plot kinds
+    balance_sheet,
+    income_statement,
+    cash_flow,
+    financial_ratios,
+    news,
+    dividends,
+    splits,
+    ticker_events,
+    short_interest,
+    short_volume,
+    economic_indicator,
+    common_indices,
+    indices,
+    us_reference_stocks,
+    form13f_holdings,
+    insider_trading,
+    // Pattern formation and statistical regimes
+    head_and_shoulders,
+    inverse_head_and_shoulders,
+    double_top_bottom,
+    pennant_pattern,
+    flag_pattern,
+    triangle_patterns,
+    consolidation_box,
+    hmm);               // Hidden Markov Models
 
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any);
 

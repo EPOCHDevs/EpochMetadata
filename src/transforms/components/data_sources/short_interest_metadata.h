@@ -28,7 +28,7 @@ MakeShortInterestDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = SHORT_INTEREST,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::Null,
+          .plotKind = epoch_core::TransformPlotKind::short_interest,
           .name = "Short Interest",
           .options = {},
           .isCrossSectional = false,
