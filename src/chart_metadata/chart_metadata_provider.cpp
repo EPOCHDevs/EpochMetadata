@@ -2,7 +2,7 @@
 // Created by adesola on 5/1/25.
 //
 
-#include "epoch_script/chart_metadata/chart_metadata_provider.h"
+#include "chart_metadata_provider_impl.h"
 #include "axis_manager.h"
 #include "data_column_resolver.h"
 #include "series_configuration_builder.h"
@@ -169,4 +169,13 @@ ChartMetadataProvider::ChartMetadataProvider(
     }
   }
 }
+
+// Factory function implementation
+ChartMetaDataProviderPtr CreateChartMetadataProvider(
+    const std::unordered_set<std::string> &timeframes,
+    const epoch_script::transform::TransformConfigurationList &transforms) {
+  return std::make_unique<ChartMetadataProvider>(timeframes, transforms);
+}
+
 } // namespace epoch_script
+
