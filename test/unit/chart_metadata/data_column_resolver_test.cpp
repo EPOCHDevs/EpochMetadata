@@ -1,4 +1,4 @@
-#include "epoch_script/chart_metadata/data_column_resolver.h"
+#include "chart_metadata/data_column_resolver.h"
 #include "catch2/catch_test_macros.hpp"
 #include "epoch_script/data/common/constants.h"
 #include "epoch_script/transforms/core/config_helper.h"

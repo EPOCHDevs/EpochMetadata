@@ -1,4 +1,4 @@
-#include "epoch_script/chart_metadata/series_configuration_builder.h"
+#include "chart_metadata/series_configuration_builder.h"
 #include "epoch_script/chart_metadata/chart_metadata_provider.h"
 #include "catch2/catch_test_macros.hpp"
 #include "epoch_script/data/common/constants.h"

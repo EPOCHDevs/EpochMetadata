@@ -46,6 +46,35 @@ TEST_CASE("FinBERT Sentiment Transform - Configuration", "[ml][finbert][config]"
 
     REQUIRE(config.GetTransformName() == "finbert_sentiment");
     REQUIRE(config.GetId() == "test_finbert");
+
+    // Verify transform can be instantiated
+    auto transformBase = MAKE_TRANSFORM(config);
+    REQUIRE(transformBase != nullptr);
+
+    // Verify it's the correct transform type
+    auto transform = dynamic_cast<ITransform *>(transformBase.get());
+    REQUIRE(transform != nullptr);
+  }
+
+  SECTION("Metadata validation") {
+    auto &registry = transforms::ITransformRegistry::GetInstance();
+    REQUIRE(registry.IsValid("finbert_sentiment"));
+
+    auto metadataOpt = registry.GetMetaData("finbert_sentiment");
+    REQUIRE(metadataOpt.has_value());
+
+    auto metadata = metadataOpt.value().get();
+    REQUIRE(metadata.id == "finbert_sentiment");
+    REQUIRE(metadata.name == "FinBERT Sentiment Analysis");
+    REQUIRE(metadata.category == TransformCategory::ML);
+    REQUIRE(metadata.plotKind == TransformPlotKind::sentiment);
+
+    // Verify outputs
+    REQUIRE(metadata.outputs.size() == 2);
+    REQUIRE(metadata.outputs[0].id == "sentiment");
+    REQUIRE(metadata.outputs[0].type == IODataType::String);
+    REQUIRE(metadata.outputs[1].id == "score");
+    REQUIRE(metadata.outputs[1].type == IODataType::Decimal);
   }
 }
 
@@ -64,8 +93,8 @@ TEST_CASE("FinBERT Sentiment Transform - Output Structure", "[ml][finbert][outpu
     std::string sentiment_output = config.GetOutputId("sentiment");
     std::string score_output = config.GetOutputId("score");
 
-    REQUIRE(sentiment_output == "test_outputs.sentiment");
-    REQUIRE(score_output == "test_outputs.score");
+    REQUIRE(sentiment_output == "test_outputs#sentiment");
+    REQUIRE(score_output == "test_outputs#score");
   }
 }
 
