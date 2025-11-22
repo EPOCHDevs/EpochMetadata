@@ -1,4 +1,5 @@
 # Unit tests organized by module
+add_subdirectory(chart_metadata)   # Chart metadata tests
 add_subdirectory(common)      # Shared test utilities
 add_subdirectory(core)         # Core component tests
 add_subdirectory(transforms)   # Transform tests

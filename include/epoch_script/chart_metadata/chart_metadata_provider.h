@@ -1,0 +1,128 @@
+#pragma once
+
+#include <cstdint>
+#include <epoch_script/core/metadata_options.h>
+#include <epoch_script/core/time_frame.h>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include "epoch_script/transforms/core/transform_configuration.h"
+#include "epoch_frame/datetime.h"
+
+namespace epoch_script {
+
+/**
+ * @brief Information about a single series (indicator/chart) to be rendered
+ */
+struct SeriesInfo {
+  std::string id;                    ///< Unique series identifier
+  std::string type;                  ///< Chart type (line, candlestick, macd, etc.)
+  std::string name;                  ///< Display name
+  std::unordered_map<std::string, std::string> dataMapping; ///< Semantic name → column mapping
+  uint32_t zIndex{0};                ///< Rendering layer (higher = on top)
+  uint32_t yAxis{0};                 ///< Which Y-axis this series uses
+  std::optional<std::string> linkedTo; ///< Optional series ID to link to
+  epoch_script::MetaDataArgDefinitionMapping configOptions; ///< Config for annotations/thresholds
+
+  bool operator==(const SeriesInfo &rhs) const = default;
+};
+
+/**
+ * @brief Y-axis configuration for chart panels
+ */
+struct YAxis {
+  uint32_t top{};      ///< Top position (percentage)
+  uint32_t height{100}; ///< Height (percentage)
+
+  bool operator==(const YAxis &rhs) const = default;
+};
+
+/**
+ * @brief Complete metadata for a single chart pane (one timeframe)
+ */
+struct ChartPaneMetadata {
+  std::vector<YAxis> yAxis;          ///< Y-axes configuration
+  std::vector<SeriesInfo> series;    ///< All series in this pane
+  std::vector<epoch_frame::SessionRange> sessionRanges; ///< Intraday session ranges for plot bands
+
+  friend std::ostream &operator<<(std::ostream &os, const ChartPaneMetadata &metadata);
+  bool operator==(const ChartPaneMetadata &rhs) const;
+};
+
+/**
+ * @brief Technical indicator data mapping (legacy, may be deprecated)
+ */
+struct TechnicalIndicatorDataMapping {
+  std::string type;
+  std::vector<std::string> outputs;
+};
+
+/**
+ * @brief Chart metadata for all timeframes
+ * Maps timeframe string → chart pane metadata
+ */
+using TimeFrameChartMetadata = std::unordered_map<std::string, ChartPaneMetadata>;
+
+/**
+ * @brief Interface for chart metadata providers
+ */
+struct IChartMetadataProvider {
+  virtual ~IChartMetadataProvider() = default;
+  virtual TimeFrameChartMetadata GetMetaData() const = 0;
+};
+
+/**
+ * @brief Generates chart metadata from transform configurations
+ *
+ * Takes a list of transform configurations and produces complete chart metadata
+ * including axes, series, and data mappings for visualization.
+ */
+class ChartMetadataProvider final : public IChartMetadataProvider {
+public:
+  /**
+   * @brief Construct provider from timeframes and transforms
+   * @param timeframes Set of timeframe strings to generate metadata for
+   * @param transforms List of transform configurations to visualize
+   */
+  explicit ChartMetadataProvider(
+      const std::unordered_set<std::string> &timeframes,
+      const epoch_script::transform::TransformConfigurationList &transforms);
+
+  /**
+   * @brief Get complete chart metadata for all timeframes
+   * @return Map of timeframe → chart pane metadata
+   */
+  TimeFrameChartMetadata GetMetaData() const override {
+    return m_chartMetaData;
+  }
+
+  /**
+   * @brief Create series info from a transform configuration
+   * @param cfg Transform configuration
+   * @param chosenAxis Y-axis index
+   * @param linkedTo Optional series ID to link to
+   * @param seriesId Unique series identifier
+   * @return Configured SeriesInfo
+   */
+  static SeriesInfo CreateSeries(
+      const epoch_script::transform::TransformConfiguration &cfg,
+      uint8_t chosenAxis,
+      const std::optional<std::string> &linkedTo,
+      const std::string &seriesId);
+
+private:
+  TimeFrameChartMetadata m_chartMetaData;
+  std::unordered_map<std::string, TechnicalIndicatorDataMapping>
+      m_technicalIndicatorTypeMappings;
+
+  static std::string GetTechnicalIndicatorMetaData(
+      const epoch_script::transform::TransformConfiguration &cfg,
+      std::vector<std::string> &outputs);
+};
+
+using ChartMetaDataProviderPtr = std::unique_ptr<ChartMetadataProvider>;
+
+} // namespace epoch_script

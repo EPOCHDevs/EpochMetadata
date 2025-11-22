@@ -64,6 +64,7 @@ find_package(DataFrame CONFIG REQUIRED)
 find_package(Armadillo CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
+find_package(AWSSDK CONFIG COMPONENTS dynamodb  sagemaker-runtime REQUIRED)
 
 add_library(epoch_script "")
 add_library(epoch::script ALIAS epoch_script)
@@ -94,7 +95,9 @@ target_compile_options(epoch_script PRIVATE -Wall -Wextra -Werror)
 target_link_libraries(epoch_script PUBLIC
         cpp-tree-sitter
         tree-sitter-python
-    armadillo
+        aws-cpp-sdk-dynamodb
+        aws-cpp-sdk-sagemaker-runtime
+        armadillo
         DataFrame::DataFrame
        epoch::dashboard
        yaml-cpp::yaml-cpp

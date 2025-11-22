@@ -51,6 +51,9 @@
 // String Operations
 #include "string/string_operations.h"
 
+// ML/AI Transforms
+#include "ml/sagemaker_sentiment.h"
+
 // Data Source includes
 #include "data_sources/polygon_data_source.h"
 #include "data_sources/polygon_metadata.h"
@@ -162,6 +165,9 @@ void InitializeTransforms(
   // REGISTER_TRANSFORM(string_replace, StringReplaceTransform);  // Disabled - causes metadata factory hang
   // REGISTER_TRANSFORM(string_length, StringLengthTransform);    // Disabled - causes metadata factory hang
   // REGISTER_TRANSFORM(string_reverse, StringReverseTransform);  // Disabled - causes metadata factory hang
+
+  // ML/AI Transforms
+  REGISTER_TRANSFORM(finbert_sentiment, SageMakerFinBERTTransform);
 
   // Vector Transforms
   REGISTER_TRANSFORM(gt, VectorGT);

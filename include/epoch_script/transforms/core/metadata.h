@@ -22,7 +22,8 @@ CREATE_ENUM(TransformCategory,
             Utility,     // switches, event_markers, helpers
             Reporter,    // report / visualization sink nodes
             Executor,    // trade / order sink nodes
-            EventMarker);   // interactive UI event_markers
+            EventMarker, // interactive UI event_markers
+            ML);
 
 // Chart helper (omit / null ⇒ not plotted)
 CREATE_ENUM(
@@ -74,7 +75,8 @@ CREATE_ENUM(
     flag_pattern,
     triangle_patterns,
     consolidation_box,
-    hmm);               // Hidden Markov Models
+    hmm,                // Hidden Markov Models
+    sentiment);         // Sentiment Analysis (ML/NLP)
 
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any);
 

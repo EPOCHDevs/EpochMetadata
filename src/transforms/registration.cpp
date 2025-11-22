@@ -23,6 +23,7 @@
 #include "components/indicators/forward_returns.h"
 #include "components/indicators/intraday_returns.h"
 #include "components/datetime/datetime_metadata.h"
+#include "components/ml/sagemaker_sentiment_metadata.h"
 
 namespace epoch_script::transforms {
 void RegisterStrategyMetaData(const std::string &name,
@@ -65,6 +66,7 @@ void RegisterTransformMetadata(FileLoaderInterface const &loader) {
   metaDataList.emplace_back(epoch_script::transform::MakeShortInterestDataSource());
   metaDataList.emplace_back(epoch_script::transform::MakeShortVolumeDataSource());
   metaDataList.emplace_back(epoch_script::transform::MakeDatetimeTransforms());
+  metaDataList.emplace_back(epoch_script::transform::MakeSageMakerSentimentTransforms());
   // Aggregation nodes are loaded from the transforms.yaml file
 
   for (auto &&indicator : std::views::join(metaDataList)) {

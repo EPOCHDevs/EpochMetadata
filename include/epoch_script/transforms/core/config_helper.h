@@ -1741,6 +1741,24 @@ inline auto string_reverse_cfg = [](std::string const &id, std::string const &in
 };
 
 // =========================
+// ML/AI Transform Helpers
+// =========================
+
+// FinBERT Sentiment Analysis - AWS SageMaker sentiment analysis
+inline auto finbert_sentiment_cfg = [](std::string const &id,
+                                        std::string const &input,
+                                        const epoch_script::TimeFrame &timeframe) {
+  TransformDefinitionData data{
+      .type = "finbert_sentiment",
+      .id = id,
+      .options = {},
+      .timeframe = timeframe,
+      .inputs = {{"ARG", std::vector<std::string>{input}}}
+  };
+  return TransformConfiguration{TransformDefinition{std::move(data)}};
+};
+
+// =========================
 // Datetime operation helpers
 // =========================
 
