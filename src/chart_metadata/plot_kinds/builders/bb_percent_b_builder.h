@@ -14,16 +14,15 @@ public:
   ) const override {
     Validate(cfg);
 
-    const auto &outputs = cfg.GetOutputs();
-
-    // Try result first, then value, then use first output
+    // After validation, we know exactly which output exists
     std::string valueCol;
     if (cfg.ContainsOutputId("result")) {
       valueCol = cfg.GetOutputId("result");
     } else if (cfg.ContainsOutputId("value")) {
       valueCol = cfg.GetOutputId("value");
     } else {
-      valueCol = cfg.GetOutputId(outputs[0].id);
+      // Validation ensures at least one output exists
+      valueCol = cfg.GetOutputId(cfg.GetOutputs()[0].id);
     }
 
     return {
@@ -41,7 +40,6 @@ public:
     if (outputs.empty()) {
       throw std::runtime_error("BBPercentB transform has no outputs");
     }
-
 
     // If more than one output, must have "result" or "value"
     if (outputs.size() > 1) {

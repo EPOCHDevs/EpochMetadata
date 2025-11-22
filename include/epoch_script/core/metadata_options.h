@@ -43,7 +43,7 @@ namespace epoch_script
     std::string column_id;
     epoch_core::CardSlot slot;
     epoch_core::CardRenderType render_type;
-    std::map<epoch_core::CardColor, std::vector<glz::generic>> color_map;  // Ordered map for deterministic JSON serialization
+    std::map<epoch_core::Color, std::vector<glz::generic>> color_map;  // Ordered map for deterministic JSON serialization
     std::optional<std::string> label;  // Optional display label - if set, UI shows this instead of column_id
 
     // Note: Custom equality operator needed because glz::generic doesn't have operator==

@@ -30,13 +30,25 @@ CREATE_ENUM(CardSlot,
             Footer,         // Bottom
             Details);       // "Show More" expandable section
 
-CREATE_ENUM(CardColor,
+CREATE_ENUM(Color,
             Default,  // Neutral/gray
             Primary,  // Brand color
-            Info,     // Blue
-            Success,  // Green
-            Warning,  // Yellow/orange
-            Error);   // Red
+            Success,  // Green (semantic)
+            Warning,  // Yellow/orange (semantic)
+            Error,    // Red (semantic)
+            Info,     // Blue (semantic)
+            // Real colors
+            Red,
+            Green,
+            Blue,
+            Yellow,
+            Orange,
+            Purple,
+            Pink,
+            Cyan,
+            Gray,
+            Black,
+            White);
 
 CREATE_ENUM(CardIcon,
             Chart,        // General analysis/charts (Lucide: BarChart3)
@@ -51,6 +63,26 @@ CREATE_ENUM(CardIcon,
             Dollar,       // P&L/financial (Lucide: DollarSign)
             Candle,       // Price action (Lucide: CandlestickChart)
             Info);        // General information (Lucide: Info)
+
+CREATE_ENUM(FlagIcon,
+            TrendingUp,           // Bullish patterns/events (Lucide: TrendingUp)
+            TrendingDown,         // Bearish patterns/events (Lucide: TrendingDown)
+            Newspaper,            // News events (Lucide: Newspaper)
+            DollarSign,           // Earnings/dividends (Lucide: DollarSign)
+            Split,                // Stock splits (Lucide: Split)
+            LineChart,            // Economic indicators (Lucide: LineChart)
+            FileText,             // Balance sheet (Lucide: FileText)
+            Receipt,              // Income statement (Lucide: Receipt)
+            Wallet,               // Cash flow (Lucide: Wallet)
+            Calculator,           // Financial ratios (Lucide: Calculator)
+            Clock,                // Trading sessions/time (Lucide: Clock)
+            Calendar,             // Calendar events (Lucide: Calendar)
+            Info,                 // General information (Lucide: Info)
+            AlertTriangle,        // Warnings (Lucide: AlertTriangle)
+            CheckCircle,          // Success (Lucide: CheckCircle)
+            Activity,             // Short interest (Lucide: Activity)
+            Bell,                 // Ticker events (Lucide: Bell)
+            CandlestickChart);    // Candlestick patterns (Lucide: CandlestickChart)
 
 namespace epoch_script {
 constexpr auto ARG = "SLOT";

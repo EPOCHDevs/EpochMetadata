@@ -195,90 +195,21 @@ SeriesConfigurationBuilder::BuildConfigOptions(
     // Return them as-is with their original variant types
     configOptions = cfg.GetOptions();
 
-    // Add default options based on PlotKind
+    // Get PlotKind-specific defaults from the builder
     const auto &metadata = cfg.GetTransformDefinition().GetMetadata();
+    auto& registry = plot_kinds::PlotKindBuilderRegistry::Instance();
 
-    // Zone PlotKind defaults
-    if (metadata.plotKind == epoch_core::TransformPlotKind::zone) {
-      // Add default 'name' if not present (use transform display name)
-      if (configOptions.find("name") == configOptions.end()) {
-        configOptions["name"] = epoch_script::MetaDataOptionDefinition{metadata.name};
-      }
+    if (registry.IsRegistered(metadata.plotKind)) {
+      const auto& builder = registry.GetBuilder(metadata.plotKind);
 
-      // Add default 'position' if not present (center)
-      if (configOptions.find("position") == configOptions.end()) {
-        configOptions["position"] = epoch_script::MetaDataOptionDefinition{std::string("center")};
-      }
-    }
+      // Get defaults from the PlotKind builder (each builder knows its own defaults)
+      auto defaults = builder.GetDefaultConfigOptions(cfg);
 
-    // Flag PlotKind defaults - add flag display metadata
-    if (metadata.plotKind == epoch_core::TransformPlotKind::flag) {
-      // Set flag title to transform name
-      if (configOptions.find("flagTitle") == configOptions.end()) {
-        configOptions["flagTitle"] = epoch_script::MetaDataOptionDefinition{metadata.name};
-      }
-
-      // Set flagText and flagTextIsTemplate based on transform ID
-      if (configOptions.find("flagText") == configOptions.end()) {
-        std::string flagText;
-        bool isTemplate = false;
-        std::string icon = "Info"; // Default icon
-
-        // Determine flag text template and icon based on transform ID
-        if (metadata.id == "news") {
-          flagText = "<b>{title}</b><br/>{description}<br/><i>By {author}</i>";
-          isTemplate = true;
-          icon = "Info";
-        } else if (metadata.id == "dividends") {
-          flagText = "${cash_amount} {currency} dividend<br/>Ex-Date: {record_date}<br/>Pay Date: {pay_date}";
-          isTemplate = true;
-          icon = "Dollar";
-        } else if (metadata.id == "splits") {
-          flagText = "Split: {split_from}:{split_to} (Ratio: {split_ratio})";
-          isTemplate = true;
-          icon = "Split";
-        } else if (metadata.id == "ticker_events") {
-          flagText = "{event_type}: {name}";
-          isTemplate = true;
-          icon = "Alert";
-        } else if (metadata.id == "short_interest") {
-          flagText = "Short Interest: {short_interest}<br/>Days to Cover: {days_to_cover}";
-          isTemplate = true;
-          icon = "TrendDown";
-        } else if (metadata.id == "short_volume") {
-          flagText = "Short Volume: {short_volume} ({short_volume_ratio}%)<br/>Total: {total_volume}";
-          isTemplate = true;
-          icon = "TrendDown";
-        } else if (metadata.id == "balance_sheet") {
-          flagText = "Q{fiscal_quarter} {fiscal_year} Balance Sheet<br/>Cash: ${cash}<br/>Debt: ${long_term_debt}";
-          isTemplate = true;
-          icon = "Dollar";
-        } else if (metadata.id == "cash_flow") {
-          flagText = "Q{fiscal_quarter} {fiscal_year} Cash Flow<br/>CFO: ${cfo}<br/>FCF: ${fcf}";
-          isTemplate = true;
-          icon = "Dollar";
-        } else if (metadata.id == "income_statement") {
-          flagText = "Q{fiscal_quarter} {fiscal_year} Earnings<br/>Revenue: ${revenue}<br/>Net Income: ${net_income}<br/>EPS: ${diluted_eps}";
-          isTemplate = true;
-          icon = "Dollar";
-        } else if (metadata.id == "financial_ratios") {
-          flagText = "P/E: {pe}<br/>P/B: {pb}<br/>ROE: {roe}%<br/>Debt/Equity: {debt_equity}";
-          isTemplate = true;
-          icon = "Chart";
-        } else if (metadata.id == "economic_indicator") {
-          flagText = "Value: {value}";
-          isTemplate = true;
-          icon = "TrendUp";
-        } else {
-          // Default for other flags (candlestick patterns, etc.)
-          flagText = metadata.name;
-          isTemplate = false;
-          icon = "Signal";
+      // Apply defaults only if not already configured
+      for (const auto& [key, value] : defaults) {
+        if (configOptions.find(key) == configOptions.end()) {
+          configOptions[key] = value;
         }
-
-        configOptions["flagText"] = epoch_script::MetaDataOptionDefinition{flagText};
-        configOptions["flagTextIsTemplate"] = epoch_script::MetaDataOptionDefinition{isTemplate};
-        configOptions["flagIcon"] = epoch_script::MetaDataOptionDefinition{icon};
       }
     }
 

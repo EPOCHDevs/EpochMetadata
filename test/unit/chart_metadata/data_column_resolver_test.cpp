@@ -171,7 +171,7 @@ TEST_CASE("DataColumnResolver", "[chart_metadata][data_column_resolver][!mayfail
   SECTION("Resolves Sessions indicator") {
     YAML::Node inputs;
     YAML::Node options;
-    options["session"] = "London";
+    options["session_type"] = "London";
 
     auto sessions = transform::run_op("sessions", "1", inputs, options, tf);
     auto columns = DataColumnResolver::ResolveColumns(sessions);

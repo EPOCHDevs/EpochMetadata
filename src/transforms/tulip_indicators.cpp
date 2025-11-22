@@ -20,6 +20,9 @@ struct IndicatorMetaData {
   std::vector<std::string> assetRequirements{"single-asset"};
   std::string usageContext{};
   std::string limitations{};
+
+  // Flag schema for flag PlotKind transforms
+  std::optional<FlagSchema> flagSchema{};
 };
 
 std::unordered_map<std::string, IndicatorMetaData>
@@ -70,21 +73,39 @@ MakeTulipIndicatorMetaData() {
       .desc = "Crossany. Returns 1 when the first input "
               "crosses the second input in any direction.",
       .category = epoch_core::TransformCategory::Math,
-      .plotKind = epoch_core::TransformPlotKind::flag};
+      .plotKind = epoch_core::TransformPlotKind::flag,
+      .flagSchema = FlagSchema{
+          .icon = epoch_core::FlagIcon::Activity,
+          .text = "Cross (Any Direction)",
+          .textIsTemplate = false,
+          .color = epoch_core::Color::Info
+      }};
 
   indicatorMetaData["crossover"] = IndicatorMetaData{
       .tags = {"math", "crossover", "signal", "trend"},
       .desc = "Crossover. Returns 1 when the first input "
               "crosses above the second input.",
       .category = epoch_core::TransformCategory::Math,
-      .plotKind = epoch_core::TransformPlotKind::flag};
+      .plotKind = epoch_core::TransformPlotKind::flag,
+      .flagSchema = FlagSchema{
+          .icon = epoch_core::FlagIcon::TrendingUp,
+          .text = "Bullish Cross",
+          .textIsTemplate = false,
+          .color = epoch_core::Color::Success
+      }};
 
   indicatorMetaData["crossunder"] = IndicatorMetaData{
       .tags = {"math", "crossunder", "signal", "trend"},
       .desc = "Crossunder. Returns 1 when the first input "
               "crosses below the second input.",
       .category = epoch_core::TransformCategory::Math,
-      .plotKind = epoch_core::TransformPlotKind::flag};
+      .plotKind = epoch_core::TransformPlotKind::flag,
+      .flagSchema = FlagSchema{
+          .icon = epoch_core::FlagIcon::TrendingDown,
+          .text = "Bearish Cross",
+          .textIsTemplate = false,
+          .color = epoch_core::Color::Error
+      }};
 
   indicatorMetaData["decay"] = IndicatorMetaData{
       .tags = {"math", "decay", "linear"},
@@ -1048,6 +1069,7 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
             .tags = metadata.tags,
             .requiresTimeFrame = requiredDataSources.size() > 0,
             .requiredDataSources = requiredDataSources,
+            .flagSchema = metadata.flagSchema,
             .strategyTypes = metadata.strategyTypes,
             .relatedTransforms = metadata.relatedTransforms,
             .assetRequirements = metadata.assetRequirements,
@@ -1076,6 +1098,7 @@ std::vector<TransformsMetaData> MakeTulipIndicators() {
       .tags = crossunderMetadata.tags,
       .requiresTimeFrame = false,
       .requiredDataSources = {},
+      .flagSchema = crossunderMetadata.flagSchema,
       .strategyTypes = crossunderMetadata.strategyTypes,
       .relatedTransforms = crossunderMetadata.relatedTransforms,
       .assetRequirements = crossunderMetadata.assetRequirements,

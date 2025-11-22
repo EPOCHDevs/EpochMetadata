@@ -127,9 +127,9 @@ TEST_CASE("EventMarkerSchema - JSON Parsing", "[event_markers][event_marker]") {
     REQUIRE(schema.schemas[0].color_map.size() == 2);
 
     // Verify color mappings
-    REQUIRE(schema.schemas[0].color_map.at(epoch_core::CardColor::Success).size() == 1);
-    REQUIRE(schema.schemas[0].color_map.at(epoch_core::CardColor::Success)[0].get_string() == "BUY");
-    REQUIRE(schema.schemas[0].color_map.at(epoch_core::CardColor::Error)[0].get_string() == "SELL");
+    REQUIRE(schema.schemas[0].color_map.at(epoch_core::Color::Success).size() == 1);
+    REQUIRE(schema.schemas[0].color_map.at(epoch_core::Color::Success)[0].get_string() == "BUY");
+    REQUIRE(schema.schemas[0].color_map.at(epoch_core::Color::Error)[0].get_string() == "SELL");
   }
 
   SECTION("Parse schema with all render types") {

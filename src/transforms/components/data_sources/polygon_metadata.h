@@ -77,6 +77,12 @@ MakePolygonDataSources() {
           .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(balanceSheetMeta),
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::BalanceSheets),
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::FileText,
+              .text = "Q{fiscal_quarter} {fiscal_year} Balance Sheet<br/>Cash: ${cash}<br/>Debt: ${long_term_debt}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"fundamental-analysis", "value-investing"},
           .assetRequirements = {"single-asset"},
           .usageContext =
@@ -153,6 +159,12 @@ MakePolygonDataSources() {
           .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(incomeStatementMeta),
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::IncomeStatements),
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Receipt,
+              .text = "Q{fiscal_quarter} {fiscal_year} Earnings<br/>Revenue: ${revenue}<br/>EPS: ${diluted_eps}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"fundamental-analysis", "growth-investing",
                             "earnings-momentum"},
           .assetRequirements = {"single-asset"},
@@ -232,6 +244,12 @@ MakePolygonDataSources() {
           .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(cashFlowMeta),
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::CashFlowStatements),
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Wallet,
+              .text = "Q{fiscal_quarter} {fiscal_year} Cash Flow<br/>Operating CF: ${cfo}<br/>CapEx: ${capex}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"fundamental-analysis", "cash-flow-analysis",
                             "quality-investing"},
           .assetRequirements = {"single-asset"},
@@ -306,6 +324,12 @@ MakePolygonDataSources() {
           .requiredDataSources = BuildRequiredDataSourcesFromSDKMetadata(ratiosMeta),
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::Ratios),
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Calculator,
+              .text = "Valuation Ratios<br/>P/E: {pe}<br/>ROE: {roe}%",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"fundamental-analysis", "value-investing",
                             "screening", "factor-investing"},
           .assetRequirements = {"single-asset"},

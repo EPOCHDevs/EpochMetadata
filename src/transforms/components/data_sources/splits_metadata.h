@@ -40,6 +40,12 @@ MakeSplitsDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Split,
+              .text = "Stock Split: {split_from}:{split_to}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Warning
+          },
           .strategyTypes = {"corporate-actions", "event-driven"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track stock split events for price adjustment awareness and corporate action strategies. Monitor split ratios and execution dates.",

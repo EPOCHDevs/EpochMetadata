@@ -19,7 +19,7 @@ TEST_CASE("SEC Data Sources Metadata Registration", "[sec]") {
     REQUIRE(form13f.id == "form13f_holdings");
     REQUIRE(form13f.name == "Form 13F Holdings");
     REQUIRE(form13f.category == epoch_core::TransformCategory::DataSource);
-    REQUIRE(form13f.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(form13f.plotKind == epoch_core::TransformPlotKind::flag);
     REQUIRE(form13f.requiresTimeFrame == true);
     REQUIRE(form13f.isCrossSectional == false);
   }
@@ -31,7 +31,7 @@ TEST_CASE("SEC Data Sources Metadata Registration", "[sec]") {
     REQUIRE(insiderTrading.id == "insider_trading");
     REQUIRE(insiderTrading.name == "Insider Trading");
     REQUIRE(insiderTrading.category == epoch_core::TransformCategory::DataSource);
-    REQUIRE(insiderTrading.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(insiderTrading.plotKind == epoch_core::TransformPlotKind::flag);
     REQUIRE(insiderTrading.requiresTimeFrame == true);
     REQUIRE(insiderTrading.isCrossSectional == false);
   }

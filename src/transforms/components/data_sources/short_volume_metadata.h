@@ -40,6 +40,12 @@ MakeShortVolumeDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Activity,
+              .text = "Short Volume<br/>Volume: {short_volume}<br/>Ratio: {short_volume_ratio}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Warning
+          },
           .strategyTypes = {"sentiment", "volume-analysis", "microstructure"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track daily short volume as a percentage of total volume for sentiment analysis and order flow studies. High short volume may indicate bearish sentiment or market making activity.",

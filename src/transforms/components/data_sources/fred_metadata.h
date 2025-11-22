@@ -88,6 +88,12 @@ MakeFREDDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = false,
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::LineChart,
+              .text = "Economic Indicator<br/>Value: {value}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"macro-analysis", "regime-detection",
                             "economic-calendar", "risk-on-risk-off"},
           .assetRequirements = {},

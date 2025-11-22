@@ -28,22 +28,11 @@ public:
   void Validate(
     const epoch_script::transform::TransformConfiguration &cfg
   ) const override {
-    // Validate all required outputs exist
-    if (!cfg.ContainsOutputId("gap_filled")) {
-      throw std::runtime_error("Gap transform missing required output: gap_filled");
-    }
-    if (!cfg.ContainsOutputId("gap_retrace")) {
-      throw std::runtime_error("Gap transform missing required output: gap_retrace");
-    }
-    if (!cfg.ContainsOutputId("gap_size")) {
-      throw std::runtime_error("Gap transform missing required output: gap_size");
-    }
-    if (!cfg.ContainsOutputId("psc")) {
-      throw std::runtime_error("Gap transform missing required output: psc");
-    }
-    if (!cfg.ContainsOutputId("psc_timestamp")) {
-      throw std::runtime_error("Gap transform missing required output: psc_timestamp");
-    }
+    ValidateOutput(cfg, "gap_filled", "Gap");
+    ValidateOutput(cfg, "gap_retrace", "Gap");
+    ValidateOutput(cfg, "gap_size", "Gap");
+    ValidateOutput(cfg, "psc", "Gap");
+    ValidateOutput(cfg, "psc_timestamp", "Gap");
   }
 
   uint8_t GetZIndex() const override { return 1; }

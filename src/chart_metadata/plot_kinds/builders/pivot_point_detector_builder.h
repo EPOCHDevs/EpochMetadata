@@ -26,17 +26,9 @@ public:
   void Validate(
     const epoch_script::transform::TransformConfiguration &cfg
   ) const override {
-    // Validate all required outputs exist
-    if (!cfg.ContainsOutputId("pivot_type")) {
-      throw std::runtime_error("PivotPointDetector transform missing required output: pivot_type");
-    }
-
-    if (!cfg.ContainsOutputId("pivot_level")) {
-      throw std::runtime_error("PivotPointDetector transform missing required output: pivot_level");
-    }
-    if (!cfg.ContainsOutputId("pivot_index")) {
-      throw std::runtime_error("PivotPointDetector transform missing required output: pivot_index");
-    }
+    ValidateOutput(cfg, "pivot_type", "PivotPointDetector");
+    ValidateOutput(cfg, "pivot_level", "PivotPointDetector");
+    ValidateOutput(cfg, "pivot_index", "PivotPointDetector");
   }
 
   uint8_t GetZIndex() const override { return 5; }

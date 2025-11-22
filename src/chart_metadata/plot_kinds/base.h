@@ -1,6 +1,7 @@
 #pragma once
 
 #include "epoch_script/transforms/core/transform_configuration.h"
+#include "epoch_script/core/metadata_options.h"
 #include "../data_column_resolver.h"
 #include <string>
 #include <unordered_map>
@@ -56,6 +57,21 @@ public:
    * - false: Moving averages, Bollinger Bands, patterns
    */
   virtual bool RequiresOwnAxis() const = 0;
+
+  /**
+   * @brief Get default config options for this PlotKind
+   * @param cfg Transform configuration
+   * @return Map of default config option keys to their values
+   *
+   * Each PlotKind can provide its own defaults (e.g., zone has color/label,
+   * flag has icon/text). These are only applied if not already configured.
+   */
+  virtual epoch_script::MetaDataArgDefinitionMapping GetDefaultConfigOptions(
+    const epoch_script::transform::TransformConfiguration & /*cfg*/
+  ) const {
+    // Default: no config options
+    return {};
+  }
 
 protected:
   /**

@@ -25,10 +25,7 @@ public:
     const epoch_script::transform::TransformConfiguration &cfg
   ) const override {
     // Validate required "state" output exists
-    if (!cfg.ContainsOutputId("state")) {
-      throw std::runtime_error("HMM transform missing required output: state");
-    }
-
+    ValidateOutput(cfg, "state", "HMM");
 
     // Count state probability outputs
     const auto &outputs = cfg.GetOutputs();

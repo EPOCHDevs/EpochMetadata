@@ -268,8 +268,8 @@ namespace {
       .slot = epoch_core::CardSlot::PrimaryBadge,
       .render_type = epoch_core::CardRenderType::Badge,
       .color_map = {
-        {epoch_core::CardColor::Success, {"gap up"}},
-        {epoch_core::CardColor::Error, {"gap down"}}
+        {epoch_core::Color::Success, {"gap up"}},
+        {epoch_core::Color::Error, {"gap down"}}
       },
       .label = std::nullopt
     });
@@ -280,8 +280,8 @@ namespace {
       .slot = epoch_core::CardSlot::SecondaryBadge,
       .render_type = epoch_core::CardRenderType::Badge,
       .color_map = {
-        {epoch_core::CardColor::Success, {"filled"}},
-        {epoch_core::CardColor::Warning, {"not filled"}}
+        {epoch_core::Color::Success, {"filled"}},
+        {epoch_core::Color::Warning, {"not filled"}}
       },
       .label = std::nullopt
     });
@@ -310,8 +310,8 @@ namespace {
       .slot = epoch_core::CardSlot::Footer,
       .render_type = epoch_core::CardRenderType::Badge,
       .color_map = {
-        {epoch_core::CardColor::Success, {"green"}},
-        {epoch_core::CardColor::Error, {"red"}}
+        {epoch_core::Color::Success, {"green"}},
+        {epoch_core::Color::Error, {"red"}}
       },
       .label = std::nullopt
     });

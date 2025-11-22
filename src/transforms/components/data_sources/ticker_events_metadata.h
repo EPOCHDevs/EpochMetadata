@@ -40,6 +40,12 @@ MakeTickerEventsDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Bell,
+              .text = "Ticker Event: {event_type}<br/>{ticker}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Warning
+          },
           .strategyTypes = {"event-driven", "corporate-actions"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access ticker-level corporate events including name changes, ticker symbol changes, delistings, and other ticker lifecycle events.",

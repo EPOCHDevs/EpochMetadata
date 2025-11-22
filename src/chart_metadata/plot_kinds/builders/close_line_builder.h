@@ -26,11 +26,7 @@ public:
     const epoch_script::transform::TransformConfiguration &cfg
   ) const override {
     // Strict validation: must have "c" output
-    if (!cfg.ContainsOutputId("c")) {
-      throw std::runtime_error(
-        "CloseLine transform missing required 'c' (close) output"
-      );
-    }
+    ValidateOutput(cfg, "c", "CloseLine");
   }
 
   uint8_t GetZIndex() const override { return 5; }

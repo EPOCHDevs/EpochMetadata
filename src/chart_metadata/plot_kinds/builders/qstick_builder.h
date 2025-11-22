@@ -1,58 +1,17 @@
 #pragma once
 
-#include "../single_value.h"
+#include "line_builder.h"
 
 namespace epoch_script::chart_metadata::plot_kinds {
 
 /**
  * @brief Builder for qstick PlotKind (QStick)
  */
-class QStickBuilder : public IPlotKindBuilder {
+class QStickBuilder : public LineBuilder {
 public:
-  std::unordered_map<std::string, std::string> Build(
-    const epoch_script::transform::TransformConfiguration &cfg
-  ) const override {
-    Validate(cfg);
+  // Inherit Build() and Validate() from LineBuilder
 
-    const auto &outputs = cfg.GetOutputs();
-
-    // Try result first, then value, then use first output
-    std::string valueCol;
-    if (cfg.ContainsOutputId("result")) {
-      valueCol = cfg.GetOutputId("result");
-    } else if (cfg.ContainsOutputId("value")) {
-      valueCol = cfg.GetOutputId("value");
-    } else {
-      valueCol = cfg.GetOutputId(outputs[0].id);
-    }
-
-    return {
-      {"index", INDEX_COLUMN},
-      {"value", valueCol}
-    };
-  }
-
-  void Validate(
-    const epoch_script::transform::TransformConfiguration &cfg
-  ) const override {
-    const auto &outputs = cfg.GetOutputs();
-
-    // Must have at least one output
-    if (outputs.empty()) {
-      throw std::runtime_error("QStick transform has no outputs");
-    }
-
-
-    // If more than one output, must have "result" or "value"
-    if (outputs.size() > 1) {
-      if (!cfg.ContainsOutputId("result") && !cfg.ContainsOutputId("value")) {
-        throw std::runtime_error(
-          "QStick transform with multiple outputs must have 'result' or 'value' output"
-        );
-      }
-    }
-  }
-
+  // Only override what's different from LineBuilder defaults
   uint8_t GetZIndex() const override { return 0; }
   bool RequiresOwnAxis() const override { return true; }
 };

@@ -40,6 +40,12 @@ MakeShortInterestDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Activity,
+              .text = "Short Interest: {short_interest} shares",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Error
+          },
           .strategyTypes = {"short-squeeze", "sentiment", "contrarian"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Track short interest levels for short squeeze detection, sentiment analysis, and contrarian strategies. Monitor days-to-cover ratios and short position changes.",

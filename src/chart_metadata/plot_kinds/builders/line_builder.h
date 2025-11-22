@@ -14,43 +14,16 @@ public:
   ) const override {
     Validate(cfg);
 
-    const auto &outputs = cfg.GetOutputs();
-
-    // Try result first, then value, then use first output
-    std::string valueCol;
-    if (cfg.ContainsOutputId("result")) {
-      valueCol = cfg.GetOutputId("result");
-    } else if (cfg.ContainsOutputId("value")) {
-      valueCol = cfg.GetOutputId("value");
-    } else {
-      valueCol = cfg.GetOutputId(outputs[0].id);
-    }
-
     return {
       {"index", INDEX_COLUMN},
-      {"value", valueCol}
+      {"value", cfg.GetOutputId("result")}
     };
   }
 
   void Validate(
     const epoch_script::transform::TransformConfiguration &cfg
   ) const override {
-    const auto &outputs = cfg.GetOutputs();
-
-    // Must have at least one output
-    if (outputs.empty()) {
-      throw std::runtime_error("Line transform has no outputs");
-    }
-
-
-    // If more than one output, must have "result" or "value"
-    if (outputs.size() > 1) {
-      if (!cfg.ContainsOutputId("result") && !cfg.ContainsOutputId("value")) {
-        throw std::runtime_error(
-          "Line transform with multiple outputs must have 'result' or 'value' output"
-        );
-      }
-    }
+    ValidateOutput(cfg, "result", "Line");
   }
 
   uint8_t GetZIndex() const override { return 5; }

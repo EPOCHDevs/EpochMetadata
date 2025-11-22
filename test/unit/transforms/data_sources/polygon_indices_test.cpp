@@ -19,7 +19,7 @@ TEST_CASE("Polygon Indices Metadata Registration", "[polygon_indices]") {
     REQUIRE(commonIndices.id == "common_indices");
     REQUIRE(commonIndices.name == "Common Indices");
     REQUIRE(commonIndices.category == epoch_core::TransformCategory::DataSource);
-    REQUIRE(commonIndices.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(commonIndices.plotKind == epoch_core::TransformPlotKind::close_line);
     REQUIRE(commonIndices.requiresTimeFrame == true);
   }
 
@@ -30,7 +30,7 @@ TEST_CASE("Polygon Indices Metadata Registration", "[polygon_indices]") {
     REQUIRE(indices.id == "indices");
     REQUIRE(indices.name == "Indices");
     REQUIRE(indices.category == epoch_core::TransformCategory::DataSource);
-    REQUIRE(indices.plotKind == epoch_core::TransformPlotKind::Null);
+    REQUIRE(indices.plotKind == epoch_core::TransformPlotKind::close_line);
     REQUIRE(indices.requiresTimeFrame == true);
   }
 }

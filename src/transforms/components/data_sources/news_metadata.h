@@ -40,6 +40,12 @@ MakeNewsDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::Newspaper,
+              .text = "{title}<br/>{description}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Info
+          },
           .strategyTypes = {"event-driven", "sentiment", "news-based"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access news articles for sentiment analysis, event detection, or news-driven strategies. Use for monitoring corporate announcements, earnings, or market-moving events.",

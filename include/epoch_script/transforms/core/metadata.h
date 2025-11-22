@@ -80,7 +80,7 @@ CREATE_ENUM(
 
 CREATE_ENUM(IODataType, Decimal, Integer, Number, Boolean, String, Timestamp, Any);
 
-// Note: CardRenderType, CardSlot, CardColor enums are defined in constants.h
+// Note: CardRenderType, CardSlot, Color enums are defined in constants.h
 // Note: Use TransformCategory to distinguish between transform types:
 //   - Regular transforms: Aggregate, Math, Trend, Momentum, etc.
 //   - Reports: category = Executor
@@ -107,6 +107,18 @@ struct TransformCategoryMetaData {
 };
 std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData();
 
+/**
+ * @brief Display configuration for flag PlotKind
+ * Defines how a flag transform should be rendered (icon, text, color)
+ */
+struct FlagSchema {
+  epoch_core::FlagIcon icon;                      // Icon to display (type-safe enum → Lucide)
+  std::string text;                               // Plain text or template with {column_name}
+  bool textIsTemplate{false};                     // true = substitute {column} placeholders
+  epoch_core::Color color;                        // Semantic color (UI decides shade based on brand)
+  std::optional<std::string> title{std::nullopt}; // Optional popup/tooltip title
+};
+
 struct TransformsMetaData {
   std::string id;
   epoch_core::TransformCategory category;
@@ -123,6 +135,9 @@ struct TransformsMetaData {
   std::vector<std::string> requiredDataSources{};
   bool intradayOnly{false};
   bool allowNullInputs{false};
+
+  // Display configuration for flag PlotKind
+  std::optional<FlagSchema> flagSchema{std::nullopt};
 
   // Enhanced metadata for RAG/LLM strategy construction
   std::vector<std::string> strategyTypes{};  // e.g., "mean-reversion", "breakout", "trend-following"

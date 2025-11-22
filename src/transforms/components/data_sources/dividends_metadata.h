@@ -40,6 +40,12 @@ MakeDividendsDataSource() {
           .requiredDataSources = requiredDataSources,
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
+          .flagSchema = epoch_script::transforms::FlagSchema{
+              .icon = epoch_core::FlagIcon::DollarSign,
+              .text = "Dividend: ${cash_amount}<br/>Declared: {declaration_date}<br/>Pay Date: {pay_date}",
+              .textIsTemplate = true,
+              .color = epoch_core::Color::Success
+          },
           .strategyTypes = {"dividend-capture", "income", "fundamental"},
           .assetRequirements = {"single-asset"},
           .usageContext = "Access dividend distribution records for dividend capture strategies, income investing, or fundamental analysis. Track ex-dividend dates, payment dates, and dividend amounts.",
