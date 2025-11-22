@@ -91,15 +91,26 @@ namespace epoch_script
 
     struct glaze_json_schema {
       // Helper to build icon enumeration from IconWrapper (always up-to-date)
-      // Returns vector of string (not string_view) to ensure proper lifetime
-      static std::vector<std::string> BuildIconEnumeration() {
-        std::vector<std::string> icons;
-        for (const auto& iconStr : epoch_core::IconWrapper::GetAllAsStrings()) {
-          if (iconStr != "Null") {  // Exclude the Null sentinel value
-            icons.emplace_back(iconStr);
+      // Returns vector of string_view pointing to static strings to ensure proper lifetime
+      static std::vector<std::string_view> BuildIconEnumeration() {
+        // Static vector built once - persists for lifetime of program
+        static const std::vector<std::string> icons = []() {
+          std::vector<std::string> result;
+          for (const auto& iconStr : epoch_core::IconWrapper::GetAllAsStrings()) {
+            if (iconStr != "Null") {  // Exclude the Null sentinel value
+              result.emplace_back(iconStr);
+            }
           }
+          return result;
+        }();
+
+        // Return views to the static strings
+        std::vector<std::string_view> views;
+        views.reserve(icons.size());
+        for (const auto& icon : icons) {
+          views.emplace_back(icon);
         }
-        return icons;
+        return views;
       }
 
       glz::schema title{

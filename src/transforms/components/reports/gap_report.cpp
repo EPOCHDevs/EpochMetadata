@@ -345,7 +345,7 @@ namespace {
       card_schemas,
       daily_df.reset_index("pivot_index"),
       pivot_idx,
-      epoch_core::CardIcon::Gap
+      epoch_core::Icon::Split
     ));
 
     return data;
