@@ -31,7 +31,7 @@ MakeSageMakerSentimentTransforms() {
               },
           .atLeastOneInputRequired = true,
           .tags = {"ml", "nlp", "sentiment", "finbert", "aws", "sagemaker", "financial-text"},
-          .requiresTimeFrame = true,
+          .requiresTimeFrame = false,
           .requiredDataSources = {},
           .allowNullInputs = false,
           .strategyTypes = {"sentiment-driven", "news-based", "event-driven"},
