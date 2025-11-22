@@ -77,7 +77,7 @@ public:
     defaults["flagText"] = epoch_script::MetaDataOptionDefinition{schema.text};
     defaults["flagTextIsTemplate"] = epoch_script::MetaDataOptionDefinition{schema.textIsTemplate};
     defaults["flagIcon"] = epoch_script::MetaDataOptionDefinition{
-      epoch_core::FlagIconWrapper::ToString(schema.icon)
+      epoch_core::IconWrapper::ToString(schema.icon)
     };
     defaults["flagColor"] = epoch_script::MetaDataOptionDefinition{
       epoch_core::ColorWrapper::ToString(schema.color)

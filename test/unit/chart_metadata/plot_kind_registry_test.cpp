@@ -187,7 +187,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       YAML::Node inputs;
       YAML::Node options;
       options["period"] = 13;
-      return transform::run_op("elders", "1", inputs, options, tf);
+      return transform::run_op("elders_thermometer", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::elders));
@@ -246,7 +246,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       inputs["bbands_lower"] = "lower";
       inputs["bbands_upper"] = "upper";
       YAML::Node options;
-      return transform::run_op("bb_percent_b", "1", inputs, options, tf);
+      return transform::run_op("bband_percent", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::bb_percent_b));
@@ -257,10 +257,9 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto ichimoku_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      options["conversion_period"] = 9;
-      options["base_period"] = 26;
-      options["lagging_period"] = 52;
-      options["displacement"] = 26;
+      options["p_tenkan"] = 9;
+      options["p_kijun"] = 26;
+      options["p_senkou_b"] = 52;
       return transform::run_op("ichimoku", "1", inputs, options, tf);
     }();
 
@@ -310,7 +309,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto gap_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      return transform::run_op("gap", "1", inputs, options, tf);
+      options["fill_percent"] = 100;
+      return transform::run_op("session_gap", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::gap));
@@ -364,7 +364,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       YAML::Node inputs;
       YAML::Node options;
       options["swing_length"] = 5;
-      return transform::run_op("pivot_point_detector", "1", inputs, options, tf);
+      return transform::run_op("flexible_pivot_detector", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::pivot_point_detector));
@@ -436,7 +436,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto close_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      return transform::run_op("close_line", "1", inputs, options, tf);
+      options["index_name"] = "SP500";
+      return transform::run_op("common_indices", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::close_line));
@@ -444,12 +445,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
   }
 
   SECTION("Single-value indicators - Horizontal Line") {
-    auto hline_cfg = [&]() {
-      YAML::Node inputs;
-      inputs[epoch_script::ARG] = "c";
-      YAML::Node options;
-      return transform::run_op("h_line", "1", inputs, options, tf);
-    }();
+    // h_line is a generic line PlotKind - test with SMA
+    auto hline_cfg = transform::ma("sma", "1", "c", 20, tf);
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::h_line));
     REQUIRE_NOTHROW(registry.GetBuilder(TransformPlotKind::h_line));
@@ -472,9 +469,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
   SECTION("Single-value indicators - Column") {
     auto col_cfg = [&]() {
       YAML::Node inputs;
-      inputs[epoch_script::ARG] = "v";
       YAML::Node options;
-      return transform::run_op("column", "1", inputs, options, tf);
+      return transform::run_op("marketfi", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::column));
@@ -507,7 +503,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       YAML::Node inputs;
       inputs[epoch_script::ARG] = "c";
       YAML::Node options;
-      return transform::run_op("panel_line", "1", inputs, options, tf);
+      options["forward_periods"] = 1;
+      return transform::run_op("forward_returns", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::panel_line));
@@ -575,10 +572,11 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
   SECTION("Special purpose - Zone") {
     auto zone_cfg = [&]() {
       YAML::Node inputs;
-      inputs["start"] = "start_time";
-      inputs["end"] = "end_time";
       YAML::Node options;
-      return transform::run_op("zone", "1", inputs, options, tf);
+      options["start_time"] = "09:30";
+      options["end_time"] = "16:00";
+      options["timezone"] = "America/New_York";
+      return transform::run_op("session_time_window", "1", inputs, options, tf);
     }();
 
     REQUIRE(registry.IsRegistered(TransformPlotKind::zone));

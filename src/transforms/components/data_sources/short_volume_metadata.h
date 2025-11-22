@@ -41,7 +41,7 @@ MakeShortVolumeDataSource() {
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Activity,
+              .icon = epoch_core::Icon::Activity,
               .text = "Short Volume<br/>Volume: {short_volume}<br/>Ratio: {short_volume_ratio}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Warning

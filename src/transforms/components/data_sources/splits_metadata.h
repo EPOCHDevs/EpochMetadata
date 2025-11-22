@@ -41,7 +41,7 @@ MakeSplitsDataSource() {
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Split,
+              .icon = epoch_core::Icon::Split,
               .text = "Stock Split: {split_from}:{split_to}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Warning

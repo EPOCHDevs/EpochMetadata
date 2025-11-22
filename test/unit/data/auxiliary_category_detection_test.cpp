@@ -120,9 +120,9 @@ cash_flow_data = cash_flow(timeframe="1D")
 
   SECTION("Ignores non-DataSource transforms") {
     std::string code = R"(
-prices = market_data_source(timeframe="1D")
-sma_val = sma(prices.close, 20, timeframe="1D")
-rsi_val = rsi(prices.close, 14, timeframe="1D")
+prices = market_data_source(timeframe="1D")()
+sma_val = sma(period=20, timeframe="1D")(prices.c)
+rsi_val = rsi(period=14, timeframe="1D")(prices.c)
 )";
     auto source = epoch_script::strategy::PythonSource(code, true);
     auto manager = epoch_script::runtime::CreateTransformManager(source);
@@ -134,11 +134,11 @@ rsi_val = rsi(prices.close, 14, timeframe="1D")
 
   SECTION("Mixed transforms - only extracts DataSource categories") {
     std::string code = R"(
-prices = market_data_source(timeframe="1D")
-sma_val = sma(prices.close, 20, timeframe="1D")
-balance_sheet_data = balance_sheet(timeframe="1D")
-rsi_val = rsi(prices.close, 14, timeframe="1D")
-income_stmt_data = income_statement(timeframe="1D")
+prices = market_data_source(timeframe="1D")()
+sma_val = sma(period=20, timeframe="1D")(prices.c)
+balance_sheet_data = balance_sheet(timeframe="1D")()
+rsi_val = rsi(period=14, timeframe="1D")(prices.c)
+income_stmt_data = income_statement(timeframe="1D")()
 )";
     auto source = epoch_script::strategy::PythonSource(code, true);
     auto manager = epoch_script::runtime::CreateTransformManager(source);

@@ -83,20 +83,32 @@ namespace epoch_script
   // Card selector schema using boolean column filter
   struct EventMarkerSchema {
     std::string title;
-    epoch_core::CardIcon icon = epoch_core::CardIcon::Info;
+    epoch_core::Icon icon = epoch_core::Icon::Info;
     std::string select_key;  // Boolean column to filter rows
     std::vector<CardColumnSchema> schemas;
 
     bool operator==(const EventMarkerSchema &) const = default;
 
     struct glaze_json_schema {
+      // Helper to build icon enumeration from IconWrapper (always up-to-date)
+      // Returns vector of string (not string_view) to ensure proper lifetime
+      static std::vector<std::string> BuildIconEnumeration() {
+        std::vector<std::string> icons;
+        for (const auto& iconStr : epoch_core::IconWrapper::GetAllAsStrings()) {
+          if (iconStr != "Null") {  // Exclude the Null sentinel value
+            icons.emplace_back(iconStr);
+          }
+        }
+        return icons;
+      }
+
       glz::schema title{
         .description = "Title displayed above the card selector widget",
         .minLength = 1
       };
       glz::schema icon{
-        .description = "Icon displayed in collapsed sidebar view to identify card type",
-        .enumeration = std::vector<std::string_view>{"Chart", "Gap", "Signal", "Trade", "Position", "Alert", "TrendUp", "TrendDown", "Calendar", "Dollar", "Candle", "Info"}
+        .description = "Icon displayed in collapsed sidebar view to identify card type (see: https://lucide.dev/icons)",
+        .enumeration = BuildIconEnumeration()  // Dynamically built from IconWrapper
       };
       glz::schema select_key{
         .description = "Name of boolean DataFrame column used to filter rows (only rows where this column is true will be shown as cards)",

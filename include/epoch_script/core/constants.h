@@ -30,59 +30,200 @@ CREATE_ENUM(CardSlot,
             Footer,         // Bottom
             Details);       // "Show More" expandable section
 
+// Color enum - maps to frontend color schemes (Tailwind, shadcn/ui, etc.)
+// Semantic colors are context-aware, real colors are explicit
 CREATE_ENUM(Color,
-            Default,  // Neutral/gray
-            Primary,  // Brand color
-            Success,  // Green (semantic)
-            Warning,  // Yellow/orange (semantic)
-            Error,    // Red (semantic)
-            Info,     // Blue (semantic)
-            // Real colors
-            Red,
-            Green,
-            Blue,
-            Yellow,
-            Orange,
-            Purple,
-            Pink,
-            Cyan,
-            Gray,
-            Black,
-            White);
+            // Semantic Colors (context-aware)
+            Default,     // Neutral/gray - default UI color
+            Primary,     // Brand/primary color
+            Secondary,   // Secondary brand color
+            Success,     // Green - success states
+            Warning,     // Yellow/orange - warning states
+            Error,       // Red - error/danger states
+            Info,        // Blue - informational states
+            Muted,       // Muted/subdued color
+            Accent,      // Accent color for highlights
 
-CREATE_ENUM(CardIcon,
-            Chart,        // General analysis/charts (Lucide: BarChart3)
-            Gap,          // Gap events (Lucide: Split)
-            Signal,       // Trading signals (Lucide: Zap)
-            Trade,        // Trade executions (Lucide: ArrowLeftRight)
-            Position,     // Open positions (Lucide: Layers)
-            Alert,        // Alerts/notifications (Lucide: Bell)
-            TrendUp,      // Bullish events (Lucide: TrendingUp)
-            TrendDown,    // Bearish events (Lucide: TrendingDown)
-            Calendar,     // Time-based events (Lucide: Calendar)
-            Dollar,       // P&L/financial (Lucide: DollarSign)
-            Candle,       // Price action (Lucide: CandlestickChart)
-            Info);        // General information (Lucide: Info)
+            // Grayscale Spectrum
+            Slate,       // Cool gray (Tailwind: slate)
+            Gray,        // Neutral gray (Tailwind: gray)
+            Zinc,        // Warm gray (Tailwind: zinc)
+            Neutral,     // True gray (Tailwind: neutral)
+            Stone,       // Warm beige-gray (Tailwind: stone)
+            Black,       // Pure black
+            White,       // Pure white
 
-CREATE_ENUM(FlagIcon,
-            TrendingUp,           // Bullish patterns/events (Lucide: TrendingUp)
-            TrendingDown,         // Bearish patterns/events (Lucide: TrendingDown)
-            Newspaper,            // News events (Lucide: Newspaper)
-            DollarSign,           // Earnings/dividends (Lucide: DollarSign)
-            Split,                // Stock splits (Lucide: Split)
-            LineChart,            // Economic indicators (Lucide: LineChart)
-            FileText,             // Balance sheet (Lucide: FileText)
-            Receipt,              // Income statement (Lucide: Receipt)
-            Wallet,               // Cash flow (Lucide: Wallet)
-            Calculator,           // Financial ratios (Lucide: Calculator)
-            Clock,                // Trading sessions/time (Lucide: Clock)
-            Calendar,             // Calendar events (Lucide: Calendar)
-            Info,                 // General information (Lucide: Info)
-            AlertTriangle,        // Warnings (Lucide: AlertTriangle)
-            CheckCircle,          // Success (Lucide: CheckCircle)
-            Activity,             // Short interest (Lucide: Activity)
-            Bell,                 // Ticker events (Lucide: Bell)
-            CandlestickChart);    // Candlestick patterns (Lucide: CandlestickChart)
+            // Cool Colors
+            Blue,        // Standard blue
+            Sky,         // Light blue (Tailwind: sky)
+            Cyan,        // Cyan/aqua
+            Teal,        // Teal (blue-green)
+            Indigo,      // Indigo (deep blue)
+            Violet,      // Violet (blue-purple)
+            Purple,      // Purple
+
+            // Warm Colors
+            Red,         // Standard red
+            Rose,        // Pink-red (Tailwind: rose)
+            Pink,        // Pink
+            Fuchsia,     // Magenta-pink (Tailwind: fuchsia)
+            Orange,      // Orange
+            Amber,       // Amber (orange-yellow, Tailwind: amber)
+            Yellow,      // Yellow
+            Lime,        // Lime green (Tailwind: lime)
+
+            // Green Spectrum
+            Green,       // Standard green
+            Emerald,     // Emerald green (Tailwind: emerald)
+
+            // Metallic/Special
+            Gold,        // Gold
+            Silver,      // Silver
+            Bronze);     // Bronze
+
+// Unified Icon enum - consolidates CardIcon and FlagIcon for consistency
+// All icons map to Lucide icons (https://lucide.dev/icons)
+// Note: Old enum values normalized: TrendUp->TrendingUp, Dollar->DollarSign, Candle->CandlestickChart
+CREATE_ENUM(Icon,
+            // Charts & Analysis
+            BarChart,         // Bar chart (Lucide: BarChart)
+            BarChart2,        // Bar chart variant (Lucide: BarChart2)
+            BarChart3,        // Bar chart variant (Lucide: BarChart3)
+            Chart,            // General analysis/charts (Lucide: BarChart3) [legacy name]
+            LineChart,        // Line chart (Lucide: LineChart)
+            AreaChart,        // Area chart (Lucide: AreaChart)
+            PieChart,         // Pie chart (Lucide: PieChart)
+            CandlestickChart, // Candlestick chart (Lucide: CandlestickChart)
+            Activity,         // Activity/pulse (Lucide: Activity)
+            TrendingUp,       // Trending up (Lucide: TrendingUp)
+            TrendingDown,     // Trending down (Lucide: TrendingDown)
+
+            // Financial & Money
+            DollarSign,       // Dollar sign (Lucide: DollarSign)
+            Euro,             // Euro sign (Lucide: Euro)
+            PoundSterling,    // Pound sign (Lucide: PoundSterling)
+            Bitcoin,          // Bitcoin (Lucide: Bitcoin)
+            CreditCard,       // Credit card (Lucide: CreditCard)
+            Wallet,           // Wallet (Lucide: Wallet)
+            Coins,            // Coins (Lucide: Coins)
+            Banknote,         // Banknote (Lucide: Banknote)
+            Calculator,       // Calculator (Lucide: Calculator)
+            Percent,          // Percent (Lucide: Percent)
+
+            // Documents & Files
+            FileText,         // File with text (Lucide: FileText)
+            File,             // Generic file (Lucide: File)
+            Files,            // Multiple files (Lucide: Files)
+            Receipt,          // Receipt (Lucide: Receipt)
+            Newspaper,        // Newspaper (Lucide: Newspaper)
+            BookOpen,         // Book (Lucide: BookOpen)
+            Clipboard,        // Clipboard (Lucide: Clipboard)
+
+            // Alerts & Notifications
+            Bell,             // Bell (Lucide: Bell)
+            BellRing,         // Bell ringing (Lucide: BellRing)
+            AlertCircle,      // Alert circle (Lucide: AlertCircle)
+            AlertTriangle,    // Alert triangle (Lucide: AlertTriangle)
+            AlertOctagon,     // Alert octagon (Lucide: AlertOctagon)
+            Info,             // Info (Lucide: Info)
+            HelpCircle,       // Help circle (Lucide: HelpCircle)
+            MessageCircle,    // Message (Lucide: MessageCircle)
+
+            // Actions & Signals
+            Signal,           // Signal/zap (Lucide: Zap)
+            Zap,              // Zap (Lucide: Zap)
+            Play,             // Play (Lucide: Play)
+            Pause,            // Pause (Lucide: Pause)
+            Square,           // Square/stop (Lucide: Square)
+            Flag,             // Flag (Lucide: Flag)
+            Bookmark,         // Bookmark (Lucide: Bookmark)
+            Target,           // Target (Lucide: Target)
+
+            // Arrows & Directions
+            ArrowUp,          // Arrow up (Lucide: ArrowUp)
+            ArrowDown,        // Arrow down (Lucide: ArrowDown)
+            ArrowLeft,        // Arrow left (Lucide: ArrowLeft)
+            ArrowRight,       // Arrow right (Lucide: ArrowRight)
+            ArrowLeftRight,   // Arrow left-right (Lucide: ArrowLeftRight)
+            ArrowUpDown,      // Arrow up-down (Lucide: ArrowUpDown)
+            ChevronsUp,       // Chevrons up (Lucide: ChevronsUp)
+            ChevronsDown,     // Chevrons down (Lucide: ChevronsDown)
+            MoveUp,           // Move up (Lucide: MoveUp)
+            MoveDown,         // Move down (Lucide: MoveDown)
+
+            // Status & Checks
+            CheckCircle,      // Check circle (Lucide: CheckCircle)
+            Check,            // Check (Lucide: Check)
+            X,                // X/close (Lucide: X)
+            XCircle,          // X circle (Lucide: XCircle)
+            Circle,           // Circle (Lucide: Circle)
+            CircleDot,        // Circle with dot (Lucide: CircleDot)
+            Minus,            // Minus (Lucide: Minus)
+            Plus,             // Plus (Lucide: Plus)
+
+            // Trading & Markets
+            Trade,            // Trade (Lucide: ArrowLeftRight) [legacy name]
+            Position,         // Position (Lucide: Layers) [legacy name]
+            Layers,           // Layers (Lucide: Layers)
+            Split,            // Split (Lucide: Split)
+            Shuffle,          // Shuffle (Lucide: Shuffle)
+            Repeat,           // Repeat (Lucide: Repeat)
+            RefreshCw,        // Refresh (Lucide: RefreshCw)
+
+            // Time & Calendar
+            Calendar,         // Calendar (Lucide: Calendar)
+            CalendarDays,     // Calendar with days (Lucide: CalendarDays)
+            Clock,            // Clock (Lucide: Clock)
+            Timer,            // Timer (Lucide: Timer)
+            Hourglass,        // Hourglass (Lucide: Hourglass)
+
+            // Data & Database
+            Database,         // Database (Lucide: Database)
+            Table,            // Table (Lucide: Table)
+            Filter,           // Filter (Lucide: Filter)
+            Search,           // Search (Lucide: Search)
+            Download,         // Download (Lucide: Download)
+            Upload,           // Upload (Lucide: Upload)
+
+            // Settings & Tools
+            Settings,         // Settings (Lucide: Settings)
+            Wrench,           // Wrench (Lucide: Wrench)
+            Sliders,          // Sliders (Lucide: Sliders)
+            Edit,             // Edit (Lucide: Edit)
+            Copy,             // Copy (Lucide: Copy)
+            Trash,            // Trash (Lucide: Trash)
+
+            // Shapes & UI
+            Box,              // Box (Lucide: Box)
+            Package,          // Package (Lucide: Package)
+            Folder,           // Folder (Lucide: Folder)
+            Star,             // Star (Lucide: Star)
+            Heart,            // Heart (Lucide: Heart)
+            Eye,              // Eye (Lucide: Eye)
+            EyeOff,           // Eye off (Lucide: EyeOff)
+
+            // People & Users
+            User,             // User (Lucide: User)
+            Users,            // Users (Lucide: Users)
+            UserPlus,         // User plus (Lucide: UserPlus)
+            UserMinus,        // User minus (Lucide: UserMinus)
+
+            // Communication
+            Mail,             // Mail (Lucide: Mail)
+            Phone,            // Phone (Lucide: Phone)
+            Send,             // Send (Lucide: Send)
+            Share,            // Share (Lucide: Share)
+
+            // Miscellaneous
+            Globe,            // Globe (Lucide: Globe)
+            Map,              // Map (Lucide: Map)
+            MapPin,           // Map pin (Lucide: MapPin)
+            Lock,             // Lock (Lucide: Lock)
+            Unlock,           // Unlock (Lucide: Unlock)
+            Shield,           // Shield (Lucide: Shield)
+            Award,            // Award (Lucide: Award)
+            Gift,             // Gift (Lucide: Gift)
+            Sparkles);        // Sparkles (Lucide: Sparkles)
 
 namespace epoch_script {
 constexpr auto ARG = "SLOT";

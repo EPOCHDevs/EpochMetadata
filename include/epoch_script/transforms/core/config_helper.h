@@ -1477,12 +1477,12 @@ inline auto hmm_cfg =
        bool compute_zscore = true, std::size_t min_training_samples = 100,
        std::size_t lookback_window = 0) {
       YAML::Node cfg;
-      cfg["type"] = "hmm";
+      cfg["type"] = "hmm_" + std::to_string(n_states);
       cfg["id"] = id;
       cfg["timeframe"] = YAML::Load(timeframe.Serialize());
       cfg["inputs"]["SLOT"] = inputs; // multiple input series supported
 
-      cfg["options"]["n_states"] = static_cast<int64_t>(n_states);
+      // Note: n_states is NOT an option - it's encoded in the type name
       cfg["options"]["max_iterations"] = static_cast<int64_t>(max_iterations);
       cfg["options"]["tolerance"] = tolerance;
       cfg["options"]["compute_zscore"] = compute_zscore;

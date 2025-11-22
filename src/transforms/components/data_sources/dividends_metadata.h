@@ -41,7 +41,7 @@ MakeDividendsDataSource() {
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::DollarSign,
+              .icon = epoch_core::Icon::DollarSign,
               .text = "Dividend: ${cash_amount}<br/>Declared: {declaration_date}<br/>Pay Date: {pay_date}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Success

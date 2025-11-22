@@ -78,7 +78,7 @@ MakePolygonDataSources() {
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::BalanceSheets),
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::FileText,
+              .icon = epoch_core::Icon::FileText,
               .text = "Q{fiscal_quarter} {fiscal_year} Balance Sheet<br/>Cash: ${cash}<br/>Debt: ${long_term_debt}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info
@@ -160,7 +160,7 @@ MakePolygonDataSources() {
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::IncomeStatements),
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Receipt,
+              .icon = epoch_core::Icon::Receipt,
               .text = "Q{fiscal_quarter} {fiscal_year} Earnings<br/>Revenue: ${revenue}<br/>EPS: ${diluted_eps}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info
@@ -245,7 +245,7 @@ MakePolygonDataSources() {
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::CashFlowStatements),
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Wallet,
+              .icon = epoch_core::Icon::Wallet,
               .text = "Q{fiscal_quarter} {fiscal_year} Cash Flow<br/>Operating CF: ${cfo}<br/>CapEx: ${capex}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info
@@ -325,7 +325,7 @@ MakePolygonDataSources() {
           .intradayOnly = IsIntradayOnlyCategory(DataCategory::Ratios),
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Calculator,
+              .icon = epoch_core::Icon::Calculator,
               .text = "Valuation Ratios<br/>P/E: {pe}<br/>ROE: {roe}%",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info

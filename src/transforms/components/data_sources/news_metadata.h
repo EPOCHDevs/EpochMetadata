@@ -41,7 +41,7 @@ MakeNewsDataSource() {
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Newspaper,
+              .icon = epoch_core::Icon::Newspaper,
               .text = "{title}<br/>{description}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info

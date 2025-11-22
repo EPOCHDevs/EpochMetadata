@@ -156,7 +156,7 @@ TEST_CASE("FlagSchema - all flag transforms have valid icon", "[metadata][flagSc
     const auto& flagSchema = metadata.flagSchema.value();
 
     // Icon should be set (enum, so we just verify toString doesn't crash)
-    std::string iconStr = epoch_core::FlagIconWrapper::ToString(flagSchema.icon);
+    std::string iconStr = epoch_core::IconWrapper::ToString(flagSchema.icon);
     REQUIRE_FALSE(iconStr.empty());
   }
 }

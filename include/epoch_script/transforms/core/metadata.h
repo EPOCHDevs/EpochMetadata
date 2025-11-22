@@ -112,7 +112,7 @@ std::vector<TransformCategoryMetaData> MakeTransformCategoryMetaData();
  * Defines how a flag transform should be rendered (icon, text, color)
  */
 struct FlagSchema {
-  epoch_core::FlagIcon icon;                      // Icon to display (type-safe enum → Lucide)
+  epoch_core::Icon icon;                          // Icon to display (type-safe enum → Lucide)
   std::string text;                               // Plain text or template with {column_name}
   bool textIsTemplate{false};                     // true = substitute {column} placeholders
   epoch_core::Color color;                        // Semantic color (UI decides shade based on brand)

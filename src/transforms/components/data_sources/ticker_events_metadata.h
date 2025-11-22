@@ -41,7 +41,7 @@ MakeTickerEventsDataSource() {
           .intradayOnly = IsIntradayOnlyCategory(dataCategory),  // Auto-computed from registry
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::Bell,
+              .icon = epoch_core::Icon::Bell,
               .text = "Ticker Event: {event_type}<br/>{ticker}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Warning

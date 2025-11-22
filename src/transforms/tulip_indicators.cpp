@@ -75,7 +75,7 @@ MakeTulipIndicatorMetaData() {
       .category = epoch_core::TransformCategory::Math,
       .plotKind = epoch_core::TransformPlotKind::flag,
       .flagSchema = FlagSchema{
-          .icon = epoch_core::FlagIcon::Activity,
+          .icon = epoch_core::Icon::Activity,
           .text = "Cross (Any Direction)",
           .textIsTemplate = false,
           .color = epoch_core::Color::Info
@@ -88,7 +88,7 @@ MakeTulipIndicatorMetaData() {
       .category = epoch_core::TransformCategory::Math,
       .plotKind = epoch_core::TransformPlotKind::flag,
       .flagSchema = FlagSchema{
-          .icon = epoch_core::FlagIcon::TrendingUp,
+          .icon = epoch_core::Icon::TrendingUp,
           .text = "Bullish Cross",
           .textIsTemplate = false,
           .color = epoch_core::Color::Success
@@ -101,7 +101,7 @@ MakeTulipIndicatorMetaData() {
       .category = epoch_core::TransformCategory::Math,
       .plotKind = epoch_core::TransformPlotKind::flag,
       .flagSchema = FlagSchema{
-          .icon = epoch_core::FlagIcon::TrendingDown,
+          .icon = epoch_core::Icon::TrendingDown,
           .text = "Bearish Cross",
           .textIsTemplate = false,
           .color = epoch_core::Color::Error

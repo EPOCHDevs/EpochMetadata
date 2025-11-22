@@ -89,7 +89,7 @@ MakeFREDDataSource() {
           .intradayOnly = false,
           .allowNullInputs = false,
           .flagSchema = epoch_script::transforms::FlagSchema{
-              .icon = epoch_core::FlagIcon::LineChart,
+              .icon = epoch_core::Icon::LineChart,
               .text = "Economic Indicator<br/>Value: {value}",
               .textIsTemplate = true,
               .color = epoch_core::Color::Info

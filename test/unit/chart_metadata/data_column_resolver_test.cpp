@@ -176,11 +176,13 @@ TEST_CASE("DataColumnResolver", "[chart_metadata][data_column_resolver][!mayfail
     auto sessions = transform::run_op("sessions", "1", inputs, options, tf);
     auto columns = DataColumnResolver::ResolveColumns(sessions);
 
-    REQUIRE(columns.size() == 4);
+    REQUIRE(columns.size() == 6);
     REQUIRE(columns[0] == "index");
     REQUIRE(columns[1] == "1#active");
     REQUIRE(columns[2] == "1#high");
     REQUIRE(columns[3] == "1#low");
+    REQUIRE(columns[4] == "1#closed");
+    REQUIRE(columns[5] == "1#opened");
   }
 
   SECTION("Resolves Previous High Low") {
