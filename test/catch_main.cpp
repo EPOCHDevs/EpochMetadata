@@ -11,6 +11,7 @@
 #include <google/protobuf/stubs/common.h>
 #include "absl/log/initialize.h"
 #include <epoch_data_sdk/model/asset/asset_database.hpp>
+#include <epoch_data_sdk/model/asset/index_constituents.hpp>
 #include <epoch_core/macros.h>
 
 int main(int argc, char *argv[])
@@ -32,6 +33,11 @@ int main(int argc, char *argv[])
   AssertFromFormat(
       data_sdk::asset::AssetSpecificationDatabase::GetInstance().IsInitialized(),
       "Failed to initialize Asset Specification Database.");
+
+  // Load index constituents from S3
+  AssertFromFormat(
+      data_sdk::asset::IndexConstituentsDatabase::GetInstance().IsInitialized(),
+      "Failed to initialize Index Constituents Database.");
 
   // Register transform metadata
   epoch_script::transforms::RegisterTransformMetadata(

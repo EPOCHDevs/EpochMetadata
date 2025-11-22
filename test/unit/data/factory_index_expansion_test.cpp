@@ -2,6 +2,7 @@
 // Created by adesola on 1/30/25.
 //
 #include <epoch_script/data/factory.h>
+#include <epoch_script/strategy/asset_id_container.h>
 #include <epoch_data_sdk/model/asset/asset.hpp>
 #include <epoch_data_sdk/model/asset/asset_specification.hpp>
 #include <epoch_data_sdk/model/asset/index_constituents.hpp>
@@ -10,14 +11,16 @@
 using namespace epoch_script::data;
 using namespace epoch_script::asset;
 using namespace epoch_core;
+using epoch_script::strategy::AssetIDContainer;
 
 TEST_CASE("MakeAssets expands index to constituents", "[factory_index]") {
   SECTION("Index ID without dash expands to constituents") {
     // Use AEX25 (without dash) which should trigger expansion
-    std::vector<std::string> assetIds = {"AEX25"};
+    AssetIDContainer container({"AEX25"});
+    auto resolvedIds = container.Resolve();
 
     auto [dataloaderAssets, strategyAssets, continuationAssets] =
-        factory::MakeAssets(CountryCurrency::USD, assetIds, false);
+        factory::MakeAssets(CountryCurrency::USD, resolvedIds, false);
 
     // Check that constituents were loaded
     const auto &indexDB = IndexConstituentsDatabase::GetInstance();
@@ -53,10 +56,11 @@ TEST_CASE("MakeAssets expands index to constituents", "[factory_index]") {
   }
 
   SECTION("Mixed assets (index and regular) work correctly") {
-    std::vector<std::string> assetIds = {"AAPL-Stocks", "AEX25"};
+    AssetIDContainer container({"AAPL-Stocks", "AEX25"});
+    auto resolvedIds = container.Resolve();
 
     auto [dataloaderAssets, strategyAssets, continuationAssets] =
-        factory::MakeAssets(CountryCurrency::USD, assetIds, false);
+        factory::MakeAssets(CountryCurrency::USD, resolvedIds, false);
 
     // Should have AAPL plus AEX25 constituents
     const auto &indexDB = IndexConstituentsDatabase::GetInstance();
@@ -94,10 +98,11 @@ TEST_CASE("MakeAssets expands index to constituents", "[factory_index]") {
 
   SECTION("Multiple indices expand correctly") {
     // Use two indices without dashes
-    std::vector<std::string> assetIds = {"AEX25", "DJIA30"};
+    AssetIDContainer container({"AEX25", "DJIA30"});
+    auto resolvedIds = container.Resolve();
 
     auto [dataloaderAssets, strategyAssets, continuationAssets] =
-        factory::MakeAssets(CountryCurrency::USD, assetIds, false);
+        factory::MakeAssets(CountryCurrency::USD, resolvedIds, false);
 
     const auto &indexDB = IndexConstituentsDatabase::GetInstance();
     auto aex25Constituents = indexDB.GetConstituents("AEX25");
@@ -111,10 +116,11 @@ TEST_CASE("MakeAssets expands index to constituents", "[factory_index]") {
 }
 
 TEST_CASE("MakeAssets constituent assets added to correct sets", "[factory_index]") {
-  std::vector<std::string> assetIds = {"ASX200"};
+  AssetIDContainer container({"ASX200"});
+  auto resolvedIds = container.Resolve();
 
   auto [dataloaderAssets, strategyAssets, continuationAssets] =
-      factory::MakeAssets(CountryCurrency::USD, assetIds, false);
+      factory::MakeAssets(CountryCurrency::USD, resolvedIds, false);
 
   const auto &indexDB = IndexConstituentsDatabase::GetInstance();
   auto constituents = indexDB.GetConstituents("ASX200");

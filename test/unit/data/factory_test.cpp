@@ -13,6 +13,7 @@
 #include <epoch_data_sdk/model/asset/asset_specification.hpp>
 #include <epoch_data_sdk/model/builder/asset_builder.hpp>
 #include <epoch_script/transforms/core/transform_definition.h>
+#include "transforms/runtime/transform_manager/transform_manager.h"
 
 using namespace epoch_script::data;
 using namespace epoch_script::data::factory;
@@ -345,7 +346,8 @@ TEST_CASE("DataModuleFactory::CreateDatabase integrates all components", "[facto
           .categories = {DataCategory::DailyBars},
           .dataloaderAssets = assets,
           .strategyAssets = assets
-      }
+      },
+      .transformManager = std::make_unique<epoch_script::runtime::TransformManager>()
   };
 
   factory::DataModuleFactory factory_obj(std::move(option));

@@ -187,6 +187,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       YAML::Node inputs;
       YAML::Node options;
       options["period"] = 13;
+      options["buy_factor"] = 1.4;
+      options["sell_factor"] = 0.7;
       return transform::run_op("elders_thermometer", "1", inputs, options, tf);
     }();
 
@@ -363,7 +365,8 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto pivot_detector_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      options["swing_length"] = 5;
+      options["left_count"] = 5;
+      options["right_count"] = 5;
       return transform::run_op("flexible_pivot_detector", "1", inputs, options, tf);
     }();
 
@@ -436,7 +439,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto close_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      options["index_name"] = "SP500";
+      options["index"] = "SP500";
       return transform::run_op("common_indices", "1", inputs, options, tf);
     }();
 
@@ -456,7 +459,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto vwap_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      options["period"] = 14;
+      // VWAP has no options - it uses provider data
       return transform::run_op("vwap", "1", inputs, options, tf);
     }();
 
@@ -503,7 +506,7 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
       YAML::Node inputs;
       inputs[epoch_script::ARG] = "c";
       YAML::Node options;
-      options["forward_periods"] = 1;
+      options["period"] = 1;
       return transform::run_op("forward_returns", "1", inputs, options, tf);
     }();
 
@@ -514,13 +517,9 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
   }
 
   SECTION("Single-value indicators - Panel Line Percent") {
-    auto panel_pct_cfg = [&]() {
-      YAML::Node inputs;
-      inputs[epoch_script::ARG] = "c";
-      YAML::Node options;
-      return transform::run_op("panel_line_percent", "1", inputs, options, tf);
-    }();
-
+    // panel_line_percent is a PlotKind but doesn't have a dedicated transform
+    // It's used for percentage-based panel indicators
+    // Test that the PlotKind is registered (even if no example transform)
     REQUIRE(registry.IsRegistered(TransformPlotKind::panel_line_percent));
 
     const auto& builder = registry.GetBuilder(TransformPlotKind::panel_line_percent);
@@ -573,9 +572,9 @@ TEST_CASE("PlotKindBuilderRegistry - Comprehensive Coverage", "[chart_metadata][
     auto zone_cfg = [&]() {
       YAML::Node inputs;
       YAML::Node options;
-      options["start_time"] = "09:30";
-      options["end_time"] = "16:00";
-      options["timezone"] = "America/New_York";
+      options["session_type"] = "NewYork";
+      options["minute_offset"] = 30;
+      options["boundary_type"] = "start";
       return transform::run_op("session_time_window", "1", inputs, options, tf);
     }();
 
