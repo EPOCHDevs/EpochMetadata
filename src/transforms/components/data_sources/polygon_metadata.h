@@ -25,7 +25,7 @@ MakePolygonDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "balance_sheet",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::balance_sheet,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Balance Sheet",
           .options = {},
           .isCrossSectional = false,
@@ -95,7 +95,7 @@ MakePolygonDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "income_statement",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::income_statement,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Income Statement",
           .options = {},
           .isCrossSectional = false,
@@ -173,7 +173,7 @@ MakePolygonDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "cash_flow",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::cash_flow,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Cash Flow",
           .options = {},
           .isCrossSectional = false,
@@ -251,7 +251,7 @@ MakePolygonDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "financial_ratios",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::financial_ratios,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Financial Ratios",
           .options = {},
           .isCrossSectional = false,

@@ -42,6 +42,7 @@ CREATE_ENUM(
     line,               // generic overlay
     close_line,         // OHLCV close overlay from bar data sources
     gap,                // Gap indicator
+    zone,               // Background/time-range highlight
     panel_line,         // generic overlay, but not on top of the main plot,
     panel_line_percent, // generic overlay, but not on top of the main plot,
     qstick,             // Qstick indicator
@@ -65,23 +66,6 @@ CREATE_ENUM(
     vwap,               // VWAP overlay
     vortex,             // Vortex Indicator
     trade_signal,       // Trade Signal Executor
-    // Data source specific plot kinds
-    balance_sheet,
-    income_statement,
-    cash_flow,
-    financial_ratios,
-    news,
-    dividends,
-    splits,
-    ticker_events,
-    short_interest,
-    short_volume,
-    economic_indicator,
-    common_indices,
-    indices,
-    us_reference_stocks,
-    form13f_holdings,
-    insider_trading,
     // Pattern formation and statistical regimes
     head_and_shoulders,
     inverse_head_and_shoulders,

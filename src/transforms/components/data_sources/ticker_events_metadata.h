@@ -28,7 +28,7 @@ MakeTickerEventsDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = TICKER_EVENTS,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::ticker_events,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Ticker Events",
           .options = {},
           .isCrossSectional = false,

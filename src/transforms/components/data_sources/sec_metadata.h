@@ -14,7 +14,7 @@ MakeSECDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "form13f_holdings",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::form13f_holdings,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Form 13F Holdings",
           .options =
               {
@@ -99,7 +99,7 @@ MakeSECDataSources() {
       epoch_script::transforms::TransformsMetaData{
           .id = "insider_trading",
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::insider_trading,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "Insider Trading",
           .options =
               {

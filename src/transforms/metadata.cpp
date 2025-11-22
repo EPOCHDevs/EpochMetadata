@@ -894,8 +894,8 @@ TransformsMetaData MakeCalendarEffectMetaData(
 
   // Common metadata for all calendar effects
   metadata.category = epoch_core::TransformCategory::Statistical;
-  // Visualize boolean seasonality signals as flags on the price chart
-  metadata.plotKind = epoch_core::TransformPlotKind::flag;
+  // Visualize boolean seasonality signals as background zones on the price chart
+  metadata.plotKind = epoch_core::TransformPlotKind::zone;
   metadata.isCrossSectional = false;
   metadata.requiresTimeFrame = true;
   metadata.assetRequirements = {"single-asset"};
@@ -1281,7 +1281,7 @@ std::vector<TransformsMetaData> MakeChartFormationMetaData() {
   metadataList.emplace_back(TransformsMetaData{
       .id = "session_time_window",
       .category = epoch_core::TransformCategory::PriceAction,
-      .plotKind = epoch_core::TransformPlotKind::flag,
+      .plotKind = epoch_core::TransformPlotKind::zone,
       .name = "Session Time Window",
       .options = {
           MetaDataOption{.id = "session_type",

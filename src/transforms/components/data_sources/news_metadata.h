@@ -28,7 +28,7 @@ MakeNewsDataSource() {
       epoch_script::transforms::TransformsMetaData{
           .id = NEWS,
           .category = epoch_core::TransformCategory::DataSource,
-          .plotKind = epoch_core::TransformPlotKind::news,
+          .plotKind = epoch_core::TransformPlotKind::flag,
           .name = "News",
           .options = {},
           .isCrossSectional = false,
