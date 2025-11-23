@@ -133,7 +133,7 @@ DataFlowRuntimeOrchestrator::ExecutePipeline(TimeFrameAssetDataFrameMap data) {
   m_executionContext.logger->clear();
 
   // Use TBB flow graph for parallel execution
-  SPDLOG_INFO("Executing transform graph ({} transforms)", m_transforms.size());
+  SPDLOG_DEBUG("Executing transform graph ({} transforms)", m_transforms.size());
 
   // Trigger independent nodes (nodes with no dependencies)
   for (const auto& node : m_independentNodes) {
@@ -158,7 +158,7 @@ DataFlowRuntimeOrchestrator::ExecutePipeline(TimeFrameAssetDataFrameMap data) {
     }
   }
 
-  SPDLOG_INFO("Transform pipeline completed successfully");
+  SPDLOG_DEBUG("Transform pipeline completed successfully");
 
   // Build final output from cache
   auto result = m_executionContext.cache->BuildFinalOutput();

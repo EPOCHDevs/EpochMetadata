@@ -217,7 +217,7 @@ namespace epoch_script::data {
   StringAssetDataFrameMap DatabaseImpl::ResampleBarData() {
     StringAssetDataFrameMap result{{m_baseTimeframe, m_loadedBarData}};
     if (m_resampler) {
-      SPDLOG_INFO("Starting Resampling stage.");
+      SPDLOG_DEBUG("Starting Resampling stage.");
       auto resampledData = m_resampler->Build(m_loadedBarData);
       for (auto const &[timeframe, asset, dataframe] : resampledData) {
         result[timeframe].insert_or_assign(asset, dataframe);
@@ -296,10 +296,10 @@ namespace epoch_script::data {
 
   void DatabaseImpl::LoadData() {
     try {
-      SPDLOG_INFO("Starting Data loading stage.");
-      SPDLOG_INFO("DatabaseImpl: About to call m_dataloader->LoadData()");
+      SPDLOG_DEBUG("Starting Data loading stage.");
+      SPDLOG_DEBUG("DatabaseImpl: About to call m_dataloader->LoadData()");
       m_dataloader->LoadData();
-      SPDLOG_INFO("DatabaseImpl: m_dataloader->LoadData() completed successfully");
+      SPDLOG_DEBUG("DatabaseImpl: m_dataloader->LoadData() completed successfully");
     } catch (const std::exception& e) {
       SPDLOG_ERROR("Data loading stage failed with exception: {}", e.what());
       throw;
@@ -307,16 +307,16 @@ namespace epoch_script::data {
       SPDLOG_ERROR("Data loading stage failed with unknown exception");
       throw;
     }
-    SPDLOG_INFO("DatabaseImpl: Getting stored data from dataloader");
+    SPDLOG_DEBUG("DatabaseImpl: Getting stored data from dataloader");
     m_loadedBarData = m_dataloader->GetStoredData();
-    SPDLOG_INFO("DatabaseImpl: Retrieved {} assets from dataloader", m_loadedBarData.size());
+    SPDLOG_DEBUG("DatabaseImpl: Retrieved {} assets from dataloader", m_loadedBarData.size());
   }
 
   TransformedDataType
   DatabaseImpl::TransformBarData(StringAssetDataFrameMap dataFrameMap) {
     TransformedDataType result;
     if (m_dataTransform) {
-      SPDLOG_INFO("Starting Data Transformation stage.");
+      SPDLOG_DEBUG("Starting Data Transformation stage.");
       const auto start = std::chrono::high_resolution_clock::now();
 
       // Optional runtime limiter for TBB parallelism to mitigate

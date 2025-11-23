@@ -318,7 +318,7 @@ void IntermediateResultStorage::InitializeBaseData(
             }
 
             if (dup_count > 0) {
-              SPDLOG_INFO("DUPLICATE_FOUND: InitializeBaseData: base data index has {} duplicate timestamps for asset: {}, timeframe: {}",
+              SPDLOG_WARN("DUPLICATE_FOUND: InitializeBaseData: base data index has {} duplicate timestamps for asset: {}, timeframe: {}",
                            dup_count, asset_id, timeframe);
               auto col_names = dataFrame.column_names();
               std::string cols_str = "";
@@ -326,10 +326,10 @@ void IntermediateResultStorage::InitializeBaseData(
                 if (i > 0) cols_str += ", ";
                 cols_str += col_names[i];
               }
-              SPDLOG_INFO("Base data columns: {}", cols_str);
-              SPDLOG_INFO("Base data index:\n{}", index->repr());
+              SPDLOG_WARN("Base data columns: {}", cols_str);
+              SPDLOG_WARN("Base data index:\n{}", index->repr());
             } else {
-              SPDLOG_INFO("NO_DUPLICATES: InitializeBaseData: base data index has NO duplicates for asset: {}, timeframe: {} ({} rows)",
+              SPDLOG_DEBUG("NO_DUPLICATES: InitializeBaseData: base data index has NO duplicates for asset: {}, timeframe: {} ({} rows)",
                           asset_id, timeframe, index->size());
             }
           }
@@ -554,11 +554,11 @@ void IntermediateResultStorage::StoreTransformOutput(
           }
 
           if (dup_count > 0) {
-            SPDLOG_INFO("DUPLICATE_FOUND: targetIndex has {} duplicate timestamps for asset: {}, timeframe: {}, transform: {}",
+            SPDLOG_WARN("DUPLICATE_FOUND: targetIndex has {} duplicate timestamps for asset: {}, timeframe: {}, transform: {}",
                          dup_count, asset_id, timeframe, transformer.GetId());
-            SPDLOG_INFO("targetIndex details:\n{}", targetIndex->repr());
+            SPDLOG_WARN("targetIndex details:\n{}", targetIndex->repr());
           } else {
-            SPDLOG_INFO("NO_DUPLICATES: targetIndex has NO duplicates for asset: {}, timeframe: {}, transform: {}",
+            SPDLOG_DEBUG("NO_DUPLICATES: targetIndex has NO duplicates for asset: {}, timeframe: {}, transform: {}",
                         asset_id, timeframe, transformer.GetId());
           }
         }

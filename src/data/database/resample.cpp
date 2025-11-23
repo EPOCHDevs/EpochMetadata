@@ -78,7 +78,7 @@ Resampler::Build(AssetDataFrameMap const &group) const {
                 epoch_script::transform::resample_ohlcv(df, tf.GetOffset()),
                 tf.IsIntraDay());
             auto end = std::chrono::high_resolution_clock::now();
-            SPDLOG_INFO("Resampled {} to {} in {} s", asset.GetSymbolStr(),
+            SPDLOG_DEBUG("Resampled {} to {} in {} s", asset.GetSymbolStr(),
                         tf.ToString(),
                         std::chrono::duration<double>(end - start).count());
             result[i] = {tf.ToString(), asset, df};
