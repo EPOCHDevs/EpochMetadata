@@ -23,11 +23,9 @@ void CSNumericCardReport::generateTearsheet(const epoch_frame::DataFrame &normal
   auto aggregation = GetAggregation();
 
   // Create a card builder for the entire group
-  // Group size is automatically set to the number of assets (columns)
   epoch_tearsheet::CardBuilder cardBuilder;
   cardBuilder.setType(epoch_proto::EpochFolioDashboardWidget::WidgetCard)
-             .setCategory(m_category)
-             .setGroupSize(normalizedDf.num_cols());
+             .setCategory(m_category);
 
   // Iterate through all asset columns
   for (const auto& assetColumn : normalizedDf.column_names()) {
@@ -107,9 +105,6 @@ void CSNumericCardReport::generateTearsheet(const epoch_frame::DataFrame &normal
       } else if (scalarValue.has_string_value()) {
         dataBuilder.setType(epoch_proto::TypeString);
       }
-
-      // Set the group number (always 0 for cross-sectional cards)
-      dataBuilder.setGroup(0);
 
       // Add this card data
       cardBuilder.addCardData(dataBuilder.build());

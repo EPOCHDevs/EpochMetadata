@@ -20,8 +20,6 @@ protected:
   // Shared helper methods
   std::string GetCategory() const;
   std::string GetTitle() const;
-  uint32_t GetGroup() const;
-  uint32_t GetGroupSize() const;
   epoch_proto::EpochFolioDashboardWidget GetWidgetType() const;
 
   // Virtual method for aggregation - subclasses provide specific defaults

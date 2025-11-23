@@ -14,7 +14,7 @@ cond = src.c > src.o
 # boolean_select_number with literal 0 - this previously failed
 result = boolean_select_number()(cond, ret, 0)
 
-numeric_cards_report(agg="mean", category="Test", title="Result", group=0, group_size=1)(result)
+numeric_cards_report(agg="mean", category="Test", title="Result")(result)
 )";
 
         epoch_script::AlgorithmAstCompiler compiler;
@@ -46,8 +46,8 @@ numeric_cards_report(agg="mean", category="Test", title="Result", group=0, group
 src = market_data_source(timeframe="1h")()
 result1 = boolean_select_number()(src.c > src.o, 1, 0)
 result2 = boolean_select_number()(src.h > src.l, 100, -100)
-numeric_cards_report(agg="sum", category="Test", title="R1", group=0, group_size=2)(result1)
-numeric_cards_report(agg="sum", category="Test", title="R2", group=1, group_size=2)(result2)
+numeric_cards_report(agg="sum", category="Test", title="R1")(result1)
+numeric_cards_report(agg="sum", category="Test", title="R2")(result2)
 )";
 
         epoch_script::AlgorithmAstCompiler compiler;

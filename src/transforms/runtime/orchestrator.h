@@ -78,6 +78,9 @@ namespace epoch_script::runtime {
 
         // Helper to cache event markers from event_marker transforms
         void CacheEventMarkerFromTransform(const epoch_script::transform::ITransformBase& transform) const;
+
+        // Helper to assign group and group_size to cards based on category
+        static void AssignCardGroupsAndSizes(epoch_proto::TearSheet& tearsheet);
     };
 
     using DataFlowOrchestratorPtr = std::unique_ptr<DataFlowRuntimeOrchestrator>;

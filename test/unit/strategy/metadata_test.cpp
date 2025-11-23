@@ -311,14 +311,14 @@ TEST_CASE("PythonSource - glaze read_json deserialization", "[PythonSource]")
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // JSON string containing EpochScript source code with sink node
-  std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(sma_val.result)\"";
+  std::string jsonInput = "\"src = market_data_source(timeframe='1D')\\nsma_val = sma(period=20, timeframe='1D')(src.c)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test')(sma_val.result)\"";
 
   // Deserialize from JSON
   PythonSource deserialized;
   auto parseResult = glz::read_json(deserialized, jsonInput);
 
   REQUIRE_FALSE(parseResult); // No error
-  REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(sma_val.result)");
+  REQUIRE(deserialized.GetSource() == "src = market_data_source(timeframe='1D')\nsma_val = sma(period=20, timeframe='1D')(src.c)\nreport = numeric_cards_report(agg='sum', category='Test', title='Test')(sma_val.result)");
   REQUIRE_FALSE(deserialized.GetCompilationResult().empty());
   REQUIRE_FALSE(deserialized.IsIntraday());
 }
@@ -332,7 +332,7 @@ src = market_data_source(timeframe='5Min')
 sma_val = sma(period=10, timeframe='5Min')(src.c)
 v = vwap(timeframe='5Min')
 gt_result = gt()(v.result, sma_val.result)
-report = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(gt_result)
+report = numeric_cards_report(agg='sum', category='Test', title='Test')(gt_result)
 )";
   PythonSource original(source); // Has sink node, no need to skip validation
 
@@ -357,7 +357,7 @@ TEST_CASE("PythonSource - glaze deserialization triggers compilation", "[PythonS
   transforms::RegisterTransformMetadata(epoch_script::DEFAULT_YAML_LOADER);
 
   // Create JSON with intraday source and sink node
-  std::string jsonInput = "\"src = market_data_source(timeframe='1Min')\\nv = vwap(timeframe='1Min')\\ngt_result = gt()(src.c, v.result)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test', group=0, group_size=1)(gt_result)\"";
+  std::string jsonInput = "\"src = market_data_source(timeframe='1Min')\\nv = vwap(timeframe='1Min')\\ngt_result = gt()(src.c, v.result)\\nreport = numeric_cards_report(agg='sum', category='Test', title='Test')(gt_result)\"";
 
   // Deserialize - should compile and detect intraday
   PythonSource pythonSource;

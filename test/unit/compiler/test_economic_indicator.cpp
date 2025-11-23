@@ -16,7 +16,7 @@ TEST_CASE("Economic Indicator Timeframe Resolution", "[compiler][timeframe][regr
 src = market_data_source(timeframe="1D")
 fed_funds = economic_indicator(category="FedFunds")()
 low_rates = fed_funds.value < 2.5
-numeric_cards_report(agg="mean", category="Test", title="Low Rates", group=0, group_size=1)(low_rates)
+numeric_cards_report(agg="mean", category="Test", title="Low Rates")(low_rates)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -43,7 +43,7 @@ numeric_cards_report(agg="mean", category="Test", title="Low Rates", group=0, gr
 src = market_data_source(timeframe="1D")
 vix = indices(ticker="VIX")()
 low_fear = vix.c < 20
-numeric_cards_report(agg="mean", category="Test", title="Low VIX", group=0, group_size=1)(low_fear)
+numeric_cards_report(agg="mean", category="Test", title="Low VIX")(low_fear)
 )";
 
         AlgorithmAstCompiler compiler;

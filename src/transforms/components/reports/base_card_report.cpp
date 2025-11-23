@@ -172,8 +172,7 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
     epoch_tearsheet::CardBuilder cardBuilder;
 
     cardBuilder.setType(GetWidgetType())
-               .setCategory(GetCategory())
-               .setGroupSize(GetGroupSize());
+               .setCategory(GetCategory());
 
     // Build card data
     epoch_tearsheet::CardDataBuilder DataBuilder;
@@ -213,9 +212,6 @@ void BaseCardReport::generateTearsheet(const epoch_frame::DataFrame &normalizedD
     }
     // If none of the above, leave type unset (will use default)
 
-    // Set the group number
-    DataBuilder.setGroup(GetGroup());
-
     // Add the single card
     cardBuilder.addCardData(DataBuilder.build());
 
@@ -242,22 +238,6 @@ std::string BaseCardReport::GetTitle() const {
     return options["title"].GetString();
   }
   return "";  // Empty means auto-generate
-}
-
-uint32_t BaseCardReport::GetGroup() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("group") && (options["group"].IsType(epoch_core::MetaDataOptionType::Integer) || options["group"].IsType(epoch_core::MetaDataOptionType::Decimal))) {
-    return static_cast<uint32_t>(options["group"].GetDecimal());
-  }
-  return 0;  // Default to group 0
-}
-
-uint32_t BaseCardReport::GetGroupSize() const {
-  auto options = m_config.GetOptions();
-  if (options.contains("group_size") && (options["group_size"].IsType(epoch_core::MetaDataOptionType::Integer) || options["group_size"].IsType(epoch_core::MetaDataOptionType::Decimal))) {
-    return static_cast<uint32_t>(options["group_size"].GetDecimal());
-  }
-  return 1;  // Default to single card
 }
 
 epoch_proto::EpochFolioDashboardWidget BaseCardReport::GetWidgetType() const {

@@ -15,7 +15,7 @@ TEST_CASE("IntradayOnly Default Timeframe", "[compiler][validation][timeframe][i
         std::string source = R"(
 mds = market_data_source(timeframe="1D")()
 window = session_time_window(session="NewYork")(mds.c)
-numeric_cards_report(agg="mean", category="Test", title="Window", group=0, group_size=1)(window.value)
+numeric_cards_report(agg="mean", category="Test", title="Window")(window.value)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -38,7 +38,7 @@ numeric_cards_report(agg="mean", category="Test", title="Window", group=0, group
         std::string source = R"(
 mds = market_data_source(timeframe="1D")()
 window = session_time_window(session="NewYork", timeframe="5Min")(mds.c)
-numeric_cards_report(agg="mean", category="Test", title="Window", group=0, group_size=1)(window.value)
+numeric_cards_report(agg="mean", category="Test", title="Window")(window.value)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -60,7 +60,7 @@ numeric_cards_report(agg="mean", category="Test", title="Window", group=0, group
     {
         std::string source = R"(
 mds = market_data_source()()
-numeric_cards_report(agg="mean", category="Test", title="MDS", group=0, group_size=1)(mds.c)
+numeric_cards_report(agg="mean", category="Test", title="MDS")(mds.c)
 )";
 
         AlgorithmAstCompiler compiler;

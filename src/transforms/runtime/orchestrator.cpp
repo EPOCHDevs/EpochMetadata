@@ -332,8 +332,52 @@ void DataFlowRuntimeOrchestrator::MergeReportInPlace(
   }
 }
 
+void DataFlowRuntimeOrchestrator::AssignCardGroupsAndSizes(epoch_proto::TearSheet& tearsheet) {
+  if (!tearsheet.has_cards()) {
+    return;
+  }
+
+  auto* cards = tearsheet.mutable_cards()->mutable_cards();
+
+  // Group cards by category
+  std::map<std::string, std::vector<epoch_proto::CardDef*>> categorized;
+  for (auto& card : *cards) {
+    categorized[card.category()].push_back(&card);
+  }
+
+  // For each category: sort by title, assign positions
+  for (auto& [category, card_list] : categorized) {
+    // Sort alphabetically by first data item's title
+    std::sort(card_list.begin(), card_list.end(),
+      [](const epoch_proto::CardDef* a, const epoch_proto::CardDef* b) {
+        std::string aTitle = a->data_size() > 0 ? a->data(0).title() : "";
+        std::string bTitle = b->data_size() > 0 ? b->data(0).title() : "";
+        return aTitle < bTitle;
+      });
+
+    uint64_t size = card_list.size();
+    for (size_t i = 0; i < card_list.size(); ++i) {
+      auto* card = card_list[i];
+      card->set_group_size(size);
+
+      // Assign group to each CardData within this CardDef
+      for (auto& data : *card->mutable_data()) {
+        data.set_group(i);  // position = group
+      }
+    }
+  }
+}
+
 AssetReportMap DataFlowRuntimeOrchestrator::GetGeneratedReports() const {
-  return m_reportCache;
+  // Get raw reports from cache
+  AssetReportMap result = m_reportCache;
+
+  // Post-process each tearsheet to assign group and group_size
+  for (auto& [asset_id, tearsheet] : result) {
+    AssignCardGroupsAndSizes(tearsheet);
+  }
+
+  return result;
 }
 
 void DataFlowRuntimeOrchestrator::CacheEventMarkerFromTransform(

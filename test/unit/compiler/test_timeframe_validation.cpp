@@ -14,7 +14,7 @@ TEST_CASE("Data Source Timeframe Validation", "[compiler][validation][timeframe]
     {
         std::string source = R"(
 fed_funds = economic_indicator(category="FedFunds")()
-numeric_cards_report(agg="mean", category="Test", title="Value", group=0, group_size=1)(fed_funds.value)
+numeric_cards_report(agg="mean", category="Test", title="Value")(fed_funds.value)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -30,7 +30,7 @@ numeric_cards_report(agg="mean", category="Test", title="Value", group=0, group_
     {
         std::string source = R"(
 fed_funds = economic_indicator(category="FedFunds", timeframe="1D")()
-numeric_cards_report(agg="mean", category="Test", title="Value", group=0, group_size=1)(fed_funds.value)
+numeric_cards_report(agg="mean", category="Test", title="Value")(fed_funds.value)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -53,7 +53,7 @@ numeric_cards_report(agg="mean", category="Test", title="Value", group=0, group_
     {
         std::string source = R"(
 vix = indices(ticker="VIX")()
-numeric_cards_report(agg="mean", category="Test", title="VIX", group=0, group_size=1)(vix.c)
+numeric_cards_report(agg="mean", category="Test", title="VIX")(vix.c)
 )";
 
         AlgorithmAstCompiler compiler;
@@ -68,7 +68,7 @@ numeric_cards_report(agg="mean", category="Test", title="VIX", group=0, group_si
     {
         std::string source = R"(
 vix = indices(ticker="VIX", timeframe="1D")()
-numeric_cards_report(agg="mean", category="Test", title="VIX", group=0, group_size=1)(vix.c)
+numeric_cards_report(agg="mean", category="Test", title="VIX")(vix.c)
 )";
 
         AlgorithmAstCompiler compiler;

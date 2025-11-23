@@ -367,7 +367,7 @@ TEST_CASE("Compiler: All non-orphan nodes have timeframes after compilation", "[
     const std::string source = R"(
 mds = market_data_source(timeframe="1H")
 sma_node = sma(period=14)(mds.c)
-report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(sma_node)
+report = numeric_cards_report(agg="sum", category="Test", title="Test")(sma_node)
 )";
 
     AlgorithmAstCompiler compiler;
@@ -389,7 +389,7 @@ TEST_CASE("Compiler: Literals inherit timeframe from dependents", "[timeframe_va
 mds = market_data_source(timeframe="15Min")
 threshold = 100.0
 signal = gt()(mds.c, threshold)
-report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(signal)
+report = numeric_cards_report(agg="sum", category="Test", title="Test")(signal)
 )";
 
     AlgorithmAstCompiler compiler;
@@ -423,7 +423,7 @@ slow = sma(period=20)(mds2.c)
 cross = gt()(fast, slow)
 multiplier = 1.5
 result = mul()(cross, multiplier)
-report = numeric_cards_report(agg="sum", category="Test", title="Test", group=0, group_size=1)(result)
+report = numeric_cards_report(agg="sum", category="Test", title="Test")(result)
 )";
 
     AlgorithmAstCompiler compiler;
