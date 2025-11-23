@@ -232,6 +232,9 @@ constexpr auto ARG1 = "SLOT1";
 constexpr auto ARG2 = "SLOT2";
 constexpr auto ARG3 = "SLOT3";
 
+// Cross-sectional report key
+constexpr auto GROUP_KEY = "ALL";
+
 // Polygon data source transform IDs
 namespace polygon {
 constexpr auto BALANCE_SHEET = "balance_sheet";

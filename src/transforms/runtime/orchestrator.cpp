@@ -5,6 +5,7 @@
 #include "execution/intermediate_storage.h"
 #include <boost/container_hash/hash.hpp>
 #include <epoch_script/transforms/core/registration.h>
+#include <epoch_script/core/constants.h>
 #include <format>
 #include <spdlog/spdlog.h>
 
@@ -235,32 +236,56 @@ void DataFlowRuntimeOrchestrator::CacheReportFromTransform(
       return;
     }
 
-    // For multi-asset scenarios, cache the report for each asset
-    // Reporter transforms typically generate aggregate statistics that apply to all assets
-    // Parallel report caching with mutex protection
-    tbb::parallel_for_each(m_asset_ids.begin(), m_asset_ids.end(), [&](const auto& asset) {
-      {
-        std::lock_guard<std::mutex> lock(m_reportCacheMutex);
+    // Check if this is a cross-sectional reporter
+    bool isCrossSectional = transform.GetConfiguration().IsCrossSectional();
 
-        // Check if we already have a report for this asset
-        if (m_reportCache.contains(asset)) {
-          SPDLOG_DEBUG("Merging report from transform {} with existing report for asset {}",
-                       transformId, asset);
+    if (isCrossSectional) {
+      // Cross-sectional reporters generate a single report for all assets
+      // Store under GROUP_KEY instead of per-asset
+      std::lock_guard<std::mutex> lock(m_reportCacheMutex);
 
-          // Merge the new report with the existing one
-          auto& existingReport = m_reportCache[asset];
-          MergeReportInPlace(existingReport, report, transformId);
+      if (m_reportCache.contains(epoch_script::GROUP_KEY)) {
+        SPDLOG_DEBUG("Merging cross-sectional report from transform {} with existing GROUP report",
+                     transformId);
 
-          SPDLOG_DEBUG("Successfully merged report from transform {} into existing report for asset {} (final size: {} bytes)",
-                       transformId, asset, existingReport.ByteSizeLong());
-        } else {
-          SPDLOG_DEBUG("Cached first report from transform {} for asset {} ({} bytes)",
-                 transformId, asset, report.ByteSizeLong());
-          m_reportCache.emplace(asset, report);
-        }
+        auto& existingReport = m_reportCache[epoch_script::GROUP_KEY];
+        MergeReportInPlace(existingReport, report, transformId);
+
+        SPDLOG_DEBUG("Successfully merged cross-sectional report from transform {} (final size: {} bytes)",
+                     transformId, existingReport.ByteSizeLong());
+      } else {
+        SPDLOG_DEBUG("Cached first cross-sectional report from transform {} under GROUP_KEY ({} bytes)",
+               transformId, report.ByteSizeLong());
+        m_reportCache.emplace(epoch_script::GROUP_KEY, report);
       }
-      // Note: EventMarker caching is handled by CacheEventMarkerFromTransform() to avoid duplication
-    });
+    } else {
+      // For multi-asset scenarios, cache the report for each asset
+      // Reporter transforms typically generate aggregate statistics that apply to all assets
+      // Parallel report caching with mutex protection
+      tbb::parallel_for_each(m_asset_ids.begin(), m_asset_ids.end(), [&](const auto& asset) {
+        {
+          std::lock_guard<std::mutex> lock(m_reportCacheMutex);
+
+          // Check if we already have a report for this asset
+          if (m_reportCache.contains(asset)) {
+            SPDLOG_DEBUG("Merging report from transform {} with existing report for asset {}",
+                         transformId, asset);
+
+            // Merge the new report with the existing one
+            auto& existingReport = m_reportCache[asset];
+            MergeReportInPlace(existingReport, report, transformId);
+
+            SPDLOG_DEBUG("Successfully merged report from transform {} into existing report for asset {} (final size: {} bytes)",
+                         transformId, asset, existingReport.ByteSizeLong());
+          } else {
+            SPDLOG_DEBUG("Cached first report from transform {} for asset {} ({} bytes)",
+                   transformId, asset, report.ByteSizeLong());
+            m_reportCache.emplace(asset, report);
+          }
+        }
+        // Note: EventMarker caching is handled by CacheEventMarkerFromTransform() to avoid duplication
+      });
+    }
 
   } catch (const std::exception& e) {
     SPDLOG_WARN("Failed to cache report from transform {}: {}", transformId, e.what());

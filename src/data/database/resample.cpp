@@ -72,12 +72,12 @@ Resampler::Build(AssetDataFrameMap const &group) const {
                 epoch_frame::arrow_utils::get_tz(df.index()->dtype()) == "UTC",
                 "Resampler only supports UTC timezones");
 
-            auto start = std::chrono::high_resolution_clock::now();
+            [[maybe_unused]] auto start = std::chrono::high_resolution_clock::now();
             df = this->AdjustTimestamps(
                 asset, df.index(),
                 epoch_script::transform::resample_ohlcv(df, tf.GetOffset()),
                 tf.IsIntraDay());
-            auto end = std::chrono::high_resolution_clock::now();
+            [[maybe_unused]] auto end = std::chrono::high_resolution_clock::now();
             SPDLOG_DEBUG("Resampled {} to {} in {} s", asset.GetSymbolStr(),
                         tf.ToString(),
                         std::chrono::duration<double>(end - start).count());
